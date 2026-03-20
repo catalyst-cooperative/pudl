@@ -50,6 +50,33 @@ except duckdb.Error:
     duckdb.execute("LOAD httpfs")
 
 
+def pytest_collection_finish(session) -> None:
+    """Abort if unit and integration tests are collected together with --live-pudl-output.
+
+    When both suites run in a single pytest process with ``--live-pudl-output``, the
+    unit-scoped ``pudl_test_paths`` override in ``test/unit/conftest.py`` would
+    overwrite ``os.environ["PUDL_OUTPUT"]`` to a temporary directory *after* the
+    top-level fixture has set it to the live path.  Integration tests that construct
+    ``PudlPaths()`` directly (rather than via the fixture) would then silently resolve
+    to the wrong directory.  Run unit and integration tests in separate invocations.
+    """
+    if not session.config.getoption("--live-pudl-output", default=False):
+        return
+
+    has_unit = any(item.nodeid.startswith("test/unit/") for item in session.items)
+    has_integration = any(
+        item.nodeid.startswith("test/integration/") for item in session.items
+    )
+    if has_unit and has_integration:
+        pytest.exit(
+            "Cannot combine unit and integration tests in one session with "
+            "--live-pudl-output: the unit fixture overrides PUDL_OUTPUT to a "
+            "temp directory, which would corrupt the integration test environment. "
+            "Run them in separate pytest invocations.",
+            returncode=4,
+        )
+
+
 def pytest_addoption(parser):
     parser.addoption(
         "--live-pudl-output",
@@ -357,7 +384,16 @@ def pudl_test_paths(tmp_path_factory, request):
     Set ``--live-pudl-output`` to force PUDL_OUTPUT to *NOT* be a temporary directory
     and instead inherit from environment.
 
-    ``--live-pudl-output`` flag is ignored in unit tests, see pudl/test/unit/conftest.py.
+    Note: ``test/unit/conftest.py`` defines ``unit_pudl_test_paths`` which overrides
+    this fixture for the unit test subtree. It ignores ``--live-pudl-output`` and always
+    forces a temporary ``PUDL_OUTPUT`` so unit tests can never write to the live output
+    directory.
+
+    Warning: running unit and integration tests *together* with ``--live-pudl-output``
+    in the same pytest session is not supported. The unit fixture would overwrite
+    ``os.environ["PUDL_OUTPUT"]`` after this fixture has set it to the live path,
+    silently misdirecting any integration-test code that constructs ``PudlPaths()``
+    directly. A ``pytest_collection_finish`` hook in this file prevents that combination.
     """
     # Just in case we need this later...
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")

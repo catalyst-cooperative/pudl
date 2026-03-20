@@ -1,6 +1,7 @@
 """Dagster IO Managers."""
 
 import json
+import os
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
@@ -57,12 +58,11 @@ class PudlMixedFormatIOManager(IOManager):
     read_from_parquet: bool
     """If true, data will be read from parquet files instead of sqlite."""
 
-    def __init__(self, write_to_parquet: bool = False, read_from_parquet: bool = False):
+    def __init__(self, write_to_parquet: bool = True, read_from_parquet: bool = True):
         """Creates new instance of mixed format pudl IO manager.
 
-        By default, data is written and read from sqlite, but experimental
-        support for writing and/or reading from parquet files can be enabled
-        by setting the corresponding flags to True.
+        By default, data is written to and read from the Parquet outputs, but this can
+        be disabled by setting the corresponding flags to False.
 
         Args:
             write_to_parquet: if True, all data will be written to parquet
@@ -82,6 +82,13 @@ class PudlMixedFormatIOManager(IOManager):
         self._sqlite_io_manager = PudlSQLiteIOManager(
             base_dir=PudlPaths().output_dir,
             db_name="pudl",
+        )
+        logger.warning(
+            "PudlMixedformatIOManager initialized with\n"
+            f"{PudlPaths().output_dir=}\n"
+            f"{os.getenv('PUDL_OUTPUT')=}\n"
+            f"{PudlPaths().input_dir=}\n"
+            f"{os.getenv('PUDL_INPUT')=}"
         )
         self._parquet_io_manager = PudlParquetIOManager()
 
@@ -326,7 +333,6 @@ class PudlParquetIOManager(IOManager):
                 schema=pa_schema,
             )
         elif isinstance(obj, pl.LazyFrame):
-            logger.warning("PudlParquetIOManager does not do any schema enforcement.")
             obj.cast(res.to_polars_dtypes()).sink_parquet(
                 parquet_path,
                 engine="streaming",
