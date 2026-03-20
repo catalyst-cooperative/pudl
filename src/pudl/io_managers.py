@@ -3,9 +3,11 @@
 import json
 import os
 import re
+from functools import cached_property
 from pathlib import Path
 from sqlite3 import sqlite_version
 
+import dagster as dg
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
@@ -15,7 +17,7 @@ import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
-    Field,
+    ConfigurableIOManager,
     InitResourceContext,
     InputContext,
     IOManager,
@@ -23,10 +25,12 @@ from dagster import (
     io_manager,
 )
 from packaging import version
+from pydantic import model_validator
 
 import pudl
 from pudl.helpers import get_parquet_table, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
+from pudl.resources import DatasetSettingsResource, dataset_settings
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -42,47 +46,39 @@ def get_table_name_from_context(context: OutputContext) -> str:
     return context.get_identifier()
 
 
-class PudlMixedFormatIOManager(IOManager):
+class PudlMixedFormatIOManager(ConfigurableIOManager):
     """Format switching IOManager that supports sqlite and parquet.
 
     This IOManager provides for the use of parquet files along with the standard SQLite
     database produced by PUDL.
     """
 
-    # Defaults should be provided here and should be potentially
-    # overridden by os env variables. This now resides in the
-    # @io_manager constructor of this, see pudl_mixed_format_io_manager".
-    write_to_parquet: bool
+    write_to_parquet: bool = True
     """If true, data will be written to parquet files."""
 
-    read_from_parquet: bool
+    read_from_parquet: bool = True
     """If true, data will be read from parquet files instead of sqlite."""
 
-    def __init__(self, write_to_parquet: bool = True, read_from_parquet: bool = True):
-        """Creates new instance of mixed format pudl IO manager.
-
-        By default, data is written to and read from the Parquet outputs, but this can
-        be disabled by setting the corresponding flags to False.
-
-        Args:
-            write_to_parquet: if True, all data will be written to parquet
-                files in addition to sqlite.
-            read_from_parquet: if True, all data reads will be using
-                parquet files as source of truth. Otherwise, data will be
-                read from the sqlite database. Reading from parquet provides
-                performance increases as well as better datatype handling, so
-                this option is encouraged.
-        """
-        if read_from_parquet and not write_to_parquet:
+    @model_validator(mode="after")
+    def validate_parquet_settings(self) -> "PudlMixedFormatIOManager":
+        """Ensure the configured read/write mode is internally consistent."""
+        if self.read_from_parquet and not self.write_to_parquet:
             raise RuntimeError(
                 "read_from_parquet cannot be set when write_to_parquet is False."
             )
-        self.write_to_parquet = write_to_parquet
-        self.read_from_parquet = read_from_parquet
-        self._sqlite_io_manager = PudlSQLiteIOManager(
+        return self
+
+    @cached_property
+    def _sqlite_io_manager(self) -> "PudlSQLiteIOManager":
+        """Build the SQLite-backed runtime IO manager lazily."""
+        return PudlSQLiteIOManager(
             base_dir=PudlPaths().output_dir,
             db_name="pudl",
         )
+
+    @cached_property
+    def _parquet_io_manager(self) -> "PudlParquetIOManager":
+        """Build the Parquet-backed runtime IO manager lazily."""
         logger.warning(
             "PudlMixedformatIOManager initialized with\n"
             f"{PudlPaths().output_dir=}\n"
@@ -90,7 +86,7 @@ class PudlMixedFormatIOManager(IOManager):
             f"{PudlPaths().input_dir=}\n"
             f"{os.getenv('PUDL_INPUT')=}"
         )
-        self._parquet_io_manager = PudlParquetIOManager()
+        return PudlParquetIOManager()
 
     def handle_output(
         self, context: OutputContext, obj: pd.DataFrame | str
@@ -587,29 +583,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         return df
 
 
-@io_manager(
-    config_schema={
-        "write_to_parquet": Field(
-            bool,
-            description="""If true, data will be written to parquet files,
-                in addition to the SQLite database.""",
-            default_value=True,
-        ),
-        "read_from_parquet": Field(
-            bool,
-            description="""If True, the canonical source of data for reads
-                will be parquet files. Otherwise, data will be read from the
-                SQLite database.""",
-            default_value=True,
-        ),
-    }
-)
-def pudl_mixed_format_io_manager(init_context: InitResourceContext) -> IOManager:
-    """Create a SQLiteManager dagster resource for the pudl database."""
-    return PudlMixedFormatIOManager(
-        write_to_parquet=init_context.resource_config["write_to_parquet"],
-        read_from_parquet=init_context.resource_config["read_from_parquet"],
-    )
+pudl_mixed_format_io_manager = PudlMixedFormatIOManager()
 
 
 @io_manager
@@ -771,13 +745,49 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=table_name)
 
 
-@io_manager(required_resource_keys={"dataset_settings"})
-def ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager:
-    """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
-    return FercDBFSQLiteIOManager(
-        base_dir=PudlPaths().output_dir,
-        db_name="ferc1_dbf",
-    )
+class FercDbfSQLiteDagsterIOManager(ConfigurableIOManager):
+    """Dagster IO manager for reading tables from the FERC 1 DBF SQLite database."""
+
+    dataset_settings: dg.ResourceDependency[DatasetSettingsResource]
+    db_name: str
+
+    @cached_property
+    def _manager(self) -> FercDBFSQLiteIOManager:
+        """Build the underlying SQLite reader lazily."""
+        return FercDBFSQLiteIOManager(
+            base_dir=PudlPaths().output_dir,
+            db_name=self.db_name,
+        )
+
+    @property
+    def engine(self) -> sa.Engine:
+        """Expose the underlying SQLAlchemy engine for tests and helpers."""
+        return self._manager.engine
+
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+        """Delegate writes to the underlying runtime IO manager."""
+        return self._manager.handle_output(context, obj)
+
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Load a dataframe from the FERC 1 DBF SQLite database."""
+        self._manager._ensure_database_ready()
+
+        ferc1_settings = self.dataset_settings.ferc1
+
+        table_name = get_table_name_from_context(context)
+        table_name = table_name.replace("raw_ferc1_dbf__", "")
+        _ = self._manager._get_sqlalchemy_table(table_name)
+
+        with self.engine.begin() as con:
+            return pd.read_sql_query(
+                f"SELECT * FROM {table_name} "  # noqa: S608
+                "WHERE report_year BETWEEN :min_year AND :max_year;",
+                con=con,
+                params={
+                    "min_year": min(ferc1_settings.dbf_years),
+                    "max_year": max(ferc1_settings.dbf_years),
+                },
+            ).assign(sched_table_name=table_name)
 
 
 class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
@@ -874,19 +884,66 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         )
 
 
-@io_manager(required_resource_keys={"dataset_settings"})
-def ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
-    """Create a SQLiteManager dagster resource for the ferc1 xbrl database."""
-    return FercXBRLSQLiteIOManager(
-        base_dir=PudlPaths().output_dir,
-        db_name="ferc1_xbrl",
-    )
+class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
+    """Dagster IO manager for reading tables from a FERC XBRL SQLite database."""
+
+    dataset_settings: dg.ResourceDependency[DatasetSettingsResource]
+    db_name: str
+
+    @cached_property
+    def _manager(self) -> FercXBRLSQLiteIOManager:
+        """Build the underlying SQLite reader lazily."""
+        return FercXBRLSQLiteIOManager(
+            base_dir=PudlPaths().output_dir,
+            db_name=self.db_name,
+        )
+
+    @property
+    def engine(self) -> sa.Engine:
+        """Expose the underlying SQLAlchemy engine for tests and helpers."""
+        return self._manager.engine
+
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+        """Delegate writes to the underlying runtime IO manager."""
+        return self._manager.handle_output(context, obj)
+
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Load a dataframe from the configured FERC XBRL SQLite database."""
+        self._manager._ensure_database_ready()
+
+        ferc_settings = getattr(
+            self.dataset_settings,
+            re.search(r"ferc\d+", self.db_name).group(),
+        )
+
+        table_name = get_table_name_from_context(context)
+        table_name = table_name.replace(f"raw_{self.db_name}__", "")
+
+        if table_name not in self._manager.md.tables:
+            return pd.DataFrame()
+
+        sched_table_name = re.sub("_instant|_duration", "", table_name)
+        with self.engine.begin() as con:
+            df = pd.read_sql(
+                f"SELECT {table_name}.* FROM {table_name}",  # noqa: S608 - table names not supplied by user
+                con=con,
+            ).assign(sched_table_name=sched_table_name)
+
+        return df.pipe(
+            FercXBRLSQLiteIOManager.refine_report_year,
+            xbrl_years=ferc_settings.xbrl_years,
+        )
 
 
-@io_manager(required_resource_keys={"dataset_settings"})
-def ferc714_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
-    """Create a SQLiteManager dagster resource for the ferc714 xbrl database."""
-    return FercXBRLSQLiteIOManager(
-        base_dir=PudlPaths().output_dir,
-        db_name="ferc714_xbrl",
-    )
+ferc1_dbf_sqlite_io_manager = FercDbfSQLiteDagsterIOManager(
+    dataset_settings=dataset_settings,
+    db_name="ferc1_dbf",
+)
+ferc1_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
+    dataset_settings=dataset_settings,
+    db_name="ferc1_xbrl",
+)
+ferc714_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
+    dataset_settings=dataset_settings,
+    db_name="ferc714_xbrl",
+)

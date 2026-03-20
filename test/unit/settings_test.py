@@ -4,12 +4,12 @@ from typing import Self
 
 import pandas as pd
 import pytest
-from dagster import DagsterInvalidConfigError, Field, build_init_resource_context
+from dagster import Field, build_init_resource_context
 from pandas import json_normalize
 from pydantic import ValidationError
 
 from pudl.metadata.classes import DataSource
-from pudl.resources import dataset_settings
+from pudl.resources import DatasetSettingsResource, DatastoreResource
 from pudl.settings import (
     DatasetsSettings,
     Eia860mSettings,
@@ -343,27 +343,36 @@ class TestGlobalConfig:
 class TestDatasetsSettingsResource:
     """Test the DatasetsSettings dagster resource."""
 
-    def test_invalid_datasource(self: Self):
-        """Test an error is thrown when there is an invalid datasource in the config."""
-        init_context = build_init_resource_context(
-            config={"new_datasource": {"years": [1990]}}
-        )
-        with pytest.raises(DagsterInvalidConfigError):
-            _ = dataset_settings(init_context)
-
     def test_invalid_field_type(self: Self):
-        """Test an error is thrown when there is an incorrect type in the config."""
-        init_context = build_init_resource_context(config={"ferc1": {"years": 2021}})
-        with pytest.raises(DagsterInvalidConfigError):
-            _ = dataset_settings(init_context)
+        """Test an error is thrown when the ETL settings path has the wrong type."""
+        init_context = build_init_resource_context(config={"etl_settings_path": 2021})
+        with pytest.raises(ValidationError):
+            _ = DatasetSettingsResource.from_resource_context(init_context)
 
-    def test_default_values(self: Self):
-        """Test the correct default values are created for dagster config."""
-        expected_year_quarters = EpaCemsSettings().year_quarters
-        assert (
-            dataset_settings.config_schema.default_value["epacems"]["year_quarters"]
-            == expected_year_quarters
+    def test_loads_from_file(self: Self):
+        """Test that dataset settings are loaded from a shared ETL settings file."""
+        init_context = build_init_resource_context(
+            config={"etl_settings_path": "src/pudl/package_data/settings/etl_fast.yml"}
         )
+
+        loaded_settings = DatasetSettingsResource.from_resource_context(init_context)
+
+        assert isinstance(loaded_settings, DatasetsSettings)
+        assert loaded_settings.ferc1 is not None
+
+
+def test_datastore_resource_loads() -> None:
+    """Test that the migrated datastore resource creates a runtime Datastore."""
+    init_context = build_init_resource_context(
+        config={
+            "cloud_cache_path": "s3://pudl.catalyst.coop/zenodo",
+            "use_local_cache": False,
+        }
+    )
+
+    datastore = DatastoreResource.from_resource_context(init_context)
+
+    assert isinstance(datastore, Datastore)
 
 
 def test_partitions_with_json_normalize(pudl_etl_settings):

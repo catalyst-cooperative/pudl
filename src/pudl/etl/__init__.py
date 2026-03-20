@@ -211,7 +211,7 @@ default_resources = {
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
     "ferceqr_extract_settings": pudl.extract.ferceqr.ExtractSettings(
-        archive=os.getenv(  # Default to read directly from GCS if local path not specified
+        ferceqr_archive_uri=os.getenv(  # Default to read directly from GCS if local path not specified
             "FERCEQR_ARCHIVE_PATH", "gs://archives.catalyst.coop/ferceqr/published"
         )
     ),
@@ -234,36 +234,19 @@ default_config = pudl.helpers.get_dagster_execution_config(
 default_config |= pudl.analysis.ml_tools.get_ml_models_config()
 
 
-def load_dataset_settings_from_file(setting_filename: str) -> dict:
-    """Load dataset settings from a settings file in `pudl.package_data.settings`.
-
-    Args:
-        setting_filename: name of settings file.
-
-    Returns:
-        Dictionary of dataset settings.
-    """
-    settings = load_packaged_etl_settings(setting_filename)
-    if settings.datasets is None:
-        raise ValueError("Missing datasets settings in ETL settings file.")
-    dataset_settings = settings.datasets.model_dump()
-
-    return dataset_settings
-
-
 def load_etl_run_config_from_file(setting_filename: str) -> dict:
     """Load ETL run config from a packaged settings profile."""
     settings = load_packaged_etl_settings(setting_filename)
     if settings.ferc_to_sqlite_settings is None:
         raise ValueError("Missing ferc_to_sqlite_settings in ETL settings file.")
 
+    etl_settings_path = f"src/pudl/package_data/settings/{setting_filename}.yml"
+
     return {
         "resources": {
-            "dataset_settings": {
-                "config": load_dataset_settings_from_file(setting_filename)
-            },
+            "dataset_settings": {"config": {"etl_settings_path": etl_settings_path}},
             "ferc_to_sqlite_settings": {
-                "config": settings.ferc_to_sqlite_settings.model_dump(),
+                "config": {"etl_settings_path": etl_settings_path},
             },
             "runtime_settings": {
                 "config": {},

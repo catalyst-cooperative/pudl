@@ -9,11 +9,10 @@ import logging
 
 import pytest
 import sqlalchemy as sa
-from dagster import build_init_resource_context
 
 import pudl
 from pudl.etl.check_foreign_keys import check_foreign_keys
-from pudl.resources import dataset_settings
+from pudl.settings import DatasetsSettings
 
 logger = logging.getLogger(__name__)
 
@@ -158,12 +157,9 @@ class TestFerc1ExtractDebugFunctions:
     def test_extract_dbf(self):
         """Test extract_dbf."""
         years = [2020, 2021]  # add desired years here
-        configured_dataset_settings = {"ferc1": {"years": years}}
-
-        dataset_init_context = build_init_resource_context(
-            config=configured_dataset_settings
+        configured_dataset_settings = DatasetsSettings.model_validate(
+            {"ferc1": {"years": years}}
         )
-        configured_dataset_settings = dataset_settings(dataset_init_context)
 
         ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(configured_dataset_settings)
 
@@ -176,12 +172,9 @@ class TestFerc1ExtractDebugFunctions:
     def test_extract_xbrl(self):
         """Test extract_xbrl."""
         years = [2021]  # add desired years here
-        configured_dataset_settings = {"ferc1": {"years": years}}
-
-        dataset_init_context = build_init_resource_context(
-            config=configured_dataset_settings
+        configured_dataset_settings = DatasetsSettings.model_validate(
+            {"ferc1": {"years": years}}
         )
-        configured_dataset_settings = dataset_settings(dataset_init_context)
 
         ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
             configured_dataset_settings

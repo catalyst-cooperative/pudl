@@ -189,20 +189,16 @@ def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
         )
 
 
-def _build_resource_context(dataset_settings_config: dict[str, object] | None = None):
-    """Create a Dagster resource context for test IO managers."""
-    resources = {}
-    if dataset_settings_config is not None:
-        resources["dataset_settings"] = dataset_settings_config
-    return build_init_resource_context(resources=resources)
-
-
 def _engine_from_io_manager(
     io_manager_factory,
-    dataset_settings_config: dict[str, object] | None = None,
+    dataset_settings_config: DatasetsSettings | None = None,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine exposed by a Dagster IO manager resource."""
-    io_manager = io_manager_factory(_build_resource_context(dataset_settings_config))
+    io_manager = io_manager_factory
+    if dataset_settings_config is not None:
+        io_manager = io_manager_factory.model_copy(
+            update={"dataset_settings": dataset_settings_config}
+        )
     if isinstance(io_manager, PudlMixedFormatIOManager):
         return io_manager._sqlite_io_manager.engine
     return io_manager.engine
@@ -456,10 +452,10 @@ def pudl_test_paths(tmp_path_factory, request):
 
 @pytest.fixture(scope="session")
 def dataset_settings_config(request, etl_settings: EtlSettings):
-    """Create dagster dataset_settings resource."""
+    """Create dataset settings for test helpers and IO managers."""
     if etl_settings.datasets is None:
         raise ValueError("Missing datasets settings in ETL settings.")
-    return etl_settings.datasets.model_dump()
+    return etl_settings.datasets
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -491,4 +487,4 @@ def pudl_datastore_fixture(request) -> Datastore:
             "use_local_cache": not request.config.getoption("--bypass-local-cache"),
         }
     )
-    return resources.datastore(init_context)
+    return resources.DatastoreResource.from_resource_context(init_context)

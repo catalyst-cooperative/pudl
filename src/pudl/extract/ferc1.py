@@ -76,7 +76,6 @@ from dagster import (
     AssetKey,
     AssetSpec,
     asset,
-    build_init_resource_context,
     build_input_context,
 )
 
@@ -535,10 +534,9 @@ def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
     """
     ferc1_dbf_raw_dfs = {}
 
-    io_manager_init_context = build_init_resource_context(
-        resources={"dataset_settings": dataset_settings}
+    io_manager = ferc1_dbf_sqlite_io_manager.model_copy(
+        update={"dataset_settings": dataset_settings}
     )
-    io_manager = ferc1_dbf_sqlite_io_manager(io_manager_init_context)
 
     for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
         dbf_table_or_tables = raw_table_mapping["dbf"]
@@ -571,10 +569,9 @@ def extract_xbrl(
     """
     ferc1_xbrl_raw_dfs = {}
 
-    io_manager_init_context = build_init_resource_context(
-        resources={"dataset_settings": dataset_settings}
+    io_manager = ferc1_xbrl_sqlite_io_manager.model_copy(
+        update={"dataset_settings": dataset_settings}
     )
-    io_manager = ferc1_xbrl_sqlite_io_manager(io_manager_init_context)
 
     for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
         xbrl_table_or_tables = raw_table_mapping["xbrl"]

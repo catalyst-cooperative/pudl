@@ -1,11 +1,10 @@
 """Collection of Dagster resources for PUDL."""
 
-from dagster import ConfigurableResource, Field, resource
+from dagster import ConfigurableResource
 
 from pudl.settings import (
     DatasetsSettings,
     FercToSqliteSettings,
-    create_dagster_config,
     load_etl_settings,
 )
 from pudl.workspace.datastore import Datastore
@@ -20,97 +19,52 @@ class RuntimeSettings(ConfigurableResource):
     xbrl_loglevel: str = "INFO"
 
 
-@resource(
-    config_schema={
-        "etl_settings_path": Field(
-            str,
-            description=(
-                "Optional path to an ETL settings YAML file. If provided, "
-                "datasets settings are loaded from this file."
-            ),
-            is_required=False,
-        ),
-        **create_dagster_config(DatasetsSettings()),
-    }
-)
-def dataset_settings(init_context) -> DatasetsSettings:
-    """Dagster resource for parameterizing PUDL ETL assets.
+class DatasetSettingsResource(ConfigurableResource):
+    """Load dataset settings for the ETL from a shared ETL settings file."""
 
-    This resource allows us to specify the years we want to process for each datasource
-    in the Dagit UI.
-    """
-    etl_settings_path = init_context.resource_config.get("etl_settings_path")
-    if etl_settings_path:
-        settings = load_etl_settings(etl_settings_path)
+    etl_settings_path: str
+
+    def create_resource(self, context) -> DatasetsSettings:
+        """Create runtime dataset settings from the configured ETL settings file."""
+        del context  # Required by Dagster's hook signature; intentionally unused here.
+        settings = load_etl_settings(self.etl_settings_path)
         if settings.datasets is None:
             raise ValueError("Missing datasets settings in ETL settings file.")
         return settings.datasets
 
-    # Strip helper-only config key before constructing settings directly.
-    resource_config = {
-        key: value
-        for key, value in init_context.resource_config.items()
-        if key != "etl_settings_path"
-    }
-    return DatasetsSettings(**resource_config)
 
+class FercToSqliteSettingsResource(ConfigurableResource):
+    """Load FERC-to-SQLite settings from a shared ETL settings file."""
 
-@resource(
-    config_schema={
-        "etl_settings_path": Field(
-            str,
-            description=(
-                "Optional path to an ETL settings YAML file. If provided, "
-                "ferc_to_sqlite settings are loaded from this file."
-            ),
-            is_required=False,
-        ),
-        **create_dagster_config(FercToSqliteSettings()),
-    }
-)
-def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
-    """Dagster resource for parameterizing the ``ferc_to_sqlite`` graph.
+    etl_settings_path: str
 
-    This resource allows us to specify the years we want to process for each datasource
-    in the Dagit UI.
-    """
-    etl_settings_path = init_context.resource_config.get("etl_settings_path")
-    if etl_settings_path:
-        settings = load_etl_settings(etl_settings_path)
+    def create_resource(self, context) -> FercToSqliteSettings:
+        """Create runtime FERC-to-SQLite settings from the ETL settings file."""
+        del context  # Required by Dagster's hook signature; intentionally unused here.
+        settings = load_etl_settings(self.etl_settings_path)
         if settings.ferc_to_sqlite_settings is None:
             raise ValueError("Missing ferc_to_sqlite settings in ETL settings file.")
         return settings.ferc_to_sqlite_settings
 
-    # Strip helper-only config key before constructing settings directly.
-    resource_config = {
-        key: value
-        for key, value in init_context.resource_config.items()
-        if key != "etl_settings_path"
-    }
-    return FercToSqliteSettings(**resource_config)
 
-
-@resource(
-    config_schema={
-        "cloud_cache_path": Field(
-            str,
-            description="Load datastore resources from this GCS or S3 path.",
-            default_value="s3://pudl.catalyst.coop/zenodo",
-        ),
-        "use_local_cache": Field(
-            bool,
-            description="If enabled, the local file cache for datastore will be used.",
-            default_value=True,
-        ),
-    },
-)
-def datastore(init_context) -> Datastore:
+class DatastoreResource(ConfigurableResource):
     """Dagster resource to interact with Zenodo archives."""
-    ds_kwargs = {}
-    ds_kwargs["cloud_cache_path"] = init_context.resource_config["cloud_cache_path"]
 
-    if init_context.resource_config["use_local_cache"]:
-        # TODO(rousik): we could also just use PudlPaths().input_dir here, because
-        # it should be initialized to the right values.
-        ds_kwargs["local_cache_path"] = PudlPaths().input_dir  # type: ignore[call-arg]
-    return Datastore(**ds_kwargs)
+    cloud_cache_path: str = "s3://pudl.catalyst.coop/zenodo"
+    use_local_cache: bool = True
+
+    def create_resource(self, context) -> Datastore:
+        """Create a configured datastore runtime object."""
+        del context  # Required by Dagster's hook signature; intentionally unused here.
+        ds_kwargs = {"cloud_cache_path": self.cloud_cache_path}
+
+        if self.use_local_cache:
+            # TODO(rousik): we could also just use PudlPaths().input_dir here, because
+            # it should be initialized to the right values.
+            ds_kwargs["local_cache_path"] = PudlPaths().input_dir  # type: ignore[call-arg]
+        return Datastore(**ds_kwargs)
+
+
+dataset_settings = DatasetSettingsResource.configure_at_launch()
+ferc_to_sqlite_settings = FercToSqliteSettingsResource.configure_at_launch()
+datastore = DatastoreResource()

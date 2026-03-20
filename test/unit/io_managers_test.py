@@ -16,11 +16,15 @@ from pudl.etl.check_foreign_keys import (
 )
 from pudl.io_managers import (
     FercXBRLSQLiteIOManager,
+    PudlMixedFormatIOManager,
     PudlSQLiteIOManager,
     SQLiteIOManager,
+    ferc1_dbf_sqlite_io_manager,
+    ferc1_xbrl_sqlite_io_manager,
 )
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
+from pudl.settings import DatasetsSettings
 
 
 @pytest.fixture
@@ -300,6 +304,89 @@ def test_empty_read_fails(fake_pudl_sqlite_io_manager_fixture):
     with pytest.raises(AssertionError):
         context = build_input_context(asset_key=AssetKey("artist"))
         fake_pudl_sqlite_io_manager_fixture.load_input(context)
+
+
+def test_mixed_format_io_manager_invalid_config():
+    """The mixed-format manager should reject parquet-read without parquet-write."""
+    with pytest.raises(RuntimeError):
+        PudlMixedFormatIOManager(
+            write_to_parquet=False,
+            read_from_parquet=True,
+        )
+
+
+def test_mixed_format_io_manager_initializes_backends(mocker):
+    """The migrated mixed-format IO manager should lazily expose both backends."""
+    sqlite_manager = mocker.MagicMock(spec=PudlSQLiteIOManager)
+    parquet_manager = mocker.MagicMock()
+    mocker.patch("pudl.io_managers.PudlSQLiteIOManager", return_value=sqlite_manager)
+    mocker.patch("pudl.io_managers.PudlParquetIOManager", return_value=parquet_manager)
+
+    manager = PudlMixedFormatIOManager()
+
+    assert manager._sqlite_io_manager is sqlite_manager
+    assert manager._parquet_io_manager is parquet_manager
+
+
+def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
+    """The migrated FERC DBF IO manager should read years from injected settings."""
+    dataset_settings = DatasetsSettings.model_validate(
+        {"ferc1": {"years": [2020, 2021]}}
+    )
+    fake_engine = mocker.MagicMock()
+    fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
+    fake_manager = mocker.MagicMock()
+    fake_manager.engine = fake_engine
+    mocker.patch("pudl.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager)
+    read_sql_query = mocker.patch(
+        "pudl.io_managers.pd.read_sql_query",
+        return_value=pd.DataFrame({"report_year": [2020]}),
+    )
+
+    manager = ferc1_dbf_sqlite_io_manager.model_copy(
+        update={"dataset_settings": dataset_settings}
+    )
+    context = build_input_context(asset_key=AssetKey("raw_ferc1_dbf__f1_respondent_id"))
+
+    observed = manager.load_input(context)
+
+    assert observed["sched_table_name"].eq("f1_respondent_id").all()
+    assert read_sql_query.call_args.kwargs["params"] == {
+        "min_year": min(dataset_settings.ferc1.dbf_years),
+        "max_year": max(dataset_settings.ferc1.dbf_years),
+    }
+
+
+def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
+    """The migrated FERC XBRL IO manager should refine years using injected settings."""
+    dataset_settings = DatasetsSettings.model_validate({"ferc1": {"years": [2021]}})
+    fake_engine = mocker.MagicMock()
+    fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
+    fake_manager = mocker.MagicMock()
+    fake_manager.engine = fake_engine
+    fake_manager.md.tables = {"plant_in_service_duration": object()}
+    mocker.patch("pudl.io_managers.FercXBRLSQLiteIOManager", return_value=fake_manager)
+    mocker.patch(
+        "pudl.io_managers.pd.read_sql",
+        return_value=pd.DataFrame(
+            {
+                "date": ["2021-12-31"],
+                "report_year": [3021],
+            }
+        ),
+    )
+
+    manager = ferc1_xbrl_sqlite_io_manager.model_copy(
+        update={"dataset_settings": dataset_settings}
+    )
+    context = build_input_context(
+        asset_key=AssetKey("raw_ferc1_xbrl__plant_in_service_duration")
+    )
+
+    observed = manager.load_input(context)
+
+    assert observed["report_year"].eq(2021).all()
+    assert observed["sched_table_name"].eq("plant_in_service").all()
 
 
 def test_replace_on_insert(fake_pudl_sqlite_io_manager_fixture):
