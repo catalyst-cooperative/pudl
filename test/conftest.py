@@ -175,6 +175,20 @@ def _pudl_etl(dg_config_path: Path, pudl_test_paths: PudlPaths) -> None:
     logger.info("Completed PUDL pytest ETL using dg launch.")
 
 
+def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
+    """Validate that required FERC SQLite databases exist after prebuild."""
+    required = [
+        pudl_test_paths.output_dir / "ferc1_dbf.sqlite",
+        pudl_test_paths.output_dir / "ferc1_xbrl.sqlite",
+        pudl_test_paths.output_dir / "ferc714_xbrl.sqlite",
+    ]
+    missing = [str(path) for path in required if not path.exists()]
+    if missing:
+        raise FileNotFoundError(
+            "Missing expected FERC SQLite outputs after prebuild: " + ", ".join(missing)
+        )
+
+
 def _build_resource_context(dataset_settings_config: dict[str, object] | None = None):
     """Create a Dagster resource context for test IO managers."""
     resources = {}
@@ -295,7 +309,11 @@ def ferc1_engine_dbf(prebuilt_outputs, dataset_settings_config) -> sa.Engine:
 
 
 @pytest.fixture(scope="session")
-def prebuilt_outputs(request, dg_config_path: Path, pudl_test_paths: PudlPaths):
+def prebuilt_outputs(
+    request,
+    dg_config_path: Path,
+    pudl_test_paths: PudlPaths,
+):
     """Prebuild fast integration databases in pytest-managed output directories.
 
     When ``--live-pudl-output`` is not set, ``pudl_test_paths`` should have already
@@ -316,6 +334,7 @@ def prebuilt_outputs(request, dg_config_path: Path, pudl_test_paths: PudlPaths):
     md.create_all(pudl_engine)
 
     _pudl_etl(dg_config_path, pudl_test_paths)
+    _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths)
 
 
 @pytest.fixture(scope="session")

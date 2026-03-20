@@ -36,8 +36,10 @@ def _find_empty_tables(db_conn, tables: set[str]) -> set[str]:
     return set(empty_tables)
 
 
-@pytest.mark.order(2)
-def test_sqlite_duckdb_equivalence(ferc_to_sqlite_settings: FercToSqliteSettings):
+def test_sqlite_duckdb_equivalence(
+    prebuilt_outputs,
+    ferc_to_sqlite_settings: FercToSqliteSettings,
+):
     """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
     for form in FERC_FORMS:
         if ferc_to_sqlite_settings.__getattribute__(
@@ -89,19 +91,11 @@ def test_sqlite_duckdb_equivalence(ferc_to_sqlite_settings: FercToSqliteSettings
             logger.info(f"  - All {n_tables} tables are identical.")
 
 
-@pytest.mark.order(2)
 def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_metadata):
     """Attempt to access the XBRL based FERC 1 SQLite DB & XBRL taxonomy metadata.
 
     We're testing both the SQLite & JSON taxonomy here because they are generated
-    together by the FERC 1 XBRL ETL.
-
-    This test is marked with order(2) to ensure that it is explicitly run before the
-    main PUDL ETL test, and is the first attempt to make use of the conceptually related
-    FERC Form 1 XBRL DB engine & taxonomy fixtures. This means that if they fail, the
-    failure will be more clearly associated with the fixture, and not some random
-    downstream test that just happened to run first.
-    """
+    together by the FERC 1 XBRL ETL."""
     # Does the database exist, and contain a table we expect it to contain?
     assert isinstance(ferc1_engine_xbrl, sa.Engine)
     assert (
@@ -135,18 +129,10 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_met
     )
 
 
-@pytest.mark.order(2)
 def test_ferc714_xbrl2sqlite(
     ferc714_engine_xbrl: sa.Engine, ferc714_xbrl_taxonomy_metadata: dict[str, Any]
 ):
-    """Attempt to access the XBRL based FERC 714 SQLite DB & XBRL taxonomy metadata.
-
-    This test is marked with order(2) to ensure that it is explicitly run before the
-    main PUDL ETL test, and is the first attempt to make use of the conceptually related
-    FERC-714 XBRL DB engine & taxonomy fixtures. This means that if they fail, the
-    failure will be more clearly associated with the fixture, and not some random
-    downstream test that just happened to run first.
-    """
+    """Attempt to access the XBRL based FERC 714 SQLite DB & XBRL taxonomy metadata."""
     assert isinstance(ferc714_engine_xbrl, sa.Engine)
     assert (
         "identification_and_certification_01_1_duration"

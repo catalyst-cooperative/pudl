@@ -18,7 +18,7 @@ from pudl.resources import dataset_settings
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.order(3)
+@pytest.mark.order(2)
 def test_pudl_engine(pudl_engine: sa.Engine, check_fks: bool):
     """Get pudl_engine and do basic inspection.
 

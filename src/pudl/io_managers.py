@@ -660,7 +660,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         super().__init__(base_dir, db_name, md, timeout)
 
     def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
-        """Create database engine and read the metadata.
+        """Create database engine and read metadata if the DB already exists.
 
         Args:
             timeout: How many seconds the connection should wait before raising an
@@ -671,24 +671,40 @@ class FercSQLiteIOManager(SQLiteIOManager):
         Returns:
             engine: SQL Alchemy engine that connects to a database in the base_dir.
         """
-        # If the sqlite directory doesn't exist, create it.
         db_path = self.base_dir / f"{self.db_name}.sqlite"
-        if not db_path.exists():
-            raise ValueError(
-                f"No DB found at {db_path}. Run the job that creates the "
-                f"{self.db_name} database."
-            )
+        self._db_path = db_path
 
         engine = sa.create_engine(
             f"sqlite:///{db_path}", connect_args={"timeout": timeout}
         )
 
-        # Connect to the local SQLite DB and read its structure.
-        ferc1_meta = sa.MetaData()
-        ferc1_meta.reflect(engine)
-        self.md = ferc1_meta
+        # For single-pass Dagster runs, this resource may initialize before upstream
+        # sqlite-producing assets have materialized the DB file.
+        if db_path.exists():
+            self._reflect_metadata(engine)
+        else:
+            logger.info(
+                f"{db_path} not found during resource initialization; metadata reflection "
+                "will happen on first load."
+            )
 
         return engine
+
+    def _reflect_metadata(self, engine: sa.Engine | None = None) -> None:
+        """Reflect table metadata from the sqlite database into ``self.md``."""
+        reflected = sa.MetaData()
+        reflected.reflect(engine if engine is not None else self.engine)
+        self.md = reflected
+
+    def _ensure_database_ready(self) -> None:
+        """Ensure the sqlite DB exists and metadata has been reflected."""
+        if not self._db_path.exists():
+            raise ValueError(
+                f"No DB found at {self._db_path}. Run the job that creates the "
+                f"{self.db_name} database."
+            )
+        if not self.md.tables:
+            self._reflect_metadata()
 
     def handle_output(self, context: OutputContext, obj):
         """Handle an op or asset output."""
@@ -729,6 +745,8 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
+        self._ensure_database_ready()
+
         # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
         ferc1_settings = context.resources.dataset_settings.ferc1
 
@@ -823,6 +841,8 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
+        self._ensure_database_ready()
+
         ferc_settings = getattr(
             context.resources.dataset_settings,
             re.search(r"ferc\d+", self.db_name).group(),

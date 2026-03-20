@@ -110,6 +110,7 @@ def test_pudl_service_territories(
     ],
 )
 @pytest.mark.script_launch_mode("inprocess")
+@pytest.mark.order(1)
 def test_resource_description(script_runner, resource_id: str):
     """CLI tests specific to the resource_description script."""
     ret = script_runner.run(
