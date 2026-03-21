@@ -156,21 +156,21 @@ function slack_stage_status() {
     local stage_status=$2
     local stage_duration=$3
     local stage_emoji=":x:"
-    local duration_suffix=""
+    local duration_field="[--:--:--]"
 
     # Slack rows show whether a stage passed, failed, or was intentionally skipped.
     if [[ $stage_status == "$STAGE_SKIPPED" ]]; then
-        stage_emoji=":skip_forward:"
+        stage_emoji=":ghost:"
     elif [[ $stage_status == 0 ]]; then
         stage_emoji=":check:"
     fi
 
-    # Only show a duration when the stage actually ran.
+    # Always render a fixed-width duration field so the stage names line up.
     if [[ -n "$stage_duration" ]]; then
-        duration_suffix=" [${stage_duration}]"
+        duration_field="[${stage_duration}]"
     fi
 
-    printf '%s %s%s' "$stage_emoji" "$stage_name" "$duration_suffix"
+    printf '%s %s %s' "$stage_emoji" "$duration_field" "$stage_name"
 }
 
 function format_stage_duration() {
@@ -189,6 +189,13 @@ function set_stage_duration() {
 
     # Store the formatted duration in the caller-supplied shell variable name.
     printf -v "$duration_var" '%s' "$(format_stage_duration "$elapsed_seconds")"
+}
+
+function get_total_build_duration() {
+    local now_epoch_seconds
+
+    now_epoch_seconds=$(date +%s)
+    format_stage_duration "$((now_epoch_seconds - BUILD_START_EPOCH_SECONDS))"
 }
 
 function run_stage() {
@@ -241,10 +248,13 @@ function any_stage_failed() {
 
 function notify_slack() {
     # Notify pudl-deployment slack channel of deployment status
+    local total_build_duration
+
     echo "Notifying Slack about deployment status"
+    total_build_duration=$(get_total_build_duration)
     message="${BUILD_ID} status\n\n"
     if [[ "$1" == "success" ]]; then
-        message+=":green_circle: :sunglasses: :unicorn: :rainbow: deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :green_circle:\n\n"
+        message+=":green_circle: :sunglasses: :unicorn: :rainbow: PUDL Data Build Succeeded!! :partygritty: :database_parrot: :blob-dance: :green_circle:\n\n"
     elif [[ "$1" == "failure" ]]; then
         message+=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:\n\n"
     else
@@ -252,7 +262,7 @@ function notify_slack() {
         exit 1
     fi
 
-    message+="Stage status:\n"
+    message+=":time: [${total_build_duration}] Total Build Duration\n\n"
     message+="$(slack_stage_status "Dagster ETL" "$DAGSTER_STATUS" "$DAGSTER_DURATION")\n"
     message+="$(slack_stage_status "Unit tests" "$UNIT_TEST_STATUS" "$UNIT_TEST_DURATION")\n"
     message+="$(slack_stage_status "Integration tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")\n"
@@ -333,6 +343,7 @@ function clean_up_outputs_for_distribution() {
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
 ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^.*pudl_parquet_datapackage\\\\.json$)"
 STAGE_SKIPPED="skipped"
+BUILD_START_EPOCH_SECONDS=$(date +%s)
 
 # Initialize our stage-status variables so they all definitely have a value to check
 DAGSTER_STATUS="$STAGE_SKIPPED"

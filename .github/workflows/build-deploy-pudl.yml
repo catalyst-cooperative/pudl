@@ -119,6 +119,8 @@ jobs:
           PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
         run: |-
           ./devtools/generate_batch_config.py \
+            --vcpu 16 \
+            --mem-gb 127 \
             --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
             --container-command "pixi" \
             --container-arg="run" \
