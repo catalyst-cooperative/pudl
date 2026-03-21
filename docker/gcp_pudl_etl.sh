@@ -31,20 +31,29 @@ function initialize_postgres() {
         psql -c "CREATE DATABASE dagster OWNER dagster" -h127.0.0.1 -p5433
 }
 
-function run_pudl_etl() {
+function run_dagster() {
     echo "Running PUDL ETL"
     send_slack_msg ":large_yellow_circle: Deployment started for $BUILD_ID :floppy_disk:"
     initialize_postgres &&
         authenticate_gcp &&
         alembic upgrade head &&
         dg launch --job pudl \
-            --config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" &&
+            --config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML"
+}
+
+function run_pytest() {
+    echo "Running pytest"
+    pytest \
+        -n auto \
+        --no-cov \
+        --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
+        test/unit &&
         pytest \
-            -n auto \
-            --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
-            --live-pudl-output test/integration test/unit \
-            --no-cov &&
-        touch "$PUDL_OUTPUT/success"
+        -n auto \
+        --no-cov \
+        --live-pudl-output \
+        --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
+        test/integration
 }
 
 function write_pudl_datapackage() {
@@ -127,6 +136,64 @@ JSON
         set -x
 }
 
+function slack_stage_status() {
+    local stage_name=$1
+    local stage_status=$2
+    local stage_duration=$3
+    local stage_emoji=":x:"
+    local duration_suffix=""
+
+    if [[ $stage_status == "$STAGE_SKIPPED" ]]; then
+        stage_emoji=":skip_forward:"
+    elif [[ $stage_status == 0 ]]; then
+        stage_emoji=":check:"
+    fi
+
+    if [[ -n "$stage_duration" ]]; then
+        duration_suffix=" [${stage_duration}]"
+    fi
+
+    printf '%s %s%s' "$stage_emoji" "$stage_name" "$duration_suffix"
+}
+
+function format_stage_duration() {
+    local elapsed_seconds=$1
+    local elapsed_hours=$((elapsed_seconds / 3600))
+    local elapsed_minutes=$(((elapsed_seconds % 3600) / 60))
+    local remaining_seconds=$((elapsed_seconds % 60))
+
+    if (( elapsed_hours > 0 )); then
+        printf '%02d:%02d:%02d' "$elapsed_hours" "$elapsed_minutes" "$remaining_seconds"
+    else
+        printf '%02d:%02d' "$elapsed_minutes" "$remaining_seconds"
+    fi
+}
+
+function set_stage_duration() {
+    local duration_var=$1
+    local elapsed_seconds=$2
+
+    printf -v "$duration_var" '%s' "$(format_stage_duration "$elapsed_seconds")"
+}
+
+function stage_failed() {
+    local stage_status=$1
+
+    [[ "$stage_status" != "$STAGE_SKIPPED" && "$stage_status" != 0 ]]
+}
+
+function any_stage_failed() {
+    local stage_status
+
+    for stage_status in "$@"; do
+        if stage_failed "$stage_status"; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 function notify_slack() {
     # Notify pudl-deployment slack channel of deployment status
     echo "Notifying Slack about deployment status"
@@ -140,16 +207,17 @@ function notify_slack() {
         exit 1
     fi
 
-    message+="Stage status (0 means success):\n"
-    message+="ETL_SUCCESS: $ETL_SUCCESS\n"
-    message+="WRITE_DATAPACKAGE_SUCCESS: $WRITE_DATAPACKAGE_SUCCESS\n"
-    message+="SAVE_OUTPUTS_SUCCESS: $SAVE_OUTPUTS_SUCCESS\n"
-    message+="UPDATE_NIGHTLY_SUCCESS: $UPDATE_NIGHTLY_SUCCESS\n"
-    message+="UPDATE_STABLE_SUCCESS: $UPDATE_STABLE_SUCCESS\n"
-    message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
-    message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
-    message+="DEPLOY_EEL_HOLE_SUCCESS: $DEPLOY_EEL_HOLE_SUCCESS\n"
-    message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
+    message+="Stage status:\n"
+    message+="$(slack_stage_status "Dagster ETL" "$DAGSTER_STATUS" "$DAGSTER_DURATION")\n"
+    message+="$(slack_stage_status "pytest and dbt" "$PYTEST_STATUS" "$PYTEST_DURATION")\n"
+    message+="$(slack_stage_status "Write PUDL Datapackage" "$WRITE_DATAPACKAGE_STATUS" "$WRITE_DATAPACKAGE_DURATION")\n"
+    message+="$(slack_stage_status "Save Outputs to GCS" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
+    message+="$(slack_stage_status "Update Nightly Branch" "$UPDATE_NIGHTLY_STATUS" "$UPDATE_NIGHTLY_DURATION")\n"
+    message+="$(slack_stage_status "Update Stable Branch" "$UPDATE_STABLE_STATUS" "$UPDATE_STABLE_DURATION")\n"
+    message+="$(slack_stage_status "Clean Up Outputs" "$CLEAN_UP_OUTPUTS_STATUS" "$CLEAN_UP_OUTPUTS_DURATION")\n"
+    message+="$(slack_stage_status "Data Distribution (S3/GCS)" "$DISTRIBUTION_BUCKET_STATUS" "$DISTRIBUTION_BUCKET_DURATION")\n"
+    message+="$(slack_stage_status "Eel Hole Deployment" "$DEPLOY_EEL_HOLE_STATUS" "$DEPLOY_EEL_HOLE_DURATION")\n"
+    message+="$(slack_stage_status "GCS Temporary Hold" "$GCS_TEMPORARY_HOLD_STATUS" "$GCS_TEMPORARY_HOLD_DURATION")\n\n"
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
     message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
     message+="<https://storage.cloud.google.com/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log|*Download logs to your computer*>\n\n"
@@ -205,17 +273,30 @@ function clean_up_outputs_for_distribution() {
 ########################################################################################
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
 ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^.*pudl_parquet_datapackage\\\\.json$)"
+STAGE_SKIPPED="skipped"
 
-# Initialize our success variables so they all definitely have a value to check
-ETL_SUCCESS=0
-SAVE_OUTPUTS_SUCCESS=0
-UPDATE_NIGHTLY_SUCCESS=0
-UPDATE_STABLE_SUCCESS=0
-WRITE_DATAPACKAGE_SUCCESS=0
-CLEAN_UP_OUTPUTS_SUCCESS=0
-DISTRIBUTION_BUCKET_SUCCESS=0
-DEPLOY_EEL_HOLE_SUCCESS=0
-GCS_TEMPORARY_HOLD_SUCCESS=0
+# Initialize our stage-status variables so they all definitely have a value to check
+DAGSTER_STATUS="$STAGE_SKIPPED"
+PYTEST_STATUS="$STAGE_SKIPPED"
+SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
+UPDATE_NIGHTLY_STATUS="$STAGE_SKIPPED"
+UPDATE_STABLE_STATUS="$STAGE_SKIPPED"
+WRITE_DATAPACKAGE_STATUS="$STAGE_SKIPPED"
+CLEAN_UP_OUTPUTS_STATUS="$STAGE_SKIPPED"
+DISTRIBUTION_BUCKET_STATUS="$STAGE_SKIPPED"
+DEPLOY_EEL_HOLE_STATUS="$STAGE_SKIPPED"
+GCS_TEMPORARY_HOLD_STATUS="$STAGE_SKIPPED"
+
+DAGSTER_DURATION=""
+PYTEST_DURATION=""
+SAVE_OUTPUTS_DURATION=""
+UPDATE_NIGHTLY_DURATION=""
+UPDATE_STABLE_DURATION=""
+WRITE_DATAPACKAGE_DURATION=""
+CLEAN_UP_OUTPUTS_DURATION=""
+DISTRIBUTION_BUCKET_DURATION=""
+DEPLOY_EEL_HOLE_DURATION=""
+GCS_TEMPORARY_HOLD_DURATION=""
 
 # Set the build type based on the action trigger and tag
 if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" =~ ^v20.*$ ]]; then
@@ -244,14 +325,27 @@ echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
 set -x
 
-# Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
+# Run ETL and pytest validations as separate stages.
 # 2>&1 redirects stderr to stdout.
-run_pudl_etl 2>&1 | tee "$LOGFILE"
-ETL_SUCCESS=${PIPESTATUS[0]}
+SECONDS=0
+run_dagster 2>&1 | tee "$LOGFILE"
+DAGSTER_STATUS=${PIPESTATUS[0]}
+set_stage_duration DAGSTER_DURATION "$SECONDS"
+
+SECONDS=0
+run_pytest 2>&1 | tee -a "$LOGFILE"
+PYTEST_STATUS=${PIPESTATUS[0]}
+set_stage_duration PYTEST_DURATION "$SECONDS"
+
+if ! any_stage_failed "$DAGSTER_STATUS" "$PYTEST_STATUS"; then
+    touch "$PUDL_OUTPUT/success"
+fi
 
 # Write out a datapackage.json for external consumption
+SECONDS=0
 write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
-WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
+WRITE_DATAPACKAGE_STATUS=${PIPESTATUS[0]}
+set_stage_duration WRITE_DATAPACKAGE_DURATION "$SECONDS"
 
 # Generate new row counts for all tables in the PUDL database
 dbt_helper update-tables --clobber --row-counts all 2>&1 | tee -a "$LOGFILE"
@@ -259,31 +353,41 @@ dbt_helper update-tables --clobber --row-counts all 2>&1 | tee -a "$LOGFILE"
 # This needs to happen regardless of the ETL outcome:
 pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
 
+SECONDS=0
 save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
-SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+SAVE_OUTPUTS_STATUS=${PIPESTATUS[0]}
+set_stage_duration SAVE_OUTPUTS_DURATION "$SECONDS"
 
-if [[ $ETL_SUCCESS != 0 ]]; then
+if any_stage_failed "$DAGSTER_STATUS" "$PYTEST_STATUS"; then
     notify_slack "failure"
     exit 1
 fi
 
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
+    SECONDS=0
     merge_tag_into_branch "$NIGHTLY_TAG" nightly 2>&1 | tee -a "$LOGFILE"
-    UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
+    UPDATE_NIGHTLY_STATUS=${PIPESTATUS[0]}
+    set_stage_duration UPDATE_NIGHTLY_DURATION "$SECONDS"
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
+    SECONDS=0
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-    CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
-    if [[ $CLEAN_UP_OUTPUTS_SUCCESS != 0 ]]; then
+    CLEAN_UP_OUTPUTS_STATUS=${PIPESTATUS[0]}
+    set_stage_duration CLEAN_UP_OUTPUTS_DURATION "$SECONDS"
+    if stage_failed "$CLEAN_UP_OUTPUTS_STATUS"; then
         notify_slack "failure"
         exit 1
     fi
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
+    SECONDS=0
     upload_to_dist_path "nightly" | tee -a "$LOGFILE" &&
         upload_to_dist_path "eel-hole" | tee -a "$LOGFILE"
-    DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    DISTRIBUTION_BUCKET_STATUS=${PIPESTATUS[0]}
+    set_stage_duration DISTRIBUTION_BUCKET_DURATION "$SECONDS"
+    SECONDS=0
     gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1 | tee -a "$LOGFILE"
-    DEPLOY_EEL_HOLE_SUCCESS=${PIPESTATUS[0]}
-    if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
+    DEPLOY_EEL_HOLE_STATUS=${PIPESTATUS[0]}
+    set_stage_duration DEPLOY_EEL_HOLE_DURATION "$SECONDS"
+    if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
         zenodo_data_release \
             "sandbox" \
             "s3://pudl.catalyst.coop/nightly/" \
@@ -292,24 +396,32 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     fi
 
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
+    SECONDS=0
     merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
-    UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
+    UPDATE_STABLE_STATUS=${PIPESTATUS[0]}
+    set_stage_duration UPDATE_STABLE_DURATION "$SECONDS"
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
+    SECONDS=0
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-    CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
-    if [[ $CLEAN_UP_OUTPUTS_SUCCESS != 0 ]]; then
+    CLEAN_UP_OUTPUTS_STATUS=${PIPESTATUS[0]}
+    set_stage_duration CLEAN_UP_OUTPUTS_DURATION "$SECONDS"
+    if stage_failed "$CLEAN_UP_OUTPUTS_STATUS"; then
         notify_slack "failure"
         exit 1
     fi
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
+    SECONDS=0
     upload_to_dist_path "$BUILD_REF" | tee -a "$LOGFILE" &&
         upload_to_dist_path "stable" | tee -a "$LOGFILE"
-    DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    DISTRIBUTION_BUCKET_STATUS=${PIPESTATUS[0]}
+    set_stage_duration DISTRIBUTION_BUCKET_DURATION "$SECONDS"
     # This is a versioned release. Ensure that outputs can't be accidentally deleted.
     # We can only do this on the GCS bucket, not S3
+    SECONDS=0
     gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
-    GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
-    if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
+    GCS_TEMPORARY_HOLD_STATUS=${PIPESTATUS[0]}
+    set_stage_duration GCS_TEMPORARY_HOLD_DURATION "$SECONDS"
+    if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
         zenodo_data_release \
             "production" \
             "s3://pudl.catalyst.coop/${BUILD_REF}/" \
@@ -319,9 +431,11 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
+    SECONDS=0
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-    CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
-    if [[ $CLEAN_UP_OUTPUTS_SUCCESS != 0 ]]; then
+    CLEAN_UP_OUTPUTS_STATUS=${PIPESTATUS[0]}
+    set_stage_duration CLEAN_UP_OUTPUTS_DURATION "$SECONDS"
+    if stage_failed "$CLEAN_UP_OUTPUTS_STATUS"; then
         notify_slack "failure"
         exit 1
     fi
@@ -330,7 +444,7 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # and speed up the build. Uncomment if you need to test the distribution upload.
     # Upload to GCS / S3 just to test that it works.
     # upload_to_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
-    # DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    # DISTRIBUTION_BUCKET_STATUS=${PIPESTATUS[0]}
     # Remove those uploads since they were just for testing.
     # remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
 
@@ -339,7 +453,7 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # has no build-specific outputs to publish. It just attempts to republish the
     # nightly outputs from s3://pudl.catalyst.coop/nightly/ to make sure that the
     # process is working.
-    if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
+    if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
         zenodo_data_release \
             "sandbox" \
             "s3://pudl.catalyst.coop/nightly/" \
@@ -362,15 +476,17 @@ gcloud storage --quiet cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 rm -f ~/.aws/credentials
 
 # Notify slack about entire pipeline's success or failure;
-if [[ $ETL_SUCCESS == 0 &&
-    $SAVE_OUTPUTS_SUCCESS == 0 &&
-    $UPDATE_NIGHTLY_SUCCESS == 0 &&
-    $UPDATE_STABLE_SUCCESS == 0 &&
-    $CLEAN_UP_OUTPUTS_SUCCESS == 0 &&
-    $DISTRIBUTION_BUCKET_SUCCESS == 0 &&
-    $DEPLOY_EEL_HOLE_SUCCESS == 0 &&
-    $GCS_TEMPORARY_HOLD_SUCCESS == 0 ]] \
-    ; then
+if ! any_stage_failed \
+    "$DAGSTER_STATUS" \
+    "$PYTEST_STATUS" \
+    "$WRITE_DATAPACKAGE_STATUS" \
+    "$SAVE_OUTPUTS_STATUS" \
+    "$UPDATE_NIGHTLY_STATUS" \
+    "$UPDATE_STABLE_STATUS" \
+    "$CLEAN_UP_OUTPUTS_STATUS" \
+    "$DISTRIBUTION_BUCKET_STATUS" \
+    "$DEPLOY_EEL_HOLE_STATUS" \
+    "$GCS_TEMPORARY_HOLD_STATUS"; then
     notify_slack "success"
 else
     notify_slack "failure"

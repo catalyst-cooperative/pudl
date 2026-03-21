@@ -39,6 +39,13 @@ logger = logging.getLogger(__name__)
 
 DG_CONFIG_PATH_DEFAULT = "src/pudl/package_data/settings/dg_pytest.yml"
 
+# Preamble: before pytest starts handling this module's CLI options and fixtures, we
+# do a small amount of one-time environment setup and controller-side validation. The
+# DuckDB httpfs extension must be available early so collection-time imports and any
+# tests that touch remote resources can work in restricted environments. We also
+# inspect the requested test targets and reject incompatible combinations up front,
+# before xdist workers start or fixture setup can poison shared environment variables.
+
 # In general we run tests and subprocesses with multiple workers, and some tests touch
 # remote HTTPS / S3 resources. We try to LOAD first so collection works in
 # network-restricted environments (for example, sandboxed CI/test runners). If the
@@ -48,6 +55,60 @@ try:
 except duckdb.Error:
     duckdb.execute("INSTALL httpfs")
     duckdb.execute("LOAD httpfs")
+
+
+def _requested_test_targets(config: pytest.Config) -> list[Path]:
+    """Return normalized path targets requested on the pytest command line."""
+    raw_targets = config.args or ["test"]
+    targets: list[Path] = []
+
+    for raw_target in raw_targets:
+        path_text = raw_target.split("::", maxsplit=1)[0]
+        if not path_text:
+            continue
+
+        target = Path(path_text)
+        if not target.is_absolute():
+            target = (Path(config.rootpath) / target).resolve()
+        else:
+            target = target.resolve()
+        targets.append(target)
+
+    return targets
+
+
+def _target_includes_suite(config: pytest.Config, suite_root: str) -> bool:
+    """Return whether any requested target could include the named test suite."""
+    suite_path = (Path(config.rootpath) / suite_root).resolve()
+
+    return any(
+        suite_path.is_relative_to(target) or target.is_relative_to(suite_path)
+        for target in _requested_test_targets(config)
+    )
+
+
+def _raise_if_live_output_mixes_unit_and_integration(config: pytest.Config) -> None:
+    """Reject invocations that mix live-output unit and integration suites."""
+    if not config.getoption("--live-pudl-output", default=False):
+        return
+
+    has_unit = _target_includes_suite(config, "test/unit")
+    has_integration = _target_includes_suite(config, "test/integration")
+    if has_unit and has_integration:
+        raise pytest.UsageError(
+            "Cannot combine unit and integration tests in one session with "
+            "--live-pudl-output: the unit fixture overrides PUDL_OUTPUT to a "
+            "temp directory, which would corrupt the integration test environment. "
+            "Run them in separate pytest invocations."
+        )
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Run controller-only validation of incompatible pytest CLI combinations."""
+    if hasattr(config, "workerinput"):
+        return
+
+    _raise_if_live_output_mixes_unit_and_integration(config)
 
 
 def pytest_collection_finish(session) -> None:
@@ -60,6 +121,9 @@ def pytest_collection_finish(session) -> None:
     ``PudlPaths()`` directly (rather than via the fixture) would then silently resolve
     to the wrong directory.  Run unit and integration tests in separate invocations.
     """
+    if hasattr(session.config, "workerinput"):
+        return
+
     if not session.config.getoption("--live-pudl-output", default=False):
         return
 
@@ -75,6 +139,11 @@ def pytest_collection_finish(session) -> None:
             "Run them in separate pytest invocations.",
             returncode=4,
         )
+
+
+################################################################################
+# Main test configuration, helper functions, and fixture definitions start here.
+################################################################################
 
 
 def pytest_addoption(parser):
