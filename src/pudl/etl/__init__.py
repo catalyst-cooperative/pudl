@@ -8,6 +8,7 @@ from typing import Any
 import dagster as dg
 
 import pudl
+from pudl.analysis.ml_tools import get_ml_models_config
 from pudl.deploy import ferceqr
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
@@ -238,7 +239,7 @@ default_config = {
         },
     },
 }
-default_config |= pudl.analysis.ml_tools.get_ml_models_config()
+default_config |= get_ml_models_config()
 
 
 def load_etl_run_config_from_file(setting_filename: str) -> dict:

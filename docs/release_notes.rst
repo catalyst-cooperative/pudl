@@ -63,6 +63,22 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Did a major overhaul of our Dagster configuration to bring it closer to that project's
+  current best-practice recommendations. See issue :issue:`5066` and PR :pr:`5071`. This
+  refactor included:
+
+  * replacing our custom ``pudl_etl`` and ``ferc_to_sqlite`` CLI modules
+    with Dagster's official ``dg launch`` tool, both for local development and in the
+    nightly builds.
+  * consolidating the FERC to SQLite extraction and main PUDL DAG into a single job
+    named simply ``pudl``. The FERC EQR job remains separate and is now named simply
+    ``ferceqr``.
+  * switching to using Dagster config files to specify different run configurations.
+    (full, fast, pytest, nightly...)
+  * updating our Dagster resources and IO Managers to use newer Pydantic typed
+    :class:`dagster.ConfigurableResource` and :class:`dagster.ConfigurableIOManager`
+    classes.
+
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
   PR :pr:`5023`.
 * Added environment variable controls for Sphinx docs builds:

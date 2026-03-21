@@ -155,8 +155,8 @@ be loaded into the dagster UI and executed.
 
 The entire PUDL processing pipeline, including :doc:`converting the FERC Form 1,
 2, 6, 60 and 714 DBF/XBRL files <clone_ferc1>`, is assembled in
-:func:`pudl.etl.defs`. There is a single preconfigured job called ``pudl`` that
-runs the full pipeline.
+:data:`pudl.etl.defs`. The main preconfigured job is called ``pudl`` and there is a
+separate ``ferceqr`` job for the partitioned FERC EQR build.
 
 .. _run-dagster-ui:
 
@@ -268,7 +268,7 @@ to access private cloud storage containing the raw data. Any external
 contributors interested in working on this ETL should contact the Catalyst team
 to set up access to the raw data.
 
-The FERC EQR ETL is contained in a Dagster job called ``ferceqr_etl``.
+The FERC EQR ETL is contained in a Dagster job called ``ferceqr``.
 Executing this job from the Dagster UI is slightly different from the main
 PUDL ETL jobs because the EQR job uses Dagster partitions. After selecting
 "Materialize All" (or "Materialize selected" for a selection of assets),
