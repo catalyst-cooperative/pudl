@@ -25,7 +25,7 @@ def dbf_to_sqlite_asset_factory(
         key=key,
         group_name="raw_ferc_to_sqlite",
         required_resource_keys={
-            "ferc_to_sqlite_settings",
+            "etl_settings",
             "datastore",
             "runtime_settings",
         },
@@ -34,7 +34,7 @@ def dbf_to_sqlite_asset_factory(
     def _asset(context) -> str:
         extractor_class(
             datastore=context.resources.datastore,
-            settings=context.resources.ferc_to_sqlite_settings,
+            settings=context.resources.etl_settings.ferc_to_sqlite,
             output_path=PudlPaths().output_dir,
         ).execute()
         return "complete"
@@ -51,7 +51,7 @@ def xbrl_to_sqlite_asset_factory(
         key=key,
         group_name="raw_ferc_to_sqlite",
         required_resource_keys={
-            "ferc_to_sqlite_settings",
+            "etl_settings",
             "datastore",
             "runtime_settings",
         },
@@ -59,9 +59,7 @@ def xbrl_to_sqlite_asset_factory(
     )
     def _asset(context) -> str:
         runtime_settings = context.resources.runtime_settings
-        settings = context.resources.ferc_to_sqlite_settings.get_xbrl_dataset_settings(
-            form
-        )
+        settings = context.resources.etl_settings.get_xbrl_dataset_settings(form)
         if settings is None or settings.disabled:
             logger.info(
                 f"Skipping dataset ferc{form.value}_xbrl: no config or is disabled."

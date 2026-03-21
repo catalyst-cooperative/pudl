@@ -4,12 +4,12 @@ from typing import Self
 
 import pandas as pd
 import pytest
-from dagster import Field, build_init_resource_context
+from dagster import build_init_resource_context
 from pandas import json_normalize
 from pydantic import ValidationError
 
 from pudl.metadata.classes import DataSource
-from pudl.resources import DatasetSettingsResource, DatastoreResource
+from pudl.resources import DatastoreResource, PudlEtlSettingsResource
 from pudl.settings import (
     DatasetsSettings,
     Eia860mSettings,
@@ -24,7 +24,6 @@ from pudl.settings import (
     FercToSqliteSettings,
     GenericDatasetSettings,
     GridPathRAToolkitSettings,
-    _convert_settings_to_dagster_config,
     load_etl_settings,
 )
 from pudl.workspace.datastore import Datastore
@@ -252,27 +251,6 @@ class TestDatasetsSettings:
         assert settings.glue.eia
         assert settings.glue.ferc1
 
-    def test_convert_settings_to_dagster_config(self: Self):
-        """Test conversion of dictionary to Dagster config."""
-        dct = {
-            "eia": {
-                "eia860": {"years": [2021, 2022]},
-                "eia923": {"years": [2021, 2022]},
-            }
-        }
-        expected_dct = {
-            "eia": {
-                "eia860": {"years": Field(list, default_value=[2021, 2022])},
-                "eia923": {"years": Field(list, default_value=[2021, 2022])},
-            }
-        }
-
-        _convert_settings_to_dagster_config(dct)
-        assert dct.keys() == expected_dct.keys()
-        assert dct["eia"].keys() == expected_dct["eia"].keys()
-        assert isinstance(dct["eia"]["eia860"]["years"], Field)
-        assert isinstance(dct["eia"]["eia923"]["years"], Field)
-
 
 class TestGridPathRAToolkitSettings:
     """Test GridPath RA Toolkit settings validation and part selection."""
@@ -340,25 +318,25 @@ class TestGlobalConfig:
             settings.eia860 = Eia860Settings()
 
 
-class TestDatasetsSettingsResource:
-    """Test the DatasetsSettings dagster resource."""
+class TestPudlEtlSettingsResource:
+    """Test the ETL settings Dagster resource."""
 
     def test_invalid_field_type(self: Self):
         """Test an error is thrown when the ETL settings path has the wrong type."""
         init_context = build_init_resource_context(config={"etl_settings_path": 2021})
         with pytest.raises(ValidationError):
-            _ = DatasetSettingsResource.from_resource_context(init_context)
+            _ = PudlEtlSettingsResource.from_resource_context(init_context)
 
     def test_loads_from_file(self: Self):
-        """Test that dataset settings are loaded from a shared ETL settings file."""
+        """Test that ETL settings are loaded from the shared ETL settings file."""
         init_context = build_init_resource_context(
             config={"etl_settings_path": "src/pudl/package_data/settings/etl_fast.yml"}
         )
 
-        loaded_settings = DatasetSettingsResource.from_resource_context(init_context)
+        loaded_settings = PudlEtlSettingsResource.from_resource_context(init_context)
 
-        assert isinstance(loaded_settings, DatasetsSettings)
-        assert loaded_settings.ferc1 is not None
+        assert isinstance(loaded_settings, EtlSettings)
+        assert loaded_settings.dataset_settings.ferc1 is not None
 
 
 def test_datastore_resource_loads() -> None:

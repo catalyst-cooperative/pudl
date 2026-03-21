@@ -10,10 +10,7 @@ resources:
     config:
       cloud_cache_path: s3://pudl.catalyst.coop/zenodo
       use_local_cache: true
-  dataset_settings:
-    config:
-      etl_settings_path: src/pudl/package_data/settings/etl_fast.yml
-  ferc_to_sqlite_settings:
+  etl_settings:
     config:
       etl_settings_path: src/pudl/package_data/settings/etl_fast.yml
   runtime_settings:

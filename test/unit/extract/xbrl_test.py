@@ -8,6 +8,7 @@ from pudl.etl import ferc_to_sqlite_assets
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.resources import RuntimeSettings
 from pudl.settings import (
+    EtlSettings,
     Ferc1DbfToSqliteSettings,
     Ferc1XbrlToSqliteSettings,
     Ferc2XbrlToSqliteSettings,
@@ -109,7 +110,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
     result = dg.materialize(
         assets=xbrl_assets,
         resources={
-            "ferc_to_sqlite_settings": settings,
+            "etl_settings": EtlSettings(ferc_to_sqlite_settings=settings),
             "datastore": ResourceDefinition.mock_resource(),
             "runtime_settings": RuntimeSettings(
                 xbrl_batch_size=20,

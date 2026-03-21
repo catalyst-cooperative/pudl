@@ -29,7 +29,7 @@ from pydantic import model_validator
 import pudl
 from pudl.helpers import get_parquet_table, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
-from pudl.resources import DatasetSettingsResource, dataset_settings
+from pudl.resources import PudlEtlSettingsResource, etl_settings
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -43,6 +43,14 @@ def get_table_name_from_context(context: OutputContext) -> str:
     if context.has_asset_key:
         return context.asset_key.to_python_identifier()
     return context.get_identifier()
+
+
+def get_ferc_form_name(db_name: str) -> str:
+    """Extract the FERC form name from a SQLite database name."""
+    match = re.search(r"ferc\d+", db_name)
+    if match is None:
+        raise ValueError(f"Could not determine FERC form from db_name={db_name!r}")
+    return match.group()
 
 
 class PudlMixedFormatIOManager(ConfigurableIOManager):
@@ -714,7 +722,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         self._ensure_database_ready()
 
         # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
-        ferc1_settings = context.resources.dataset_settings.ferc1
+        ferc1_settings = context.resources.etl_settings.dataset_settings.ferc1
 
         table_name = get_table_name_from_context(context)
         # Remove preceding asset name metadata
@@ -740,7 +748,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
 class FercDbfSQLiteDagsterIOManager(ConfigurableIOManager):
     """Dagster IO manager for reading tables from the FERC 1 DBF SQLite database."""
 
-    dataset_settings: dg.ResourceDependency[DatasetSettingsResource]
+    etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
     db_name: str
 
     @cached_property
@@ -764,7 +772,7 @@ class FercDbfSQLiteDagsterIOManager(ConfigurableIOManager):
         """Load a dataframe from the FERC 1 DBF SQLite database."""
         self._manager._ensure_database_ready()
 
-        ferc1_settings = self.dataset_settings.ferc1
+        ferc1_settings = self.etl_settings.dataset_settings.ferc1
 
         table_name = get_table_name_from_context(context)
         table_name = table_name.replace("raw_ferc1_dbf__", "")
@@ -846,8 +854,8 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         self._ensure_database_ready()
 
         ferc_settings = getattr(
-            context.resources.dataset_settings,
-            re.search(r"ferc\d+", self.db_name).group(),
+            context.resources.etl_settings.dataset_settings,
+            get_ferc_form_name(self.db_name),
         )
 
         table_name = get_table_name_from_context(context)
@@ -879,7 +887,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
     """Dagster IO manager for reading tables from a FERC XBRL SQLite database."""
 
-    dataset_settings: dg.ResourceDependency[DatasetSettingsResource]
+    etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
     db_name: str
 
     @cached_property
@@ -904,8 +912,8 @@ class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
         self._manager._ensure_database_ready()
 
         ferc_settings = getattr(
-            self.dataset_settings,
-            re.search(r"ferc\d+", self.db_name).group(),
+            self.etl_settings.dataset_settings,
+            get_ferc_form_name(self.db_name),
         )
 
         table_name = get_table_name_from_context(context)
@@ -928,14 +936,14 @@ class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
 
 
 ferc1_dbf_sqlite_io_manager = FercDbfSQLiteDagsterIOManager(
-    dataset_settings=dataset_settings,
+    etl_settings=etl_settings,
     db_name="ferc1_dbf",
 )
 ferc1_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
-    dataset_settings=dataset_settings,
+    etl_settings=etl_settings,
     db_name="ferc1_xbrl",
 )
 ferc714_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
-    dataset_settings=dataset_settings,
+    etl_settings=etl_settings,
     db_name="ferc714_xbrl",
 )

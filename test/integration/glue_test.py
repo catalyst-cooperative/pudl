@@ -36,7 +36,7 @@ def plants_ferc1_raw(etl_settings_path: Path) -> pd.DataFrame:
     result = get_plants_ferc1_raw_job().execute_in_process(
         run_config={
             "resources": {
-                "dataset_settings": {
+                "etl_settings": {
                     "config": {
                         "etl_settings_path": str(etl_settings_path),
                     },

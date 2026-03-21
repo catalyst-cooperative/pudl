@@ -40,7 +40,7 @@ from pudl.helpers import get_parquet_table, simplify_strings
 from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
 from pudl.metadata.classes import Package
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.resources import dataset_settings
+from pudl.resources import etl_settings
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
 from pudl.transform.ferc1 import (
     Ferc1AbstractTableTransformer,
@@ -320,7 +320,7 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
         resources={
             "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
             "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
-            "dataset_settings": dataset_settings,
+            "etl_settings": etl_settings,
         },
         jobs=[define_asset_job(name="get_plants_ferc1_raw")],
     ).get_job_def("get_plants_ferc1_raw")

@@ -24,7 +24,7 @@ from pudl.io_managers import (
 )
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
-from pudl.settings import DatasetsSettings
+from pudl.settings import DatasetsSettings, EtlSettings
 
 
 @pytest.fixture
@@ -344,7 +344,7 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
     )
 
     manager = ferc1_dbf_sqlite_io_manager.model_copy(
-        update={"dataset_settings": dataset_settings}
+        update={"etl_settings": EtlSettings(datasets=dataset_settings)}
     )
     context = build_input_context(asset_key=AssetKey("raw_ferc1_dbf__f1_respondent_id"))
 
@@ -377,7 +377,7 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
     )
 
     manager = ferc1_xbrl_sqlite_io_manager.model_copy(
-        update={"dataset_settings": dataset_settings}
+        update={"etl_settings": EtlSettings(datasets=dataset_settings)}
     )
     context = build_input_context(
         asset_key=AssetKey("raw_ferc1_xbrl__plant_in_service_duration")

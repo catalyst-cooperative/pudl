@@ -92,10 +92,10 @@ def append_eia860m(
     return eia860_raw_dfs
 
 
-@asset(required_resource_keys={"datastore", "dataset_settings"})
+@asset(required_resource_keys={"datastore", "etl_settings"})
 def raw_eia860m__all_dfs(context):
     """Extract raw EIA 860M data from excel sheets into dict of dataframes."""
-    eia_settings = context.resources.dataset_settings.eia
+    eia_settings = context.resources.etl_settings.dataset_settings.eia
     ds = context.resources.datastore
 
     eia860m_extractor = Extractor(ds=ds)

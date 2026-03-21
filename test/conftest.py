@@ -197,7 +197,7 @@ def _engine_from_io_manager(
     io_manager = io_manager_factory
     if dataset_settings_config is not None:
         io_manager = io_manager_factory.model_copy(
-            update={"dataset_settings": dataset_settings_config}
+            update={"etl_settings": EtlSettings(datasets=dataset_settings_config)}
         )
     if isinstance(io_manager, PudlMixedFormatIOManager):
         return io_manager._sqlite_io_manager.engine
@@ -234,7 +234,7 @@ def asset_value_loader(etl_settings_path: Path) -> AssetValueLoader:
     """
     configured_defs = build_defs(
         resource_overrides={
-            "dataset_settings": resources.DatasetSettingsResource(
+            "etl_settings": resources.PudlEtlSettingsResource(
                 etl_settings_path=str(etl_settings_path)
             )
         }
@@ -267,13 +267,12 @@ def etl_settings_path(dg_config_path: Path, test_dir: Path) -> Path:
         dg_config = yaml.safe_load(f)
 
     try:
-        etl_settings_ref = dg_config["resources"]["dataset_settings"]["config"][
+        etl_settings_ref = dg_config["resources"]["etl_settings"]["config"][
             "etl_settings_path"
         ]
     except KeyError as err:
         raise ValueError(
-            "Dagster config must define "
-            "resources.dataset_settings.config.etl_settings_path"
+            "Dagster config must define resources.etl_settings.config.etl_settings_path"
         ) from err
 
     etl_settings_yml = Path(etl_settings_ref)
@@ -289,17 +288,13 @@ def etl_settings_path(dg_config_path: Path, test_dir: Path) -> Path:
 @pytest.fixture(scope="session")
 def ferc_to_sqlite_settings(etl_settings: EtlSettings) -> FercToSqliteSettings:
     """Read ferc_to_sqlite parameters out of test settings dictionary."""
-    if etl_settings.ferc_to_sqlite_settings is None:
-        raise ValueError("Missing ferc_to_sqlite_settings in ETL settings.")
-    return etl_settings.ferc_to_sqlite_settings
+    return etl_settings.ferc_to_sqlite
 
 
 @pytest.fixture(scope="session")
 def pudl_etl_settings(etl_settings: EtlSettings) -> DatasetsSettings:
     """Read PUDL ETL parameters out of test settings dictionary."""
-    if etl_settings.datasets is None:
-        raise ValueError("Missing datasets settings in ETL settings.")
-    return etl_settings.datasets
+    return etl_settings.dataset_settings
 
 
 @pytest.fixture(scope="session")

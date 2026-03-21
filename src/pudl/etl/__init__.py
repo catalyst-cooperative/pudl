@@ -22,9 +22,8 @@ from pudl.io_managers import (
 from pudl.metadata import PUDL_PACKAGE
 from pudl.resources import (
     RuntimeSettings,
-    dataset_settings,
     datastore,
-    ferc_to_sqlite_settings,
+    etl_settings,
 )
 from pudl.settings import load_packaged_etl_settings
 
@@ -207,8 +206,7 @@ default_resources = {
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
     "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
-    "dataset_settings": dataset_settings,
-    "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
+    "etl_settings": etl_settings,
     "runtime_settings": RuntimeSettings(),
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
@@ -252,10 +250,7 @@ def load_etl_run_config_from_file(setting_filename: str) -> dict:
 
     return {
         "resources": {
-            "dataset_settings": {"config": {"etl_settings_path": etl_settings_path}},
-            "ferc_to_sqlite_settings": {
-                "config": {"etl_settings_path": etl_settings_path},
-            },
+            "etl_settings": {"config": {"etl_settings_path": etl_settings_path}},
             "runtime_settings": {
                 "config": {},
             },
@@ -309,10 +304,10 @@ def build_defs(
     if resource_overrides:
         resources.update(resource_overrides)
 
-        dataset_settings_override = resource_overrides.get("dataset_settings")
-        if dataset_settings_override is not None:
+        etl_settings_override = resource_overrides.get("etl_settings")
+        if etl_settings_override is not None:
             # These special cases for the FERC IO Managers is a temporary workaround.
-            # The wrapper IO managers contain ``dataset_settings`` as a nested Dagster
+            # The wrapper IO managers contain ``etl_settings`` as a nested Dagster
             # resource dependency at instantiation time, which means overriding the
             # top-level resource alone is not enough. Here we rebuild the FERC IO
             # managers against the same underlying resource instances. In a followup
@@ -324,7 +319,7 @@ def build_defs(
                 resources["ferc1_dbf_sqlite_io_manager"] = type(
                     ferc1_dbf_sqlite_io_manager
                 )(
-                    dataset_settings=dataset_settings_override,
+                    etl_settings=etl_settings_override,
                     db_name=ferc1_dbf_sqlite_io_manager.db_name,
                 )
 
@@ -332,7 +327,7 @@ def build_defs(
                 resources["ferc1_xbrl_sqlite_io_manager"] = type(
                     ferc1_xbrl_sqlite_io_manager
                 )(
-                    dataset_settings=dataset_settings_override,
+                    etl_settings=etl_settings_override,
                     db_name=ferc1_xbrl_sqlite_io_manager.db_name,
                 )
 
@@ -340,7 +335,7 @@ def build_defs(
                 resources["ferc714_xbrl_sqlite_io_manager"] = type(
                     ferc714_xbrl_sqlite_io_manager
                 )(
-                    dataset_settings=dataset_settings_override,
+                    etl_settings=etl_settings_override,
                     db_name=ferc714_xbrl_sqlite_io_manager.db_name,
                 )
 

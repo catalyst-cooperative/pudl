@@ -9,7 +9,6 @@ from typing import Any, ClassVar, Self
 import fsspec
 import pandas as pd
 import yaml
-from dagster import Field as DagsterField
 from dagster import StaticPartitionsDefinition
 from pydantic import (
     AnyHttpUrl,
@@ -881,9 +880,6 @@ class EtlSettings(BaseSettings):
     description: str | None = None
     version: str | None = None
 
-    publish_destinations: list[str] = []
-    """This is list of fsspec compatible paths to publish the output datasets to."""
-
     @classmethod
     def from_yaml(cls, path: str) -> "EtlSettings":
         """Create an EtlSettings instance from a yaml_file path.
@@ -906,6 +902,9 @@ class EtlSettings(BaseSettings):
         that the years we are trying to process in the PUDL ETL are included in the
         XBRL to SQLite settings.
         """
+        if self.datasets is None or self.ferc_to_sqlite_settings is None:
+            return self
+
         for which_ferc in ["ferc1", "ferc714"]:
             if (
                 (pudl_ferc := getattr(self.datasets, which_ferc))
@@ -923,6 +922,26 @@ class EtlSettings(BaseSettings):
                 )
         return self
 
+    @property
+    def dataset_settings(self) -> DatasetsSettings:
+        """Return validated dataset settings or raise if they are unavailable."""
+        if self.datasets is None:
+            raise ValueError("Missing datasets settings in ETL settings.")
+        return self.datasets
+
+    @property
+    def ferc_to_sqlite(self) -> FercToSqliteSettings:
+        """Return validated FERC-to-SQLite settings or raise if unavailable."""
+        if self.ferc_to_sqlite_settings is None:
+            raise ValueError("Missing ferc_to_sqlite_settings in ETL settings.")
+        return self.ferc_to_sqlite_settings
+
+    def get_xbrl_dataset_settings(
+        self, form_number: XbrlFormNumber
+    ) -> FercGenericXbrlToSqliteSettings:
+        """Proxy FERC XBRL settings lookup through the canonical ETL settings."""
+        return self.ferc_to_sqlite.get_xbrl_dataset_settings(form_number)
+
 
 def load_etl_settings(path: str | Path) -> EtlSettings:
     """Load ETL settings from a path, supporting relative paths from cwd."""
@@ -936,40 +955,6 @@ def load_packaged_etl_settings(setting_filename: str) -> EtlSettings:
         / f"{setting_filename}.yml"
     )
     return EtlSettings.from_yaml(str(settings_path))
-
-
-def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:
-    """Recursively convert a dictionary of dataset settings to dagster config in place.
-
-    For each partition parameter in a :class:`GenericDatasetSettings` subclass, create a
-    corresponding :class:`DagsterField`. By default the :class:`GenericDatasetSettings`
-    subclasses will default to include all working partitions if the partition value is
-    None. Get the value type so dagster can do some basic type checking in the UI.
-
-    Args:
-        settings_dict: dictionary of datasources and their parameters.
-    """
-    for key, value in settings_dict.items():
-        if isinstance(value, dict):
-            _convert_settings_to_dagster_config(value)
-        else:
-            settings_dict[key] = DagsterField(type(value), default_value=value)
-
-
-def create_dagster_config(
-    settings: FrozenBaseModel | BaseSettings,
-) -> dict[str, DagsterField]:
-    """Create a dictionary of dagster config out of a :class:`GenericDatasetsSettings`.
-
-    Args:
-        settings: A pydantic settings model used by ETL resources.
-
-    Returns:
-        A dictionary of :class:`DagsterField` objects.
-    """
-    settings_dict = settings.model_dump()
-    _convert_settings_to_dagster_config(settings_dict)
-    return settings_dict
 
 
 def _zenodo_doi_to_url(doi: ZenodoDoi) -> AnyHttpUrl:

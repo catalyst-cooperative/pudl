@@ -668,7 +668,7 @@ def harvest_entity_tables(  # noqa: C901
             ),
         ),
     },
-    required_resource_keys={"dataset_settings"},
+    required_resource_keys={"etl_settings"},
     io_manager_key="pudl_io_manager",
 )
 def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
@@ -706,7 +706,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         AssertionError: If all generators do not end up with the same unit_id each year.
     """
     debug = context.op_config["debug"]
-    eia_settings = context.resources.dataset_settings.eia
+    eia_settings = context.resources.etl_settings.dataset_settings.eia
 
     # Do some final data formatting and assign appropriate types:
     clean_dfs = {
@@ -1245,7 +1245,7 @@ def harvested_entity_asset_factory(
                 ),
             ),
         },
-        required_resource_keys={"dataset_settings"},
+        required_resource_keys={"etl_settings"},
         name=f"harvested_{entity.value}_eia",
     )
     def harvested_entity(context, **clean_dfs):
@@ -1276,7 +1276,7 @@ def harvested_entity_asset_factory(
         # the longitude column is very different in the ytd 860M data (it appears
         # to have an additional decimal point) bc it shows up in the generator
         # table but it is a plant level data point, it mucks up the consistency
-        eia_settings = context.resources.dataset_settings.eia
+        eia_settings = context.resources.etl_settings.dataset_settings.eia
         special_case_strictness = {
             "plant_name_eia": 0,
             "utility_name_eia": 0,

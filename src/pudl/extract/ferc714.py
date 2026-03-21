@@ -95,7 +95,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
 
     @asset(
         name=f"raw_ferc714_csv__{table_name}",
-        required_resource_keys={"datastore", "dataset_settings"},
+        required_resource_keys={"datastore", "etl_settings"},
         compute_kind="pandas",
     )
     def _extract_raw_ferc714_csv(context):
@@ -105,7 +105,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
             context: dagster keyword that provides access to resources and config.
         """
         ds = context.resources.datastore
-        ferc714_settings = context.resources.dataset_settings.ferc714
+        ferc714_settings = context.resources.etl_settings.dataset_settings.ferc714
         years = ", ".join(map(str, ferc714_settings.csv_years))
 
         logger.info(

@@ -472,7 +472,7 @@ class FercDbfExtractor:
         @op(
             name=f"{cls.DATASET}_dbf",
             required_resource_keys={
-                "ferc_to_sqlite_settings",
+                "etl_settings",
                 "datastore",
                 "runtime_settings",
             },
@@ -482,7 +482,7 @@ class FercDbfExtractor:
             """Instantiates dbf extractor and runs it."""
             dbf_extractor = cls(
                 datastore=context.resources.datastore,
-                settings=context.resources.ferc_to_sqlite_settings,
+                settings=context.resources.etl_settings.ferc_to_sqlite,
                 output_path=PudlPaths().output_dir,
             )
             dbf_extractor.execute()

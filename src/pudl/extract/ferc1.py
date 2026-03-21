@@ -92,7 +92,12 @@ from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
-from pudl.settings import DatasetsSettings, FercToSqliteSettings, GenericDatasetSettings
+from pudl.settings import (
+    DatasetsSettings,
+    EtlSettings,
+    FercToSqliteSettings,
+    GenericDatasetSettings,
+)
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -481,7 +486,7 @@ def extract_dbf_generic(
         context = build_input_context(
             asset_key=AssetKey(table_name),
             upstream_output=None,
-            resources={"dataset_settings": dataset_settings},
+            resources={"etl_settings": EtlSettings(datasets=dataset_settings)},
         )
         tables.append(io_manager.load_input(context))
     return pd.concat(tables)
@@ -511,7 +516,7 @@ def extract_xbrl_generic(
         context = build_input_context(
             asset_key=AssetKey(full_xbrl_table_name),
             upstream_output=None,
-            resources={"dataset_settings": dataset_settings},
+            resources={"etl_settings": EtlSettings(datasets=dataset_settings)},
         )
         tables.append(io_manager.load_input(context))
     return pd.concat(tables)
@@ -535,7 +540,7 @@ def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
     ferc1_dbf_raw_dfs = {}
 
     io_manager = ferc1_dbf_sqlite_io_manager.model_copy(
-        update={"dataset_settings": dataset_settings}
+        update={"etl_settings": EtlSettings(datasets=dataset_settings)}
     )
 
     for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
@@ -570,7 +575,7 @@ def extract_xbrl(
     ferc1_xbrl_raw_dfs = {}
 
     io_manager = ferc1_xbrl_sqlite_io_manager.model_copy(
-        update={"dataset_settings": dataset_settings}
+        update={"etl_settings": EtlSettings(datasets=dataset_settings)}
     )
 
     for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
