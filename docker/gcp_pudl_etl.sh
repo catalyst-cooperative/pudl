@@ -176,10 +176,36 @@ function set_stage_duration() {
     printf -v "$duration_var" '%s' "$(format_stage_duration "$elapsed_seconds")"
 }
 
+function run_stage() {
+    local status_var=$1
+    local duration_var=$2
+    local log_mode=$3
+    shift 3
+
+    SECONDS=0
+    if [[ "$log_mode" == "append" ]]; then
+        "$@" 2>&1 | tee -a "$LOGFILE"
+    else
+        "$@" 2>&1 | tee "$LOGFILE"
+    fi
+
+    printf -v "$status_var" '%s' "${PIPESTATUS[0]}"
+    set_stage_duration "$duration_var" "$SECONDS"
+}
+
 function stage_failed() {
     local stage_status=$1
 
     [[ "$stage_status" != "$STAGE_SKIPPED" && "$stage_status" != 0 ]]
+}
+
+function exit_on_stage_failure() {
+    local stage_status=$1
+
+    if stage_failed "$stage_status"; then
+        notify_slack "failure"
+        exit 1
+    fi
 }
 
 function any_stage_failed() {
@@ -246,6 +272,16 @@ function merge_tag_into_branch() {
         git show-ref -d "$BRANCH" "$TAG" &&
         git merge --ff-only "$TAG" &&
         git push -u origin "$BRANCH"
+}
+
+function upload_nightly_distribution() {
+    upload_to_dist_path "nightly" &&
+        upload_to_dist_path "eel-hole"
+}
+
+function upload_stable_distribution() {
+    upload_to_dist_path "$BUILD_REF" &&
+        upload_to_dist_path "stable"
 }
 
 function clean_up_outputs_for_distribution() {
@@ -325,27 +361,15 @@ echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
 set -x
 
-# Run ETL and pytest validations as separate stages.
-# 2>&1 redirects stderr to stdout.
-SECONDS=0
-run_dagster 2>&1 | tee "$LOGFILE"
-DAGSTER_STATUS=${PIPESTATUS[0]}
-set_stage_duration DAGSTER_DURATION "$SECONDS"
-
-SECONDS=0
-run_pytest 2>&1 | tee -a "$LOGFILE"
-PYTEST_STATUS=${PIPESTATUS[0]}
-set_stage_duration PYTEST_DURATION "$SECONDS"
+run_stage DAGSTER_STATUS DAGSTER_DURATION overwrite run_dagster
+run_stage PYTEST_STATUS PYTEST_DURATION append run_pytest
 
 if ! any_stage_failed "$DAGSTER_STATUS" "$PYTEST_STATUS"; then
     touch "$PUDL_OUTPUT/success"
 fi
 
 # Write out a datapackage.json for external consumption
-SECONDS=0
-write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
-WRITE_DATAPACKAGE_STATUS=${PIPESTATUS[0]}
-set_stage_duration WRITE_DATAPACKAGE_DURATION "$SECONDS"
+run_stage WRITE_DATAPACKAGE_STATUS WRITE_DATAPACKAGE_DURATION append write_pudl_datapackage
 
 # Generate new row counts for all tables in the PUDL database
 dbt_helper update-tables --clobber --row-counts all 2>&1 | tee -a "$LOGFILE"
@@ -353,40 +377,19 @@ dbt_helper update-tables --clobber --row-counts all 2>&1 | tee -a "$LOGFILE"
 # This needs to happen regardless of the ETL outcome:
 pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
 
-SECONDS=0
-save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
-SAVE_OUTPUTS_STATUS=${PIPESTATUS[0]}
-set_stage_duration SAVE_OUTPUTS_DURATION "$SECONDS"
+run_stage SAVE_OUTPUTS_STATUS SAVE_OUTPUTS_DURATION append save_outputs_to_gcs
 
-if any_stage_failed "$DAGSTER_STATUS" "$PYTEST_STATUS"; then
-    notify_slack "failure"
-    exit 1
-fi
+exit_on_stage_failure "$DAGSTER_STATUS"
+exit_on_stage_failure "$PYTEST_STATUS"
 
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
-    SECONDS=0
-    merge_tag_into_branch "$NIGHTLY_TAG" nightly 2>&1 | tee -a "$LOGFILE"
-    UPDATE_NIGHTLY_STATUS=${PIPESTATUS[0]}
-    set_stage_duration UPDATE_NIGHTLY_DURATION "$SECONDS"
+    run_stage UPDATE_NIGHTLY_STATUS UPDATE_NIGHTLY_DURATION append merge_tag_into_branch "$NIGHTLY_TAG" nightly
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    SECONDS=0
-    clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-    CLEAN_UP_OUTPUTS_STATUS=${PIPESTATUS[0]}
-    set_stage_duration CLEAN_UP_OUTPUTS_DURATION "$SECONDS"
-    if stage_failed "$CLEAN_UP_OUTPUTS_STATUS"; then
-        notify_slack "failure"
-        exit 1
-    fi
+    run_stage CLEAN_UP_OUTPUTS_STATUS CLEAN_UP_OUTPUTS_DURATION append clean_up_outputs_for_distribution
+    exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
-    SECONDS=0
-    upload_to_dist_path "nightly" | tee -a "$LOGFILE" &&
-        upload_to_dist_path "eel-hole" | tee -a "$LOGFILE"
-    DISTRIBUTION_BUCKET_STATUS=${PIPESTATUS[0]}
-    set_stage_duration DISTRIBUTION_BUCKET_DURATION "$SECONDS"
-    SECONDS=0
-    gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1 | tee -a "$LOGFILE"
-    DEPLOY_EEL_HOLE_STATUS=${PIPESTATUS[0]}
-    set_stage_duration DEPLOY_EEL_HOLE_DURATION "$SECONDS"
+    run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION append upload_nightly_distribution
+    run_stage DEPLOY_EEL_HOLE_STATUS DEPLOY_EEL_HOLE_DURATION append gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1
     if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
         zenodo_data_release \
             "sandbox" \
@@ -396,31 +399,15 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     fi
 
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
-    SECONDS=0
-    merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
-    UPDATE_STABLE_STATUS=${PIPESTATUS[0]}
-    set_stage_duration UPDATE_STABLE_DURATION "$SECONDS"
+    run_stage UPDATE_STABLE_STATUS UPDATE_STABLE_DURATION append merge_tag_into_branch "$BUILD_REF" stable
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    SECONDS=0
-    clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-    CLEAN_UP_OUTPUTS_STATUS=${PIPESTATUS[0]}
-    set_stage_duration CLEAN_UP_OUTPUTS_DURATION "$SECONDS"
-    if stage_failed "$CLEAN_UP_OUTPUTS_STATUS"; then
-        notify_slack "failure"
-        exit 1
-    fi
+    run_stage CLEAN_UP_OUTPUTS_STATUS CLEAN_UP_OUTPUTS_DURATION append clean_up_outputs_for_distribution
+    exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
-    SECONDS=0
-    upload_to_dist_path "$BUILD_REF" | tee -a "$LOGFILE" &&
-        upload_to_dist_path "stable" | tee -a "$LOGFILE"
-    DISTRIBUTION_BUCKET_STATUS=${PIPESTATUS[0]}
-    set_stage_duration DISTRIBUTION_BUCKET_DURATION "$SECONDS"
+    run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION append upload_stable_distribution
     # This is a versioned release. Ensure that outputs can't be accidentally deleted.
     # We can only do this on the GCS bucket, not S3
-    SECONDS=0
-    gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
-    GCS_TEMPORARY_HOLD_STATUS=${PIPESTATUS[0]}
-    set_stage_duration GCS_TEMPORARY_HOLD_DURATION "$SECONDS"
+    run_stage GCS_TEMPORARY_HOLD_STATUS GCS_TEMPORARY_HOLD_DURATION append gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold
     if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
         zenodo_data_release \
             "production" \
@@ -431,14 +418,8 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    SECONDS=0
-    clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-    CLEAN_UP_OUTPUTS_STATUS=${PIPESTATUS[0]}
-    set_stage_duration CLEAN_UP_OUTPUTS_DURATION "$SECONDS"
-    if stage_failed "$CLEAN_UP_OUTPUTS_STATUS"; then
-        notify_slack "failure"
-        exit 1
-    fi
+    run_stage CLEAN_UP_OUTPUTS_STATUS CLEAN_UP_OUTPUTS_DURATION append clean_up_outputs_for_distribution
+    exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
 
     # Disable the test upload to the distribution bucket for now to avoid egress fees
     # and speed up the build. Uncomment if you need to test the distribution upload.
