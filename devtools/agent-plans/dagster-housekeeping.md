@@ -320,19 +320,13 @@ The `_engine_from_io_manager` helper and the `ferc1_engine_dbf`, `ferc1_engine_x
 settings. After the wrapper layer is collapsed (FU-1), this pattern can be simplified or
 replaced with a fixture that reads the engine from the built SQLite file path directly.
 
-### FU-5: Remove `publish_destinations` from `EtlSettings`
-
-`publish_destinations: list[str] = []` in `pudl/settings.py` is dead code: it defaults to
-`[]` in all packaged settings files, and the nightly deployment script handles publishing
-separately. Remove the field and any associated logic once the `pudl_etl` CLI is deleted.
-
 ---
 
 ## P1-E3 Sequencing
 
 ```
 T1 (optional bug-fix) → T2 (nightly config) → T3 (update gcp script) → T4/T5/T6/T7/T8/T9 (removal)
-FU-1 → FU-2 → FU-3 → FU-4 → FU-5  (follow-up PR after T9)
+FU-1 → FU-2 → FU-3 → FU-4 (follow-up PR after T9)
 ```
 
 ## Epic P1-E4: Establish `defs` as the Source of Truth (After CLI Parity)

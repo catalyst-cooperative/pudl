@@ -180,12 +180,6 @@ def pytest_addoption(parser):
         default=False,
         help="Write the unmapped IDs to disk.",
     )
-    parser.addoption(
-        "--ignore-fks",
-        action="store_true",
-        default=False,
-        help="If enabled, do not check the foreign keys.",
-    )
 
 
 def _pudl_etl(dg_config_path: Path, pudl_test_paths: PudlPaths) -> None:
@@ -317,12 +311,6 @@ def save_unmapped_ids(request) -> bool:
     return request.config.getoption("--save-unmapped-ids")
 
 
-@pytest.fixture
-def check_fks(request) -> bool:
-    """Fixture that indicates whether to check foreign key constraints)."""
-    return not request.config.getoption("--ignore-fks")
-
-
 @pytest.fixture(scope="session")
 def etl_settings(etl_settings_path: Path) -> EtlSettings:
     """Read ETL settings referenced by Dagster integration config."""
@@ -352,6 +340,17 @@ def etl_settings_path(dg_config_path: Path, test_dir: Path) -> Path:
         raise FileNotFoundError(f"Missing ETL settings file: {etl_settings_yml}")
 
     return etl_settings_yml
+
+
+@pytest.fixture(scope="session")
+def dbt_target(etl_settings_path: Path) -> str:
+    """Infer the dbt target name from the ETL settings used for the test run."""
+    if etl_settings_path.name == "etl_full.yml":
+        return "etl-full"
+    if etl_settings_path.name == "etl_fast.yml":
+        return "etl-fast"
+
+    raise ValueError(f"Unexpected ETL settings file: {etl_settings_path}")
 
 
 @pytest.fixture(scope="session")

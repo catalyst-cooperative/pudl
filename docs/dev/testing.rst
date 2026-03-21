@@ -127,7 +127,6 @@ looking at the ``custom options`` section:
      --dg-config=PATH      Path to a non-standard Dagster config file to use.
      --bypass-local-cache  If enabled, the local file cache for datastore will not be used.
      --save-unmapped-ids   Write the unmapped IDs to disk.
-     --ignore-fks          If enabled, do not check foreign key constraints.
 
 The main flexibility that these custom options provide is in selecting where the raw
 input data comes from and what data the tests should be run against. Being able to
@@ -142,6 +141,13 @@ of that database. For example, the EPA CEMS specific tests:
 .. code-block:: console
 
   $ pytest --live-pudl-output test/integration/epacems_test.py
+
+Foreign key checks and dbt validations can be selected separately from the rest of the
+integration suite by running the dedicated validation module directly. For example:
+
+.. code-block:: console
+
+   $ pytest --live-pudl-output test/integration/data_validation_test.py
 
 Assuming you do want to run the ETL and build new databases as part of the test you're
 running, the contents of that database are determined by an ETL settings file. By

@@ -3937,8 +3937,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.3.1.dev71
-  sha256: 830a7383fa835ed30564ccf7a618e91d07058dc29a6cd0aaf1df2b9391e07813
+  version: 2026.3.1.dev76
+  sha256: d021577aca8bfcd46a47ac88c06f3c7a7d48f623f91a06e0009fa916d7ccc7ad
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -13642,7 +13642,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/pandera?source=compressed-mapping
+  - pkg:pypi/pandera?source=hash-mapping
   size: 185669
   timestamp: 1773846545116
 - conda: https://conda.anaconda.org/conda-forge/noarch/pandera-polars-0.30.1-hd6cc441_0.conda

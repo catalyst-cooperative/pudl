@@ -291,13 +291,12 @@ pytest-integration = { cmd = "pytest --cov-fail-under=0 test/integration", descr
 pytest-ci = { cmd = "coverage report", depends-on = ["coverage-erase", "docs-build", "pytest-unit", "pytest-integration"], description = "Run all CI tests and report test coverage" }
 pytest-integration-full = { cmd = "pytest --live-pudl-output --no-cov --dg-config $DG_FULL_CONFIG test/integration", description = "Run integration tests against local full ETL outputs" }
 pytest-jupyter = { cmd = "pytest --live-pudl-output test/integration/jupyter_notebooks_test.py", description = "Test Jupyter notebooks" }
-# Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
+# Build the FERC 1 and PUDL DBs.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
 # These outputs should be turned into normal dagster assets. See issue #4338
 unmapped-ids = { cmd = """
 pytest \
     --save-unmapped-ids
-    --ignore-fks \
     --dg-config $DG_FULL_CONFIG \
     test/integration/glue_test.py
 """, description = "Identify unmapped plant and utility IDs" }
@@ -482,7 +481,9 @@ filterwarnings = [
     "once:AssetExecutionContext.op_config is deprecated:DeprecationWarning",
 ]
 
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
 # must not end with `--cov` since that will treat the first argument you pass
 # to pytest as a coverage source! see
 # https://github.com/catalyst-cooperative/pudl/issues/3609

@@ -32,8 +32,8 @@ function initialize_postgres() {
 }
 
 function run_dagster() {
-    echo "Running PUDL ETL"
-    send_slack_msg ":large_yellow_circle: Deployment started for $BUILD_ID :floppy_disk:"
+    echo "Launching Dagster and running the PUDL job"
+    send_slack_msg ":play: Launching Dagster and running the PUDL job for $BUILD_ID :floppy_disk:"
     initialize_postgres &&
         authenticate_gcp &&
         alembic upgrade head &&
@@ -41,19 +41,34 @@ function run_dagster() {
             --config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML"
 }
 
-function run_pytest() {
-    echo "Running pytest"
+function run_unit_tests() {
+    echo "Running unit tests"
     pytest \
         -n auto \
         --no-cov \
         --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
-        test/unit &&
-        pytest \
+    test/unit
+}
+
+function run_integration_tests() {
+    echo "Running integration tests"
+    pytest \
         -n auto \
         --no-cov \
         --live-pudl-output \
         --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
+        --ignore=test/integration/data_validation_test.py \
         test/integration
+}
+
+function run_data_validation_tests() {
+    echo "Running data validation tests"
+    pytest \
+        -n auto \
+        --no-cov \
+        --live-pudl-output \
+        --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
+        test/integration/data_validation_test.py
 }
 
 function write_pudl_datapackage() {
@@ -143,12 +158,14 @@ function slack_stage_status() {
     local stage_emoji=":x:"
     local duration_suffix=""
 
+    # Slack rows show whether a stage passed, failed, or was intentionally skipped.
     if [[ $stage_status == "$STAGE_SKIPPED" ]]; then
         stage_emoji=":skip_forward:"
     elif [[ $stage_status == 0 ]]; then
         stage_emoji=":check:"
     fi
 
+    # Only show a duration when the stage actually ran.
     if [[ -n "$stage_duration" ]]; then
         duration_suffix=" [${stage_duration}]"
     fi
@@ -162,17 +179,15 @@ function format_stage_duration() {
     local elapsed_minutes=$(((elapsed_seconds % 3600) / 60))
     local remaining_seconds=$((elapsed_seconds % 60))
 
-    if (( elapsed_hours > 0 )); then
-        printf '%02d:%02d:%02d' "$elapsed_hours" "$elapsed_minutes" "$remaining_seconds"
-    else
-        printf '%02d:%02d' "$elapsed_minutes" "$remaining_seconds"
-    fi
+    # Always include hours to avoid ambiguity when scanning Slack stage timings.
+    printf '%02d:%02d:%02d' "$elapsed_hours" "$elapsed_minutes" "$remaining_seconds"
 }
 
 function set_stage_duration() {
     local duration_var=$1
     local elapsed_seconds=$2
 
+    # Store the formatted duration in the caller-supplied shell variable name.
     printf -v "$duration_var" '%s' "$(format_stage_duration "$elapsed_seconds")"
 }
 
@@ -182,6 +197,8 @@ function run_stage() {
     local log_mode=$3
     shift 3
 
+    # Most stages follow the same pattern: run, stream logs to the build log,
+    # capture the underlying command status, and record how long the stage took.
     SECONDS=0
     if [[ "$log_mode" == "append" ]]; then
         "$@" 2>&1 | tee -a "$LOGFILE"
@@ -202,6 +219,8 @@ function stage_failed() {
 function exit_on_stage_failure() {
     local stage_status=$1
 
+    # Required stages fail fast and send Slack immediately instead of letting later
+    # steps continue in a half-broken build environment.
     if stage_failed "$stage_status"; then
         notify_slack "failure"
         exit 1
@@ -225,7 +244,7 @@ function notify_slack() {
     echo "Notifying Slack about deployment status"
     message="${BUILD_ID} status\n\n"
     if [[ "$1" == "success" ]]; then
-        message+=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
+        message+=":green_circle: :sunglasses: :unicorn: :rainbow: deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :green_circle:\n\n"
     elif [[ "$1" == "failure" ]]; then
         message+=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:\n\n"
     else
@@ -235,7 +254,9 @@ function notify_slack() {
 
     message+="Stage status:\n"
     message+="$(slack_stage_status "Dagster ETL" "$DAGSTER_STATUS" "$DAGSTER_DURATION")\n"
-    message+="$(slack_stage_status "pytest and dbt" "$PYTEST_STATUS" "$PYTEST_DURATION")\n"
+    message+="$(slack_stage_status "Unit tests" "$UNIT_TEST_STATUS" "$UNIT_TEST_DURATION")\n"
+    message+="$(slack_stage_status "Integration tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")\n"
+    message+="$(slack_stage_status "Data validation tests" "$DATA_VALIDATION_STATUS" "$DATA_VALIDATION_DURATION")\n"
     message+="$(slack_stage_status "Write PUDL Datapackage" "$WRITE_DATAPACKAGE_STATUS" "$WRITE_DATAPACKAGE_DURATION")\n"
     message+="$(slack_stage_status "Save Outputs to GCS" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
     message+="$(slack_stage_status "Update Nightly Branch" "$UPDATE_NIGHTLY_STATUS" "$UPDATE_NIGHTLY_DURATION")\n"
@@ -275,11 +296,13 @@ function merge_tag_into_branch() {
 }
 
 function upload_nightly_distribution() {
+    # Nightly builds publish both the canonical nightly outputs and the eel-hole copy.
     upload_to_dist_path "nightly" &&
         upload_to_dist_path "eel-hole"
 }
 
 function upload_stable_distribution() {
+    # Stable releases publish both the versioned path and the rolling stable alias.
     upload_to_dist_path "$BUILD_REF" &&
         upload_to_dist_path "stable"
 }
@@ -313,7 +336,9 @@ STAGE_SKIPPED="skipped"
 
 # Initialize our stage-status variables so they all definitely have a value to check
 DAGSTER_STATUS="$STAGE_SKIPPED"
-PYTEST_STATUS="$STAGE_SKIPPED"
+UNIT_TEST_STATUS="$STAGE_SKIPPED"
+INTEGRATION_TEST_STATUS="$STAGE_SKIPPED"
+DATA_VALIDATION_STATUS="$STAGE_SKIPPED"
 SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
 UPDATE_NIGHTLY_STATUS="$STAGE_SKIPPED"
 UPDATE_STABLE_STATUS="$STAGE_SKIPPED"
@@ -324,7 +349,9 @@ DEPLOY_EEL_HOLE_STATUS="$STAGE_SKIPPED"
 GCS_TEMPORARY_HOLD_STATUS="$STAGE_SKIPPED"
 
 DAGSTER_DURATION=""
-PYTEST_DURATION=""
+UNIT_TEST_DURATION=""
+INTEGRATION_TEST_DURATION=""
+DATA_VALIDATION_DURATION=""
 SAVE_OUTPUTS_DURATION=""
 UPDATE_NIGHTLY_DURATION=""
 UPDATE_STABLE_DURATION=""
@@ -362,9 +389,15 @@ echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
 set -x
 
 run_stage DAGSTER_STATUS DAGSTER_DURATION overwrite run_dagster
-run_stage PYTEST_STATUS PYTEST_DURATION append run_pytest
+run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION append run_unit_tests
+run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION append run_integration_tests
+run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION append run_data_validation_tests
 
-if ! any_stage_failed "$DAGSTER_STATUS" "$PYTEST_STATUS"; then
+if ! any_stage_failed \
+    "$DAGSTER_STATUS" \
+    "$UNIT_TEST_STATUS" \
+    "$INTEGRATION_TEST_STATUS" \
+    "$DATA_VALIDATION_STATUS"; then
     touch "$PUDL_OUTPUT/success"
 fi
 
@@ -380,7 +413,9 @@ pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
 run_stage SAVE_OUTPUTS_STATUS SAVE_OUTPUTS_DURATION append save_outputs_to_gcs
 
 exit_on_stage_failure "$DAGSTER_STATUS"
-exit_on_stage_failure "$PYTEST_STATUS"
+exit_on_stage_failure "$UNIT_TEST_STATUS"
+exit_on_stage_failure "$INTEGRATION_TEST_STATUS"
+exit_on_stage_failure "$DATA_VALIDATION_STATUS"
 
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
     run_stage UPDATE_NIGHTLY_STATUS UPDATE_NIGHTLY_DURATION append merge_tag_into_branch "$NIGHTLY_TAG" nightly
@@ -459,7 +494,9 @@ rm -f ~/.aws/credentials
 # Notify slack about entire pipeline's success or failure;
 if ! any_stage_failed \
     "$DAGSTER_STATUS" \
-    "$PYTEST_STATUS" \
+    "$UNIT_TEST_STATUS" \
+    "$INTEGRATION_TEST_STATUS" \
+    "$DATA_VALIDATION_STATUS" \
     "$WRITE_DATAPACKAGE_STATUS" \
     "$SAVE_OUTPUTS_STATUS" \
     "$UPDATE_NIGHTLY_STATUS" \

@@ -11,27 +11,34 @@ import pytest
 import sqlalchemy as sa
 
 import pudl
-from pudl.etl.check_foreign_keys import check_foreign_keys
 from pudl.settings import DatasetsSettings
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.mark.order(2)
-def test_pudl_engine(pudl_engine: sa.Engine, check_fks: bool):
-    """Get pudl_engine and do basic inspection.
+def test_pudl_engine(pudl_engine: sa.Engine):
+    """Verify that key PUDL tables exist and are populated.
 
-    By default the foreign key checks are not enabled in pudl.sqlite. This test will
-    check if there are any foreign key errors if check_fks is True.
+    Foreign key validation lives in a separate data-validation test so the nightly
+    build can report it independently from the rest of the integration suite.
     """
     assert isinstance(pudl_engine, sa.Engine)
     insp = sa.inspect(pudl_engine)
-    assert "core_pudl__entity_plants_pudl" in insp.get_table_names()
-    assert "core_pudl__entity_utilities_pudl" in insp.get_table_names()
+    required_tables = (
+        "core_pudl__entity_plants_pudl",
+        "core_pudl__entity_utilities_pudl",
+    )
 
-    if check_fks:
-        # Raises ForeignKeyErrors if there are any
-        check_foreign_keys(pudl_engine)
+    for table_name in required_tables:
+        assert table_name in insp.get_table_names()
+
+    with pudl_engine.connect() as connection:
+        for table_name in required_tables:
+            first_row = connection.execute(
+                sa.select(sa.literal(1)).select_from(sa.table(table_name)).limit(1)
+            ).scalar()
+            assert first_row is not None, f"Expected {table_name} to contain data."
 
 
 class TestCsvExtractor:

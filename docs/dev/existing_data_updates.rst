@@ -462,9 +462,9 @@ run all the integration tests against your live PUDL DB with:
 
     $ pixi run pytest-integration-full
 
-We expect ``test/integration/dbt_test.py::test_dbt`` to fail at this point, but
-everything else should pass. Fix any remaining failures and we'll fix dbt in the next
-step.
+We expect ``test/integration/data_validation_test.py::test_dbt`` to fail at this point,
+but everything else should pass. Fix any remaining failures and we'll fix dbt in the
+next step.
 
 **9.2)** When the non-dbt integration tests are passing against all years of data,
 sanity check the data in the database and the derived outputs by running
