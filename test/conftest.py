@@ -16,7 +16,7 @@ from dagster import AssetValueLoader, build_init_resource_context, materialize_t
 
 import pudl
 from pudl import resources
-from pudl.etl import defs
+from pudl.etl import build_defs
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
 from pudl.io_managers import (
@@ -225,14 +225,20 @@ def dg_config_path(request, test_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def asset_value_loader(dataset_settings_config: DatasetsSettings) -> AssetValueLoader:
+def asset_value_loader(etl_settings_path: Path) -> AssetValueLoader:
     """Fixture that initializes an asset value loader.
 
     Use this as ``asset_value_loader.load_asset_value`` instead of
     ``defs.load_asset_value`` to not reinitialize the asset value loader over and over
     again.
     """
-    configured_defs = defs.with_resources({"dataset_settings": dataset_settings_config})
+    configured_defs = build_defs(
+        resource_overrides={
+            "dataset_settings": resources.DatasetSettingsResource(
+                etl_settings_path=str(etl_settings_path)
+            )
+        }
+    )
     return configured_defs.get_asset_value_loader()
 
 

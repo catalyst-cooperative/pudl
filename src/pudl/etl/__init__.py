@@ -2,6 +2,8 @@
 
 import itertools
 import os
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import dagster as dg
 
@@ -262,34 +264,99 @@ def load_etl_run_config_from_file(setting_filename: str) -> dict:
     }
 
 
-defs: dg.Definitions = dg.Definitions(
-    assets=default_assets,
-    asset_checks=default_asset_checks,
-    resources=default_resources,
-    jobs=[
-        dg.define_asset_job(
-            name="pudl",
-            description="This job executes the main PUDL ETL (default: full settings profile).",
-            config=default_config | load_etl_run_config_from_file("etl_full"),
-            selection=dg.AssetSelection.all()
-            - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
-        ),
-        dg.define_asset_job(
-            name="ferceqr",
-            description="This job executes the ferceqr ETL.",
-            config={
-                "execution": {
-                    "config": {
-                        "multiprocess": {
-                            "max_concurrent": 0,
-                            "tag_concurrency_limits": default_tag_concurrency_limits,
-                        },
+default_jobs = [
+    dg.define_asset_job(
+        name="pudl",
+        description="This job executes the main PUDL ETL (default: full settings profile).",
+        config=default_config | load_etl_run_config_from_file("etl_full"),
+        selection=dg.AssetSelection.all()
+        - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
+    ),
+    dg.define_asset_job(
+        name="ferceqr",
+        description="This job processes the FERC EQR data.",
+        config={
+            "execution": {
+                "config": {
+                    "multiprocess": {
+                        "max_concurrent": 0,
+                        "tag_concurrency_limits": default_tag_concurrency_limits,
                     },
                 },
             },
-            selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
+        },
+        selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
+    ),
+]
+
+default_sensors = [ferceqr_deployment.ferceqr_sensor]
+
+
+def build_defs(
+    *,
+    resource_overrides: Mapping[str, Any] | None = None,
+    asset_overrides: Sequence[Any] | None = None,
+    asset_check_overrides: Sequence[dg.AssetChecksDefinition] | None = None,
+    job_overrides: Sequence[Any] | None = None,
+    sensor_overrides: Sequence[dg.SensorDefinition] | None = None,
+) -> dg.Definitions:
+    """Build a fresh PUDL ``Definitions`` object with optional overrides.
+
+    This allows tests and other callers to reuse the canonical ETL asset graph while
+    supplying concrete resources or a narrowed set of definitions without mutating the
+    module-level production ``defs`` object.
+    """
+    resources = dict(default_resources)
+    if resource_overrides:
+        resources.update(resource_overrides)
+
+        dataset_settings_override = resource_overrides.get("dataset_settings")
+        if dataset_settings_override is not None:
+            # These special cases for the FERC IO Managers is a temporary workaround.
+            # The wrapper IO managers contain ``dataset_settings`` as a nested Dagster
+            # resource dependency at instantiation time, which means overriding the
+            # top-level resource alone is not enough. Here we rebuild the FERC IO
+            # managers against the same underlying resource instances. In a followup
+            # PR we will get rid of the IO Manager wrappers and their nested resource
+            # dependencies, which will make this kind of override much more
+            # straightforward. For now, this lets us assemble these interdependent
+            # resources in one place.
+            if "ferc1_dbf_sqlite_io_manager" not in resource_overrides:
+                resources["ferc1_dbf_sqlite_io_manager"] = type(
+                    ferc1_dbf_sqlite_io_manager
+                )(
+                    dataset_settings=dataset_settings_override,
+                    db_name=ferc1_dbf_sqlite_io_manager.db_name,
+                )
+
+            if "ferc1_xbrl_sqlite_io_manager" not in resource_overrides:
+                resources["ferc1_xbrl_sqlite_io_manager"] = type(
+                    ferc1_xbrl_sqlite_io_manager
+                )(
+                    dataset_settings=dataset_settings_override,
+                    db_name=ferc1_xbrl_sqlite_io_manager.db_name,
+                )
+
+            if "ferc714_xbrl_sqlite_io_manager" not in resource_overrides:
+                resources["ferc714_xbrl_sqlite_io_manager"] = type(
+                    ferc714_xbrl_sqlite_io_manager
+                )(
+                    dataset_settings=dataset_settings_override,
+                    db_name=ferc714_xbrl_sqlite_io_manager.db_name,
+                )
+
+    return dg.Definitions(
+        assets=list(default_assets if asset_overrides is None else asset_overrides),
+        asset_checks=list(
+            default_asset_checks
+            if asset_check_overrides is None
+            else asset_check_overrides
         ),
-    ],
-    sensors=[ferceqr_deployment.ferceqr_sensor],
-)
+        resources=resources,
+        jobs=list(default_jobs if job_overrides is None else job_overrides),
+        sensors=list(default_sensors if sensor_overrides is None else sensor_overrides),
+    )
+
+
+defs: dg.Definitions = build_defs()
 """A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL."""
