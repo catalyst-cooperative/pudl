@@ -1,7 +1,6 @@
 """Dagster IO Managers."""
 
 import json
-import os
 import re
 from functools import cached_property
 from pathlib import Path
@@ -79,13 +78,6 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
     @cached_property
     def _parquet_io_manager(self) -> "PudlParquetIOManager":
         """Build the Parquet-backed runtime IO manager lazily."""
-        logger.warning(
-            "PudlMixedformatIOManager initialized with\n"
-            f"{PudlPaths().output_dir=}\n"
-            f"{os.getenv('PUDL_OUTPUT')=}\n"
-            f"{PudlPaths().input_dir=}\n"
-            f"{os.getenv('PUDL_INPUT')=}"
-        )
         return PudlParquetIOManager()
 
     def handle_output(

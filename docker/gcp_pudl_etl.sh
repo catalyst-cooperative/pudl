@@ -38,10 +38,10 @@ function run_pudl_etl() {
         authenticate_gcp &&
         alembic upgrade head &&
         dg launch --job pudl \
-            --config "$DG_CONFIG_PATH" &&
+            --config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" &&
         pytest \
             -n auto \
-            --dg-config "$DG_CONFIG_PATH" \
+            --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
             --live-pudl-output test/integration test/unit \
             --no-cov &&
         touch "$PUDL_OUTPUT/success"
@@ -56,7 +56,7 @@ function write_pudl_datapackage() {
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" &&
         gcloud storage --quiet cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" &&
-        gcloud storage --quiet cp -r "$PUDL_REPO"/dbt/seeds/etl_full_row_counts.csv "$PUDL_GCS_OUTPUT" &&
+        gcloud storage --quiet cp -r /home/ubuntu/pudl/dbt/seeds/etl_full_row_counts.csv "$PUDL_GCS_OUTPUT" &&
         rm -f "$PUDL_OUTPUT/success"
 }
 
@@ -233,8 +233,6 @@ fi
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
-: "${PUDL_REPO:=/home/ubuntu/pudl}"
-: "${DG_CONFIG_PATH}:=$PUDL_REPO/src/pudl/package_data/settings/$DG_CONFIG_YML}"
 
 # Save credentials for working with AWS S3
 # set +x / set -x is used to avoid printing the AWS credentials in the logs
