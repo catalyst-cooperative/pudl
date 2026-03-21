@@ -8,7 +8,7 @@ from typing import Any
 import dagster as dg
 
 import pudl
-from pudl.etl import ferceqr_deployment
+from pudl.deploy import ferceqr
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
@@ -118,9 +118,7 @@ out_module_groups = {
 }
 
 ferceqr_deployment_assets = (
-    {"ferceqr_deployment": [ferceqr_deployment]}
-    if os.getenv("FERCEQR_BUILD", None)
-    else {}
+    {"ferceqr_deployment": [ferceqr]} if os.getenv("FERCEQR_BUILD", None) else {}
 )
 
 all_asset_modules = (
@@ -289,7 +287,7 @@ default_jobs = [
     ),
 ]
 
-default_sensors = [ferceqr_deployment.ferceqr_sensor]
+default_sensors = [ferceqr.ferceqr_sensor]
 
 
 def build_defs(

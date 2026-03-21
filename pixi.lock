@@ -498,7 +498,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygls-2.1.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygments-2.19.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pygraphviz-1.14-py313h8a0a71b_3.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/pyicu-2.16.1-py313hbb8943b_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pyicu-2.16.2-py313hbb8943b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pyjwt-2.12.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pymdown-extensions-10.21-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pynacl-1.6.2-py313h5008379_1.conda
@@ -1152,7 +1152,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygls-2.1.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygments-2.19.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pygraphviz-1.14-py313hd8bc1fb_3.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/pyicu-2.16.1-py313hf4ee460_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/pyicu-2.16.2-py313h68ab0b4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pyjwt-2.12.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pymdown-extensions-10.21-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pynacl-1.6.2-py313hf61a874_1.conda
@@ -1790,7 +1790,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygls-2.1.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygments-2.19.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pygraphviz-1.14-py313hef38a24_3.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pyicu-2.16.1-py313h8798f4d_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pyicu-2.16.2-py313h8798f4d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pyjwt-2.12.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pymdown-extensions-10.21-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pynacl-1.6.2-py313h6940bce_1.conda
@@ -3937,8 +3937,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.3.1.dev67
-  sha256: e50a4aee0998cd3587799213cbf1da95a9be6bb921d26823ef3f05bd7ec187de
+  version: 2026.3.1.dev69
+  sha256: 6f300ce605c766c83fb02ededcbba27c91ddfcfd816a0c5b9b57a32ce9427d21
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -15034,53 +15034,50 @@ packages:
   - pkg:pypi/pygraphviz?source=hash-mapping
   size: 144967
   timestamp: 1768735356368
-- conda: https://conda.anaconda.org/conda-forge/linux-64/pyicu-2.16.1-py313hbb8943b_0.conda
-  sha256: 8408657d9c48ecae793c976ec4dea3c22cab3b2270d444cd55e25eb307cb10c7
-  md5: b067bb0759971e9e1f4e67448817ccfa
+- conda: https://conda.anaconda.org/conda-forge/linux-64/pyicu-2.16.2-py313hbb8943b_0.conda
+  sha256: ab382f93d0b5d19b3bcb8eaed1e3075ae6a633abd4824c11d9767be385f9bba8
+  md5: 7e4aa7abdfb3de70e1ec8f44a3de93f1
   depends:
   - __glibc >=2.17,<3.0.a0
-  - icu >=78.2,<79.0a0
+  - icu >=78.3,<79.0a0
   - libgcc >=14
   - libstdcxx >=14
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/pyicu?source=hash-mapping
-  size: 437780
-  timestamp: 1770343037130
-- conda: https://conda.anaconda.org/conda-forge/osx-64/pyicu-2.16.1-py313hf4ee460_0.conda
-  sha256: 904accbd85791ce1c527f9f7c889df4f62bedb60b70be5bb127c13c978f45317
-  md5: c5c3b561ed9de7fa1d8396c48a325d07
+  size: 438070
+  timestamp: 1774055789815
+- conda: https://conda.anaconda.org/conda-forge/osx-64/pyicu-2.16.2-py313h68ab0b4_0.conda
+  sha256: 7a1f9ed7126468bdf43cca21636d5d95e98497116d5d5a8f0de71c266d0a8b10
+  md5: 8c9bd0ba202992e3fd4776bf13611e44
   depends:
-  - __osx >=10.13
-  - icu >=78.2,<79.0a0
+  - __osx >=11.0
+  - icu >=78.3,<79.0a0
   - libcxx >=19
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/pyicu?source=hash-mapping
-  size: 353767
-  timestamp: 1770343242993
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/pyicu-2.16.1-py313h8798f4d_0.conda
-  sha256: 4d41ce6184096575c4b51b6fc32287fa747ff3b0f1ae1be8d131fe0a6a845812
-  md5: d273b7f7fd244ef7a7a7b0a0ad81063d
+  size: 353696
+  timestamp: 1774056509145
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/pyicu-2.16.2-py313h8798f4d_0.conda
+  sha256: 3c3383ad4023d3595c38b910dd59734a98fae766c77b234de2e2e555b9b8e1d9
+  md5: 7d002bd871f1f4b32e0c4d0256e45399
   depends:
   - __osx >=11.0
-  - icu >=78.2,<79.0a0
+  - icu >=78.3,<79.0a0
   - libcxx >=19
   - python >=3.13,<3.14.0a0
   - python >=3.13,<3.14.0a0 *_cp313
   - python_abi 3.13.* *_cp313
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/pyicu?source=hash-mapping
-  size: 348046
-  timestamp: 1770343655275
+  size: 348780
+  timestamp: 1774056393860
 - conda: https://conda.anaconda.org/conda-forge/noarch/pyjwt-2.12.1-pyhcf101f3_0.conda
   sha256: 4279ee4cf2533fd17910ae7373159d9bee2492d8c50932ddc74dd27a70b15de4
   md5: b27a9f4eca2925036e43542488d3a804
