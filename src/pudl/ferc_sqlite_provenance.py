@@ -142,9 +142,7 @@ def assert_ferc_sqlite_compatible(
     if materialization is None:
         raise RuntimeError(
             "No Dagster provenance metadata is available for "
-            f"{provenance.asset_key.to_user_string()}. Run `pixi run ferc` to refresh "
-            "the FERC SQLite prerequisites, or `pixi run pudl-with-ferc-to-sqlite` "
-            "for a full rebuild."
+            f"{provenance.asset_key.to_user_string()}. Refresh the FERC SQLite assets"
         )
 
     metadata = {
@@ -161,16 +159,14 @@ def assert_ferc_sqlite_compatible(
         missing_keys_str = ", ".join(sorted(missing_keys))
         raise RuntimeError(
             f"Stored provenance metadata for {provenance.asset_key.to_user_string()} is "
-            f"missing {missing_keys_str}. Run `pixi run ferc` or `pixi run "
-            "pudl-with-ferc-to-sqlite` to rebuild the prerequisites with current "
-            "metadata."
+            f"missing {missing_keys_str}. Refresh the FERC SQLite assets."
         )
 
     if metadata[PROVENANCE_METADATA_STATUS] != "complete":
         raise RuntimeError(
             f"Stored provenance metadata for {provenance.asset_key.to_user_string()} has "
-            f"status={metadata[PROVENANCE_METADATA_STATUS]!r}. Run `pixi run ferc` or "
-            "`pixi run pudl-with-ferc-to-sqlite` to rebuild the prerequisites."
+            f"status={metadata[PROVENANCE_METADATA_STATUS]!r}. "
+            "Refresh the FERC SQLite assets."
         )
 
     mismatches = []
@@ -191,7 +187,6 @@ def assert_ferc_sqlite_compatible(
         mismatch_summary = "; ".join(mismatches)
         raise RuntimeError(
             f"Stored prerequisite asset {provenance.asset_key.to_user_string()} is not "
-            f"compatible with the current run configuration. {mismatch_summary}. Run "
-            "`pixi run ferc` to refresh the FERC SQLite prerequisites, or `pixi run "
-            "pudl-with-ferc-to-sqlite` for a full rebuild."
+            f"compatible with the current run configuration. {mismatch_summary}. "
+            "Refresh the FERC SQLite assets."
         )

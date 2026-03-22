@@ -302,8 +302,19 @@ def dg_config_path(request, test_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def dagster_home(tmp_path_factory) -> Path:
-    """Create the pytest-managed Dagster home shared by this test session."""
+def dagster_home(tmp_path_factory, request) -> Path:
+    """Resolve the Dagster home shared by this test session.
+
+    Live-output integration runs need to reuse the existing Dagster instance from the
+    ETL build so FERC SQLite provenance metadata written during `dg launch` remains
+    visible to later in-process reads. Fixture-managed prebuilds still use an isolated
+    temporary Dagster home.
+    """
+    if request.config.getoption("--live-pudl-output") and os.environ.get(
+        "DAGSTER_HOME"
+    ):
+        return Path(os.environ["DAGSTER_HOME"]).resolve()
+
     dagster_home = tmp_path_factory.mktemp("dagster_home")
     (dagster_home / "dagster.yaml").touch()
     os.environ["DAGSTER_HOME"] = str(dagster_home)
