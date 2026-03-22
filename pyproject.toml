@@ -302,39 +302,33 @@ pytest \
     test/integration/glue_test.py
 """, description = "Identify unmapped plant and utility IDs" }
 
-# ETL tasks
-ferc = { cmd = """
+# Dagster tasks
+ferc-to-sqlite-clean = { cmd = """
 bash -c 'shopt -s nullglob; rm -f \
     $PUDL_OUTPUT/ferc*.sqlite \
     $PUDL_OUTPUT/ferc*.duckdb \
     $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
-    $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json' && \
-dg launch --job ferc_to_sqlite --config $DG_FULL_CONFIG
-""", description = "Build FERC databases from scratch" }
+    $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json'
+""", description = "Remove raw FERC SQLite databases and related outputs" }
+ferc-to-sqlite = { cmd = "dg launch --job ferc_to_sqlite --config $DG_FULL_CONFIG", depends-on = ["ferc-to-sqlite-clean"], description = "Build FERC databases from scratch" }
 
+pudl-clean = { cmd = "bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite'", description = "Remove PUDL SQLite database" }
 pudl = { cmd = """
-bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite' && \
 alembic upgrade head && \
 dg launch --job pudl --config $DG_FULL_CONFIG
-""", description = "Run PUDL ETL assets without rebuilding raw FERC SQLite databases" }
+""", depends-on = ["pudl-clean"], description = "Run PUDL ETL assets without rebuilding raw FERC SQLite databases" }
 
 pudl-with-ferc-to-sqlite = { cmd = """
-bash -c 'shopt -s nullglob; rm -f \
-    $PUDL_OUTPUT/ferc*.sqlite \
-    $PUDL_OUTPUT/ferc*.duckdb \
-    $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
-    $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json \
-    $PUDL_OUTPUT/pudl.sqlite' && \
 alembic upgrade head && \
 dg launch --job pudl_with_ferc_to_sqlite --config $DG_FULL_CONFIG
-""", description = "Run the full PUDL ETL including rebuilding raw FERC SQLite databases" }
+""", depends-on = ["ferc-to-sqlite-clean", "pudl-clean"], description = "Run the full PUDL ETL including rebuilding raw FERC SQLite databases" }
 
 # Code quality tasks
 pre-commit-run = { cmd = "pre-commit run --all-files", description = "Run all pre-commit hooks" }
 pre-commit-install = { cmd = "pre-commit install", description = "Install pre-commit hooks" }
 
 # Dependency Update tasks
-pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update pre-commit hook versions" }
+pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update pre-commit hooks" }
 dbt-deps-upgrade = { cmd = "dbt deps --upgrade", cwd = "dbt", description = "Update dbt dependencies" }
 
 # Coding agent environment

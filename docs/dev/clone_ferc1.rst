@@ -51,13 +51,12 @@ The raw FERC conversion flow within ``ferc_to_sqlite`` looks like this:
    C --> E[ferc1_dbf.sqlite]
 
    D --> F[ferc1_xbrl.sqlite]
-   D --> G[ferc1_xbrl.duckdb]
+   D --> G[ferc1_xbrl.duckdb<br/>(experimental)]
    D --> H[ferc1_xbrl_datapackage.json]
    D --> I[ferc1_xbrl_taxonomy_metadata.json]
 
    E --> J[Clean FERC tables in PUDL<br/>1994-present]
    F --> J
-   G --> J
    H --> J
    I --> J
 
@@ -68,12 +67,11 @@ the ``pudl`` job standardizes and cleans a smaller subset of those tables in the
 PUDL data products.
 
 The conversion can be done using the Dagster UI (see :ref:`run-dagster-ui`) or the
-Dagster CLI (see :ref:`run-cli`). For local command-line usage, the most direct options
-are:
+Dagster CLI (see :ref:`run-cli`). For local command-line usage, options include:
 
 .. code-block:: console
 
-  $ pixi run ferc
+  $ pixi run ferc-to-sqlite
   $ pixi run dg launch --job ferc_to_sqlite --config src/pudl/package_data/settings/dg_full.yml
 
 .. note::
