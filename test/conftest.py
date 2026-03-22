@@ -183,7 +183,7 @@ def pytest_addoption(parser):
 
 
 def _pudl_etl(dg_config_path: Path, pudl_test_paths: PudlPaths) -> None:
-    """Run a dg launch job for pudl including coverage collection.
+    """Run a dg launch job for pudl_with_ferc_to_sqlite including coverage collection.
 
     Uses the dg executable path directly since ``dg`` is a console script and not a
     Python module importable via ``python -m dg``.
@@ -201,7 +201,7 @@ def _pudl_etl(dg_config_path: Path, pudl_test_paths: PudlPaths) -> None:
         dg_path,
         "launch",
         "--job",
-        "pudl",
+        "pudl_with_ferc_to_sqlite",
         "--config",
         str(dg_config_path),
         "--verbose",
@@ -229,7 +229,7 @@ def _pudl_etl(dg_config_path: Path, pudl_test_paths: PudlPaths) -> None:
     ) as proc:
         assert proc.stdout is not None
         for line in proc.stdout:
-            logger.info("[dg pudl] %s", line.rstrip())
+            logger.info(line.rstrip())
 
         returncode = proc.wait()
         if returncode != 0:

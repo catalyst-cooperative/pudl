@@ -308,14 +308,25 @@ bash -c 'shopt -s nullglob; rm -f \
     $PUDL_OUTPUT/ferc*.duckdb \
     $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
     $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json' && \
-dg launch --assets group:raw_ferc_to_sqlite --config $DG_FULL_CONFIG
+dg launch --job ferc_to_sqlite --config $DG_FULL_CONFIG
 """, description = "Build FERC databases from scratch" }
 
 pudl = { cmd = """
 bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite' && \
 alembic upgrade head && \
-dg launch --assets "* and not group:raw_ferc_to_sqlite and not group:raw_ferceqr and not group:core_ferceqr" --config $DG_FULL_CONFIG
+dg launch --job pudl --config $DG_FULL_CONFIG
 """, description = "Run PUDL ETL assets without rebuilding raw FERC SQLite databases" }
+
+pudl-with-ferc-to-sqlite = { cmd = """
+bash -c 'shopt -s nullglob; rm -f \
+    $PUDL_OUTPUT/ferc*.sqlite \
+    $PUDL_OUTPUT/ferc*.duckdb \
+    $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
+    $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json \
+    $PUDL_OUTPUT/pudl.sqlite' && \
+alembic upgrade head && \
+dg launch --job pudl_with_ferc_to_sqlite --config $DG_FULL_CONFIG
+""", description = "Run the full PUDL ETL including rebuilding raw FERC SQLite databases" }
 
 # Code quality tasks
 pre-commit-run = { cmd = "pre-commit run --all-files", description = "Run all pre-commit hooks" }

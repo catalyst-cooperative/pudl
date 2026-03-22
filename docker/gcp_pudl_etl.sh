@@ -37,7 +37,7 @@ function run_dagster() {
     initialize_postgres &&
         authenticate_gcp &&
         alembic upgrade head &&
-        dg launch --job pudl \
+        dg launch --job pudl_with_ferc_to_sqlite \
             --config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML"
 }
 
