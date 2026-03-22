@@ -17,6 +17,7 @@ from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
     ConfigurableIOManager,
+    DagsterInvariantViolationError,
     InitResourceContext,
     InputContext,
     IOManager,
@@ -41,6 +42,19 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 MINIMUM_SQLITE_VERSION = "3.32.0"
+
+
+def _get_optional_instance(context: InputContext):
+    """Return the Dagster instance from an input context if one was provided.
+
+    Some notebook and integration-test helpers build ad hoc ``InputContext`` objects
+    without attaching a Dagster instance. Provenance checks should be skipped for those
+    direct reads rather than raising while trying to access ``context.instance``.
+    """
+    try:
+        return context.instance
+    except DagsterInvariantViolationError:
+        return None
 
 
 def get_table_name_from_context(context: OutputContext) -> str:
@@ -779,7 +793,7 @@ class FercDbfSQLiteDagsterIOManager(ConfigurableIOManager):
         """Load a dataframe from the FERC 1 DBF SQLite database."""
         self._manager._ensure_database_ready()
         assert_ferc_sqlite_compatible(
-            instance=context.instance,
+            instance=_get_optional_instance(context),
             db_name=self.db_name,
             etl_settings=self.etl_settings,
             zenodo_dois=self.zenodo_dois,
@@ -925,7 +939,7 @@ class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
         """Load a dataframe from the configured FERC XBRL SQLite database."""
         self._manager._ensure_database_ready()
         assert_ferc_sqlite_compatible(
-            instance=context.instance,
+            instance=_get_optional_instance(context),
             db_name=self.db_name,
             etl_settings=self.etl_settings,
             zenodo_dois=self.zenodo_dois,

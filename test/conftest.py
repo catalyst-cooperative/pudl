@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
+from collections.abc import Generator
 from pathlib import Path
 
 import duckdb
@@ -12,7 +13,12 @@ import pydantic
 import pytest
 import sqlalchemy as sa
 import yaml
-from dagster import AssetValueLoader, build_init_resource_context, materialize_to_memory
+from dagster import (
+    AssetValueLoader,
+    DagsterInstance,
+    build_init_resource_context,
+    materialize_to_memory,
+)
 
 import pudl
 from pudl import resources
@@ -182,7 +188,11 @@ def pytest_addoption(parser):
     )
 
 
-def _pudl_etl(dg_config_path: Path, pudl_test_paths: PudlPaths) -> None:
+def _pudl_etl(
+    dg_config_path: Path,
+    pudl_test_paths: PudlPaths,
+    dagster_home: Path,
+) -> None:
     """Run a dg launch job for pudl_with_ferc_to_sqlite including coverage collection.
 
     Uses the dg executable path directly since ``dg`` is a console script and not a
@@ -211,10 +221,14 @@ def _pudl_etl(dg_config_path: Path, pudl_test_paths: PudlPaths) -> None:
     # Force dg launch to read/write within pytest-managed paths.
     env["PUDL_INPUT"] = str(pudl_test_paths.input_dir)
     env["PUDL_OUTPUT"] = str(pudl_test_paths.output_dir)
+    env["DAGSTER_HOME"] = str(dagster_home)
     env["PYTHONUNBUFFERED"] = "1"
     logger.info("Starting PUDL pytest ETL using dg launch.")
     logger.info(f"Command: {' '.join(cmd)}")
-    logger.info(f"Running dg launch with {env['PUDL_INPUT']=} {env['PUDL_OUTPUT']=}")
+    logger.info(
+        "Running dg launch with "
+        f"{env['PUDL_INPUT']=} {env['PUDL_OUTPUT']=} {env['DAGSTER_HOME']=}"
+    )
 
     # Stream subprocess output into pytest's live logging so progress is visible.
     # Popen is used instead of run to allow streaming output. We also set text=True and
@@ -288,7 +302,26 @@ def dg_config_path(request, test_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def asset_value_loader(etl_settings_path: Path) -> AssetValueLoader:
+def dagster_home(tmp_path_factory) -> Path:
+    """Create the pytest-managed Dagster home shared by this test session."""
+    dagster_home = tmp_path_factory.mktemp("dagster_home")
+    (dagster_home / "dagster.yaml").touch()
+    os.environ["DAGSTER_HOME"] = str(dagster_home)
+    return dagster_home.resolve()
+
+
+@pytest.fixture(scope="session")
+def dagster_instance(dagster_home: Path) -> DagsterInstance:
+    """Return the Dagster instance shared by the pytest session and ETL subprocess."""
+    return DagsterInstance.get()
+
+
+@pytest.fixture(scope="session")
+def asset_value_loader(
+    prebuilt_outputs,
+    etl_settings_path: Path,
+    dagster_instance: DagsterInstance,
+) -> Generator[AssetValueLoader]:
     """Fixture that initializes an asset value loader.
 
     Use this as ``asset_value_loader.load_asset_value`` instead of
@@ -302,7 +335,8 @@ def asset_value_loader(etl_settings_path: Path) -> AssetValueLoader:
             )
         }
     )
-    return configured_defs.get_asset_value_loader()
+    with configured_defs.get_asset_value_loader(instance=dagster_instance) as loader:
+        yield loader
 
 
 @pytest.fixture(scope="session")
@@ -379,6 +413,7 @@ def prebuilt_outputs(
     request,
     dg_config_path: Path,
     pudl_test_paths: PudlPaths,
+    dagster_home: Path,
 ):
     """Prebuild fast integration databases in pytest-managed output directories.
 
@@ -399,7 +434,7 @@ def prebuilt_outputs(
     pudl_engine = sa.create_engine(pudl_test_paths.pudl_db)
     md.create_all(pudl_engine)
 
-    _pudl_etl(dg_config_path, pudl_test_paths)
+    _pudl_etl(dg_config_path, pudl_test_paths, dagster_home)
     _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths)
 
 
@@ -455,7 +490,7 @@ def pudl_engine(prebuilt_outputs) -> sa.Engine:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def pudl_test_paths(tmp_path_factory, request):
+def pudl_test_paths(tmp_path_factory, request, dagster_home: Path):
     """Configures PudlPaths for tests.
 
     Default behavior:
@@ -500,6 +535,9 @@ def pudl_test_paths(tmp_path_factory, request):
         out_tmp.mkdir()
         output_dir = out_tmp.resolve()
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
+
+    os.environ["DAGSTER_HOME"] = str(dagster_home)
+    logger.info(f"Using temporary DAGSTER_HOME: {dagster_home}")
 
     PudlPaths.set_path_overrides(
         input_dir=str(input_dir),
@@ -550,11 +588,18 @@ def logger_config():
 
 
 @pytest.fixture(scope="session")
-def pudl_datastore_fixture(request) -> Datastore:
+def pudl_datastore_fixture(request) -> Generator[Datastore]:
     """Create pudl Datastore resource."""
-    init_context = build_init_resource_context(
-        config={
-            "use_local_cache": not request.config.getoption("--bypass-local-cache"),
-        }
-    )
-    return resources.DatastoreResource.from_resource_context(init_context)
+    with resources.ZenodoDoiSettingsResource.from_resource_context_cm(
+        build_init_resource_context()
+    ) as zenodo_dois:
+        init_context = build_init_resource_context(
+            config={
+                "use_local_cache": not request.config.getoption("--bypass-local-cache"),
+            },
+            resources={"zenodo_dois": zenodo_dois},
+        )
+        with resources.DatastoreResource.from_resource_context_cm(
+            init_context
+        ) as datastore:
+            yield datastore

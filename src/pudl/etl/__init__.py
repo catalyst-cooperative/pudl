@@ -330,6 +330,7 @@ def build_defs(
         resources.update(resource_overrides)
 
         etl_settings_override = resource_overrides.get("etl_settings")
+        zenodo_dois_override = resources.get("zenodo_dois")
         if etl_settings_override is not None:
             # These special cases for the FERC IO Managers is a temporary workaround.
             # The wrapper IO managers contain ``etl_settings`` as a nested Dagster
@@ -345,6 +346,7 @@ def build_defs(
                     ferc1_dbf_sqlite_io_manager
                 )(
                     etl_settings=etl_settings_override,
+                    zenodo_dois=zenodo_dois_override,
                     db_name=ferc1_dbf_sqlite_io_manager.db_name,
                 )
 
@@ -353,6 +355,7 @@ def build_defs(
                     ferc1_xbrl_sqlite_io_manager
                 )(
                     etl_settings=etl_settings_override,
+                    zenodo_dois=zenodo_dois_override,
                     db_name=ferc1_xbrl_sqlite_io_manager.db_name,
                 )
 
@@ -361,6 +364,7 @@ def build_defs(
                     ferc714_xbrl_sqlite_io_manager
                 )(
                     etl_settings=etl_settings_override,
+                    zenodo_dois=zenodo_dois_override,
                     db_name=ferc714_xbrl_sqlite_io_manager.db_name,
                 )
 
