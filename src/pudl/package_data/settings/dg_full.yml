@@ -20,6 +20,6 @@ resources:
       etl_settings_path: src/pudl/package_data/settings/etl_full.yml
   runtime_settings:
     config:
-      xbrl_num_workers: null
+      xbrl_num_workers: 4
       xbrl_batch_size: 50
       xbrl_loglevel: INFO
