@@ -2,7 +2,6 @@
 
 import contextlib
 import json
-import logging
 import re
 
 import pytest
@@ -10,8 +9,6 @@ from click.testing import CliRunner
 
 from pudl.dbt_wrapper import install_dbt_deps
 from pudl.scripts.dbt_helper import dbt_helper
-
-logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
@@ -42,10 +39,10 @@ def test_update_tables(dbt_target: str, script_runner):
     assert ret.success
 
 
-def test_validate_asset_selection(caplog, dbt_dependencies):
+def test_validate_asset_selection(mocker, dbt_dependencies):
     """Verify that dbt_helper expands asset selections in dry-run mode."""
-    caplog.set_level(logging.INFO)
     runner = CliRunner()
+    logger_mock = mocker.patch("pudl.scripts.dbt_helper.logger.info")
     # Click 8.3.1 still raises "I/O operation on closed file" in invoke() here,
     # so keep using isolation() until the bundled version actually behaves.
     # See https://github.com/pallets/click/issues/3110
@@ -61,7 +58,10 @@ def test_validate_asset_selection(caplog, dbt_dependencies):
             standalone_mode=False,
         )
 
-    output = caplog.text
+    if logger_mock.call_args is None:
+        raise AssertionError("Expected dbt_helper dry-run to log build parameters.")
+
+    output = logger_mock.call_args.args[0]
     if "node_selection" not in output:
         raise AssertionError(f"Unexpected output: {output}")
     params_match = re.search(r"({.+})", output)
