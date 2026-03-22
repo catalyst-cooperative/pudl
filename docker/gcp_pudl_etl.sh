@@ -156,7 +156,7 @@ function slack_stage_status() {
     local stage_status=$2
     local stage_duration=$3
     local stage_emoji=":x:"
-    local duration_field="[--:--:--]"
+    local duration_field="\`[--:--:--]\`"
 
     # Slack rows show whether a stage passed, failed, or was intentionally skipped.
     if [[ $stage_status == "$STAGE_SKIPPED" ]]; then
@@ -167,7 +167,7 @@ function slack_stage_status() {
 
     # Always render a fixed-width duration field so the stage names line up.
     if [[ -n "$stage_duration" ]]; then
-        duration_field="[${stage_duration}]"
+        printf -v duration_field "\`[%s]\`" "$stage_duration"
     fi
 
     printf '%s %s %s' "$stage_emoji" "$duration_field" "$stage_name"
@@ -262,7 +262,7 @@ function notify_slack() {
         exit 1
     fi
 
-    message+=":time: [${total_build_duration}] Total Build Duration\n\n"
+    message+=":time: \`[${total_build_duration}]\` Total Build Duration\n\n"
     message+="$(slack_stage_status "Run PUDL Dagster Job" "$DAGSTER_STATUS" "$DAGSTER_DURATION")\n"
     message+="$(slack_stage_status "Pass Unit Tests" "$UNIT_TEST_STATUS" "$UNIT_TEST_DURATION")\n"
     message+="$(slack_stage_status "Pass Integration Tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")\n"
