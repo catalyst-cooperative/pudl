@@ -1,8 +1,18 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
+import warnings
+
+from dagster import PreviewWarning
+
 from pudl.logging_helpers import configure_root_logger
 
-from . import (
+warnings.filterwarnings(
+    action="once",
+    message=r"Specifying a partitions_def on an AssetCheckSpec is currently in preview.*",
+    category=PreviewWarning,
+)
+
+from . import (  # noqa: E402
     analysis,
     convert,
     extract,
