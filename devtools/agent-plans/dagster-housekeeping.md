@@ -93,11 +93,11 @@ Context shaping this plan:
 
 ## Epic P1-E1: Define Canonical `dg launch` Run Modes
 
-### Objective
+### P1-E1 Objective
 
 Define canonical `dg launch` commands for all primary run modes so everyone is using the same playbook.
 
-### Suggested Sub-Issues
+### P1-E1 Suggested Sub-Issues
 
 - P1-E1-S1: Inventory all run modes currently handled by custom launch scripts.
   - Deliverable: matrix of command, parameters, defaults, and consumers (dev, CI, nightly).
@@ -106,7 +106,7 @@ Define canonical `dg launch` commands for all primary run modes so everyone is u
 - P1-E1-S3: Capture expected behavior per mode (runtime, outputs, key logs, failure behavior).
   - Deliverable: parity checklist to validate later cutover work.
 
-### Verification
+### P1-E1 Verification
 
 - `pixi run dg check defs`
 - `pixi run dg list defs --json`
@@ -114,11 +114,11 @@ Define canonical `dg launch` commands for all primary run modes so everyone is u
 
 ## Epic P1-E2: Dagster-Native Parameter and Config Modeling
 
-### Objective
+### P1-E2 Objective
 
 Represent script-collected parameters in Dagster-native config/resources so CLI migration stays maintainable.
 
-### Suggested Sub-Issues
+### P1-E2 Suggested Sub-Issues
 
 - P1-E2-S1: Classify each launch parameter as job config, resource config, env var, or execution setting.
   - Deliverable: parameter-to-Dagster mapping table.
@@ -129,7 +129,7 @@ Represent script-collected parameters in Dagster-native config/resources so CLI 
 - P1-E2-S4: Document secrets handling and environment variable injection for local and CI/nightly contexts.
   - Deliverable: one source of truth for runtime config behavior.
 
-### Verification
+### P1-E2 Verification
 
 - `pixi run dg check defs`
 - Targeted tests for config loading and expected run-config resolution.
@@ -322,20 +322,13 @@ replaced with a fixture that reads the engine from the built SQLite file path di
 
 ---
 
-## P1-E3 Sequencing
-
-```
-T1 (optional bug-fix) → T2 (nightly config) → T3 (update gcp script) → T4/T5/T6/T7/T8/T9 (removal)
-FU-1 → FU-2 → FU-3 → FU-4 (follow-up PR after T9)
-```
-
 ## Epic P1-E4: Establish `defs` as the Source of Truth (After CLI Parity)
 
-### Objective
+### P1-E4 Objective
 
 Move definition registration from legacy central assembly toward `src/pudl/defs/` after launch-path behavior is stable.
 
-### Suggested Sub-Issues
+### P1-E4 Suggested Sub-Issues
 
 - P1-E4-S1: Design target `defs` package layout.
   - Deliverable: agreed module map (for example: `assets/`, `jobs/`, `resources/`, `automation/`).
@@ -346,7 +339,7 @@ Move definition registration from legacy central assembly toward `src/pudl/defs/
 - P1-E4-S4: Add compatibility shim if needed for existing imports.
   - Deliverable: downstream imports continue to work during transition.
 
-### Verification
+### P1-E4 Verification
 
 - `pixi run dg check defs`
 - `pixi run dg list defs --json`
@@ -354,11 +347,11 @@ Move definition registration from legacy central assembly toward `src/pudl/defs/
 
 ## Epic P1-E5: Decompose Monolithic ETL Definition Assembly
 
-### Objective
+### P1-E5 Objective
 
 Break apart centralized module registration logic into cohesive domain modules once launch pathways are standardized.
 
-### Suggested Sub-Issues
+### P1-E5 Suggested Sub-Issues
 
 - P1-E5-S1: Extract raw/core/out grouping config into dedicated modules.
   - Deliverable: small, focused grouping modules with clear ownership.
@@ -369,18 +362,18 @@ Break apart centralized module registration logic into cohesive domain modules o
 - P1-E5-S4: Add regression test or snapshot test for selected asset keys/groups.
   - Deliverable: early warning on accidental graph drift.
 
-### Verification
+### P1-E5 Verification
 
 - `pixi run dg check defs`
 - Targeted tests for asset/job registration shape.
 
 ## Epic P1-E6: Metadata and Ownership Baseline (After Structural Moves)
 
-### Objective
+### P1-E6 Objective
 
 Create and enforce a minimum metadata contract so the graph is navigable and maintainable.
 
-### Suggested Sub-Issues
+### P1-E6 Suggested Sub-Issues
 
 - P1-E6-S1: Define metadata policy for `owners`, `kinds`, and `tags`.
   - Deliverable: short policy doc with examples and naming conventions.
@@ -391,7 +384,7 @@ Create and enforce a minimum metadata contract so the graph is navigable and mai
 - P1-E6-S4: Backfill check descriptions for highest-value checks first.
   - Deliverable: top-priority checks have meaningful descriptions.
 
-### Verification
+### P1-E6 Verification
 
 - Programmatic query of `dg list defs --json` to report metadata completeness.
 - CI check runs on pull requests touching Dagster definitions.
