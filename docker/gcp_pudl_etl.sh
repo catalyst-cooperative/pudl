@@ -2,6 +2,13 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+cd "$REPO_ROOT" || exit 1
+
+# Keep the nightly Dagster config path repo-relative so the same pixi task commands
+# work both locally and inside the nightly build container.
+export DG_NIGHTLY_CONFIG="${DG_NIGHTLY_CONFIG:-src/pudl/package_data/settings/dg_nightly.yml}"
+
 function send_slack_msg() {
     set +x &&
         echo "sending Slack message" &&
@@ -36,39 +43,7 @@ function run_dagster() {
     send_slack_msg ":play: Launching Dagster and running the PUDL job for $BUILD_ID :floppy_disk:"
     initialize_postgres &&
         authenticate_gcp &&
-        alembic upgrade head &&
-        dg launch --job pudl_with_ferc_to_sqlite \
-            --config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML"
-}
-
-function run_unit_tests() {
-    echo "Running unit tests"
-    pytest \
-        -n auto \
-        --no-cov \
-        --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
-    test/unit
-}
-
-function run_integration_tests() {
-    echo "Running integration tests"
-    pytest \
-        -n auto \
-        --no-cov \
-        --live-pudl-output \
-        --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
-        --ignore=test/integration/data_validation_test.py \
-        test/integration
-}
-
-function run_data_validation_tests() {
-    echo "Running data validation tests"
-    pytest \
-        -n auto \
-        --no-cov \
-        --live-pudl-output \
-        --dg-config /home/ubuntu/pudl/src/pudl/package_data/settings/"$DG_CONFIG_YML" \
-        test/integration/data_validation_test.py
+        pixi run pudl-with-ferc-to-sqlite-nightly
 }
 
 function write_pudl_datapackage() {
@@ -80,7 +55,7 @@ function write_pudl_datapackage() {
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" &&
         gcloud storage --quiet cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" &&
-        gcloud storage --quiet cp -r /home/ubuntu/pudl/dbt/seeds/etl_full_row_counts.csv "$PUDL_GCS_OUTPUT" &&
+    gcloud storage --quiet cp -r "$REPO_ROOT/dbt/seeds/etl_full_row_counts.csv" "$PUDL_GCS_OUTPUT" &&
         rm -f "$PUDL_OUTPUT/success"
 }
 
@@ -400,9 +375,9 @@ echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
 set -x
 
 run_stage DAGSTER_STATUS DAGSTER_DURATION overwrite run_dagster
-run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION append run_unit_tests
-run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION append run_integration_tests
-run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION append run_data_validation_tests
+run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION append pixi run pytest-unit-nightly
+run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION append pixi run pytest-integration-nightly
+run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION append pixi run pytest-data-validation-nightly
 
 if ! any_stage_failed \
     "$DAGSTER_STATUS" \
