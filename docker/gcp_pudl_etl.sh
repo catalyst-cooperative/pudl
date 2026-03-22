@@ -1,13 +1,11 @@
 #!/usr/bin/bash
-# This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
+# This script runs the entire PUDL ETL and validation tests in a docker container.
+# We manage the deployment of the container using a GHA launched Google Batch VM.
 # This script won't work locally because it needs adequate GCP permissions.
+# It assumes that the PUDL pixi environment is activated.
 
-REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-cd "$REPO_ROOT" || exit 1
-
-# Keep the nightly Dagster config path repo-relative so the same pixi task commands
-# work both locally and inside the nightly build container.
-export DG_NIGHTLY_CONFIG="${DG_NIGHTLY_CONFIG:-src/pudl/package_data/settings/dg_nightly.yml}"
+# Assert that PUDL_REPO is set by the container and points to a valid directory.
+cd "${PUDL_REPO:?PUDL_REPO must be set by the build container}" || exit 1
 
 function send_slack_msg() {
     set +x &&
@@ -55,7 +53,7 @@ function write_pudl_datapackage() {
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" &&
         gcloud storage --quiet cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" &&
-    gcloud storage --quiet cp -r "$REPO_ROOT/dbt/seeds/etl_full_row_counts.csv" "$PUDL_GCS_OUTPUT" &&
+    gcloud storage --quiet cp -r "dbt/seeds/etl_full_row_counts.csv" "$PUDL_GCS_OUTPUT" &&
         rm -f "$PUDL_OUTPUT/success"
 }
 
@@ -363,6 +361,10 @@ fi
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
+# Keep the nightly Dagster config path repo-relative so the same pixi task commands
+# work both locally and inside the nightly build container.
+: "${DG_NIGHTLY_CONFIG:=src/pudl/package_data/settings/dg_nightly.yml}"
+export DG_NIGHTLY_CONFIG
 
 # Save credentials for working with AWS S3
 # set +x / set -x is used to avoid printing the AWS credentials in the logs
