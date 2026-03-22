@@ -27,9 +27,15 @@ from packaging import version
 from pydantic import model_validator
 
 import pudl
+from pudl.ferc_sqlite_provenance import assert_ferc_sqlite_compatible
 from pudl.helpers import get_parquet_table, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
-from pudl.resources import PudlEtlSettingsResource, etl_settings
+from pudl.resources import (
+    PudlEtlSettingsResource,
+    ZenodoDoiSettingsResource,
+    etl_settings,
+    zenodo_dois,
+)
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -749,6 +755,7 @@ class FercDbfSQLiteDagsterIOManager(ConfigurableIOManager):
     """Dagster IO manager for reading tables from the FERC 1 DBF SQLite database."""
 
     etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
+    zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
     db_name: str
 
     @cached_property
@@ -771,6 +778,12 @@ class FercDbfSQLiteDagsterIOManager(ConfigurableIOManager):
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from the FERC 1 DBF SQLite database."""
         self._manager._ensure_database_ready()
+        assert_ferc_sqlite_compatible(
+            instance=context.instance,
+            db_name=self.db_name,
+            etl_settings=self.etl_settings,
+            zenodo_dois=self.zenodo_dois,
+        )
 
         ferc1_settings = self.etl_settings.dataset_settings.ferc1
 
@@ -888,6 +901,7 @@ class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
     """Dagster IO manager for reading tables from a FERC XBRL SQLite database."""
 
     etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
+    zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
     db_name: str
 
     @cached_property
@@ -910,6 +924,12 @@ class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC XBRL SQLite database."""
         self._manager._ensure_database_ready()
+        assert_ferc_sqlite_compatible(
+            instance=context.instance,
+            db_name=self.db_name,
+            etl_settings=self.etl_settings,
+            zenodo_dois=self.zenodo_dois,
+        )
 
         ferc_settings = getattr(
             self.etl_settings.dataset_settings,
@@ -937,13 +957,16 @@ class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
 
 ferc1_dbf_sqlite_io_manager = FercDbfSQLiteDagsterIOManager(
     etl_settings=etl_settings,
+    zenodo_dois=zenodo_dois,
     db_name="ferc1_dbf",
 )
 ferc1_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
     etl_settings=etl_settings,
+    zenodo_dois=zenodo_dois,
     db_name="ferc1_xbrl",
 )
 ferc714_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
     etl_settings=etl_settings,
+    zenodo_dois=zenodo_dois,
     db_name="ferc714_xbrl",
 )

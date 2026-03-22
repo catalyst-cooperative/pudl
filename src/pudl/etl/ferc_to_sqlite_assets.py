@@ -10,6 +10,7 @@ from pudl.extract.ferc import (
     Ferc60DbfExtractor,
 )
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
+from pudl.ferc_sqlite_provenance import build_ferc_sqlite_provenance_metadata
 from pudl.settings import XbrlFormNumber
 from pudl.workspace.setup import PudlPaths
 
@@ -28,16 +29,26 @@ def dbf_to_sqlite_asset_factory(
             "etl_settings",
             "datastore",
             "runtime_settings",
+            "zenodo_dois",
         },
         tags={"dataset": dataset, "data_format": "dbf"},
     )
-    def _asset(context) -> str:
+    def _asset(context) -> dg.MaterializeResult[str]:
         extractor_class(
             datastore=context.resources.datastore,
             settings=context.resources.etl_settings.ferc_to_sqlite,
             output_path=PudlPaths().output_dir,
         ).execute()
-        return "complete"
+        return dg.MaterializeResult(
+            value="complete",
+            metadata=build_ferc_sqlite_provenance_metadata(
+                db_name=f"{dataset}_dbf",
+                etl_settings=context.resources.etl_settings,
+                zenodo_dois=context.resources.zenodo_dois,
+                sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
+                status="complete",
+            ),
+        )
 
     return _asset
 
@@ -54,17 +65,23 @@ def xbrl_to_sqlite_asset_factory(
             "etl_settings",
             "datastore",
             "runtime_settings",
+            "zenodo_dois",
         },
         tags={"dataset": f"ferc{form.value}", "data_format": "xbrl"},
     )
-    def _asset(context) -> str:
+    def _asset(context) -> dg.MaterializeResult[str]:
         runtime_settings = context.resources.runtime_settings
         settings = context.resources.etl_settings.get_xbrl_dataset_settings(form)
         if settings is None or settings.disabled:
             logger.info(
                 f"Skipping dataset ferc{form.value}_xbrl: no config or is disabled."
             )
-            return "skipped"
+            return dg.MaterializeResult(
+                value="skipped",
+                metadata={
+                    "pudl_ferc_sqlite_status": dg.MetadataValue.text("skipped"),
+                },
+            )
 
         output_path = PudlPaths().output_dir
         sqlite_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
@@ -85,7 +102,16 @@ def xbrl_to_sqlite_asset_factory(
             workers=runtime_settings.xbrl_num_workers,
             loglevel=runtime_settings.xbrl_loglevel,
         )
-        return "complete"
+        return dg.MaterializeResult(
+            value="complete",
+            metadata=build_ferc_sqlite_provenance_metadata(
+                db_name=f"ferc{form.value}_xbrl",
+                etl_settings=context.resources.etl_settings,
+                zenodo_dois=context.resources.zenodo_dois,
+                sqlite_path=sqlite_path,
+                status="complete",
+            ),
+        )
 
     return _asset
 

@@ -19,6 +19,7 @@ from pudl.settings import (
     FercToSqliteSettings,
     XbrlFormNumber,
 )
+from pudl.workspace.datastore import ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
 
@@ -116,6 +117,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
                 xbrl_batch_size=20,
                 xbrl_num_workers=10,
             ),
+            "zenodo_dois": ZenodoDoiSettings(),
         },
     )
 
