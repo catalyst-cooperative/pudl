@@ -473,6 +473,40 @@ def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):
     read_sql_query.assert_not_called()
 
 
+def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
+    """The migrated FERC DBF IO manager should fail fast when no provenance exists."""
+    dataset_settings = DatasetsSettings.model_validate(
+        {"ferc1": {"years": [2020, 2021]}}
+    )
+    etl_settings = EtlSettings(
+        datasets=dataset_settings,
+        ferc_to_sqlite_settings=FercToSqliteSettings(),
+    )
+    zenodo_dois = ZenodoDoiSettings()
+
+    fake_engine = mocker.MagicMock()
+    fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
+    fake_manager = mocker.MagicMock()
+    fake_manager.engine = fake_engine
+    mocker.patch("pudl.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager)
+    read_sql_query = mocker.patch("pudl.io_managers.pd.read_sql_query")
+
+    manager = ferc1_dbf_sqlite_io_manager.model_copy(
+        update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
+    )
+    instance = mocker.MagicMock()
+    instance.get_latest_materialization_event.return_value = None
+    context = build_input_context(
+        asset_key=AssetKey("raw_ferc1_dbf__f1_respondent_id"),
+        instance=instance,
+    )
+
+    with pytest.raises(RuntimeError, match="No Dagster provenance metadata"):
+        manager.load_input(context)
+
+    read_sql_query.assert_not_called()
+
+
 def test_replace_on_insert(fake_pudl_sqlite_io_manager_fixture):
     """Tests that two runs of the same asset overwrite existing contents."""
     artist_df = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
