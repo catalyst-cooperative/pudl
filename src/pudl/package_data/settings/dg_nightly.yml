@@ -5,7 +5,7 @@ execution:
       tag_concurrency_limits:
         - key: memory-use
           value: high
-          limit: 8
+          limit: 4
 loggers:
   console:
     config:
