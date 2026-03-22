@@ -24,6 +24,7 @@ from pudl.resources import (
     RuntimeSettings,
     datastore,
     etl_settings,
+    zenodo_dois,
 )
 from pudl.settings import load_packaged_etl_settings
 
@@ -202,6 +203,7 @@ default_asset_checks += [
 
 default_resources = {
     "datastore": datastore,
+    "zenodo_dois": zenodo_dois,
     "pudl_io_manager": pudl_mixed_format_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,

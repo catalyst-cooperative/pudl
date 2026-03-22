@@ -9,7 +9,11 @@ from pandas import json_normalize
 from pydantic import ValidationError
 
 from pudl.metadata.classes import DataSource
-from pudl.resources import DatastoreResource, PudlEtlSettingsResource
+from pudl.resources import (
+    DatastoreResource,
+    PudlEtlSettingsResource,
+    ZenodoDoiSettingsResource,
+)
 from pudl.settings import (
     DatasetsSettings,
     Eia860mSettings,
@@ -341,16 +345,19 @@ class TestPudlEtlSettingsResource:
 
 def test_datastore_resource_loads() -> None:
     """Test that the migrated datastore resource creates a runtime Datastore."""
-    init_context = build_init_resource_context(
-        config={
-            "cloud_cache_path": "s3://pudl.catalyst.coop/zenodo",
-            "use_local_cache": False,
-        }
-    )
+    with ZenodoDoiSettingsResource.from_resource_context_cm(
+        build_init_resource_context()
+    ) as zenodo_dois:
+        init_context = build_init_resource_context(
+            config={
+                "cloud_cache_path": "s3://pudl.catalyst.coop/zenodo",
+                "use_local_cache": False,
+            },
+            resources={"zenodo_dois": zenodo_dois},
+        )
 
-    datastore = DatastoreResource.from_resource_context(init_context)
-
-    assert isinstance(datastore, Datastore)
+        with DatastoreResource.from_resource_context_cm(init_context) as datastore:
+            assert isinstance(datastore, Datastore)
 
 
 def test_partitions_with_json_normalize(pudl_etl_settings):
