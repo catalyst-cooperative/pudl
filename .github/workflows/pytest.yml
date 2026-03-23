@@ -69,6 +69,7 @@ jobs:
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
               - '!.mypy.ini'
+              - '!.taplo.toml'
               - '!terraform/**'
               - '!test/unit/**'
               - '!skills-lock.json'
