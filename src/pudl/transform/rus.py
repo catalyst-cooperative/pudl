@@ -59,7 +59,6 @@ def multi_index_stack(
     match_names: list[str],
     unstack_level: list[str],
     drop_zero_rows: bool = False,
-    assume_no_dropped_cols: bool = True,
     expected_dropped_cols: int = 0,
 ) -> pd.DataFrame:
     """Stack multiple data columns - create categorical columns and data columns.
@@ -104,21 +103,18 @@ def multi_index_stack(
             table. Presumably this will be all of the match_names except 'data_cols'.
         drop_zero_rows: if True, drop rows where all data_cols are 0. Function
             already drops rows where data_cols are all NaN.
-        assume_no_dropped_cols: if True, an assertion will be raised when there are
-            columns that are getting dropped from the pattern.
-        expected_dropped_cols: If assume_no_dropped_cols is False, the number of cols
-            we expect to be dropping during the stack.
+        expected_dropped_cols: The number of cols we expect to be dropping during the
+            stack. Defaults to zero.
     """
     og_columns = set(df.columns)
     df = df.set_index(idx_ish).filter(regex=pattern)
-    if assume_no_dropped_cols and (  # noqa: SIM102
+    if (
         col_diff := og_columns.symmetric_difference(set(df.reset_index().columns))
-    ):
-        if len(col_diff) != expected_dropped_cols:
-            raise AssertionError(
-                f"We are dropping {len(col_diff)} when we expected to drop {expected_dropped_cols} cols. "
-                f"Dropped columns: \n{(col_diff)}"
-            )
+    ) and len(col_diff) != expected_dropped_cols:
+        raise AssertionError(
+            f"We are dropping {len(col_diff)} when we expected to drop {expected_dropped_cols} cols. "
+            f"Dropped columns: \n{(col_diff)}"
+        )
     df.columns = pd.MultiIndex.from_frame(
         df.columns.str.extract(pattern, expand=True)
     ).set_names(match_names)

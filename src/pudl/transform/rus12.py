@@ -407,7 +407,6 @@ def _core_rus12__yearly_plant_costs(
             pattern=pattern,
             match_names=["cost_group", "cost_type", "data_cols"],
             unstack_level=["cost_group", "cost_type"],
-            assume_no_dropped_cols=True,
         )
         df["plant_type"] = plant_type
         df_outs[plant_type] = df

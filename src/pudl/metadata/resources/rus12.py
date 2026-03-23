@@ -157,6 +157,7 @@ RESOURCE_METADATA_BASE = {
     "core_rus12__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
+            "usage_warnings": ["harvested_rus"],
             "additional_details_text": (
                 "This table contains canonical values for borrowers are set. It contains "
                 "values which are expected to remain fixed over time."
