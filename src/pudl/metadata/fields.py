@@ -11176,7 +11176,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "constraints": {"enum": LIABILITY_TYPES_RUS12},
         },
     },
-    "core_rus12__yearly_demand_and_energy_at_power_sources": {
+    "core_rus12__monthly_demand_and_energy_at_power_sources": {
         "peak_demand_mw": {"description": "peak demand in a given timeframe."}
     },
 }
