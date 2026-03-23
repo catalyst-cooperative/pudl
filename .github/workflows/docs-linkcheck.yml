@@ -1,0 +1,45 @@
+name: docs-linkcheck
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PUDL_OUTPUT: /home/runner/pudl-work/output/
+  PUDL_INPUT: /home/runner/pudl-work/input/
+  DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
+
+jobs:
+  docs-linkcheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Install pudl environment with pixi
+        uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          locked: true
+          cache: true
+
+      - name: Make input, output and dagster dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT }} ${{ env.DAGSTER_HOME }}
+
+      - name: Check documentation links with Sphinx
+        run: |
+          pixi run docs-linkcheck
+
+      - name: Upload linkcheck report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: docs-linkcheck-report
+          path: docs/_build/linkcheck/output.txt
+          if-no-files-found: warn

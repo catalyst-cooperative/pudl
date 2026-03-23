@@ -19,6 +19,19 @@ from scratch:
 
     $ pixi run docs-build
 
+For CI or local validation-only checks where you don't need rendered HTML,
+use the faster ``docs-check`` task:
+
+.. code-block:: console
+
+    $ pixi run docs-check
+
+To check external links in the documentation, use ``docs-linkcheck``:
+
+.. code-block:: console
+
+    $ pixi run docs-linkcheck
+
 You can alter docs-build behavior by setting environment variables when running
 the command:
 
@@ -26,6 +39,13 @@ the command:
 
     $ PUDL_DOCS_KEEP_GENERATED_FILES=1 pixi run docs-build
     $ PUDL_DOCS_DISABLE_INTERSPHINX=1 pixi run docs-build
+
+The ``docs-check`` task also runs ``docs-clean`` first. This is intentional:
+our Sphinx configuration generates intermediate RST, CSV, and AutoAPI files,
+and starting from a clean state avoids validating against stale artifacts from
+an earlier partial or failed build. It also always disables intersphinx, since
+the task is intended for fast validation rather than fully rendered external-link
+resolution.
 
 By default:
 
