@@ -23,7 +23,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus__codes_fuel_types": {
         "description": {
-            "additional_summary_text": "fuel types.",
+            "additional_summary_text": "fuel types in RUS.",
         },
         "schema": {
             "fields": ["code", "description"],
