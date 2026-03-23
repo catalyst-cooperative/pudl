@@ -832,21 +832,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Fraction of potential generation that was actually reported for a plant part. "
-            "Actual energy generated / nameplate capacity * hours."
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_ferc1": {
         "type": "number",
         "description": (
             "Fraction of potential generation that was actually reported for a plant part. "
-            "Actual energy generated / nameplate capacity * hours."
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_running": {
         "type": "number",
         "description": (
             "Fraction of potential generation over the time period a plant was in operation. "
-            "Actual energy generated / nameplate capacity * hours in operation."
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_offshore_wind": {
