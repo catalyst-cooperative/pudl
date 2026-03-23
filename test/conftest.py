@@ -49,12 +49,15 @@ AS_MS_ONLY_FREQ_TABLES = [
     "gen_fuel_by_generator_eia923",
 ]
 
-# In general we run our tests and some subprocesses using more than one thread, and
-# sometimes we access remote HTTPS / S3 resources. When this happens it's possible
-# for DuckDB to get confused about whether the httpfs extension is installed and error
-# out if one processes is trying to install it after another one already has. Doing
-# this forced installation during setup avoids that issue.
-duckdb.execute("FORCE INSTALL httpfs")
+# In general we run tests and subprocesses with multiple workers, and some tests touch
+# remote HTTPS / S3 resources. We try to LOAD first so collection works in
+# network-restricted environments (for example, sandboxed CI/test runners). If the
+# extension is missing, we install it once and then load it.
+try:
+    duckdb.execute("LOAD httpfs")
+except duckdb.Error:
+    duckdb.execute("INSTALL httpfs")
+    duckdb.execute("LOAD httpfs")
 
 
 def pytest_addoption(parser):
