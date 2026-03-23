@@ -9922,7 +9922,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "average_energy_cost_dollars_per_mwh": {
         "type": "number",
-        "description": "The average cost of fuel per MWh.",
+        "description": "The average cost of energy per MWh.",
         "unit": "dollars_per_MWh",
     },
     "purchased_energy_cost_total": {
