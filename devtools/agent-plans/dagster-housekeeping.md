@@ -9,6 +9,12 @@ reliable. It is meant to help with:
 - Agent-assisted implementation.
 - Straightforward translation into GitHub epics and tasks.
 
+Associated GitHub tracking:
+
+- Overall refactor epic: Issue #5066
+- Epic 1: Issue #5120, PR #5071
+- Epic 2: Issue #5118
+
 Context shaping this plan:
 
 - PUDL can run a full ETL in a couple of hours on a laptop.
@@ -45,7 +51,8 @@ Context shaping this plan:
     `parquet_io_manager`, `geoparquet_io_manager`, `ferceqr_extract_settings`
   - 1 sensor: `ferceqr_sensor`
   - 0 schedules
-- Epic 1, the execution-path migration, is now landed on this branch:
+- Epic 1, the execution-path migration, is now landed on this branch.
+  GitHub tracking: Issue #5120, PR #5071.
   - The legacy `pudl_etl` and `ferc_to_sqlite` CLI modules have been deleted.
   - Dagster config profiles now live in
     `src/pudl/package_data/settings/` as `dg_fast.yml`, `dg_full.yml`,
@@ -145,6 +152,8 @@ One important direction change from the earliest version of this plan:
     consolidation carefully.
 
 ## Epic 2: Clean Up Interim Compatibility Layers
+
+GitHub tracking: Issue #5118.
 
 The work done during Epic 1 intentionally preserved some compatibility shims. Now that
 the execution-path migration is complete on this branch, Epic 2 should
