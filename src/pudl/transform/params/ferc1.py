@@ -1971,7 +1971,6 @@ TRANSFORM_PARAMS = {
                     "mrtlty_crv_typ": "mortality_curve_type",
                     "avg_remaining_lf": "remaining_life_avg",
                     "acct_num": "account_num",
-                    # "xbrl_factoid": "plant_function",  # TODO: figure out...
                     "report_prd": "report_prd",
                 }
             },
@@ -1991,11 +1990,11 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
-        # "align_row_numbers_dbf": {"dbf_table_names": ["f1_edcfu_epda"]},
-        # "merge_xbrl_metadata": {
-        #     "rename_columns": {"xbrl_factoid": "ferc_account_label"},
-        #     "on": "ferc_account_label",
-        # },
+        "normalize_strings": {
+            "account_num": FERC1_STRING_NORM,
+            "service_life_avg": FERC1_STRING_NORM,
+            "remaining_life_avg": FERC1_STRING_NORM,
+        },
     },
     "core_ferc1__yearly_operating_revenues_sched300": {
         "rename_columns_ferc1": {
