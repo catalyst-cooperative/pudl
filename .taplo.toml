@@ -1,0 +1,10 @@
+include = ["**/*.toml"]
+exclude = [".pixi/**", "build/**", "dist/**", "docs/_build/**", "site/**"]
+
+[formatting]
+align_entries = false
+align_comments = false
+array_auto_collapse = true
+array_auto_expand = true
+indent_string = "    "
+reorder_keys = false

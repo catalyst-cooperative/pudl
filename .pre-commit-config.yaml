@@ -17,7 +17,6 @@ repos:
         args: ["--maxkb=800"]
       - id: check-merge-conflict # Watch for lingering merge markers.
       - id: check-yaml # Validate all YAML files.
-      - id: check-toml
       - id: check-case-conflict # Avoid case sensitivity in file names.
       - id: debug-statements # Watch for lingering debugger calls.
         exclude: "^devtools/check_against_nightly.py$"
@@ -43,6 +42,12 @@ repos:
     hooks:
       - id: prettier
         types_or: [yaml]
+
+  - repo: https://github.com/ComPWA/taplo-pre-commit
+    rev: v0.9.3
+    hooks:
+      - id: taplo-format
+      - id: taplo-lint
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
