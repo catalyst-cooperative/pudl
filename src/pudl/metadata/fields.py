@@ -9901,7 +9901,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Fraction of consumption vs demand reported for a plant over a given timeframe. "
-            "Total energy consumed / peak demand * hours."
+            "Energy consumed over time period / peak demand * time period (hours/years/etc.)."
         ),
     },
     "peak_gross_demand_mw": {

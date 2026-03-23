@@ -650,7 +650,8 @@ RESOURCE_METADATA_BASE = {
             "additional_details_text": (
                 "There are some peak demand dates that have an hour component and others that don't. "
                 "This is because there is inconsistent reporting of peak_demand_hour in the raw data. "
-                "If there is no hour reported, then we only provide the date."
+                "If there is no hour reported, we record the hour as 0 and only the date will show in "
+                "the data."
             ),
         },
         "schema": {
