@@ -655,7 +655,10 @@ def _core_rus12__monthly_demand_and_energy_at_delivery_points(
             "energy_mwh": "delivered_energy_mwh",
         }
     )
-    # Remove total/peak values
+    # Remove total/peak values. We are dropping the annual values
+    # so we can convert this into a monthly time series. We could make
+    # monthly and yearly tables w/ a multi-asset if desired but choose not
+    # to because this info is duplicative.
     df = df[~df["timeframe"].isin(["total", "peak"])]
     # Convert month cols to date:
     df["report_date"] = pd.to_datetime(
@@ -709,7 +712,10 @@ def _core_rus12__monthly_demand_and_energy_at_power_sources(
     df["is_peak_coincident"] = df["peak_demand_reading_type"].map(
         {"Coincident": True, "Non-coincident": False}
     )
-    # Remove totals
+    # Remove total/peak values. We are dropping the annual values
+    # so we can convert this into a monthly time series. We could make
+    # monthly and yearly tables w/ a multi-asset if desired but choose not
+    # to because this info is duplicative.
     df = df[df["timeframe"] != "annual"]
     # Reformat report date
     df["report_date"] = pd.to_datetime(
