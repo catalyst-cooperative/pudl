@@ -1,7 +1,7 @@
-.. _dev_dagster:
+.. _troubleshooting_dagster:
 
 ===============================================================================
-Developing with Dagster
+Troubleshooting Dagster
 ===============================================================================
 
 Reloading code locations
