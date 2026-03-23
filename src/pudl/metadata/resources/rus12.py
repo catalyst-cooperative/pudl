@@ -53,7 +53,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "annual meeting and board information for RUS borrowers."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section I)",
         },
         "schema": {
@@ -80,7 +79,7 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "assets and other debts from the balance sheet."
             ),
-            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part A - Section B)",
             "additional_details_text": "",
         },
@@ -107,7 +106,7 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "liabilities and other credits from the balance sheet."
             ),
-            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part A - Section B)",
             "additional_details_text": "",
         },
@@ -138,7 +137,6 @@ RESOURCE_METADATA_BASE = {
                 "This table has no primary key because some borrowers report multiple debt values from "
                 "the same entity in a given year."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section H)",
         },
         "schema": {
@@ -159,7 +157,6 @@ RESOURCE_METADATA_BASE = {
     "core_rus12__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
-            "usage_warnings": ["experimental_wip", "harvested"],
             "additional_details_text": (
                 "This table contains canonical values for borrowers are set. It contains "
                 "values which are expected to remain fixed over time."
@@ -200,7 +197,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "renewable energy plant generation information for RUS borrowers."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C RE)",
         },
         "schema": {
@@ -240,7 +236,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "labor and material cost for lines and stations operated by RUS borrowers."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part I - Section C)",
         },
         "schema": {
@@ -269,7 +264,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "capacity, plant num, MWh, and cost of energy by plant type for RUS borrowers."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C)",
             "additional_details_text": "",
         },
@@ -298,7 +292,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "MWh and cost of energy sources and distribution by RUS borrowers."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C)",
             "additional_details_text": (
                 "See the ``sources_and_distribution_by_plant_type`` table for "
@@ -333,7 +326,6 @@ RESOURCE_METADATA_BASE = {
                 "This table has no primary key because some borrowers report multiple loan values from "
                 "the same entity in a given year."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section F - Subsections II & IV)",
             "additional_details_text": (
                 "This table also includes loan guarantees where the RUS borrower backs a loan "
@@ -369,7 +361,7 @@ RESOURCE_METADATA_BASE = {
                 "The data cannot be backfilled because there is no way to distinguish between "
                 "duplicate rows pre-2009."
             ),
-            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Parts D, E, F, G - Section B)",
             "additional_details_text": (
                 "Note the lack of plant_type pre-2009 leading to a lack of "
@@ -409,7 +401,7 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "opex and cost of electric service for RUS borrowers by time period."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part A - Section A)",
         },
         "schema": {
@@ -447,7 +439,7 @@ RESOURCE_METADATA_BASE = {
                 "categories reported on this Part correspond to Balance Sheet items in Part "
                 "A Section B in table :ref:`core_rus12__yearly_balance_sheet_assets`."
             ),
-            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
+            "usage_warnings": ["aggregation_hazard"],
         },
         "schema": {
             "fields": [
@@ -468,7 +460,7 @@ RESOURCE_METADATA_BASE = {
     "core_rus12__yearly_plant_costs": {
         "description": {
             "additional_summary_text": ("costs of net energy generated by plant."),
-            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part F - Section D)",
             "additional_primary_key_text": (
                 "This table has no primary key because there is one plant (Walter "
@@ -508,7 +500,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "ratio of investments and loan guarantee balances to total utility plant assets."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section F - Subsection III)",
         },
         "schema": {
@@ -531,7 +522,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "borrower portion of plant operational data including fuel consumption and operational hours."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part D, E, F (CC), F (IC) & G - Section A)",
             "additional_primary_key_text": (
                 "This table has no primary key because there are a handful of plants that "
@@ -572,7 +562,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "whole plant operational data including fuel consumption and operational hours."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part D, E, F (CC), F (IC) & G - Section A)",
             "additional_primary_key_text": (
                 "This table has no primary key because there are a handful of plants that "

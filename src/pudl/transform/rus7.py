@@ -169,6 +169,7 @@ def _core_rus7__yearly_power_requirements_electric_sales(
         pattern=rf"^(.+)_({'|'.join(data_cols)})$",
         match_names=["customer_class", "data_cols"],
         unstack_level=["customer_class"],
+        expected_dropped_cols=27,
     )
     # then convert all of the units from kWh to MWh
     df = rus.convert_units(
@@ -199,6 +200,7 @@ def _core_rus7__yearly_power_requirements_electric_customers(
         pattern=rf"^(.+)_({data_cols[0]})_(december|avg)$",
         match_names=["customer_class", "data_cols", "observation_period"],
         unstack_level=["customer_class", "observation_period"],
+        expected_dropped_cols=29,
     )
     return df
 
@@ -365,7 +367,7 @@ def _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pd.DataFrame):
         rf"^({'|'.join(LOAN_STATUS_TYPES_RUS7)})_({'|'.join(LOAN_UNIT_TYPES_RUS7)})$"
     )
     df_loan_program_debt = rus.multi_index_stack(
-        df,
+        df_loan_program_debt,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=LOAN_UNIT_TYPES_RUS7,
         pattern=pattern,

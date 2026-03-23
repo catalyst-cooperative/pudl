@@ -40,4 +40,9 @@ USAGE_WARNINGS = {
         "`Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ "
         "for details."
     ),
+    "harvested_rus": (
+        "Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses "
+        "the most consistent borrower name to facilitate cross-referencing even if that means some values"
+        " will differ from the raw sources."
+    ),
 }
