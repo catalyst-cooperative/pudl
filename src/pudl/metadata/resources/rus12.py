@@ -647,6 +647,11 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": ("demand and energy at point of generation."),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section D)",
+            "additional_details_text": (
+                "There are some peak demand dates that have an hour component and others that don't. "
+                "This is because there is inconsistent reporting of peak_demand_hour in the raw data. "
+                "If there is no hour reported, then we only provide the date."
+            ),
         },
         "schema": {
             "fields": [

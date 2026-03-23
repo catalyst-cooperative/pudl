@@ -705,9 +705,14 @@ def _core_rus12__monthly_demand_and_energy_at_power_sources(
         unstack_level=["timeframe"],
     )
     # Add hour to peak demand date
+    # First check that the hours are valid:
+    peak_hours = df["peak_demand_hour"].astype("Int64").unique().tolist()
+    bad_hours = [h for h in peak_hours if h not in range(25)]
+    assert len(bad_hours) == 0, f"Found invalid peak demand hours: {bad_hours}"
     df["peak_demand_date"] = pd.to_datetime(
-        df["peak_demand_date"], format="mixed", errors="coerce"
-    ).dt.normalize() + pd.to_timedelta(df["peak_demand_hour"], unit="h")
+        df["peak_demand_date"],
+        format="mixed",
+    ).dt.normalize() + pd.to_timedelta(df["peak_demand_hour"].fillna(0), unit="h")
     # Change cols so it's consistent with cols in other tables
     df["is_peak_coincident"] = df["peak_demand_reading_type"].map(
         {"Coincident": True, "Non-coincident": False}
