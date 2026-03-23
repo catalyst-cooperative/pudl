@@ -619,7 +619,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_primary_key_text": (
                 "The primary key would probably be report_date, borrower_id_rus, fuel_type_code, "
                 "supplier_code_rus, renewable_energy_program if not for certain EIA utilities "
-                "represented as *Miscellaneous (supplier code 700000)."
+                "represented as Miscellaneous (supplier code 700000)."
             ),
         },
         "schema": {
