@@ -1,16 +1,17 @@
-# PUDL Dagster Housekeeping Plan (Draft) 🚀
+# PUDL Dagster Housekeeping Plan 🚀
 
 ## Purpose
 
-This is a working draft for modernizing PUDL's Dagster setup while keeping the ETL reliable. It is meant to help with:
+This is a working draft for modernizing PUDL's Dagster setup while keeping the ETL
+reliable. It is meant to help with:
 
 - Human planning and execution.
 - Agent-assisted implementation.
-- Straightforward translation into GitHub epics and sub-issues.
+- Straightforward translation into GitHub epics and tasks.
 
 Context shaping this plan:
 
-- PUDL can run a full ETL in about 1-2 hours on a laptop.
+- PUDL can run a full ETL in a couple of hours on a laptop.
 - Source data changes infrequently (monthly at most, often yearly).
 - Full outputs are rebuilt nightly and published as static Parquet in S3.
 - So for now, we care most about simplification and consistency, not fancy orchestration features.
@@ -18,37 +19,60 @@ Context shaping this plan:
 ## Scope and Guardrails
 
 - In scope:
-  - Phase 1 work only (for now): simplify how we run jobs and make project organization easier to maintain.
+  - Clean up the completed `dg` cutover and make project organization easier to maintain.
   - Dagster project ergonomics and modularity.
   - `dg`-native structure and workflows.
   - Incremental improvements that reduce maintenance burden.
-- Out of scope (for this draft):
-  - Detailed planning for Phase 2 and Phase 3 implementation.
-  - Rewriting all asset logic at once.
-  - Large behavioral changes to ETL semantics without validation.
+- Out of scope (for this refactor):
+  - Detailed planning for major future work beyond the epics listed here.
+  - Major rewrites of asset logic
+  - Large semantic changes to the asset graph or execution model
 - Guardrails:
   - Keep the system running while we migrate.
   - Prefer additive changes and temporary compatibility shims when helpful.
   - Minimize disruption to active data/modeling work.
 
-## Baseline Snapshot (Today)
+## Project Snapshot (2026-03-23)
 
-- `dg check defs` passes.
-- The `src/pudl/defs/` package exists but is currently a compatibility placeholder.
-- Definitions are assembled primarily in `src/pudl/etl/__init__.py`.
-- Current inventory from `dg list defs --json`:
-  - 656 assets
-  - 310 asset checks
-  - 5 jobs
-  - 10 resources
-  - 1 sensor
+- `pixi run dg check defs` passes.
+- Current inventory from `pixi run dg list defs --json`:
+  - 749 assets
+  - 362 asset checks
+  - 4 jobs: `ferc_to_sqlite`, `ferceqr`, `pudl`, `pudl_with_ferc_to_sqlite`
+  - 11 resources: `datastore`, `zenodo_dois`, `pudl_io_manager`,
+    `ferc1_dbf_sqlite_io_manager`, `ferc1_xbrl_sqlite_io_manager`,
+    `ferc714_xbrl_sqlite_io_manager`, `etl_settings`, `runtime_settings`,
+    `parquet_io_manager`, `geoparquet_io_manager`, `ferceqr_extract_settings`
+  - 1 sensor: `ferceqr_sensor`
   - 0 schedules
-- Observed metadata gaps in assets/checks:
-  - Tags empty for all assets.
-  - Owners empty for all assets.
-  - Kinds empty for all assets.
-  - Automation conditions unset for all assets.
-  - Many check descriptions are missing.
+- Epic 1, the execution-path migration, is now landed on this branch:
+  - The legacy `pudl_etl` and `ferc_to_sqlite` CLI modules have been deleted.
+  - Dagster config profiles now live in
+    `src/pudl/package_data/settings/` as `dg_fast.yml`, `dg_full.yml`,
+    `dg_pytest.yml`, and `dg_nightly.yml`.
+  - Local development, integration-test prebuilds, and nightly runs are now
+    standardized around pixi tasks that delegate to `dg launch`.
+  - `docker/gcp_pudl_etl.sh` now runs the nightly build as
+    `pixi run pudl-with-ferc-to-sqlite-nightly` followed by split nightly
+    pytest stages.
+  - The integration harness uses Dagster-native prebuilds and preserves
+    `DAGSTER_HOME` for `--live-pudl-output` runs so provenance-aware tests can
+    see the existing nightly materializations.
+- Dagster-native typed configuration is part of the baseline now:
+  - Core ETL resources use `ConfigurableResource` patterns.
+  - The FERC and mixed-format IO managers use `ConfigurableIOManager` patterns.
+  - FERC SQLite provenance compatibility checks are part of the execution
+    contract for live-output and downstream asset reads.
+- Structural cleanup is still pending:
+  - The `src/pudl/defs/` package still exists primarily as a compatibility shim
+    for the `dg` project layout.
+  - Definitions are still assembled primarily in `src/pudl/etl/__init__.py`.
+- Observed metadata gaps in assets/checks remain a good target for follow-up:
+  - 9 / 749 assets have tags.
+  - 0 / 749 assets have owners.
+  - 0 / 749 assets have kinds.
+  - 622 / 749 assets have descriptions.
+  - 18 / 362 asset checks have descriptions.
 
 ## Guiding Principles 🤝
 
@@ -58,240 +82,89 @@ Context shaping this plan:
 - Favor convention over bespoke wiring when `dg` supports a standard pattern.
 - Capture key decisions in plain language inside each epic or issue.
 
-## Migration Overview
-
-- Phase 1: Execution-path simplification and foundational reorganization (detailed, implementation-ready).
-- Phase 2 and Phase 3: Deferred until Phase 1 completion and retrospective.
-
-## Phase 1 (Detailed): CLI-First Simplification and `dg` Foundations
-
-### Phase 1 Goals
-
-- Replace custom Dagster launch scripts with `dg launch`-first workflows while preserving behavior.
-- Consolidate parameter handling into idiomatic Dagster config/resources rather than custom CLI glue.
-- Ensure local development and nightly builds execute with the same invocation patterns.
-- Improve confidence via targeted validation and smoke tests.
-- Start structural cleanup only after launch-path migration is stable.
-
-### Phase 1 Exit Criteria
-
-- The `pudl.etl.cli` and `pudl.ferc_to_sqlite.cli` launch pathways are retired or reduced to thin compatibility wrappers.
-- Day-to-day runbooks for local and nightly runs are based on `dg launch` plus shared config files.
-- Parameters currently collected by custom scripts are represented in Dagster-native configuration patterns.
-- CI includes lightweight `dg` validation/smoke checks.
-- Structural reorganization in `src/pudl/defs/` has started, with clear next steps and no execution regressions.
-
-### Important Dependency Note: P1-E1, P1-E2, and P1-E3
-
-`dg launch` cutover and config/resource modeling are coupled work.
-
-- We can start P1-E1 first (inventory and canonical command design).
-- P1-E2 then provides the config/resource plumbing those commands depend on.
-- P1-E3 is where we finish cutover and deprecate old launch paths.
-
-### Phase 1 Epic Breakdown
-
-## Epic P1-E1: Define Canonical `dg launch` Run Modes
-
-### P1-E1 Objective
-
-Define canonical `dg launch` commands for all primary run modes so everyone is using the same playbook.
-
-### P1-E1 Suggested Sub-Issues
-
-- P1-E1-S1: Inventory all run modes currently handled by custom launch scripts.
-  - Deliverable: matrix of command, parameters, defaults, and consumers (dev, CI, nightly).
-- P1-E1-S2: Define canonical `dg launch` commands for each run mode.
-  - Deliverable: reproducible command set using `--job`, `--assets`, `--config-file`, and partition flags where needed.
-- P1-E1-S3: Capture expected behavior per mode (runtime, outputs, key logs, failure behavior).
-  - Deliverable: parity checklist to validate later cutover work.
-
-### P1-E1 Verification
-
-- `pixi run dg check defs`
-- `pixi run dg list defs --json`
-- Canonical command matrix reviewed and approved.
-
-## Epic P1-E2: Dagster-Native Parameter and Config Modeling
-
-### P1-E2 Objective
-
-Represent script-collected parameters in Dagster-native config/resources so CLI migration stays maintainable.
-
-### P1-E2 Suggested Sub-Issues
-
-- P1-E2-S1: Classify each launch parameter as job config, resource config, env var, or execution setting.
-  - Deliverable: parameter-to-Dagster mapping table.
-- P1-E2-S2: Normalize config file structure used by `dg launch` commands.
-  - Deliverable: minimal duplicated config across ETL modes.
-- P1-E2-S3: Refactor legacy resources toward typed config where practical during this phase.
-  - Deliverable: reduced reliance on ad hoc script-side parameter handling.
-- P1-E2-S4: Document secrets handling and environment variable injection for local and CI/nightly contexts.
-  - Deliverable: one source of truth for runtime config behavior.
-
-### P1-E2 Verification
-
-- `pixi run dg check defs`
-- Targeted tests for config loading and expected run-config resolution.
-
-## Epic P1-E3: Cut Over to `dg launch` and Retire Legacy Launch Paths
-
-### Objective
-
-Switch local/nightly execution to canonical `dg launch` commands and retire (or reduce) old script-based launch paths.
-
-### Suggested Sub-Issues
-
-- P1-E3-S1: Implement temporary compatibility wrappers/aliases that call canonical `dg` commands.
-  - Deliverable: no operational interruption during transition.
-- P1-E3-S2: Run parity checks against the behavior checklist from P1-E1.
-  - Deliverable: confidence that `dg launch` behavior matches existing workflows.
-- P1-E3-S3: Migrate nightly automation to canonical `dg` commands.
-  - Deliverable: nightly runs succeed without custom launch scripts.
-- P1-E3-S4: Remove or deprecate direct `execute_job` launch paths.
-  - Deliverable: custom launch logic minimized or retired.
-
-### Verification
-
-- Command parity tests: old script invocation versus new `dg launch` invocation.
-- Nightly dry-run or staging run using only canonical `dg` commands.
-- Cutover checklist complete with rollback notes.
-
----
-
-## P1-E3 Current State (as of 2026-03-20)
-
-### What is already done
-
-- `pixi run ferc` and `pixi run pudl` pixi tasks use `dg launch` exclusively.
-- `dg_full.yml`, `dg_fast.yml`, and `dg_pytest.yml` config files exist in
-  `src/pudl/package_data/settings/` and work correctly with `dg launch`.
-- Integration test `conftest.py` already runs the ETL via `dg launch --job pudl`
-  (in `_pudl_etl()`), not via the legacy CLIs.
-- `DatasetSettingsResource`, `FercToSqliteSettingsResource`, and `DatastoreResource`
-  have been migrated to typed `ConfigurableResource` classes that accept
-  `etl_settings_path`.
-- FERC IO managers (`FercDbfSQLiteDagsterIOManager`, `FercXbrlSQLiteDagsterIOManager`)
-  and `PudlMixedFormatIOManager` have been migrated to `ConfigurableIOManager`.
-
-### What still needs to be done for P1-E3
-
-The following tasks must be completed before `pudl_etl` and `ferc_to_sqlite` can be
-removed as project console scripts.
-
-#### P1-E3-T1: Fix broken run config in `ferc_to_sqlite/cli.py` (immediate bug)
-
-`pudl/ferc_to_sqlite/cli.py` still passes `etl_settings.ferc_to_sqlite_settings.model_dump()`
-as the resource run config. After the `FercToSqliteSettingsResource` migration, the
-resource now expects `{"etl_settings_path": "..."}` — the `model_dump()` dict will
-fail at runtime. The CLI is therefore currently broken.
-
-Options:
-
-- Fix it to pass `etl_settings_path` (minimal patch to unblock any lingering users).
-- Skip the fix and go straight to T3 (retire the CLI entirely), since no automated
-    system calls it anymore.
-
-The same issue exists in `pudl/etl/cli.py` for `dataset_settings`, which still passes
-`etl_settings.datasets.model_dump()`.
-
-**Recommendation:** skip the fix and retire both CLIs directly (T3/T4).
-
-#### P1-E3-T2: Decide whether nightly needs a separate `dg_nightly.yml`
-
-The `gcp_pudl_etl.sh` nightly script currently passes `--workers 8` to `ferc_to_sqlite`
-and `--loglevel DEBUG` to both CLIs. The `dg_full.yml` config has `xbrl_num_workers: null`
-(saturates CPUs) and `log_level: INFO`.
-
-Options for the nightly script:
-
-- Use `dg_full.yml` as-is (null workers = use all CPUs, INFO logging, matches laptop behavior).
-- Create `dg_nightly.yml` that sets `xbrl_num_workers: 8` and `log_level: DEBUG`.
-
-**Recommendation:** create `dg_nightly.yml` with explicit worker count and DEBUG logging
-so nightly behavior is explicit and independent of the default profile.
-
-#### P1-E3-T3: Replace `ferc_to_sqlite` and `pudl_etl` calls in `gcp_pudl_etl.sh`
-
-The `run_pudl_etl()` function in `docker/gcp_pudl_etl.sh` currently runs:
-
-```bash
-ferc_to_sqlite --loglevel DEBUG --workers 8 "$PUDL_SETTINGS_YML"
-pudl_etl --loglevel DEBUG "$PUDL_SETTINGS_YML"
-```
-
-These should be replaced with:
-
-```bash
-# Clean stale FERC SQLite DBs (mirrors what pixi run ferc does)
-rm -f $PUDL_OUTPUT/ferc*.sqlite $PUDL_OUTPUT/ferc*.duckdb \
-    $PUDL_OUTPUT/ferc*_xbrl_datapackage.json $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json
-rm -f $PUDL_OUTPUT/pudl.sqlite
-alembic upgrade head
-dg launch --job pudl --config-file $DG_NIGHTLY_CONFIG
-```
-
-Note: the `pudl` job (`all() - ferceqr`) already includes the `raw_ferc_to_sqlite`
-asset group, so a single `dg launch --job pudl` replaces both the `ferc_to_sqlite` and
-`pudl_etl` invocations.
-
-The `$PUDL_SETTINGS_YML` env var referenced in the script can be removed from the Docker
-environment once both CLIs are gone.
-
-#### P1-E3-T4: Remove `pudl_etl` and `ferc_to_sqlite` console script entry points
-
-In `pyproject.toml`, remove:
-
-- `ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"`
-- `pudl_etl = "pudl.etl.cli:pudl_etl"`
-
-#### P1-E3-T5: Delete `pudl/etl/cli.py`
-
-Remove the module containing `pudl_etl_job_factory`, the `pudl_etl` click command,
-and all `build_reconstructable_job` / `execute_job` logic. This also removes the dead
-`publish_destinations` post-run upload logic (which defaults to `[]` in all settings
-files and is already superseded by the `save_outputs_to_gcs()` function in
-`gcp_pudl_etl.sh`).
-
-#### P1-E3-T6: Delete `pudl/ferc_to_sqlite/cli.py`
-
-Remove the module containing `ferc_to_sqlite_job_factory` and the `main` click command.
-
-#### P1-E3-T7: Remove legacy op graph and resources from `ferc_to_sqlite/__init__.py`
-
-The `@graph ferc_to_sqlite()`, `FERC1_DBF_OP` (and sibling ops), and `default_resources_defs`
-are only consumed by `ferc_to_sqlite/cli.py`. Once that module is deleted they become dead
-code and should be removed.
-
-#### P1-E3-T8: Remove `get_dagster_execution_config` from `pudl/helpers.py`
-
-This helper is only called by the two CLI modules and by `pudl/etl/__init__.py` to build
-the default job config (where it can be inlined or replaced with a YAML config reference
-after the CLI is gone). Remove or relocate once the CLIs are deleted.
-
-#### P1-E3-T9: Update runbook and developer documentation
-
-- Update `docs/dev/run_the_etl.rst` (and any other developer docs) to replace all
-  references to `pudl_etl` and `ferc_to_sqlite` CLI commands with `dg launch` equivalents.
-- Add a brief migration note to `docs/release_notes.rst`.
-
-### P1-E3 Verification
-
-- `pixi run dg check defs` passes.
-- `pixi run ferc` and `pixi run pudl` succeed end-to-end.
-- `pytest-integration` CI job passes (already uses `dg launch`).
-- `gcp_pudl_etl.sh` dry-run or staging run succeeds with only `dg launch`.
-- Confirm `pudl_etl` and `ferc_to_sqlite` are no longer importable or executable.
-
----
-
-## P1-E3 Follow-up PR: Clean Up Interim Compatibility Layers
-
-The work done in the resource/IO manager migration (P1-E2) intentionally preserved some
-compatibility shims. Once P1-E3 is merged, a follow-up PR should eliminate this technical
-debt.
-
-### FU-1: Collapse FERC IO manager wrapper classes
+## Current Status
+
+The first epic is complete, and the character of the remaining work has
+changed.
+
+- Epic 1 is complete on this branch.
+- The original launch-path migration is no longer the main risk area.
+- The remaining work is now cleanup and structural follow-through:
+  1. remove the temporary compatibility layers we kept to make the cutover safe.
+  2. make `src/pudl/defs/` a real source of truth rather than a shim.
+  3. break apart centralized definitions assembly into smaller domain modules.
+  4. establish a minimum metadata baseline for graph navigation and ownership.
+
+One important direction change from the earliest version of this plan:
+
+- In practice, the stable user-facing interface ended up being pixi tasks that wrap
+  canonical `dg launch` commands, rather than asking humans and automation to call
+  raw `dg launch` everywhere.
+- The full-build nightly path now standardizes on
+  `pudl_with_ferc_to_sqlite` plus split nightly pytest stages.
+- We intentionally deferred broad `defs` reorganization until after execution-path
+  stabilization, and that still looks like the right sequencing.
+
+## Remaining Exit Criteria
+
+- No temporary compatibility shims remain from the CLI-to-`dg` migration.
+- The current pixi/`dg` launch contract is documented and preserved through the
+  remaining refactors.
+- `src/pudl/defs/` no longer exists only as a compatibility placeholder.
+- Definition assembly is easier to navigate, with smaller domain-oriented modules.
+- A minimal metadata contract exists for owners/tags/kinds/check descriptions, with
+  some enforcement on newly touched definitions.
+
+## Remaining Epic Sequencing
+
+1. Epic 2: remove interim compatibility layers left behind by the cutover and absorb
+  the low-risk `defs` source-of-truth cleanup.
+2. Epic 3: decompose centralized ETL definition assembly.
+3. Epic 4: establish a metadata and ownership baseline.
+
+## Main Caveats to Manage Going Forward
+
+- Caveat 1: Preserve the current pixi/`dg` contract.
+  - Risk: structural cleanup accidentally changes how local, pytest, or nightly runs
+    are invoked.
+  - Mitigation: treat current pixi tasks and config files as the external contract and
+    keep smoke tests around them.
+- Caveat 2: Avoid graph drift during refactors.
+  - Risk: moving definitions between modules changes asset keys, group names,
+    resources, or job membership unintentionally.
+  - Mitigation: compare `dg list defs --json` inventories before and after each step.
+- Caveat 3: Preserve provenance-aware test behavior.
+  - Risk: cleanup around IO managers or tests breaks the Dagster provenance contract
+    for live-output runs.
+  - Mitigation: keep targeted integration coverage for FERC SQLite provenance and
+    nightly-style test execution.
+- Caveat 4: Keep env/config semantics stable across contexts.
+  - Risk: refactors blur the current separation between fast/full/pytest/nightly
+    Dagster config profiles.
+  - Mitigation: retain those config profiles as explicit artifacts and document any
+    consolidation carefully.
+
+## Epic 2: Clean Up Interim Compatibility Layers
+
+The work done during Epic 1 intentionally preserved some compatibility shims. Now that
+the execution-path migration is complete on this branch, Epic 2 should
+eliminate this technical debt.
+
+This epic now also includes the relatively small `defs` source-of-truth cleanup.
+That work looks like straightforward module movement and registry cleanup rather than a
+large or high-risk refactor, so it fits better here than as a standalone epic.
+
+The FERC SQLite provenance module itself and the typed resource definitions do not
+currently look like primary debt hotspots. The main cleanup need is to simplify the
+wrapper, override, and fixture layers around them while preserving the current
+provenance contract.
+
+For Epic 2, we are explicitly taking the Dagster-first path. The goal is not just to
+remove compatibility shims, but to refactor the surrounding tests and utilities so
+they also use canonical Dagster patterns and abstractions rather than ad hoc
+construction paths.
+
+### Task 1: Collapse FERC IO manager wrapper classes
 
 `FercDbfSQLiteDagsterIOManager` wraps `FercDBFSQLiteIOManager` and
 `FercXbrlSQLiteDagsterIOManager` wraps `FercXBRLSQLiteIOManager`. The inner classes exist
@@ -299,142 +172,163 @@ to support non-Dagster construction paths in debug helpers and legacy tests. Onc
 paths are removed, both pairs of classes should be collapsed into single `ConfigurableIOManager`
 subclasses.
 
-### FU-2: Refactor `extract/ferc1.py` debug helpers
+Direction:
+
+- Delete the inner classes entirely and move the real logic onto the Dagster-facing
+  classes.
+- Stop supporting non-Dagster construction paths that require nested resource
+  dependencies inside wrapper classes.
+
+### Task 2: Refactor `extract/ferc1.py` debug helpers
 
 `extract_dbf()` and `extract_xbrl()` in `pudl/extract/ferc1.py` use `model_copy(update=...)`
 to inject a `DatasetsSettings` object into the IO manager at construction time, bypassing
-Dagster's resource wiring. These helpers should either be deleted (if testing via `dg launch`
-is sufficient) or rewritten to use Dagster-native test execution patterns.
+Dagster's resource wiring. These helpers should be rewritten or removed so that debug
+and notebook-oriented access follows Dagster-first execution patterns instead of
+patching resource state by hand.
 
-### FU-3: Refactor `TestFerc1ExtractDebugFunctions` integration tests
+Direction:
 
-`test/integration/etl_test.py` tests the debug helpers directly. Once FU-2 is resolved,
+- Prefer Dagster-native execution helpers such as `materialize_to_memory` or other
+  explicit Definitions-based execution paths.
+- If a helper survives, it should construct or consume canonical Dagster resources
+  rather than mutating IO manager instances with `model_copy(update=...)`.
+
+### Task 3: Refactor `TestFerc1ExtractDebugFunctions` integration tests
+
+`test/integration/etl_test.py` tests the debug helpers directly. Once Task 2 is resolved,
 these tests should be replaced by smoke tests that exercise the canonical FERC extraction
 assets via `materialize_to_memory` or `dg launch`, rather than testing non-Dagster
 construction paths.
 
-### FU-4: Refactor `_engine_from_io_manager` in `test/conftest.py`
+### Task 4: Refactor `_engine_from_io_manager` in `test/conftest.py`
 
 The `_engine_from_io_manager` helper and the `ferc1_engine_dbf`, `ferc1_engine_xbrl`,
 `ferc714_engine_xbrl` fixtures use `model_copy(update={"dataset_settings": ...})` to inject
-settings. After the wrapper layer is collapsed (FU-1), this pattern can be simplified or
+settings. After the wrapper layer is collapsed in Task 1, this pattern can be simplified or
 replaced with a fixture that reads the engine from the built SQLite file path directly.
+
+Direction:
+
+- Replace these fixture helpers with Dagster-first patterns.
+- Prefer a canonical fixture helper that initializes configured `Definitions` and the
+  relevant resources once, and only fall back to direct file-path access where that is
+  clearly simpler and still aligned with the production contract.
+
+### Task 5: Simplify `build_defs()` resource override plumbing
+
+`src/pudl/etl/__init__.py` currently contains a special-case resource override block
+that rebuilds the FERC SQLite IO managers whenever `etl_settings` is overridden. The
+code comment already marks this as a temporary workaround. Once the wrapper IO managers
+are gone, this override logic should be removed in favor of generic resource merging.
+
+Direction:
+
+- Remove the special cases after Task 1 and rely on normal Dagster resource override
+  behavior.
+- If any extra setup is still needed for tests, keep it in test-only utilities rather
+  than in production definitions assembly.
+
+### Task 6: Simplify integration-test fixture layering in `test/conftest.py`
+
+`test/conftest.py` absorbed a large amount of orchestration logic during the refactor:
+`dg launch` prebuilds, `DAGSTER_HOME` management, live-output safeguards, config-file
+resolution, and ad hoc `build_defs()` construction for asset value loading. Much of
+this is valid, but the file is now a hotspot and likely harder to reason about than it
+needs to be.
+
+Direction:
+
+- Introduce a single canonical Dagster-first test-session builder or equivalent helper
+  that returns configured `Definitions`, `DagsterInstance`, and path context.
+- Refactor fixtures to compose from that builder rather than reassembling Dagster
+  pieces in several places.
+
+### Task 7: Make `src/pudl/defs/` the real definitions registry
+
+`src/pudl/defs/__init__.py` is still a placeholder, even though the `dg` project layout
+is now part of the stable interface. This work looks small and low-risk: mostly moving
+the existing registry wiring into the package that is already supposed to own it, while
+keeping `dg list defs --json` unchanged.
+
+Direction:
+
+- Move the actual definitions assembly into `src/pudl/defs/` and keep only thin
+  compatibility re-exports from `src/pudl/etl/__init__.py` during the transition.
+- Make `src/pudl/defs/__init__.py` the canonical registry entry point.
+
+### Task 8: Trim temporary compatibility imports once `defs` is canonical
+
+After Task 7, remove or minimize compatibility indirection so there is one obvious
+place to look for the canonical Dagster registry and its supporting module structure.
+This should include verifying that inventory and execution behavior are unchanged after
+the move.
+
+Direction:
+
+- Prefer one canonical import path and one canonical registry entry point.
+- Remove transitional compatibility imports once tests and utilities have moved to the
+  Dagster-first path.
+
+### Epic 2 Verification
+
+- `pixi run dg check defs`
+- `pixi run dg list defs --json` inventory unchanged except for documented metadata-only
+  deltas.
+- Targeted integration tests still pass for live-output and prebuild paths.
+- FERC SQLite provenance compatibility checks still protect downstream reads.
 
 ---
 
-## Epic P1-E4: Establish `defs` as the Source of Truth (After CLI Parity)
+## Epic 3: Decompose Monolithic ETL Definition Assembly
 
-### P1-E4 Objective
-
-Move definition registration from legacy central assembly toward `src/pudl/defs/` after launch-path behavior is stable.
-
-### P1-E4 Suggested Sub-Issues
-
-- P1-E4-S1: Design target `defs` package layout.
-  - Deliverable: agreed module map (for example: `assets/`, `jobs/`, `resources/`, `automation/`).
-- P1-E4-S2: Create initial `defs` modules and wire existing definitions through them.
-  - Deliverable: `dg list defs` output unchanged in key counts and names (or documented deltas).
-- P1-E4-S3: Replace placeholder narrative in `src/pudl/defs/__init__.py` with actual registry behavior.
-  - Deliverable: code comments and module docstrings reflect real structure.
-- P1-E4-S4: Add compatibility shim if needed for existing imports.
-  - Deliverable: downstream imports continue to work during transition.
-
-### P1-E4 Verification
-
-- `pixi run dg check defs`
-- `pixi run dg list defs --json`
-- Compare before/after inventory (counts and expected key names).
-
-## Epic P1-E5: Decompose Monolithic ETL Definition Assembly
-
-### P1-E5 Objective
+### Epic 3 Objective
 
 Break apart centralized module registration logic into cohesive domain modules once launch pathways are standardized.
 
-### P1-E5 Suggested Sub-Issues
+### Epic 3 Suggested Tasks
 
-- P1-E5-S1: Extract raw/core/out grouping config into dedicated modules.
+- Task 1: Extract raw/core/out grouping config into dedicated modules.
   - Deliverable: small, focused grouping modules with clear ownership.
-- P1-E5-S2: Introduce compositional assembly layer that imports domain registries.
+- Task 2: Introduce compositional assembly layer that imports domain registries.
   - Deliverable: easier-to-read top-level definitions wiring.
-- P1-E5-S3: Preserve current job semantics (`etl_fast`, `etl_full`, `ferceqr_etl`) while relocating wiring.
+- Task 3: Preserve current job semantics (`ferc_to_sqlite`, `pudl`,
+  `pudl_with_ferc_to_sqlite`, `ferceqr`) while relocating wiring.
   - Deliverable: no unintended job selection regressions.
-- P1-E5-S4: Add regression test or snapshot test for selected asset keys/groups.
+- Task 4: Add regression test or snapshot test for selected asset keys/groups.
   - Deliverable: early warning on accidental graph drift.
 
-### P1-E5 Verification
+### Epic 3 Verification
 
 - `pixi run dg check defs`
 - Targeted tests for asset/job registration shape.
 
-## Epic P1-E6: Metadata and Ownership Baseline (After Structural Moves)
+## Epic 4: Metadata and Ownership Baseline
 
-### P1-E6 Objective
+### Epic 4 Objective
 
 Create and enforce a minimum metadata contract so the graph is navigable and maintainable.
 
-### P1-E6 Suggested Sub-Issues
+### Epic 4 Suggested Tasks
 
-- P1-E6-S1: Define metadata policy for `owners`, `kinds`, and `tags`.
+- Task 1: Define metadata policy for `owners`, `kinds`, and `tags`.
   - Deliverable: short policy doc with examples and naming conventions.
-- P1-E6-S2: Apply metadata to a pilot subset (for example 1-2 domains).
+- Task 2: Apply metadata to a pilot subset (for example 1-2 domains).
   - Deliverable: visible improvements in `dg list defs --json`.
-- P1-E6-S3: Add automated check(s) for metadata completeness on changed definitions.
+- Task 3: Add automated check(s) for metadata completeness on changed definitions.
   - Deliverable: CI fails on missing required metadata fields for newly touched assets.
-- P1-E6-S4: Backfill check descriptions for highest-value checks first.
+- Task 4: Backfill check descriptions for highest-value checks first.
   - Deliverable: top-priority checks have meaningful descriptions.
 
-### P1-E6 Verification
+### Epic 4 Verification
 
 - Programmatic query of `dg list defs --json` to report metadata completeness.
 - CI check runs on pull requests touching Dagster definitions.
 
-### Main Caveats to Manage
-
-- Caveat 1: Preserve run-config parity.
-  - Risk: subtle differences between script-built run config and `dg launch --config-file` behavior.
-  - Mitigation: maintain a parity matrix and test old/new invocation pairs.
-- Caveat 2: Preserve execution semantics.
-  - Risk: differences in job selection, op selection, or concurrency defaults.
-  - Mitigation: explicit command standards and snapshot of effective run config.
-- Caveat 3: Secrets/env contract consistency.
-  - Risk: local, CI, and nightly environments resolve settings differently.
-  - Mitigation: formalize env var contract and validate with smoke runs in each environment.
-- Caveat 4: Temporary dual-path complexity.
-  - Risk: supporting both old scripts and new commands for too long.
-  - Mitigation: planned deprecation window with concrete removal criteria.
-
-### Recommended Gate Before Structural Refactors
-
-Only start broad `defs`/module reorganization after these conditions are met:
-
-- All primary run modes have canonical `dg launch` commands.
-- Nightly build executes successfully without relying on custom launch code.
-- Basic smoke tests validate config parity and successful definitions loading.
-
-### Phase 1 Recommended Sequencing
-
-1. P1-E1: define canonical `dg launch` run modes.
-2. P1-E2: parameter/config/resource modeling for those run modes.
-3. P1-E3: cut over to `dg launch` and deprecate legacy launch paths.
-4. P1-E4: `defs` source of truth.
-5. P1-E5: decompose ETL assembly.
-6. P1-E6: metadata baseline.
-
-### Phase 1 Risks and Mitigations
-
-- Risk: definition drift changes execution unintentionally.
-  - Mitigation: snapshot/inventory checks before and after each epic.
-- Risk: new `dg launch` commands do not fully preserve script behavior.
-  - Mitigation: side-by-side run parity validation and staged rollout.
-- Risk: migration churn blocks feature work.
-  - Mitigation: narrow PRs, compatibility shims, and incremental rollout.
-- Risk: unclear ownership of new modules.
-  - Mitigation: enforce owners metadata and codeowners alignment.
-
 ## Changelog
 
-- 2026-03-07: Initial draft created with detailed Phase 1 and conceptual Phase 2/3.
-- 2026-03-08: Reordered Phase 1 to prioritize CLI migration (`dg launch`) and deferred detailed planning for later phases.
-- 2026-03-08: Clarified that P1-E1 and P1-E2 are interdependent tracks; softened tone for a more informal, cooperative style.
-- 2026-03-20: Added P1-E3 current-state analysis and concrete remaining task list (T1–T9) plus follow-up PR items (FU-1–FU-5) based on post-P1-E2 state of the repository.
+- 2026-03-07: Initial draft created with a detailed launch-path migration plan and later structural cleanup work.
+- 2026-03-08: Reordered the early work to prioritize the `dg launch` migration and deferred broader structural planning.
+- 2026-03-08: Clarified that the launch-command and config/resource tracks were interdependent and softened tone for a more informal, cooperative style.
+- 2026-03-20: Added a concrete remaining-task list for the launch-path migration plus follow-up cleanup items based on the post-resource-migration state of the repository.
+- 2026-03-23: Updated the plan after landing Epic 1 on this branch; refreshed the baseline snapshot, removed completed launch-path work, and refocused the plan on Epic 2 through Epic 4.
