@@ -685,6 +685,12 @@ RESOURCE_METADATA_BASE = {
                 "the plant_type column in instances where there are different plant_types reported for the same plant "
                 "in later years."
             ),
+            "additional_details_text": (
+                "The plant_type field was only included in the data starting in 2009. We backfill records with only "
+                "one reported plant_type per borrower/plant name/year. Records with multiple plant_types per "
+                "borrower/plant name/year are left with null plant_type because there is no reliable way to "
+                "determine which plant_type is associated with which record back in time."
+            ),
         },
         "schema": {
             "fields": [
