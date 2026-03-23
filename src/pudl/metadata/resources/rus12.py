@@ -619,7 +619,7 @@ RESOURCE_METADATA_BASE = {
     "core_rus12__monthly_demand_and_energy_at_delivery_points": {
         "description": {
             "additional_summary_text": (
-                "demand and energy delivered to distribution utilities broken down by month."
+                "demand and energy delivered to distribution utilities."
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section E)",
@@ -644,9 +644,7 @@ RESOURCE_METADATA_BASE = {
     },
     "core_rus12__monthly_demand_and_energy_at_power_sources": {
         "description": {
-            "additional_summary_text": (
-                "demand and energy at point of generation broken down by month."
-            ),
+            "additional_summary_text": ("demand and energy at point of generation."),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section D)",
         },
