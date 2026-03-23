@@ -594,9 +594,7 @@ def _core_rus7__yearly_energy_purchased(
             " Iowa Windfarm": 14,
         }
     )
-    df["fuel_type_code_rus"] = pd.to_numeric(
-        df["fuel_type_code_rus"], errors="coerce"
-    ).astype("Int64")
+    df["fuel_type_code_rus"] = pd.to_numeric(df["fuel_type_code_rus"]).astype("Int64")
 
     # TO-DO: it looks like the supplier_code_rus, is_supplier_eia_respondent, and utility_name_eia fields could
     # be turned into their own table. I investigated a bit and it's not a perfect 1:1 mapping, but

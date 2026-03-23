@@ -9959,6 +9959,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_type_code_rus": {
         "type": "integer",
         "description": "Unique numeric identifier for RUS fuel types.",
+        "constraints": {
+            "minimum": CODE_METADATA["core_rus__codes_fuel_types"]["df"]["code"].min(),
+            "maximum": CODE_METADATA["core_rus__codes_fuel_types"]["df"]["code"].max(),
+        },
     },
     "electric_or_other_materials": {
         "type": "string",
