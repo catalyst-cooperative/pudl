@@ -13,7 +13,7 @@ from dbt.artifacts.schemas.run import RunExecutionResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
-import pudl.defs
+import pudl.dagster
 from pudl.logging_helpers import get_logger
 from pudl.workspace.setup import PUDL_ROOT_PATH, PudlPaths
 
@@ -184,7 +184,7 @@ def dagster_to_dbt_selection(
     * turn node names into selection string
     """
     if defs is None:
-        defs = pudl.defs.defs
+        defs = pudl.dagster.defs
 
     asset_keys = dg.AssetSelection.from_string(selection).resolve(
         defs.resolve_asset_graph()

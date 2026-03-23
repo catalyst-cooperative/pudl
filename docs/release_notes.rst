@@ -79,10 +79,10 @@ Quality of Life Improvements
     :class:`dagster.ConfigurableResource` and :class:`dagster.ConfigurableIOManager`
     classes.
 
-* Made :mod:`pudl.defs` the canonical Dagster registry package while keeping
-  :mod:`pudl.definitions` as the stable ``dg`` code location entrypoint. This removes
-  the registry exports from :mod:`pudl.etl` and aligns PUDL more closely with Dagster's
-  recommended project layout. See :issue:`5123`.
+* Made :mod:`pudl.dagster` the canonical Dagster orchestration package while keeping
+  :mod:`pudl.definitions` as the stable ``dg`` code location entrypoint. Internal
+  imports and documentation now use :mod:`pudl.dagster`. See issue :issue:`5123` and
+  PR :pr:`5124`.
 
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
   PR :pr:`5023`.

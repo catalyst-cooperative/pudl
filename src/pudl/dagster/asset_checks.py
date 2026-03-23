@@ -7,22 +7,21 @@ asset check factory :func:`asset_check_from_schema` defined below.
 For data validation we almost entirely rely on dbt data tests.
 """
 
+import itertools
 from typing import Any
 
+import dagster as dg
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import polars as pl
-from dagster import (
-    AssetCheckResult,
-    AssetChecksDefinition,
-    AssetKey,
-    asset_check,
-)
+from dagster import AssetCheckResult, AssetChecksDefinition, AssetKey, asset_check
 from pandera.errors import SchemaErrors
 
+from pudl.dagster.assets import all_asset_modules, asset_keys
 from pudl.helpers import ParquetData, get_parquet_table_polars
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
 from pudl.settings import ferceqr_year_quarters
 
@@ -74,30 +73,7 @@ def _collect_dtype_metadata(
     asset_value: pl.LazyFrame | pd.DataFrame,
     resource: Resource,
 ) -> dict[str, Any]:
-    """Build metadata comparing actual dataframe dtypes to metadata-driven expectations.
-
-    Args:
-        asset_value: Asset output to introspect. Supported types are
-            :class:`pandas.DataFrame` and :class:`polars.LazyFrame`.
-        resource: PUDL metadata resource whose schema fields define expected columns and
-            dtypes.
-
-    Returns:
-        A metadata dictionary with:
-        - ``field_details``: per-column expected and actual dtype details.
-        - ``column_comparison``: expected/actual column counts and optional missing
-          or extra column lists.
-        - ``type_mismatches``: only present when common columns have differing dtype
-          strings.
-
-    Raises:
-        ValueError: If ``asset_value`` is not a supported dataframe type.
-
-    Notes:
-        Expected dtypes are captured as strings from ``field.to_pandera_column()``.
-        Any errors while computing expected dtypes are recorded inline as
-        ``"Error: ..."`` values rather than raised.
-    """
+    """Build metadata comparing actual dataframe dtypes to metadata-driven expectations."""
     dtype_errors: dict[str, str] = {}
     actual_columns, actual_dtypes, use_pandas_backend = (
         _extract_actual_columns_and_dtypes(asset_value)
@@ -111,8 +87,8 @@ def _collect_dtype_metadata(
             pandera_dtypes[field.name] = str(
                 field.to_pandera_column(use_pandas_backend=use_pandas_backend).dtype
             )
-        except Exception as e:
-            error_text = str(e)
+        except Exception as exc:
+            error_text = str(exc)
             pandera_dtypes[field.name] = f"Error: {error_text}"
             dtype_errors[field.name] = error_text
 
@@ -138,11 +114,14 @@ def _collect_dtype_metadata(
 
     common_columns = sorted(set(expected_columns) & set(actual_columns))
     type_mismatches = {}
-    for col in common_columns:
-        expected_type = pandera_dtypes.get(col, "Unknown")
-        actual_type = actual_dtypes.get(col, "Unknown")
+    for column in common_columns:
+        expected_type = pandera_dtypes.get(column, "Unknown")
+        actual_type = actual_dtypes.get(column, "Unknown")
         if expected_type != actual_type and expected_type != "Unknown":
-            type_mismatches[col] = {"expected": expected_type, "actual": actual_type}
+            type_mismatches[column] = {
+                "expected": expected_type,
+                "actual": actual_type,
+            }
 
     metadata = {
         "field_details": field_details,
@@ -189,7 +168,6 @@ def _process_schema_errors(schema_errors: SchemaErrors) -> dict[str, Any]:
             "data": str(err.data) if hasattr(err, "data") else "No data",
         }
 
-        # Add optional error attributes
         for attr in ["schema", "check", "args"]:
             if hasattr(err, attr):
                 error_info[f"{attr}_info"] = str(getattr(err, attr))
@@ -208,18 +186,7 @@ def asset_check_from_schema(  # noqa: C901
     duckdb_asset: bool,
     high_memory_asset: bool,
 ) -> AssetChecksDefinition | None:
-    """Create a dagster asset check based on the resource schema, if defined.
-
-    The vast majority of assets will be loaded as Polars LazyFrames directly using
-    the ``PudlParquetIOManager`` and validated with Pandera's Polars backend, but
-    there are two exceptions to this. The first exception are assets which contain
-    a geometry data type. These assets will all be loaded as geopandas GeoDataFrames
-    and use Pandera's Pandas backend as Polars does not support geometry data types.
-    The second exception are assets produced entirely using DuckDB. These assets
-    return ``ParquetData`` objects, which are handled by the default io-manager. In
-    this case, the resulting parquet file(s) will be scanned with Polars to produce
-    a LazyFrame, then handled exactly the same as a typical asset.
-    """
+    """Create a Dagster asset check based on the resource schema, if defined."""
     resource_id = asset_key.to_user_string()
     try:
         resource = package.get_resource(resource_id)
@@ -228,27 +195,22 @@ def asset_check_from_schema(  # noqa: C901
 
     pandera_schema = resource.schema.to_pandera()
     partitions = ferceqr_year_quarters if "ferceqr" in resource_id else None
-    if duckdb_asset:
-        asset_type = ParquetData
-    elif isinstance(pandera_schema, pr_polars.DataFrameSchema):
-        asset_type = pl.LazyFrame
-    elif isinstance(pandera_schema, pr_pandas.DataFrameSchema):
-        asset_type = gpd.GeoDataFrame
-    else:
+    if not duckdb_asset and not isinstance(
+        pandera_schema, pr_polars.DataFrameSchema | pr_pandas.DataFrameSchema
+    ):
         raise ValueError(
             "Unexpected return type from `Resource.schema.to_pandera()`."
             f"Expected a pandera `DataFrameSchema`, but got: `{type(pandera_schema)}`"
         )
 
     @asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
-    def pandera_schema_check(asset_value: asset_type) -> AssetCheckResult:
+    def pandera_schema_check(asset_value) -> AssetCheckResult:
         if isinstance(asset_value, ParquetData):
             asset_value = get_parquet_table_polars(
                 table_name=resource_id,
                 partitions=asset_value.partitions,
             )
 
-        # Collect all metadata
         metadata = (
             _collect_asset_metadata(asset_value)
             | _collect_dtype_metadata(asset_value, resource)
@@ -258,7 +220,6 @@ def asset_check_from_schema(  # noqa: C901
         try:
             if isinstance(asset_value, pl.LazyFrame):
                 validated_schema = asset_value.pipe(pandera_schema.validate, lazy=True)
-                # Only validate data contents if asset is not marked as high memory
                 if not high_memory_asset:
                     validated_schema.collect(engine="streaming")
             else:
@@ -269,12 +230,52 @@ def asset_check_from_schema(  # noqa: C901
             metadata.update(_process_schema_errors(schema_errors))
             return AssetCheckResult(passed=False, metadata=metadata)
 
-        except Exception as e:
+        except Exception as exc:
             metadata["unexpected_error"] = {
-                "error_type": type(e).__name__,
-                "error_message": str(e),
-                "error_args": str(e.args) if hasattr(e, "args") else "No args",
+                "error_type": type(exc).__name__,
+                "error_message": str(exc),
+                "error_args": str(exc.args) if hasattr(exc, "args") else "No args",
             }
             return AssetCheckResult(passed=False, metadata=metadata)
 
     return pandera_schema_check
+
+
+default_asset_checks = list(
+    itertools.chain.from_iterable(
+        dg.load_asset_checks_from_modules(modules)
+        for modules in all_asset_modules.values()
+    )
+)
+
+duckdb_assets = [
+    "core_ferceqr__quarterly_identity",
+    "core_ferceqr__contracts",
+    "core_ferceqr__quarterly_index_pub",
+    "core_ferceqr__transactions",
+]
+high_memory_assets = [
+    "out_vcerare__hourly_available_capacity_factor",
+    "core_epacems__hourly_emissions",
+]
+
+default_asset_checks += [
+    check
+    for check in (
+        asset_check_from_schema(
+            asset_key,
+            PUDL_PACKAGE,
+            duckdb_asset=asset_key.to_user_string() in duckdb_assets,
+            high_memory_asset=asset_key.to_user_string() in high_memory_assets,
+        )
+        for asset_key in asset_keys
+    )
+    if check is not None
+]
+
+__all__ = [
+    "asset_check_from_schema",
+    "default_asset_checks",
+    "duckdb_assets",
+    "high_memory_assets",
+]

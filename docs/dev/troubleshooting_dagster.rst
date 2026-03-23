@@ -70,8 +70,10 @@ asset B on ``branch-2``, it will receive A's value on
 ``branch-1``. This is a problem because on ``branch-2``
 asset B expects asset A to be a string not an integer.
 **To avoid a scenario like this, it is recommended you
-re-materialize all assets in the ``pudl.etl`` definition
-when you switch branches.**
+re-materialize all assets in the PUDL Dagster code location
+when you switch branches.** The stable code location module is
+:mod:`pudl.definitions`, and the canonical assembly it exposes lives in
+:mod:`pudl.dagster`.
 
 .. _resource_config:
 
@@ -79,7 +81,10 @@ Configuring resources
 ---------------------
 Dagster resources are python objects that any assets can access.
 Resources can be configured using the dagster UI to change the behavior
-of a given resource. PUDL currently has three resources:
+of a given resource. PUDL's default resource set is assembled in
+:mod:`pudl.dagster.resources` and includes datastore access, ETL settings,
+runtime settings, and several IO managers. The resources contributors most
+often need to adjust are:
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :func:`pudl.resources.dataset_settings`
@@ -109,9 +114,9 @@ assets.
 
     The configuration edits you make in the dagster UI are only used
     for a single run. If want to save a resource configuration,
-    change the default value of the resource or create a new job
-    in :mod:`pudl.etl` or :mod:`pudl.ferc_to_sqlite` with the
-    preconfigured resource.
+    change the default value of the resource, update one of the packaged
+    Dagster YAML profiles, or define a custom job / ``Definitions`` override
+    in :mod:`pudl.dagster.jobs` or :mod:`pudl.dagster.build`.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :func:`pudl.resources.datastore`
@@ -120,8 +125,12 @@ assets.
 The datastore resource allows assets to to pull data from
 PUDL's raw data archives on Zenodo.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:func:`pudl.resources.ferc_to_sqlite_settings`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``ferc_to_sqlite_settings`` resource tells the ``ferc_to_sqlite``
-job which years of FERC data to extract.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:func:`pudl.resources.RuntimeSettings`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The ``runtime_settings`` resource controls run-scoped behavior that is not
+part of the dataset selection itself.
+
+In addition to these commonly edited resources, :mod:`pudl.dagster.resources`
+also registers the standard PUDL IO managers and the ``zenodo_dois`` resource
+used to locate source archives.
