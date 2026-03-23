@@ -1,6 +1,21 @@
-"""Placeholder defs package for dg project compatibility.
+"""Canonical Dagster registry package for PUDL."""
 
-PUDL currently defines assets and jobs in Python modules rather than
-component ``defs.yaml`` instances. The directory exists so ``dg check defs`` can
-run while we keep the current layout.
-"""
+from pudl.defs.registry import (
+    build_defs,
+    default_asset_checks,
+    default_assets,
+    default_jobs,
+    default_resources,
+    default_sensors,
+    defs,
+)
+
+__all__ = [
+    "build_defs",
+    "default_asset_checks",
+    "default_assets",
+    "default_jobs",
+    "default_resources",
+    "default_sensors",
+    "defs",
+]

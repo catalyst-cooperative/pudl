@@ -1,13 +1,10 @@
-"""Dagster code location module for dg-compatible loading.
+"""Stable Dagster code location module for dg-compatible loading.
 
-This module provides a single ``defs`` object so ``dg`` commands can load the
-existing PUDL Definitions without requiring a broader project refactor.
-
-See https://docs.dagster.io/getting-started/concepts#code-location for more context.
+This module stays lightweight on purpose. The canonical registry assembly lives in
+``pudl.defs`` and this module remains the stable top-level entrypoint configured for
+``dg``.
 """
 
-import dagster as dg
+from pudl.defs import defs
 
-import pudl.etl
-
-defs: dg.Definitions = pudl.etl.defs
+__all__ = ["defs"]

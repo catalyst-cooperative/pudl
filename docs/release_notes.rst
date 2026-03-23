@@ -79,6 +79,11 @@ Quality of Life Improvements
     :class:`dagster.ConfigurableResource` and :class:`dagster.ConfigurableIOManager`
     classes.
 
+* Made :mod:`pudl.defs` the canonical Dagster registry package while keeping
+  :mod:`pudl.definitions` as the stable ``dg`` code location entrypoint. This removes
+  the registry exports from :mod:`pudl.etl` and aligns PUDL more closely with Dagster's
+  recommended project layout. See :issue:`5123`.
+
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
   PR :pr:`5023`.
 * Added environment variable controls for Sphinx docs builds:

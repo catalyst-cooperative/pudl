@@ -554,7 +554,7 @@ directory_type = "project"
 root_module = "pudl"
 code_location_target_module = "pudl.definitions"
 registry_modules = [
-    "pudl.etl",
+    "pudl.defs",
 ]
 
 [tool.typos.default]

@@ -22,7 +22,7 @@ from dagster import (
 
 import pudl
 from pudl import resources
-from pudl.etl import build_defs
+from pudl.defs import build_defs
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
 from pudl.io_managers import (

@@ -126,7 +126,7 @@ Core Dagster concepts used in PUDL
   :py:class:`pudl.resources.PudlEtlSettingsResource`.
 * **`Jobs <https://docs.dagster.io/guides/build/jobs>`__** are preconfigured collections
   of assets, resources and IO Managers.  Jobs are the main unit of execution in Dagster.
-  The main jobs defined in :mod:`pudl.etl` are:
+  The main jobs assembled in :mod:`pudl.defs` are:
 
   - ``ferc_to_sqlite`` to rebuild the raw FERC prerequisite databases only.
   - ``pudl`` to run the main PUDL ETL assuming those raw FERC databases already exist.
@@ -136,8 +136,9 @@ Core Dagster concepts used in PUDL
 * **`Definitions <https://docs.dagster.io/getting-started/concepts#definitions>`__**
   are the top-level collection of Dagster objects that get loaded into a code location.
   They bundle together the assets, asset checks, resources, jobs, schedules, and
-  sensors that Dagster can see and execute. In PUDL, the main Dagster definitions live
-  in :mod:`pudl.etl` and are exposed via :data:`pudl.etl.defs`.
+  sensors that Dagster can see and execute. In PUDL, the canonical Dagster registry
+  lives in :mod:`pudl.defs` and is exposed via :data:`pudl.defs.defs`, while
+  :mod:`pudl.definitions` remains the stable top-level code location used by ``dg``.
 * **`Configs <https://docs.dagster.io/guides/operate/configuration/run-configuration>`__**
   are the runtime settings passed to Dagster jobs, assets, and resources to control
   what gets executed and how. In PUDL, we usually store these settings in YAML files
