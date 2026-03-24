@@ -6,7 +6,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia191__monthly_gas_storage": {
         "description": {
             "additional_summary_text": "monthly underground natural gas storage activity reported by operators.",
-"usage_warnings": [
+            "usage_warnings": [
                 {
                     "type": "custom",
                     "description": (
