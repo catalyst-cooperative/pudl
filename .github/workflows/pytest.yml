@@ -65,7 +65,6 @@ jobs:
               - '!.git-blame-ignore-revs'
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
-              - '!.mypy.ini'
               - '!terraform/**'
               - '!test/unit/**'
               - '!skills-lock.json'
