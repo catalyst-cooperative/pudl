@@ -786,6 +786,17 @@ def associate_generator_tables(
     return gen_assoc
 
 
+def _label_gf_unique_to_gen(gen_assoc: pd.DataFrame):
+    # identify whether a PM/ESC combo is unique to the generator_id at the plant
+    gen_assoc["gf_unique_to_gen"] = (
+        gen_assoc.groupby(
+            ["plant_id_eia", "report_date", "prime_mover_code", "energy_source_code"]
+        )["generator_id"].transform("nunique")
+        == 1
+    )
+    return gen_assoc
+
+
 def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Remove the retired generators.
 
@@ -825,13 +836,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             generation data from the core_eia923__monthly_generation and core_eia923__monthly_generation_fuel
             tables. Output of :func:`associate_generator_tables`.
     """
-    # identify whether a PM/ESC combo is unique to the generator_id at the plant
-    gen_assoc["gf_unique_to_gen"] = (
-        gen_assoc.groupby(
-            ["plant_id_eia", "report_date", "prime_mover_code", "energy_source_code"]
-        )["generator_id"].transform("nunique")
-        == 1
-    )
+    gen_assoc = _label_gf_unique_to_gen(gen_assoc)
 
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
 
