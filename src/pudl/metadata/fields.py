@@ -7497,7 +7497,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "A code representing the enclosure type that best describes where the generator is located."
         ),
     },
-    "storage_field_id_eia191": {
+    "storage_field_id_eia": {
         "type": "string",
         "description": (
             "EIA-assigned identifier for an underground natural gas storage reservoir. "

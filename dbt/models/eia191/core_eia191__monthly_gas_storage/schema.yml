@@ -27,7 +27,7 @@ sources:
                 are flagged but existing failures do not hard-fail.
 
         columns:
-          - name: storage_field_id_eia191
+          - name: storage_field_id_eia
           - name: report_date
           - name: state
           - name: gas_field_id_eia

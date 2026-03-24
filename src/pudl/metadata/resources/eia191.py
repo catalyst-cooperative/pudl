@@ -25,7 +25,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "schema": {
             "fields": [
-                "storage_field_id_eia191",
+                "storage_field_id_eia",
                 "report_date",
                 "state",
                 "gas_field_id_eia",
@@ -43,7 +43,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "region",
             ],
             "primary_key": [
-                "storage_field_id_eia191",
+                "storage_field_id_eia",
                 "report_date",
             ],
         },
