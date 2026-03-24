@@ -3265,18 +3265,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "field_name": {
         "type": "string",
-        "description": (
-            "Name of the natural gas storage field, as reported by the operator to "
-            "EIA on Form 191."
-        ),
+        "description": "Name of the natural gas storage field.",
     },
     "field_type": {
         "type": "string",
         "description": (
-            "Type of underground natural gas storage facility, as reported to EIA on "
-            "Form 191. One of: depleted field (a reservoir previously used for natural "
-            "gas production), aquifer (a porous rock structure used to store gas), or "
-            "salt dome (a cavern created within a salt formation)."
+            "Type of underground natural gas storage facility. One of: depleted field "
+            "(a reservoir previously used for natural gas production), aquifer (a "
+            "porous rock structure used to store gas), or salt dome (a cavern created "
+            "within a salt formation)."
         ),
         "constraints": {
             "enum": ["aquifer", "depleted field", "salt dome"],
@@ -4573,8 +4570,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Maximum daily quantity of gas that can be withdrawn from the underground "
-            "storage reservoir under normal operating conditions, as reported by the "
-            "operator to EIA on Form 191."
+            "storage reservoir under normal operating conditions."
         ),
         "unit": "Mcf",
     },
@@ -6487,7 +6483,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "EIA storage region in which the underground natural gas storage field "
-            "is located, as reported on Form 191."
+            "is located."
         ),
         "constraints": {"enum": EIA191_STORAGE_REGIONS},
     },
@@ -6621,10 +6617,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "reservoir_name": {
         "type": "string",
-        "description": (
-            "Name of the individual underground natural gas storage reservoir, "
-            "as reported by the operator to EIA on Form 191."
-        ),
+        "description": "Name of the individual underground natural gas storage reservoir.",
     },
     "respondent_id_ferc714": {
         "type": "integer",
@@ -7479,10 +7472,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "status": {
         "type": "string",
-        "description": (
-            "Operational status of the underground natural gas storage reservoir, "
-            "as reported to EIA on Form 191."
-        ),
+        "description": "Operational status of the underground natural gas storage reservoir.",
         "constraints": {
             "enum": ["active", "inactive"],
         },
@@ -7517,9 +7507,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "storage_field_id_eia191": {
         "type": "string",
         "description": (
-            "EIA-assigned identifier for an underground natural gas storage reservoir "
-            "as reported on Form 191. IDs are assigned per company and state, so the "
-            "same physical reservoir may have different IDs if ownership changes."
+            "EIA-assigned identifier for an underground natural gas storage reservoir. "
+            "IDs are assigned per company and state, so the same physical reservoir "
+            "may have different IDs if ownership changes."
         ),
     },
     "storage_technology_code_1": {
@@ -7975,11 +7965,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Total design capacity of the underground natural gas storage field "
-            "(base gas plus working gas), as reported by the operator to EIA on "
-            "Form 191. Note: this value is not reliably equal to the sum of "
-            "working_gas_capacity_mcf and base_gas_mcf; approximately 23%% of "
-            "records differ, reflecting loose EIA definitions and operator "
-            "self-reporting practices."
+            "(base gas plus working gas)."
         ),
         "unit": "Mcf",
     },
@@ -8482,8 +8468,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Volume of working gas (the portion of stored gas available for withdrawal) "
-            "in the underground storage reservoir, as reported by the operator to EIA "
-            "on Form 191."
+            "in the underground storage reservoir."
         ),
         "unit": "Mcf",
     },
