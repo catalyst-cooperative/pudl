@@ -17,7 +17,6 @@ from collections.abc import Iterator, Mapping
 from typing import Any
 
 import dagster as dg
-from dagster import ConfigurableResource
 from upath import UPath
 
 from pudl.settings import EtlSettings, load_etl_settings
@@ -25,7 +24,7 @@ from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
 
-class FercXbrlRuntimeSettings(ConfigurableResource):
+class FercXbrlRuntimeSettings(dg.ConfigurableResource):
     """Encodes runtime settings for the ferc_to_sqlite graphs."""
 
     xbrl_num_workers: None | int = None
@@ -33,7 +32,7 @@ class FercXbrlRuntimeSettings(ConfigurableResource):
     xbrl_loglevel: str = "INFO"
 
 
-class PudlEtlSettingsResource(ConfigurableResource):
+class PudlEtlSettingsResource(dg.ConfigurableResource):
     """Load validated PUDL ETL settings from a shared ETL YAML file."""
 
     etl_settings_path: str
@@ -44,7 +43,7 @@ class PudlEtlSettingsResource(ConfigurableResource):
         return load_etl_settings(self.etl_settings_path)
 
 
-class ZenodoDoiSettingsResource(ConfigurableResource):
+class ZenodoDoiSettingsResource(dg.ConfigurableResource):
     """Load the canonical Zenodo DOI settings for Dagster-managed runs."""
 
     zenodo_dois_path: str | None = None
@@ -57,7 +56,7 @@ class ZenodoDoiSettingsResource(ConfigurableResource):
         return ZenodoDoiSettings.from_yaml(self.zenodo_dois_path)
 
 
-class DatastoreResource(ConfigurableResource):
+class DatastoreResource(dg.ConfigurableResource):
     """Dagster resource to interact with Zenodo archives."""
 
     zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
@@ -77,7 +76,7 @@ class DatastoreResource(ConfigurableResource):
         return Datastore(**ds_kwargs)
 
 
-class FercEqrExtractSettings(ConfigurableResource):
+class FercEqrExtractSettings(dg.ConfigurableResource):
     """Configure which archived FERC EQR filings are available for extraction."""
 
     ferceqr_archive_uri: str = "gs://archives.catalyst.coop/ferceqr/published"

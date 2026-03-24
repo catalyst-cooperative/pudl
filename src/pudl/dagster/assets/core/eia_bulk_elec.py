@@ -4,14 +4,14 @@ This module defines asset logic for the aggregate EIA electricity data products 
 PUDL derives from the EIA API bulk JSON data and then loads into the core asset graph.
 """
 
-from dagster import asset
+import dagster as dg
 
 import pudl
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset(
+@dg.asset(
     io_manager_key="pudl_io_manager",
     required_resource_keys={"datastore"},
 )

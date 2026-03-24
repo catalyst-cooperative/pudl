@@ -29,7 +29,6 @@ import pandas as pd
 import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import polars as pl
-from dagster import AssetCheckResult, AssetChecksDefinition, AssetKey, asset_check
 from pandera.errors import SchemaErrors
 
 from pudl.dagster.assets import all_asset_modules, asset_keys
@@ -222,7 +221,7 @@ def group_mean_continuity_check(
     thresholds: dict[str, float],
     groupby_col: str,
     n_outliers_allowed: int = 0,
-) -> AssetCheckResult:
+) -> dg.AssetCheckResult:
     """Check that certain variables don't vary too much on average between groups.
 
     Groups and sorts the data by ``groupby_col``, then takes the mean across
@@ -255,17 +254,17 @@ def group_mean_continuity_check(
         if discontinuity[col].sum() > 0
     }
     if (discontinuity.sum() > n_outliers_allowed).any():
-        return AssetCheckResult(passed=False, metadata=metadata)
+        return dg.AssetCheckResult(passed=False, metadata=metadata)
 
-    return AssetCheckResult(passed=True, metadata=metadata)
+    return dg.AssetCheckResult(passed=True, metadata=metadata)
 
 
 def asset_check_from_schema(  # noqa: C901
-    asset_key: AssetKey,
+    asset_key: dg.AssetKey,
     package: Package,
     duckdb_asset: bool,
     high_memory_asset: bool,
-) -> AssetChecksDefinition | None:
+) -> dg.AssetChecksDefinition | None:
     """Create a Dagster asset check based on the resource schema, if defined.
 
     The vast majority of assets will be loaded as Polars LazyFrames directly using
@@ -298,12 +297,12 @@ def asset_check_from_schema(  # noqa: C901
             f"Expected a pandera `DataFrameSchema`, but got: `{type(pandera_schema)}`"
         )
 
-    @asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
+    @dg.asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
     # Dagster uses this runtime annotation to select the correct IO manager load type,
     # but static type checkers may reject the computed local variable in a type expression.
     def pandera_schema_check(
         asset_value: asset_type,  # type: ignore[valid-type]
-    ) -> AssetCheckResult:
+    ) -> dg.AssetCheckResult:
         if isinstance(asset_value, ParquetData):
             asset_value = get_parquet_table_polars(
                 table_name=resource_id,
@@ -325,11 +324,11 @@ def asset_check_from_schema(  # noqa: C901
                     validated_schema.collect(engine="streaming")
             else:
                 pandera_schema.validate(asset_value, lazy=True)
-            return AssetCheckResult(passed=True, metadata=metadata)
+            return dg.AssetCheckResult(passed=True, metadata=metadata)
 
         except SchemaErrors as schema_errors:
             metadata.update(_process_schema_errors(schema_errors))
-            return AssetCheckResult(passed=False, metadata=metadata)
+            return dg.AssetCheckResult(passed=False, metadata=metadata)
 
         except Exception as exc:
             metadata["unexpected_error"] = {
@@ -337,7 +336,7 @@ def asset_check_from_schema(  # noqa: C901
                 "error_message": str(exc),
                 "error_args": str(exc.args) if hasattr(exc, "args") else "No args",
             }
-            return AssetCheckResult(passed=False, metadata=metadata)
+            return dg.AssetCheckResult(passed=False, metadata=metadata)
 
     return pandera_schema_check
 

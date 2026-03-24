@@ -25,15 +25,6 @@ import pyarrow.parquet as pq
 import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
-from dagster import (
-    ConfigurableIOManager,
-    DagsterInvariantViolationError,
-    InitResourceContext,
-    InputContext,
-    IOManager,
-    OutputContext,
-    io_manager,
-)
 from packaging import version
 from pydantic import model_validator
 
@@ -58,7 +49,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
-def _get_optional_instance(context: InputContext):
+def _get_optional_instance(context: dg.InputContext):
     """Return the Dagster instance from an input context if one was provided.
 
     Some notebook and integration-test helpers build ad hoc ``InputContext`` objects
@@ -67,11 +58,11 @@ def _get_optional_instance(context: InputContext):
     """
     try:
         return context.instance
-    except DagsterInvariantViolationError:
+    except dg.DagsterInvariantViolationError:
         return None
 
 
-def get_table_name_from_context(context: OutputContext) -> str:
+def get_table_name_from_context(context: dg.OutputContext) -> str:
     """Retrieves the table name from the context object."""
     # TODO(rousik): Figure out which kind of identifier is used when.
     if context.has_asset_key:
@@ -79,7 +70,7 @@ def get_table_name_from_context(context: OutputContext) -> str:
     return context.get_identifier()
 
 
-class PudlMixedFormatIOManager(ConfigurableIOManager):
+class PudlMixedFormatIOManager(dg.ConfigurableIOManager):
     """Format switching IOManager that supports sqlite and parquet.
 
     This IOManager provides for the use of parquet files along with the standard SQLite
@@ -115,21 +106,21 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
         return PudlParquetIOManager()
 
     def handle_output(
-        self, context: OutputContext, obj: pd.DataFrame | str
+        self, context: dg.OutputContext, obj: pd.DataFrame | str
     ) -> pd.DataFrame:
         """Passes the output to the appropriate IO manager instance."""
         self._sqlite_io_manager.handle_output(context, obj)
         if self.write_to_parquet:
             self._parquet_io_manager.handle_output(context, obj)
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Reads input from the appropriate IO manager instance."""
         if self.read_from_parquet:
             return self._parquet_io_manager.load_input(context)
         return self._sqlite_io_manager.load_input(context)
 
 
-class SQLiteIOManager(IOManager):
+class SQLiteIOManager(dg.IOManager):
     """IO Manager that writes and retrieves dataframes from a SQLite database."""
 
     def __init__(
@@ -220,7 +211,7 @@ class SQLiteIOManager(IOManager):
             )
         return sa_table
 
-    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
+    def _handle_pandas_output(self, context: dg.OutputContext, df: pd.DataFrame):
         """Write dataframe to the database.
 
         SQLite does not support concurrent writes to the database. Instead, SQLite
@@ -258,7 +249,7 @@ class SQLiteIOManager(IOManager):
             )
 
     # TODO (bendnorman): Create a SQLQuery type so it's clearer what this method expects
-    def _handle_str_output(self, context: OutputContext, query: str):
+    def _handle_str_output(self, context: dg.OutputContext, query: str):
         """Execute a sql query on the database.
 
         This is used for creating output views in the database.
@@ -280,7 +271,7 @@ class SQLiteIOManager(IOManager):
             con.execute(f"DROP VIEW IF EXISTS {table_name}")
             con.execute(query)
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
         """Handle an op or asset output.
 
         If the output is a dataframe, write it to the database. If it is a string
@@ -304,7 +295,7 @@ class SQLiteIOManager(IOManager):
                 "queries."
             )
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
@@ -334,11 +325,11 @@ class SQLiteIOManager(IOManager):
             return df
 
 
-class PudlParquetIOManager(IOManager):
+class PudlParquetIOManager(dg.IOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
 
     def handle_output(
-        self, context: OutputContext, obj: pd.DataFrame | pl.LazyFrame
+        self, context: dg.OutputContext, obj: pd.DataFrame | pl.LazyFrame
     ) -> None:
         """Writes pudl dataframe to parquet file."""
         table_name = get_table_name_from_context(context)
@@ -367,7 +358,7 @@ class PudlParquetIOManager(IOManager):
             )
 
     def load_input(
-        self, context: InputContext
+        self, context: dg.InputContext
     ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
@@ -411,7 +402,7 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
         }
         return json.dumps(geo_metadata)
 
-    def handle_output(self, context: OutputContext, obj: gpd.GeoDataFrame) -> None:
+    def handle_output(self, context: dg.OutputContext, obj: gpd.GeoDataFrame) -> None:
         """Write a PUDL dataframe to GeoParquet."""
         if not isinstance(obj, gpd.GeoDataFrame):
             raise TypeError(
@@ -511,7 +502,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "--autogenerate -m 'relevant message' && alembic upgrade head`."
             )
 
-    def _handle_str_output(self, context: OutputContext, query: str):
+    def _handle_str_output(self, context: dg.OutputContext, query: str):
         """Execute a sql query on the database.
 
         This is used for creating output views in the database.
@@ -543,7 +534,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
             con.execute(f"DROP VIEW IF EXISTS {table_name}")
             con.execute(query)
 
-    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
+    def _handle_pandas_output(self, context: dg.OutputContext, df: pd.DataFrame):
         """Enforce PUDL DB schema and write dataframe to SQLite."""
         table_name = get_table_name_from_context(context)
         # If table_name doesn't show up in the self.md object, this will raise an error
@@ -564,7 +555,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 dtype={c.name: c.type for c in sa_table.columns},
             )
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
@@ -612,14 +603,14 @@ class PudlSQLiteIOManager(SQLiteIOManager):
 pudl_mixed_format_io_manager = PudlMixedFormatIOManager()
 
 
-@io_manager
-def parquet_io_manager(init_context: InitResourceContext) -> IOManager:
+@dg.io_manager
+def parquet_io_manager(init_context: dg.InitResourceContext) -> dg.IOManager:
     """Create a Parquet only IO manager."""
     return PudlParquetIOManager()
 
 
-@io_manager
-def geoparquet_io_manager(init_context: InitResourceContext) -> IOManager:
+@dg.io_manager
+def geoparquet_io_manager(init_context: dg.InitResourceContext) -> dg.IOManager:
     """Create a GeoParquet only IO manager."""
     return PudlGeoParquetIOManager()
 
@@ -706,14 +697,14 @@ class FercSQLiteIOManager(SQLiteIOManager):
         if not self.md.tables:
             self._reflect_metadata()
 
-    def handle_output(self, context: OutputContext, obj):
+    def handle_output(self, context: dg.OutputContext, obj):
         """Handle an op or asset output."""
         raise NotImplementedError(
             "FercSQLiteIOManager can't write outputs. Subclass FercSQLiteIOManager and "
             "implement the handle_output method."
         )
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
@@ -734,11 +725,11 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
     metadata.
     """
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
         """Handle an op or asset output."""
         raise NotImplementedError("FercDBFSQLiteIOManager can't write outputs yet.")
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
@@ -771,7 +762,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=table_name)
 
 
-class FercDbfSQLiteDagsterIOManager(ConfigurableIOManager):
+class FercDbfSQLiteDagsterIOManager(dg.ConfigurableIOManager):
     """Dagster IO manager for reading tables from the FERC 1 DBF SQLite database."""
 
     etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
@@ -791,11 +782,11 @@ class FercDbfSQLiteDagsterIOManager(ConfigurableIOManager):
         """Expose the underlying SQLAlchemy engine for tests and helpers."""
         return self._manager.engine
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
         """Delegate writes to the underlying runtime IO manager."""
         return self._manager.handle_output(context, obj)
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from the FERC 1 DBF SQLite database."""
         self._manager._ensure_database_ready()
         assert_ferc_sqlite_compatible(
@@ -873,11 +864,11 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             .reset_index(drop=True)
         )
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
         """Handle an op or asset output."""
         raise NotImplementedError("FercXBRLSQLiteIOManager can't write outputs yet.")
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
@@ -917,7 +908,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         )
 
 
-class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
+class FercXbrlSQLiteDagsterIOManager(dg.ConfigurableIOManager):
     """Dagster IO manager for reading tables from a FERC XBRL SQLite database."""
 
     etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
@@ -937,11 +928,11 @@ class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
         """Expose the underlying SQLAlchemy engine for tests and helpers."""
         return self._manager.engine
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
         """Delegate writes to the underlying runtime IO manager."""
         return self._manager.handle_output(context, obj)
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC XBRL SQLite database."""
         self._manager._ensure_database_ready()
         assert_ferc_sqlite_compatible(

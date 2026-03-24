@@ -6,9 +6,9 @@ when they create or refine those crosswalk-style tables and supporting relations
 rather than the domain-specific transforms for any one source dataset.
 """
 
+import dagster as dg
 import networkx as nx
 import pandas as pd
-from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
 from pudl.metadata.classes import DataSource, Package
@@ -16,9 +16,9 @@ from pudl.metadata.classes import DataSource, Package
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@multi_asset(
+@dg.multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("glue")
         #  do not load core_epa__assn_eia_epacamd glue assets bc they are stand-alone assets below.
         if "core_epa__assn_eia_epacamd" not in table_name
@@ -55,7 +55,7 @@ def create_glue_tables(context):
     selected_outputs = set(context.selected_output_names)
 
     return (
-        Output(output_name=table_name, value=df)
+        dg.Output(output_name=table_name, value=df)
         for table_name, df in glue_dfs.items()
         if table_name in selected_outputs
     )
@@ -66,7 +66,7 @@ def create_glue_tables(context):
 #####################
 
 
-@asset(required_resource_keys={"datastore"})
+@dg.asset(required_resource_keys={"datastore"})
 def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
     logger.info("Extracting the EPACAMD-EIA crosswalk from Zenodo")
@@ -88,7 +88,7 @@ def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
     return pd.concat(year_matches, ignore_index=True)
 
 
-@asset(required_resource_keys={"etl_settings"}, io_manager_key="pudl_io_manager")
+@dg.asset(required_resource_keys={"etl_settings"}, io_manager_key="pudl_io_manager")
 def core_epa__assn_eia_epacamd(
     context,
     raw_pudl__assn_eia_epacamd: pd.DataFrame,
@@ -219,7 +219,7 @@ def core_epa__assn_eia_epacamd(
     return crosswalk_clean
 
 
-@asset
+@dg.asset
 def _core_epa__assn_eia_epacamd_unique(
     core_epa__assn_eia_epacamd: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -291,7 +291,7 @@ def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
 ##############################
 
 
-@asset(io_manager_key="pudl_io_manager")
+@dg.asset(io_manager_key="pudl_io_manager")
 def core_epa__assn_eia_epacamd_subplant_ids(
     _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
     core_eia860__scd_generators: pd.DataFrame,

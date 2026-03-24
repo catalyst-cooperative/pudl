@@ -9,11 +9,11 @@ For the underlying Dagster concept, see
 https://docs.dagster.io/guides/build/partitions-and-backfills/partitioning-assets
 """
 
-from dagster import StaticPartitionsDefinition
+import dagster as dg
 
 from pudl.metadata.classes import DataSource
 
-ferceqr_year_quarters: StaticPartitionsDefinition = StaticPartitionsDefinition(
+ferceqr_year_quarters: dg.StaticPartitionsDefinition = dg.StaticPartitionsDefinition(
     DataSource.from_id("ferceqr").working_partitions["year_quarters"]
 )
 
