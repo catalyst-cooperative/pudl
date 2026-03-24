@@ -104,10 +104,10 @@ Core Dagster concepts used in PUDL
 * **`Assets <https://docs.dagster.io/guides/build/assets>`__** are the
   primary building blocks in Dagster. They represent the underlying entities in our
   pipelines, such as database tables or machine learning models. In PUDL, most assets
-  represent a :external+pandas:py:class:`pandas.DataFrame` that is written to Parquet
-  and SQLite files on disk. Depending on which part of the PUDL DAG you are looking at,
-  assets might represent messy raw dataframes extracted from spreadsheets, partially
-  cleaned intermediary dataframes, or fully normalized tables ready for distribution.
+  represent a :py:class:`pandas.DataFrame` that is written to Parquet and SQLite files
+  on disk. Depending on which part of the PUDL DAG you are looking at, assets might
+  represent messy raw dataframes extracted from spreadsheets, partially cleaned
+  intermediary dataframes, or fully normalized tables ready for distribution.
 * **`IO Managers <https://docs.dagster.io/guides/build/io-managers>`__** in Dagster let
   us keep the code for data processing separate from the code for reading and writing
   data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
