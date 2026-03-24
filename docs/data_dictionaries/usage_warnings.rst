@@ -54,6 +54,7 @@ Harvested:
   PUDL chooses the most consistent value reported which is found in at least 70%
   of available entries, and if no value occurs more than 70% of the time, PUDL
   fills in a null value. Internally, we refer to this process as **harvesting**.
+  See :doc:`/methodology/entity_resolution` for a conceptual overview.
 
   The 70% threshold is the default, and we use different rules for columns with
   additional requirements:
