@@ -160,11 +160,18 @@ def core_to_out_harvested_resources(
                 #     if core_tlb in special_cols.keys()
                 #     else out_cols_to_add
                 # )
-                meta_part["fields"] = out_cols_to_add + meta_part["fields"]
+                # Reorder columns so that the out_cols_to_add directly follow the borrower ID
+                id_idx = meta_part["fields"].index("borrower_id_rus") + 1
+                meta_part["fields"] = (
+                    meta_part["fields"][0:id_idx]
+                    + out_cols_to_add
+                    + meta_part["fields"][id_idx:]
+                )
             elif meta_part_name == "description":
-                meta_part["usage_warnings"] = ["harvested"] + meta_part[
-                    "usage_warnings"
-                ]
+                if "usage_warnings" in meta_part:
+                    meta_part["usage_warnings"].append("harvested_rus")
+                else:
+                    meta_part["usage_warnings"] = ["harvested_rus"]
             meta_tbl[meta_part_name] = meta_part
         out_resources[f"out_{core_tbl.removeprefix('core_')}"] = meta_tbl
     return out_resources

@@ -183,6 +183,7 @@ def _core_rus12__yearly_lines_stations_labor_materials_cost(
             "operation_or_maintenance",
             "lines_or_stations",
         ],
+        expected_dropped_cols=1,
     )
     # NOTE: this multi_index_stack function is dropping the employees_num column for now. I'm assuming we can get this data from another table, else I can circle back.
     return df
@@ -252,6 +253,7 @@ def _core_rus12__yearly_sources_and_distribution_by_plant_type(
             "plant_type",
         ],
         drop_zero_rows=True,
+        expected_dropped_cols=25,
     )
     # Convert units
     df = rus.convert_units(
@@ -305,6 +307,7 @@ def _core_rus12__yearly_sources_and_distribution(
             "source_of_energy",
         ],
         drop_zero_rows=True,
+        expected_dropped_cols=3,
     )
     return df
 
@@ -351,6 +354,7 @@ def _core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operatio
         pattern=rf"^({'|'.join(opex_group)})_(.+)_({'|'.join(data_cols)})$",
         match_names=["opex_group", "opex_type", "data_cols"],
         unstack_level=["opex_group", "opex_type"],
+        expected_dropped_cols=9,  # per_kwh columns we checked above and opex_report_month
     )
     df["is_total"] = df.opex_type.str.startswith("total_")
     # TODO: could remove total columns that aren't used as part of the calculation for others.
@@ -403,7 +407,6 @@ def _core_rus12__yearly_plant_costs(
             pattern=pattern,
             match_names=["cost_group", "cost_type", "data_cols"],
             unstack_level=["cost_group", "cost_type"],
-            assume_no_dropped_cols=True,
         )
         df["plant_type"] = plant_type
         df_outs[plant_type] = df
