@@ -611,8 +611,8 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             ),
             "additional_details_text": (
                 "A number of records report purchases from an unspecified entity. "
-                "These fields all have reported utility names beginning with an *, including *Miscellaneous, "
-                "*Adjustments, and *Residential Renewable Supplier."
+                "These fields all have reported utility names beginning with an \\*, including \\*Miscellaneous, "
+                "\\*Adjustments, and \\*Residential Renewable Supplier."
             ),
         },
         "schema": {
