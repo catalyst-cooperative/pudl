@@ -10,7 +10,7 @@ cd "${PUDL_REPO:?PUDL_REPO must be set by the build container}" || exit 1
 function send_slack_msg() {
     set +x &&
         echo "sending Slack message" &&
-        curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}" &&
+        curl --fail-with-body -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}" &&
         set -x
 }
 
@@ -104,7 +104,7 @@ function zenodo_data_release() {
 
     set +x &&
         echo "Triggerng the zenodo data release workflow using the GitHub API and curl" &&
-        curl -sS -X POST \
+        curl --fail-with-body -sS -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
             https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
@@ -219,6 +219,17 @@ function any_stage_failed() {
     return 1
 }
 
+function deploy_data_viewer() {
+    set +x &&
+        echo "Triggering the eel-hole/data-viewer build-deploy workflow using the GitHub API and curl" &&
+        curl --fail-with-body -sS -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
+            https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy.yml/dispatches \
+            -g -d '{"ref":"main"}' &&
+        set -x
+}
+
 function notify_slack() {
     # Notify pudl-deployment slack channel of deployment status
     local total_build_duration
@@ -246,7 +257,7 @@ function notify_slack() {
     message+="$(slack_stage_status "Update \`nightly\` Branch" "$UPDATE_NIGHTLY_STATUS" "$UPDATE_NIGHTLY_DURATION")\n"
     message+="$(slack_stage_status "Update \`stable\` Branch" "$UPDATE_STABLE_STATUS" "$UPDATE_STABLE_DURATION")\n"
     message+="$(slack_stage_status "Distribute Outputs to S3/GCS" "$DISTRIBUTION_BUCKET_STATUS" "$DISTRIBUTION_BUCKET_DURATION")\n"
-    message+="$(slack_stage_status "Redeploy PUDL Data Viewer :eel: :hole:" "$DEPLOY_EEL_HOLE_STATUS" "$DEPLOY_EEL_HOLE_DURATION")\n"
+    message+="$(slack_stage_status "Redeploy PUDL Data Viewer :eel: :hole:" "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS" "$TRIGGER_DATA_VIEWER_DEPLOY_DURATION")\n"
     message+="$(slack_stage_status "Write-protect \`$BUILD_REF\` Outputs on GCS" "$GCS_TEMPORARY_HOLD_STATUS" "$GCS_TEMPORARY_HOLD_DURATION")\n\n"
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
     message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
@@ -329,7 +340,7 @@ UPDATE_STABLE_STATUS="$STAGE_SKIPPED"
 WRITE_DATAPACKAGE_STATUS="$STAGE_SKIPPED"
 CLEAN_UP_OUTPUTS_STATUS="$STAGE_SKIPPED"
 DISTRIBUTION_BUCKET_STATUS="$STAGE_SKIPPED"
-DEPLOY_EEL_HOLE_STATUS="$STAGE_SKIPPED"
+TRIGGER_DATA_VIEWER_DEPLOY_STATUS="$STAGE_SKIPPED"
 GCS_TEMPORARY_HOLD_STATUS="$STAGE_SKIPPED"
 
 DAGSTER_DURATION=""
@@ -342,7 +353,7 @@ UPDATE_STABLE_DURATION=""
 WRITE_DATAPACKAGE_DURATION=""
 CLEAN_UP_OUTPUTS_DURATION=""
 DISTRIBUTION_BUCKET_DURATION=""
-DEPLOY_EEL_HOLE_DURATION=""
+TRIGGER_DATA_VIEWER_DEPLOY_DURATION=""
 GCS_TEMPORARY_HOLD_DURATION=""
 
 # Set the build type based on the action trigger and tag
@@ -412,7 +423,7 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
     run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION append upload_nightly_distribution
-    run_stage DEPLOY_EEL_HOLE_STATUS DEPLOY_EEL_HOLE_DURATION append gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1
+    run_stage TRIGGER_DATA_VIEWER_DEPLOY_STATUS TRIGGER_DATA_VIEWER_DEPLOY_DURATION append deploy_data_viewer
     if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
         zenodo_data_release \
             "sandbox" \
@@ -491,7 +502,7 @@ if ! any_stage_failed \
     "$UPDATE_STABLE_STATUS" \
     "$CLEAN_UP_OUTPUTS_STATUS" \
     "$DISTRIBUTION_BUCKET_STATUS" \
-    "$DEPLOY_EEL_HOLE_STATUS" \
+    "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS" \
     "$GCS_TEMPORARY_HOLD_STATUS"; then
     notify_slack "success"
 else
