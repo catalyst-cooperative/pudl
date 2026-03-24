@@ -52,12 +52,13 @@ For each entity type, PUDL typically creates two related tables:
   with one row per entity per report year and attributes that are expected to vary
   slightly over time.
 
-PUDL currently resolves four kinds of EIA entities:
+PUDL currently resolves four kinds of EIA entities, with these associated entity ID
+columns:
 
-* Utilities (``utility_id_eia``)
-* Plants (``plant_id_eia``)
-* Boilers (``boiler_id``)
-* Generators (``generator_id``)
+* Utilities ``(utility_id_eia)``
+* Plants ``(plant_id_eia)``
+* Boilers ``(plant_id_eia, boiler_id)``
+* Generators ``(plant_id_eia, generator_id)``
 
 Why A Canonical Record Is Necessary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
