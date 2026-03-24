@@ -7,7 +7,7 @@ Overview
 Many of the datasets PUDL processes report the same information about individual
 entities in many different places. This is usually done for readability. For example,
 it's nice to list the names of plants or utilities instead of just their IDs. This makes
-the original data easier for humans to use but it also introduces the potential for
+the original data easier for users to read but it also introduces the potential for
 internal inconsistencies (`entity <https://en.wikipedia.org/wiki/Entity_integrity>`__ or
 `referential integrity <https://en.wikipedia.org/wiki/Referential_integrity>`__ issues)
 which create problems when you're trying to re-use the data in other applications.
@@ -17,17 +17,6 @@ PUDL attempts to identify canonical values ("`golden records
 the potentially inconsistent original data through an `entity resolution
 <https://en.wikipedia.org/wiki/Record_linkage#Entity_resolution>`__ process (often
 called "entity harvesting" in the PUDL codebase).
-
-This process is applied most extensively to the :doc:`EIA-860 </data_sources/eia860>`
-and :doc:`EIA-923 </data_sources/eia923>` spreadsheet data, but it's a more general
-issue that comes up throughout the data we process.
-
-.. note::
-
-  We have **NOT** yet applied this process to the :doc:`EIA-861 </data_sources/eia861>`
-  tables, so they still reflect the original, internally inconsistent reporting, and any
-  utilities which only appear in the EIA-861 data do not yet show up in the utility
-  entity tables.
 
 For example, the same plant or generator may appear in many forms, worksheets, and
 years. Across those sources, attributes like plant name, associated balancing authority,
@@ -45,9 +34,12 @@ aim to provide a canonical record for each entity that includes the attributes t
 expected to be stable over time and where appropriate, a yearly record of attributes
 that are expected to change over time.
 
-This page explains the entity resolution process conceptually, why it exists, and what
-it means when the PUDL entity tables do not exactly mirror an individual raw EIA
-spreadsheet.
+The entity resolution process is applied most extensively to the
+:doc:`EIA-860 </data_sources/eia860>` and :doc:`EIA-923 </data_sources/eia923>`
+spreadsheet data, but it's a more general issue that comes up throughout the data we
+process. This page explains the entity resolution process conceptually, why it exists,
+and what it means when the PUDL entity tables do not exactly mirror an individual raw
+EIA spreadsheet.
 
 What Entity Resolution Produces
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,8 +62,9 @@ PUDL currently resolves four kinds of EIA entities:
 Why A Canonical Record Is Necessary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Users often expect a one-to-one correspondence between a raw EIA spreadsheet row and a
-PUDL entity record. That is usually not the right mental model.
+Users are sometimes surprised to see slight differences between the raw EIA spreadsheets
+and analogous PUDL data, but in most of the cases we've tracked down over the years,
+these differences are expected and intentional.
 
 For example, an EIA plant may be named slightly differently across the plant table,
 generator table, ownership table, and emissions-control tables. One table might use an
@@ -79,19 +72,8 @@ older balancing authority code. Another might omit latitude and longitude. A gen
 operating date might be reported consistently in most years, but differ in one source.
 
 When this happens, PUDL does not treat every reported value as equally authoritative.
-Instead, it looks across all relevant upstream tables and asks: which value is reported
-most consistently for this entity?
-
-That consistency-based approach has several practical consequences:
-
-* A PUDL entity attribute may match most upstream sources, but not a specific raw file a
-  user happens to be looking at.
-* If the upstream values are too inconsistent, PUDL may leave the resolved value null
-  rather than constructing an unreliable entity record.
-* A plant-year may appear in a resolved yearly table even if it only showed up in one
-  of the upstream tables that contribute to the resolution process.
-* Conversely, if a table does not expose the expected entity identifier columns and
-  ``report_date``, it cannot contribute records to the yearly resolved output.
+Instead, it looks across all relevant upstream tables and determines which value was
+reported most consistently for this entity.
 
 This is usually desirable. A normalized analytical database is more useful when it
 provides stable, reconciled identifiers and attributes rather than reproducing every
@@ -105,10 +87,10 @@ Where Entity Resolution Happens in the PUDL Data Pipeline
 
 Entity resolution sits in the middle of the EIA transformation pipeline.
 
-First, dataset-specific transforms create a set of unnormalized "core" tables. These
-tables are already cleaned and typed, but they still largely reflect the structure of
+First, dataset-specific transforms create a set of unnormalized ``_core`` tables. These
+tables are already cleaned and typed, but they still reflect the original structure of
 the source data. Then we scan those tables for entity IDs and their known attributes,
-producing normalized entity tables.
+to produce normalized entity tables.
 
 The simplified flow for plants looks like this:
 
@@ -166,7 +148,9 @@ across all the upstream tables.
 The next step is to derive the ID spaces for the entity and annual SCD tables.
 
 * The static entity table gets one row per unique entity ID.
-* The yearly SCD table gets one row per unique ``(entity_id, report_date)`` pair.
+* The yearly SCD table gets one row per unique combination of ``entity_id`` and
+  ``report_date`` (where ``entity_id`` is sometimes actually composed of multiple
+  columns).
 
 This means an entity-year can enter the yearly resolved table from *any* upstream asset
 that reports the entity ID column and ``report_date``.
@@ -207,8 +191,8 @@ The selection logic looks like this conceptually:
        h --> j
        i --> j
 
-Special Cases and Post-Processing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Special Cases
+~~~~~~~~~~~~~
 
 Some attributes are too messy to reconcile with the default consistency logic alone.
 We use different rules for columns with additional requirements:
@@ -223,23 +207,14 @@ We use different rules for columns with additional requirements:
 * We set the consistency threshold to 0% for a few columns so that we always get a
   value. These include plant name, utility name, and prime mover code.
 
-The plant-resolution process also applies plant-specific post-processing after the main
-reconciliation step:
+.. caution::
 
-* adding plants known from :doc:`EPA CEMS </data_sources/epacems>` that may not appear
-  in the regular EIA tables,
-* assigning time zones based on plant location, and
-* filling or correcting balancing authority codes in some cases.
-
-These steps happen after the core consistency-based reconciliation, which means the
-resolved tables are not just copied from upstream transformed tables. They are the
-result of several layers of normalization and cleanup.
-
-Because we always choose the most consistent prime mover code, even when less than 50%
-of occurrences have that value, we occasionally see a tie between two equally consistent
-values. In these cases, the resolved value may not be deterministic. Because prime mover
-code is part of the primary key in some tables it is possible for some records to appear
-or disappear based on which value was chosen. However, this scenario is quite rare.
+   Because we always choose the most consistent prime mover code, even when less than
+   50% of occurrences have that value, we occasionally see a tie between two equally
+   consistent values. In these cases, the resolved value may not be deterministic.
+   Because prime mover code is part of the primary key in some tables it is possible for
+   some records to appear or disappear based on which value was chosen. However, this
+   scenario is extremely rare (on the order of 1 in 100,000 records).
 
 Interpreting Discrepancies
 -------------------------------------------------------------------------------
@@ -266,9 +241,18 @@ Improving PUDL Entity Resolution
 The entity resolution process is heuristic and can definitely be improved.
 
 * If there are particular columns that you think would benefit from a domain specific
-  consistency metric, please let us know!
+  consistency metric, please `open a data issue on GitHub
+  <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml>`__
+  or email us at `hello@catalyst.coop <mailto:hello.catalyst.coop>`__!
 * If you see any static entity attributes that should actually be allowed to vary from
   year to year, it's easy for us to move them from the entity table to the SCD table.
+
+.. caution::
+
+  We have **NOT** yet applied this process to the :doc:`EIA-861 </data_sources/eia861>`
+  tables, so they still reflect the original, internally inconsistent reporting, and any
+  utilities which only appear in the EIA-861 data do not yet show up in the utility
+  entity tables.
 
 Related Tables And Source Documentation
 -------------------------------------------------------------------------------
