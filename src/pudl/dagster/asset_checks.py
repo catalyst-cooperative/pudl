@@ -73,7 +73,30 @@ def _collect_dtype_metadata(
     asset_value: pl.LazyFrame | pd.DataFrame,
     resource: Resource,
 ) -> dict[str, Any]:
-    """Build metadata comparing actual dataframe dtypes to metadata-driven expectations."""
+    """Build metadata comparing actual dataframe dtypes to metadata-driven expectations.
+
+    Args:
+        asset_value: Asset output to introspect. Supported types are
+            :class:`pandas.DataFrame` and :class:`polars.LazyFrame`.
+        resource: PUDL metadata resource whose schema fields define expected columns and
+            dtypes.
+
+    Returns:
+        A metadata dictionary with:
+        - ``field_details``: per-column expected and actual dtype details.
+        - ``column_comparison``: expected/actual column counts and optional missing
+          or extra column lists.
+        - ``type_mismatches``: only present when common columns have differing dtype
+          strings.
+
+    Raises:
+        ValueError: If ``asset_value`` is not a supported dataframe type.
+
+    Notes:
+        Expected dtypes are captured as strings from ``field.to_pandera_column()``.
+        Any errors while computing expected dtypes are recorded inline as
+        ``"Error: ..."`` values rather than raised.
+    """
     dtype_errors: dict[str, str] = {}
     actual_columns, actual_dtypes, use_pandas_backend = (
         _extract_actual_columns_and_dtypes(asset_value)
@@ -232,10 +255,15 @@ def asset_check_from_schema(  # noqa: C901
 ) -> AssetChecksDefinition | None:
     """Create a Dagster asset check based on the resource schema, if defined.
 
-    The majority of assets are validated as Polars ``LazyFrame`` objects loaded from
-    parquet by the IO manager. Geometry-backed assets are validated as GeoPandas data
-    frames, and DuckDB-backed assets use ``ParquetData`` placeholders which are read
-    back as Polars before validation.
+    The vast majority of assets will be loaded as Polars LazyFrames directly using
+    the ``PudlParquetIOManager`` and validated with Pandera's Polars backend, but
+    there are two exceptions to this. The first exception are assets which contain
+    a geometry data type. These assets will all be loaded as geopandas GeoDataFrames
+    and use Pandera's Pandas backend as Polars does not support geometry data types.
+    The second exception are assets produced entirely using DuckDB. These assets
+    return ``ParquetData`` objects, which are handled by the default io-manager. In
+    this case, the resulting parquet file(s) will be scanned with Polars to produce
+    a LazyFrame, then handled exactly the same as a typical asset.
     """
     resource_id = asset_key.to_user_string()
     try:
