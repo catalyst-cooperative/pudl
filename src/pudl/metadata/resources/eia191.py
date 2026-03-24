@@ -5,11 +5,7 @@ from typing import Any
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia191__monthly_gas_storage": {
         "description": {
-            "additional_summary_text": (
-                "monthly underground natural gas storage activity reported by operators "
-                "of all storage fields on EIA Form 191 (RP8 monthly dataset, 2014–present). "
-                "One row per storage reservoir per month."
-            ),
+            "additional_summary_text": "monthly underground natural gas storage activity reported by operators.",
 "usage_warnings": [
                 {
                     "type": "custom",
