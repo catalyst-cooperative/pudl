@@ -5,7 +5,7 @@
 function send_slack_msg() {
     set +x &&
         echo "sending Slack message" &&
-        curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}" &&
+        curl --fail-with-body -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}" &&
         set -x
 }
 
@@ -112,7 +112,7 @@ function zenodo_data_release() {
 
     set +x &&
         echo "Triggerng the zenodo data release workflow using the GitHub API and curl" &&
-        curl -sS -X POST \
+        curl --fail-with-body -sS -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
             https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
@@ -129,6 +129,17 @@ function zenodo_data_release() {
 }
 JSON
             ) &&
+        set -x
+}
+
+function deploy_data_viewer() {
+    set +x &&
+        echo "Triggering the eel-hole/data-viewer build-deploy workflow using the GitHub API and curl" &&
+        curl --fail-with-body -sS -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
+            https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy.yml/dispatches \
+            -g -d '{"ref":"main"}' &&
         set -x
 }
 
@@ -153,7 +164,7 @@ function notify_slack() {
     message+="UPDATE_STABLE_SUCCESS: $UPDATE_STABLE_SUCCESS\n"
     message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
-    message+="DEPLOY_EEL_HOLE_SUCCESS: $DEPLOY_EEL_HOLE_SUCCESS\n"
+    message+="TRIGGER_DATA_VIEWER_DEPLOY_SUCCESS: $TRIGGER_DATA_VIEWER_DEPLOY_SUCCESS\n"
     message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
     message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
@@ -219,7 +230,7 @@ UPDATE_STABLE_SUCCESS=0
 WRITE_DATAPACKAGE_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
-DEPLOY_EEL_HOLE_SUCCESS=0
+TRIGGER_DATA_VIEWER_DEPLOY_SUCCESS=0
 GCS_TEMPORARY_HOLD_SUCCESS=0
 
 # Set the build type based on the action trigger and tag
@@ -287,8 +298,8 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     upload_to_dist_path "nightly" | tee -a "$LOGFILE" &&
         upload_to_dist_path "eel-hole" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-    gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1 | tee -a "$LOGFILE"
-    DEPLOY_EEL_HOLE_SUCCESS=${PIPESTATUS[0]}
+    deploy_data_viewer | tee -a "$LOGFILE"
+    TRIGGER_DATA_VIEWER_DEPLOY_SUCCESS=${PIPESTATUS[0]}
     if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
         zenodo_data_release \
             "sandbox" \
@@ -374,7 +385,7 @@ if [[ $ETL_SUCCESS == 0 &&
     $UPDATE_STABLE_SUCCESS == 0 &&
     $CLEAN_UP_OUTPUTS_SUCCESS == 0 &&
     $DISTRIBUTION_BUCKET_SUCCESS == 0 &&
-    $DEPLOY_EEL_HOLE_SUCCESS == 0 &&
+    $TRIGGER_DATA_VIEWER_DEPLOY_SUCCESS == 0 &&
     $GCS_TEMPORARY_HOLD_SUCCESS == 0 ]] \
     ; then
     notify_slack "success"
