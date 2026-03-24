@@ -2599,6 +2599,30 @@ YAD,alcoa_power_yadkin,"Alcoa Power Generating, Inc. - Yadkin Division",America/
         "code_fixes": {},
         "ignored_codes": [],
     },
+    "core_rus__codes_fuel_types": {  # no 2 or 6....
+        "df": pd.DataFrame(
+            columns=["code", "description"],
+            data=[
+                (1, "Biomass - biodiesel"),
+                (3, "Biomass - other"),
+                (4, "Biomass - waste"),
+                (5, "Biomass - wood"),
+                (7, "Hybrid"),
+                (8, "Hydro"),
+                (9, "Methane - landfill gas"),
+                (10, "Methane - waste"),
+                (11, "Solar - hot water/heating"),
+                (12, "Solar - photovoltaic"),
+                (13, "Solar - thermal generation"),
+                (14, "Wind"),
+                (15, "Other"),
+                (16, "Renewable Energy Credit"),
+                (17, "Blended"),
+            ],
+        ).astype({"code": int}),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
 }
 
 # The entity type codes were never fully reconciled. Preserving this work for reference.

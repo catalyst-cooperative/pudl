@@ -42,4 +42,9 @@ USAGE_WARNINGS = {
         "`Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ "
         "for a fuller conceptual overview."
     ),
+    "harvested_rus": (  # TODO: If more attributes harvested, update to refer to static attributes.
+        "Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses "
+        "the most consistent borrower name to facilitate cross-referencing even if that means some values"
+        " will differ from the raw sources."
+    ),
 }
