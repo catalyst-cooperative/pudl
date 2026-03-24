@@ -68,6 +68,7 @@ jobs:
               - '!.git-blame-ignore-revs'
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
+              - '!.taplo.toml'
               - '!terraform/**'
               - '!test/unit/**'
               - '!skills-lock.json'
