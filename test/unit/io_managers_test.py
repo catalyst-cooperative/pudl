@@ -9,11 +9,6 @@ import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from pudl.etl.check_foreign_keys import (
-    ForeignKeyError,
-    ForeignKeyErrors,
-    check_foreign_keys,
-)
 from pudl.ferc_sqlite_provenance import build_ferc_sqlite_provenance_metadata
 from pudl.io_managers import (
     FercXBRLSQLiteIOManager,
@@ -26,6 +21,11 @@ from pudl.io_managers import (
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
 from pudl.settings import DatasetsSettings, EtlSettings, FercToSqliteSettings
+from pudl.validate import (
+    ForeignKeyError,
+    ForeignKeyErrors,
+    check_foreign_keys,
+)
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 

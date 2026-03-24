@@ -1,4 +1,4 @@
-"""Unit tests for the functions in the pudl.validate module."""
+"""Unit tests for validation helpers and related asset-check utilities."""
 
 import io
 
@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 
 import pudl.validate as pv
+from pudl.dagster.asset_checks import group_mean_continuity_check
 
 
 @pytest.mark.parametrize(
@@ -144,7 +145,7 @@ def test_group_mean_continuity_check(
         )
     )
 
-    result = pv.group_mean_continuity_check(
+    result = group_mean_continuity_check(
         df=mean_continuity_df,
         thresholds={column: threshold},
         groupby_col="year",

@@ -4,7 +4,7 @@ import pytest
 import sqlalchemy as sa
 
 from pudl.dbt_wrapper import build_with_context
-from pudl.etl.check_foreign_keys import check_foreign_keys
+from pudl.validate import check_foreign_keys
 
 
 @pytest.mark.order(3)

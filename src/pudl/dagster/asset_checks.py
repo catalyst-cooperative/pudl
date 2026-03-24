@@ -181,6 +181,49 @@ def _process_schema_errors(schema_errors: SchemaErrors) -> dict[str, Any]:
     }
 
 
+def group_mean_continuity_check(
+    df: pd.DataFrame,
+    thresholds: dict[str, float],
+    groupby_col: str,
+    n_outliers_allowed: int = 0,
+) -> AssetCheckResult:
+    """Check that certain variables don't vary too much on average between groups.
+
+    Groups and sorts the data by ``groupby_col``, then takes the mean across
+    each group. Useful for saying something like "the average water usage of
+    cooling systems didn't jump by 10x from 2012-2013."
+
+    Args:
+        df: the df with the actual data
+        thresholds: a mapping from column names to the ratio by which those
+            columns are allowed to fluctuate from one group to the next.
+        groupby_col: the column by which we will group the data.
+        n_outliers_allowed: how many data points are allowed to be above the
+            threshold.
+    """
+    pct_change = (
+        df.loc[:, [groupby_col] + list(thresholds.keys())]
+        .groupby(groupby_col, sort=True)
+        .mean()
+        .pct_change()
+        .abs()
+        .dropna()
+    )
+    discontinuity = pct_change >= thresholds
+    metadata = {
+        col: {
+            "top5": list(pct_change[col][discontinuity[col]].nlargest(n=5)),
+            "threshold": thresholds[col],
+        }
+        for col in thresholds
+        if discontinuity[col].sum() > 0
+    }
+    if (discontinuity.sum() > n_outliers_allowed).any():
+        return AssetCheckResult(passed=False, metadata=metadata)
+
+    return AssetCheckResult(passed=True, metadata=metadata)
+
+
 def asset_check_from_schema(  # noqa: C901
     asset_key: AssetKey,
     package: Package,
@@ -215,7 +258,11 @@ def asset_check_from_schema(  # noqa: C901
         )
 
     @asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
-    def pandera_schema_check(asset_value: asset_type) -> AssetCheckResult:
+    # Dagster uses this runtime annotation to select the correct IO manager load type,
+    # but static type checkers may reject the computed local variable in a type expression.
+    def pandera_schema_check(
+        asset_value: asset_type,  # type: ignore[valid-type]
+    ) -> AssetCheckResult:
         if isinstance(asset_value, ParquetData):
             asset_value = get_parquet_table_polars(
                 table_name=resource_id,
@@ -288,6 +335,7 @@ default_asset_checks += [
 
 __all__ = [
     "asset_check_from_schema",
+    "group_mean_continuity_check",
     "default_asset_checks",
     "duckdb_assets",
     "high_memory_assets",

@@ -350,7 +350,7 @@ install-skills = { cmd = "npx skills experimental_install", description = "Insta
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
-pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
+pudl_check_fks = "pudl.scripts.pudl_check_fks:main"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
 pudl_deploy = "pudl.scripts.deploy:pudl_deploy"
 pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
