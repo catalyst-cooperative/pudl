@@ -14,7 +14,14 @@ fallback-version = "0.0.0.dev0"
 
 [tool.hatch.version.raw-options]
 # Tell git to only consider version tags, not nightly-* or other tags
-git_describe_command = ["git", "describe", "--tags", "--long", "--match", "v20*"]
+git_describe_command = [
+    "git",
+    "describe",
+    "--tags",
+    "--long",
+    "--match",
+    "v20*",
+]
 # Disable local version identifier (no +g1234567 suffix)
 local_scheme = "no-local-version"
 
@@ -25,9 +32,7 @@ version-file = "src/pudl/_version.py"
 name = "catalystcoop.pudl"
 description = "An open data processing pipeline for US energy data"
 readme = { file = "README.rst", content-type = "text/x-rst" }
-authors = [
-    { name = "Catalyst Cooperative", email = "pudl@catalyst.coop" },
-]
+authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
 requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
 license = "MIT"
@@ -155,6 +160,7 @@ sphinxcontrib-mermaid = ">=2.0"
 splink = ">=4.0.14"
 sqlalchemy = ">=2"
 sqlite = ">=3.52"
+taplo = "==0.9.3"
 terraform = ">=1.14"
 timezonefinder = ">=8"
 typos = ">=1.40"
@@ -261,7 +267,8 @@ DG_NIGHTLY_CONFIG = "src/pudl/package_data/settings/dg_nightly.yml"
 
 [tool.pixi.tasks]
 # Documentation tasks
-docs-clean = { cmd = """
+[tool.pixi.tasks.docs-clean]
+cmd = """
 bash -c 'shopt -s nullglob; rm -rf \
     docs/_build \
     docs/autoapi \
@@ -279,73 +286,159 @@ bash -c 'shopt -s nullglob; rm -rf \
     docs/data_sources/rus*.rst \
     docs/data_sources/sec10k*.rst \
     docs/data_sources/vcerare*.rst'
-""", description = "Remove all generated documentation files" }
+"""
+description = "Remove all generated documentation files"
 
-docs-build = { cmd = """
+[tool.pixi.tasks.docs-build]
+cmd = """
 doc8 docs/ README.rst && \
 coverage run --append -m sphinx --jobs auto -W -b html docs docs/_build/html
-""", depends-on = ["docs-clean"], description = "Build PUDL docs using Sphinx" }
+"""
+depends-on = ["docs-clean"]
+description = "Build PUDL docs using Sphinx"
+
+[tool.pixi.tasks.toml-format]
+cmd = "taplo fmt"
+description = "Format TOML files with Taplo"
+
+[tool.pixi.tasks.toml-format-check]
+cmd = "taplo fmt --check"
+description = "Check TOML formatting with Taplo"
+
+[tool.pixi.tasks.toml-check]
+cmd = "taplo check"
+description = "Validate TOML files with Taplo"
 
 # Testing tasks
-coverage-erase = { cmd = "coverage erase", description = "Clear coverage data" }
-pytest-unit = { cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit", description = "Run unit tests and doctests" }
-pytest-integration = { cmd = "pytest --cov-fail-under=0 test/integration", description = "Run integration and data validation tests with fast ETL settings" }
-pytest-unit-nightly = { cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG test/unit", description = "Run nightly-build unit tests with the nightly Dagster config" }
-pytest-integration-nightly = { cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG --ignore=test/integration/data_validation_test.py test/integration", description = "Run nightly-build integration tests against live nightly-style outputs" }
-pytest-data-validation-nightly = { cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG test/integration/data_validation_test.py", description = "Run nightly-build data validation tests against live nightly-style outputs" }
-pytest-nightly = { cmd = "true", depends-on = ["pytest-unit-nightly", "pytest-integration-nightly", "pytest-data-validation-nightly"], description = "Run the nightly-build pytest stages using the nightly Dagster config" }
-pytest-ci = { cmd = "coverage report", depends-on = ["coverage-erase", "docs-build", "pytest-unit", "pytest-integration"], description = "Run all CI tests and report test coverage" }
-pytest-jupyter = { cmd = "pytest --live-pudl-output test/integration/jupyter_notebooks_test.py", description = "Test Jupyter notebooks" }
+[tool.pixi.tasks.coverage-erase]
+cmd = "coverage erase"
+description = "Clear coverage data"
+
+[tool.pixi.tasks.pytest-unit]
+cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit"
+description = "Run unit tests and doctests"
+
+[tool.pixi.tasks.pytest-integration]
+cmd = "pytest --cov-fail-under=0 test/integration"
+description = "Run integration and data validation tests with fast ETL settings"
+
+[tool.pixi.tasks.pytest-unit-nightly]
+cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG test/unit"
+description = "Run nightly-build unit tests with the nightly Dagster config"
+
+[tool.pixi.tasks.pytest-integration-nightly]
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG --ignore=test/integration/data_validation_test.py test/integration"
+description = "Run nightly-build integration tests against live nightly-style outputs"
+
+[tool.pixi.tasks.pytest-data-validation-nightly]
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG test/integration/data_validation_test.py"
+description = "Run nightly-build data validation tests against live nightly-style outputs"
+
+[tool.pixi.tasks.pytest-nightly]
+cmd = "true"
+depends-on = [
+    "pytest-unit-nightly",
+    "pytest-integration-nightly",
+    "pytest-data-validation-nightly",
+]
+description = "Run the nightly-build pytest stages using the nightly Dagster config"
+
+[tool.pixi.tasks.pytest-ci]
+cmd = "coverage report"
+depends-on = [
+    "coverage-erase",
+    "docs-build",
+    "pytest-unit",
+    "pytest-integration",
+]
+description = "Run all CI tests and report test coverage"
+
+[tool.pixi.tasks.pytest-jupyter]
+cmd = "pytest --live-pudl-output test/integration/jupyter_notebooks_test.py"
+description = "Test Jupyter notebooks"
 # Build the FERC 1 and PUDL DBs.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
 # These outputs should be turned into normal dagster assets. See issue #4338
-unmapped-ids = { cmd = """
+[tool.pixi.tasks.unmapped-ids]
+cmd = """
 pytest \
     --save-unmapped-ids
     --dg-config $DG_FULL_CONFIG \
     test/integration/glue_test.py
-""", description = "Identify unmapped plant and utility IDs" }
+"""
+description = "Identify unmapped plant and utility IDs"
 
 # Dagster tasks
-ferc-to-sqlite-clean = { cmd = """
+[tool.pixi.tasks.ferc-to-sqlite-clean]
+cmd = """
 bash -c 'shopt -s nullglob; rm -f \
     $PUDL_OUTPUT/ferc*.sqlite \
     $PUDL_OUTPUT/ferc*.duckdb \
     $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
     $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json'
-""", description = "Remove raw FERC SQLite databases and related outputs" }
-ferc-to-sqlite = { cmd = "dg launch --job ferc_to_sqlite --config $DG_FULL_CONFIG", depends-on = ["ferc-to-sqlite-clean"], description = "Build FERC databases from scratch" }
+"""
+description = "Remove raw FERC SQLite databases and related outputs"
 
-pudl-clean = { cmd = "bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite'", description = "Remove PUDL SQLite database" }
-pudl = { cmd = """
+[tool.pixi.tasks.ferc-to-sqlite]
+cmd = "dg launch --job ferc_to_sqlite --config $DG_FULL_CONFIG"
+depends-on = ["ferc-to-sqlite-clean"]
+description = "Build FERC databases from scratch"
+
+[tool.pixi.tasks.pudl-clean]
+cmd = "bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite'"
+description = "Remove PUDL SQLite database"
+
+[tool.pixi.tasks.pudl]
+cmd = """
 alembic upgrade head && \
 dg launch --job pudl --config $DG_FULL_CONFIG
-""", depends-on = ["pudl-clean"], description = "Run PUDL ETL assets without rebuilding raw FERC SQLite databases" }
+"""
+depends-on = ["pudl-clean"]
+description = "Run PUDL ETL assets without rebuilding raw FERC SQLite databases"
 
-pudl-with-ferc-to-sqlite = { cmd = """
+[tool.pixi.tasks.pudl-with-ferc-to-sqlite]
+cmd = """
 alembic upgrade head && \
 dg launch --job pudl_with_ferc_to_sqlite --config $DG_FULL_CONFIG
-""", depends-on = ["ferc-to-sqlite-clean", "pudl-clean"], description = "Run the full PUDL ETL including rebuilding raw FERC SQLite databases" }
+"""
+depends-on = ["ferc-to-sqlite-clean", "pudl-clean"]
+description = "Run the full PUDL ETL including rebuilding raw FERC SQLite databases"
 
-pudl-with-ferc-to-sqlite-nightly = { cmd = """
+[tool.pixi.tasks.pudl-with-ferc-to-sqlite-nightly]
+cmd = """
 alembic upgrade head && \
 dg launch --job pudl_with_ferc_to_sqlite --config $DG_NIGHTLY_CONFIG
-""", depends-on = ["ferc-to-sqlite-clean", "pudl-clean"], description = "Run the full PUDL ETL using the nightly Dagster config" }
+"""
+depends-on = ["ferc-to-sqlite-clean", "pudl-clean"]
+description = "Run the full PUDL ETL using the nightly Dagster config"
 
 # Code quality tasks
-pre-commit-run = { cmd = "pre-commit run --all-files", description = "Run all pre-commit hooks" }
-pre-commit-install = { cmd = "pre-commit install", description = "Install pre-commit hooks" }
+[tool.pixi.tasks.pre-commit-run]
+cmd = "pre-commit run --all-files"
+description = "Run all pre-commit hooks"
+
+[tool.pixi.tasks.pre-commit-install]
+cmd = "pre-commit install"
+description = "Install pre-commit hooks"
 
 # Dependency Update tasks
-pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update pre-commit hooks" }
-dbt-deps-upgrade = { cmd = "dbt deps --upgrade", cwd = "dbt", description = "Update dbt dependencies" }
+[tool.pixi.tasks.pre-commit-autoupdate]
+cmd = "pre-commit autoupdate"
+description = "Update pre-commit hook versions"
+
+[tool.pixi.tasks.dbt-deps-upgrade]
+cmd = "dbt deps --upgrade"
+cwd = "dbt"
+description = "Update dbt dependencies"
 
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command
 # which is the workaround for "restoring from a lockfile" - see
 # https://github.com/vercel-labs/skills/issues/549 - we probably want to switch to
 # `npx skills install` whenever that actually becomes a thing.
-install-skills = { cmd = "npx skills experimental_install", description = "Install skills from lockfile" }
+[tool.pixi.tasks.install-skills]
+cmd = "npx skills experimental_install"
+description = "Install skills from lockfile"
 
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
@@ -496,9 +589,7 @@ filterwarnings = [
     "once:AssetExecutionContext.op_config is deprecated:DeprecationWarning",
 ]
 
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-]
+markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 # must not end with `--cov` since that will treat the first argument you pass
 # to pytest as a coverage source! see
 # https://github.com/catalyst-cooperative/pudl/issues/3609
@@ -514,7 +605,11 @@ log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 log_cli = true
 log_cli_level = "INFO"
-doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
+doctest_optionflags = [
+    "NORMALIZE_WHITESPACE",
+    "IGNORE_EXCEPTION_DETAIL",
+    "ELLIPSIS",
+]
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
@@ -543,9 +638,7 @@ exclude_lines = [
 ]
 
 [tool.dagster]
-modules = [
-    { type = "module", name = "pudl.definitions" },
-]
+modules = [{ type = "module", name = "pudl.definitions" }]
 
 [tool.dg]
 directory_type = "project"
@@ -554,9 +647,7 @@ directory_type = "project"
 root_module = "pudl"
 defs_module = "pudl.dagster"
 code_location_target_module = "pudl.definitions"
-registry_modules = [
-    "pudl.dagster",
-]
+registry_modules = ["pudl.dagster"]
 
 [tool.typos.default]
 # Ignore spellchecking all lines with # spellchecker:ignore
@@ -611,5 +702,5 @@ extend-exclude = [
     "devtools/",
     "test/",
     "src/pudl/transform/params/ferc1.py",
-    "src/pudl/package_data/ferc1/*_categories.yaml"
+    "src/pudl/package_data/ferc1/*_categories.yaml",
 ]
