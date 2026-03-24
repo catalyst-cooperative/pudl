@@ -156,6 +156,7 @@ sphinx-issues = ">=5"
 sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
 sphinxcontrib-googleanalytics = ">=0.4"
+sphinxcontrib-mermaid = ">=2.0"
 splink = ">=4.0.14"
 sqlalchemy = ">=2"
 sqlite = ">=3.52"
@@ -289,7 +290,7 @@ description = "Remove all generated documentation files"
 [tool.pixi.tasks.docs-build]
 cmd = """
 doc8 docs/ README.rst && \
-coverage run --append -m sphinx --jobs auto -W -b html docs docs/_build/html
+coverage run --append -m sphinx --jobs auto -W docs docs/_build/html
 """
 depends-on = ["docs-clean"]
 description = "Build PUDL docs using Sphinx"
