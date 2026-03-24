@@ -29,6 +29,7 @@ import pandas as pd
 import polars as pl
 import requests
 import sqlalchemy as sa
+import usaddress
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
 from pydantic import BaseModel, Field
@@ -2575,40 +2576,43 @@ def normalize_year_fragments(
     return year
 
 
-def parse_address(addr):
-    """TODO: CLEAN THIS UP!"""
+def parse_address(addr: str):
+    """Parse a U.S. address into components."""
     try:
         if pd.isna(addr):
-            return addr
+            return (addr, None, None, None)
         tagged, addr_type = usaddress.tag(addr)
+
         parsed = defaultdict(str)
         for key, val in tagged.items():
-            parsed[key] = val.strip(", ")
+            parsed[key] = val.strip() if val else None
 
         # Concatenate street parts into one column
+        # Handle occupancy a special way, as both parts should only get parsed it
+        # the first exists.
+        occupancy = (
+            f"{parsed.get('OccupancyType')} {parsed.get('OccupancyIdentifier')}"
+            if pd.notna(parsed.get("OccupancyType"))
+            else None
+        )
+
         street_parts = [
             parsed.get("AddressNumber", ""),
             parsed.get("StreetNamePreDirectional", ""),
             parsed.get("StreetName", ""),
             parsed.get("StreetNamePostType", ""),
-            parsed.get("OccupancyType", "")
-            + " "
-            + parsed.get("OccupancyIdentifier", "")
-            if parsed.get("OccupancyType")
-            else "",
+            parsed.get("StreetNamePostDirectional"),
+            parsed.get("OccupancyType", ""),
+            occupancy,  # Only add if occupancy type exists
         ]
-        street_address = " ".join([p for p in street_parts if p])
+        street_address = " ".join([p for p in street_parts if pd.notna(p)]).strip()
 
-        return pd.Series(
-            {
-                "street_address": street_address,
-                "city": parsed["PlaceName"],
-                "state": parsed["StateName"],
-                "zip_code": parsed["ZipCode"],
-            }
+        return (
+            None if street_address == "" else street_address,
+            parsed.get("PlaceName", None),
+            parsed.get("StateName", None),
+            parsed.get("ZipCode", None),
         )
-    except Exception:
-        print(addr)
-        return pd.Series(
-            {"street_address": addr, "city": "", "state": "", "zip_code": ""}
-        )
+    except usaddress.RepeatedLabelError:
+        logger.warning(f"Could not parse {addr}")
+        return (addr, None, None, None)

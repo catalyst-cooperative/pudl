@@ -30,9 +30,11 @@ from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import (
     assert_cols_areclose,
     convert_cols_dtypes,
+    parse_address,
     standardize_phone_column,
 )
 from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
@@ -3114,11 +3116,15 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
         df = (
             super()
             .transform_main(df)
-            .pipe(standardize_phone_column(columns=["contact_phone"]))
+            .pipe(standardize_phone_column, columns=["contact_phone"])
         )
 
+        # Check that is_migrated_data is all null and drop
+        assert df.is_migrated_data.isna().all()
+        df = df.drop(columns="is_migrated_data")
+
         title_cols = [
-            "contact name",
+            "contact_name",
             "contact_title",
             "attestation_name",
             "attestation_title",
@@ -3148,20 +3154,38 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
             pattern, pd.NA, regex=True
         )
 
-        # Create zip code column(s)
-        # Or use usaddress????
-        df[["zip_code", "zip_code_ext"]] = (
-            df["office_street_address"].str.strip().str.extract(r"(\d{5})(-\d{4})?$")
+        df[
+            ["office_street_address", "office_city", "office_state", "office_zip_code"]
+        ] = pd.DataFrame(
+            df["office_street_address"].apply(parse_address).tolist(),
+            index=df.index,
         )
+        df[["contact_address", "contact_city", "contact_state", "contact_zip_code"]] = (
+            pd.DataFrame(
+                df["contact_address"].apply(parse_address).tolist(),
+                index=df.index,
+            )
+        )
+
+        # Standardize state columns
+        state_map = dict(
+            zip(
+                POLITICAL_SUBDIVISIONS.subdivision_name.str.upper(),
+                POLITICAL_SUBDIVISIONS.subdivision_code,
+                strict=True,
+            )
+        )
+
+        for col in ["office_state", "contact_state"]:
+            df[col] = df[col].str.upper()
+            df[col] = np.where(
+                df[col].isin(state_map.values()), df[col], df[col].map(state_map)
+            )
+
         return df
 
     # Transforms to add
-    # prior_utility_name_ferc1 --> convert None/na etc. to N/A
-    # office_street_address --> clean
-    # contact name/attestation name/attestation title/contact title --> title case
-    # phone number --> use phone cleaning method
-    # report_filing_type --> enum
-    # is migrated_data --> bool
+    # report_filing_type --> enum O/R
 
     @cache_df(key="end")
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
