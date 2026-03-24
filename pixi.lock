@@ -1515,7 +1515,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-561.0.0-py313h8f79df9_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-562.0.0-py313h8f79df9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.10.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-control-1.10.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-crc32c-1.8.0-py313h11ab6f4_1.conda
@@ -3943,8 +3943,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.3.1.dev117
-  sha256: e46b9b03ab16124163164e97e7da234c0fa3f61358936848c39f6d63c2ac09b0
+  version: 2026.3.1.dev127
+  sha256: a77bf6c854d67a35c4e94e38082a3dce5593bd9803f8cab2835086d8ac235691
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -6344,9 +6344,9 @@ packages:
   - pkg:pypi/cffi?source=compressed-mapping
   size: 93378852
   timestamp: 1774384199087
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-561.0.0-py313h8f79df9_0.conda
-  sha256: 33d466479eb9d3a0bfcef5b9524c4493dd7bb5f81aa6738766f0d6da2a317ab6
-  md5: 266f55a86b35f2c7e3c8a1259a3bca2a
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-562.0.0-py313h8f79df9_0.conda
+  sha256: 9a7fcb22864d0f922a5a7f94363861042839dbc31a8b51c6407270bd45cb44db
+  md5: 8e6beb66f1b9f6dfcc1c6a59b1aed60e
   depends:
   - python >=3.13,<3.14.0a0
   - python >=3.13,<3.14.0a0 *_cp313
@@ -6355,8 +6355,8 @@ packages:
   license_family: Apache
   purls:
   - pkg:pypi/cffi?source=compressed-mapping
-  size: 93050072
-  timestamp: 1773769030661
+  size: 93371404
+  timestamp: 1774385328551
 - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.10.1-pyhcf101f3_0.conda
   sha256: a60cfd1ca765f1365276b83df220a7cf6c70da953ff6160a5759c2f520bacbd2
   md5: 3a22fc850d3aa5b2521db0ec76b99dc9
