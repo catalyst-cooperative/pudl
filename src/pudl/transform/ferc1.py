@@ -1463,8 +1463,9 @@ class ErrorMetric(BaseModel):
             .assign(
                 **{  # totolerance_ is just for reporting so you can know of off you are
                     f"tolerance_{metric_name}": self.metric_tolerance,
-                    f"is_error_{metric_name}": lambda x: x[metric_name]
-                    > self.metric_tolerance,
+                    f"is_error_{metric_name}": lambda x: (
+                        x[metric_name] > self.metric_tolerance
+                    ),
                 }
             )
             .assign(group=self.by)
@@ -1494,7 +1495,7 @@ class RelativeErrorMagnitude(ErrorMetric):
     """Check relative magnitude of errors in XBRL calculations."""
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
-        """Calculate the mangnitude of the errors relative to total reported value."""
+        """Calculate the magnitude of the errors relative to total reported value."""
         gb_value = np.nan
         denom = gb["reported_value"].abs().sum(min_count=1)
         if np.isclose(denom, 0) | np.isnan(denom):
@@ -1510,7 +1511,7 @@ class AbsoluteErrorMagnitude(ErrorMetric):
     """
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
-        """Calculate the absolute mangnitude of XBRL calculation errors."""
+        """Calculate the absolute magnitude of XBRL calculation errors."""
         return gb.abs_diff.abs().sum()
 
 
@@ -2315,8 +2316,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .drop_duplicates()
                 .assign(
                     table_name=lambda t: t.table_name_parent,
-                    xbrl_factoid=lambda x: x.xbrl_factoid_parent
-                    + "_subdimension_correction",
+                    xbrl_factoid=lambda x: (
+                        x.xbrl_factoid_parent + "_subdimension_correction"
+                    ),
                     weight=1,
                 )
             )
@@ -7083,11 +7085,13 @@ def add_calculation_component_corrections(
     def assign_child_cols(df, is_subdimension_correction):
         return df.assign(
             table_name=lambda x: x.table_name_parent,
-            xbrl_factoid=lambda x: x.xbrl_factoid_parent
-            + (
-                "_subdimension_correction"
-                if is_subdimension_correction
-                else "_correction"
+            xbrl_factoid=lambda x: (
+                x.xbrl_factoid_parent
+                + (
+                    "_subdimension_correction"
+                    if is_subdimension_correction
+                    else "_correction"
+                )
             ),
             plant_function=lambda x: x.plant_function_parent,
             utility_type=lambda x: x.utility_type_parent,

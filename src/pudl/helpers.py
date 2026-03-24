@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, Literal, NamedTuple
 
 import duckdb
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -31,7 +31,7 @@ import requests
 import sqlalchemy as sa
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 import pudl.logging_helpers
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
@@ -195,7 +195,7 @@ def add_fips_ids(
     df: pd.DataFrame,
     geocodes: pd.DataFrame,
     state_col: str = "state",
-    county_col: str = "county",
+    county_col: str | None = "county",
 ) -> pd.DataFrame:
     """Add State and County FIPS IDs to a dataframe.
 
@@ -658,8 +658,9 @@ def expand_timeseries(
             unique group of these ID columns that are present in the dataframe.
         date_col: Name of the datetime column being expanded into a full timeseries.
         freq: The frequency of the time series to expand the data to.
-            See :ref:`here <timeseries.offset_aliases>` for a list of
-            frequency aliases.
+            See :mod:`pandas.tseries.offsets` and
+            :func:`pandas.tseries.frequencies.to_offset` for valid frequency
+            aliases.
         fill_through_freq: The frequency in which to fill in the data through. For
             example, if equal to "year" the data will be filled in through the end of
             the last reported year for each grouping of ``key_cols``. Valid frequencies
@@ -790,7 +791,7 @@ def simplify_strings(
 def cleanstrings_series(
     col: pd.Series,
     str_map: dict[str, list[str]],
-    unmapped: str | None = None,
+    unmapped: str | NAType | None = None,
     simplify: bool = True,
 ) -> pd.Series:
     """Clean up the strings in a single column/Series.
@@ -839,7 +840,7 @@ def cleanstrings(
     df: pd.DataFrame,
     columns: list[str],
     stringmaps: list[dict[str, list[str]]],
-    unmapped: str | None = None,
+    unmapped: str | NAType | None = None,
     simplify: bool = True,
 ) -> pd.DataFrame:
     """Consolidate freeform strings in several dataframe columns.
@@ -1427,7 +1428,7 @@ def cleanstrings_snake(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     for col in cols:
         df.loc[:, col] = (
             df[col]
-            .astype(str)
+            .astype(pd.StringDtype())
             .str.strip()
             .str.lower()
             .str.replace(r"\s+", "_", regex=True)
@@ -1663,10 +1664,12 @@ def calc_capacity_factor(
             "report_date": dates,
             "hours": dates.apply(
                 lambda d: (
-                    pd.date_range(d, periods=2, freq=freq)[1]
-                    - pd.date_range(d, periods=2, freq=freq)[0]
+                    (
+                        pd.date_range(d, periods=2, freq=freq)[1]
+                        - pd.date_range(d, periods=2, freq=freq)[0]
+                    )
+                    / pd.Timedelta(hours=1)
                 )
-                / pd.Timedelta(hours=1)
             ),
         }
     )
@@ -1895,12 +1898,13 @@ def fix_boolean_columns(
     boolean_columns_to_fix: list[str],
     inplace: bool = False,
 ) -> pd.DataFrame:
-    """Fix standard issues with EIA boolean columns.
+    """Fix standard issues with boolean columns.
 
     Most boolean columns have either "Y" for True or "N" for False. A subset of the
     columns have "X" values which represents a False value. A subset of the columns
     have "U" values, presumably for "Unknown," which must be set to null in order to
-    convert the columns to datatype Boolean.
+    convert the columns to datatype Boolean. Other data sources may use a 1/0 system
+    instead, with 1 as True and 0 as False.
 
     If running with ``inplace=True``, will run in-place versions of the fill and
     replace operations instead of returning a copy of the data frame. This mode is
@@ -1909,7 +1913,7 @@ def fix_boolean_columns(
     """
     fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {
-        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
+        col: {"Y": True, "N": False, "X": False, "U": pd.NA, 1: True, 0: False}
         for col in boolean_columns_to_fix
     }
     if inplace:
@@ -2175,8 +2179,19 @@ def retry(
     return func(**kwargs)
 
 
-def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
-    """Read a table from a parquet file and return as a polars LazyFrame."""
+def get_parquet_table_polars(
+    table_name: str, partitions: dict | None = None
+) -> pl.LazyFrame:
+    """Read a table from a parquet file and return as a polars LazyFrame.
+
+    Args:
+        table_name: Name of the table to read.
+        partitions: Optional dictionary of partitions to filter the data. See
+            :class:`ParquetData` definition for details.
+
+    Returns:
+        A polars LazyFrame representing the table.
+    """
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
 
@@ -2184,8 +2199,13 @@ def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
     schema = resource.to_polars_dtypes()
 
     # Get the Parquet file path
-    paths = PudlPaths()
-    parquet_path = paths.parquet_path(table_name)
+    if partitions is None:
+        paths = PudlPaths()
+        parquet_path = paths.parquet_path(table_name)
+    else:
+        parquet_data = ParquetData(table_name=table_name, partitions=partitions)
+        # Points to a directory of parquet files when there partitions is non None
+        parquet_path = parquet_data.parquet_path
 
     return pl.scan_parquet(parquet_path).cast(schema, strict=False)
 
@@ -2323,7 +2343,18 @@ class ParquetData(BaseModel):
     """
 
     table_name: str
-    partitions: dict[str, Any] = {}
+    """Name of the table corresponding to the parquet data."""
+
+    partitions: dict[str, Any] = Field(default_factory=dict)
+    """Optional dictionary of partition values indicating what data is being offloaded to disk.
+
+    If passed ``{'years': 1995}`` then this class will produce a parquet file at the
+    path ``PudlPaths().parquet_path() / table_name / 1995.parquet``.  if passed
+    ``{'years': 1995, 'states': 'CA'}`` then this class will produce a parquet file at
+    the path ``PudlPaths().parquet_path() / table_name / 1995_ca.parquet``.  If
+    partitions is empty, then the parquet file will be written
+    ``PudlPaths().parquet_path() / table_name / {table_name}.parquet``.
+    """
 
     @property
     def parquet_directory(self) -> Path:
@@ -2345,7 +2376,7 @@ class ParquetData(BaseModel):
 def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
-    partitions: dict = {},
+    partitions: dict[str, Any] | None = None,
     compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
 ) -> ParquetData:
     """Write data from DataFrame or LazyFrame to disk as a parquet file.
@@ -2354,14 +2385,13 @@ def persist_table_as_parquet(
     transforms.
 
     Args:
-        table_data: Data to write to disk as either a Pandas DataFrame, Polars LazyFrame, or duckdb relation.
+        table_data: Tabular data to write to disk.
         table_name: Table name used to construct path to/name of parquet file.
-        partitions: Partitions which correspond to the table_data. If passed
-            ``{'years': 1995}`` then this method will produce a parquet file at the path
-            ``PudlPaths().parquet_path() / table_name / '1995.parquet'``.
+        partitions: Optional partition dimension values indicating the data to be
+            written.
     """
     # Create ParquetData class to get path to write parquet file
-    parquet_data = ParquetData(table_name=table_name, partitions=partitions)
+    parquet_data = ParquetData(table_name=table_name, partitions=partitions or {})
     if isinstance(table_data, pd.DataFrame):
         table_data.to_parquet(parquet_data.parquet_path, compression=compression)
     elif isinstance(table_data, pl.LazyFrame):
@@ -2470,41 +2500,113 @@ def duckdb_extract_zipped_csv(
         for page in pages:
             yield page, conn.read_csv(str(tmp_dir / zip_path / page))
 
+def normalize_year_fragments(
+    raw_year: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+    base_century: int = 2000,
+) -> pd.Series:
+    """Normalize year fragments into 4-digit years using a rolling-century rule.
+
+    This helper accepts a Series of string years that are either 2-digit (e.g. ``"05"``
+    or ``"95"``) or 4-digit (e.g. ``"2008"``) and returns integer 4-digit years.
+
+    Two-digit years are interpreted using a rolling-century rule anchored to
+    ``base_century``. By default ``base_century=2000``, so this logic is geared toward
+    20th/21st century data: two-digit values are first mapped into 2000-2099, and then
+    shifted back 100 years when they exceed ``max_valid_year``.
+
+    For example, with ``base_century=2000`` and ``max_valid_year=2026``:
+
+    * ``"05"`` -> ``2005``
+    * ``"95"`` -> ``1995``
+
+    Args:
+        raw_year: Series of string-like year tokens extracted from raw date text.
+        min_valid_year: Lower year bound used to avoid mapping to past years.
+        max_valid_year: Upper year bound used to avoid mapping to future years.
+        base_century: Century anchor for two-digit years. Must be divisible by 100.
+            Defaults to 2000.
+
+    Returns:
+        A Series of integer-like 4-digit year values.
+
+    Raises:
+        ValueError: If the valid year range is too wide to apply the rolling-century
+            logic, or if any resulting year falls outside the valid range.
+    """
+    if min_valid_year > max_valid_year:
+        raise ValueError(
+            f"Expected min_valid_year <= max_valid_year, got {min_valid_year=} and {max_valid_year=}."
+        )
+    if base_century % 100 != 0:
+        raise ValueError(
+            f"Expected base_century to be divisible by 100, got {base_century=}."
+        )
+    if max_valid_year - min_valid_year >= 100:
+        raise ValueError(
+            "For normalization by rolling century to work the valid year range must be less than 100 years."
+            f" Got min_valid_year={min_valid_year} and max_valid_year={max_valid_year}."
+        )
+    raw_year = raw_year.astype("string")
+    invalid_shape = ~raw_year.str.fullmatch(r"\d{2}|\d{4}")
+    if invalid_shape.any():
+        bad = raw_year[invalid_shape].dropna().drop_duplicates().tolist()
+        raise ValueError(
+            f"Expected only 2- or 4-digit year fragments, found invalid values: {bad}"
+        )
+    year = pd.to_numeric(raw_year, errors="raise")
+    two_digit = raw_year.str.len().eq(2)
+    # Start by mapping all 2-digit years into the configured base century.
+    year = year.where(~two_digit, base_century + year)
+    # If that creates a future year, shift to the prior century.
+    year = year.where(~(two_digit & year.gt(max_valid_year)), year - 100)
+    if year.lt(min_valid_year).any() or year.gt(max_valid_year).any():
+        bad = (
+            raw_year[year.lt(min_valid_year) | year.gt(max_valid_year)]
+            .dropna()
+            .drop_duplicates()
+            .tolist()
+        )
+        raise ValueError(
+            f"Year out of expected range ({min_valid_year}-{max_valid_year}) in values: {bad}"
+        )
+    return year
 
 def parse_address(addr):
-    """TODO: CLEAN THIS UP!"""
-    try:
-        if pd.isna(addr):
-            return addr
-        tagged, addr_type = usaddress.tag(addr)
-        parsed = defaultdict(str)
-        for key, val in tagged.items():
-            parsed[key] = val.strip(", ")
+  """TODO: CLEAN THIS UP!"""
+  try:
+      if pd.isna(addr):
+          return addr
+      tagged, addr_type = usaddress.tag(addr)
+      parsed = defaultdict(str)
+      for key, val in tagged.items():
+          parsed[key] = val.strip(", ")
 
-        # Concatenate street parts into one column
-        street_parts = [
-            parsed.get("AddressNumber", ""),
-            parsed.get("StreetNamePreDirectional", ""),
-            parsed.get("StreetName", ""),
-            parsed.get("StreetNamePostType", ""),
-            parsed.get("OccupancyType", "")
-            + " "
-            + parsed.get("OccupancyIdentifier", "")
-            if parsed.get("OccupancyType")
-            else "",
-        ]
-        street_address = " ".join([p for p in street_parts if p])
+      # Concatenate street parts into one column
+      street_parts = [
+          parsed.get("AddressNumber", ""),
+          parsed.get("StreetNamePreDirectional", ""),
+          parsed.get("StreetName", ""),
+          parsed.get("StreetNamePostType", ""),
+          parsed.get("OccupancyType", "")
+          + " "
+          + parsed.get("OccupancyIdentifier", "")
+          if parsed.get("OccupancyType")
+          else "",
+      ]
+      street_address = " ".join([p for p in street_parts if p])
 
-        return pd.Series(
-            {
-                "street_address": street_address,
-                "city": parsed["PlaceName"],
-                "state": parsed["StateName"],
-                "zip_code": parsed["ZipCode"],
-            }
-        )
-    except Exception:
-        print(addr)
-        return pd.Series(
-            {"street_address": addr, "city": "", "state": "", "zip_code": ""}
-        )
+      return pd.Series(
+          {
+              "street_address": street_address,
+              "city": parsed["PlaceName"],
+              "state": parsed["StateName"],
+              "zip_code": parsed["ZipCode"],
+          }
+      )
+  except Exception:
+      print(addr)
+      return pd.Series(
+          {"street_address": addr, "city": "", "state": "", "zip_code": ""}
+      )

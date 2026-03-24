@@ -2576,7 +2576,7 @@ YAD,alcoa_power_yadkin,"Alcoa Power Generating, Inc. - Yadkin Division",America/
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "core_rus7__codes_investment_types": {
+    "core_rus__codes_investment_types": {
         "df": pd.DataFrame(
             columns=["code", "description"],
             data=[
@@ -2594,6 +2594,30 @@ YAD,alcoa_power_yadkin,"Alcoa Power Generating, Inc. - Yadkin Division",America/
                     "Commitments to Invest Within 12 Months but not Actually Purchased",
                 ),
                 (11, "Total Investments (1 thru 10)"),
+            ],
+        ).astype({"code": int}),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
+    "core_rus__codes_fuel_types": {  # no 2 or 6....
+        "df": pd.DataFrame(
+            columns=["code", "description"],
+            data=[
+                (1, "Biomass - biodiesel"),
+                (3, "Biomass - other"),
+                (4, "Biomass - waste"),
+                (5, "Biomass - wood"),
+                (7, "Hybrid"),
+                (8, "Hydro"),
+                (9, "Methane - landfill gas"),
+                (10, "Methane - waste"),
+                (11, "Solar - hot water/heating"),
+                (12, "Solar - photovoltaic"),
+                (13, "Solar - thermal generation"),
+                (14, "Wind"),
+                (15, "Other"),
+                (16, "Renewable Energy Credit"),
+                (17, "Blended"),
             ],
         ).astype({"code": int}),
         "code_fixes": {},

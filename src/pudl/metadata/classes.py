@@ -14,11 +14,12 @@ from typing import Annotated, Any, Literal, Self, TypeVar
 
 import duckdb
 import frictionless
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import jinja2
 import numpy as np
 import pandas as pd
-import pandera.pandas as pr
+import pandera.pandas as pr_pandas
+import pandera.polars as pr_polars
 import polars as pl
 import pyarrow as pa
 import pydantic
@@ -302,21 +303,22 @@ class FieldConstraints(PudlMeta):
                 raise ValueError("must be greater or equal to minimum")
         return value
 
-    def to_pandera_checks(self) -> list[pr.Check]:
+    def to_pandera_checks(self, use_pandas_backend: bool) -> list[pr_polars.Check]:
         """Convert these constraints to pandera Column checks."""
         checks = []
+        pandera_module = pr_pandas if use_pandas_backend else pr_polars
         if self.min_length is not None:
-            checks.append(pr.Check.str_length(min_value=self.min_length))
+            checks.append(pandera_module.Check.str_length(min_value=self.min_length))
         if self.max_length is not None:
-            checks.append(pr.Check.str_length(max_value=self.max_length))
+            checks.append(pandera_module.Check.str_length(max_value=self.max_length))
         if self.minimum is not None:
-            checks.append(pr.Check.ge(self.minimum))
+            checks.append(pandera_module.Check.ge(self.minimum))
         if self.maximum is not None:
-            checks.append(pr.Check.le(self.maximum))
+            checks.append(pandera_module.Check.le(self.maximum))
         if self.pattern is not None:
-            checks.append(pr.Check.str_matches(self.pattern))
+            checks.append(pandera_module.Check.str_matches(self.pattern))
         if self.enum:
-            checks.append(pr.Check.isin(self.enum))
+            checks.append(pandera_module.Check.isin(self.enum))
 
         return checks
 
@@ -638,12 +640,22 @@ class Field(PudlMeta):
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    def to_duckdb_dtype(self) -> duckdb.sqltypes.DuckDBPyType:
+    def to_duckdb_dtype(
+        self, conn: duckdb.DuckDBPyConnection
+    ) -> duckdb.sqltypes.DuckDBPyType:
         """Return duckdb data type."""
+        if self.constraints.enum:
+            quoted_enum = [f"'{val}'" for val in self.constraints.enum]
+            conn.execute(
+                f"CREATE TYPE {self.name}_type as ENUM ({','.join(quoted_enum)})"
+            )
+            return conn.dtype(f"{self.name}_type")
         return FIELD_DTYPES_DUCKDB[self.type]
 
     def to_polars_dtype(self) -> pl.DataType:
         """Return polars data type."""
+        if self.constraints.enum:
+            return pl.Enum(self.constraints.enum)
         return FIELD_DTYPES_POLARS[self.type]
 
     def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
@@ -751,18 +763,25 @@ class Field(PudlMeta):
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
-    def to_pandera_column(self) -> pr.Column:
+    def to_pandera_column(self, use_pandas_backend: bool) -> pr_polars.Column:
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
-        checks = constraints.to_pandera_checks()
+        checks = constraints.to_pandera_checks(use_pandas_backend)
         if constraints.enum:
-            column_type = "category"
+            column_type = (
+                "category" if use_pandas_backend else pl.Enum(constraints.enum)
+            )
         elif self.type == "geometry":
             column_type = gpd.array.GeometryDtype()
         else:
-            column_type = FIELD_DTYPES_PANDAS[self.type]
+            column_type = (
+                FIELD_DTYPES_PANDAS[self.type]
+                if use_pandas_backend
+                else FIELD_DTYPES_POLARS[self.type]
+            )
 
-        return pr.Column(
+        pandera_module = pr_pandas if use_pandas_backend else pr_polars
+        return pandera_module.Column(
             column_type,
             checks=checks,
             nullable=not constraints.required,
@@ -867,13 +886,18 @@ class Schema(PudlMeta):
                     )
         return self
 
-    def to_pandera(self: Self) -> pr.DataFrameSchema:
+    def to_pandera(self: Self) -> pr_polars.DataFrameSchema:
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
+        use_pandas_backend = any(field.type == "geometry" for field in self.fields)
+        pandera_module = pr_pandas if use_pandas_backend else pr_polars
 
-        return pr.DataFrameSchema(
-            {field.name: field.to_pandera_column() for field in self.fields},
+        return pandera_module.DataFrameSchema(
+            {
+                field.name: field.to_pandera_column(use_pandas_backend)
+                for field in self.fields
+            },
             unique=self.primary_key,
         )
 
@@ -1125,17 +1149,17 @@ class PudlResourceDescriptor(PudlMeta):
     class PudlCodeMetadata(PudlMeta):
         """Describes a bunch of codes."""
 
-        class CodeDataFrame(pr.DataFrameModel):
+        class CodeDataFrame(pr_pandas.DataFrameModel):
             """The DataFrame we use to represent code/label/description associations."""
 
             # TODO (daz) 2024-02-09: each of these | Nones are one-offs. Fix
             # the frickin data instead.
-            code: pr.typing.Series[Any]
-            label: pr.typing.Series[str] | None
-            description: pr.typing.Series[str]
-            operational_status: pr.typing.Series[str] | None
+            code: pr_pandas.typing.Series[Any]
+            label: pr_pandas.typing.Series[str] | None
+            description: pr_pandas.typing.Series[str]
+            operational_status: pr_pandas.typing.Series[str] | None
 
-        df: pr.typing.DataFrame[CodeDataFrame] = pd.DataFrame(
+        df: pr_pandas.typing.DataFrame[CodeDataFrame] = pd.DataFrame(
             {"code": [], "label": [], "description": []}
         )
         code_fixes: dict = {}
@@ -1144,7 +1168,7 @@ class PudlResourceDescriptor(PudlMeta):
 
         @field_serializer("df")
         def serialize_df(
-            self, df: pr.typing.DataFrame[CodeDataFrame], _info
+            self, df: pr_pandas.typing.DataFrame[CodeDataFrame], _info
         ) -> pd.DataFrame:
             """Return DataFrame to avoid warnings from default serializer."""
             return df
@@ -1716,9 +1740,11 @@ class Resource(PudlMeta):
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
 
-    def to_duckdb_dtypes(self) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
+    def to_duckdb_dtypes(
+        self, conn: duckdb.DuckDBPyConnection
+    ) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
         """Return Polars data type of each field by field name."""
-        return {f.name: f.to_duckdb_dtype() for f in self.schema.fields}
+        return {f.name: f.to_duckdb_dtype(conn) for f in self.schema.fields}
 
     def to_polars_dtypes(self) -> dict[str, pl.DataType]:
         """Return Polars data type of each field by field name."""

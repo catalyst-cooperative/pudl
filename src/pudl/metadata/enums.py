@@ -242,10 +242,13 @@ EPACEMS_MEASUREMENT_CODES: list[str] = [
     "LME",
     "Measured",
     "Measured and Substitute",
-    "Other",  # ¿Should be replaced with NA?
+    # Probably "other" methods that comply with Appendix G of Part 75 of 40 CFR
+    # Part 75, but not explicitly listed in the regulation.
+    "Other",
     "Substitute",
-    "Undetermined",  # Should be replaced with NA
-    "Unknown Code",  # Should be replaced with NA
+    # "Undetermined",  # Replaced with NULL
+    # "Unknown Code",  # Replaced with NULL
+    # "Not Applicable",  # Replaced with NULL
 ]
 """Valid emissions measurement codes for the EPA CEMS hourly data."""
 
@@ -981,7 +984,101 @@ RENEWABLE_FUEL_TYPES_RUS12: set[str] = [
     "Biomass - wood",
     "Methane - waste",
     "Hybrid",
-    "Solar - photvoltaic",
+    "Solar - photovoltaic",
     "Solar - thermal generation",
     "Other",
+]
+
+PLANT_TYPE_RUS12: set[str] = [
+    "combined_cycle",
+    "hydro",
+    "internal_combustion",
+    "nuclear",
+    "other",
+    "steam",
+]
+SOURCE_OF_ENERGY_RUS12: set[str] = [
+    "energy_available_for_sale",
+    "energy_used_by_borrower",
+    "purchased_power",
+    "total_energy_accounted",
+    "total_energy_losses",
+    "total_plant",
+    "total_sales",
+    "delivered_out_of_system_gross",
+    "net_interchange",
+    "received_into_system_gross",
+    "delivered_out_of_system_wheeling",
+    "net_energy_wheeled",
+    "received_into_system_wheeling",
+    "energy_furnished_without_charge",
+]
+
+PLANT_COST_TYPES_RUS12: set[str] = [
+    "allowances",
+    "coal_fuel",
+    "coolants_and_water",
+    "depreciation",
+    "electric",
+    "energy_for_compressed_air",
+    "energy_for_pumped_storage",
+    "fuel",
+    "gas_fuel",
+    "generation",
+    "hydraulic",
+    "interest",
+    "less_fuel_acquisition_adjustment",
+    "maintenance_boiler_plant",
+    "maintenance_electric_plant",
+    "maintenance_generating_and_electric_plant",
+    "maintenance_miscellaneous_plant",
+    "maintenance_other_plant",
+    "maintenance_reactor_plant_equipment",
+    "maintenance_reservoirs_dams_waterways",
+    "maintenance_structures",
+    "maintenance_supervision_and_engineering",
+    "maintenance_total",
+    "miscellaneous_power_generation",
+    "net_fuel",
+    "non_fuels_subtotal",
+    "oil_fuel",
+    "operations_total",
+    "other_fuel",
+    "other_generation",
+    "other_nuclear_power",
+    "plant_acquisition_adjustment",
+    "power",
+    "reactor_credits",
+    "rents",
+    "steam",
+    "steam_other_sources",
+    "steam_power",
+    "supervision_and_engineering",
+    "total",
+    "total_fixed",
+    "total_fuel",
+    "water_for_power",
+]
+
+LOAN_STATUS_TYPES_RUS7 = ["loan_default", "loan_delinquency"]
+
+LOAN_UNIT_TYPES_RUS7 = ["actual_pct", "anticipated_pct", "ytd_dollars"]
+
+SERVICE_INTERRUPTION_TYPES_RUS7 = [
+    "major_event",
+    "other",
+    "planned",
+    "power_supplier",
+    "total",
+]
+
+SERVICE_INTERRUPTION_PERIODS_RUS7 = ["five_year_average", "annual"]
+
+SERVICE_STATUS_RUS7 = ["connected", "idle", "retired", "total"]
+
+TRANSMISSION_DISTRIBUTION_TYPES_RUS7 = [
+    "distribution_overhead",
+    "distribution_underground",
+    "transmission_line",
+    "total",
 ]

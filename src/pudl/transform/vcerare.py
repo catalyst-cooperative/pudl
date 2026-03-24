@@ -21,7 +21,6 @@ from pudl.helpers import (
     zero_pad_numeric_string,
 )
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -59,9 +58,11 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         # Making the county_state_names lowercase to match the values in the capacity factor tables
         raw_vcerare__lat_lon_fips.pipe(simplify_columns)
         .assign(
-            county_state_names=lambda x: x.county_state_names.str.lower()
-            .replace({r"\.": "", "-": "_"}, regex=True)
-            .pipe(_spot_fix_great_lakes_values)
+            county_state_names=lambda x: (
+                x.county_state_names.str.lower()
+                .replace({r"\.": "", "-": "_"}, regex=True)
+                .pipe(_spot_fix_great_lakes_values)
+            )
         )
         # Fix FIPS codes with no leading zeros
         .assign(
@@ -343,10 +344,6 @@ def _clip_unexpected_2016_pv_capacity(df: pd.DataFrame, df_name: str, year: int)
         )
         df.loc[df.capacity_factor_solar_pv > 1.10, "capacity_factor_solar_pv"] = 1.10
     return df
-
-
-def _get_parquet_path():
-    return PudlPaths().parquet_path("out_vcerare__hourly_available_capacity_factor")
 
 
 def _spot_fix_great_lakes_values(sr: pd.Series) -> pd.Series:
