@@ -6,16 +6,12 @@ import os
 import dagster as dg
 
 import pudl
+from pudl.dagster.assets.core import eia_bulk_elec, glue, static
+from pudl.dagster.assets.raw import ferc_to_sqlite
 from pudl.deploy import ferceqr
-from pudl.etl import (
-    eia_bulk_elec_assets,
-    ferc_to_sqlite_assets,
-    glue_assets,
-    static_assets,
-)
 
 raw_module_groups = {
-    "raw_ferc_to_sqlite": [ferc_to_sqlite_assets],
+    "raw_ferc_to_sqlite": [ferc_to_sqlite],
     "raw_censuspep": [pudl.extract.censuspep],
     "raw_eia176": [pudl.extract.eia176],
     "raw_eia191": [pudl.extract.eia191],
@@ -40,16 +36,16 @@ raw_module_groups = {
 }
 
 core_module_groups = {
-    "core_assn": [glue_assets],
+    "core_assn": [glue],
     "core_censusdp1tract": [
         pudl.convert.censusdp1tract_to_sqlite,
         pudl.output.censusdp1tract,
     ],
     "core_censuspep": [pudl.transform.censuspep],
-    "core_codes": [static_assets],
+    "core_codes": [static],
     "core_eia": [pudl.transform.eia],
     "core_eiaaeo": [pudl.transform.eiaaeo],
-    "core_eia_bulk_elec": [eia_bulk_elec_assets],
+    "core_eia_bulk_elec": [eia_bulk_elec],
     "core_eia176": [pudl.transform.eia176],
     "core_eia860": [pudl.transform.eia860, pudl.transform.eia860m],
     "core_eia861": [pudl.transform.eia861],

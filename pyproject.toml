@@ -544,7 +544,7 @@ exclude_lines = [
 
 [tool.dagster]
 modules = [
-    { type = "module", name = "pudl.etl" },
+    { type = "module", name = "pudl.definitions" },
 ]
 
 [tool.dg]
@@ -552,6 +552,7 @@ directory_type = "project"
 
 [tool.dg.project]
 root_module = "pudl"
+defs_module = "pudl.dagster"
 code_location_target_module = "pudl.definitions"
 registry_modules = [
     "pudl.dagster",

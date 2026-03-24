@@ -4,7 +4,7 @@ import dagster as dg
 import pytest
 from dagster import ResourceDefinition
 
-from pudl.etl import ferc_to_sqlite_assets
+from pudl.dagster.assets.raw import ferc_to_sqlite
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.resources import RuntimeSettings
 from pudl.settings import (
@@ -92,20 +92,23 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
 )
 def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
     convert_form_mock = mocker.MagicMock()
-    mocker.patch("pudl.etl.ferc_to_sqlite_assets.convert_form", new=convert_form_mock)
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite.convert_form", new=convert_form_mock
+    )
 
     # Mock datastore object to allow comparison
     mock_datastore = mocker.MagicMock()
     mocker.patch(
-        "pudl.etl.ferc_to_sqlite_assets.FercXbrlDatastore", return_value=mock_datastore
+        "pudl.dagster.assets.raw.ferc_to_sqlite.FercXbrlDatastore",
+        return_value=mock_datastore,
     )
 
     xbrl_assets = [
-        ferc_to_sqlite_assets.raw_ferc1_xbrl__sqlite,
-        ferc_to_sqlite_assets.raw_ferc2_xbrl__sqlite,
-        ferc_to_sqlite_assets.raw_ferc6_xbrl__sqlite,
-        ferc_to_sqlite_assets.raw_ferc60_xbrl__sqlite,
-        ferc_to_sqlite_assets.raw_ferc714_xbrl__sqlite,
+        ferc_to_sqlite.raw_ferc1_xbrl__sqlite,
+        ferc_to_sqlite.raw_ferc2_xbrl__sqlite,
+        ferc_to_sqlite.raw_ferc6_xbrl__sqlite,
+        ferc_to_sqlite.raw_ferc60_xbrl__sqlite,
+        ferc_to_sqlite.raw_ferc714_xbrl__sqlite,
     ]
 
     result = dg.materialize(

@@ -10,12 +10,6 @@ from pudl.metadata.classes import DataSource, Package
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-# TODO (bendnorman): Currently loading all glue tables. Could potentially allow users
-# to load subsets of the glue tables, see: https://docs.dagster.io/concepts/assets/multi-assets#subsetting-multi-assets
-# Could split out different types of glue tables into different assets. For example the cross walk table could be a separate asset
-# that way dagster doesn't think all glue tables depend on core_eia__entity_generators, core_eia__entity_boilers.
-
-
 @multi_asset(
     outs={
         table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
