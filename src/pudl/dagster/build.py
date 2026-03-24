@@ -1,4 +1,15 @@
-"""Dagster definitions assembly for PUDL."""
+"""Dagster definitions assembly for PUDL.
+
+This module is where PUDL assembles a complete :class:`dagster.Definitions` object from the
+package's default assets, asset checks, jobs, resources, and sensors. Define helpers
+here that compose those building blocks into a code location, especially when tests,
+CLI entrypoints, or specialized environments need to override part of the default
+assembly. Avoid putting asset or resource implementations here; this module should stay
+focused on top-level orchestration assembly.
+
+For the underlying Dagster concept, see
+https://docs.dagster.io/getting-started/concepts#definitions
+"""
 
 from collections.abc import Mapping, Sequence
 from typing import Any

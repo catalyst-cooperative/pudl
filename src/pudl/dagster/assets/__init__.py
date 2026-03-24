@@ -1,4 +1,19 @@
-"""Dagster asset loading for PUDL."""
+"""Dagster asset loading and grouping for PUDL.
+
+This module is responsible for collecting asset-definition modules into the grouped
+asset sets that the PUDL code location exposes. Define group registries, package-level
+asset lists, and helper utilities for working with loaded asset definitions here. Keep
+individual asset implementations in the submodules that own them so this file remains a
+thin registry and assembly layer.
+
+Submodules in this package should define only assets that don't fit well into the
+pre-existing categorization of assets that PUDL uses, mostly oriented around the
+layer of processing being applied in the ETL (raw, core, output) or the source dataset
+(e.g. eia860, ferc714). If an asset doesn't fit neatly into those categories, add it
+to this package.
+
+For the underlying Dagster concept, see https://docs.dagster.io/guides/build/assets
+"""
 
 import itertools
 import os

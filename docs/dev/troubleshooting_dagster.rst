@@ -86,10 +86,10 @@ of a given resource. PUDL's default resource set is assembled in
 runtime settings, and several IO managers. The resources contributors most
 often need to adjust are:
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:func:`pudl.resources.dataset_settings`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``dataset_settings`` resource tells the PUDL ETL which years
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:data:`pudl.dagster.resources.etl_settings`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The ``etl_settings`` resource tells the PUDL ETL which years
 of data to process. You can configure the dataset settings
 by holding shift while clicking the "Materialize All" button in the upper
 right hand corner of the Dagster UI. This will bring up a window
@@ -118,16 +118,16 @@ assets.
     Dagster YAML profiles, or define a custom job / ``Definitions`` override
     in :mod:`pudl.dagster.jobs` or :mod:`pudl.dagster.build`.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:func:`pudl.resources.datastore`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:data:`pudl.dagster.resources.datastore`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The datastore resource allows assets to to pull data from
 PUDL's raw data archives on Zenodo.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:func:`pudl.resources.RuntimeSettings`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:data:`pudl.dagster.resources.runtime_settings`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The ``runtime_settings`` resource controls run-scoped behavior that is not
 part of the dataset selection itself.
 

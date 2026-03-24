@@ -1,4 +1,13 @@
-"""Dagster run configuration helpers for PUDL."""
+"""Dagster run configuration helpers for PUDL.
+
+This module collects reusable run-configuration fragments and helpers that jobs,
+automation, and tests can share. Define execution settings, concurrency controls, and
+resource-config loaders here when they are meant to be combined into Dagster job or
+launch configuration, rather than hard-coding them in individual jobs or scripts.
+
+For the underlying Dagster concept, see
+https://docs.dagster.io/guides/operate/configuration/run-configuration
+"""
 
 from pudl.analysis.ml_tools import get_ml_models_config
 from pudl.settings import load_packaged_etl_settings

@@ -132,7 +132,7 @@ Core Dagster concepts used in PUDL
   :py:class:`pudl.workspace.datastore.ZenodoDoiSettings` Resource defines the current
   Zenodo DOI for each dataset. We also store our dataset-specific ETL settings (like
   what years of EIA-861 data to process) in a Resource
-  :py:class:`pudl.resources.PudlEtlSettingsResource`.
+  :py:class:`pudl.dagster.resources.PudlEtlSettingsResource`.
 * **`IO Managers <https://docs.dagster.io/guides/build/io-managers>`__** in Dagster let
   us keep the code for data processing separate from the code for reading and writing
   data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
@@ -153,7 +153,9 @@ Core Dagster concepts used in PUDL
   are the runtime settings passed to Dagster jobs, assets, and resources to control
   what gets executed and how. In PUDL, we usually store these settings in YAML files
   like ``dg_fast.yml``, ``dg_full.yml``, ``dg_pytest.yml``, and ``dg_nightly.yml``,
-  which configure execution options and shared resources like ``etl_settings``.
+  which configure execution options and shared resources like ``etl_settings``. The
+  reusable helpers that assemble these run configs live in
+  :mod:`pudl.dagster.config`.
 
 The Dagster Web UI
 ^^^^^^^^^^^^^^^^^^

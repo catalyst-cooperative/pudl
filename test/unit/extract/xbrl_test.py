@@ -5,8 +5,8 @@ import pytest
 from dagster import ResourceDefinition
 
 from pudl.dagster.assets.raw import ferc_to_sqlite
+from pudl.dagster.resources import FercXbrlRuntimeSettings
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
-from pudl.resources import RuntimeSettings
 from pudl.settings import (
     EtlSettings,
     Ferc1DbfToSqliteSettings,
@@ -116,7 +116,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
         resources={
             "etl_settings": EtlSettings(ferc_to_sqlite_settings=settings),
             "datastore": ResourceDefinition.mock_resource(),
-            "runtime_settings": RuntimeSettings(
+            "runtime_settings": FercXbrlRuntimeSettings(
                 xbrl_batch_size=20,
                 xbrl_num_workers=10,
             ),

@@ -1,4 +1,10 @@
-"""Dagster asset definitions for granular FERC-to-SQLite extraction."""
+"""Dagster asset definitions for granular FERC-to-SQLite extraction.
+
+This module defines the prerequisite assets that build the FERC DBF and XBRL derived
+SQLite databases used elsewhere in the PUDL pipeline. It should contain asset factories,
+resource requirements, and materialization metadata specific to those prerequisite
+databases, rather than the downstream transforms that consume them.
+"""
 
 import dagster as dg
 

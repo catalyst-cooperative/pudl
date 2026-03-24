@@ -1,4 +1,14 @@
-"""Canonical Dagster orchestration package for PUDL."""
+"""Canonical Dagster orchestration package for PUDL.
+
+This package is the main import surface for the Dagster objects that make up the PUDL
+code location. It should expose the assembled ``Definitions`` object along with the
+default assets, asset checks, jobs, resources, and sensors that other modules or tools
+need to load. Keep this module focused on package-level exports and lazy import wiring
+rather than the implementation details of individual Dagster abstractions.
+
+For the underlying Dagster concept, see
+https://docs.dagster.io/getting-started/concepts#definitions
+"""
 
 from importlib import import_module
 from typing import TYPE_CHECKING, Any

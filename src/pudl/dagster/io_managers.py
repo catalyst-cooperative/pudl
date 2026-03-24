@@ -1,4 +1,14 @@
-"""Dagster IO Managers."""
+"""Dagster IO managers used by PUDL assets.
+
+This module defines the IO-manager implementations that translate between Dagster asset
+execution and PUDL's storage formats, including SQLite, Parquet, GeoParquet, and the
+FERC prerequisite databases. Put :class:`dagster.IOManager` and
+:class:`dagster.ConfigurableIOManager` classes here, along with configured singleton
+instances that the default code location reuses. Keep data-processing logic out of this
+module; it should focus on persistence, loading, and storage-compatibility concerns.
+
+For the underlying Dagster concept, see https://docs.dagster.io/guides/build/io-managers
+"""
 
 import json
 import re
@@ -29,18 +39,18 @@ from pydantic import model_validator
 
 import pudl
 from pudl.dagster.provenance import assert_ferc_sqlite_compatible
+from pudl.dagster.resources import (
+    PudlEtlSettingsResource,
+    ZenodoDoiSettingsResource,
+    pudl_etl_settings_resource,
+    zenodo_doi_settings_resource,
+)
 from pudl.helpers import (
     get_ferc_form_name,
     get_parquet_table,
     get_parquet_table_polars,
 )
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
-from pudl.resources import (
-    PudlEtlSettingsResource,
-    ZenodoDoiSettingsResource,
-    etl_settings,
-    zenodo_dois,
-)
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -966,17 +976,17 @@ class FercXbrlSQLiteDagsterIOManager(ConfigurableIOManager):
 
 
 ferc1_dbf_sqlite_io_manager = FercDbfSQLiteDagsterIOManager(
-    etl_settings=etl_settings,
-    zenodo_dois=zenodo_dois,
+    etl_settings=pudl_etl_settings_resource,
+    zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc1_dbf",
 )
 ferc1_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
-    etl_settings=etl_settings,
-    zenodo_dois=zenodo_dois,
+    etl_settings=pudl_etl_settings_resource,
+    zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc1_xbrl",
 )
 ferc714_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
-    etl_settings=etl_settings,
-    zenodo_dois=zenodo_dois,
+    etl_settings=pudl_etl_settings_resource,
+    zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc714_xbrl",
 )

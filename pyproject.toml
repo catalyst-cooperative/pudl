@@ -289,7 +289,7 @@ coverage run --append -m sphinx --jobs auto -W -b html docs docs/_build/html
 # Testing tasks
 coverage-erase = { cmd = "coverage erase", description = "Clear coverage data" }
 pytest-unit = { cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit", description = "Run unit tests and doctests" }
-pytest-integration = { cmd = "pytest --cov-fail-under=0 test/integration", description = "Run integration tests with fast ETL settings" }
+pytest-integration = { cmd = "pytest --cov-fail-under=0 test/integration", description = "Run integration and data validation tests with fast ETL settings" }
 pytest-unit-nightly = { cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG test/unit", description = "Run nightly-build unit tests with the nightly Dagster config" }
 pytest-integration-nightly = { cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG --ignore=test/integration/data_validation_test.py test/integration", description = "Run nightly-build integration tests against live nightly-style outputs" }
 pytest-data-validation-nightly = { cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG test/integration/data_validation_test.py", description = "Run nightly-build data validation tests against live nightly-style outputs" }

@@ -8,12 +8,12 @@ from dagster import build_init_resource_context
 from pandas import json_normalize
 from pydantic import ValidationError
 
-from pudl.metadata.classes import DataSource
-from pudl.resources import (
+from pudl.dagster.resources import (
     DatastoreResource,
     PudlEtlSettingsResource,
     ZenodoDoiSettingsResource,
 )
+from pudl.metadata.classes import DataSource
 from pudl.settings import (
     DatasetsSettings,
     Eia860mSettings,

@@ -1,4 +1,8 @@
-"""EIA Bulk Electricity Aggregate assets."""
+"""Dagster assets for EIA bulk electricity aggregates.
+
+This module defines asset logic for the aggregate EIA electricity data products that
+PUDL derives from the EIA API bulk JSON data and then loads into the core asset graph.
+"""
 
 from dagster import asset
 

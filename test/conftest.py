@@ -21,8 +21,7 @@ from dagster import (
 )
 
 import pudl
-from pudl import resources
-from pudl.dagster import build_defs
+from pudl.dagster import build_defs, resources
 from pudl.dagster.io_managers import (
     PudlMixedFormatIOManager,
     ferc1_dbf_sqlite_io_manager,

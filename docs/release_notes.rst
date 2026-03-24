@@ -81,9 +81,12 @@ Quality of Life Improvements
     classes.
 
 * Made :mod:`pudl.dagster` the canonical Dagster orchestration package while keeping
-  :mod:`pudl.definitions` as the stable ``dg`` code location entrypoint. Internal
-  imports and documentation now use :mod:`pudl.dagster`. See issue :issue:`5123` and
-  PR :pr:`5124`.
+  :mod:`pudl.definitions` as the stable ``dg`` code location entrypoint. As part of
+  this boundary cleanup, Dagster-specific resources, (including the FERC EQR deployment
+  sensor and the FERC EQR partition definition) were consolidated under
+  :mod:`pudl.dagster`, older top-level Dagster compatibility exposure was removed, and
+  internal imports and documentation were updated to use :mod:`pudl.dagster`. See issue
+  :issue:`5123` and PR :pr:`5124`.
 
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
   PR :pr:`5023`.
@@ -2219,7 +2222,7 @@ Dagster Adoption
   * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
     `Definition <https://docs.dagster.io/concepts/code-locations>`__.
   * The ``pudl_settings``, ``Datastore`` and ``DatasetSettings`` are now dagster
-    resources. See :mod:`pudl.resources`.
+    resources. See ``pudl.resources``.
   * The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
     specific tables. The commands run all of the tables. Use dagster assets to
     run subsets of the tables.

@@ -1,4 +1,10 @@
-"""FERC and EIA and EPA CAMD glue assets."""
+"""Dagster assets for cross-dataset glue tables.
+
+This module defines assets that build the association tables linking related records
+across multiple datasets, including FERC, EIA, and EPA CAMD. Put asset definitions here
+when they create or refine those crosswalk-style tables and supporting relationships,
+rather than the domain-specific transforms for any one source dataset.
+"""
 
 import networkx as nx
 import pandas as pd

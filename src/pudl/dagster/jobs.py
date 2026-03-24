@@ -1,4 +1,14 @@
-"""Dagster jobs for PUDL."""
+"""Dagster jobs for PUDL.
+
+This module defines the named jobs that package asset selections, execution settings,
+and default run configuration into launchable units. Add job definitions here when the
+team needs a stable execution target for a common workflow, such as running the main
+ETL, refreshing prerequisites, or materializing a specialized asset subset. Avoid
+placing asset implementations or resource classes here; those should remain in the
+modules that define them.
+
+For the underlying Dagster concept, see https://docs.dagster.io/guides/build/jobs
+"""
 
 import dagster as dg
 

@@ -1,6 +1,12 @@
-"""PUDL data validation functions and test case specifications.
+"""PUDL data validation tooling that falls outside of the dbt and Dagster frameworks.
 
-Note that this module is being cannibalized and translated into dbt tests.
+This module defines functions for validating PUDL data that don't currently fit well
+into our dbt-based data validation framework, which does the overwhelming majority of
+our data validation work. Put validation functions and classes here when they are meant
+to be reused across multiple asset checks but also need to be accessed outside of the
+Dagster context, or when they don't cleanly apply to an individual asset as in the case
+of the foreign key checks. Validation functions that are complex or costly to translate
+into SQL for dbt should be added here and then called from asset checks as needed.
 """
 
 from typing import cast

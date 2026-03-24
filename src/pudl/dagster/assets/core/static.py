@@ -1,4 +1,10 @@
-"""Dagster assets of static data tables."""
+"""Dagster assets for static reference tables.
+
+This module defines assets that materialize small, stable lookup tables and other
+reference data that PUDL ships as part of the pipeline itself. Put asset definitions
+here when the data comes from packaged metadata or code-maintained constants rather
+than an external extract step, and keep source-specific extract logic elsewhere.
+"""
 
 from typing import Literal
 

@@ -1,10 +1,23 @@
 """Programmatically defined Dagster asset checks for PUDL.
 
-We primarily use Dagster asset checks to validate the schemas of PUDL tables. We use
-Pandera to programmatically define dataframe schemas based on the PUDL metadata with the
-asset check factory :func:`asset_check_from_schema` defined below.
+This module should contain Dagster asset-check definitions and helper functions that
+evaluate the quality or structural correctness of already-materialized assets. Put
+checks here when they belong in the Dagster asset graph and should run as blocking or
+reporting validations attached to specific assets, especially when they can be derived
+from metadata or shared validation patterns. Keep business transformations and dbt-only
+data tests out of this module so it remains focused on Dagster-native asset validation.
 
-For data validation we almost entirely rely on dbt data tests.
+For the underlying Dagster concept see https://docs.dagster.io/guides/test/asset-checks
+
+For data validation we almost entirely rely on :mod:`dbt` data tests defined using SQL
+and executed across our Parquet outputs using :mod:`duckdb`.
+
+We primarily use Dagster asset checks to validate the schemas of PUDL tables throughout
+the pipeline. We use :mod:`pandera` to programmatically define dataframe schemas based
+on the PUDL metadata with the asset check factory :func:`asset_check_from_schema`
+defined below. A handful of asset checks that were particularly difficult to translate
+to SQL/dbt data tests are also defined here, but in general all data validation tests
+should go in dbt.
 """
 
 import itertools
@@ -20,10 +33,10 @@ from dagster import AssetCheckResult, AssetChecksDefinition, AssetKey, asset_che
 from pandera.errors import SchemaErrors
 
 from pudl.dagster.assets import all_asset_modules, asset_keys
+from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
-from pudl.settings import ferceqr_year_quarters
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
