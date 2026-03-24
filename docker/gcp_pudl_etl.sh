@@ -139,13 +139,7 @@ function deploy_data_viewer() {
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
             https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy.yml/dispatches \
-            -d @<(
-                cat <<JSON
-{
-  "ref": "main"
-}
-JSON
-            ) &&
+            -g -d '{"ref":"main"}' &&
         set -x
 }
 
