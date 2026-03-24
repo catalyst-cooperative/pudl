@@ -31,7 +31,7 @@ import requests
 import sqlalchemy as sa
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 import pudl.logging_helpers
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
@@ -658,8 +658,9 @@ def expand_timeseries(
             unique group of these ID columns that are present in the dataframe.
         date_col: Name of the datetime column being expanded into a full timeseries.
         freq: The frequency of the time series to expand the data to.
-            See :ref:`here <timeseries.offset_aliases>` for a list of
-            frequency aliases.
+            See :mod:`pandas.tseries.offsets` and
+            :func:`pandas.tseries.frequencies.to_offset` for valid frequency
+            aliases.
         fill_through_freq: The frequency in which to fill in the data through. For
             example, if equal to "year" the data will be filled in through the end of
             the last reported year for each grouping of ``key_cols``. Valid frequencies
@@ -2178,8 +2179,19 @@ def retry(
     return func(**kwargs)
 
 
-def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
-    """Read a table from a parquet file and return as a polars LazyFrame."""
+def get_parquet_table_polars(
+    table_name: str, partitions: dict | None = None
+) -> pl.LazyFrame:
+    """Read a table from a parquet file and return as a polars LazyFrame.
+
+    Args:
+        table_name: Name of the table to read.
+        partitions: Optional dictionary of partitions to filter the data. See
+            :class:`ParquetData` definition for details.
+
+    Returns:
+        A polars LazyFrame representing the table.
+    """
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
 
@@ -2187,8 +2199,13 @@ def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
     schema = resource.to_polars_dtypes()
 
     # Get the Parquet file path
-    paths = PudlPaths()
-    parquet_path = paths.parquet_path(table_name)
+    if partitions is None:
+        paths = PudlPaths()
+        parquet_path = paths.parquet_path(table_name)
+    else:
+        parquet_data = ParquetData(table_name=table_name, partitions=partitions)
+        # Points to a directory of parquet files when there partitions is non None
+        parquet_path = parquet_data.parquet_path
 
     return pl.scan_parquet(parquet_path).cast(schema, strict=False)
 
@@ -2326,7 +2343,18 @@ class ParquetData(BaseModel):
     """
 
     table_name: str
-    partitions: dict[str, Any] = {}
+    """Name of the table corresponding to the parquet data."""
+
+    partitions: dict[str, Any] = Field(default_factory=dict)
+    """Optional dictionary of partition values indicating what data is being offloaded to disk.
+
+    If passed ``{'years': 1995}`` then this class will produce a parquet file at the
+    path ``PudlPaths().parquet_path() / table_name / 1995.parquet``.  if passed
+    ``{'years': 1995, 'states': 'CA'}`` then this class will produce a parquet file at
+    the path ``PudlPaths().parquet_path() / table_name / 1995_ca.parquet``.  If
+    partitions is empty, then the parquet file will be written
+    ``PudlPaths().parquet_path() / table_name / {table_name}.parquet``.
+    """
 
     @property
     def parquet_directory(self) -> Path:
@@ -2348,7 +2376,7 @@ class ParquetData(BaseModel):
 def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
-    partitions: dict = {},
+    partitions: dict[str, Any] | None = None,
     compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
 ) -> ParquetData:
     """Write data from DataFrame or LazyFrame to disk as a parquet file.
@@ -2357,14 +2385,13 @@ def persist_table_as_parquet(
     transforms.
 
     Args:
-        table_data: Data to write to disk as either a Pandas DataFrame, Polars LazyFrame, or duckdb relation.
+        table_data: Tabular data to write to disk.
         table_name: Table name used to construct path to/name of parquet file.
-        partitions: Partitions which correspond to the table_data. If passed
-            ``{'years': 1995}`` then this method will produce a parquet file at the path
-            ``PudlPaths().parquet_path() / table_name / '1995.parquet'``.
+        partitions: Optional partition dimension values indicating the data to be
+            written.
     """
     # Create ParquetData class to get path to write parquet file
-    parquet_data = ParquetData(table_name=table_name, partitions=partitions)
+    parquet_data = ParquetData(table_name=table_name, partitions=partitions or {})
     if isinstance(table_data, pd.DataFrame):
         table_data.to_parquet(parquet_data.parquet_path, compression=compression)
     elif isinstance(table_data, pl.LazyFrame):

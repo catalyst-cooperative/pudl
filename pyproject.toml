@@ -67,12 +67,12 @@ click = ">=8.3"
 coloredlogs = ">=14.0"
 coverage = ">=7.13"
 curl = ">=8.17"
-dagster = ">=1.12.18"
-dagster-dbt = ">=1!0.28.18"
-dagster-dg-cli = ">=1.12.18"
-dagster-gcp = ">=1!0.28.18"
-dagster-postgres = ">=1!0.28.18"
-dagster-webserver = ">=1.12.18"
+dagster = ">=1.12.20"
+dagster-dbt = ">=1!0.28.20"
+dagster-dg-cli = ">=1.12.20"
+dagster-gcp = ">=1!0.28.20"
+dagster-postgres = ">=1!0.28.20"
+dagster-webserver = ">=1.12.20"
 dbt-core = ">=1.11.7"
 dbt-duckdb = ">=1.9.4"
 deepdiff = ">=8"
@@ -83,17 +83,15 @@ fsspec = ">=2026"
 gcsfs = ">=2026"
 # The Python geospatial stack is notoriously finnicky and full of compiled # extensions
 # that have to be kept in sync. If this isn't pinned things will probably break.
-gdal = "==3.12.2"
+gdal = "==3.12.3"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 google-cloud-sdk = ">=535"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
-# Upgrade to 1.74.0 blocked by stale libgoogle-cloud on conda-forge
-# Upgrade to 1.76.0 blocked by stale grpcio on conda-forge
-grpcio = "==1.73.1"
-grpcio-health-checking = "==1.73.1"
-grpcio-status = "==1.73.1"
+grpcio = "==1.78.0"
+grpcio-health-checking = "==1.78.0"
+grpcio-status = "==1.78.0"
 hypothesis = ">=6.123"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
@@ -115,15 +113,14 @@ numpy = ">=2.4"
 packaging = ">=25"
 pandas = ">=2.3"
 pandoc = ">=3.7"
-pandera-polars = ">=0.28"
+pandera-polars = ">=0.30"
 parallel = ">=20250822"
-polars = ">=1.38"
+polars = ">=1.39"
 pre-commit = ">=4.5"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.7,<4"
-# pyarrow >=21 blocked by stale geopandas 0.14 in Kaggle environment
-# But python 3.14 requires pyarrow>=21
-pyarrow = ">=21"
+# pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
+pyarrow = ">=23"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
 pygraphviz = ">=1"
@@ -202,10 +199,10 @@ bottleneck = ">=1.5.0"
 "catalystcoop.ferc_xbrl_extractor" = ">=1.8,<1.9"
 click = ">=8.3"
 coloredlogs = ">=14.0"
-dagster = ">=1.12.18"
-dagster-dbt = ">=0.28.18"
-dagster-postgres = ">=0.28.18"
-dagster-webserver = ">=1.12.18"
+dagster = ">=1.12.20"
+dagster-dbt = ">=0.28.20"
+dagster-postgres = ">=0.28.20"
+dagster-webserver = ">=1.12.20"
 dbt-core = ">=1.11.8"
 dbt-duckdb = ">=1.9.4"
 email-validator = ">=1.0.3"
@@ -214,12 +211,14 @@ fsspec = ">=2026"
 gcsfs = ">=2026"
 # The Python geospatial stack is notoriously finnicky and full of compiled # extensions
 # that have to be kept in sync. If this isn't pinned things will probably break.
-gdal = "==3.12.2"
+gdal = "==3.12.3"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
-grpcio = "==1.73.1"
-grpcio-health-checking = "==1.73.1"
-grpcio-status = "==1.73.1"
+# grpcio packages all need to have same version to avoid conflicts.
+# They are also compiled and finnicky. Check compatibility before upgrading.
+grpcio = "==1.78.0"
+grpcio-health-checking = "==1.78.0"
+grpcio-status = "==1.78.0"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
 matplotlib-base = ">=3.10"
@@ -230,9 +229,9 @@ numexpr = ">=2.10"
 numpy = ">=2.4"
 packaging = ">=25"
 pandas = ">=2.3"
-pandera-polars = ">=0.28"
-polars = ">=1.38"
-pyarrow = ">=17,<21"
+pandera-polars = ">=0.30"
+polars = ">=1.39"
+pyarrow = ">=23"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
 python-calamine = ">=0.6.1"
@@ -281,7 +280,7 @@ bash -c 'shopt -s nullglob; rm -rf \
 
 docs-build = { cmd = """
 doc8 docs/ README.rst && \
-coverage run --append -m sphinx --jobs auto -v -W -b html docs docs/_build/html
+coverage run --append -m sphinx --jobs auto -W -b html docs docs/_build/html
 """, depends-on = ["docs-clean"], description = "Build PUDL docs using Sphinx" }
 
 # Testing tasks
@@ -326,18 +325,27 @@ pre-commit-install = { cmd = "pre-commit install", description = "Install pre-co
 pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update pre-commit hook versions" }
 dbt-deps-upgrade = { cmd = "dbt deps --upgrade", cwd = "dbt", description = "Update dbt dependencies" }
 
+# Coding agent environment
+# NOTE (2026-03-17): We're using the `experimental_install` command
+# which is the workaround for "restoring from a lockfile" - see
+# https://github.com/vercel-labs/skills/issues/549 - we probably want to switch to
+# `npx skills install` whenever that actually becomes a thing.
+install-skills = { cmd = "npx skills experimental_install", description = "Install skills from lockfile" }
+
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
 pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
+pudl_deploy = "pudl.scripts.deploy:pudl_deploy"
 pudl_etl = "pudl.etl.cli:pudl_etl"
 pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
 dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
 pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
+update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
 
 [tool.ruff]
@@ -587,4 +595,5 @@ extend-exclude = [
     "devtools/",
     "test/",
     "src/pudl/transform/params/ferc1.py",
+    "src/pudl/package_data/ferc1/*_categories.yaml"
 ]

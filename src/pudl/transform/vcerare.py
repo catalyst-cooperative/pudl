@@ -21,7 +21,6 @@ from pudl.helpers import (
     zero_pad_numeric_string,
 )
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -345,10 +344,6 @@ def _clip_unexpected_2016_pv_capacity(df: pd.DataFrame, df_name: str, year: int)
         )
         df.loc[df.capacity_factor_solar_pv > 1.10, "capacity_factor_solar_pv"] = 1.10
     return df
-
-
-def _get_parquet_path():
-    return PudlPaths().parquet_path("out_vcerare__hourly_available_capacity_factor")
 
 
 def _spot_fix_great_lakes_values(sr: pd.Series) -> pd.Series:

@@ -43,7 +43,7 @@ def _core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
         id_vars=idx_ish,
         value_vars=value_vars,
         var_name="asset_type",
-        value_name="balance",
+        value_name="ending_balance",
     )
     df.asset_type = df.asset_type.str.removesuffix("_assets")
     # POST-MELT
@@ -63,7 +63,7 @@ def _core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
         id_vars=idx_ish,
         value_vars=value_vars,
         var_name="liability_type",
-        value_name="balance",
+        value_name="ending_balance",
     )
     df.liability_type = df.liability_type.str.removesuffix("_liabilities")
     # POST-MELT
@@ -608,6 +608,186 @@ def _core_rus12__yearly_plant_operations(
             value=df_by_borrower,
         ),
     )
+
+
+@asset
+def _core_rus12__monthly_demand_and_energy_at_delivery_points(
+    raw_rus12__demand_and_energy_at_delivery_points,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__demand_and_energy_at_delivery_points table."""
+    df = rus.early_transform(raw_df=raw_rus12__demand_and_energy_at_delivery_points)
+    data_cols = [
+        "energy_mwh",
+        "demand_mw",
+    ]
+    delivery_recipient = [
+        "others",
+        "rus_borrowers",
+        "total",
+    ]
+    timeframe = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+        "peak",
+        "total",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^delivered_(?:to_)?({'|'.join(delivery_recipient)})_({'|'.join(data_cols)})_({'|'.join(timeframe)})$",
+        match_names=["delivery_recipient", "data_cols", "timeframe"],
+        unstack_level=["delivery_recipient", "timeframe"],
+    )
+    df = df.rename(
+        columns={
+            "demand_mw": "delivered_demand_mw",
+            "energy_mwh": "delivered_energy_mwh",
+        }
+    )
+    # Remove total/peak values. We are dropping the annual values
+    # so we can convert this into a monthly time series. We could make
+    # monthly and yearly tables w/ a multi-asset if desired but choose not
+    # to because this info is duplicative.
+    df = df[~df["timeframe"].isin(["total", "peak"])]
+    # Convert month cols to date:
+    df["report_date"] = pd.to_datetime(
+        df["timeframe"] + " " + df["report_date"].dt.year.astype(str), format="%b %Y"
+    )
+
+    return df
+
+
+@asset
+def _core_rus12__monthly_demand_and_energy_at_power_sources(
+    raw_rus12__demand_and_energy_at_power_sources,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__demand_and_energy_at_power_sources table."""
+    df = rus.early_transform(raw_df=raw_rus12__demand_and_energy_at_power_sources)
+    data_cols = [
+        "energy_output_mwh",
+        "peak_demand_mw",
+        "peak_demand_reading_type",
+        "peak_demand_date",
+        "peak_demand_hour",
+    ]
+    timeframe = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+        "annual",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(data_cols)})_({'|'.join(timeframe)})$",
+        match_names=["data_cols", "timeframe"],
+        unstack_level=["timeframe"],
+    )
+    # Add hour to peak demand date
+    # First check that the hours are valid:
+    df["peak_demand_hour"] = df["peak_demand_hour"].fillna(0)
+    peak_hours = df["peak_demand_hour"].astype("Int64").unique().tolist()
+    bad_hours = [h for h in peak_hours if h not in range(25)]
+    assert len(bad_hours) == 0, f"Found invalid peak demand hours: {bad_hours}"
+    df["peak_demand_date"] = pd.to_datetime(
+        df["peak_demand_date"],
+        format="mixed",
+    ).dt.normalize() + pd.to_timedelta(df["peak_demand_hour"], unit="h")
+    # Change cols so it's consistent with cols in other tables
+    df["is_peak_coincident"] = df["peak_demand_reading_type"].map(
+        {"Coincident": True, "Non-coincident": False}
+    )
+    # Remove total/peak values. We are dropping the annual values
+    # so we can convert this into a monthly time series. We could make
+    # monthly and yearly tables w/ a multi-asset if desired but choose not
+    # to because this info is duplicative.
+    df = df[df["timeframe"] != "annual"]
+    # Reformat report date
+    df["report_date"] = pd.to_datetime(
+        df["timeframe"] + " " + df["report_date"].dt.year.astype(str), format="%b %Y"
+    )
+
+    return df
+
+
+@asset
+def _core_rus12__yearly_plant_factors_and_maximum_demand(
+    raw_rus12__plant_factors_and_maximum_demand,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__plant_factors_and_maximum_demand table."""
+    df = rus.early_transform(
+        raw_df=raw_rus12__plant_factors_and_maximum_demand,
+    )
+    # Convert units
+    df = rus.convert_units(
+        df,
+        old_unit="kw",
+        new_unit="mw",
+        converter=0.001,
+    )
+    # Convert plant_type to snake case
+    df = cleanstrings_snake(df, ["plant_type"])
+
+    def backfill_plant_type(df) -> pd.DataFrame:
+        """Backfill plant_type for pre-2009 records based on post-2008 consistency."""
+        post_2008 = df[df["report_date"].dt.year > 2008]
+
+        # Plants that consistently have only one plant_type across all post-2008 years
+        single_plant_type = (
+            post_2008.groupby(["borrower_id_rus", "plant_name_rus"])["plant_type"]
+            .nunique()
+            .eq(1)
+        )
+        eligible_plants = single_plant_type[
+            single_plant_type
+        ].index  # MultiIndex of (borrower_id_rus, plant_name_rus)
+
+        # Get the plant_type mapping for those plants
+        plant_type_map = (
+            post_2008.set_index(["borrower_id_rus", "plant_name_rus"])
+            .loc[eligible_plants]
+            .reset_index()
+            .drop_duplicates(subset=["borrower_id_rus", "plant_name_rus"])
+            .set_index(["borrower_id_rus", "plant_name_rus"])
+        )["plant_type"]
+
+        # Backfill into pre-2008 rows
+        pre_2008 = df[df["report_date"].dt.year <= 2008]
+        pre_2008 = pre_2008.join(
+            plant_type_map.rename("plant_type_filled"),
+            on=["borrower_id_rus", "plant_name_rus"],
+        )
+
+        # Use filled value where plant_type is missing
+        pre_2008["plant_type"] = pre_2008["plant_type"].fillna(
+            pre_2008["plant_type_filled"]
+        )
+        # pre_2008 = pre_2008.drop(columns="plant_type_filled")
+
+        return pd.concat([pre_2008, post_2008])
+
+    return backfill_plant_type(df)
 
 
 ######################################
