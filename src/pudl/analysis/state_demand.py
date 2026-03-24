@@ -17,7 +17,7 @@ Additional predictive spatial variables will be required to obtain more granular
 electricity demand estimates (e.g. at the county level).
 """
 
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
 from dagster import Field, asset

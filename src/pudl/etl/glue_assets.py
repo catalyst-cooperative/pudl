@@ -18,11 +18,12 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("glue")
         #  do not load core_epa__assn_eia_epacamd glue assets bc they are stand-alone assets below.
         if "core_epa__assn_eia_epacamd" not in table_name
     },
+    can_subset=True,
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def create_glue_tables(context):
@@ -51,9 +52,12 @@ def create_glue_tables(context):
 
     # Ensure they are sorted so they match up with the asset outs
     glue_dfs = dict(sorted(glue_dfs.items()))
+    selected_outputs = set(context.selected_output_names)
 
     return (
-        Output(output_name=table_name, value=df) for table_name, df in glue_dfs.items()
+        Output(output_name=table_name, value=df)
+        for table_name, df in glue_dfs.items()
+        if table_name in selected_outputs
     )
 
 
@@ -246,8 +250,10 @@ def _core_epa__assn_eia_epacamd_unique(
         core_epa__assn_eia_epacamd.sort_values("report_year")
         .groupby(["plant_id_epa", "emissions_unit_id_epa"])
         .filter(
-            lambda x: x.plant_id_eia.nunique() > 1  # noqa: PD101
-            and x.report_year.nunique() > 1  # noqa: PD101
+            lambda x: (
+                x.plant_id_eia.nunique() > 1  # noqa: PD101
+                and x.report_year.nunique() > 1  # noqa: PD101
+            )
         )
     )
     logger.info(f"The following crosswalk matches are duplicated: \n{one_to_many}")

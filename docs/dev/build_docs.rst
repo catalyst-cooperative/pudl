@@ -11,13 +11,33 @@ needs to be able to create an appropriate python environment. This process is
 controlled by ``docs/conf.py``.
 
 If you are editing the documentation and need to regenerate the outputs as
-you go to see your changes reflected locally, the most reliable option is to
-use ``make``. Make will remove the previously generated outputs and regenerate
-everything from scratch:
+you go to see your changes reflected locally, use the ``pixi`` tasks. The
+default task removes previously generated outputs and regenerates everything
+from scratch:
 
 .. code-block:: console
 
-    $ make docs-build
+    $ pixi run docs-build
+
+You can alter docs-build behavior by setting environment variables when running
+the command:
+
+.. code-block:: console
+
+    $ PUDL_DOCS_KEEP_GENERATED_FILES=1 pixi run docs-build
+    $ PUDL_DOCS_DISABLE_INTERSPHINX=1 pixi run docs-build
+
+By default:
+
+    * Generated RST / CSV files are cleaned up at the end of the build.
+    * Intersphinx is enabled, and Sphinx will attempt to fetch external inventories.
+
+Setting ``PUDL_DOCS_KEEP_GENERATED_FILES`` keeps generated files after the build,
+which is useful when debugging generated documentation.
+
+Setting ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx inventory lookups,
+which can make builds more resilient when external documentation sites are
+temporarily unavailable.
 
 If you're just working on a single page and don't care about the entire set
 of documents being regenerated and linked together, you can call Sphinx
@@ -47,7 +67,7 @@ documentation in your text editor with appropriate plugins.
     by the :mod:`pudl.convert.metadata_to_rst` script that gets run by Sphinx during
     the docs build.
 
-    `make docs-build` will build and the delete all of the rst files via
+    ``pixi run docs-build`` will build and then delete all generated files via
     ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py``. If you want to
-    preserve them for a one-off build, you can comment out that step in
-    ``docs/conf.py``.
+    preserve them for a one-off build, set
+    ``PUDL_DOCS_KEEP_GENERATED_FILES=1`` in the environment when running docs-build.

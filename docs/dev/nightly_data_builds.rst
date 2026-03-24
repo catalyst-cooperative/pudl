@@ -69,6 +69,19 @@ Platform (GCP) permissions to start and update the GCE instance. We use Workflow
 Identity Federation to authenticate the GitHub Action with GCP in the GitHub Action
 workflow.
 
+Deployment Action
+-----------------
+The ``deploy-pudl`` action separates deployment from the build process. This action
+takes a git tag as an input and will find build outputs, and determine the deployment
+type (stable or nightly) from the tag. It will then upload outputs from the build to
+GCS and S3, update the git branch associated with the deployment type, and trigger
+a zenodo release. This action can also take an optional ``staging`` flag will upload
+outputs to a dedicated staging area, and will not update the git branch or trigger a
+zenodo release.
+
+Eventually, the deployment functionality will be removed from the ``build-deploy-pudl``
+action and it will instead trigger this action at the end of a successful build.
+
 Google Compute Engine
 ---------------------
 The PUDL image is deployed on a `Container Optimized GCE
@@ -195,6 +208,16 @@ the project to be used for requester pays access through applications:
 
   gcloud auth application-default login
 
+.. tip::
+
+   If you've done all this and you are still getting "ERROR: (gcloud.storage.hash)
+   HTTPError 400: Bucket is a requester pays bucket but no user project provided."
+   errors below, try:
+
+   .. code::
+
+      gcloud config set billing/quota_project catalyst-cooperative-pudl
+
 To test whether your GCP account is set up correctly and authenticated you can run the
 following command to list the contents of the cloud storage bucket containing the PUDL
 data. This doesn't actually download any data, but will show you the versions
@@ -212,7 +235,7 @@ like this:
 
 .. code::
 
-    gcloud storage ls --long --readable-sizes gcloud storage ls --long --readable-sizes gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main
+    gcloud storage ls --long --readable-sizes gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main
 
        6.60MiB  2024-11-15T13:28:20Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/2024-11-15-0603-60f488239-main-pudl-etl.log
      804.57MiB  2024-11-15T12:40:35Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/censusdp1tract.sqlite

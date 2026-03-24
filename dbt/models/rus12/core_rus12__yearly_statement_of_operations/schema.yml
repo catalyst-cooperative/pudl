@@ -1,0 +1,295 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_statement_of_operations
+        data_tests:
+          - expect_columns_not_all_null
+          - expect_columns_ratio:
+              arguments:
+                numerator_column: opex_report_month
+                denominator_column: opex_ytd
+                min_ratio: 0.05
+                max_ratio: 0.2
+              config:
+                error_if: ">4300" # ~20% of records
+              description: Monthly spending should roughly equal 1/12 of the YTD budget (5-20% range).
+          - expect_columns_ratio:
+              arguments:
+                numerator_column: opex_ytd
+                denominator_column: opex_ytd_budget
+                min_ratio: 0.75
+                max_ratio: 1.25
+              config:
+                error_if: ">3667" # ~15% of records
+              description: Budgeted spending and YTD spending should be roughly equivalent.
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__yearly_statement_of_operations
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_report_month
+                total_label: "total_operation_revenues_and_patronage_capital"
+                tolerance: 10
+              row_condition: "opex_group == 'operation_revenue_and_patronage_capital'"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd
+                total_label: "total_operation_revenues_and_patronage_capital"
+                tolerance: 10
+              row_condition: "opex_group == 'operation_revenue_and_patronage_capital'"
+              config:
+                error_if: ">201" # About 25% of data
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd_budget
+                total_label: "total_operation_revenues_and_patronage_capital"
+                tolerance: 10
+              row_condition: "opex_group == 'operation_revenue_and_patronage_capital'"
+              config:
+                error_if: ">184" # About 25% of data
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_report_month
+                total_label: "total_operating_expense"
+                tolerance: 10
+              row_condition: "opex_group == 'operation_expense'"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd
+                total_label: "total_operating_expense"
+                tolerance: 10
+              row_condition: "opex_group == 'operation_expense'"
+              config:
+                error_if: ">165"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd_budget
+                total_label: "total_operating_expense"
+                tolerance: 10
+              row_condition: "opex_group == 'operation_expense'"
+              config:
+                error_if: ">138"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_report_month
+                total_label: "total_maintenance_expense"
+                tolerance: 10
+              row_condition: "opex_group == 'maintenance_expense'"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd
+                total_label: "total_maintenance_expense"
+                tolerance: 10
+              row_condition: "opex_group == 'maintenance_expense'"
+              config:
+                error_if: ">1"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd_budget
+                total_label: "total_maintenance_expense"
+                tolerance: 10
+              row_condition: "opex_group == 'maintenance_expense'"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_report_month
+                subcomponents_list:
+                  [
+                    "total_operating_expense",
+                    "total_maintenance_expense",
+                    "depreciation_and_amortization_expense",
+                    "taxes",
+                    "interest_on_long_term_debt",
+                    "interest_charged_to_construction_credit",
+                    "other_interest_expense",
+                    "asset_retirement_obligations",
+                    "other_deductions",
+                  ]
+                total_label: "total_cost_of_electric_service"
+                tolerance: 10
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd
+                subcomponents_list:
+                  [
+                    "total_operating_expense",
+                    "total_maintenance_expense",
+                    "depreciation_and_amortization_expense",
+                    "taxes",
+                    "interest_on_long_term_debt",
+                    "interest_charged_to_construction_credit",
+                    "other_interest_expense",
+                    "asset_retirement_obligations",
+                    "other_deductions",
+                  ]
+                total_label: "total_cost_of_electric_service"
+                tolerance: 10
+              config:
+                error_if: ">202" #~25% of records
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd_budget
+                subcomponents_list:
+                  [
+                    "total_operating_expense",
+                    "total_maintenance_expense",
+                    "depreciation_and_amortization_expense",
+                    "taxes",
+                    "interest_on_long_term_debt",
+                    "interest_charged_to_construction_credit",
+                    "other_interest_expense",
+                    "asset_retirement_obligations",
+                    "other_deductions",
+                  ]
+                total_label: "total_cost_of_electric_service"
+                tolerance: 10
+              config:
+                error_if: ">160" #~20% of records
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_report_month
+                subcomponents_list:
+                  ["total_operation_revenues_and_patronage_capital"]
+                negative_subcomponents_list: ["total_cost_of_electric_service"]
+                total_label: "operating_margins"
+                tolerance: 10
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd
+                subcomponents_list:
+                  ["total_operation_revenues_and_patronage_capital"]
+                negative_subcomponents_list: ["total_cost_of_electric_service"]
+                total_label: "operating_margins"
+                tolerance: 10
+              config:
+                error_if: ">204" # ~26% of records
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd_budget
+                subcomponents_list:
+                  ["total_operation_revenues_and_patronage_capital"]
+                negative_subcomponents_list: ["total_cost_of_electric_service"]
+                total_label: "operating_margins"
+                tolerance: 10
+              config:
+                error_if: ">155" # ~20% of records
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_report_month
+                subcomponents_list:
+                  [
+                    "operating_margins",
+                    "allowance_for_funds_used_during_construction",
+                    "extraordinary_items",
+                    "generation_and_transmission_capital_credits",
+                    "income_or_loss_from_equity_investments",
+                    "interest_income",
+                    "operating_margins",
+                    "other_capital_credits_and_patronage_dividends",
+                    "other_nonoperating_income",
+                  ]
+                total_label: "total_net_patronage_capital_or_margins"
+                tolerance: 10
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd
+                subcomponents_list:
+                  [
+                    "operating_margins",
+                    "allowance_for_funds_used_during_construction",
+                    "extraordinary_items",
+                    "generation_and_transmission_capital_credits",
+                    "income_or_loss_from_equity_investments",
+                    "interest_income",
+                    "operating_margins",
+                    "other_capital_credits_and_patronage_dividends",
+                    "other_nonoperating_income",
+                  ]
+                total_label: "total_net_patronage_capital_or_margins"
+                tolerance: 10
+              config:
+                error_if: ">2"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd_budget
+                subcomponents_list:
+                  [
+                    "operating_margins",
+                    "allowance_for_funds_used_during_construction",
+                    "extraordinary_items",
+                    "generation_and_transmission_capital_credits",
+                    "income_or_loss_from_equity_investments",
+                    "interest_income",
+                    "operating_margins",
+                    "other_capital_credits_and_patronage_dividends",
+                    "other_nonoperating_income",
+                  ]
+                total_label: "total_net_patronage_capital_or_margins"
+                tolerance: 10
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: opex_group
+          - name: opex_type
+          - name: opex_report_month
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: opex_type != 'interest_charged_to_construction_credit'
+                  config:
+                    error_if: ">307"
+          - name: opex_ytd
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: opex_type != 'interest_charged_to_construction_credit'
+                  config:
+                    error_if: ">135"
+          - name: opex_ytd_budget
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: opex_type != 'interest_charged_to_construction_credit'
+                  config:
+                    error_if: ">43"
+          - name: is_total

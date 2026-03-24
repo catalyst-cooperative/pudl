@@ -72,10 +72,13 @@ class CsvExtractor(GenericExtractor):
         """
         filename = self.source_filename(page, **partition)
 
-        with (
-            self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
-            zf.open(filename) as f,
-        ):
-            df = pd.read_csv(f, **self.READ_CSV_KWARGS)
+        try:
+            with (
+                self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
+                zf.open(filename) as f,
+            ):
+                df = pd.read_csv(f, **self.READ_CSV_KWARGS)
+        except pd.errors.ParserError as err:  # Give more context to parsing errors
+            raise ValueError(f"Error parsing {filename}:\n{err}") from err
 
         return df

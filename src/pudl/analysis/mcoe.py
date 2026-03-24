@@ -342,8 +342,9 @@ def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame
         .sum(min_count=1)
         .convert_dtypes()
         .assign(
-            unit_heat_rate_mmbtu_per_mwh=lambda x: x.fuel_consumed_for_electricity_mmbtu
-            / x.net_generation_mwh
+            unit_heat_rate_mmbtu_per_mwh=lambda x: (
+                x.fuel_consumed_for_electricity_mmbtu / x.net_generation_mwh
+            )
         )
     )
 
@@ -583,8 +584,9 @@ def fuel_cost(
     fc = (
         pd.concat([one_fuel, multi_fuel], sort=True)
         .assign(
-            fuel_cost_per_mwh=lambda x: x.fuel_cost_per_mmbtu
-            * x.unit_heat_rate_mmbtu_per_mwh
+            fuel_cost_per_mwh=lambda x: (
+                x.fuel_cost_per_mmbtu * x.unit_heat_rate_mmbtu_per_mwh
+            )
         )
         .sort_values(["report_date", "plant_id_eia", "generator_id"])
     )

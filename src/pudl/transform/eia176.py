@@ -438,12 +438,21 @@ def core_eia176__yearly_gas_disposition(
         "More than 4 out of state deliveries total mismatches"
     )
 
+    # 2001: 2
+    # 2024: 3
+    # [km feb 2026] - keep an eye on this. Two of these mismatches (1 2001, 1 2024) happen
+    # bc disposition_to_other_volume is NA while line 1840 has valid data, which suggests
+    # we should continue to prefer line 1840. But for the other three mismatches (1 2001,
+    # 2 2024) disposition_to_other_volume always exceeds the value from 1840. If this pattern
+    # continues, we may want to switch to only using 1840 when disposition_to_other_volume
+    # is not available.
+    max_disposition_mismatch = 5
     disposition_to_other_mismatch = (
         (df["disposition_to_other_volume"] != df[1840])
         & (df["disposition_to_other_volume"].notna() | df[1840].notna())
     ).sum()
-    assert disposition_to_other_mismatch <= 2, (
-        "More than 2 disposition to other mismatches"
+    assert disposition_to_other_mismatch <= max_disposition_mismatch, (
+        f"More than {max_disposition_mismatch} disposition-to-other mismatches"
     )
 
     # We assume that the granular data is more accurate, so we'll use that

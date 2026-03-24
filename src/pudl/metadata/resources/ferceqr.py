@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from pudl.metadata.sources import SOURCES
+
 TABLE_DESCRIPTIONS = {
     "identity": {
         "additional_summary_text": (
@@ -40,6 +42,8 @@ TABLE_DESCRIPTIONS = {
     },
 }
 
+PARTITIONS = SOURCES["ferceqr"]["working_partitions"]["year_quarters"]
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_ferceqr__quarterly_identity": {
         "description": TABLE_DESCRIPTIONS["identity"],
@@ -65,6 +69,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferceqr"],
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
+        "path": f"core_ferceqr__quarterly_identity/{PARTITIONS[0]}.parquet",
+        "extrapaths": [
+            f"core_ferceqr__quarterly_identity/{part}.parquet"
+            for part in PARTITIONS[1:]
+        ],
     },
     "core_ferceqr__contracts": {
         "description": TABLE_DESCRIPTIONS["contracts"],
@@ -108,6 +117,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferceqr"],
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
+        "path": f"core_ferceqr__contracts/{PARTITIONS[0]}.parquet",
+        "extrapaths": [
+            f"core_ferceqr__contracts/{part}.parquet" for part in PARTITIONS[1:]
+        ],
     },
     "core_ferceqr__transactions": {
         "description": TABLE_DESCRIPTIONS["transactions"],
@@ -152,6 +165,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferceqr"],
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
+        "path": f"core_ferceqr__transactions/{PARTITIONS[0]}.parquet",
+        "extrapaths": [
+            f"core_ferceqr__transactions/{part}.parquet" for part in PARTITIONS[1:]
+        ],
     },
     "core_ferceqr__quarterly_index_pub": {
         "description": TABLE_DESCRIPTIONS["index_pub"],
@@ -174,5 +191,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferceqr"],
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
+        "path": f"core_ferceqr__quarterly_index_pub/{PARTITIONS[0]}.parquet",
+        "extrapaths": [
+            f"core_ferceqr__quarterly_index_pub/{part}.parquet"
+            for part in PARTITIONS[1:]
+        ],
     },
 }

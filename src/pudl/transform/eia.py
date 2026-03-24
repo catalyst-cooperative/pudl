@@ -171,7 +171,7 @@ def occurrence_consistency(
         col_df["record_occurrences"] / col_df["entity_occurrences"]
     )
     col_df[f"{col}_is_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
-    col_df = col_df.sort_values(f"{col}_consistent_rate")
+    col_df = col_df.sort_values(f"{col}_consistent_rate", ascending=False)
     return col_df
 
 
@@ -286,7 +286,13 @@ def _last_operating_date(
     logger.info(f"Rescued dates for {col} records: {len(op_df)}")
     logger.info(
         f"Rescued last {col} for the following units ({entity_idx}): "
-        f"{sorted(op_df[entity_idx].apply(lambda row: '_'.join(row.to_numpy().astype(str)), axis=1))}"
+        f"{
+            sorted(
+                op_df[entity_idx].apply(
+                    lambda row: '_'.join(row.to_numpy().astype(str)), axis=1
+                )
+            )
+        }"
     )
     # add the newly cleaned records
     op_clean_df = pd.concat([op_clean_df, op_df])
@@ -435,30 +441,24 @@ def _compile_all_entity_records(
     return compiled_df
 
 
-def _manage_strictness(col: str, eia860m: bool) -> float:
+def _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> float:
     """Manage the strictness level for each column.
 
     Args:
         col: name of column
-        eia860m: if True, ETL is attempting to include year-to-date EIA 860M data.
+        special_case_strictness: dictionary of column names (keys) and strictness
+            values. The default strictness for harvesting consistent records is
+            0.7. If any column you want to have a different consistency requirement,
+            add it into this special case dictionary.
     """
     strictness_default = 0.7
-    # the longitude column is very different in the ytd 860M data (it appears
-    # to have an additional decimal point) bc it shows up in the generator
-    # table but it is a plant level data point, it mucks up the consistency
-    strictness_cols = {
-        "plant_name_eia": 0,
-        "utility_name_eia": 0,
-        "longitude": 0 if eia860m else 0.7,
-        "prime_mover_code": 0,
-    }
-    return strictness_cols.get(col, strictness_default)
+    return special_case_strictness.get(col, strictness_default)
 
 
 def harvest_entity_tables(  # noqa: C901
     entity: EiaEntity,
     clean_dfs: dict[str, pd.DataFrame],
-    eia_settings: EiaSettings,
+    special_case_strictness: dict[str, float] = {},
     debug: bool = False,
 ) -> tuple:
     """Compile consistent records for various entities.
@@ -490,8 +490,10 @@ def harvest_entity_tables(  # noqa: C901
     Args:
         entity: One of: plants, generators, boilers, or utilities
         clean_dfs: A dictionary of table names (keys) and clean dfs (values).
-        eia860m: if True, the etl run is attempting to include year-to-date updated from
-            EIA 860M.
+        special_case_strictness: dictionary of column names (keys) and strictness
+            values. The default strictness for harvesting consistent records is
+            0.7. If any column you want to have a different consistency requirement,
+            add it into this special case dictionary.
         debug: if True, log when columns are inconsistent, but don't raise an error.
 
     Returns:
@@ -508,25 +510,6 @@ def harvest_entity_tables(  # noqa: C901
         * Determine what to do with null records
         * Determine how to treat mostly static records
     """
-    # Do some final cleanup and assign appropriate types:
-    clean_dfs = {
-        name: convert_cols_dtypes(df, data_source="eia")
-        for name, df in clean_dfs.items()
-    }
-
-    if entity == EiaEntity.UTILITIES:
-        # Remove location columns that are associated with plants, not utilities:
-        for table, df in clean_dfs.items():
-            if "plant_id_eia" in df.columns:
-                plant_location_cols = [
-                    "street_address",
-                    "city",
-                    "state",
-                    "zip_code",
-                ]
-                logger.info(f"Removing {plant_location_cols} from {table} table.")
-                clean_dfs[table] = df.drop(columns=plant_location_cols, errors="ignore")
-
     # we know these columns must be in the dfs
     id_cols = ENTITIES[entity.value]["id_cols"]
     static_cols = ENTITIES[entity.value]["static_cols"]
@@ -563,7 +546,7 @@ def harvest_entity_tables(  # noqa: C901
         if col in static_cols:
             cols_to_consit = id_cols
 
-        strictness = _manage_strictness(col, eia_settings.eia860.eia860m)
+        strictness = _manage_strictness(col, special_case_strictness)
         col_df = occurrence_consistency(
             id_cols, compiled_df, col, cols_to_consit, strictness=strictness
         )
@@ -662,13 +645,6 @@ def harvest_entity_tables(  # noqa: C901
         )
     mcs = consistency["consistent_ratio"].mean()
     logger.info(f"Average consistency of static {entity.value} values is {mcs:.2%}")
-
-    if entity == EiaEntity.PLANTS:
-        # Post-processing specific to the plants entity tables
-        entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
-        annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
-            fix_balancing_authority_codes_with_state, plants_entity=entity_df
-        )
 
     return entity_df, annual_df, col_dfs
 
@@ -1275,15 +1251,52 @@ def harvested_entity_asset_factory(
     def harvested_entity(context, **clean_dfs):
         """Harvesting IDs & consistent static attributes for EIA entity."""
         logger.info(f"Harvesting IDs & consistent static attributes for EIA {entity}")
-        eia_settings = context.resources.dataset_settings.eia
+
         debug = context.op_config["debug"]
         clean_dfs = {
-            df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]) for df_name in clean_dfs
+            df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]).pipe(
+                convert_cols_dtypes, "eia"
+            )
+            for df_name in clean_dfs
+        }
+        if entity == EiaEntity.UTILITIES:
+            # Remove location columns that are associated with plants, not utilities:
+            for df_name, df in clean_dfs.items():
+                if "plant_id_eia" in df.columns:
+                    plant_location_cols = [
+                        "street_address",
+                        "city",
+                        "state",
+                        "zip_code",
+                    ]
+                    logger.info(f"Removing {plant_location_cols} from {df_name} table.")
+                    clean_dfs[df_name] = df.drop(
+                        columns=plant_location_cols, errors="ignore"
+                    )
+        # the longitude column is very different in the ytd 860M data (it appears
+        # to have an additional decimal point) bc it shows up in the generator
+        # table but it is a plant level data point, it mucks up the consistency
+        eia_settings = context.resources.dataset_settings.eia
+        special_case_strictness = {
+            "plant_name_eia": 0,
+            "utility_name_eia": 0,
+            "longitude": 0 if eia_settings.eia860.eia860m else 0.7,
+            "prime_mover_code": 0,
         }
 
         entity_df, annual_df, _col_dfs = harvest_entity_tables(
-            entity, clean_dfs, debug=debug, eia_settings=eia_settings
+            entity,
+            clean_dfs,
+            special_case_strictness=special_case_strictness,
+            debug=debug,
         )
+
+        if entity == EiaEntity.PLANTS:
+            # Post-processing specific to the plants entity tables
+            entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
+            annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
+                fix_balancing_authority_codes_with_state, plants_entity=entity_df
+            )
 
         return (
             Output(output_name=f"core_eia__entity_{entity.value}", value=entity_df),
@@ -1338,7 +1351,7 @@ finished_eia_assets = [
         "core_eia923__monthly_boiler_fuel": "_core_eia923__boiler_fuel",
         "core_eia923__entity_coalmine": "_core_eia923__coalmine",
         "core_eia923__monthly_energy_storage": "_core_eia923__energy_storage",
-        "core_eia923__monthly_fuel_receipts_costs": "_core_eia923__fuel_receipts_costs",
+        "core_eia923__fuel_receipts_costs": "_core_eia923__fuel_receipts_costs",
         "core_eia923__monthly_generation": "_core_eia923__generation",
         "core_eia923__monthly_generation_fuel": "_core_eia923__generation_fuel",
         "core_eia923__monthly_generation_fuel_nuclear": "_core_eia923__generation_fuel_nuclear",

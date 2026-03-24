@@ -10,18 +10,6 @@ with little to no processing, and thus don't yet have their own dedicated page u
 :doc:`index`. Or just data sources for which we haven't yet compiled a complete
 description.
 
-.. _data-censusdp1tract:
-
-Census DP1
-^^^^^^^^^^
-
-The `US Census Demographic Profile 1 (DP1) <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
-provides Census tract, county, and state-level demographic information, along with the
-geometries defining those areas. We use this information in generating historical
-utility and balancing authority service territories based on FERC 714 and EIA 861 data.
-Currently, we are distributing the Census DP1 data as a standalone SQLite DB which is
-converted directly from the original geodatabase distributed by the US Census Bureau.
-
 FERC DBF & XBRL Data
 ^^^^^^^^^^^^^^^^^^^^
 FERC publishes Forms 1, 2, 6, and 60 data as VisualFoxPro DBF files (2020 and earlier)

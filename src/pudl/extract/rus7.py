@@ -32,6 +32,14 @@ class Extractor(CsvExtractor):
             str(self.METADATA._get_partition_selection(partition)), page
         ]
 
+    def process_raw(self, df, page, **partition):
+        """Adds source column and report_year column if missing."""
+        df = super().process_raw(df, page, **partition)
+        if "report_year" not in df.columns:
+            df["report_year"] = int(list(partition.values())[0])
+            self.cols_added.append("report_year")
+        return df
+
 
 raw_rus7__all_dfs = raw_df_factory(Extractor, name="rus7")
 
@@ -59,10 +67,20 @@ raw_rus7_assets = [
         "borrowers",
         "employee_statistics",
         "patronage_capital",
-        "annual_meeting_and_board",
+        "meeting_and_board",
         "long_term_debt",
         "power_requirements",
         "energy_efficiency",
         "investments",
+        "external_financial_risk_ratio",
+        "loan_guarantees",
+        "transmission_and_distribution",
+        "service_interruptions",
+        "owed_by_customers",
+        "long_term_leases",
+        "loans",
+        "utility_plant_changes",
+        "energy_purchased",
+        "materials_and_supplies",
     ]
 ]

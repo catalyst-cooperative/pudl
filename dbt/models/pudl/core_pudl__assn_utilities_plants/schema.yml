@@ -12,3 +12,10 @@ sources:
         columns:
           - name: utility_id_pudl
           - name: plant_id_pudl
+            tests:
+              - one_value_per_key:
+                  arguments:
+                    other_column_name: utility_id_pudl
+                  description: We expect each plant to only be assigned to one utility, but we still need to deduplicate ID assignment. See issue 4988.
+                  config:
+                    severity: warn
