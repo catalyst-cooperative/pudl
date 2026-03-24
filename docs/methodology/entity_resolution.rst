@@ -127,10 +127,9 @@ The simplified flow for plants looks like this:
        entity --> outputs
        scd --> outputs
 
-The full list of input tables for all EIA entities can be found in
+Conceptually, the same pattern is used for all four entity types. The full list of
+input tables for all EIA entities can be found in
 :py:const:`pudl.transform.eia.HARVESTABLE_ASSETS`
-
-Conceptually, the same pattern is used for all four entity types.
 
 How PUDL Identifies Existing Entities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
