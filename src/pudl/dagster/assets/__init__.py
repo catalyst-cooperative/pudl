@@ -21,7 +21,7 @@ import os
 import dagster as dg
 
 import pudl
-from pudl.dagster.assets.core import eia_bulk_elec, glue, static
+from pudl.dagster.assets.core import eiaapi_electricity, glue, static
 from pudl.dagster.assets.raw import ferc_to_sqlite
 from pudl.deploy import ferceqr
 
@@ -60,7 +60,7 @@ core_module_groups = {
     "core_codes": [static],
     "core_eia": [pudl.transform.eia],
     "core_eiaaeo": [pudl.transform.eiaaeo],
-    "core_eia_bulk_elec": [eia_bulk_elec],
+    "core_eiaapi_electricity": [eiaapi_electricity],
     "core_eia176": [pudl.transform.eia176],
     "core_eia860": [pudl.transform.eia860, pudl.transform.eia860m],
     "core_eia861": [pudl.transform.eia861],
