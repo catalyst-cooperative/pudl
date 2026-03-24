@@ -37,7 +37,7 @@ sources:
           - name: reservoir_name
           - name: field_type
           - name: county
-          - name: status
+          - name: operational_status
           - name: base_gas_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

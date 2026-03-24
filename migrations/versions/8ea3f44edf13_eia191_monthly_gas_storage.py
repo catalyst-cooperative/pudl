@@ -29,7 +29,7 @@ def upgrade() -> None:
     sa.Column('reservoir_name', sa.Text(), nullable=True, comment='Name of the individual underground natural gas storage reservoir.'),
     sa.Column('field_type', sa.Enum('aquifer', 'depleted field', 'salt dome'), nullable=True, comment='Type of underground natural gas storage facility. One of: depleted field (a reservoir previously used for natural gas production), aquifer (a porous rock structure used to store gas), or salt dome (a cavern created within a salt formation).'),
     sa.Column('county', sa.Text(), nullable=True, comment='County name.'),
-    sa.Column('status', sa.Enum('active', 'inactive'), nullable=True, comment='Operational status of the underground natural gas storage reservoir.'),
+    sa.Column('operational_status', sa.Enum('active', 'inactive'), nullable=True, comment='Operational status of the underground natural gas storage reservoir.'),
     sa.Column('base_gas_mcf', sa.Float(), nullable=True, comment='Volume of base gas (cushion gas) in the underground storage reservoir. Base gas is the volume of gas intended as permanent inventory in a reservoir to maintain adequate pressure and deliverability rates.'),
     sa.Column('working_gas_capacity_mcf', sa.Float(), nullable=True, comment='Volume of working gas (the portion of stored gas available for withdrawal) in the underground storage reservoir.'),
     sa.Column('total_field_capacity_mcf', sa.Float(), nullable=True, comment='Total design capacity of the underground natural gas storage field (base gas plus working gas).'),

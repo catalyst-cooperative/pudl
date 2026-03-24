@@ -35,7 +35,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "reservoir_name",
                 "field_type",
                 "county",
-                "status",
+                "operational_status",
                 "base_gas_mcf",
                 "working_gas_capacity_mcf",
                 "total_field_capacity_mcf",

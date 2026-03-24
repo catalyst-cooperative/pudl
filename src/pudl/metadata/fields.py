@@ -7470,13 +7470,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Full name of the state.",
     },
-    "status": {
-        "type": "string",
-        "description": "Operational status of the underground natural gas storage reservoir.",
-        "constraints": {
-            "enum": ["active", "inactive"],
-        },
-    },
     "incorporation_state": {
         "type": "string",
         "description": "Two letter state code where company is incorporated.",
@@ -11266,6 +11259,12 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "core_rus12__monthly_demand_and_energy_at_power_sources": {
         "peak_demand_mw": {"description": "peak demand in a given timeframe."}
+    },
+    "core_eia191__monthly_gas_storage": {
+        "operational_status": {
+            "description": "Operational status of the underground natural gas storage reservoir.",
+            "constraints": {"enum": ["active", "inactive"]},
+        },
     },
 }
 
