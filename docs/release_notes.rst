@@ -2521,7 +2521,7 @@ Deprecations
   ``pudl.etl._etl_{datasource}`` functions have been deprecated. The coordination
   of ETL steps is being handled by dagster.
 * The ``pudl.load`` module has been removed in favor of using the
-  :mod:`pudl.io_managers.pudl_sqlite_io_manager`.
+  ``pudl.io_managers.pudl_sqlite_io_manager``.
 * The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
   specific tables. The commands run all of the tables. Use dagster assets to
   run subsets of the tables.
@@ -2538,9 +2538,10 @@ Deprecations
   ``pudl.extract.ferc1.extract_dbf_single``,
   ``pudl.extract.ferc1.extract_xbrl_generic``,
   ``pudl.extract.ferc1.extract_dbf_generic`` have all been deprecated. The extraction
-  logic is now covered by the :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
-  :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
-* ``pudl.extract.ferc1.extract_xbrl_metadata`` has been replaced by the
+  logic is now covered by the
+  ``pudl.io_managers.ferc1_xbrl_sqlite_io_manager`` and
+  ``pudl.io_managers.ferc1_dbf_sqlite_io_manager`` IO Managers.
+* ``pudl.ferc1.extract_xbrl_metadata`` has been replaced by the
   :func:`pudl.extract.ferc1.xbrl_metadata_json` asset.
 * All sub classes of :func:`pudl.settings.GenericDatasetSettings` in
   :mod:`pudl.settings` no longer have table attributes because the ETL no longer

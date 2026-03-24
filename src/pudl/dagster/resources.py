@@ -3,7 +3,7 @@
 import os
 
 import pudl
-from pudl.io_managers import (
+from pudl.dagster.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,

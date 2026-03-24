@@ -80,17 +80,17 @@ from dagster import (
 )
 
 import pudl
+from pudl.dagster.io_managers import (
+    FercDBFSQLiteIOManager,
+    FercXBRLSQLiteIOManager,
+    ferc1_dbf_sqlite_io_manager,
+    ferc1_xbrl_sqlite_io_manager,
+)
 from pudl.extract.dbf import (
     FercDbfExtractor,
     PartitionedDataFrame,
     add_key_constraints,
     deduplicate_by_year,
-)
-from pudl.io_managers import (
-    FercDBFSQLiteIOManager,
-    FercXBRLSQLiteIOManager,
-    ferc1_dbf_sqlite_io_manager,
-    ferc1_xbrl_sqlite_io_manager,
 )
 from pudl.settings import (
     DatasetsSettings,

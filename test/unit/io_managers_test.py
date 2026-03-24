@@ -9,8 +9,7 @@ import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from pudl.ferc_sqlite_provenance import build_ferc_sqlite_provenance_metadata
-from pudl.io_managers import (
+from pudl.dagster.io_managers import (
     FercXBRLSQLiteIOManager,
     PudlMixedFormatIOManager,
     PudlSQLiteIOManager,
@@ -18,6 +17,7 @@ from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
+from pudl.dagster.provenance import build_ferc_sqlite_provenance_metadata
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
 from pudl.settings import DatasetsSettings, EtlSettings, FercToSqliteSettings
@@ -321,8 +321,12 @@ def test_mixed_format_io_manager_initializes_backends(mocker):
     """The migrated mixed-format IO manager should lazily expose both backends."""
     sqlite_manager = mocker.MagicMock(spec=PudlSQLiteIOManager)
     parquet_manager = mocker.MagicMock()
-    mocker.patch("pudl.io_managers.PudlSQLiteIOManager", return_value=sqlite_manager)
-    mocker.patch("pudl.io_managers.PudlParquetIOManager", return_value=parquet_manager)
+    mocker.patch(
+        "pudl.dagster.io_managers.PudlSQLiteIOManager", return_value=sqlite_manager
+    )
+    mocker.patch(
+        "pudl.dagster.io_managers.PudlParquetIOManager", return_value=parquet_manager
+    )
 
     manager = PudlMixedFormatIOManager()
 
@@ -344,9 +348,11 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
     fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
     fake_manager = mocker.MagicMock()
     fake_manager.engine = fake_engine
-    mocker.patch("pudl.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager)
+    mocker.patch(
+        "pudl.dagster.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager
+    )
     read_sql_query = mocker.patch(
-        "pudl.io_managers.pd.read_sql_query",
+        "pudl.dagster.io_managers.pd.read_sql_query",
         return_value=pd.DataFrame({"report_year": [2020]}),
     )
 
@@ -392,9 +398,11 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
     fake_manager = mocker.MagicMock()
     fake_manager.engine = fake_engine
     fake_manager.md.tables = {"plant_in_service_duration": object()}
-    mocker.patch("pudl.io_managers.FercXBRLSQLiteIOManager", return_value=fake_manager)
     mocker.patch(
-        "pudl.io_managers.pd.read_sql",
+        "pudl.dagster.io_managers.FercXBRLSQLiteIOManager", return_value=fake_manager
+    )
+    mocker.patch(
+        "pudl.dagster.io_managers.pd.read_sql",
         return_value=pd.DataFrame(
             {
                 "date": ["2021-12-31"],
@@ -445,8 +453,10 @@ def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):
     fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
     fake_manager = mocker.MagicMock()
     fake_manager.engine = fake_engine
-    mocker.patch("pudl.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager)
-    read_sql_query = mocker.patch("pudl.io_managers.pd.read_sql_query")
+    mocker.patch(
+        "pudl.dagster.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager
+    )
+    read_sql_query = mocker.patch("pudl.dagster.io_managers.pd.read_sql_query")
 
     manager = ferc1_dbf_sqlite_io_manager.model_copy(
         update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
@@ -488,8 +498,10 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
     fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
     fake_manager = mocker.MagicMock()
     fake_manager.engine = fake_engine
-    mocker.patch("pudl.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager)
-    read_sql_query = mocker.patch("pudl.io_managers.pd.read_sql_query")
+    mocker.patch(
+        "pudl.dagster.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager
+    )
+    read_sql_query = mocker.patch("pudl.dagster.io_managers.pd.read_sql_query")
 
     manager = ferc1_dbf_sqlite_io_manager.model_copy(
         update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}

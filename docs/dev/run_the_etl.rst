@@ -137,8 +137,8 @@ Core Dagster concepts used in PUDL
   us keep the code for data processing separate from the code for reading and writing
   data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
   curate, for reading and writing Parquet files, and for writing out to SQLite. For
-  example :class:`pudl.io_managers.PudlMixedFormatIOManager` allows assets to read and
-  write dataframes to SQLite and Parquet-backed outputs using a single logical
+  example :class:`pudl.dagster.io_managers.PudlMixedFormatIOManager` allows assets to
+  read and write dataframes to SQLite and Parquet-backed outputs using a single logical
   interface.
 * **`Jobs <https://docs.dagster.io/guides/build/jobs>`__** are preconfigured collections
   of assets, resources and IO Managers.  Jobs are the main unit of execution in Dagster.

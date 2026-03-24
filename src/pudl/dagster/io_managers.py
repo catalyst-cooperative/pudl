@@ -28,8 +28,12 @@ from packaging import version
 from pydantic import model_validator
 
 import pudl
-from pudl.ferc_sqlite_provenance import assert_ferc_sqlite_compatible
-from pudl.helpers import get_parquet_table, get_parquet_table_polars
+from pudl.dagster.provenance import assert_ferc_sqlite_compatible
+from pudl.helpers import (
+    get_ferc_form_name,
+    get_parquet_table,
+    get_parquet_table_polars,
+)
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.resources import (
     PudlEtlSettingsResource,
@@ -63,14 +67,6 @@ def get_table_name_from_context(context: OutputContext) -> str:
     if context.has_asset_key:
         return context.asset_key.to_python_identifier()
     return context.get_identifier()
-
-
-def get_ferc_form_name(db_name: str) -> str:
-    """Extract the FERC form name from a SQLite database name."""
-    match = re.search(r"ferc\d+", db_name)
-    if match is None:
-        raise ValueError(f"Could not determine FERC form from db_name={db_name!r}")
-    return match.group()
 
 
 class PudlMixedFormatIOManager(ConfigurableIOManager):

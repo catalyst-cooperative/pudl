@@ -7,14 +7,14 @@ import dagster as dg
 
 from pudl.dagster.asset_checks import default_asset_checks
 from pudl.dagster.assets import default_assets
-from pudl.dagster.jobs import default_jobs
-from pudl.dagster.resources import default_resources
-from pudl.dagster.sensors import default_sensors
-from pudl.io_managers import (
+from pudl.dagster.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,
 )
+from pudl.dagster.jobs import default_jobs
+from pudl.dagster.resources import default_resources
+from pudl.dagster.sensors import default_sensors
 
 
 def build_defs(

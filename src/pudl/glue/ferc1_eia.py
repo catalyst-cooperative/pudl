@@ -35,9 +35,12 @@ import sqlalchemy as sa
 from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl
+from pudl.dagster.io_managers import (
+    ferc1_dbf_sqlite_io_manager,
+    ferc1_xbrl_sqlite_io_manager,
+)
 from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
 from pudl.helpers import get_parquet_table, simplify_strings
-from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
 from pudl.metadata.classes import Package
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.resources import etl_settings, zenodo_dois

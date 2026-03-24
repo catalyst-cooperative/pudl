@@ -23,15 +23,15 @@ from dagster import (
 import pudl
 from pudl import resources
 from pudl.dagster import build_defs
-from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
-from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
-from pudl.io_managers import (
+from pudl.dagster.io_managers import (
     PudlMixedFormatIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,
     pudl_mixed_format_io_manager,
 )
+from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
+from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
 from pudl.metadata import PUDL_PACKAGE
 from pudl.settings import (
     DatasetsSettings,

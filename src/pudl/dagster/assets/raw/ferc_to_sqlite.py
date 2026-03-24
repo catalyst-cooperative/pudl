@@ -3,6 +3,7 @@
 import dagster as dg
 
 import pudl
+from pudl.dagster.provenance import build_ferc_sqlite_provenance_metadata
 from pudl.extract.ferc import (
     Ferc1DbfExtractor,
     Ferc2DbfExtractor,
@@ -10,7 +11,6 @@ from pudl.extract.ferc import (
     Ferc60DbfExtractor,
 )
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
-from pudl.ferc_sqlite_provenance import build_ferc_sqlite_provenance_metadata
 from pudl.settings import XbrlFormNumber
 from pudl.workspace.setup import PudlPaths
 
