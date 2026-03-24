@@ -168,6 +168,7 @@ def _process_schema_errors(schema_errors: SchemaErrors) -> dict[str, Any]:
             "data": str(err.data) if hasattr(err, "data") else "No data",
         }
 
+        # Add optional error attributes
         for attr in ["schema", "check", "args"]:
             if hasattr(err, attr):
                 error_info[f"{attr}_info"] = str(getattr(err, attr))
@@ -186,7 +187,13 @@ def asset_check_from_schema(  # noqa: C901
     duckdb_asset: bool,
     high_memory_asset: bool,
 ) -> AssetChecksDefinition | None:
-    """Create a Dagster asset check based on the resource schema, if defined."""
+    """Create a Dagster asset check based on the resource schema, if defined.
+
+    The majority of assets are validated as Polars ``LazyFrame`` objects loaded from
+    parquet by the IO manager. Geometry-backed assets are validated as GeoPandas data
+    frames, and DuckDB-backed assets use ``ParquetData`` placeholders which are read
+    back as Polars before validation.
+    """
     resource_id = asset_key.to_user_string()
     try:
         resource = package.get_resource(resource_id)
@@ -195,22 +202,27 @@ def asset_check_from_schema(  # noqa: C901
 
     pandera_schema = resource.schema.to_pandera()
     partitions = ferceqr_year_quarters if "ferceqr" in resource_id else None
-    if not duckdb_asset and not isinstance(
-        pandera_schema, pr_polars.DataFrameSchema | pr_pandas.DataFrameSchema
-    ):
+    if duckdb_asset:
+        asset_type = ParquetData
+    elif isinstance(pandera_schema, pr_polars.DataFrameSchema):
+        asset_type = pl.LazyFrame
+    elif isinstance(pandera_schema, pr_pandas.DataFrameSchema):
+        asset_type = gpd.GeoDataFrame
+    else:
         raise ValueError(
             "Unexpected return type from `Resource.schema.to_pandera()`."
             f"Expected a pandera `DataFrameSchema`, but got: `{type(pandera_schema)}`"
         )
 
     @asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
-    def pandera_schema_check(asset_value) -> AssetCheckResult:
+    def pandera_schema_check(asset_value: asset_type) -> AssetCheckResult:
         if isinstance(asset_value, ParquetData):
             asset_value = get_parquet_table_polars(
                 table_name=resource_id,
                 partitions=asset_value.partitions,
             )
 
+        # Collect all metadata
         metadata = (
             _collect_asset_metadata(asset_value)
             | _collect_dtype_metadata(asset_value, resource)
@@ -220,6 +232,7 @@ def asset_check_from_schema(  # noqa: C901
         try:
             if isinstance(asset_value, pl.LazyFrame):
                 validated_schema = asset_value.pipe(pandera_schema.validate, lazy=True)
+                # Only validate data contents if asset is not marked as high memory
                 if not high_memory_asset:
                     validated_schema.collect(engine="streaming")
             else:
