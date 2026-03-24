@@ -31,7 +31,7 @@ sources:
           - name: report_date
           - name: state
           - name: gas_field_id_eia
-          - name: reservoir_code
+          - name: reservoir_id_eia
           - name: company_name
           - name: field_name
           - name: reservoir_name

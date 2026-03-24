@@ -29,7 +29,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "state",
                 "gas_field_id_eia",
-                "reservoir_code",
+                "reservoir_id_eia",
                 "company_name",
                 "field_name",
                 "reservoir_name",

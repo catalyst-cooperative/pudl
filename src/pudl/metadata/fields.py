@@ -6608,10 +6608,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             )
         },
     },
-    "reservoir_code": {
+    "reservoir_id_eia": {
         "type": "integer",
         "description": (
-            "EIA-assigned numeric code identifying the individual storage reservoir "
+            "EIA-assigned numeric identifier for the individual storage reservoir "
             "within a natural gas storage field."
         ),
     },

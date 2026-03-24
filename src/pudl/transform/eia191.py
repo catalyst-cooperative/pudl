@@ -39,6 +39,8 @@ def core_eia191__monthly_gas_storage(
     """
     df = raw_eia191__data.copy()
 
+    df["reservoir_id_eia"] = df["reservoir_id_eia"].replace(999, pd.NA)
+
     df = pudl.helpers.simplify_strings(
         df,
         columns=[

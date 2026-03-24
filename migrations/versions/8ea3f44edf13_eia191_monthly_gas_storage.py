@@ -23,7 +23,7 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('state', sa.Text(), nullable=True, comment='Two letter US state abbreviation.'),
     sa.Column('gas_field_id_eia', sa.Integer(), nullable=True, comment='EIA-assigned numeric identifier for a natural gas storage field.'),
-    sa.Column('reservoir_code', sa.Integer(), nullable=True, comment='EIA-assigned numeric code identifying the individual storage reservoir within a natural gas storage field.'),
+    sa.Column('reservoir_id_eia', sa.Integer(), nullable=True, comment='EIA-assigned numeric identifier for the individual storage reservoir within a natural gas storage field.'),
     sa.Column('company_name', sa.Text(), nullable=True, comment='Name of the reporting company.'),
     sa.Column('field_name', sa.Text(), nullable=True, comment='Name of the natural gas storage field.'),
     sa.Column('reservoir_name', sa.Text(), nullable=True, comment='Name of the individual underground natural gas storage reservoir.'),
