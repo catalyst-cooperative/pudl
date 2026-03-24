@@ -9,7 +9,7 @@ from pudl.logging_helpers import get_logger
 logger = get_logger(__name__)
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager")
 def core_eia191__monthly_gas_storage(
     raw_eia191__data: pd.DataFrame,
 ) -> pd.DataFrame:
