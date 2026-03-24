@@ -10,11 +10,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "of all storage fields on EIA Form 191 (RP8 monthly dataset, 2014–present). "
                 "One row per storage reservoir per month."
             ),
-            "additional_details_text": (
-                "Storage field IDs are assigned per company and state; the same physical "
-                "reservoir may appear with multiple IDs if ownership changes over time."
-            ),
-            "usage_warnings": [
+"usage_warnings": [
                 {
                     "type": "custom",
                     "description": (
