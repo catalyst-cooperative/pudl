@@ -194,8 +194,21 @@ def transform_epacems(
     Returns:
         A single year_quarter of EPA CEMS data
     """
+    measurement_cols = [
+        "nox_mass_measurement_code",
+        "so2_mass_measurement_code",
+        "co2_mass_measurement_code",
+    ]
+    null_measurement_codes = ["Unknown Code", "Not Applicable", "Undetermined"]
     return (
-        raw_lf.pipe(apply_pudl_dtypes_polars, group="epacems")
+        raw_lf.with_columns(
+            pl.when(pl.col(col).is_in(null_measurement_codes))
+            .then(None)
+            .otherwise(pl.col(col))
+            .alias(col)
+            for col in measurement_cols
+        )
+        .pipe(apply_pudl_dtypes_polars, group="epacems")
         .with_columns(
             # Strip leading zeros from strings
             # TODO: Update method in helpers.py with polars implementation from here.
@@ -211,8 +224,11 @@ def transform_epacems(
         .with_columns(
             gross_load_mw=pl.when(pl.col("gross_load_mw") > 2000)
             .then(pl.col("gross_load_mw") / 1000)
-            .otherwise(pl.col("gross_load_mw"))
+            .otherwise(pl.col("gross_load_mw")),
+            # transform steam_load_1000_lbs to lbs
+            steam_load_lbs=(pl.col("steam_load_1000_lbs") * 1000),
         )
+        .drop("steam_load_1000_lbs")  # drop original
         .pipe(apply_pudl_dtypes_polars, group="epacems")
     )
 

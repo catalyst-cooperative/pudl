@@ -1,8 +1,16 @@
 """Tests for metadata not covered elsewhere."""
 
+import json
+import re
+
+import frictionless
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
-import pandera.pandas as pr
+import pandera.pandas as pr_pandas
+import pandera.polars as pr_polars
+import polars as pl
 import pytest
+from shapely import Point
 
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import (
@@ -14,7 +22,7 @@ from pudl.metadata.classes import (
     SnakeCase,
 )
 from pudl.metadata.descriptions import ResourceDescriptionBuilder
-from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
+from pudl.metadata.fields import FIELD_METADATA
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resource_helpers import merge_descriptions
 from pudl.metadata.resources import RESOURCE_METADATA
@@ -122,19 +130,36 @@ def test_resource_descriptors_valid():
 
 
 @pytest.fixture()
-def dummy_pandera_schema():
-    resource_descriptor = PudlResourceDescriptor.model_validate(
-        {
-            "description": "test resource based on core_eia__entity_plants",
-            "schema": {
-                "fields": ["plant_id_eia", "city", "capacity_mw"],
-                "primary_key": ["plant_id_eia"],
-            },
-            "sources": ["eia860", "eia923"],
-            "etl_group": "entity_eia",
-            "field_namespace": "eia",
-        }
-    )
+def dummy_resource_dict():
+    return {
+        "description": "test resource based on core_eia__entity_plants",
+        "schema": {
+            "fields": ["plant_id_eia", "city", "capacity_mw"],
+            "primary_key": ["plant_id_eia"],
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
+    }
+
+
+@pytest.fixture()
+def dummy_resource_dict_w_geometry():
+    return {
+        "description": "test resource based on core_eia__entity_plants with added geometry field",
+        "schema": {
+            "fields": ["plant_id_eia", "city", "capacity_mw", "geometry"],
+            "primary_key": ["plant_id_eia"],
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
+    }
+
+
+@pytest.fixture()
+def dummy_pandera_schema(dummy_resource_dict):
+    resource_descriptor = PudlResourceDescriptor.model_validate(dummy_resource_dict)
     resource = Resource.model_validate(
         Resource.dict_from_resource_descriptor(
             "test_eia__entity_plants", resource_descriptor
@@ -143,15 +168,54 @@ def dummy_pandera_schema():
     return resource.schema.to_pandera()
 
 
-def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
-    good_dataframe = pd.DataFrame(
-        {
-            "plant_id_eia": [12345, 12346],
-            "city": ["Bloomington", "Springfield"],
-            "capacity_mw": [1.3, 1.0],
-        }
-    ).pipe(apply_pudl_dtypes)
-    assert not dummy_pandera_schema.validate(good_dataframe).empty
+@pytest.fixture()
+def dummy_pandera_schema_w_geometry(dummy_resource_dict_w_geometry):
+    resource_descriptor = PudlResourceDescriptor.model_validate(
+        dummy_resource_dict_w_geometry
+    )
+    resource = Resource.model_validate(
+        Resource.dict_from_resource_descriptor(
+            "test_eia__entity_plants_w_geometry", resource_descriptor
+        )
+    )
+    return resource.schema.to_pandera()
+
+
+@pytest.mark.parametrize(
+    "data,backend",
+    [
+        (
+            pl.DataFrame(
+                {
+                    "plant_id_eia": [12345, 12346],
+                    "city": ["Bloomington", "Springfield"],
+                    "capacity_mw": [1.3, 1.0],
+                }
+            ),
+            "polars",
+        ),
+        (
+            gpd.GeoDataFrame(
+                {
+                    "plant_id_eia": [12345, 12346],
+                    "city": pd.Series(["Bloomington", "Springfield"], dtype="string"),
+                    "capacity_mw": [1.3, 1.0],
+                    "geometry": [Point(0, 0), Point(1, 0)],
+                }
+            ),
+            "pandas",
+        ),
+    ],
+)
+def test_resource_descriptors_can_encode_schemas(
+    data, backend, dummy_pandera_schema, dummy_pandera_schema_w_geometry
+):
+    if backend == "polars":
+        schema = dummy_pandera_schema
+        assert not schema.validate(data).is_empty()
+    else:
+        schema = dummy_pandera_schema_w_geometry
+        assert not schema.validate(data).empty
 
 
 @pytest.mark.parametrize(
@@ -159,39 +223,80 @@ def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
     [
         pytest.param(
             "column 'plant_id_eia' not in dataframe",
-            pd.DataFrame([]),
+            pl.DataFrame([]),
+            id="empty dataframe",
+        ),
+        pytest.param(
+            "expected column 'plant_id_eia' to have type Int64, got String",
+            pl.DataFrame(
+                {
+                    "plant_id_eia": ["non_number"],
+                    "city": ["Bloomington"],
+                    "capacity_mw": ["1.3"],
+                }
+            ),
+            id="bad dtype",
+        ),
+        pytest.param(
+            "columns .* not unique",
+            pl.DataFrame(
+                {
+                    "plant_id_eia": [12345, 12345],
+                    "city": ["Bloomington", "Springfield"],
+                    "capacity_mw": [1.3, 1.0],
+                }
+            ),
+            id="duplicate PK",
+        ),
+    ],
+)
+def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_schema):
+    with pytest.raises(pr_polars.errors.SchemaError, match=error_msg):
+        dummy_pandera_schema.validate(data)
+
+
+@pytest.mark.parametrize(
+    "error_msg,data",
+    [
+        pytest.param(
+            "column 'plant_id_eia' not in dataframe",
+            gpd.GeoDataFrame([]),
             id="empty dataframe",
         ),
         pytest.param(
             "expected series 'plant_id_eia' to have type Int64",
-            pd.DataFrame(
+            gpd.GeoDataFrame(
                 {
                     "plant_id_eia": ["non_number"],
                     "city": ["Bloomington"],
-                    "capacity_mw": [1.3],
+                    "capacity_mw": ["1.3"],
+                    "geometry": [Point(0, 0)],
                 }
             ).astype(str),
             id="bad dtype",
         ),
         pytest.param(
             "columns .* not unique",
-            pd.DataFrame(
+            gpd.GeoDataFrame(
                 {
                     "plant_id_eia": [12345, 12345],
-                    "city": ["Bloomington", "Springfield"],
+                    "city": pd.Series(["Bloomington", "Springfield"], dtype="string"),
                     "capacity_mw": [1.3, 1.0],
+                    "geometry": [Point(0, 0), Point(1, 0)],
                 }
-            ).pipe(apply_pudl_dtypes),
+            ),
             id="duplicate PK",
         ),
     ],
 )
-def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_schema):
-    with pytest.raises(pr.errors.SchemaError, match=error_msg):
-        dummy_pandera_schema.validate(data)
+def test_resource_descriptor_schema_failures_w_geometry(
+    error_msg, data, dummy_pandera_schema_w_geometry
+):
+    with pytest.raises(pr_pandas.errors.SchemaError, match=error_msg):
+        dummy_pandera_schema_w_geometry.validate(data)
 
 
-def test_frictionless_data_package_non_empty():
+def test_frictionless_data_package_non_empty(tmp_path):
     datapackage = PUDL_PACKAGE.to_frictionless()
     assert len(datapackage.resources) == len(RESOURCE_METADATA)
 
@@ -208,7 +313,7 @@ METADATA_OVERRIDE_KEYS = [
 ]
 
 
-def test_frictionless_data_package_resources_populated():
+def test_frictionless_data_package_resources_populated(tmp_path):
     datapackage = PUDL_PACKAGE.to_frictionless()
     for resource in datapackage.resources:
         assert resource.name in RESOURCE_METADATA
@@ -255,9 +360,76 @@ def test_merge_descriptions():
     assert left["usage_warnings"] == ["red"]
 
 
+def test_multiple_path_resources(dummy_resource_dict):
+    """Test that resources paths are output to json as expected after converting to frictionless."""
+    default_path_resource = Resource(
+        **Resource.dict_from_resource_descriptor(
+            "out_pudl__default_path_resource",
+            PudlResourceDescriptor.model_validate(dummy_resource_dict),
+        )
+    )
+    frictionless_resource = frictionless.Resource(
+        json.loads(default_path_resource.to_frictionless().to_json())
+    )
+    assert frictionless_resource.path == "out_pudl__default_path_resource.parquet"
+
+    override_single_path_resource = Resource(
+        **Resource.dict_from_resource_descriptor(
+            "out_pudl__override_single_path_resource",
+            PudlResourceDescriptor.model_validate(
+                dummy_resource_dict | {"path": "fake_path.parquet"}
+            ),
+        )
+    )
+    frictionless_resource = frictionless.Resource(
+        json.loads(override_single_path_resource.to_frictionless().to_json())
+    )
+    assert frictionless_resource.path == "fake_path.parquet"
+
+    paths = [f"fake_path{i}" for i in range(1, 5)]
+    multiple_path_resource = Resource(
+        **Resource.dict_from_resource_descriptor(
+            "out_pudl__multiple_path_resource",
+            PudlResourceDescriptor.model_validate(
+                dummy_resource_dict
+                | {
+                    "path": paths[0],
+                    "extrapaths": paths[1:],
+                }
+            ),
+        )
+    )
+    frictionless_resource = frictionless.Resource(
+        json.loads(multiple_path_resource.to_frictionless().to_json())
+    )
+    assert frictionless_resource.path == paths[0]
+    assert set(frictionless_resource.extrapaths) == set(paths[1:])
+    assert set(frictionless_resource.normpaths) == set(paths)
+
+
+def test_frictionless_data_package_filter_resources():
+    """Test that filtering resources when converting Package to frictionless works as expected."""
+    eqr_pattern = r"core_ferceqr.*"
+    expected_num_eqr_resources = 4
+    all_resources = PUDL_PACKAGE.to_frictionless().resources
+    no_eqr_resources = PUDL_PACKAGE.to_frictionless(
+        exclude_pattern=eqr_pattern
+    ).resources
+    only_eqr_resources = PUDL_PACKAGE.to_frictionless(
+        include_pattern=eqr_pattern
+    ).resources
+
+    assert len(no_eqr_resources) == (len(all_resources) - expected_num_eqr_resources)
+    assert len(only_eqr_resources) == expected_num_eqr_resources
+    assert not any("eqr" in r.name for r in no_eqr_resources)
+    assert all("eqr" in r.name for r in only_eqr_resources)
+
+
 # TODO: flip this to true after we do the second pass to set description_primary_key
 # everywhere that needs it
 CHECK_DESCRIPTION_PRIMARY_KEYS = False
+
+RE_CAPS = re.compile("[A-Z]")
 
 
 @pytest.mark.parametrize(
@@ -283,17 +455,22 @@ def test_description_compliance(resource_id):
         "source_code": resolved.source.type,
         "table_type_code": (
             (resolved.summary.type.split("[")[0] != "None")
-            or len(resolved.summary.description) > 0
+            or (
+                (len(resolved.summary.description) > 0)
+                and RE_CAPS.match(resolved.summary.description[0])
+            )
         ),
         "timeseries_resolution_code": (
             (not resolved.summary.type.startswith("timeseries"))
-            or len(resolved.summary.type.split("[")[1]) > 1
+            or (len(resolved.summary.type.split("[")[1]) > 1)
+            or RE_CAPS.match(resolved.summary.description[0])
         ),
     }
+    fix_with_summary = f"""Ensure RESOURCE_METADATA["{resource_id}"]["description"]["additional_summary_text"] is a complete sentence starting with a capital letter"""
     for key, has_value in name_parse.items():
-        assert has_value, (
-            f"""Table {resource_id} could not be parsed as layer_source__tabletype_slug and no hints were set in the table metadata. Rename {resource_id} or set the following keys in RESOURCE_METADATA["{resource_id}"]["description"]: {key}"""
-        )
+        assert has_value, f"""Table {resource_id} could not be parsed as layer_source__tabletype_slug and insufficient hints were set in the table metadata. Repair using one of the following:
+\t1. Rename {resource_id}
+\t2. Set the following keys in RESOURCE_METADATA["{resource_id}"]["description"]: {key}{("\n\t3. " + fix_with_summary) if key in {"table_type_code", "timeseries_resolution_code"} else ""}"""
     # todo: layer-based checks
     # todo: asset_type-based checks
     # pk-based checks

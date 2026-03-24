@@ -4,17 +4,10 @@ import importlib.resources
 import itertools
 import os
 
-from dagster import (
-    AssetKey,
-    AssetsDefinition,
-    AssetSpec,
-    Definitions,
-    define_asset_job,
-    load_asset_checks_from_modules,
-    load_assets_from_modules,
-)
+import dagster as dg
 
 import pudl
+from pudl.deploy import ferceqr
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
@@ -53,12 +46,15 @@ raw_module_groups = {
     "raw_eiaaeo": [pudl.extract.eiaaeo],
     "raw_ferc1": [pudl.extract.ferc1],
     "raw_ferc714": [pudl.extract.ferc714],
+    "raw_ferccid": [pudl.extract.ferccid],
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
     "raw_nrelatb": [pudl.extract.nrelatb],
     "raw_phmsagas": [pudl.extract.phmsagas],
+    "raw_rus7": [pudl.extract.rus7],
     "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
     "raw_ferceqr": [pudl.extract.ferceqr],
+    "raw_rus12": [pudl.extract.rus12],
 }
 
 
@@ -81,12 +77,15 @@ core_module_groups = {
     "core_epacems": [pudl.transform.epacems],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
+    "core_ferccid": [pudl.transform.ferccid],
     "core_ferceqr": [pudl.transform.ferceqr],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_sec10k": [pudl.transform.sec10k],
     "core_nrelatb": [pudl.transform.nrelatb],
     "core_vcerare": [pudl.transform.vcerare],
     "core_phmsagas": [pudl.transform.phmsagas],
+    "core_rus7": [pudl.transform.rus7],
+    "core_rus12": [pudl.transform.rus12],
 }
 
 out_module_groups = {
@@ -108,15 +107,25 @@ out_module_groups = {
         pudl.analysis.record_linkage.classify_plants_ferc1,
     ],
     "out_respondents_ferc714": [pudl.output.ferc714],
+    "out_rus": [pudl.output.rus],
     "out_sec10k": [pudl.output.sec10k],
     "out_service_territory_eia861": [pudl.analysis.service_territory],
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
 
-all_asset_modules = raw_module_groups | core_module_groups | out_module_groups
+ferceqr_deployment_assets = (
+    {"ferceqr_deployment": [ferceqr]} if os.getenv("FERCEQR_BUILD", None) else {}
+)
+
+all_asset_modules = (
+    raw_module_groups
+    | core_module_groups
+    | out_module_groups
+    | ferceqr_deployment_assets
+)
 default_assets = list(
     itertools.chain.from_iterable(
-        load_assets_from_modules(
+        dg.load_assets_from_modules(
             modules,
             group_name=group_name,
             include_specs=True,
@@ -128,7 +137,7 @@ default_assets = list(
 
 default_asset_checks = list(
     itertools.chain.from_iterable(
-        load_asset_checks_from_modules(
+        dg.load_asset_checks_from_modules(
             modules,
         )
         for modules in all_asset_modules.values()
@@ -136,7 +145,9 @@ default_asset_checks = list(
 )
 
 
-def _get_keys_from_assets(asset_def: AssetsDefinition | AssetSpec) -> list[AssetKey]:
+def _get_keys_from_assets(
+    asset_def: dg.AssetsDefinition | dg.AssetSpec,
+) -> list[dg.AssetKey]:
     """Get a list of asset keys.
 
     Most assets have one key, which can be retrieved as a list from
@@ -148,9 +159,9 @@ def _get_keys_from_assets(asset_def: AssetsDefinition | AssetSpec) -> list[Asset
     AssetSpecs always only have one key, and don't have ``asset.keys``. So we
     look for ``asset.key`` and wrap it in a list.
     """
-    if isinstance(asset_def, AssetsDefinition):
+    if isinstance(asset_def, dg.AssetsDefinition):
         return list(asset_def.keys)
-    if isinstance(asset_def, AssetSpec):
+    if isinstance(asset_def, dg.AssetSpec):
         return [asset_def.key]
     return []
 
@@ -158,22 +169,29 @@ def _get_keys_from_assets(asset_def: AssetsDefinition | AssetSpec) -> list[Asset
 _asset_keys = itertools.chain.from_iterable(
     _get_keys_from_assets(asset_def) for asset_def in default_assets
 )
+
+# Set of assets which are transformed with duckdb and handled differently in schema checks
+duckdb_assets = [
+    "core_ferceqr__quarterly_identity",
+    "core_ferceqr__contracts",
+    "core_ferceqr__quarterly_index_pub",
+    "core_ferceqr__transactions",
+]
+# Set of assets too large to apply full schema check
+high_memory_assets = [
+    "out_vcerare__hourly_available_capacity_factor",
+    "core_epacems__hourly_emissions",
+]
 default_asset_checks += [
     check
     for check in (
-        asset_check_from_schema(asset_key, PUDL_PACKAGE)
-        for asset_key in _asset_keys
-        if (
-            asset_key.to_user_string()
-            not in [
-                "core_epacems__hourly_emissions",
-                "out_vcerare__hourly_available_capacity_factor",
-                "core_ferceqr__quarterly_identity",
-                "core_ferceqr__contracts",
-                "core_ferceqr__quarterly_index_pub",
-                "core_ferceqr__transactions",
-            ]
+        asset_check_from_schema(
+            asset_key,
+            PUDL_PACKAGE,
+            duckdb_asset=asset_key.to_user_string() in duckdb_assets,
+            high_memory_asset=asset_key.to_user_string() in high_memory_assets,
         )
+        for asset_key in _asset_keys
     )
     if check is not None
 ]
@@ -229,12 +247,12 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     return dataset_settings
 
 
-defs: Definitions = Definitions(
+defs: dg.Definitions = dg.Definitions(
     assets=default_assets,
     asset_checks=default_asset_checks,
     resources=default_resources,
     jobs=[
-        define_asset_job(
+        dg.define_asset_job(
             name="etl_full",
             description="This job executes all years of all assets.",
             config=default_config
@@ -245,9 +263,10 @@ defs: Definitions = Definitions(
                     }
                 }
             },
-            selection="not key:*_ferceqr*",
+            selection=dg.AssetSelection.all()
+            - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
         ),
-        define_asset_job(
+        dg.define_asset_job(
             name="etl_fast",
             config=default_config
             | {
@@ -258,17 +277,18 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset.",
-            selection="not key:*_ferceqr*",
+            selection=dg.AssetSelection.all()
+            - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
         ),
-        define_asset_job(
+        dg.define_asset_job(
             name="ferceqr_etl",
             description="This job executes the ferceqr ETL.",
             config=pudl.helpers.get_dagster_execution_config(
                 tag_concurrency_limits=default_tag_concurrency_limits
             ),
-            selection="key:*_ferceqr*",
+            selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
         ),
     ],
+    sensors=[ferceqr.ferceqr_sensor],
 )
-
 """A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL."""

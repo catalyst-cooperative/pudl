@@ -30,10 +30,8 @@ def configure_root_logger(
     if dependency_loglevels is None:
         dependency_loglevels = {"numba": logging.WARNING}
     # Explicitly set log-level for dependency loggers
-    [
-        get_dagster_logger(dependency_name).setLevel(dependency_loglevel)
-        for dependency_name, dependency_loglevel in dependency_loglevels.items()
-    ]
+    for dependency_name, dependency_loglevel in dependency_loglevels.items():
+        logging.getLogger(dependency_name).setLevel(dependency_loglevel)
 
     logger = get_dagster_logger("catalystcoop")
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
@@ -47,3 +45,6 @@ def configure_root_logger(
         logger.addHandler(file_logger)
 
     logger.propagate = propagate
+
+    if propagate:
+        logging.getLogger("dagster").propagate = True

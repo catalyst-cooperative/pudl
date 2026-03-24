@@ -1,0 +1,187 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus12__yearly_plant_costs
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_rus12__yearly_plant_costs
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - expect_columns_ratio:
+              arguments:
+                numerator_column: cost_per_mwh
+                denominator_column: cost_per_mmbtu
+                min_ratio: 3.412142
+              config:
+                error_if: ">96" # ~6% of the data
+          # CALCULATE FUEL COST SUBTOTALS BY PLANT TYPE
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, plant_name_rus, plant_type]
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  ["coal_fuel", "oil_fuel", "gas_fuel", "other_fuel"]
+                total_label: "total_fuel"
+                tolerance: 10
+              row_condition: "plant_type == 'steam'"
+              description: "Check that steam fuel subcomponents sum to total."
+              config:
+                error_if: ">8"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, plant_name_rus, plant_type]
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  [
+                    "energy_for_compressed_air",
+                    "oil_fuel",
+                    "gas_fuel",
+                    "other_fuel",
+                  ]
+                total_label: "total_fuel"
+                tolerance: 10
+              row_condition: "plant_type IN ('internal_combustion', 'combined_cycle')"
+              description: "Check that IC fuel subcomponents sum to total."
+              config:
+                error_if: ">1"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, plant_name_rus, plant_type]
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list: ["fuel", "less_fuel_acquisition_adjustment"]
+                total_label: "total_fuel"
+                tolerance: 10
+              row_condition: "plant_type == 'nuclear'"
+              description: "Check that nuclear fuel subcomponents sum to total."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, plant_name_rus, plant_type]
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  [
+                    "supervision_and_engineering",
+                    "steam",
+                    "electric",
+                    "miscellaneous_power_generation",
+                    "generation",
+                    "allowances",
+                    "rents",
+                  ]
+                total_label: "non_fuels_total"
+                tolerance: 0
+              row_condition: "plant_type IN ('steam', 'combined_cycle')"
+              description: "Check that steam non-fuel subcomponents sum to total."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, plant_name_rus, plant_type]
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  [
+                    "supervision_and_engineering",
+                    "generation",
+                    "miscellaneous_power_generation",
+                    "rents",
+                  ]
+                total_label: "non_fuels_total"
+                tolerance: 0
+              row_condition: "plant_type == 'internal_combustion'"
+              description: "Check that steam non-fuel subcomponents sum to total."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, plant_name_rus, plant_type]
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list: ["total_fuel", "non_fuels_total"]
+                total_label: "operations_total"
+                tolerance: 0
+              row_condition: "plant_type IN ('steam', 'internal_combustion', 'combined_cycle')"
+              description: "Check that steam, IC and CC operation subcomponents sum to total."
+              config:
+                error_if: ">2300" # This is almost all of them, INVESTIGATE!
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, plant_name_rus, plant_type]
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  [
+                    "supervision_and_engineering",
+                    "water_for_power",
+                    "energy_for_pumped_storage",
+                    "hydraulic",
+                    "electric",
+                    "miscellaneous_power_generation",
+                    "rents",
+                  ]
+                total_label: "operations_total"
+                tolerance: 0
+              row_condition: "plant_type == 'hydro'"
+              description: "Check that hydro operation subcomponents sum to total."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, plant_name_rus, plant_type]
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  [
+                    "supervision_and_engineering",
+                    "net_fuel",
+                    "coolants_and_water",
+                    "steam",
+                    "steam_other_sources",
+                    "electric",
+                    "miscellaneous_power_generation",
+                    "rents",
+                  ]
+                total_label: "operations_total"
+                tolerance: 0
+              row_condition: "plant_type == 'nuclear'"
+              description: "Check that nuclear operation subcomponents sum to total."
+              config:
+                error_if: ">129" # This is almost all of them, INVESTIGATE!
+        columns:
+          - name: borrower_name_rus
+          - name: state
+          - name: report_date
+          - name: borrower_id_rus
+          - name: plant_name_rus
+          - name: plant_type
+          - name: cost_group
+          - name: cost_type
+          - name: cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">213" # 0.4% of the data
+          - name: cost_per_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">381" # 0.7% of the data
+          - name: cost_per_mmbtu
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">23"
+          - name: is_total

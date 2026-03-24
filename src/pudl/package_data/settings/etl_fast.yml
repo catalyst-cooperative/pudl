@@ -40,9 +40,9 @@ datasets:
     years: [2020, 2024]
   eia:
     eia176:
-      years: [2020, 2023]
+      years: [2020, 2024]
     eia191:
-      years: [2020, 2023]
+      years: [2020, 2025]
     eia757a:
       years: [2014, 2017]
     eia923:
@@ -51,7 +51,7 @@ datasets:
       years: [2020, 2024]
       eia860m: true
     eia860m:
-      year_months: ["2025-09", "2025-10"]
+      year_months: ["2025-10", "2025-11"]
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
       # This is a temporary hack to make the tests pass!
@@ -83,7 +83,7 @@ datasets:
           2024,
         ]
     eia930:
-      half_years: ["2024half2"]
+      half_years: ["2025half2"]
     eiaaeo:
       years: [2023, 2025]
   epacems:
@@ -92,7 +92,7 @@ datasets:
     # also load the EIA 860 data for that year if possible.
     #
     # We only use q1 for epacems etl_fast even if later quarters are available.
-    year_quarters: ["2023q1"]
+    year_quarters: ["2024q1"]
   phmsagas:
     years: [2024]
   nrelatb:
@@ -115,3 +115,7 @@ datasets:
     fips: True
   censuspep:
     years: [2023, 2015, 2009]
+  rus7:
+    years: [2019, 2020, 2021]
+  rus12:
+    years: [2019, 2020, 2021]

@@ -5,15 +5,75 @@ machinery that iterates over the contents of pudl.metadata.resources and needs
 each module there to actually store resource metadata.
 """
 
+import copy
 from typing import Any
 
-HARVESTING_DETAIL_TEXT = """EIA reports many attributes in many different tables across
+HARVESTED_CORE_TABLES_RUS12 = [
+    "core_rus12__yearly_meeting_and_board",
+    "core_rus12__yearly_balance_sheet_assets",
+    "core_rus12__yearly_balance_sheet_liabilities",
+    "core_rus12__yearly_long_term_debt",
+    "core_rus12__yearly_renewable_plants",
+    "core_rus12__yearly_lines_stations_labor_materials_cost",
+    "core_rus12__yearly_sources_and_distribution_by_plant_type",
+    "core_rus12__yearly_sources_and_distribution",
+    "core_rus12__yearly_loans",
+    "core_rus12__yearly_plant_labor",
+    "core_rus12__yearly_statement_of_operations",
+    "core_rus12__yearly_plant_costs",
+    "core_rus12__yearly_plant_operations_by_borrower",
+    "core_rus12__yearly_plant_operations_by_plant",
+    "core_rus12__yearly_investments",
+    "core_rus12__yearly_external_financial_risk_ratio",
+    "core_rus12__monthly_demand_and_energy_at_delivery_points",
+    "core_rus12__monthly_demand_and_energy_at_power_sources",
+    "core_rus12__yearly_plant_factors_and_maximum_demand",
+]
+
+HARVESTED_CORE_TABLES_RUS7 = [
+    "core_rus7__yearly_meeting_and_board",
+    "core_rus7__yearly_balance_sheet_assets",
+    "core_rus7__yearly_balance_sheet_liabilities",
+    "core_rus7__yearly_employee_statistics",
+    "core_rus7__yearly_energy_efficiency",
+    "core_rus7__yearly_power_requirements_electric_customers",
+    "core_rus7__yearly_power_requirements_electric_sales",
+    "core_rus7__yearly_power_requirements",
+    "core_rus7__yearly_investments",
+    "core_rus7__yearly_long_term_leases",
+    "core_rus7__yearly_patronage_capital",
+    "core_rus7__yearly_statement_of_operations",
+    "core_rus7__yearly_loans",
+    "core_rus7__yearly_external_financial_risk_ratio",
+    "core_rus7__yearly_long_term_debt",
+    "core_rus7__yearly_energy_purchased",
+    "core_rus7__yearly_materials_and_supplies",
+    "core_rus7__yearly_owed_by_customers",
+    "core_rus7__yearly_customer_energy_efficiency_and_conservation_loans",
+    "core_rus7__yearly_service_interruptions",
+    "core_rus7__yearly_distribution_services",
+    "core_rus7__yearly_transmission_and_distribution_mileage",
+]
+
+HARVESTING_DETAIL_TEXT_EIA = """EIA reports many attributes in many different tables across
 EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
 collects all instances of these values and and chooses a canonical value. By default,
 PUDL chooses the most consistently reported value of a given attribute as long as it
 is at least 70% of the given instances reported. If an attribute was reported
 inconsistently across the original EIA tables, then it will show up as a
 null value."""
+
+
+HARVESTING_DETAIL_TEXT_RUS = """RUS reports many attributes in many different tables
+across throughout RUS-7 and RUS-12. In order to compile tidy, well-normalized database
+tables, PUDL collects all instances of these values and and chooses a canonical value.
+By default, PUDL chooses the most consistently reported value of a given attribute as
+long as it is at least 70% of the given instances reported. For the ``borrower_name_rus``
+PUDL chooses the most consistently reported value regardless of if it meets this 70%
+threshold so that all borrowers will have a name. We chose this because most name
+changes were insignificant (eg. "and" changed to "&" or "coop" changed to "cooperative").
+All tables downstream of this one inherit the canonical values established
+here."""
 
 
 def canonical_harvested_details(entities: str, is_static: bool) -> str:
@@ -39,7 +99,7 @@ def canonical_harvested_details(entities: str, is_static: bool) -> str:
     return f"""This is one of two tables where canonical
 values for {entities} are set. It contains values which are expected to {"remain fixed" if is_static else "vary slowly"}, while
 :ref:`core_eia{"860" if is_static else ""}__{"scd" if is_static else "entity"}_{entities}` contains those {"which may vary from year to year" if is_static else "expected to remain fixed"}.
-{HARVESTING_DETAIL_TEXT}
+{HARVESTING_DETAIL_TEXT_EIA}
 All tables downstream of this one inherit the canonical values established here."""
 
 
@@ -60,7 +120,7 @@ def inherits_harvested_values_details(entities: str) -> str:
             ``core_eia860__scd_generators`` and ``core_eia860__scd_plants`` upstream.
     """
     return f"""This table inherits canonicalized values for {entities}.
-{HARVESTING_DETAIL_TEXT}"""
+{HARVESTING_DETAIL_TEXT_EIA}"""
 
 
 def merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
@@ -78,3 +138,33 @@ def merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str,
         else:
             result[key] = right[key]
     return result
+
+
+def core_to_out_harvested_resources(
+    core_table_names: list[str],
+    core_table_metadata: dict,
+    out_cols_to_add: list[str],
+) -> dict:
+    """Make out tables from core resource metadata when extra columns are standard."""
+    # We are **not** trying to edit the core metadata, just build new stuff from it
+    # but dicts are very mutable so we must deepcopy
+    copied_table_metadata = copy.deepcopy(core_table_metadata)
+    out_resources = {}
+    for core_tbl in core_table_names:
+        meta_tbl = {}
+        for meta_part_name, meta_part in copied_table_metadata[core_tbl].items():
+            if meta_part_name == "schema":
+                # If we had any table-specific columns we could relatively easily do something like
+                # out_cols_to_add = (
+                #     special_cols[core_tlb]
+                #     if core_tlb in special_cols.keys()
+                #     else out_cols_to_add
+                # )
+                meta_part["fields"] = out_cols_to_add + meta_part["fields"]
+            elif meta_part_name == "description":
+                meta_part["usage_warnings"] = ["harvested"] + meta_part[
+                    "usage_warnings"
+                ]
+            meta_tbl[meta_part_name] = meta_part
+        out_resources[f"out_{core_tbl.removeprefix('core_')}"] = meta_tbl
+    return out_resources

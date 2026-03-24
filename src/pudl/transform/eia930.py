@@ -1,14 +1,103 @@
 """Module to perform data cleaning functions on EIA930 data tables."""
 
-from pathlib import Path
+import re
 
-import pandas as pd
+import duckdb
 from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
+from pudl.helpers import (
+    ParquetData,
+    df_from_parquet,
+    duckdb_relation_from_parquet,
+    lf_from_parquet,
+    persist_table_as_parquet,
+)
 from pudl.metadata.enums import GENERATION_ENERGY_SOURCES_EIA930
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def _transform_netgen_by_source(
+    table: duckdb.DuckDBPyRelation, conn: duckdb.DuckDBPyConnection
+) -> ParquetData:
+    """Transform the eia930 netgen by source table."""
+    statuses = ["reported", "adjusted", "imputed"]
+    nondata_cols = [
+        "datetime_utc",
+        "balancing_authority_code_eia",
+    ]
+    data_cols = [
+        (f"net_generation_{fuel}_{status}_mwh", f"{fuel}_{status}")
+        for fuel in GENERATION_ENERGY_SOURCES_EIA930
+        for status in statuses
+    ]
+
+    # Select only the columns that pertain to individual energy sources. Note that for
+    # the "unknown" energy source there are only "reported" values.
+    table.select(
+        ", ".join(
+            nondata_cols
+            + [
+                # Set NULL vals to -1 to avoid rows being dropped in UNPIVOT
+                f"COALESCE(CAST({long} AS FLOAT), -1) AS {short}"
+                for long, short in data_cols
+            ]
+        )
+    ).to_view("raw")
+    conn.query(
+        # Transform wide table to long
+        # category column will contain values formatted like ``{energy_source}_{adjusted|imputed|reported}``
+        "UNPIVOT raw "
+        f"ON {', '.join([short for _, short in data_cols])} "
+        "INTO NAME category VALUE net_generation_mwh",
+    ).select(
+        # Split category column to separate generation_energy_source and status columns
+        "* EXCLUDE(category, net_generation_mwh), "
+        "regexp_extract(category, '^(.*)_([^_]*)$', 1) AS generation_energy_source, "
+        "regexp_extract(category, '^(.*)_([^_]*)$', 2) AS value_type, "
+        "CASE WHEN net_generation_mwh = -1 THEN NULL ELSE net_generation_mwh END as net_generation_mwh"
+    ).to_view("long")
+    netgen_by_source = (
+        # Widen table slightly contain one column per status
+        conn.query("PIVOT long ON value_type USING first(net_generation_mwh)")
+        .select(
+            f"* EXCLUDE({', '.join(statuses)}), "
+            "imputed as net_generation_imputed_eia_mwh, "
+            "reported as net_generation_reported_mwh, "
+            "adjusted as net_generation_adjusted_mwh"
+        )
+        .order("datetime_utc, balancing_authority_code_eia, generation_energy_source")
+    )
+
+    return persist_table_as_parquet(
+        netgen_by_source, "core_eia930__hourly_net_generation_by_energy_source"
+    )
+
+
+def _transform_hourly_operations(
+    table: duckdb.DuckDBPyRelation, conn: duckdb.DuckDBPyConnection
+) -> ParquetData:
+    """Transform the eia930 hourly operations table."""
+    nondata_cols = [
+        "datetime_utc",
+        "balancing_authority_code_eia",
+    ]
+    data_col_pattern = r"(demand|interchange|net_generation_total)"
+
+    # Grab columns and rename as needed
+    operations = table.select(
+        *[
+            duckdb.ColumnExpression(name).alias(
+                name.replace("net_generation_total_", "net_generation_").replace(
+                    "imputed_mwh", "imputed_eia_mwh"
+                )
+            )
+            for name in table.columns
+            if name in nondata_cols or re.search(data_col_pattern, name)
+        ],
+    )
+    return persist_table_as_parquet(operations, "core_eia930__hourly_operations")
 
 
 @multi_asset(
@@ -21,7 +110,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
     compute_kind="pandas",
 )
 def core_eia930__hourly_operations_assets(
-    raw_eia930__balance: Path,
+    raw_eia930__balance: ParquetData,
 ):
     """Separate raw_eia930__balance into net generation and demand tables.
 
@@ -31,72 +120,23 @@ def core_eia930__hourly_operations_assets(
     is also included, because the reported and calculated totals across all energy
     sources have significant differences which should be further explored.
     """
-    raw_eia930__balance_df = pd.read_parquet(raw_eia930__balance)
-    nondata_cols = [
-        "datetime_utc",
-        "balancing_authority_code_eia",
-    ]
-    # Select all columns that aren't energy source specific
-    operations = raw_eia930__balance_df[
-        nondata_cols
-        + list(
-            raw_eia930__balance_df.filter(
-                regex=r"(demand|interchange|net_generation_total)"
-            )
-        )
-    ].rename(columns=lambda x: x.replace("net_generation_total_", "net_generation_"))
-    # Select only the columns that pertain to individual energy sources. Note that for
-    # the "unknown" energy source there are only "reported" values.
-    netgen_by_source = (
-        raw_eia930__balance_df[
-            nondata_cols
-            + [
-                f"net_generation_{fuel}_{status}_mwh"
-                for fuel in GENERATION_ENERGY_SOURCES_EIA930
-                for status in ["reported", "adjusted", "imputed"]
-            ]
-        ]
-        .rename(
-            # Rename columns so that they contain only the energy source and the level
-            # of processing with the pattern: energysource_levelofprocessing so the
-            # column name can be rsplit on "_" to build a MultiIndex before stacking.
-            lambda col: col.removeprefix("net_generation_").removesuffix("_mwh"),
-            axis="columns",
-        )
-        .set_index(nondata_cols)
-    )
-    netgen_by_source.columns = pd.MultiIndex.from_tuples(
-        # Some of our energy sources have multiple terms in them, so we rsplit on
-        # a maximum of one underscore to ensure we get the exact two results we need:
-        [x.rsplit("_", maxsplit=1) for x in netgen_by_source.columns],
-        names=["generation_energy_source", None],
-    )
-    netgen_by_source = (
-        netgen_by_source.stack(level="generation_energy_source", future_stack=True)
-        .rename(columns=lambda x: f"net_generation_{x}_mwh")
-        .reset_index()
-    )
-
-    netgen_by_source = netgen_by_source.rename(
-        columns={"net_generation_imputed_mwh": "net_generation_imputed_eia_mwh"}
-    )
-    operations = operations.rename(
-        columns={
-            "net_generation_imputed_mwh": "net_generation_imputed_eia_mwh",
-            "demand_imputed_mwh": "demand_imputed_eia_mwh",
-            "interchange_imputed_mwh": "interchange_imputed_eia_mwh",
-        }
-    )
+    with duckdb_relation_from_parquet(raw_eia930__balance) as (
+        tbl,
+        conn,
+    ):
+        conn.sql("SET memory_limit = '16GB';")
+        netgen_parquet = _transform_netgen_by_source(tbl, conn)
+        operations = _transform_hourly_operations(tbl, conn)
 
     # NOTE: currently there are some BIG differences between the calculated totals and
     # the reported for net generation.
     return (
         Output(
-            value=netgen_by_source,
+            value=lf_from_parquet(netgen_parquet),
             output_name="core_eia930__hourly_net_generation_by_energy_source",
         ),
         Output(
-            value=operations,
+            value=lf_from_parquet(operations),
             output_name="core_eia930__hourly_operations",
         ),
     )
@@ -107,10 +147,10 @@ def core_eia930__hourly_operations_assets(
     compute_kind="pandas",
 )
 def core_eia930__hourly_subregion_demand(
-    raw_eia930__subregion: Path,
+    raw_eia930__subregion: ParquetData,
 ):
     """Produce a normalized table of hourly electricity demand by BA subregion."""
-    raw_eia930__subregion_df = pd.read_parquet(raw_eia930__subregion)
+    raw_eia930__subregion_df = df_from_parquet(raw_eia930__subregion)
     return raw_eia930__subregion_df.assign(
         balancing_authority_subregion_code_eia=lambda df: df[
             "balancing_authority_subregion_code_eia"
@@ -131,10 +171,10 @@ def core_eia930__hourly_subregion_demand(
     compute_kind="pandas",
 )
 def core_eia930__hourly_interchange(
-    raw_eia930__interchange: Path,
+    raw_eia930__interchange: ParquetData,
 ):
     """Produce a normalized table of hourly interchange by balancing authority."""
-    raw_eia930__interchange_df = pd.read_parquet(raw_eia930__interchange)
+    raw_eia930__interchange_df = df_from_parquet(raw_eia930__interchange)
     return raw_eia930__interchange_df.loc[
         :,
         [

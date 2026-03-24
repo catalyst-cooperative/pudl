@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "TODAY=$(date +%Y-%m-%d)" >> "${GITHUB_ENV}"
       - name: Generate GH token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ secrets.WORKFLOW_TRIGGERER_APP_ID }}
@@ -31,7 +31,7 @@ jobs:
         with:
           token: ${{ steps.generate-token.outputs.token }}
           fetch-depth: 0 # Fetch all history and tags for hatch-vcs version detection
-      - uses: prefix-dev/setup-pixi@v0.9.3
+      - uses: prefix-dev/setup-pixi@v0.9.4
         with:
           run-install: false
       - name: Update pixi lockfile, pre-commit hooks, and dbt deps

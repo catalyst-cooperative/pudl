@@ -44,10 +44,15 @@ in the
 If the structure of the web pages or the URLs has changed, you may need to update the
 archivers themselves.
 
-**1.2)** Obtain production DOIs from
-`Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__ and then update the
-dictionary of in :mod:`pudl.workspace.datastore` to refer to the new raw input
-archives.
+**1.2)** Update the `Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__
+DOI to point to the latest dataset by running:
+
+.. code-block:: bash
+
+    pixi run update_zenodo_dois dataset_name
+
+Verify that this updated the record in :mod:`pudl.package_data.settings.zenodo_dois.yml`
+to refer to the new raw input archives as expected.
 
 **1.3)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
 to reflect the years, months, or quarters of data that are available for each dataset
@@ -92,10 +97,10 @@ the years (e.g. ``boiler_fuel``). However ``page_name`` does not necessarily cor
 directly to PUDL database table names because we don't load the data from all pages, and
 some pages result in more than one database table after normalization.
 
-**2.A.1)** If you're adding a new year, add a column for the new year of data to
+**2.A.1)** If you're adding a new year, add a row for the new year of data to
   each of the aforementioned files. If there are any changes to prior years, make
   sure to address those too. If you are updating early release data with final
-  release data, replace the values in the appropriate year column. **The easiest way
+  release data, replace the values in the appropriate year row. **The easiest way
   to correct the values for these files is to test extraction in Dagster as
   described in the next step, then use the error messages to narrow down what should
   be updated.** Exhaustively examining each file manually to compare it with its

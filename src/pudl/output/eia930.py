@@ -4,10 +4,13 @@ For a narrative overview of the timeseries imputation process, see the documenta
 at :doc:`/methodology/timeseries_imputation`
 """
 
+from datetime import date
+
 import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
 from pudl.analysis.timeseries_cleaning import (
+    ImputeTimeseriesSettings,
     impute_timeseries_asset_factory,
 )
 
@@ -122,6 +125,11 @@ imputed_combined_demand_assets = impute_timeseries_asset_factory(
     id_col="combined_subregion_ba_code_eia",
     simulation_group_col="granularity",
     output_io_manager_key="io_manager",
+    settings=ImputeTimeseriesSettings(
+        # The tnn method tends to work better when year is incomplete, so use
+        # when imputing current year
+        method_overrides={date.today().year: "tnn"},
+    ),
 )
 
 

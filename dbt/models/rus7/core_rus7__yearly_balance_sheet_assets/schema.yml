@@ -1,0 +1,51 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_balance_sheet_assets
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_balance_sheet_assets
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: asset_type
+                value_column: ending_balance
+                subcomponents_list:
+                  ["utility_plant_in_service", "construction_work_in_progress"]
+                total_label: "total_utility_plant"
+                tolerance: 10
+              config:
+                error_if: ">545"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: asset_type
+                value_column: ending_balance
+                subcomponents_list:
+                  [
+                    "cash_general_funds",
+                    "cash_construction_funds_trustee",
+                    "special_deposits",
+                    "investments_temporary",
+                    "notes_receivable",
+                    "accounts_receivable_other",
+                    "accounts_receivable_sales_of_energy",
+                    "renewable_energy_credits",
+                    "materials_and_supplies",
+                    "prepayments",
+                    "other_current_and_accrued",
+                  ]
+                total_label: "total_current_and_accrued"
+                tolerance: 10
+              config:
+                error_if: ">5"
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: asset_type
+          - name: ending_balance
+          - name: is_total

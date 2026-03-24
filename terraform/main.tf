@@ -221,6 +221,10 @@ resource "google_storage_bucket" "pudl_archive_bucket" {
   labels = {
     component = "archives"
   }
+  autoclass {
+    enabled                = true
+    terminal_storage_class = "ARCHIVE"
+  }
 }
 
 resource "google_service_account" "nrel_finito_inputs_gha" {

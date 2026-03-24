@@ -186,7 +186,7 @@ def _save_extract_errors(year_quarter: str, duckdb_connection: DuckDBPyConnectio
         "raw_ferceqr__extract_errors": dg.AssetOut(),
     },
 )
-def extract_eqr(
+def extract_ferceqr(
     context: dg.AssetExecutionContext,
     ferceqr_extract_settings: ExtractSettings = ExtractSettings(),
 ) -> tuple[ParquetData, ParquetData, ParquetData, ParquetData, ParquetData]:

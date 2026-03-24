@@ -15,9 +15,11 @@ import shutil
 from pathlib import Path
 
 from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import CodeMetadata, DataSource, Package
+from pudl.metadata.classes import CodeMetadata, DataSource, Package, Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
+from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 DOCS_DIR = Path(__file__).parent.resolve()
 if os.environ.get("READTHEDOCS"):
@@ -67,13 +69,16 @@ googleanalytics_enabled = True
 
 todo_include_todos = True
 bibtex_bibfiles = [
+    "cooperative_cites.bib",
     "catalyst_pubs.bib",
     "catalyst_cites.bib",
     "further_reading.bib",
 ]
 
-# Set this to True if you need to debug generated file formatting.
-keep_generated_files = False
+# If PUDL_DOCS_KEEP_GENERATED_FILES is defined, don't clean up generated files after the
+# docs build. Useful for debugging formatting of generated RST files, but be sure to
+# clean them up when you're done!
+keep_generated_files = "PUDL_DOCS_KEEP_GENERATED_FILES" in os.environ
 
 # Redirects to keep folks from hitting 404 errors:
 redirects = {
@@ -99,6 +104,7 @@ issues_github_path = "catalyst-cooperative/pudl"
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
     "dagster": ("https://docs.dagster.io/", None),
+    "duckdb": ("https://duckdb.org/docs/stable/clients/python/reference/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
@@ -113,6 +119,12 @@ intersphinx_mapping = {
     "sklearn": ("https://scikit-learn.org/stable", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org/en/latest/", None),
 }
+
+# If PUDL_DOCS_DISABLE_INTERSPHINX is set, disable intersphinx lookups. This can speed
+# up the build and avoids issues with external sites being down.
+if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
+    print("Disabling intersphinx lookups (PUDL_DOCS_DISABLE_INTERSPHINX is set).")
+    intersphinx_mapping = {}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -150,6 +162,7 @@ html_theme_options = {
         "color-announcement-background": "yellow",
         "color-announcement-text": "red",
     },
+    "announcement": '<b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b>',
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -172,6 +185,8 @@ def data_dictionary_metadata_to_rst(app):
     package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
 
 
+# When adding a new data source add it here and ALSO in pyproject.toml in the
+# docs-clean pixi task so generated files are removed.
 INCLUDED_SOURCES = [
     "censusdp1tract",
     "censuspep",
@@ -184,9 +199,12 @@ INCLUDED_SOURCES = [
     "eiaaeo",
     "ferc1",
     "ferc714",
+    "ferceqr",
     "epacems",
     "epacamd_eia",
     "phmsagas",
+    "rus12",
+    "rus7",
     "sec10k",
     "gridpathratoolkit",
     "nrelatb",
@@ -203,10 +221,11 @@ def data_sources_metadata_to_rst(app):
         "ferc1": ["glue"],
         "epacamd_eia": ["glue"],
     }
+    datastore = Datastore(local_cache_path=PudlPaths().data_dir)
     for name in INCLUDED_SOURCES:
         source = DataSource.from_id(name)
         source_resources = [res for res in package.resources if res.etl_group == name]
-        extra_resources = None
+        extra_resources: list[Resource] = []
         if name in extra_etl_groups:
             # get resources for this source from extra etl groups
             extra_resources = [
@@ -217,9 +236,10 @@ def data_sources_metadata_to_rst(app):
             ]
         source.to_rst(
             docs_dir=DOCS_DIR,
-            output_path=DOCS_DIR / f"data_sources/{name}.rst",
+            output_path=str(DOCS_DIR / f"data_sources/{name}.rst"),
             source_resources=source_resources,
             extra_resources=extra_resources,
+            datastore=datastore,
         )
 
 
@@ -240,10 +260,10 @@ def static_dfs_to_rst(app):
 
 def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
-    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
-    (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
+    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink(missing_ok=True)
+    (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink(missing_ok=True)
     for name in INCLUDED_SOURCES:
-        (DOCS_DIR / f"data_sources/{name}.rst").unlink()
+        (DOCS_DIR / f"data_sources/{name}.rst").unlink(missing_ok=True)
 
 
 def cleanup_csv_dir(app, exception):
