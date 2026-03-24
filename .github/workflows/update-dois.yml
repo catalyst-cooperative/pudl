@@ -1,0 +1,76 @@
+name: Update Zenodo DOIs
+
+on:
+  schedule:
+    - cron: "17 8 3 * *" # 8:17 UTC on the 3rd day of the month.
+  workflow_dispatch:
+    inputs:
+      datasets:
+        description: "Specific datasets to update (space separated)"
+        required: false
+        default: "eia176 eia191 eia757a ferc2 ferc6 ferc60 ferccid eiaapi epacamd_eia epacems" # Default to all datasets that don't require any hand-mapping for now
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dois:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install pudl environment using pixi
+        uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+
+      - name: Run Zenodo DOI updater
+        id: update
+        run: |
+          pixi run update_zenodo_dois ${{ github.event.inputs.datasets }}
+
+          # Check if any changes were made
+          if git diff --quiet; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected!"
+          fi
+
+      - name: Format datasets as labels
+        id: format-datasets
+        run: |
+          DATASETS="${{ github.event.inputs.datasets }}"
+          LABELS=$(echo "$DATASETS" | sed 's/ \+/, /g')
+          echo "dataset_labels=$LABELS" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        if: steps.update.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "[chore] update Zenodo DOIs to latest versions"
+          title: "[chore] update Zenodo DOIs to latest record versions"
+          add-paths: src/pudl/package_data/settings/zenodo_dois.yml
+          body: |
+            Automated update of Zenodo DOIs to latest record versions.
+
+            **Changes:**
+            - Updated `zenodo_dois.yml` with latest record IDs
+            - Run by [workflow ${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ---
+
+            🤖 *This PR was created automatically by GitHub Actions*
+          branch: update-zenodo-dois-${{ github.run_number }}-${{ github.run_id }}
+          base: main
+          labels: >
+            date-update${{ steps.format-datasets.outputs.dataset_labels && format(', {0}', steps.format-datasets.outputs.dataset_labels) || '' }}

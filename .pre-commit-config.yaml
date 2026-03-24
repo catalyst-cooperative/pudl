@@ -32,7 +32,7 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.5
+    rev: v0.15.7
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -65,6 +65,7 @@ repos:
             |.*\.bib
             |.*\.csv
             |.*\.html
+            |src/pudl/package_data/ferc1/.*_categories\.yaml
           )$ | migrations/ | devtools/ | test/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
         args: [] # Make this read, not write
 

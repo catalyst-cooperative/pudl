@@ -10,6 +10,10 @@ v2026.4.0 (unreleased)
 
 Enhancements
 ^^^^^^^^^^^^
+* Added a new standalone data deployment workflow, ``deploy-pudl.yml``. This is
+  still in testing, but will allow us to separate deployment from builds, enabling
+  deployment from an existing build and creating more modular and reusable
+  infrastructure. See issue :issue`5003` and PR :pr:`5016`.
 
 New Data
 ^^^^^^^^
@@ -19,6 +23,8 @@ RUS 7 & RUS 12
 
 * Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
   :pr:`5040`. See :pr:`5077`.
+* Added additional core and output tables from RUS Form 7 and 12.
+  See :pr:`5087` and :pr:`5091`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -29,14 +35,42 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Validate that sub-components in :ref:`core_rus7__yearly_energy_efficiency`,
+  :ref:`core_rus7__yearly_patronage_capital`,
+  :ref:`core_rus7__yearly_power_requirements_electric_customers`,
+  :ref:`core_rus7__yearly_power_requirements_electric_sales`,
+  :ref:`core_rus7__yearly_statement_of_operations` and
+  :ref:`core_rus12__yearly_statement_of_operations` and their corresponding output
+  tables sum to their reported totals. See :issue:`5039` and :pr:`5073`.
+* Modified schema checks so they can be applied to the largest tables, which have
+  typically been excluded from these checks. See Issue :issue:`5022` and PR :pr:`5043`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed a FERC EQR transform bug that was incorrectly parsing non-date contract
+  fields as datetimes, which caused several output columns to become entirely
+  ``NULL``. Also clarified and separated the ``product_name`` metadata
+  descriptions and allowed values for
+  :ref:`core_ferceqr__contracts` and :ref:`core_ferceqr__transactions` so their
+  constraints match their distinct ENUM constraints as documented in
+  :download:`v3.5 of the FERC EQR data dictionary
+  <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
+  See :pr:`5085`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
+  PR :pr:`5023`.
+* Added environment variable controls for Sphinx docs builds:
+  ``PUDL_DOCS_KEEP_GENERATED_FILES`` now preserves generated docs artifacts for
+  debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
+  when needed (for example in CI docs checks to avoid external docs outages).
+  See PR :pr:`5095`.
 
 .. _release-v2026.3.0:
 
@@ -122,7 +156,6 @@ Documentation
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 * Added an initial set of dbt data validations for the new RUS Form 7
   and Form 12 tables. See :issue:`4887`, :issue:`4888` and :pr:`5017`.
 * Add dbt data validations that will flag emissions removal efficiencies outside the

@@ -38,6 +38,7 @@ from pudl.metadata.enums import (
     LIABILITY_TYPES_FERC1,
     LIABILITY_TYPES_RUS7,
     LIABILITY_TYPES_RUS12,
+    LOAN_STATUS_TYPES_RUS7,
     MAIN_PIPE_SIZES_PHMSAGAS,
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
@@ -51,12 +52,16 @@ from pudl.metadata.enums import (
     REVENUE_CLASSES_EIA176,
     REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
+    SERVICE_INTERRUPTION_PERIODS_RUS7,
+    SERVICE_INTERRUPTION_TYPES_RUS7,
+    SERVICE_STATUS_RUS7,
     SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_EIAAEO,
     TECH_DESCRIPTIONS_NRELATB,
+    TRANSMISSION_DISTRIBUTION_TYPES_RUS7,
     US_TIMEZONES,
     UTILITY_PLANT_ASSET_TYPES_FERC1,
 )
@@ -238,6 +243,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Removal efficiency for acid gas emissions. Ranges from 0 to 1.",
     },
+    "anticipated_pct": {
+        "type": "number",
+        "description": ("Expected percentage."),
+    },
+    "actual_pct": {
+        "type": "number",
+        "description": ("Observed percentage."),
+    },
     "actual_peak_demand_savings_mw": {
         "type": "number",
         "description": (
@@ -405,11 +418,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "USD",
     },
+    "amount_due_over_60_days": {
+        "description": (
+            "Reported amount of dollars due over 60 days from consumers for electric service. Includes both connected and disconnected customers."
+        ),
+        "type": "number",
+        "unit": "USD",
+    },
     "amount_type": {
         "type": "string",
         "description": (
             "Label describing the type of amount being reported. This could be a balance or a change in value."
         ),
+    },
+    "amount_written_off_ytd": {
+        "description": (
+            "Total charges due from consumers for electric service written off during the current year to "
+            "Account 144.1, representing the write-off of uncollectible accounts."
+        ),
+        "type": "number",
+        "unit": "USD",
     },
     "appro_part_label": {
         "type": "string",
@@ -796,19 +824,29 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capacity_factor": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_eia": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_ferc1": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
+        ),
+    },
+    "capacity_factor_running": {
+        "type": "number",
+        "description": (
+            "Fraction of potential generation over the time period a plant was in operation. "
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_offshore_wind": {
@@ -4306,6 +4344,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "constraints": {"enum": ["labor", "material"]},
     },
+    "line_type": {
+        "type": "string",
+        "description": (
+            "The type of line mileage reported (e.g., transmission, overhead distribution)."
+        ),
+        "constraints": {"enum": TRANSMISSION_DISTRIBUTION_TYPES_RUS7},
+    },
     "lines_or_stations": {
         "type": "string",
         "description": (
@@ -4399,6 +4444,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "loan_recipient": {
         "type": "string",
         "description": "The organization that received a loan.",
+    },
+    "loan_status": {
+        "type": "string",
+        "description": "The repayment status of a loan.",
+        "constraints": {"enum": LOAN_STATUS_TYPES_RUS7},
     },
     "longitude": {
         "type": "number",
@@ -4583,6 +4633,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines."
         ),
         # TODO: Add ENUM constraint.
+    },
+    "miles": {
+        "type": "number",
+        "description": "Line length at the end of the reported period, in miles.",
+        "unit": "miles",
     },
     "min_fuel_mmbtu_per_unit": {
         "type": "number",
@@ -6215,7 +6270,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": ("Unique numeric identifier for each renewable fuel type."),
         "constraints": {
-            "enum": list(range(1, 16)),
+            "minimum": 1,
+            "maximum": 15,
         },
     },
     "primary_transportation_mode_code": {
@@ -6715,6 +6771,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "USD",
     },
+    "saidi_minutes": {
+        "type": "number",
+        "description": (
+            "Cumulative duration (minutes) of interruption for the average customer "
+            "during the report year."
+        ),
+        "unit": "min",
+    },
     "saidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number",
         "description": (
@@ -6930,6 +6994,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected"
         ),
     },
+    "service_interruption_cause": {
+        "type": "string",
+        "description": ("Source of service interruption."),
+        "constraints": {"enum": SERVICE_INTERRUPTION_TYPES_RUS7},
+    },
+    "service_status": {
+        "type": "string",
+        "description": (
+            "Status of services (e.g., idle, retired) in report period. Idle services exclude seasonals."
+        ),
+        "constraints": {"enum": SERVICE_STATUS_RUS7},
+    },
     "services_efv_in_system": {
         "type": "integer",
         "description": (
@@ -6971,7 +7047,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "services": {
         "type": "number",
-        "description": "Number of end in system at end of year.",
+        "description": "Number of services in system at end of year.",
     },
     "short_form": {
         "type": "boolean",
@@ -8312,6 +8388,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Year the data was reported in, used for partitioning EPA CEMS.",
     },
+    "ytd_dollars": {
+        "type": "number",
+        "description": "Balance this current year, in U.S. dollars.",
+        "unit": "USD",
+    },
     "zip_code": {
         "type": "string",
         "description": "Five digit US Zip Code.",
@@ -8365,7 +8446,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The wind quality class for turbines at this generator. See table core_eia__codes_wind_quality_class for specifications about each class."
         ),
-        "constraints": {"enum": [1, 2, 3, 4]},
+        "constraints": {
+            "minimum": 1,
+            "maximum": 4,
+        },
     },
     "wind_speed_avg_ms": {
         "type": "number",
@@ -9614,7 +9698,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Investment type code.",
         "constraints": {
-            "enum": set(CODE_METADATA["core_rus__codes_investment_types"]["df"]["code"])
+            "minimum": CODE_METADATA["core_rus__codes_investment_types"]["df"][
+                "code"
+            ].min(),
+            "maximum": CODE_METADATA["core_rus__codes_investment_types"]["df"][
+                "code"
+            ].max(),
         },
     },
     "included_investments": {
@@ -9784,6 +9873,131 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Number of times the plant was started. "
             "This field is only reported for plant_type's steam and nuclear."
         ),
+    },
+    "delivered_demand_mw": {
+        "type": "number",
+        "description": "The amount of demand delivered in MW.",
+        "unit": "MW",
+    },
+    "delivered_energy_mwh": {
+        "type": "number",
+        "description": "The amount of energy delivered in MWh.",
+        "unit": "MWh",
+    },
+    "delivery_recipient": {
+        "type": "string",
+        "description": "The recipient of the delivered energy or demand.",
+    },
+    "energy_output_mwh": {
+        "type": "number",
+        "description": "The amount of energy output in MWh.",
+        "unit": "MWh",
+    },
+    "peak_demand_date": {
+        "type": "datetime",
+        "description": "The date of the peak demand.",
+    },
+    "load_factor": {
+        "type": "number",
+        "description": (
+            "Fraction of consumption vs demand reported for a plant over a given timeframe. "
+            "Energy consumed over time period / peak demand * time period (hours/years/etc.)."
+        ),
+    },
+    "peak_gross_demand_mw": {
+        "type": "number",
+        "description": (
+            "The highest average power output recorded over any single 15 minute "
+            "interval during the reporting period."
+        ),
+        "unit": "MW",
+    },
+    "peak_gross_demand_nameplate_mw": {
+        "type": "number",
+        "description": (
+            "The theoretical or nameplate peak the plant could produce under the best "
+            "operating conditions during the reporting period."
+        ),
+        "unit": "MW",
+    },
+    "average_energy_cost_dollars_per_mwh": {
+        "type": "number",
+        "description": "The average cost of energy per MWh.",
+        "unit": "dollars_per_MWh",
+    },
+    "purchased_energy_cost_total": {
+        "type": "number",
+        "description": (
+            "The total cost of purchased energy. Includes fuel cost adjustment and wheeling and other charges."
+        ),
+        "unit": "USD",
+    },
+    "is_supplier_eia_respondent": {
+        "type": "boolean",
+        "description": "Whether the utility supplying energy to a RUS borrower is an EIA respondent.",
+    },
+    "supplier_code_rus": {
+        "type": "string",
+        "description": "Unique numeric identifier for the utility supplying energy to a RUS borrower.",
+    },
+    "wheeling_and_other_charges": {
+        "type": "number",
+        "description": (
+            "The cost of wheeling and other charges or credits related to fuel. "
+            "Included in the total cost."
+        ),
+    },
+    "fuel_cost_adjustment": {
+        "type": "number",
+        "description": (
+            "The variable fuel surcharge component of a distribution cooperative's wholesale "
+            "purchased power bill, reflecting pass-through of actual fuel cost fluctuations "
+            "from the supplying utility, reported separately from base power charges and "
+            "wheeling costs. Included in the total cost."
+        ),
+    },
+    "fuel_type_code_rus": {
+        "type": "integer",
+        "description": "Unique numeric identifier for RUS fuel types.",
+        "constraints": {
+            "minimum": CODE_METADATA["core_rus__codes_fuel_types"]["df"]["code"].min(),
+            "maximum": CODE_METADATA["core_rus__codes_fuel_types"]["df"]["code"].max(),
+        },
+    },
+    "electric_or_other_materials": {
+        "type": "string",
+        "description": "Whether the cost is for electric materials or other materials",
+        "constraints": {"enum": {"electric_materials", "other_materials"}},
+    },
+    "materials_adjustment": {
+        "type": "number",
+        "description": "An adjustment value for the cost of materials and supplies.",
+        "unit": "USD",
+    },
+    "materials_ending_balance": {
+        "type": "number",
+        "description": "The balance at the end of the report year for materials and supplies.",
+        "unit": "USD",
+    },
+    "materials_purchased": {
+        "type": "number",
+        "description": "The cost of materials and supplies purchased.",
+        "unit": "USD",
+    },
+    "materials_salvaged": {
+        "type": "number",
+        "description": "The cost of materials and supplies salvaged.",
+        "unit": "USD",
+    },
+    "materials_sold": {
+        "type": "number",
+        "description": "The cost of materials and supplies sold.",
+        "unit": "USD",
+    },
+    "materials_used": {
+        "type": "number",
+        "description": "The cost of materials and supplies used.",
+        "unit": "USD",
     },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
@@ -10692,7 +10906,44 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "core_ferceqr__contracts": {
         "product_name": {
+            "description": (
+                "Description of product being offered. Note that allowed values"
+                " differ slightly from those in :ref:`core_ferceqr__transactions`."
+                " BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
+                " CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis."
+                " CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service."
+                " DIRECT ASSIGNMENT FACILITIES CHARGE: Charges for facilities or portions of facilities that are constructed or used for the sole use/benefit of a particular customer."
+                " EMERGENCY ENERGY: Contractual provisions to supply energy or capacity to another entity during critical situations."
+                " ENERGY: A quantity of electricity that is sold or transmitted over a period of time."
+                " ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
+                " FUEL CHARGE: Charge based on the cost or amount of fuel used for generation."
+                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs."
+                " INTERCONNECTION AGREEMENT: Contract that provides the terms and conditions for a generator, distribution system owner, transmission owner, transmission provider, or transmission system to physically connect to a transmission system or distribution system."
+                " MEMBERSHIP AGREEMENT: Agreement to participate and be subject to rules of a system operator."
+                " MUST RUN AGREEMENT: An agreement that requires a unit to run."
+                " NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies)."
+                " NETWORK: Transmission service under contract providing network service."
+                " NETWORK OPERATING AGREEMENT: An executed agreement that contains the terms and conditions under which a network customer operates its facilities and the technical and operational matters associated with the implementation of network integration transmission service."
+                " OTHER: Product name not otherwise included."
+                " POINT-TO-POINT AGREEMENT: Transmission service under contract between specified Points of Receipt and Delivery."
+                " PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over."
+                " REACTIVE SUPPLY & VOLTAGE CONTROL: Production or absorption of reactive power to maintain voltage levels on transmission systems (Ancillary Service)."
+                " REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system."
+                " REASSIGNMENT AGREEMENT: Transmission capacity reassignment agreement."
+                " REGULATION & FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
+                " SCHEDULE SYSTEM CONTROL & DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service)."
+                " SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " SYSTEM OPERATING AGREEMENTS: An executed agreement that contains the terms and conditions under which a system or network customer shall operate its facilities and the technical and operational matters associated with the implementation of network."
+                " TOLLING ENERGY: Energy sold from a plant whereby the buyer provides fuel to a generator (seller) and receives power in return for pre-established fees."
+                " TRANSMISSION OWNERS AGREEMENT: The agreement that establishes the terms and conditions under which a transmission owner transfers operational control over designated transmission facilities."
+                " UPLIFT: A make-whole payment by an RTO/ISO to a utility."
+            ),
             "constraints": {
+                "required": True,
                 "enum": [
                     "BLACK START SERVICE",
                     "CAPACITY",
@@ -10726,11 +10977,66 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "TOLLING ENERGY",
                     "TRANSMISSION OWNERS AGREEMENT",
                     "UPLIFT",
-                ]
+                ],
             },
         },
     },
     "core_ferceqr__transactions": {
+        "product_name": {
+            "description": (
+                "Description of product being offered. Note that allowed values"
+                " differ slightly from those in :ref:`core_ferceqr__contracts`."
+                " BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
+                " BOOKED OUT POWER: Energy or capacity contractually committed bilaterally for delivery but not actually delivered due to some offsetting or countervailing trade (Transaction only)."
+                " CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis."
+                " CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service."
+                " ENERGY: A quantity of electricity that is sold or transmitted over a period of time."
+                " ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
+                " FUEL CHARGE: Charge based on the cost or amount of fuel used for generation."
+                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs."
+                " NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies)."
+                " OTHER: Product name not otherwise included."
+                " PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over."
+                " REACTIVE SUPPLY & VOLTAGE CONTROL: Production or absorption of reactive power to maintain voltage levels on transmission systems (Ancillary Service)."
+                " REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system."
+                " REGULATION & FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
+                " SCHEDULE SYSTEM CONTROL & DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service)."
+                " SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " TOLLING ENERGY: Energy sold from a plant whereby the buyer provides fuel to a generator (seller) and receives power in return for pre-established fees."
+                " UPLIFT: A make-whole payment by an RTO/ISO to a utility."
+            ),
+            "constraints": {
+                "required": True,
+                "enum": [
+                    "BLACK START SERVICE",
+                    "BOOKED OUT POWER",
+                    "CAPACITY",
+                    "CUSTOMER CHARGE",
+                    "ENERGY",
+                    "ENERGY IMBALANCE",
+                    "EXCHANGE",
+                    "FUEL CHARGE",
+                    "GENERATOR IMBALANCE",
+                    "GRANDFATHERED BUNDLED",
+                    "NEGOTIATED-RATE TRANSMISSION",
+                    "OTHER",
+                    "PRIMARY FREQUENCY RESPONSE",
+                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
+                    "REAL POWER TRANSMISSION LOSS",
+                    "REGULATION & FREQUENCY RESPONSE",
+                    "REQUIREMENTS SERVICE",
+                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
+                    "SPINNING RESERVE",
+                    "SUPPLEMENTAL RESERVE",
+                    "TOLLING ENERGY",
+                    "UPLIFT",
+                ],
+            },
+        },
         "timezone": {
             "type": "string",
             "description": (
@@ -10776,35 +11082,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 ],
             },
         },
-        "product_name": {
-            "constraints": {
-                "enum": [
-                    "BLACK START SERVICE",
-                    "BOOKED OUT POWER",
-                    "CAPACITY",
-                    "CUSTOMER CHARGE",
-                    "EMERGENCY ENERGY",
-                    "ENERGY",
-                    "ENERGY IMBALANCE",
-                    "EXCHANGE",
-                    "FUEL CHARGE",
-                    "GENERATOR IMBALANCE",
-                    "GRANDFATHERED BUNDLED",
-                    "NEGOTIATED-RATE TRANSMISSION",
-                    "OTHER",
-                    "PRIMARY FREQUENCY RESPONSE",
-                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
-                    "REAL POWER TRANSMISSION LOSS",
-                    "REGULATION & FREQUENCY RESPONSE",
-                    "REQUIREMENTS SERVICE",
-                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
-                    "SPINNING RESERVE",
-                    "SUPPLEMENTAL RESERVE",
-                    "TOLLING ENERGY",
-                    "UPLIFT",
-                ]
-            },
-        },
     },
     "core_rus7__yearly_balance_sheet_assets": {
         "asset_type": {
@@ -10813,6 +11090,16 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Type of asset being reported to the core_rus7__yearly_balance_sheet_assets table."
             ),
             "constraints": {"enum": ASSET_TYPES_RUS7},
+        },
+    },
+    "core_rus7__yearly_service_interruptions": {
+        "observation_period": {
+            "constraints": {"enum": SERVICE_INTERRUPTION_PERIODS_RUS7},
+        },
+    },
+    "out_rus7__yearly_service_interruptions": {
+        "observation_period": {
+            "constraints": {"enum": SERVICE_INTERRUPTION_PERIODS_RUS7},
         },
     },
     "core_rus7__yearly_balance_sheet_liabilities": {
@@ -10843,7 +11130,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "cost_of_electric_service",
                     "customer_accounts",
                     "customer_service",
-                    "deprecation",
+                    "depreciation",
                     "distribution_maintenance",
                     "distribution_operation",
                     "equity_investment_losses",
@@ -10888,6 +11175,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             ),
             "constraints": {"enum": LIABILITY_TYPES_RUS12},
         },
+    },
+    "core_rus12__monthly_demand_and_energy_at_power_sources": {
+        "peak_demand_mw": {"description": "peak demand in a given timeframe."}
     },
 }
 
