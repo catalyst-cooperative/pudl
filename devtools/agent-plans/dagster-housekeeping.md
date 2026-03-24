@@ -354,7 +354,8 @@ Relevant code paths:
 
 ### Epic 3 Objective
 
-Break apart centralized module registration logic into cohesive domain modules once launch pathways are standardized.
+Break apart centralized module registration logic into cohesive domain modules once
+launch pathways are standardized.
 
 ### Why metadata work matters now
 
