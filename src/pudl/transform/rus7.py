@@ -560,6 +560,80 @@ def _core_rus7__yearly_external_financial_risk_ratio(
     return df
 
 
+@asset
+def _core_rus7__yearly_energy_purchased(
+    raw_rus7__energy_purchased: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the raw_rus7__energy_purchased table."""
+    df = rus.early_transform(
+        raw_df=raw_rus7__energy_purchased,
+        boolean_columns_to_fix=["is_supplier_eia_respondent"],
+    )
+    # Convert units
+    df = rus.convert_units(
+        df,
+        old_unit="kwh",
+        new_unit="mwh",
+        converter=0.001,
+    ).pipe(
+        rus.convert_units,
+        old_unit="cents_per_mwh",
+        new_unit="dollars_per_mwh",
+        converter=0.01,
+    )
+    # Spot fix fuel_types
+    df["fuel_type"] = df.fuel_type.replace(
+        {
+            "Solar - photvoltaic": "Solar - photovoltaic",
+            "12": "Solar - photovoltaic",
+            "14": "Wind",
+        }
+    )
+    # Spot fix fuel_type_codes
+    df["fuel_type_code_rus"] = df.fuel_type_code_rus.replace(
+        {
+            " LLC - Commercial Solar": 12,
+            " Iowa Windfarm": 14,
+        }
+    )
+    df["fuel_type_code_rus"] = pd.to_numeric(df["fuel_type_code_rus"]).astype("Int64")
+
+    # TO-DO: it looks like the supplier_code_rus, is_supplier_eia_respondent, and utility_name_eia fields could
+    # be turned into their own table. I investigated a bit and it's not a perfect 1:1 mapping, but
+    # it's close. Could turn this function into a multi-asset with an scd table...
+    return df
+
+
+@asset
+def _core_rus7__yearly_materials_and_supplies(
+    raw_rus7__materials_and_supplies: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the materials and supplies table."""
+    df = rus.early_transform(raw_df=raw_rus7__materials_and_supplies)
+    data_cols = [
+        "adjustment",
+        "ending_balance",
+        "purchased",
+        "salvaged",
+        "sold",
+        "used",
+    ]
+    electric_or_other_materials = [
+        "electric_materials",
+        "other_materials",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(electric_or_other_materials)})_({'|'.join(data_cols)})$",
+        match_names=["electric_or_other_materials", "data_cols"],
+        unstack_level=["electric_or_other_materials"],
+    )
+    df = df.rename(columns={x: "materials_" + x for x in data_cols})
+    return df
+
+
 ######################################
 # HARVESTING aka NORMALIZATION
 ######################################

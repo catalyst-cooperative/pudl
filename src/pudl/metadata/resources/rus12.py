@@ -606,6 +606,101 @@ RESOURCE_METADATA_BASE = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__monthly_demand_and_energy_at_delivery_points": {
+        "description": {
+            "additional_summary_text": (
+                "demand and energy delivered to distribution utilities."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section E)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "delivery_recipient",
+                "delivered_demand_mw",
+                "delivered_energy_mwh",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "delivery_recipient",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__monthly_demand_and_energy_at_power_sources": {
+        "description": {
+            "additional_summary_text": ("demand and energy at point of generation."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section D)",
+            "additional_details_text": (
+                "There are some peak demand dates that have an hour component and others that don't. "
+                "This is because there is inconsistent reporting of peak_demand_hour in the raw data. "
+                "If there is no hour reported, we record the hour as 0 and only the date will show in "
+                "the data."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "energy_output_mwh",
+                "peak_demand_mw",
+                "peak_demand_date",
+                "is_peak_coincident",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_plant_factors_and_maximum_demand": {
+        "description": {
+            "additional_summary_text": (
+                "plant factors and maximum demand for plants owned by RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Parts D, E, F IC, F CC, G - Section C)",
+            "additional_primary_key_text": (
+                "The primary key for this table would be report_date, borrower_id_rus, plant_name_rus, and plant_type "
+                "but the plant_type column is not reported before 2009 causing lots of duplicate records. "
+                "Because none of the other fields are static year-over-year, there is no reliable way to backfill "
+                "the plant_type column in instances where there are different plant_types reported for the same plant "
+                "in later years."
+            ),
+            "additional_details_text": (
+                "The plant_type field was only included in the data starting in 2009. We backfill records with only "
+                "one reported plant_type per borrower/plant name/year. Records with multiple plant_types per "
+                "borrower/plant name/year are left with null plant_type because there is no reliable way to "
+                "determine which plant_type is associated with which record back in time. Plants who's names are "
+                "reported differently pre and post 2009 will also miss being backfilled."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "plant_name_rus",
+                "plant_type",
+                "capacity_factor",
+                "capacity_factor_running",
+                "load_factor",
+                "peak_gross_demand_mw",
+                "peak_gross_demand_nameplate_mw",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
 }
 
 

@@ -600,6 +600,69 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+    "core_rus7__yearly_energy_purchased": {
+        "description": {
+            "additional_summary_text": "energy purchased by RUS borrowers.",
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part K)",
+            "additional_primary_key_text": (
+                "The primary key would probably be report_date, borrower_id_rus, fuel_type_code, "
+                "supplier_code_rus, renewable_energy_program if not for certain EIA utilities "
+                "represented as Miscellaneous (supplier code 700000)."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "purchased_mwh",
+                "purchased_energy_cost_total",
+                "average_energy_cost_dollars_per_mwh",
+                "wheeling_and_other_charges",
+                "fuel_cost_adjustment",
+                # "fuel_type" --> TO-DO: add in out table?
+                "fuel_type_code_rus",
+                "is_supplier_eia_respondent",
+                "supplier_code_rus",
+                "utility_name_eia",
+                "comments",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_materials_and_supplies": {
+        "description": {
+            "additional_summary_text": (
+                "cost of electric vs. other materials that were purchased, salvaged, "
+                "used, or sold."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part F)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "electric_or_other_materials",
+                "materials_adjustment",
+                "materials_ending_balance",
+                "materials_purchased",
+                "materials_salvaged",
+                "materials_sold",
+                "materials_used",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "electric_or_other_materials",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
 }
 
 

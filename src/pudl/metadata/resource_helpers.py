@@ -25,6 +25,9 @@ HARVESTED_CORE_TABLES_RUS12 = [
     "core_rus12__yearly_plant_operations_by_plant",
     "core_rus12__yearly_investments",
     "core_rus12__yearly_external_financial_risk_ratio",
+    "core_rus12__monthly_demand_and_energy_at_delivery_points",
+    "core_rus12__monthly_demand_and_energy_at_power_sources",
+    "core_rus12__yearly_plant_factors_and_maximum_demand",
 ]
 
 HARVESTED_CORE_TABLES_RUS7 = [
@@ -43,6 +46,8 @@ HARVESTED_CORE_TABLES_RUS7 = [
     "core_rus7__yearly_loans",
     "core_rus7__yearly_external_financial_risk_ratio",
     "core_rus7__yearly_long_term_debt",
+    "core_rus7__yearly_energy_purchased",
+    "core_rus7__yearly_materials_and_supplies",
     "core_rus7__yearly_owed_by_customers",
     "core_rus7__yearly_customer_energy_efficiency_and_conservation_loans",
     "core_rus7__yearly_service_interruptions",
