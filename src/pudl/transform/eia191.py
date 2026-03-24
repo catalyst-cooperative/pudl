@@ -46,7 +46,7 @@ def core_eia191__monthly_gas_storage(
             "field_name",
             "reservoir_name",
             "field_type",
-            "county_name",
+            "county",
             "status",
             "region",
         ],

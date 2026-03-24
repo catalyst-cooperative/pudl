@@ -26,9 +26,9 @@ def upgrade() -> None:
             sa.Text(),
             nullable=False,
             comment=(
-                "EIA-assigned identifier for an underground natural gas storage reservoir, "
-                "as reported on Form 191. Uniquely identifies a reservoir across all "
-                "reporting periods."
+                "EIA-assigned identifier for an underground natural gas storage reservoir "
+                "as reported on Form 191. IDs are assigned per company and state, so the "
+                "same physical reservoir may have different IDs if ownership changes."
             ),
         ),
         sa.Column(
@@ -44,18 +44,18 @@ def upgrade() -> None:
             comment="Two letter US state abbreviation.",
         ),
         sa.Column(
-            "gas_field_code",
-            sa.Text(),
+            "gas_field_id_eia",
+            sa.Integer(),
             nullable=True,
-            comment="EIA-assigned code identifying the natural gas storage field, as reported on Form 191.",
+            comment="EIA-assigned numeric identifier for a natural gas storage field.",
         ),
         sa.Column(
             "reservoir_code",
-            sa.Text(),
+            sa.Integer(),
             nullable=True,
             comment=(
-                "EIA-assigned code identifying the individual storage reservoir within "
-                "a natural gas storage field, as reported on Form 191."
+                "EIA-assigned numeric code identifying the individual storage reservoir "
+                "within a natural gas storage field."
             ),
         ),
         sa.Column(
@@ -94,13 +94,10 @@ def upgrade() -> None:
             ),
         ),
         sa.Column(
-            "county_name",
+            "county",
             sa.Text(),
             nullable=True,
-            comment=(
-                "Name of the county in which the storage reservoir is located, as reported "
-                "to EIA on Form 191."
-            ),
+            comment="County name.",
         ),
         sa.Column(
             "status",
@@ -116,10 +113,9 @@ def upgrade() -> None:
             sa.Float(),
             nullable=True,
             comment=(
-                "Volume of base gas (cushion gas) in the underground storage reservoir, "
-                "as reported by the operator to EIA on Form 191. Base gas is the volume "
-                "of gas intended as permanent inventory in a reservoir to maintain "
-                "adequate pressure and deliverability rates."
+                "Volume of base gas (cushion gas) in the underground storage reservoir. "
+                "Base gas is the volume of gas intended as permanent inventory in a "
+                "reservoir to maintain adequate pressure and deliverability rates."
             ),
         ),
         sa.Column(

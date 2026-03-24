@@ -21,6 +21,7 @@ from pudl.metadata.enums import (
     DAMAGE_SUB_TYPES_PHMSAGAS,
     DAMAGE_TYPES_PHMSAGAS,
     DIVISION_CODES_US_CENSUS,
+    EIA191_STORAGE_REGIONS,
     ELECTRICITY_MARKET_MODULE_REGIONS,
     ENERGY_DISPOSITION_TYPES_FERC1,
     ENERGY_SOURCE_TYPES_FERC1,
@@ -611,10 +612,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "base_gas_mcf": {
         "type": "number",
         "description": (
-            "Volume of base gas (cushion gas) in the underground storage reservoir, "
-            "as reported by the operator to EIA on Form 191. Base gas is the volume "
-            "of gas intended as permanent inventory in a reservoir to maintain "
-            "adequate pressure and deliverability rates."
+            "Volume of base gas (cushion gas) in the underground storage reservoir. "
+            "Base gas is the volume of gas intended as permanent inventory in a "
+            "reservoir to maintain adequate pressure and deliverability rates."
         ),
         "unit": "Mcf",
     },
@@ -1402,13 +1402,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "pattern": r"^\d{5}$",
         },
-    },
-    "county_name": {
-        "type": "string",
-        "description": (
-            "Name of the county in which the storage reservoir is located, as reported "
-            "to EIA on Form 191."
-        ),
     },
     "county_name_census": {
         "type": "string",
@@ -3748,12 +3741,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    "gas_field_code": {
-        "type": "string",
-        "description": (
-            "EIA-assigned code identifying the natural gas storage field, as reported "
-            "on Form 191."
-        ),
+    "gas_field_id_eia": {
+        "type": "integer",
+        "description": "EIA-assigned numeric identifier for a natural gas storage field.",
     },
     "gas_fraction_cost": {
         "type": "number",
@@ -6499,16 +6489,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "EIA storage region in which the underground natural gas storage field "
             "is located, as reported on Form 191."
         ),
-        "constraints": {
-            "enum": [
-                "alaska",
-                "east region",
-                "midwest region",
-                "mountain region",
-                "pacific region",
-                "south central region",
-            ],
-        },
+        "constraints": {"enum": EIA191_STORAGE_REGIONS},
     },
     "region_name_eiaaeo": {
         "type": "string",
@@ -6632,10 +6613,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         },
     },
     "reservoir_code": {
-        "type": "string",
+        "type": "integer",
         "description": (
-            "EIA-assigned code identifying the individual storage reservoir within "
-            "a natural gas storage field, as reported on Form 191."
+            "EIA-assigned numeric code identifying the individual storage reservoir "
+            "within a natural gas storage field."
         ),
     },
     "reservoir_name": {
@@ -7536,9 +7517,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "storage_field_id_eia191": {
         "type": "string",
         "description": (
-            "EIA-assigned identifier for an underground natural gas storage reservoir, "
-            "as reported on Form 191. Uniquely identifies a reservoir across all "
-            "reporting periods."
+            "EIA-assigned identifier for an underground natural gas storage reservoir "
+            "as reported on Form 191. IDs are assigned per company and state, so the "
+            "same physical reservoir may have different IDs if ownership changes."
         ),
     },
     "storage_technology_code_1": {

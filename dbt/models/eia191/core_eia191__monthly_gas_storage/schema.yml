@@ -30,13 +30,13 @@ sources:
           - name: storage_field_id_eia191
           - name: report_date
           - name: state
-          - name: gas_field_code
+          - name: gas_field_id_eia
           - name: reservoir_code
           - name: company_name
           - name: field_name
           - name: reservoir_name
           - name: field_type
-          - name: county_name
+          - name: county
           - name: status
           - name: base_gas_mcf
             data_tests:
