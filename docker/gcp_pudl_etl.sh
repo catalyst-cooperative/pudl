@@ -36,8 +36,8 @@ function initialize_postgres() {
         psql -c "CREATE DATABASE dagster OWNER dagster" -h127.0.0.1 -p5433
 }
 
-function run_pudl_etl() {
-    echo "Running PUDL ETL"
+function run_ferc_to_sqlite() {
+    echo "Running FERC to SQLite conversion"
     send_slack_msg ":play: Deployment started for $BUILD_ID :floppy_disk:"
     initialize_postgres &&
         authenticate_gcp &&
@@ -45,15 +45,32 @@ function run_pudl_etl() {
         ferc_to_sqlite \
             --loglevel DEBUG \
             --workers 8 \
-            "$PUDL_SETTINGS_YML" &&
-        pudl_etl \
-            --loglevel DEBUG \
-            "$PUDL_SETTINGS_YML" &&
-        pytest \
-            -n auto \
-            --etl-settings "$PUDL_SETTINGS_YML" \
-            --live-dbs test/integration test/unit \
-            --no-cov
+            "$PUDL_SETTINGS_YML"
+}
+
+function run_pudl_etl() {
+    echo "Running PUDL ETL"
+    pudl_etl \
+        --loglevel DEBUG \
+        "$PUDL_SETTINGS_YML"
+}
+
+function run_unit_tests() {
+    echo "Running unit tests"
+    pytest \
+        -n auto \
+        --etl-settings "$PUDL_SETTINGS_YML" \
+        --live-dbs test/unit \
+        --no-cov
+}
+
+function run_integration_tests() {
+    echo "Running integration tests"
+    pytest \
+        -n auto \
+        --etl-settings "$PUDL_SETTINGS_YML" \
+        --live-dbs test/integration \
+        --no-cov
 }
 
 function write_pudl_datapackage() {
@@ -259,7 +276,10 @@ function notify_slack() {
     fi
 
     message+=":time: \`[${total_build_duration}]\` Total Build Duration\n\n"
-    message+="$(slack_stage_status "Run PUDL ETL" "$ETL_STATUS" "$ETL_DURATION")\n"
+    message+="$(slack_stage_status "Run FERC to SQLite" "$FERC_TO_SQLITE_STATUS" "$FERC_TO_SQLITE_DURATION")\n"
+    message+="$(slack_stage_status "Run PUDL ETL" "$PUDL_ETL_STATUS" "$PUDL_ETL_DURATION")\n"
+    message+="$(slack_stage_status "Unit Tests" "$UNIT_TEST_STATUS" "$UNIT_TEST_DURATION")\n"
+    message+="$(slack_stage_status "Integration Tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")\n"
     message+="$(slack_stage_status "Write PUDL Datapackage" "$WRITE_DATAPACKAGE_STATUS" "$WRITE_DATAPACKAGE_DURATION")\n"
     message+="$(slack_stage_status "Save Build Outputs" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
     message+="$(slack_stage_status "Prep Outputs for Distribution" "$CLEAN_UP_OUTPUTS_STATUS" "$CLEAN_UP_OUTPUTS_DURATION")\n"
@@ -339,7 +359,10 @@ STAGE_SKIPPED="skipped"
 BUILD_START_EPOCH_SECONDS=$(date +%s)
 
 # Initialize our stage-status variables so they all definitely have a value to check
-ETL_STATUS="$STAGE_SKIPPED"
+FERC_TO_SQLITE_STATUS="$STAGE_SKIPPED"
+PUDL_ETL_STATUS="$STAGE_SKIPPED"
+UNIT_TEST_STATUS="$STAGE_SKIPPED"
+INTEGRATION_TEST_STATUS="$STAGE_SKIPPED"
 WRITE_DATAPACKAGE_STATUS="$STAGE_SKIPPED"
 SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
 UPDATE_NIGHTLY_STATUS="$STAGE_SKIPPED"
@@ -349,7 +372,10 @@ DISTRIBUTION_BUCKET_STATUS="$STAGE_SKIPPED"
 TRIGGER_DATA_VIEWER_DEPLOY_STATUS="$STAGE_SKIPPED"
 GCS_TEMPORARY_HOLD_STATUS="$STAGE_SKIPPED"
 
-ETL_DURATION=""
+FERC_TO_SQLITE_DURATION=""
+PUDL_ETL_DURATION=""
+UNIT_TEST_DURATION=""
+INTEGRATION_TEST_DURATION=""
 WRITE_DATAPACKAGE_DURATION=""
 SAVE_OUTPUTS_DURATION=""
 UPDATE_NIGHTLY_DURATION=""
@@ -387,9 +413,16 @@ echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
 set -x
 
-run_stage ETL_STATUS ETL_DURATION overwrite run_pudl_etl
+run_stage FERC_TO_SQLITE_STATUS FERC_TO_SQLITE_DURATION overwrite run_ferc_to_sqlite
+run_stage PUDL_ETL_STATUS PUDL_ETL_DURATION append run_pudl_etl
+run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION append run_unit_tests
+run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION append run_integration_tests
 
-if [[ "$ETL_STATUS" == 0 ]]; then
+if ! any_stage_failed \
+    "$FERC_TO_SQLITE_STATUS" \
+    "$PUDL_ETL_STATUS" \
+    "$UNIT_TEST_STATUS" \
+    "$INTEGRATION_TEST_STATUS"; then
     touch "$PUDL_OUTPUT/success"
 fi
 
@@ -404,7 +437,10 @@ pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
 
 run_stage SAVE_OUTPUTS_STATUS SAVE_OUTPUTS_DURATION append save_outputs_to_gcs
 
-exit_on_stage_failure "$ETL_STATUS"
+exit_on_stage_failure "$FERC_TO_SQLITE_STATUS"
+exit_on_stage_failure "$PUDL_ETL_STATUS"
+exit_on_stage_failure "$UNIT_TEST_STATUS"
+exit_on_stage_failure "$INTEGRATION_TEST_STATUS"
 
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
     run_stage UPDATE_NIGHTLY_STATUS UPDATE_NIGHTLY_DURATION append merge_tag_into_branch "$NIGHTLY_TAG" nightly
@@ -483,7 +519,10 @@ rm -f ~/.aws/credentials
 
 # Notify slack about entire pipeline's success or failure;
 if ! any_stage_failed \
-    "$ETL_STATUS" \
+    "$FERC_TO_SQLITE_STATUS" \
+    "$PUDL_ETL_STATUS" \
+    "$UNIT_TEST_STATUS" \
+    "$INTEGRATION_TEST_STATUS" \
     "$WRITE_DATAPACKAGE_STATUS" \
     "$SAVE_OUTPUTS_STATUS" \
     "$UPDATE_NIGHTLY_STATUS" \
