@@ -37,24 +37,40 @@ function initialize_postgres() {
 }
 
 function run_ferc_to_sqlite() {
-    # STUB: skipping real ETL for reporting test
-    echo "STUB: Skipping FERC to SQLite conversion"
+    echo "Running FERC to SQLite conversion"
     send_slack_msg ":play: Deployment started for $BUILD_ID :floppy_disk:"
+    initialize_postgres &&
+        authenticate_gcp &&
+        alembic upgrade head &&
+        ferc_to_sqlite \
+            --loglevel DEBUG \
+            --workers 8 \
+            "$PUDL_SETTINGS_YML"
 }
 
 function run_pudl_etl() {
-    # STUB: skipping real ETL for reporting test
-    echo "STUB: Skipping PUDL ETL"
+    echo "Running PUDL ETL"
+    pudl_etl \
+        --loglevel DEBUG \
+        "$PUDL_SETTINGS_YML"
 }
 
 function run_unit_tests() {
-    # STUB: skipping real tests for reporting test
-    echo "STUB: Skipping unit tests"
+    echo "Running unit tests"
+    pytest \
+        -n auto \
+        --etl-settings "$PUDL_SETTINGS_YML" \
+        --live-dbs test/unit \
+        --no-cov
 }
 
 function run_integration_tests() {
-    # STUB: skipping real tests for reporting test
-    echo "STUB: Skipping integration tests"
+    echo "Running integration tests"
+    pytest \
+        -n auto \
+        --etl-settings "$PUDL_SETTINGS_YML" \
+        --live-dbs test/integration \
+        --no-cov
 }
 
 function write_pudl_datapackage() {
