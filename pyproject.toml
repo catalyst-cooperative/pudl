@@ -394,7 +394,7 @@ alembic upgrade head && \
 dg launch --job pudl --config $DG_FULL_CONFIG
 """
 depends-on = ["pudl-clean"]
-description = "Run PUDL ETL assets without rebuilding raw FERC SQLite databases"
+description = "Run the full PUDL ETL without rebuilding raw FERC SQLite databases"
 
 [tool.pixi.tasks.pudl-with-ferc-to-sqlite]
 cmd = """
