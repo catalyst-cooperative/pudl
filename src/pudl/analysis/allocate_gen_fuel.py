@@ -868,11 +868,13 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify any generators that retire mid-year.
 
     These are "retired" generators that either:
+
     A) have a mid-year retirement date, OR
     B) report generator-specific generation data in the g table for a month after the
-        retirement date, OR
+       retirement date, OR
     C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
-        is unique to that generator at the plant, for a month after the retirement date.
+       is unique to that generator at the plant, for a month after the retirement date.
+
     """
     gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
     # identify the complete set of generator ids that are retiring mid year
@@ -967,9 +969,11 @@ def identify_generators_coming_online(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify generators that are coming online mid-year.
 
     These are defined as "proposed" generators that either:
+
     A) report generator-specific generation data in the g table, OR
     B) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
-        is unique to that generator at the plant.
+       is unique to that generator at the plant.
+
     """
     # sometimes a plant will report generation data before its proposed operating date
     # we want to keep any data that is reported for proposed generators
