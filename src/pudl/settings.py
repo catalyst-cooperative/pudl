@@ -445,7 +445,7 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
     technology_types: list[str] = ["wind", "solar"]
     processing_levels: list[str] = ["extended"]
     daily_weather: bool = True
-    parts: list[str] = []
+    parts: list[str] = Field(default_factory=list, validate_default=True)
 
     @field_validator("technology_types", "processing_levels")
     @classmethod
@@ -473,8 +473,9 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
 
     @field_validator("parts")
     @classmethod
-    def compile_parts(cls, parts: list[str], info: ValidationInfo) -> list[str]:
-        """Based on technology types and processing levels, compile a list of parts."""
+    def compile_parts(cls, _parts: list[str], info: ValidationInfo) -> list[str]:
+        """Compile parts from selected technologies, processing levels, and weather."""
+        parts = []
         if info.data["daily_weather"]:
             parts.append("daily_weather")
         if (
