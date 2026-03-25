@@ -410,7 +410,7 @@ alembic upgrade head && \
 dg launch --job pudl_with_ferc_to_sqlite --config $DG_NIGHTLY_CONFIG
 """
 depends-on = ["ferc-to-sqlite-clean", "pudl-clean"]
-description = "Run the full PUDL ETL using the nightly Dagster config"
+description = "Run the full PUDL ETL (including FERC) using the nightly Dagster config"
 
 # Code quality tasks
 [tool.pixi.tasks.pre-commit-run]
