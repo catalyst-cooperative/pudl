@@ -12,8 +12,9 @@ provide users access to all of the original tables, since we've only been able t
 clean up a small subset of them.
 
 The conversion from both DBF and XBRL to SQLite is coordinated by the
-:mod:`pudl.convert.ferc_to_sqlite` script. The code for the XBRL to SQLite conversion
-is used across all the modern FERC forms, and is contained in a standalone
+:mod:`pudl.dagster.assets.raw.ferc_to_sqlite` asset module. The code for the XBRL to
+SQLite conversion is used across all the modern FERC forms, and is contained in a
+standalone
 `ferc-xbrl-extractor package <https://github.com/catalyst-cooperative/ferc-xbrl-extractor>`__.
 
 The code for converting the older FERC 1 DBF files into an SQLite DB is contained in

@@ -84,6 +84,4 @@ def build_defs(
     )
 
 
-defs: dg.Definitions = build_defs()
-
-__all__ = ["build_defs", "defs"]
+__all__ = ["build_defs"]

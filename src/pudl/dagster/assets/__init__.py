@@ -53,7 +53,7 @@ raw_module_groups = {
 core_module_groups = {
     "core_assn": [glue],
     "core_censusdp1tract": [
-        pudl.convert.censusdp1tract_to_sqlite,
+        pudl.extract.censusdp1tract,
         pudl.output.censusdp1tract,
     ],
     "core_censuspep": [pudl.transform.censuspep],

@@ -3919,8 +3919,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.3.1.dev134
-  sha256: f612bd864ff830b6c0d1732ff933c55834901ee5953a8ba5e2e4348b1a809852
+  version: 2026.3.1.dev157
+  sha256: b5fe9ddc139b1cfc9bbf26e40890ec1031c6bf9843559fb259a1cb6383afe758
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb

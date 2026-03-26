@@ -440,7 +440,7 @@ description = "Install skills from lockfile"
 
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
-metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
+metadata_to_rst = "pudl.scripts.metadata_to_rst:metadata_to_rst"
 pudl_check_fks = "pudl.scripts.pudl_check_fks:main"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
 pudl_deploy = "pudl.scripts.deploy:pudl_deploy"

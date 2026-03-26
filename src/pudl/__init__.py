@@ -14,7 +14,6 @@ warnings.filterwarnings(
 
 from . import (  # noqa: E402
     analysis,
-    convert,
     extract,
     glue,
     helpers,

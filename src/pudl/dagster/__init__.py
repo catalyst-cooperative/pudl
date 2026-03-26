@@ -14,9 +14,11 @@ from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    import dagster as dg
+
     from pudl.dagster.asset_checks import default_asset_checks
     from pudl.dagster.assets import default_assets
-    from pudl.dagster.build import build_defs, defs
+    from pudl.dagster.build import build_defs
     from pudl.dagster.jobs import default_jobs
     from pudl.dagster.resources import default_resources
     from pudl.dagster.sensors import default_sensors
@@ -28,12 +30,17 @@ _EXPORTS = {
     "default_jobs": ("pudl.dagster.jobs", "default_jobs"),
     "default_resources": ("pudl.dagster.resources", "default_resources"),
     "default_sensors": ("pudl.dagster.sensors", "default_sensors"),
-    "defs": ("pudl.dagster.build", "defs"),
 }
 
 
 def __getattr__(name: str) -> Any:
     """Resolve public Dagster exports lazily to avoid eager package imports."""
+    if name == "defs":
+        from pudl.dagster.build import build_defs as _build_defs
+
+        value: dg.Definitions = _build_defs()
+        globals()["defs"] = value
+        return value
     try:
         module_name, attribute_name = _EXPORTS[name]
     except KeyError as err:
@@ -56,5 +63,5 @@ __all__ = [
     "default_jobs",
     "default_resources",
     "default_sensors",
-    "defs",
+    "defs",  # noqa: F822 - lazily resolved via __getattr__
 ]
