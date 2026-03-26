@@ -890,6 +890,16 @@ class EtlSettings(BaseSettings):
             yaml_file = yaml.safe_load(f)
         return cls.model_validate(yaml_file)
 
+    @property
+    def ferc_to_sqlite(self) -> "FercToSqliteSettings":
+        """Return validated FERC-to-SQLite settings, or raise if unavailable."""
+        if self.ferc_to_sqlite_settings is None:
+            raise ValueError(
+                "ferc_to_sqlite_settings is not set in ETL settings. "
+                "Ensure ferc_to_sqlite_settings is configured before accessing this property."
+            )
+        return self.ferc_to_sqlite_settings
+
     @model_validator(mode="after")
     def validate_xbrl_years(self):
         """Ensure the XBRL years in DatasetsSettings align with FercToSqliteSettings.
@@ -924,13 +934,6 @@ class EtlSettings(BaseSettings):
         if self.datasets is None:
             raise ValueError("Missing datasets settings in ETL settings.")
         return self.datasets
-
-    @property
-    def ferc_to_sqlite(self) -> FercToSqliteSettings:
-        """Return validated FERC-to-SQLite settings or raise if unavailable."""
-        if self.ferc_to_sqlite_settings is None:
-            raise ValueError("Missing ferc_to_sqlite_settings in ETL settings.")
-        return self.ferc_to_sqlite_settings
 
     def get_xbrl_dataset_settings(
         self, form_number: XbrlFormNumber

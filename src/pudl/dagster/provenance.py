@@ -10,7 +10,6 @@ For the closest Dagster concept, see
 https://docs.dagster.io/guides/build/assets/metadata-and-tags
 """
 
-import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -26,7 +25,7 @@ PROVENANCE_METADATA_DATASET = "pudl_ferc_sqlite_dataset"
 PROVENANCE_METADATA_STATUS = "pudl_ferc_sqlite_status"
 PROVENANCE_METADATA_ZENODO_DOI = "pudl_ferc_sqlite_zenodo_doi"
 PROVENANCE_METADATA_SETTINGS = "pudl_ferc_sqlite_etl_settings"
-PROVENANCE_METADATA_SETTINGS_HASH = "pudl_ferc_sqlite_etl_settings_hash"
+PROVENANCE_METADATA_YEARS = "pudl_ferc_sqlite_years"
 PROVENANCE_METADATA_SQLITE_PATH = "pudl_ferc_sqlite_path"
 
 
@@ -38,8 +37,7 @@ class FercSqliteProvenance:
     dataset: str
     data_format: str
     zenodo_doi: str
-    settings_json: str
-    settings_hash: str
+    years: list[int]
 
 
 def _get_dataset_and_format(db_name: str) -> tuple[str, str]:
@@ -58,23 +56,12 @@ def _get_dataset_and_format(db_name: str) -> tuple[str, str]:
     )
 
 
-def _serialize_settings(settings: Any) -> str:
-    if not hasattr(settings, "model_dump"):
-        raise TypeError(f"Unsupported provenance settings object: {type(settings)}")
-
-    return json.dumps(settings.model_dump(mode="json"), sort_keys=True)
-
-
-def _hash_settings(settings_json: str) -> str:
-    return hashlib.sha256(settings_json.encode("utf-8")).hexdigest()
-
-
 def get_ferc_sqlite_provenance(
     *,
     db_name: str,
     etl_settings: EtlSettings,
     zenodo_dois: ZenodoDoiSettings,
-) -> FercSqliteProvenance:
+) -> "FercSqliteProvenance":
     """Build the expected provenance fingerprint for a FERC SQLite database."""
     dataset, data_format = _get_dataset_and_format(db_name)
     settings_attr = f"{dataset}_{data_format}_to_sqlite_settings"
@@ -82,14 +69,12 @@ def get_ferc_sqlite_provenance(
     if settings is None:
         raise ValueError(f"Missing {settings_attr} in ETL settings.")
 
-    settings_json = _serialize_settings(settings)
     return FercSqliteProvenance(
         asset_key=dg.AssetKey(f"raw_{db_name}__sqlite"),
         dataset=dataset,
         data_format=data_format,
         zenodo_doi=str(getattr(zenodo_dois, dataset)),
-        settings_json=settings_json,
-        settings_hash=_hash_settings(settings_json),
+        years=sorted(settings.years),
     )
 
 
@@ -108,16 +93,20 @@ def build_ferc_sqlite_provenance_metadata(
         zenodo_dois=zenodo_dois,
     )
 
+    # Serialize the full settings for debugging / audit; not used in compatibility checks.
+    dataset, data_format = _get_dataset_and_format(db_name)
+    settings_attr = f"{dataset}_{data_format}_to_sqlite_settings"
+    settings_obj = getattr(etl_settings.ferc_to_sqlite, settings_attr)
+    settings_json = json.loads(
+        json.dumps(settings_obj.model_dump(mode="json"), sort_keys=True)
+    )
+
     metadata: dict[str, Any] = {
         PROVENANCE_METADATA_DATASET: dg.MetadataValue.text(provenance.dataset),
         PROVENANCE_METADATA_STATUS: dg.MetadataValue.text(status),
         PROVENANCE_METADATA_ZENODO_DOI: dg.MetadataValue.text(provenance.zenodo_doi),
-        PROVENANCE_METADATA_SETTINGS: dg.MetadataValue.json(
-            json.loads(provenance.settings_json)
-        ),
-        PROVENANCE_METADATA_SETTINGS_HASH: dg.MetadataValue.text(
-            provenance.settings_hash
-        ),
+        PROVENANCE_METADATA_SETTINGS: dg.MetadataValue.json(settings_json),
+        PROVENANCE_METADATA_YEARS: dg.MetadataValue.json(provenance.years),
     }
     if sqlite_path is not None:
         metadata[PROVENANCE_METADATA_SQLITE_PATH] = dg.MetadataValue.path(
@@ -138,7 +127,18 @@ def assert_ferc_sqlite_compatible(
     etl_settings: EtlSettings,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
-    """Ensure a persisted FERC SQLite prerequisite is compatible with this run."""
+    """Ensure a persisted FERC SQLite prerequisite is compatible with this run.
+
+    Compatibility requires two conditions to hold:
+
+    1. The Zenodo DOI recorded when the FERC SQLite DB was built must match the
+       current :class:`~pudl.workspace.datastore.ZenodoDoiSettings`. A mismatch
+       means the raw archive has changed version and the DB must be rebuilt.
+
+    2. The years stored in the FERC SQLite DB must be a *superset* of the years
+       needed by the current downstream settings. This allows a "full" FERC SQLite
+       DB to serve a "fast" downstream run without an expensive rebuild.
+    """
     if instance is None:
         return
 
@@ -152,7 +152,7 @@ def assert_ferc_sqlite_compatible(
     if materialization is None:
         raise RuntimeError(
             "No Dagster provenance metadata is available for "
-            f"{provenance.asset_key.to_user_string()}. Refresh the FERC SQLite assets"
+            f"{provenance.asset_key.to_user_string()}. Refresh the FERC SQLite assets."
         )
 
     metadata = {
@@ -162,7 +162,7 @@ def assert_ferc_sqlite_compatible(
     required_keys = [
         PROVENANCE_METADATA_STATUS,
         PROVENANCE_METADATA_ZENODO_DOI,
-        PROVENANCE_METADATA_SETTINGS_HASH,
+        PROVENANCE_METADATA_YEARS,
     ]
     missing_keys = [key for key in required_keys if key not in metadata]
     if missing_keys:
@@ -186,11 +186,16 @@ def assert_ferc_sqlite_compatible(
             f"stored={metadata[PROVENANCE_METADATA_ZENODO_DOI]!r}, "
             f"expected={provenance.zenodo_doi!r}"
         )
-    if metadata[PROVENANCE_METADATA_SETTINGS_HASH] != provenance.settings_hash:
+
+    stored_years = set(metadata[PROVENANCE_METADATA_YEARS])
+    required_years = set(provenance.years)
+    missing_years = required_years - stored_years
+    if missing_years:
         mismatches.append(
-            "ETL settings mismatch: "
-            f"stored={metadata[PROVENANCE_METADATA_SETTINGS_HASH]!r}, "
-            f"expected={provenance.settings_hash!r}"
+            "FERC SQLite DB is missing required years: "
+            f"missing={sorted(missing_years)}, "
+            f"stored={sorted(stored_years)}, "
+            f"required={sorted(required_years)}"
         )
 
     if mismatches:

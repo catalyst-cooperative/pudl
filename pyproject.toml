@@ -169,8 +169,6 @@ urllib3 = ">=2.4"
 uv = ">=0.10"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
-plotly_express = ">=0.4.1,<0.5"
-marimo = ">=0.20.4,<0.21"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
@@ -394,7 +392,7 @@ alembic upgrade head && \
 dg launch --job pudl --config $DG_FULL_CONFIG
 """
 depends-on = ["pudl-clean"]
-description = "Run PUDL ETL assets without rebuilding raw FERC SQLite databases"
+description = "Run the full PUDL ETL without rebuilding raw FERC SQLite databases"
 
 [tool.pixi.tasks.pudl-with-ferc-to-sqlite]
 cmd = """
@@ -410,7 +408,7 @@ alembic upgrade head && \
 dg launch --job pudl_with_ferc_to_sqlite --config $DG_NIGHTLY_CONFIG
 """
 depends-on = ["ferc-to-sqlite-clean", "pudl-clean"]
-description = "Run the full PUDL ETL using the nightly Dagster config"
+description = "Run the full PUDL ETL (including FERC) using the nightly Dagster config"
 
 # Code quality tasks
 [tool.pixi.tasks.pre-commit-run]

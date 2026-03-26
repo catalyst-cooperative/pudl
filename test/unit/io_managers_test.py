@@ -292,15 +292,6 @@ def test_migrations_match_metadata(tmp_path, monkeypatch):
     assert True
 
 
-def test_error_when_handling_view_without_metadata(fake_pudl_sqlite_io_manager_fixture):
-    """Make sure an error is thrown when a user creates a view without metadata."""
-    asset_key = "track_view"
-    sql_stmt = "CREATE VIEW track_view AS SELECT * FROM track;"
-    output_context = build_output_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(ValueError):
-        fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
-
-
 def test_empty_read_fails(fake_pudl_sqlite_io_manager_fixture):
     """Reading empty table fails."""
     with pytest.raises(AssertionError):
@@ -344,16 +335,12 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
         ferc_to_sqlite_settings=FercToSqliteSettings(),
     )
     zenodo_dois = ZenodoDoiSettings()
-    fake_engine = mocker.MagicMock()
-    fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
     fake_manager = mocker.MagicMock()
-    fake_manager.engine = fake_engine
+    fake_manager._query.return_value = pd.DataFrame(
+        {"sched_table_name": ["f1_respondent_id"]}
+    )
     mocker.patch(
         "pudl.dagster.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager
-    )
-    read_sql_query = mocker.patch(
-        "pudl.dagster.io_managers.pd.read_sql_query",
-        return_value=pd.DataFrame({"report_year": [2020]}),
     )
 
     manager = ferc1_dbf_sqlite_io_manager.model_copy(
@@ -379,36 +366,26 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
     observed = manager.load_input(context)
 
     assert observed["sched_table_name"].eq("f1_respondent_id").all()
-    assert read_sql_query.call_args.kwargs["params"] == {
-        "min_year": min(dataset_settings.ferc1.dbf_years),
-        "max_year": max(dataset_settings.ferc1.dbf_years),
-    }
+    fake_manager._query.assert_called_once_with(
+        "f1_respondent_id",
+        dataset_settings.ferc1.dbf_years,
+    )
 
 
 def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
-    """The migrated FERC XBRL IO manager should refine years using injected settings."""
+    """The migrated FERC XBRL IO manager should pass years from injected settings."""
     dataset_settings = DatasetsSettings.model_validate({"ferc1": {"years": [2021]}})
     etl_settings = EtlSettings(
         datasets=dataset_settings,
         ferc_to_sqlite_settings=FercToSqliteSettings(),
     )
     zenodo_dois = ZenodoDoiSettings()
-    fake_engine = mocker.MagicMock()
-    fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
     fake_manager = mocker.MagicMock()
-    fake_manager.engine = fake_engine
-    fake_manager.md.tables = {"plant_in_service_duration": object()}
-    mocker.patch(
-        "pudl.dagster.io_managers.FercXBRLSQLiteIOManager", return_value=fake_manager
+    fake_manager._query.return_value = pd.DataFrame(
+        {"report_year": [2021], "sched_table_name": ["plant_in_service"]}
     )
     mocker.patch(
-        "pudl.dagster.io_managers.pd.read_sql",
-        return_value=pd.DataFrame(
-            {
-                "date": ["2021-12-31"],
-                "report_year": [3021],
-            }
-        ),
+        "pudl.dagster.io_managers.FercXBRLSQLiteIOManager", return_value=fake_manager
     )
 
     manager = ferc1_xbrl_sqlite_io_manager.model_copy(
@@ -435,6 +412,10 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
 
     assert observed["report_year"].eq(2021).all()
     assert observed["sched_table_name"].eq("plant_in_service").all()
+    fake_manager._query.assert_called_once_with(
+        "plant_in_service_duration",
+        dataset_settings.ferc1.xbrl_years,
+    )
 
 
 def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):
@@ -537,39 +518,6 @@ def test_replace_on_insert(fake_pudl_sqlite_io_manager_fixture):
     fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, new_artist_df)
     read_df = fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
     pd.testing.assert_frame_equal(new_artist_df, read_df, check_dtype=False)
-
-
-@pytest.mark.skip(reason="SQLAlchemy is not finding the view. Debug or remove.")
-def test_handling_view_with_metadata(fake_pudl_sqlite_io_manager_fixture):
-    """Make sure an users can create and load views when it has metadata."""
-    # Create some sample data
-    asset_key = "artist"
-    artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
-    output_context = build_output_context(asset_key=AssetKey(asset_key))
-    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, artist)
-
-    # create the view
-    asset_key = "artist_view"
-    sql_stmt = "CREATE VIEW artist_view AS SELECT * FROM artist;"
-    output_context = build_output_context(asset_key=AssetKey(asset_key))
-    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
-
-    # read the view data as a dataframe
-    input_context = build_input_context(asset_key=AssetKey(asset_key))
-    # print(input_context)
-    # This is failing, not sure why
-    # sqlalchemy.exc.InvalidRequestError: Could not reflect: requested table(s) not available in
-    # Engine(sqlite:////private/var/folders/pg/zrqnq8l113q57bndc5__h2640000gn/
-    # # T/pytest-of-nelsonauner/pytest-38/test_handling_view_with_metada0/pudl.sqlite): (artist_view)
-    fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
-
-
-def test_error_when_reading_view_without_metadata(fake_pudl_sqlite_io_manager_fixture):
-    """Make sure and error is thrown when a user loads a view without metadata."""
-    asset_key = "track_view"
-    input_context = build_input_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(ValueError):
-        fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
 
 
 def test_report_year_fixing_instant():

@@ -49,7 +49,9 @@ logger = pudl.logging_helpers.get_logger(__name__)
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
-def _get_optional_instance(context: dg.InputContext):
+def _get_dagster_instance_if_available(
+    context: dg.InputContext,
+) -> dg.DagsterInstance | None:
     """Return the Dagster instance from an input context if one was provided.
 
     Some notebook and integration-test helpers build ad hoc ``InputContext`` objects
@@ -62,7 +64,7 @@ def _get_optional_instance(context: dg.InputContext):
         return None
 
 
-def get_table_name_from_context(context: dg.OutputContext) -> str:
+def get_table_name_from_context(context: dg.InputContext | dg.OutputContext) -> str:
     """Retrieves the table name from the context object."""
     # TODO(rousik): Figure out which kind of identifier is used when.
     if context.has_asset_key:
@@ -106,14 +108,16 @@ class PudlMixedFormatIOManager(dg.ConfigurableIOManager):
         return PudlParquetIOManager()
 
     def handle_output(
-        self, context: dg.OutputContext, obj: pd.DataFrame | str
-    ) -> pd.DataFrame:
+        self, context: dg.OutputContext, obj: pd.DataFrame | pl.LazyFrame
+    ) -> None:
         """Passes the output to the appropriate IO manager instance."""
         self._sqlite_io_manager.handle_output(context, obj)
         if self.write_to_parquet:
             self._parquet_io_manager.handle_output(context, obj)
 
-    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
+    def load_input(
+        self, context: dg.InputContext
+    ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
         """Reads input from the appropriate IO manager instance."""
         if self.read_from_parquet:
             return self._parquet_io_manager.load_input(context)
@@ -211,7 +215,9 @@ class SQLiteIOManager(dg.IOManager):
             )
         return sa_table
 
-    def _handle_pandas_output(self, context: dg.OutputContext, df: pd.DataFrame):
+    def _handle_pandas_output(
+        self, context: dg.OutputContext, df: pd.DataFrame
+    ) -> None:
         """Write dataframe to the database.
 
         SQLite does not support concurrent writes to the database. Instead, SQLite
@@ -248,52 +254,22 @@ class SQLiteIOManager(dg.IOManager):
                 dtype={c.name: c.type for c in sa_table.columns},
             )
 
-    # TODO (bendnorman): Create a SQLQuery type so it's clearer what this method expects
-    def _handle_str_output(self, context: dg.OutputContext, query: str):
-        """Execute a sql query on the database.
-
-        This is used for creating output views in the database.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-            query: sql query to execute in the database.
-        """
-        engine = self.engine
-        table_name = get_table_name_from_context(context)
-
-        # Make sure the metadata has been created for the view
-        _ = self._get_sqlalchemy_table(table_name)
-
-        with engine.begin() as con:
-            # Drop the existing view if it exists and create the new view.
-            # TODO (bendnorman): parameterize this safely.
-            con.execute(f"DROP VIEW IF EXISTS {table_name}")
-            con.execute(query)
-
-    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame) -> None:
         """Handle an op or asset output.
 
-        If the output is a dataframe, write it to the database. If it is a string
-        execute it as a SQL query.
-
         Args:
             context: dagster keyword that provides access output information like asset
                 name.
-            obj: a sql query or dataframe to add to the database.
+            obj: a dataframe to add to the database.
 
         Raises:
-            Exception: if an asset or op returns an unsupported datatype.
+            TypeError: if an asset or op returns an unsupported datatype.
         """
-        if isinstance(obj, pd.DataFrame):
-            self._handle_pandas_output(context, obj)
-        elif isinstance(obj, str):
-            self._handle_str_output(context, obj)
-        else:
-            raise Exception(
-                "SQLiteIOManager only supports pandas DataFrames and strings of SQL "
-                "queries."
+        if not isinstance(obj, pd.DataFrame):
+            raise TypeError(
+                f"SQLiteIOManager only supports pandas DataFrames, got {type(obj)}."
             )
+        self._handle_pandas_output(context, obj)
 
     def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
@@ -502,39 +478,9 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "--autogenerate -m 'relevant message' && alembic upgrade head`."
             )
 
-    def _handle_str_output(self, context: dg.OutputContext, query: str):
-        """Execute a sql query on the database.
-
-        This is used for creating output views in the database.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-            query: sql query to execute in the database.
-        """
-        engine = self.engine
-        table_name = get_table_name_from_context(context)
-
-        # Check if there is a Resource in self.package for table_name.
-        # We don't want folks creating views without adding package metadata.
-        try:
-            _ = self.package.get_resource(table_name)
-        except ValueError as err:
-            raise ValueError(
-                f"{table_name} does not appear in pudl.metadata.resources. "
-                "Check for typos, or add the table to the metadata and recreate the "
-                f"PUDL SQlite database. It's also possible that {table_name} is one of "
-                "the tables that does not get loaded into the PUDL SQLite DB because "
-                "it's a work in progress or is distributed in Apache Parquet format."
-            ) from err
-
-        with engine.begin() as con:
-            # Drop the existing view if it exists and create the new view.
-            # TODO (bendnorman): parameterize this safely.
-            con.execute(f"DROP VIEW IF EXISTS {table_name}")
-            con.execute(query)
-
-    def _handle_pandas_output(self, context: dg.OutputContext, df: pd.DataFrame):
+    def _handle_pandas_output(
+        self, context: dg.OutputContext, df: pd.DataFrame
+    ) -> None:
         """Enforce PUDL DB schema and write dataframe to SQLite."""
         table_name = get_table_name_from_context(context)
         # If table_name doesn't show up in the self.md object, this will raise an error
@@ -624,11 +570,13 @@ class FercSQLiteIOManager(SQLiteIOManager):
     This IOManager expects the database to already exist.
     """
 
+    _db_path: Path  # set during _setup_database(); typed here for IDE and type-checker visibility
+
     def __init__(
         self,
-        base_dir: str = None,
-        db_name: str = None,
-        md: sa.MetaData = None,
+        base_dir: str | None = None,
+        db_name: str | None = None,
+        md: sa.MetaData | None = None,
         timeout: float = 1_000.0,
     ):
         """Initialize FercSQLiteIOManager.
@@ -697,7 +645,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         if not self.md.tables:
             self._reflect_metadata()
 
-    def handle_output(self, context: dg.OutputContext, obj):
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError(
             "FercSQLiteIOManager can't write outputs. Subclass FercSQLiteIOManager and "
@@ -718,56 +666,109 @@ class FercSQLiteIOManager(SQLiteIOManager):
 
 
 class FercDBFSQLiteIOManager(FercSQLiteIOManager):
-    """IO Manager for only reading tables from the FERC 1 database.
+    """IO Manager for reading tables from FERC DBF SQLite databases.
 
     This IO Manager is for reading data only. It does not handle outputs because the raw
     FERC tables are not known prior to running the ETL and are not recorded in our
     metadata.
+
+    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so
+    a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as
+    the corresponding settings object exposes a ``dbf_years`` attribute.
     """
 
-    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError("FercDBFSQLiteIOManager can't write outputs yet.")
 
+    def _query(self, table_name: str, dbf_years: list[int]) -> pd.DataFrame:
+        """Execute the year-filtered read against the FERC DBF SQLite database.
+
+        Args:
+            table_name: Name of the table to query (without the ``raw_<db_name>__``
+                prefix).
+            dbf_years: Years to include in the result set.
+        """
+        _ = self._get_sqlalchemy_table(table_name)
+        with self.engine.begin() as con:
+            return pd.read_sql_query(
+                f"SELECT * FROM {table_name} "  # noqa: S608
+                "WHERE report_year BETWEEN :min_year AND :max_year;",
+                con=con,
+                params={
+                    "min_year": min(dbf_years),
+                    "max_year": max(dbf_years),
+                },
+            ).assign(sched_table_name=table_name)
+
     def load_input(self, context: dg.InputContext) -> pd.DataFrame:
-        """Load a dataframe from a sqlite database.
+        """Load a dataframe from a FERC DBF sqlite database.
 
         Args:
             context: dagster keyword that provides access output information like asset
                 name.
         """
         self._ensure_database_ready()
-
-        # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
-        ferc1_settings = context.resources.etl_settings.dataset_settings.ferc1
-
-        table_name = get_table_name_from_context(context)
-        # Remove preceding asset name metadata
-        table_name = table_name.replace("raw_ferc1_dbf__", "")
-
-        # Check if the table_name exists in the self.md object
-        _ = self._get_sqlalchemy_table(table_name)
-
-        engine = self.engine
-
-        with engine.begin() as con:
-            return pd.read_sql_query(
-                f"SELECT * FROM {table_name} "  # noqa: S608
-                "WHERE report_year BETWEEN :min_year AND :max_year;",
-                con=con,
-                params={
-                    "min_year": min(ferc1_settings.dbf_years),
-                    "max_year": max(ferc1_settings.dbf_years),
-                },
-            ).assign(sched_table_name=table_name)
+        ferc_settings = getattr(
+            context.resources.etl_settings.dataset_settings,
+            get_ferc_form_name(self.db_name),
+        )
+        table_name = get_table_name_from_context(context).replace(
+            f"raw_{self.db_name}__", ""
+        )
+        return self._query(table_name, ferc_settings.dbf_years)
 
 
-class FercDbfSQLiteDagsterIOManager(dg.ConfigurableIOManager):
-    """Dagster IO manager for reading tables from the FERC 1 DBF SQLite database."""
+class _FercSQLiteConfigurableIOManagerBase(dg.ConfigurableIOManager):
+    """Base class for Dagster-native FERC SQLite IO manager wrappers.
+
+    Holds the shared resource dependencies (``etl_settings``, ``zenodo_dois``,
+    ``db_name``) and provides default delegation for ``engine`` and
+    ``handle_output``. Subclasses must implement the ``_manager`` cached property
+    and ``load_input``.
+
+    Note:
+        This wrapper pattern is a temporary workaround for nested ``etl_settings``
+        resource dependencies inside the FERC IO managers. Because Dagster wires
+        resource dependencies at instantiation time, overriding the top-level
+        ``etl_settings`` resource alone (e.g. in tests) is not enough — the IO managers
+        must be rebuilt against the new resource instance.
+        :func:`pudl.dagster.build.build_defs` handles that rebuilding explicitly. A
+        follow-up PR will remove the nested dependency, at which point this base class
+        can be simplified or eliminated.
+    """
 
     etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
     zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
     db_name: str
+
+    @property
+    def engine(self) -> sa.Engine:
+        """Expose the underlying SQLAlchemy engine for tests and helpers."""
+        return self._manager.engine
+
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
+        """Delegate writes to the underlying runtime IO manager."""
+        return self._manager.handle_output(context, obj)
+
+    def _prepare(self, context: dg.InputContext) -> None:
+        """Ensure the database is ready and provenance is compatible with this run."""
+        self._manager._ensure_database_ready()
+        assert_ferc_sqlite_compatible(
+            instance=_get_dagster_instance_if_available(context),
+            db_name=self.db_name,
+            etl_settings=self.etl_settings,
+            zenodo_dois=self.zenodo_dois,
+        )
+
+
+class FercDbfSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
+    """Configurable IO manager for reading tables from FERC DBF SQLite databases.
+
+    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so
+    a single class serves all FERC DBF datasets. Instantiate with the appropriate
+    ``db_name`` (e.g. ``"ferc1_dbf"``, ``"ferc2_dbf"``) to target a specific form.
+    """
 
     @cached_property
     def _manager(self) -> FercDBFSQLiteIOManager:
@@ -777,41 +778,17 @@ class FercDbfSQLiteDagsterIOManager(dg.ConfigurableIOManager):
             db_name=self.db_name,
         )
 
-    @property
-    def engine(self) -> sa.Engine:
-        """Expose the underlying SQLAlchemy engine for tests and helpers."""
-        return self._manager.engine
-
-    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
-        """Delegate writes to the underlying runtime IO manager."""
-        return self._manager.handle_output(context, obj)
-
     def load_input(self, context: dg.InputContext) -> pd.DataFrame:
-        """Load a dataframe from the FERC 1 DBF SQLite database."""
-        self._manager._ensure_database_ready()
-        assert_ferc_sqlite_compatible(
-            instance=_get_optional_instance(context),
-            db_name=self.db_name,
-            etl_settings=self.etl_settings,
-            zenodo_dois=self.zenodo_dois,
+        """Load a dataframe from a FERC DBF SQLite database."""
+        self._prepare(context)
+        ferc_settings = getattr(
+            self.etl_settings.dataset_settings,
+            get_ferc_form_name(self.db_name),
         )
-
-        ferc1_settings = self.etl_settings.dataset_settings.ferc1
-
-        table_name = get_table_name_from_context(context)
-        table_name = table_name.replace("raw_ferc1_dbf__", "")
-        _ = self._manager._get_sqlalchemy_table(table_name)
-
-        with self.engine.begin() as con:
-            return pd.read_sql_query(
-                f"SELECT * FROM {table_name} "  # noqa: S608
-                "WHERE report_year BETWEEN :min_year AND :max_year;",
-                con=con,
-                params={
-                    "min_year": min(ferc1_settings.dbf_years),
-                    "max_year": max(ferc1_settings.dbf_years),
-                },
-            ).assign(sched_table_name=table_name)
+        table_name = get_table_name_from_context(context).replace(
+            f"raw_{self.db_name}__", ""
+        )
+        return self._manager._query(table_name, ferc_settings.dbf_years)
 
 
 class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
@@ -864,9 +841,34 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             .reset_index(drop=True)
         )
 
-    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError("FercXBRLSQLiteIOManager can't write outputs yet.")
+
+    def _query(self, table_name: str, xbrl_years: list[int]) -> pd.DataFrame:
+        """Execute the full-table read against the FERC XBRL SQLite database.
+
+        Args:
+            table_name: Name of the table to query (without the ``raw_<db_name>__``
+                prefix).
+            xbrl_years: Years to include in the result set (passed to
+                :meth:`refine_report_year`).
+        """
+        # TODO (bendnorman): Figure out a better way to handle tables that
+        # don't have duration and instant variants.
+        # Not every table contains both instant and duration;
+        # return an empty dataframe if the table doesn't exist.
+        if table_name not in self.md.tables:
+            return pd.DataFrame()
+        sched_table_name = re.sub("_instant|_duration", "", table_name)
+        with self.engine.begin() as con:
+            df = pd.read_sql(
+                f"SELECT {table_name}.* FROM {table_name}",  # noqa: S608 - table names not supplied by user
+                con=con,
+            ).assign(sched_table_name=sched_table_name)
+        return df.pipe(
+            FercXBRLSQLiteIOManager.refine_report_year, xbrl_years=xbrl_years
+        )
 
     def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
@@ -876,44 +878,18 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                 name.
         """
         self._ensure_database_ready()
-
         ferc_settings = getattr(
             context.resources.etl_settings.dataset_settings,
             get_ferc_form_name(self.db_name),
         )
-
-        table_name = get_table_name_from_context(context)
-        # Remove preceding asset name metadata
-        table_name = table_name.replace(f"raw_{self.db_name}__", "")
-
-        # TODO (bendnorman): Figure out a better to handle tables that
-        # don't have duration and instant
-        # Not every table contains both instant and duration
-        # Return empty dataframe if table doesn't exist
-        if table_name not in self.md.tables:
-            return pd.DataFrame()
-
-        engine = self.engine
-
-        sched_table_name = re.sub("_instant|_duration", "", table_name)
-        with engine.begin() as con:
-            df = pd.read_sql(
-                f"SELECT {table_name}.* FROM {table_name}",  # noqa: S608 - table names not supplied by user
-                con=con,
-            ).assign(sched_table_name=sched_table_name)
-
-        return df.pipe(
-            FercXBRLSQLiteIOManager.refine_report_year,
-            xbrl_years=ferc_settings.xbrl_years,
+        table_name = get_table_name_from_context(context).replace(
+            f"raw_{self.db_name}__", ""
         )
+        return self._query(table_name, ferc_settings.xbrl_years)
 
 
-class FercXbrlSQLiteDagsterIOManager(dg.ConfigurableIOManager):
-    """Dagster IO manager for reading tables from a FERC XBRL SQLite database."""
-
-    etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
-    zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
-    db_name: str
+class FercXbrlSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
+    """Configurable IO manager for reading tables from a FERC XBRL SQLite database."""
 
     @cached_property
     def _manager(self) -> FercXBRLSQLiteIOManager:
@@ -923,60 +899,30 @@ class FercXbrlSQLiteDagsterIOManager(dg.ConfigurableIOManager):
             db_name=self.db_name,
         )
 
-    @property
-    def engine(self) -> sa.Engine:
-        """Expose the underlying SQLAlchemy engine for tests and helpers."""
-        return self._manager.engine
-
-    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str):
-        """Delegate writes to the underlying runtime IO manager."""
-        return self._manager.handle_output(context, obj)
-
     def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC XBRL SQLite database."""
-        self._manager._ensure_database_ready()
-        assert_ferc_sqlite_compatible(
-            instance=_get_optional_instance(context),
-            db_name=self.db_name,
-            etl_settings=self.etl_settings,
-            zenodo_dois=self.zenodo_dois,
-        )
-
+        self._prepare(context)
         ferc_settings = getattr(
             self.etl_settings.dataset_settings,
             get_ferc_form_name(self.db_name),
         )
-
-        table_name = get_table_name_from_context(context)
-        table_name = table_name.replace(f"raw_{self.db_name}__", "")
-
-        if table_name not in self._manager.md.tables:
-            return pd.DataFrame()
-
-        sched_table_name = re.sub("_instant|_duration", "", table_name)
-        with self.engine.begin() as con:
-            df = pd.read_sql(
-                f"SELECT {table_name}.* FROM {table_name}",  # noqa: S608 - table names not supplied by user
-                con=con,
-            ).assign(sched_table_name=sched_table_name)
-
-        return df.pipe(
-            FercXBRLSQLiteIOManager.refine_report_year,
-            xbrl_years=ferc_settings.xbrl_years,
+        table_name = get_table_name_from_context(context).replace(
+            f"raw_{self.db_name}__", ""
         )
+        return self._manager._query(table_name, ferc_settings.xbrl_years)
 
 
-ferc1_dbf_sqlite_io_manager = FercDbfSQLiteDagsterIOManager(
+ferc1_dbf_sqlite_io_manager = FercDbfSQLiteConfigurableIOManager(
     etl_settings=pudl_etl_settings_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc1_dbf",
 )
-ferc1_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
+ferc1_xbrl_sqlite_io_manager = FercXbrlSQLiteConfigurableIOManager(
     etl_settings=pudl_etl_settings_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc1_xbrl",
 )
-ferc714_xbrl_sqlite_io_manager = FercXbrlSQLiteDagsterIOManager(
+ferc714_xbrl_sqlite_io_manager = FercXbrlSQLiteConfigurableIOManager(
     etl_settings=pudl_etl_settings_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc714_xbrl",
