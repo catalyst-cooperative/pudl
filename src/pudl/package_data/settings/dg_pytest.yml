@@ -1,3 +1,9 @@
+# Dagster launch config for pytest integration test prebuilds.
+#
+# Uses the in-process executor so that pytest's coverage collection can instrument
+# all ETL code in the same process. Multi-process execution would require a separate
+# coverage setup (e.g. coverage subprocess plugins). See GitHub issue #5119 for the
+# follow-up work to enable coverage with the multiprocess executor.
 execution:
   config:
     in_process: {}
