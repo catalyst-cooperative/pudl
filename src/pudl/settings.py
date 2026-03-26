@@ -15,7 +15,6 @@ from pydantic import (
     ConfigDict,
     Field,
     ValidationInfo,
-    computed_field,
     field_validator,
     model_validator,
 )
@@ -471,7 +470,6 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
                 raise ValueError(f"{proc_level} is not a valid processing level.")
         return v
 
-    @computed_field
     @property
     def parts(self) -> list[str]:
         """Construct parts from selected technologies, processing levels, and daily weather."""
@@ -900,14 +898,17 @@ class EtlSettings(BaseSettings):
         """
         for which_ferc in ["ferc1", "ferc714"]:
             if (
-                (pudl_ferc := getattr(self.datasets, which_ferc))
+                self.datasets is not None
+                and self.ferc_to_sqlite_settings is not None
+                and (pudl_ferc := getattr(self.datasets, which_ferc))
                 and (
                     sqlite_ferc := getattr(
                         self.ferc_to_sqlite_settings,
                         f"{which_ferc}_xbrl_to_sqlite_settings",
                     )
                 )
-            ) and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years)):
+                and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years))
+            ):
                 raise AssertionError(
                     "You are trying to build a PUDL database with different XBRL years "
                     f"than the ferc_to_sqlite_settings years for {which_ferc}.\nPUDL years: {pudl_ferc.xbrl_years}\n"
