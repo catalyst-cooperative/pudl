@@ -169,8 +169,6 @@ urllib3 = ">=2.4"
 uv = ">=0.10"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
-plotly_express = ">=0.4.1,<0.5"
-marimo = ">=0.20.4,<0.21"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
