@@ -307,14 +307,20 @@ description = "Check TOML formatting with Taplo"
 cmd = "taplo check"
 description = "Validate TOML files with Taplo"
 
-docs-check = { cmd = """
+[tool.pixi.tasks.docs-check]
+cmd = """
 doc8 docs/ README.rst && \
 PUDL_DOCS_DISABLE_INTERSPHINX=1 coverage run --append -m sphinx --jobs auto -W -b dummy docs docs/_build/dummy
-""", depends-on = ["docs-clean"], description = "Run a fast validation-only Sphinx docs check" }
+"""
+depends-on = ["docs-clean"]
+description = "Run a fast validation-only Sphinx docs check"
 
-docs-linkcheck = { cmd = """
+[tool.pixi.tasks.docs-linkcheck]
+cmd = """
 sphinx-build --jobs auto -W -b linkcheck docs docs/_build/linkcheck
-""", depends-on = ["docs-clean"], description = "Check external links in the PUDL docs using Sphinx linkcheck" }
+"""
+depends-on = ["docs-clean"]
+description = "Check external links in the PUDL docs using Sphinx linkcheck"
 
 # Testing tasks
 [tool.pixi.tasks.coverage-erase]
