@@ -40,30 +40,28 @@ the command:
     $ PUDL_DOCS_KEEP_GENERATED_FILES=1 pixi run docs-build
     $ PUDL_DOCS_DISABLE_INTERSPHINX=1 pixi run docs-build
 
-The ``docs-check`` task also runs ``docs-clean`` first. This is intentional:
-our Sphinx configuration generates intermediate RST, CSV, and AutoAPI files,
-and starting from a clean state avoids validating against stale artifacts from
-an earlier partial or failed build. 
+The ``docs-check`` task also runs ``docs-clean`` first. This is intentional: our Sphinx
+configuration generates intermediate RST, CSV, and AutoAPI files, and starting from a
+clean state avoids validating against stale artifacts from an earlier partial or failed
+build.
 
-The ``docs-check`` task also always disables intersphinx, since
-the task is intended for fast validation rather than fully rendered external-link
-resolution.
+The ``docs-check`` task also always disables intersphinx, since the task is intended for
+fast validation rather than fully rendered external-link resolution.
 
 By default:
 
     * Generated RST / CSV files are cleaned up at the end of the build.
     * Intersphinx is enabled, and Sphinx will attempt to fetch external inventories.
 
-Setting ``PUDL_DOCS_KEEP_GENERATED_FILES`` keeps generated files after the build,
-which is useful when debugging generated documentation.
+Setting ``PUDL_DOCS_KEEP_GENERATED_FILES`` keeps generated files after the build, which
+is useful when debugging generated documentation.
 
-Setting ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx inventory lookups,
-which can make builds more resilient when external documentation sites are
-temporarily unavailable.
+Setting ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx inventory lookups, which
+can make builds more resilient when external documentation sites are temporarily
+unavailable.
 
-If you're just working on a single page and don't care about the entire set
-of documents being regenerated and linked together, you can call Sphinx
-directly:
+If you're just working on a single page and don't care about the entire set of documents
+being regenerated and linked together, you can call Sphinx directly:
 
 .. code-block:: console
 
