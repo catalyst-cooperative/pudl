@@ -110,7 +110,9 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
         """Build the Parquet-backed runtime IO manager lazily."""
         return PudlParquetIOManager()
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
+    def handle_output(
+        self, context: OutputContext, obj: pd.DataFrame | pl.LazyFrame
+    ) -> None:
         """Passes the output to the appropriate IO manager instance."""
         self._sqlite_io_manager.handle_output(context, obj)
         if self.write_to_parquet:
@@ -253,52 +255,22 @@ class SQLiteIOManager(IOManager):
                 dtype={c.name: c.type for c in sa_table.columns},
             )
 
-    # TODO (bendnorman): Create a SQLQuery type so it's clearer what this method expects
-    def _handle_str_output(self, context: OutputContext, query: str) -> None:
-        """Execute a sql query on the database.
-
-        This is used for creating output views in the database.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-            query: sql query to execute in the database.
-        """
-        engine = self.engine
-        table_name = get_table_name_from_context(context)
-
-        # Make sure the metadata has been created for the view
-        _ = self._get_sqlalchemy_table(table_name)
-
-        with engine.begin() as con:
-            # Drop the existing view if it exists and create the new view.
-            # TODO (bendnorman): parameterize this safely.
-            con.execute(sa.text(f"DROP VIEW IF EXISTS {table_name}"))
-            con.execute(sa.text(query))
-
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame) -> None:
         """Handle an op or asset output.
 
-        If the output is a dataframe, write it to the database. If it is a string
-        execute it as a SQL query.
-
         Args:
             context: dagster keyword that provides access output information like asset
                 name.
-            obj: a sql query or dataframe to add to the database.
+            obj: a dataframe to add to the database.
 
         Raises:
-            Exception: if an asset or op returns an unsupported datatype.
+            TypeError: if an asset or op returns an unsupported datatype.
         """
-        if isinstance(obj, pd.DataFrame):
-            self._handle_pandas_output(context, obj)
-        elif isinstance(obj, str):
-            self._handle_str_output(context, obj)
-        else:
-            raise Exception(
-                "SQLiteIOManager only supports pandas DataFrames and strings of SQL "
-                "queries."
+        if not isinstance(obj, pd.DataFrame):
+            raise TypeError(
+                f"SQLiteIOManager only supports pandas DataFrames, got {type(obj)}."
             )
+        self._handle_pandas_output(context, obj)
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
@@ -507,38 +479,6 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "--autogenerate -m 'relevant message' && alembic upgrade head`."
             )
 
-    def _handle_str_output(self, context: OutputContext, query: str) -> None:
-        """Execute a sql query on the database.
-
-        This is used for creating output views in the database.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-            query: sql query to execute in the database.
-        """
-        engine = self.engine
-        table_name = get_table_name_from_context(context)
-
-        # Check if there is a Resource in self.package for table_name.
-        # We don't want folks creating views without adding package metadata.
-        try:
-            _ = self.package.get_resource(table_name)
-        except ValueError as err:
-            raise ValueError(
-                f"{table_name} does not appear in pudl.metadata.resources. "
-                "Check for typos, or add the table to the metadata and recreate the "
-                f"PUDL SQlite database. It's also possible that {table_name} is one of "
-                "the tables that does not get loaded into the PUDL SQLite DB because "
-                "it's a work in progress or is distributed in Apache Parquet format."
-            ) from err
-
-        with engine.begin() as con:
-            # Drop the existing view if it exists and create the new view.
-            # TODO (bendnorman): parameterize this safely.
-            con.execute(sa.text(f"DROP VIEW IF EXISTS {table_name}"))
-            con.execute(sa.text(query))
-
     def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame) -> None:
         """Enforce PUDL DB schema and write dataframe to SQLite."""
         table_name = get_table_name_from_context(context)
@@ -736,7 +676,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
     the corresponding settings object exposes a ``dbf_years`` attribute.
     """
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError("FercDBFSQLiteIOManager can't write outputs yet.")
 
@@ -806,7 +746,7 @@ class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
         """Expose the underlying SQLAlchemy engine for tests and helpers."""
         return self._manager.engine
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
         """Delegate writes to the underlying runtime IO manager."""
         return self._manager.handle_output(context, obj)
 
@@ -900,7 +840,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             .reset_index(drop=True)
         )
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError("FercXBRLSQLiteIOManager can't write outputs yet.")
 

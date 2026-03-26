@@ -292,15 +292,6 @@ def test_migrations_match_metadata(tmp_path, monkeypatch):
     assert True
 
 
-def test_error_when_handling_view_without_metadata(fake_pudl_sqlite_io_manager_fixture):
-    """Make sure an error is thrown when a user creates a view without metadata."""
-    asset_key = "track_view"
-    sql_stmt = "CREATE VIEW track_view AS SELECT * FROM track;"
-    output_context = build_output_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(ValueError):
-        fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
-
-
 def test_empty_read_fails(fake_pudl_sqlite_io_manager_fixture):
     """Reading empty table fails."""
     with pytest.raises(AssertionError):
@@ -515,39 +506,6 @@ def test_replace_on_insert(fake_pudl_sqlite_io_manager_fixture):
     fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, new_artist_df)
     read_df = fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
     pd.testing.assert_frame_equal(new_artist_df, read_df, check_dtype=False)
-
-
-@pytest.mark.skip(reason="SQLAlchemy is not finding the view. Debug or remove.")
-def test_handling_view_with_metadata(fake_pudl_sqlite_io_manager_fixture):
-    """Make sure an users can create and load views when it has metadata."""
-    # Create some sample data
-    asset_key = "artist"
-    artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
-    output_context = build_output_context(asset_key=AssetKey(asset_key))
-    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, artist)
-
-    # create the view
-    asset_key = "artist_view"
-    sql_stmt = "CREATE VIEW artist_view AS SELECT * FROM artist;"
-    output_context = build_output_context(asset_key=AssetKey(asset_key))
-    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
-
-    # read the view data as a dataframe
-    input_context = build_input_context(asset_key=AssetKey(asset_key))
-    # print(input_context)
-    # This is failing, not sure why
-    # sqlalchemy.exc.InvalidRequestError: Could not reflect: requested table(s) not available in
-    # Engine(sqlite:////private/var/folders/pg/zrqnq8l113q57bndc5__h2640000gn/
-    # # T/pytest-of-nelsonauner/pytest-38/test_handling_view_with_metada0/pudl.sqlite): (artist_view)
-    fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
-
-
-def test_error_when_reading_view_without_metadata(fake_pudl_sqlite_io_manager_fixture):
-    """Make sure and error is thrown when a user loads a view without metadata."""
-    asset_key = "track_view"
-    input_context = build_input_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(ValueError):
-        fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
 
 
 def test_report_year_fixing_instant():
