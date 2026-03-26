@@ -27,7 +27,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: energy_efficiency_annual_cost
+          - name: energy_efficiency_annual_direct_cost
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
@@ -38,7 +38,7 @@ sources:
                   arguments:
                     min_value: 0.0
                     error_if: ">1"
-          - name: energy_efficiency_annual_incentive_payment
+          - name: energy_efficiency_annual_incentive_cost
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
@@ -59,7 +59,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: load_management_annual_cost
+          - name: load_management_annual_direct_cost
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
@@ -70,7 +70,7 @@ sources:
                   arguments:
                     min_value: 0.0
                     error_if: ">10"
-          - name: load_management_annual_incentive_payment
+          - name: load_management_annual_incentive_cost
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
