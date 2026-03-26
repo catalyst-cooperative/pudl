@@ -65,6 +65,10 @@ Bug Fixes & Data Cleaning
   <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
   See :pr:`5085`.
 
+* Fixed some wonky column names in the EIA-861
+  ``core_eia861__yearly_demand_side_management_ee_dr`` table. See issue :issue:`5132`
+  and PR :pr:`5135`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
