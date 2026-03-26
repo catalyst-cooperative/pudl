@@ -43,7 +43,9 @@ the command:
 The ``docs-check`` task also runs ``docs-clean`` first. This is intentional:
 our Sphinx configuration generates intermediate RST, CSV, and AutoAPI files,
 and starting from a clean state avoids validating against stale artifacts from
-an earlier partial or failed build. It also always disables intersphinx, since
+an earlier partial or failed build. 
+
+The ``docs-check`` task also always disables intersphinx, since
 the task is intended for fast validation rather than fully rendered external-link
 resolution.
 
