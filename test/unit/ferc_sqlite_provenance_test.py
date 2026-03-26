@@ -55,22 +55,19 @@ def test_get_ferc_sqlite_provenance_dataset_and_format(
     assert provenance.asset_key == dg.AssetKey(f"raw_{db_name}__sqlite")
 
 
-def test_get_ferc_sqlite_provenance_settings_hash_is_stable(
+def test_get_ferc_sqlite_provenance_years_are_non_empty(
     etl_settings: EtlSettings,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
-    """The same settings should always produce the same hash."""
-    p1 = get_ferc_sqlite_provenance(
+    """The provenance fingerprint must include a non-empty, sorted list of years."""
+    provenance = get_ferc_sqlite_provenance(
         db_name="ferc1_dbf",
         etl_settings=etl_settings,
         zenodo_dois=zenodo_dois,
     )
-    p2 = get_ferc_sqlite_provenance(
-        db_name="ferc1_dbf",
-        etl_settings=etl_settings,
-        zenodo_dois=zenodo_dois,
-    )
-    assert p1.settings_hash == p2.settings_hash
+    assert isinstance(provenance.years, list)
+    assert len(provenance.years) > 0
+    assert provenance.years == sorted(provenance.years)
 
 
 def test_build_ferc_sqlite_provenance_metadata_keys(
@@ -90,7 +87,7 @@ def test_build_ferc_sqlite_provenance_metadata_keys(
         "pudl_ferc_sqlite_status",
         "pudl_ferc_sqlite_zenodo_doi",
         "pudl_ferc_sqlite_etl_settings",
-        "pudl_ferc_sqlite_etl_settings_hash",
+        "pudl_ferc_sqlite_years",
         "pudl_ferc_sqlite_path",
     }
     assert required_keys <= set(metadata.keys())
@@ -136,6 +133,53 @@ def test_assert_ferc_sqlite_compatible_passes_matching_provenance(
     )
 
 
+def test_assert_ferc_sqlite_compatible_passes_superset_years(
+    etl_settings: EtlSettings,
+    zenodo_dois: ZenodoDoiSettings,
+    mocker,
+) -> None:
+    """A stored DB covering more years than required should be compatible."""
+    # Build metadata as if the DB was built with the full settings (all years).
+    stored_metadata = build_ferc_sqlite_provenance_metadata(
+        db_name="ferc1_dbf",
+        etl_settings=etl_settings,
+        zenodo_dois=zenodo_dois,
+        sqlite_path=None,
+        status="complete",
+    )
+    instance = mocker.MagicMock()
+    instance.get_latest_materialization_event.return_value = mocker.MagicMock(
+        asset_materialization=mocker.MagicMock(metadata=stored_metadata)
+    )
+
+    # Downstream run requests only a single year — a strict subset of what is stored.
+    stored_years = get_ferc_sqlite_provenance(
+        db_name="ferc1_dbf",
+        etl_settings=etl_settings,
+        zenodo_dois=zenodo_dois,
+    ).years
+    one_year = stored_years[len(stored_years) // 2]  # pick a year from the middle
+
+    from pudl.settings import Ferc1DbfToSqliteSettings
+
+    fast_settings = EtlSettings(
+        ferc_to_sqlite_settings=etl_settings.ferc_to_sqlite.model_copy(
+            update={
+                "ferc1_dbf_to_sqlite_settings": Ferc1DbfToSqliteSettings(
+                    years=[one_year]
+                )
+            }
+        )
+    )
+    # Should not raise: stored years ⊇ required years.
+    assert_ferc_sqlite_compatible(
+        instance=instance,
+        db_name="ferc1_dbf",
+        etl_settings=fast_settings,
+        zenodo_dois=zenodo_dois,
+    )
+
+
 def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
     etl_settings: EtlSettings,
     zenodo_dois: ZenodoDoiSettings,
@@ -159,6 +203,43 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
             instance=instance,
             db_name="ferc1_dbf",
             etl_settings=etl_settings,
+            zenodo_dois=zenodo_dois,
+        )
+
+
+def test_assert_ferc_sqlite_compatible_rejects_missing_years(
+    etl_settings: EtlSettings,
+    zenodo_dois: ZenodoDoiSettings,
+    mocker,
+) -> None:
+    """Stored DB that lacks required years should raise a descriptive RuntimeError."""
+    from pudl.settings import Ferc1DbfToSqliteSettings
+
+    # DB was built with only year 2021.
+    narrow_settings = EtlSettings(
+        ferc_to_sqlite_settings=etl_settings.ferc_to_sqlite.model_copy(
+            update={
+                "ferc1_dbf_to_sqlite_settings": Ferc1DbfToSqliteSettings(years=[2021])
+            }
+        )
+    )
+    stored_metadata = build_ferc_sqlite_provenance_metadata(
+        db_name="ferc1_dbf",
+        etl_settings=narrow_settings,
+        zenodo_dois=zenodo_dois,
+        sqlite_path=None,
+        status="complete",
+    )
+    instance = mocker.MagicMock()
+    instance.get_latest_materialization_event.return_value = mocker.MagicMock(
+        asset_materialization=mocker.MagicMock(metadata=stored_metadata)
+    )
+    # Downstream run requests all years — a strict superset of what is stored.
+    with pytest.raises(RuntimeError, match="missing required years"):
+        assert_ferc_sqlite_compatible(
+            instance=instance,
+            db_name="ferc1_dbf",
+            etl_settings=etl_settings,  # full years
             zenodo_dois=zenodo_dois,
         )
 
