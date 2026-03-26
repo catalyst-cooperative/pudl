@@ -65,6 +65,10 @@ Bug Fixes & Data Cleaning
   <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
   See :pr:`5085`.
 
+* Fixed some wonky column names in the EIA-861
+  ``core_eia861__yearly_demand_side_management_ee_dr`` table. See issue :issue:`5132`
+  and PR :pr:`5135`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -94,6 +98,12 @@ Quality of Life Improvements
   debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
   when needed (for example in CI docs checks to avoid external docs outages).
   See PR :pr:`5095`.
+* Added a fast ``docs-check`` Pixi task for validation-only Sphinx runs and
+  updated the ``pytest`` GitHub Actions docs check job to use it, while leaving
+  Read the Docs and GitHub Pages HTML builds unchanged. See PR :pr:`5128`.
+* Added a ``docs-linkcheck`` Pixi task and a separate manually triggered GitHub
+  Actions workflow for experimenting with automated documentation link checking.
+  See PR :pr:`5128`.
 
 .. _release-v2026.3.0:
 
