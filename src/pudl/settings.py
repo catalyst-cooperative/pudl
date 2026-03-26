@@ -939,13 +939,6 @@ class EtlSettings(BaseSettings):
             raise ValueError("Missing datasets settings in ETL settings.")
         return self.datasets
 
-    @property
-    def ferc_to_sqlite(self) -> FercToSqliteSettings:
-        """Return validated FERC-to-SQLite settings or raise if unavailable."""
-        if self.ferc_to_sqlite_settings is None:
-            raise ValueError("Missing ferc_to_sqlite_settings in ETL settings.")
-        return self.ferc_to_sqlite_settings
-
     def get_xbrl_dataset_settings(
         self, form_number: XbrlFormNumber
     ) -> FercGenericXbrlToSqliteSettings:
