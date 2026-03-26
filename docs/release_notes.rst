@@ -23,13 +23,21 @@ RUS 7 & RUS 12
 
 * Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
   :pr:`5040`. See :pr:`5077`.
-* Added additional core and output tables from RUS Form 7. See :pr:`5087`.
+* Added additional core and output tables from RUS Form 7 and 12.
+  See :pr:`5087` and :pr:`5091`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Documentation
 ^^^^^^^^^^^^^
+
+* Added a :doc:`methodology page </methodology/entity_resolution>` explaining
+  how EIA entity harvesting reconciles inconsistently reported plant, utility,
+  boiler, and generator attributes into normalized entity and yearly SCD
+  tables. The docs now also support
+  `Mermaid diagrams <https://sphinxcontrib-mermaid-demo.readthedocs.io>`__
+  for illustrating pipeline behavior. See :pr:`5071`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

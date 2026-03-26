@@ -988,6 +988,7 @@ RENEWABLE_FUEL_TYPES_RUS12: set[str] = [
     "Solar - thermal generation",
     "Other",
 ]
+
 PLANT_TYPE_RUS12: set[str] = [
     "combined_cycle",
     "hydro",
