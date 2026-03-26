@@ -43,6 +43,29 @@ from pudl.metadata.resources import ENTITIES
 from pudl.settings import EiaSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
+HARVESTABLE_ASSETS = (
+    "_core_eia860__boiler_cooling",
+    "_core_eia860__boiler_emissions_control_equipment_assn",
+    "_core_eia923__boiler_fuel",
+    "_core_eia860__boiler_generator_assn",
+    "_core_eia860__boiler_stack_flue",
+    "_core_eia860__boilers",
+    "_core_eia923__coalmine",
+    "_core_eia860__emissions_control_equipment",
+    "_core_eia923__energy_storage",
+    "_core_eia923__fuel_receipts_costs",
+    "_core_eia923__generation",
+    "_core_eia923__generation_fuel",
+    "_core_eia923__generation_fuel_nuclear",
+    "_core_eia860__generators",
+    "_core_eia860__generators_energy_storage",
+    "_core_eia860__generators_wind",
+    "_core_eia860__generators_solar",
+    "_core_eia860__generators_multifuel",
+    "_core_eia860__ownership",
+    "_core_eia860__plants",
+    "_core_eia860__utilities",
+)
 
 
 class EiaEntity(StrEnum):
@@ -1205,32 +1228,9 @@ def harvested_entity_asset_factory(
     entity: EiaEntity, io_manager_key: str | None = None
 ) -> AssetsDefinition:
     """Create an asset definition for the harvested entity tables."""
-    harvestable_assets = (
-        "_core_eia860__boiler_cooling",
-        "_core_eia860__boiler_emissions_control_equipment_assn",
-        "_core_eia923__boiler_fuel",
-        "_core_eia860__boiler_generator_assn",
-        "_core_eia860__boiler_stack_flue",
-        "_core_eia860__boilers",
-        "_core_eia923__coalmine",
-        "_core_eia860__emissions_control_equipment",
-        "_core_eia923__energy_storage",
-        "_core_eia923__fuel_receipts_costs",
-        "_core_eia923__generation",
-        "_core_eia923__generation_fuel",
-        "_core_eia923__generation_fuel_nuclear",
-        "_core_eia860__generators",
-        "_core_eia860__generators_energy_storage",
-        "_core_eia860__generators_wind",
-        "_core_eia860__generators_solar",
-        "_core_eia860__generators_multifuel",
-        "_core_eia860__ownership",
-        "_core_eia860__plants",
-        "_core_eia860__utilities",
-    )
 
     @multi_asset(
-        ins={table_name: AssetIn() for table_name in harvestable_assets},
+        ins={table_name: AssetIn() for table_name in HARVESTABLE_ASSETS},
         outs={
             f"core_eia__entity_{entity.value}": AssetOut(io_manager_key=io_manager_key),
             f"core_eia860__scd_{entity.value}": AssetOut(io_manager_key=io_manager_key),
