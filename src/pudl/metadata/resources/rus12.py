@@ -611,7 +611,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "demand and energy delivered to distribution utilities."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section E)",
         },
         "schema": {
@@ -635,7 +634,6 @@ RESOURCE_METADATA_BASE = {
     "core_rus12__monthly_demand_and_energy_at_power_sources": {
         "description": {
             "additional_summary_text": ("demand and energy at point of generation."),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section D)",
             "additional_details_text": (
                 "There are some peak demand dates that have an hour component and others that don't. "
@@ -667,7 +665,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "plant factors and maximum demand for plants owned by RUS borrowers."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Parts D, E, F IC, F CC, G - Section C)",
             "additional_primary_key_text": (
                 "The primary key for this table would be report_date, borrower_id_rus, plant_name_rus, and plant_type "

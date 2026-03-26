@@ -179,6 +179,8 @@ function run_stage() {
 
     # Most stages follow the same pattern: run, stream logs to the build log,
     # capture the underlying command status, and record how long the stage took.
+    # SECONDS automatically increments each second the script is running, so if
+    # we set it to 0, we get a stopwatch.
     SECONDS=0
     if [[ "$log_mode" == "append" ]]; then
         "$@" 2>&1 | tee -a "$LOGFILE"
