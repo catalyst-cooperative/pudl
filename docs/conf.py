@@ -142,6 +142,9 @@ suppress_warnings = [
     "ref.python",  # Suppress ambiguous Python reference warnings
 ]
 
+if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
+    suppress_warnings.append("intersphinx.external")
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.

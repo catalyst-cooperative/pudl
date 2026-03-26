@@ -82,6 +82,12 @@ Quality of Life Improvements
   debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
   when needed (for example in CI docs checks to avoid external docs outages).
   See PR :pr:`5095`.
+* Added a fast ``docs-check`` Pixi task for validation-only Sphinx runs and
+  updated the ``pytest`` GitHub Actions docs check job to use it, while leaving
+  Read the Docs and GitHub Pages HTML builds unchanged. See PR :pr:`5128`.
+* Added a ``docs-linkcheck`` Pixi task and a separate manually triggered GitHub
+  Actions workflow for experimenting with automated documentation link checking.
+  See PR :pr:`5128`.
 
 .. _release-v2026.3.0:
 
