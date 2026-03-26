@@ -44,7 +44,9 @@ logger = pudl.logging_helpers.get_logger(__name__)
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
-def _get_dagster_instance_if_available(context: InputContext):
+def _get_dagster_instance_if_available(
+    context: InputContext,
+) -> dg.DagsterInstance | None:
     """Return the Dagster instance from an input context if one was provided.
 
     Some notebook and integration-test helpers build ad hoc ``InputContext`` objects
@@ -57,7 +59,7 @@ def _get_dagster_instance_if_available(context: InputContext):
         return None
 
 
-def get_table_name_from_context(context: OutputContext) -> str:
+def get_table_name_from_context(context: InputContext | OutputContext) -> str:
     """Retrieves the table name from the context object."""
     # TODO(rousik): Figure out which kind of identifier is used when.
     if context.has_asset_key:
@@ -108,9 +110,7 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
         """Build the Parquet-backed runtime IO manager lazily."""
         return PudlParquetIOManager()
 
-    def handle_output(
-        self, context: OutputContext, obj: pd.DataFrame | str
-    ) -> pd.DataFrame:
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
         """Passes the output to the appropriate IO manager instance."""
         self._sqlite_io_manager.handle_output(context, obj)
         if self.write_to_parquet:
@@ -214,7 +214,7 @@ class SQLiteIOManager(IOManager):
             )
         return sa_table
 
-    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
+    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame) -> None:
         """Write dataframe to the database.
 
         SQLite does not support concurrent writes to the database. Instead, SQLite
@@ -252,7 +252,7 @@ class SQLiteIOManager(IOManager):
             )
 
     # TODO (bendnorman): Create a SQLQuery type so it's clearer what this method expects
-    def _handle_str_output(self, context: OutputContext, query: str):
+    def _handle_str_output(self, context: OutputContext, query: str) -> None:
         """Execute a sql query on the database.
 
         This is used for creating output views in the database.
@@ -271,8 +271,8 @@ class SQLiteIOManager(IOManager):
         with engine.begin() as con:
             # Drop the existing view if it exists and create the new view.
             # TODO (bendnorman): parameterize this safely.
-            con.execute(f"DROP VIEW IF EXISTS {table_name}")
-            con.execute(query)
+            con.execute(sa.text(f"DROP VIEW IF EXISTS {table_name}"))
+            con.execute(sa.text(query))
 
     def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
         """Handle an op or asset output.
@@ -505,7 +505,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "--autogenerate -m 'relevant message' && alembic upgrade head`."
             )
 
-    def _handle_str_output(self, context: OutputContext, query: str):
+    def _handle_str_output(self, context: OutputContext, query: str) -> None:
         """Execute a sql query on the database.
 
         This is used for creating output views in the database.
@@ -534,10 +534,10 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         with engine.begin() as con:
             # Drop the existing view if it exists and create the new view.
             # TODO (bendnorman): parameterize this safely.
-            con.execute(f"DROP VIEW IF EXISTS {table_name}")
-            con.execute(query)
+            con.execute(sa.text(f"DROP VIEW IF EXISTS {table_name}"))
+            con.execute(sa.text(query))
 
-    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
+    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame) -> None:
         """Enforce PUDL DB schema and write dataframe to SQLite."""
         table_name = get_table_name_from_context(context)
         # If table_name doesn't show up in the self.md object, this will raise an error
@@ -631,9 +631,9 @@ class FercSQLiteIOManager(SQLiteIOManager):
 
     def __init__(
         self,
-        base_dir: str = None,
-        db_name: str = None,
-        md: sa.MetaData = None,
+        base_dir: str | None = None,
+        db_name: str | None = None,
+        md: sa.MetaData | None = None,
         timeout: float = 1_000.0,
     ):
         """Initialize FercSQLiteIOManager.
@@ -702,7 +702,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         if not self.md.tables:
             self._reflect_metadata()
 
-    def handle_output(self, context: OutputContext, obj):
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError(
             "FercSQLiteIOManager can't write outputs. Subclass FercSQLiteIOManager and "
