@@ -1,5 +1,6 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
 
+import importlib.resources
 import itertools
 import os
 from collections.abc import Mapping, Sequence
@@ -12,6 +13,8 @@ from pudl.analysis.ml_tools import get_ml_models_config
 from pudl.deploy import ferceqr
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
+    FercDbfSQLiteDagsterIOManager,
+    FercXbrlSQLiteDagsterIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,
@@ -243,12 +246,20 @@ default_pudl_job_config = default_execution_config | get_ml_models_config()
 
 
 def load_etl_run_config_from_file(setting_filename: str) -> dict:
-    """Load ETL run config from a packaged settings profile."""
+    """Load ETL run config from a packaged settings profile.
+
+    The settings file path is resolved via ``importlib.resources`` so the config
+    works correctly regardless of the current working directory and whether the
+    package is installed in editable or non-editable mode.
+    """
     settings = load_packaged_etl_settings(setting_filename)
     if settings.ferc_to_sqlite_settings is None:
         raise ValueError("Missing ferc_to_sqlite_settings in ETL settings file.")
 
-    etl_settings_path = f"src/pudl/package_data/settings/{setting_filename}.yml"
+    etl_settings_path = str(
+        importlib.resources.files("pudl.package_data.settings")
+        / f"{setting_filename}.yml"
+    )
 
     return {
         "resources": {
@@ -330,42 +341,40 @@ def build_defs(
         resources.update(resource_overrides)
 
         etl_settings_override = resource_overrides.get("etl_settings")
-        zenodo_dois_override = resources.get("zenodo_dois")
+        zenodo_dois_override = resources["zenodo_dois"]
+
+        # Temporary workaround for nested resource dependencies in the FERC IO managers.
+        # These IO managers embed ``etl_settings`` as a Dagster resource dependency at
+        # instantiation time, so overriding the top-level ``etl_settings`` resource alone
+        # is not sufficient — the IO managers must be rebuilt against the same resource
+        # instance. A follow-up PR will remove the nested dependency from the IO managers,
+        # after which this rebuild block can be deleted.
         if etl_settings_override is not None:
-            # These special cases for the FERC IO Managers is a temporary workaround.
-            # The wrapper IO managers contain ``etl_settings`` as a nested Dagster
-            # resource dependency at instantiation time, which means overriding the
-            # top-level resource alone is not enough. Here we rebuild the FERC IO
-            # managers against the same underlying resource instances. In a followup
-            # PR we will get rid of the IO Manager wrappers and their nested resource
-            # dependencies, which will make this kind of override much more
-            # straightforward. For now, this lets us assemble these interdependent
-            # resources in one place.
             if "ferc1_dbf_sqlite_io_manager" not in resource_overrides:
-                resources["ferc1_dbf_sqlite_io_manager"] = type(
-                    ferc1_dbf_sqlite_io_manager
-                )(
-                    etl_settings=etl_settings_override,
-                    zenodo_dois=zenodo_dois_override,
-                    db_name=ferc1_dbf_sqlite_io_manager.db_name,
+                resources["ferc1_dbf_sqlite_io_manager"] = (
+                    FercDbfSQLiteDagsterIOManager(
+                        etl_settings=etl_settings_override,
+                        zenodo_dois=zenodo_dois_override,
+                        db_name=ferc1_dbf_sqlite_io_manager.db_name,
+                    )
                 )
 
             if "ferc1_xbrl_sqlite_io_manager" not in resource_overrides:
-                resources["ferc1_xbrl_sqlite_io_manager"] = type(
-                    ferc1_xbrl_sqlite_io_manager
-                )(
-                    etl_settings=etl_settings_override,
-                    zenodo_dois=zenodo_dois_override,
-                    db_name=ferc1_xbrl_sqlite_io_manager.db_name,
+                resources["ferc1_xbrl_sqlite_io_manager"] = (
+                    FercXbrlSQLiteDagsterIOManager(
+                        etl_settings=etl_settings_override,
+                        zenodo_dois=zenodo_dois_override,
+                        db_name=ferc1_xbrl_sqlite_io_manager.db_name,
+                    )
                 )
 
             if "ferc714_xbrl_sqlite_io_manager" not in resource_overrides:
-                resources["ferc714_xbrl_sqlite_io_manager"] = type(
-                    ferc714_xbrl_sqlite_io_manager
-                )(
-                    etl_settings=etl_settings_override,
-                    zenodo_dois=zenodo_dois_override,
-                    db_name=ferc714_xbrl_sqlite_io_manager.db_name,
+                resources["ferc714_xbrl_sqlite_io_manager"] = (
+                    FercXbrlSQLiteDagsterIOManager(
+                        etl_settings=etl_settings_override,
+                        zenodo_dois=zenodo_dois_override,
+                        db_name=ferc714_xbrl_sqlite_io_manager.db_name,
+                    )
                 )
 
     return dg.Definitions(
