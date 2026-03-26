@@ -116,7 +116,9 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
         if self.write_to_parquet:
             self._parquet_io_manager.handle_output(context, obj)
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(
+        self, context: InputContext
+    ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
         """Reads input from the appropriate IO manager instance."""
         if self.read_from_parquet:
             return self._parquet_io_manager.load_input(context)
