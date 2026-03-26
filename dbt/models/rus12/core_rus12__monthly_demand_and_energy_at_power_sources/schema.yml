@@ -10,7 +10,7 @@ sources:
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
           - dbt_utils.expression_is_true:
               arguments:
-                expression: date_trunc('month', report_date) >= date_trunc('month', peak_demand_date)
+                expression: date_trunc('month', report_date) >= date_trunc('month', peak_demand_date) AND date_trunc('year', report_date) == date_trunc('year', peak_demand_date)
               description: Expect peak demand date reported prior to report date.
         columns:
           - name: report_date
