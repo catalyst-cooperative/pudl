@@ -340,15 +340,11 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
         ferc_to_sqlite_settings=FercToSqliteSettings(),
     )
     zenodo_dois = ZenodoDoiSettings()
-    fake_engine = mocker.MagicMock()
-    fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
     fake_manager = mocker.MagicMock()
-    fake_manager.engine = fake_engine
-    mocker.patch("pudl.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager)
-    read_sql_query = mocker.patch(
-        "pudl.io_managers.pd.read_sql_query",
-        return_value=pd.DataFrame({"report_year": [2020]}),
+    fake_manager._query.return_value = pd.DataFrame(
+        {"sched_table_name": ["f1_respondent_id"]}
     )
+    mocker.patch("pudl.io_managers.FercDBFSQLiteIOManager", return_value=fake_manager)
 
     manager = ferc1_dbf_sqlite_io_manager.model_copy(
         update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
@@ -373,35 +369,25 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
     observed = manager.load_input(context)
 
     assert observed["sched_table_name"].eq("f1_respondent_id").all()
-    assert read_sql_query.call_args.kwargs["params"] == {
-        "min_year": min(dataset_settings.ferc1.dbf_years),
-        "max_year": max(dataset_settings.ferc1.dbf_years),
-    }
+    fake_manager._query.assert_called_once_with(
+        "f1_respondent_id",
+        dataset_settings.ferc1.dbf_years,
+    )
 
 
 def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
-    """The migrated FERC XBRL IO manager should refine years using injected settings."""
+    """The migrated FERC XBRL IO manager should pass years from injected settings."""
     dataset_settings = DatasetsSettings.model_validate({"ferc1": {"years": [2021]}})
     etl_settings = EtlSettings(
         datasets=dataset_settings,
         ferc_to_sqlite_settings=FercToSqliteSettings(),
     )
     zenodo_dois = ZenodoDoiSettings()
-    fake_engine = mocker.MagicMock()
-    fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
     fake_manager = mocker.MagicMock()
-    fake_manager.engine = fake_engine
-    fake_manager.md.tables = {"plant_in_service_duration": object()}
-    mocker.patch("pudl.io_managers.FercXBRLSQLiteIOManager", return_value=fake_manager)
-    mocker.patch(
-        "pudl.io_managers.pd.read_sql",
-        return_value=pd.DataFrame(
-            {
-                "date": ["2021-12-31"],
-                "report_year": [3021],
-            }
-        ),
+    fake_manager._query.return_value = pd.DataFrame(
+        {"report_year": [2021], "sched_table_name": ["plant_in_service"]}
     )
+    mocker.patch("pudl.io_managers.FercXBRLSQLiteIOManager", return_value=fake_manager)
 
     manager = ferc1_xbrl_sqlite_io_manager.model_copy(
         update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
@@ -427,6 +413,10 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
 
     assert observed["report_year"].eq(2021).all()
     assert observed["sched_table_name"].eq("plant_in_service").all()
+    fake_manager._query.assert_called_once_with(
+        "plant_in_service_duration",
+        dataset_settings.ferc1.xbrl_years,
+    )
 
 
 def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):

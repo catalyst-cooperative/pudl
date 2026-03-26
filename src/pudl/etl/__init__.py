@@ -13,8 +13,8 @@ from pudl.analysis.ml_tools import get_ml_models_config
 from pudl.deploy import ferceqr
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
-    FercDbfSQLiteDagsterIOManager,
-    FercXbrlSQLiteDagsterIOManager,
+    FercDbfSQLiteConfigurableIOManager,
+    FercXbrlSQLiteConfigurableIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,
@@ -352,7 +352,7 @@ def build_defs(
         if etl_settings_override is not None:
             if "ferc1_dbf_sqlite_io_manager" not in resource_overrides:
                 resources["ferc1_dbf_sqlite_io_manager"] = (
-                    FercDbfSQLiteDagsterIOManager(
+                    FercDbfSQLiteConfigurableIOManager(
                         etl_settings=etl_settings_override,
                         zenodo_dois=zenodo_dois_override,
                         db_name=ferc1_dbf_sqlite_io_manager.db_name,
@@ -361,7 +361,7 @@ def build_defs(
 
             if "ferc1_xbrl_sqlite_io_manager" not in resource_overrides:
                 resources["ferc1_xbrl_sqlite_io_manager"] = (
-                    FercXbrlSQLiteDagsterIOManager(
+                    FercXbrlSQLiteConfigurableIOManager(
                         etl_settings=etl_settings_override,
                         zenodo_dois=zenodo_dois_override,
                         db_name=ferc1_xbrl_sqlite_io_manager.db_name,
@@ -370,7 +370,7 @@ def build_defs(
 
             if "ferc714_xbrl_sqlite_io_manager" not in resource_overrides:
                 resources["ferc714_xbrl_sqlite_io_manager"] = (
-                    FercXbrlSQLiteDagsterIOManager(
+                    FercXbrlSQLiteConfigurableIOManager(
                         etl_settings=etl_settings_override,
                         zenodo_dois=zenodo_dois_override,
                         db_name=ferc714_xbrl_sqlite_io_manager.db_name,
