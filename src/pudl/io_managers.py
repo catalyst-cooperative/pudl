@@ -723,19 +723,15 @@ class FercSQLiteIOManager(SQLiteIOManager):
 
 
 class FercDBFSQLiteIOManager(FercSQLiteIOManager):
-    """IO Manager for only reading tables from the FERC 1 database.
+    """IO Manager for reading tables from FERC DBF SQLite databases.
 
     This IO Manager is for reading data only. It does not handle outputs because the raw
     FERC tables are not known prior to running the ETL and are not recorded in our
     metadata.
 
-    Warning:
-        Despite the class name suggesting it serves all FERC DBF datasets, the
-        ``_query`` and ``load_input`` implementations hard-code ``ferc1`` when looking
-        up dataset settings (e.g. ``dbf_years``). They currently only work correctly
-        for FERC Form 1 data. A follow-up refactor should inject the specific per-form
-        settings at construction time and create named IO managers for each DBF-derived
-        dataset.
+    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so
+    a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as
+    the corresponding settings object exposes a ``dbf_years`` attribute.
     """
 
     def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
@@ -746,7 +742,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         """Execute the year-filtered read against the FERC DBF SQLite database.
 
         Args:
-            table_name: Name of the table to query (without the ``raw_ferc1_dbf__``
+            table_name: Name of the table to query (without the ``raw_<db_name>__``
                 prefix).
             dbf_years: Years to include in the result set.
         """
@@ -763,16 +759,21 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
             ).assign(sched_table_name=table_name)
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
-        """Load a dataframe from a sqlite database.
+        """Load a dataframe from a FERC DBF sqlite database.
 
         Args:
             context: dagster keyword that provides access output information like asset
                 name.
         """
         self._ensure_database_ready()
-        ferc1_settings = context.resources.etl_settings.dataset_settings.ferc1
-        table_name = get_table_name_from_context(context).replace("raw_ferc1_dbf__", "")
-        return self._query(table_name, ferc1_settings.dbf_years)
+        ferc_settings = getattr(
+            context.resources.etl_settings.dataset_settings,
+            get_ferc_form_name(self.db_name),
+        )
+        table_name = get_table_name_from_context(context).replace(
+            f"raw_{self.db_name}__", ""
+        )
+        return self._query(table_name, ferc_settings.dbf_years)
 
 
 class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
@@ -819,14 +820,11 @@ class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
 
 
 class FercDbfSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
-    """Configurable IO manager for reading tables from the FERC 1 DBF SQLite database.
+    """Configurable IO manager for reading tables from FERC DBF SQLite databases.
 
-    Warning:
-        Despite the class name suggesting it serves all FERC DBF datasets, the
-        ``load_input`` implementation hard-codes ``ferc1`` when looking up dataset
-        settings (e.g. ``dbf_years``). It currently only works correctly for FERC
-        Form 1 data. A follow-up refactor should inject the specific per-form settings
-        at construction time and create named IO managers for each DBF-derived dataset.
+    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so
+    a single class serves all FERC DBF datasets. Instantiate with the appropriate
+    ``db_name`` (e.g. ``"ferc1_dbf"``, ``"ferc2_dbf"``) to target a specific form.
     """
 
     @cached_property
@@ -838,11 +836,16 @@ class FercDbfSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
         )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
-        """Load a dataframe from the FERC 1 DBF SQLite database."""
+        """Load a dataframe from a FERC DBF SQLite database."""
         self._prepare(context)
-        ferc1_settings = self.etl_settings.dataset_settings.ferc1
-        table_name = get_table_name_from_context(context).replace("raw_ferc1_dbf__", "")
-        return self._manager._query(table_name, ferc1_settings.dbf_years)
+        ferc_settings = getattr(
+            self.etl_settings.dataset_settings,
+            get_ferc_form_name(self.db_name),
+        )
+        table_name = get_table_name_from_context(context).replace(
+            f"raw_{self.db_name}__", ""
+        )
+        return self._manager._query(table_name, ferc_settings.dbf_years)
 
 
 class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
