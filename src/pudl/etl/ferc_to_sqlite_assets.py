@@ -157,17 +157,3 @@ raw_ferc714_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
     key=dg.AssetKey("raw_ferc714_xbrl__sqlite"),
     form=XbrlFormNumber.FORM714,
 )
-
-defs: dg.Definitions = dg.Definitions(
-    assets=[
-        raw_ferc1_dbf__sqlite,
-        raw_ferc2_dbf__sqlite,
-        raw_ferc6_dbf__sqlite,
-        raw_ferc60_dbf__sqlite,
-        raw_ferc1_xbrl__sqlite,
-        raw_ferc2_xbrl__sqlite,
-        raw_ferc6_xbrl__sqlite,
-        raw_ferc60_xbrl__sqlite,
-        raw_ferc714_xbrl__sqlite,
-    ]
-)
