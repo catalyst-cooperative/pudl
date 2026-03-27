@@ -72,9 +72,9 @@ def xbrl_to_sqlite_asset_factory(
     def _asset(context) -> dg.MaterializeResult[str]:
         runtime_settings = context.resources.runtime_settings
         settings = context.resources.etl_settings.get_xbrl_dataset_settings(form)
-        if settings is None or settings.disabled:
+        if settings is None or not settings.years:
             logger.info(
-                f"Skipping dataset ferc{form.value}_xbrl: no config or is disabled."
+                f"Skipping dataset ferc{form.value}_xbrl: no config or no years configured."
             )
             return dg.MaterializeResult(
                 value="skipped",

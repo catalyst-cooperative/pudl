@@ -5,6 +5,7 @@ import pytest
 from dagster import ResourceDefinition
 
 from pudl.etl import ferc_to_sqlite_assets
+from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.resources import RuntimeSettings
 from pudl.settings import (
@@ -85,6 +86,16 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
                 ferc6_xbrl_to_sqlite_settings=None,
                 ferc60_xbrl_to_sqlite_settings=None,
                 ferc714_xbrl_to_sqlite_settings=None,
+            ),
+            [],
+        ),
+        (
+            FercToSqliteSettings(
+                ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(years=[]),
+                ferc2_xbrl_to_sqlite_settings=Ferc2XbrlToSqliteSettings(years=[]),
+                ferc6_xbrl_to_sqlite_settings=Ferc6XbrlToSqliteSettings(years=[]),
+                ferc60_xbrl_to_sqlite_settings=Ferc60XbrlToSqliteSettings(years=[]),
+                ferc714_xbrl_to_sqlite_settings=Ferc714XbrlToSqliteSettings(years=[]),
             ),
             [],
         ),
@@ -179,15 +190,34 @@ def test_convert_form(mocker):
             duckdb_path=output_path / f"ferc{form.value}_xbrl.duckdb",
             taxonomy=f"raw_archive_{form.value}",
             form_number=form.value,
-            metadata_path=str(
-                output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
-            ),
-            datapackage_path=str(
-                output_path / f"ferc{form.value}_xbrl_datapackage.json"
-            ),
+            metadata_path=output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json",
+            datapackage_path=output_path / f"ferc{form.value}_xbrl_datapackage.json",
             workers=5,
             batch_size=10,
             loglevel="INFO",
             logfile=None,
         )
         extractor_mock.reset_mock()
+
+
+def test_ferc_dbf_extractor_skips_with_empty_years(mocker, tmp_path):
+    """FercDbfExtractor.execute() should return early when years=[]."""
+    mocker.patch.object(
+        Ferc1DbfExtractor, "get_dbf_reader", return_value=mocker.MagicMock()
+    )
+    mocker.patch("pudl.extract.dbf.sa.create_engine", return_value=mocker.MagicMock())
+    mocker.patch("pudl.extract.dbf.sa.MetaData", return_value=mocker.MagicMock())
+
+    settings = FercToSqliteSettings(
+        ferc1_dbf_to_sqlite_settings=Ferc1DbfToSqliteSettings(years=[]),
+    )
+    extractor = Ferc1DbfExtractor(
+        datastore=mocker.MagicMock(),
+        settings=settings,
+        output_path=tmp_path,
+    )
+
+    delete_schema_mock = mocker.patch.object(extractor, "delete_schema")
+    extractor.execute()
+
+    delete_schema_mock.assert_not_called()

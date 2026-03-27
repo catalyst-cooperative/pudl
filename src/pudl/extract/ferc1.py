@@ -95,8 +95,8 @@ from pudl.io_managers import (
 from pudl.settings import (
     DatasetsSettings,
     EtlSettings,
+    FercDbfToSqliteSettings,
     FercToSqliteSettings,
-    GenericDatasetSettings,
 )
 from pudl.workspace.setup import PudlPaths
 
@@ -255,7 +255,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 
     def get_settings(
         self, global_settings: FercToSqliteSettings
-    ) -> GenericDatasetSettings:
+    ) -> FercDbfToSqliteSettings:
         """Returns settings for FERC Form 1 DBF dataset."""
         settings = global_settings.ferc1_dbf_to_sqlite_settings
         if settings is None:

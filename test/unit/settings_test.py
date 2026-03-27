@@ -398,6 +398,7 @@ def _all_settings_instances() -> list[BaseModel]:
     skip = {
         _settings_module.FrozenBaseModel,
         _settings_module.GenericDatasetSettings,
+        _settings_module.FercDbfToSqliteSettings,
         _settings_module.FercGenericXbrlToSqliteSettings,
     }
     instances: list[BaseModel] = []

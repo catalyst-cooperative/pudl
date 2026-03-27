@@ -41,11 +41,11 @@ def test_sqlite_duckdb_equivalence(
 ):
     """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
     for form in FERC_FORMS:
-        if ferc_to_sqlite_settings.__getattribute__(
+        if not ferc_to_sqlite_settings.__getattribute__(
             f"ferc{form}_xbrl_to_sqlite_settings"
-        ).disabled:
+        ).years:
             logger.info(
-                f"Skipping FERC Form {form} sqlite vs duckdb equivalence test..."
+                f"Skipping FERC Form {form} sqlite vs duckdb equivalence test: no years configured."
             )
             continue
         logger.info(f"Comparing FERC Form {form} SQLite vs. DuckDB outputs...")

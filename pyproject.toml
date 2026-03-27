@@ -169,6 +169,7 @@ urllib3 = ">=2.4"
 uv = ">=0.10"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
+ty = ">=0.0.25"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
@@ -716,3 +717,6 @@ extend-exclude = [
     "src/pudl/transform/params/ferc1.py",
     "src/pudl/package_data/ferc1/*_categories.yaml",
 ]
+
+[tool.ty.environment]
+python = ".pixi/envs/default/bin/python"

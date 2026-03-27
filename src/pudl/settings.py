@@ -55,9 +55,6 @@ class GenericDatasetSettings(FrozenBaseModel):
     of partitions.
     """
 
-    disabled: bool = False
-    """If true, skip processing this dataset."""
-
     data_source: ClassVar[DataSource]
     """The DataSource metadata object for this dataset."""
 
@@ -78,13 +75,15 @@ class GenericDatasetSettings(FrozenBaseModel):
                 partition = getattr(self, name)
             except KeyError as err:
                 raise ValueError(
-                    f"{self.__name__} is missing required '{name}' field."
+                    f"{self.__class__.__name__} is missing required '{name}' field."
                 ) from err
 
             # Partition should never be None -- should get a default value set in
             # the child classes based on the working partitions.
             if partition is None:
-                raise ValueError(f"'In {self.__name__} partition {name} is None.")
+                raise ValueError(
+                    f"'In {self.__class__.__name__} partition {name} is None."
+                )
 
             if nonworking_partitions := list(set(partition) - set(working_partitions)):
                 raise ValueError(f"'{nonworking_partitions}' {name} are not available.")
@@ -688,7 +687,22 @@ class DatasetsSettings(FrozenBaseModel):
         return df
 
 
-class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
+class FercDbfToSqliteSettings(GenericDatasetSettings):
+    """Base class for all FERC DBF-to-SQLite settings models.
+
+    Declares the ``years`` and ``refyear`` attributes shared by every FERC DBF
+    form so that :class:`~pudl.extract.dbf.FercDbfExtractor` can be typed
+    against this base rather than the looser :class:`GenericDatasetSettings`.
+    """
+
+    years: list[int] = []
+    """Years of DBF data to extract."""
+
+    refyear: ClassVar[int]
+    """Reference year used to build the destination schema; provided by each subclass."""
+
+
+class Ferc1DbfToSqliteSettings(FercDbfToSqliteSettings):
     """An immutable Pydantic model to validate FERC 1 to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
@@ -706,7 +720,6 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
 
     years: list[int]
     """The list of years to validate."""
-    disabled: bool = False
 
 
 class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -729,7 +742,7 @@ class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """The list of years to validate."""
 
 
-class Ferc2DbfToSqliteSettings(GenericDatasetSettings):
+class Ferc2DbfToSqliteSettings(FercDbfToSqliteSettings):
     """An immutable Pydantic model to validate FERC 2 to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
@@ -742,7 +755,7 @@ class Ferc2DbfToSqliteSettings(GenericDatasetSettings):
     """The reference year for the dataset."""
 
 
-class Ferc6DbfToSqliteSettings(GenericDatasetSettings):
+class Ferc6DbfToSqliteSettings(FercDbfToSqliteSettings):
     """An immutable Pydantic model to validate FERC 6 to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
@@ -750,8 +763,6 @@ class Ferc6DbfToSqliteSettings(GenericDatasetSettings):
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
     """The list of years to validate."""
-
-    disabled: bool = False
 
     refyear: ClassVar[int] = max(years)
     """The reference year for the dataset."""
@@ -767,21 +778,14 @@ class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """The list of years to validate."""
 
 
-class Ferc60DbfToSqliteSettings(GenericDatasetSettings):
-    """An immutable Pydantic model to validate FERC 60 to SQLite settings.
-
-    Args:
-        years: List of years to validate.
-        disabled: if True, skip processing this dataset.
-    """
+class Ferc60DbfToSqliteSettings(FercDbfToSqliteSettings):
+    """An immutable Pydantic model to validate FERC 60 to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc60")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
     """The list of years to validate."""
-
-    disabled: bool = False
 
     refyear: ClassVar[int] = max(years)
     """The reference year for the dataset."""
@@ -839,7 +843,7 @@ class FercToSqliteSettings(BaseSettings):
 
     def get_xbrl_dataset_settings(
         self, form_number: XbrlFormNumber
-    ) -> FercGenericXbrlToSqliteSettings:
+    ) -> FercGenericXbrlToSqliteSettings | None:
         """Return a list with all requested FERC XBRL to SQLite datasets.
 
         Args:
@@ -936,7 +940,7 @@ class EtlSettings(BaseSettings):
 
     def get_xbrl_dataset_settings(
         self, form_number: XbrlFormNumber
-    ) -> FercGenericXbrlToSqliteSettings:
+    ) -> FercGenericXbrlToSqliteSettings | None:
         """Proxy FERC XBRL settings lookup through the canonical ETL settings."""
         return self.ferc_to_sqlite.get_xbrl_dataset_settings(form_number)
 
