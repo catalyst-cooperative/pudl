@@ -2,7 +2,6 @@ Data Resources
 ==============
 
 .. toctree::
-  :hidden:
   :maxdepth: 2
 
   PUDL Data Viewer <https://data.catalyst.coop>
