@@ -176,7 +176,6 @@ html_theme_options = {
     "navbar_start": ["navbar-logo", "version-switcher"],
     "secondary_sidebar_items": {
         "**": ["page-toc", "sourcelink"],
-        # "data_dictionaries/pudl_db": [],
     },
     "show_nav_level": {
         "**": 2,

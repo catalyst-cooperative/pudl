@@ -9,6 +9,8 @@ journalists, and policy makers that might not have the technical expertise to ac
 in its raw form, the time to clean and prepare the data for bulk analysis, or the means
 to purchase it from  existing commercial providers.
 
+For more information on how to use PUDL data, see :doc:`data_access`.
+
 ---------------------------------------------------------------------------------------
 Available Data
 ---------------------------------------------------------------------------------------
@@ -304,8 +306,7 @@ Enable Open Source Ecosystems (POSE) program
   :hidden:
   :maxdepth: 2
 
-  About PUDL <self>
-  Release Notes <release_notes>
   PUDL Data Viewer <https://data.catalyst.coop>
-  Data <data>
-  Code <code>
+  Data Documentation <data>
+  Development <code>
+  Release Notes <release_notes>
