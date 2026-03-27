@@ -4,12 +4,6 @@ import pathlib
 import sys
 
 import click
-import sqlalchemy as sa
-from dotenv import load_dotenv
-
-import pudl
-from pudl.validate import check_foreign_keys
-from pudl.workspace.setup import PudlPaths
 
 
 @click.command(
@@ -55,6 +49,14 @@ def main(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path):
     tables have been loaded, so we check that they are valid after the ETL has
     completed. This script runs the same check.
     """
+    # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
+    import sqlalchemy as sa  # noqa: PLC0415
+    from dotenv import load_dotenv  # noqa: PLC0415
+
+    import pudl  # noqa: PLC0415
+    from pudl.validate import check_foreign_keys  # noqa: PLC0415
+    from pudl.workspace.setup import PudlPaths  # noqa: PLC0415
+
     load_dotenv()
 
     # Display logged output from the PUDL package:
@@ -65,9 +67,11 @@ def main(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path):
 
     # Using PudlPaths to get default value for CLI causes validation issues
     if not db_path:
-        db_path = PudlPaths().output_dir / "pudl.sqlite"
+        db_uri = PudlPaths().sqlite_db_uri("pudl")
+    else:
+        db_uri = f"sqlite:///{db_path}"
 
-    check_foreign_keys(sa.create_engine(f"sqlite:///{db_path}"))
+    check_foreign_keys(sa.create_engine(db_uri))
     return 0
 
 

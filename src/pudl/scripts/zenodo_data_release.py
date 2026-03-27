@@ -27,6 +27,7 @@ import datetime
 import logging
 import os
 import re
+import sys
 import tempfile
 import time
 from collections.abc import Callable
@@ -541,9 +542,7 @@ class CompleteDraft(State):
     "draft to be reviewed and approved manually.",
     show_default=True,
 )
-def pudl_zenodo_data_release(
-    env: str, source_dir: str, publish: bool, ignore: tuple[str]
-):
+def main(env: str, source_dir: str, publish: bool, ignore: tuple[str]):
     """Publish a new PUDL data release to Zenodo."""
     zenodo_client = ZenodoClient(env)
     if env == SANDBOX:
@@ -567,4 +566,4 @@ def pudl_zenodo_data_release(
 
 
 if __name__ == "__main__":
-    pudl_zenodo_data_release()
+    sys.exit(main())

@@ -5,12 +5,6 @@ import sys
 
 import click
 
-import pudl.logging_helpers
-from pudl.metadata.classes import Package
-from pudl.metadata.resources import RESOURCE_METADATA
-
-logger = pudl.logging_helpers.get_logger(__name__)
-
 
 @click.command(
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -66,7 +60,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
         ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], case_sensitive=False
     ),
 )
-def metadata_to_rst(
+def main(
     skip: list[str],
     output: pathlib.Path,
     docs_dir: pathlib.Path,
@@ -77,6 +71,12 @@ def metadata_to_rst(
 
     metadata_to_rst -s bad_table1 -s bad_table2 -d ./pudl/docs -o ./datadict.rst
     """
+    # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
+    import pudl.logging_helpers  # noqa: PLC0415
+    from pudl.metadata.classes import Package  # noqa: PLC0415
+    from pudl.metadata.resources import RESOURCE_METADATA  # noqa: PLC0415
+
+    logger = pudl.logging_helpers.get_logger(__name__)
     pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
 
     logger.info(f"Exporting PUDL metadata to: {output}")
@@ -89,4 +89,4 @@ def metadata_to_rst(
 
 
 if __name__ == "__main__":
-    sys.exit(metadata_to_rst())
+    sys.exit(main())
