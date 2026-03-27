@@ -888,8 +888,10 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
                 | (
                     gen_assoc["gf_unique_to_gen"]
                     & (
-                        (gen_assoc.net_generation_mwh_gf_tbl > 0)
-                        | (gen_assoc.net_generation_mwh_gf_tbl < 0)
+                        (
+                            gen_assoc.net_generation_mwh_gf_tbl.notnull()
+                            & (gen_assoc.net_generation_mwh_gf_tbl != 0)
+                        )
                         | (gen_assoc.filter(like="fuel_consumed_") > 0).any(axis=1)
                     )
                 )
@@ -984,8 +986,10 @@ def identify_generators_coming_online(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             | (
                 gen_assoc["gf_unique_to_gen"]
                 & (
-                    (gen_assoc.net_generation_mwh_gf_tbl > 0)
-                    | (gen_assoc.net_generation_mwh_gf_tbl < 0)
+                    (
+                        gen_assoc.net_generation_mwh_gf_tbl.notnull()
+                        & (gen_assoc.net_generation_mwh_gf_tbl != 0)
+                    )
                     | ((gen_assoc.filter(like="fuel_consumed_") > 0).any(axis=1))
                 )
             )
