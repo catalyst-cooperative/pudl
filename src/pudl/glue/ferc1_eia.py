@@ -108,13 +108,29 @@ def get_plant_map() -> pd.DataFrame:
 
 def get_utility_map_pudl() -> pd.DataFrame:
     """Read in the manual FERC to EIA utility mapping data."""
-    return (
+    utility_map = (
         pd.read_csv(UTIL_ID_PUDL_MAP_CSV)
         .convert_dtypes()
         .assign(
             utility_name_pudl=lambda x: x.utility_name_eia.fillna(x.utility_name_ferc1)
         )
     )
+
+    # Ensure that none of the utility IDs are mapped to more than one unique PUDL ID
+    duplicated_ferc_ids = utility_map.groupby("utility_id_ferc1").filter(
+        lambda x: (x["utility_id_pudl"] != x["utility_id_pudl"].iloc[0]).any()
+    )
+    duplicated_eia_ids = utility_map.groupby("utility_id_eia").filter(
+        lambda x: (x["utility_id_pudl"] != x["utility_id_pudl"].iloc[0]).any()
+    )
+    assert duplicated_ferc_ids.empty, (
+        f"Expected each FERC ID to be assigned to only one utility ID PUDL, instead found:\n{duplicated_ferc_ids}"
+    )
+    assert duplicated_eia_ids.empty, (
+        f"Expected each EIA ID to be assigned to only one utility ID PUDL, instead found:\n{duplicated_eia_ids}"
+    )
+
+    return utility_map
 
 
 def get_utility_map_ferc1() -> pd.DataFrame:
@@ -586,14 +602,14 @@ def glue(ferc1: bool = False, eia: bool = False):
         utility_map_pudl.loc[
             :, ["utility_id_eia", "utility_name_eia", "utility_id_pudl"]
         ]
-        .drop_duplicates("utility_id_eia")
+        .drop_duplicates(["utility_id_pudl", "utility_id_eia"])
         .dropna(subset=["utility_id_eia"])
     )
     core_pudl__assn_ferc1_pudl_utilities = (
         utility_map_pudl.loc[
             :, ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"]
         ]
-        .drop_duplicates("utility_id_ferc1")
+        .drop_duplicates(["utility_id_pudl", "utility_id_ferc1"])
         .dropna(subset=["utility_id_ferc1"])
     )
 
