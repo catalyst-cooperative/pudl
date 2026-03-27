@@ -1,13 +1,16 @@
 """Tests for settings validation."""
 
+import importlib.resources
+import inspect
 from typing import Self
 
 import pandas as pd
 import pytest
 from dagster import build_init_resource_context
 from pandas import json_normalize
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
+import pudl.settings as _settings_module
 from pudl.metadata.classes import DataSource
 from pudl.resources import (
     DatastoreResource,
@@ -275,12 +278,28 @@ class TestGridPathRAToolkitSettings:
 
     def test_fast_profile_gridpath_parts_not_empty(self: Self):
         """Ensure packaged fast settings yield GridPath parts used by Dagster assets."""
-        etl_settings = load_etl_settings("src/pudl/package_data/settings/etl_fast.yml")
+        with importlib.resources.as_file(
+            importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
+        ) as path:
+            etl_settings = load_etl_settings(str(path))
         assert etl_settings.datasets is not None
 
         gridpath_settings = etl_settings.datasets.gridpathratoolkit
         assert gridpath_settings.parts
         assert "aggregated_extended_wind_capacity" in gridpath_settings.parts
+
+    def test_model_dump_round_trip(self: Self):
+        """GridPathRAToolkitSettings must survive a model_dump → reconstruct round-trip.
+
+        Regression: model_dump() includes computed fields by default in Pydantic v2,
+        so ``parts`` appeared in the dump. Passing it back to the constructor then raised
+        a ValidationError because ``parts`` is a computed field and the model uses
+        ``extra="forbid"``.
+        """
+        settings = GridPathRAToolkitSettings()
+        dumped = settings.model_dump()
+        # parts must not be present; if it is, reconstruction will raise ValidationError
+        GridPathRAToolkitSettings(**dumped)
 
 
 class TestEtlSettings:
@@ -333,9 +352,12 @@ class TestPudlEtlSettingsResource:
 
     def test_loads_from_file(self: Self):
         """Test that ETL settings are loaded from the shared ETL settings file."""
-        init_context = build_init_resource_context(
-            config={"etl_settings_path": "src/pudl/package_data/settings/etl_fast.yml"}
-        )
+        with importlib.resources.as_file(
+            importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
+        ) as path:
+            init_context = build_init_resource_context(
+                config={"etl_settings_path": str(path)}
+            )
 
         loaded_settings = PudlEtlSettingsResource.from_resource_context(init_context)
 
@@ -358,6 +380,54 @@ def test_datastore_resource_loads() -> None:
 
         with DatastoreResource.from_resource_context_cm(init_context) as datastore:
             assert isinstance(datastore, Datastore)
+
+
+def _all_settings_instances() -> list[BaseModel]:
+    """Return one default instance of every concrete settings class in pudl.settings.
+
+    Abstract base classes that are not meant to be instantiated directly are
+    excluded. Classes that require non-default arguments are constructed
+    explicitly. All remaining classes are constructed with no arguments.
+
+    Any new settings class added to ``pudl.settings`` is automatically included
+    here, so :func:`test_all_settings_model_dump_round_trip` stays comprehensive
+    without manual maintenance.
+    """
+    # True abstract bases: no data_source / no years default — all concrete
+    # subclasses are already covered by their own entries in this list.
+    skip = {
+        _settings_module.FrozenBaseModel,
+        _settings_module.GenericDatasetSettings,
+        _settings_module.FercGenericXbrlToSqliteSettings,
+    }
+    instances: list[BaseModel] = []
+    for _, cls in inspect.getmembers(_settings_module, inspect.isclass):
+        if (
+            not issubclass(cls, BaseModel)
+            or cls.__module__ != _settings_module.__name__
+            or cls in skip
+        ):
+            continue
+        instances.append(cls())
+    return instances
+
+
+@pytest.mark.parametrize(
+    "instance",
+    _all_settings_instances(),
+    ids=lambda i: type(i).__name__,
+)
+def test_all_settings_model_dump_round_trip(instance: BaseModel) -> None:
+    """Every settings class must survive a model_dump → reconstruct round-trip.
+
+    Verifies that ``model_dump()`` produces a dict that can be passed back to
+    the constructor without raising a ``ValidationError``. This catches accidental
+    use of ``@computed_field``, which includes derived values in ``model_dump()``
+    output that cannot be re-supplied to constructors on models with
+    ``extra="forbid"``.
+    """
+    dumped = instance.model_dump()
+    type(instance)(**dumped)
 
 
 def test_partitions_with_json_normalize(pudl_etl_settings):

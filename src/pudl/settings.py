@@ -446,7 +446,6 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
     technology_types: list[str] = ["wind", "solar"]
     processing_levels: list[str] = ["extended"]
     daily_weather: bool = True
-    parts: list[str] = Field(default_factory=list, validate_default=True)
 
     @field_validator("technology_types", "processing_levels")
     @classmethod
@@ -472,31 +471,24 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
                 raise ValueError(f"{proc_level} is not a valid processing level.")
         return v
 
-    @field_validator("parts")
-    @classmethod
-    def compile_parts(cls, _parts: list[str], info: ValidationInfo) -> list[str]:
-        """Compile parts from selected technologies, processing levels, and weather."""
+    @property
+    def parts(self) -> list[str]:
+        """Construct parts from selected technologies, processing levels, and daily weather."""
         parts = []
-        if info.data["daily_weather"]:
+        if self.daily_weather:
             parts.append("daily_weather")
-        if (
-            "solar" in info.data["technology_types"]
-            and "extended" in info.data["processing_levels"]
-        ):
+        if "solar" in self.technology_types and "extended" in self.processing_levels:
             parts.append("aggregated_extended_solar_capacity")
-        if (
-            "wind" in info.data["technology_types"]
-            and "extended" in info.data["processing_levels"]
-        ):
+        if "wind" in self.technology_types and "extended" in self.processing_levels:
             parts.append("aggregated_extended_wind_capacity")
-        if "solar" in info.data["technology_types"] and (
-            "extended" in info.data["processing_levels"]
-            or "aggregated" in info.data["processing_levels"]
+        if "solar" in self.technology_types and (
+            "extended" in self.processing_levels
+            or "aggregated" in self.processing_levels
         ):
             parts.append("solar_capacity_aggregations")
-        if "wind" in info.data["technology_types"] and (
-            "extended" in info.data["processing_levels"]
-            or "aggregated" in info.data["processing_levels"]
+        if "wind" in self.technology_types and (
+            "extended" in self.processing_levels
+            or "aggregated" in self.processing_levels
         ):
             parts.append("wind_capacity_aggregations")
         return parts
@@ -917,14 +909,17 @@ class EtlSettings(BaseSettings):
 
         for which_ferc in ["ferc1", "ferc714"]:
             if (
-                (pudl_ferc := getattr(self.datasets, which_ferc))
+                self.datasets is not None
+                and self.ferc_to_sqlite_settings is not None
+                and (pudl_ferc := getattr(self.datasets, which_ferc))
                 and (
                     sqlite_ferc := getattr(
                         self.ferc_to_sqlite_settings,
                         f"{which_ferc}_xbrl_to_sqlite_settings",
                     )
                 )
-            ) and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years)):
+                and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years))
+            ):
                 raise AssertionError(
                     "You are trying to build a PUDL database with different XBRL years "
                     f"than the ferc_to_sqlite_settings years for {which_ferc}.\nPUDL years: {pudl_ferc.xbrl_years}\n"
