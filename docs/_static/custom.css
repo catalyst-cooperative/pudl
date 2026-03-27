@@ -18,8 +18,6 @@ html[data-theme="dark"] {
     max-width: 300px;
 }
 
-.xpudl-data_dictionary p {margin: 0.5em 0; padding: 0}
-
 .page-toc li, #pudl-data-dictionary h2 {
     overflow-wrap: break-word;
     width: 100%;

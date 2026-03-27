@@ -127,7 +127,7 @@ prettier = ">=3.7,<4"
 # pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
 pyarrow = ">=23"
 pydantic = ">=2.12"
-pydantic-settings = ">=2.11"
+pydantic-settings = ">=2.13"
 pydata-sphinx-theme = ">=0.16.1"
 pygraphviz = ">=1"
 pytest = ">=9"
