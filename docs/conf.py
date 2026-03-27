@@ -62,6 +62,7 @@ extensions = [
     "sphinx_tabs.tabs",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
+    "sphinxcontrib.mermaid",
 ]
 
 googleanalytics_id = "G-EXWBBTVMWK"
@@ -140,6 +141,9 @@ exclude_patterns = ["_build"]
 suppress_warnings = [
     "ref.python",  # Suppress ambiguous Python reference warnings
 ]
+
+if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
+    suppress_warnings.append("intersphinx.external")
 
 # -- Options for HTML output -------------------------------------------------
 

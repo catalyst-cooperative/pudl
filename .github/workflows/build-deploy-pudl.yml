@@ -14,6 +14,10 @@ env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
   GCS_OUTPUT_BUCKET: gs://builds.catalyst.coop
   BATCH_JOB_JSON: batch_job.json
+  SKIP_BUILD: "false"
+  NIGHTLY_TAG: ""
+  BUILD_ID: ""
+  BATCH_JOB_ID: ""
 
 jobs:
   build_and_deploy_pudl:

@@ -14,7 +14,14 @@ fallback-version = "0.0.0.dev0"
 
 [tool.hatch.version.raw-options]
 # Tell git to only consider version tags, not nightly-* or other tags
-git_describe_command = ["git", "describe", "--tags", "--long", "--match", "v20*"]
+git_describe_command = [
+    "git",
+    "describe",
+    "--tags",
+    "--long",
+    "--match",
+    "v20*",
+]
 # Disable local version identifier (no +g1234567 suffix)
 local_scheme = "no-local-version"
 
@@ -25,9 +32,7 @@ version-file = "src/pudl/_version.py"
 name = "catalystcoop.pudl"
 description = "An open data processing pipeline for US energy data"
 readme = { file = "README.rst", content-type = "text/x-rst" }
-authors = [
-    { name = "Catalyst Cooperative", email = "pudl@catalyst.coop" },
-]
+authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
 requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
 license = "MIT"
@@ -67,12 +72,12 @@ click = ">=8.3"
 coloredlogs = ">=14.0"
 coverage = ">=7.13"
 curl = ">=8.17"
-dagster = ">=1.12.18"
-dagster-dbt = ">=1!0.28.18"
-dagster-dg-cli = ">=1.12.18"
-dagster-gcp = ">=1!0.28.18"
-dagster-postgres = ">=1!0.28.18"
-dagster-webserver = ">=1.12.18"
+dagster = ">=1.12.20"
+dagster-dbt = ">=1!0.28.20"
+dagster-dg-cli = ">=1.12.20"
+dagster-gcp = ">=1!0.28.20"
+dagster-postgres = ">=1!0.28.20"
+dagster-webserver = ">=1.12.20"
 dbt-core = ">=1.11.7"
 dbt-duckdb = ">=1.9.4"
 deepdiff = ">=8"
@@ -83,7 +88,7 @@ fsspec = ">=2026"
 gcsfs = ">=2026"
 # The Python geospatial stack is notoriously finnicky and full of compiled # extensions
 # that have to be kept in sync. If this isn't pinned things will probably break.
-gdal = "==3.12.2"
+gdal = "==3.12.3"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 google-cloud-sdk = ">=535"
@@ -113,14 +118,14 @@ numpy = ">=2.4"
 packaging = ">=25"
 pandas = ">=2.3"
 pandoc = ">=3.7"
-pandera-polars = ">=0.28"
+pandera-polars = ">=0.30"
 parallel = ">=20250822"
-polars = ">=1.38"
+polars = ">=1.39"
 pre-commit = ">=4.5"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.7,<4"
 # pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
-pyarrow = ">=21"
+pyarrow = ">=23"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
 pygraphviz = ">=1"
@@ -151,9 +156,11 @@ sphinx-issues = ">=5"
 sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
 sphinxcontrib-googleanalytics = ">=0.4"
+sphinxcontrib-mermaid = ">=2.0"
 splink = ">=4.0.14"
 sqlalchemy = ">=2"
 sqlite = ">=3.52"
+taplo = "==0.9.3"
 terraform = ">=1.14"
 timezonefinder = ">=8"
 typos = ">=1.40"
@@ -199,10 +206,10 @@ bottleneck = ">=1.5.0"
 "catalystcoop.ferc_xbrl_extractor" = ">=1.8,<1.9"
 click = ">=8.3"
 coloredlogs = ">=14.0"
-dagster = ">=1.12.18"
-dagster-dbt = ">=0.28.18"
-dagster-postgres = ">=0.28.18"
-dagster-webserver = ">=1.12.18"
+dagster = ">=1.12.20"
+dagster-dbt = ">=0.28.20"
+dagster-postgres = ">=0.28.20"
+dagster-webserver = ">=1.12.20"
 dbt-core = ">=1.11.8"
 dbt-duckdb = ">=1.9.4"
 email-validator = ">=1.0.3"
@@ -211,7 +218,7 @@ fsspec = ">=2026"
 gcsfs = ">=2026"
 # The Python geospatial stack is notoriously finnicky and full of compiled # extensions
 # that have to be kept in sync. If this isn't pinned things will probably break.
-gdal = "==3.12.2"
+gdal = "==3.12.3"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 # grpcio packages all need to have same version to avoid conflicts.
@@ -229,9 +236,9 @@ numexpr = ">=2.10"
 numpy = ">=2.4"
 packaging = ">=25"
 pandas = ">=2.3"
-pandera-polars = ">=0.28"
-polars = ">=1.38"
-pyarrow = ">=21"
+pandera-polars = ">=0.30"
+polars = ">=1.39"
+pyarrow = ">=23"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
 python-calamine = ">=0.6.1"
@@ -258,7 +265,8 @@ ETL_FULL_YML = "src/pudl/package_data/settings/etl_full.yml"
 
 [tool.pixi.tasks]
 # Documentation tasks
-docs-clean = { cmd = """
+[tool.pixi.tasks.docs-clean]
+cmd = """
 bash -c 'shopt -s nullglob; rm -rf \
     docs/_build \
     docs/autoapi \
@@ -276,61 +284,135 @@ bash -c 'shopt -s nullglob; rm -rf \
     docs/data_sources/rus*.rst \
     docs/data_sources/sec10k*.rst \
     docs/data_sources/vcerare*.rst'
-""", description = "Remove all generated documentation files" }
+"""
+description = "Remove all generated documentation files"
 
-docs-build = { cmd = """
+[tool.pixi.tasks.docs-build]
+cmd = """
 doc8 docs/ README.rst && \
-coverage run --append -m sphinx --jobs auto -W -b html docs docs/_build/html
-""", depends-on = ["docs-clean"], description = "Build PUDL docs using Sphinx" }
+python -m sphinx --jobs auto -W -b html docs docs/_build/html
+"""
+depends-on = ["docs-clean"]
+description = "Build PUDL docs using Sphinx"
+
+[tool.pixi.tasks.toml-format]
+cmd = "taplo fmt"
+description = "Format TOML files with Taplo"
+
+[tool.pixi.tasks.toml-format-check]
+cmd = "taplo fmt --check"
+description = "Check TOML formatting with Taplo"
+
+[tool.pixi.tasks.toml-check]
+cmd = "taplo check"
+description = "Validate TOML files with Taplo"
+
+[tool.pixi.tasks.docs-check]
+cmd = """
+doc8 docs/ README.rst && \
+PUDL_DOCS_DISABLE_INTERSPHINX=1 coverage run --append -m sphinx --jobs auto -W -b dummy docs docs/_build/dummy
+"""
+depends-on = ["docs-clean"]
+description = "Run a fast validation-only Sphinx docs check"
+
+[tool.pixi.tasks.docs-linkcheck]
+cmd = """
+sphinx-build --jobs auto -W -b linkcheck docs docs/_build/linkcheck
+"""
+depends-on = ["docs-clean"]
+description = "Check external links in the PUDL docs using Sphinx linkcheck"
 
 # Testing tasks
-coverage-erase = { cmd = "coverage erase", description = "Clear coverage data" }
-pytest-unit = { cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit", description = "Run unit tests and doctests" }
-pytest-integration = { cmd = "pytest --cov-fail-under=0 --etl-settings $ETL_FAST_YML test/integration", description = "Run integration tests with fast ETL settings" }
-pytest-ci = { cmd = "coverage report", depends-on = ["coverage-erase", "docs-build", "pytest-unit", "pytest-integration"], description = "Run all CI tests and report test coverage" }
-pytest-integration-full = { cmd = "pytest --live-dbs --no-cov --etl-settings $ETL_FULL_YML test/integration", description = "Run integration tests against local full ETL outputs" }
-pytest-jupyter = { cmd = "pytest --live-dbs test/integration/jupyter_notebooks_test.py", description = "Test Jupyter notebooks" }
+[tool.pixi.tasks.coverage-erase]
+cmd = "coverage erase"
+description = "Clear coverage data"
+
+[tool.pixi.tasks.pytest-unit]
+cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit"
+description = "Run unit tests and doctests"
+
+[tool.pixi.tasks.pytest-integration]
+cmd = "pytest --cov-fail-under=0 --etl-settings $ETL_FAST_YML test/integration"
+description = "Run integration tests with fast ETL settings"
+
+[tool.pixi.tasks.pytest-ci]
+cmd = "coverage report"
+depends-on = [
+    "coverage-erase",
+    "docs-check",
+    "pytest-unit",
+    "pytest-integration",
+]
+description = "Run all CI tests and report test coverage"
+
+[tool.pixi.tasks.pytest-integration-full]
+cmd = "pytest --live-dbs --no-cov --etl-settings $ETL_FULL_YML test/integration"
+description = "Run integration tests against local full ETL outputs"
+
+[tool.pixi.tasks.pytest-jupyter]
+cmd = "pytest --live-dbs test/integration/jupyter_notebooks_test.py"
+description = "Test Jupyter notebooks"
+
 # Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
 # These outputs should be turned into normal dagster assets. See issue #4338
-unmapped-ids = { cmd = """
+[tool.pixi.tasks.unmapped-ids]
+cmd = """
 pytest \
     --save-unmapped-ids
     --ignore-foreign-key-constraints \
     --etl-settings $ETL_FULL_YML \
     test/integration/glue_test.py
-""", description = "Identify unmapped plant and utility IDs" }
+"""
+description = "Identify unmapped plant and utility IDs"
 
 # ETL tasks
-ferc = { cmd = """
+[tool.pixi.tasks.ferc]
+cmd = """
 bash -c 'shopt -s nullglob; rm -f \
     $PUDL_OUTPUT/ferc*.sqlite \
     $PUDL_OUTPUT/ferc*.duckdb \
     $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
     $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json' && \
 coverage run --append ferc_to_sqlite $ETL_FULL_YML
-""", description = "Build FERC databases from scratch" }
+"""
+description = "Build FERC databases from scratch"
 
-pudl = { cmd = """
+[tool.pixi.tasks.pudl]
+cmd = """
 bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite' && \
 alembic upgrade head && \
 coverage run --append pudl_etl $ETL_FULL_YML
-""", description = "Run full PUDL ETL pipeline" }
+"""
+description = "Run full PUDL ETL pipeline"
 
 # Code quality tasks
-pre-commit-run = { cmd = "pre-commit run --all-files", description = "Run all pre-commit hooks" }
-pre-commit-install = { cmd = "pre-commit install", description = "Install pre-commit hooks" }
+[tool.pixi.tasks.pre-commit-run]
+cmd = "pre-commit run --all-files"
+description = "Run all pre-commit hooks"
+
+[tool.pixi.tasks.pre-commit-install]
+cmd = "pre-commit install"
+description = "Install pre-commit hooks"
 
 # Dependency Update tasks
-pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update pre-commit hook versions" }
-dbt-deps-upgrade = { cmd = "dbt deps --upgrade", cwd = "dbt", description = "Update dbt dependencies" }
+[tool.pixi.tasks.pre-commit-autoupdate]
+cmd = "pre-commit autoupdate"
+description = "Update pre-commit hook versions"
+
+[tool.pixi.tasks.dbt-deps-upgrade]
+cmd = "dbt deps --upgrade"
+cwd = "dbt"
+description = "Update dbt dependencies"
 
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command
 # which is the workaround for "restoring from a lockfile" - see
 # https://github.com/vercel-labs/skills/issues/549 - we probably want to switch to
 # `npx skills install` whenever that actually becomes a thing.
-install-skills = { cmd = "npx skills experimental_install", description = "Install skills from lockfile" }
+[tool.pixi.tasks.install-skills]
+cmd = "npx skills experimental_install"
+description = "Install skills from lockfile"
 
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
@@ -338,6 +420,7 @@ ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
 pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
+pudl_deploy = "pudl.scripts.deploy:pudl_deploy"
 pudl_etl = "pudl.etl.cli:pudl_etl"
 pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
 dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
@@ -498,7 +581,11 @@ log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 log_cli = true
 log_cli_level = "INFO"
-doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
+doctest_optionflags = [
+    "NORMALIZE_WHITESPACE",
+    "IGNORE_EXCEPTION_DETAIL",
+    "ELLIPSIS",
+]
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
@@ -538,10 +625,7 @@ directory_type = "project"
 [tool.dg.project]
 root_module = "pudl"
 code_location_target_module = "pudl.definitions"
-registry_modules = [
-    "pudl.etl",
-    "pudl.ferc_to_sqlite",
-]
+registry_modules = ["pudl.etl", "pudl.ferc_to_sqlite"]
 
 [tool.typos.default]
 # Ignore spellchecking all lines with # spellchecker:ignore
@@ -594,5 +678,5 @@ extend-exclude = [
     "devtools/",
     "test/",
     "src/pudl/transform/params/ferc1.py",
-    "src/pudl/package_data/ferc1/*_categories.yaml"
+    "src/pudl/package_data/ferc1/*_categories.yaml",
 ]

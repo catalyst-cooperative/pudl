@@ -824,19 +824,29 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capacity_factor": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_eia": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_ferc1": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
+        ),
+    },
+    "capacity_factor_running": {
+        "type": "number",
+        "description": (
+            "Fraction of potential generation over the time period a plant was in operation. "
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_offshore_wind": {
@@ -2770,11 +2780,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "energy_efficiency_annual_cost": {
+    "energy_efficiency_annual_direct_cost": {
         "type": "number",
         "description": (
-            "The sum of actual direct costs, incentive payments, and indirect costs "
-            "incurred in a given reporting year from energy efficiency programs."
+            "The sum of actual direct costs (excluding incentive payments) incurred "
+            "from energy efficiency programs in a given reporting year."
         ),
         "unit": "USD",
     },
@@ -2786,7 +2796,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    "energy_efficiency_annual_incentive_payment": {
+    "energy_efficiency_annual_incentive_cost": {
         "type": "number",
         "description": (
             "The cost of incentive payments incurred in a given reporting year "
@@ -4356,11 +4366,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "load_management_annual_cost": {
+    "load_management_annual_direct_cost": {
         "type": "number",
         "description": (
-            "The sum of actual direct costs, incentive payments, and indirect costs "
-            "incurred in a given reporting year from load management programs."
+            "The sum of actual direct costs (excluding incentive payments) incurred "
+            "from load management programs in a given reporting year."
         ),
         "unit": "USD",
     },
@@ -4372,7 +4382,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    "load_management_annual_incentive_payment": {
+    "load_management_annual_incentive_cost": {
         "type": "number",
         "description": (
             "The cost of incentive payments incurred in a given reporting year "
@@ -9864,6 +9874,131 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "This field is only reported for plant_type's steam and nuclear."
         ),
     },
+    "delivered_demand_mw": {
+        "type": "number",
+        "description": "The amount of demand delivered in MW.",
+        "unit": "MW",
+    },
+    "delivered_energy_mwh": {
+        "type": "number",
+        "description": "The amount of energy delivered in MWh.",
+        "unit": "MWh",
+    },
+    "delivery_recipient": {
+        "type": "string",
+        "description": "The recipient of the delivered energy or demand.",
+    },
+    "energy_output_mwh": {
+        "type": "number",
+        "description": "The amount of energy output in MWh.",
+        "unit": "MWh",
+    },
+    "peak_demand_date": {
+        "type": "datetime",
+        "description": "The date of the peak demand.",
+    },
+    "load_factor": {
+        "type": "number",
+        "description": (
+            "Fraction of consumption vs demand reported for a plant over a given timeframe. "
+            "Energy consumed over time period / peak demand * time period (hours/years/etc.)."
+        ),
+    },
+    "peak_gross_demand_mw": {
+        "type": "number",
+        "description": (
+            "The highest average power output recorded over any single 15 minute "
+            "interval during the reporting period."
+        ),
+        "unit": "MW",
+    },
+    "peak_gross_demand_nameplate_mw": {
+        "type": "number",
+        "description": (
+            "The theoretical or nameplate peak the plant could produce under the best "
+            "operating conditions during the reporting period."
+        ),
+        "unit": "MW",
+    },
+    "average_energy_cost_dollars_per_mwh": {
+        "type": "number",
+        "description": "The average cost of energy per MWh.",
+        "unit": "dollars_per_MWh",
+    },
+    "purchased_energy_cost_total": {
+        "type": "number",
+        "description": (
+            "The total cost of purchased energy. Includes fuel cost adjustment and wheeling and other charges."
+        ),
+        "unit": "USD",
+    },
+    "is_supplier_eia_respondent": {
+        "type": "boolean",
+        "description": "Whether the utility supplying energy to a RUS borrower is an EIA respondent.",
+    },
+    "supplier_code_rus": {
+        "type": "string",
+        "description": "Unique numeric identifier for the utility supplying energy to a RUS borrower.",
+    },
+    "wheeling_and_other_charges": {
+        "type": "number",
+        "description": (
+            "The cost of wheeling and other charges or credits related to fuel. "
+            "Included in the total cost."
+        ),
+    },
+    "fuel_cost_adjustment": {
+        "type": "number",
+        "description": (
+            "The variable fuel surcharge component of a distribution cooperative's wholesale "
+            "purchased power bill, reflecting pass-through of actual fuel cost fluctuations "
+            "from the supplying utility, reported separately from base power charges and "
+            "wheeling costs. Included in the total cost."
+        ),
+    },
+    "fuel_type_code_rus": {
+        "type": "integer",
+        "description": "Unique numeric identifier for RUS fuel types.",
+        "constraints": {
+            "minimum": CODE_METADATA["core_rus__codes_fuel_types"]["df"]["code"].min(),
+            "maximum": CODE_METADATA["core_rus__codes_fuel_types"]["df"]["code"].max(),
+        },
+    },
+    "electric_or_other_materials": {
+        "type": "string",
+        "description": "Whether the cost is for electric materials or other materials",
+        "constraints": {"enum": {"electric_materials", "other_materials"}},
+    },
+    "materials_adjustment": {
+        "type": "number",
+        "description": "An adjustment value for the cost of materials and supplies.",
+        "unit": "USD",
+    },
+    "materials_ending_balance": {
+        "type": "number",
+        "description": "The balance at the end of the report year for materials and supplies.",
+        "unit": "USD",
+    },
+    "materials_purchased": {
+        "type": "number",
+        "description": "The cost of materials and supplies purchased.",
+        "unit": "USD",
+    },
+    "materials_salvaged": {
+        "type": "number",
+        "description": "The cost of materials and supplies salvaged.",
+        "unit": "USD",
+    },
+    "materials_sold": {
+        "type": "number",
+        "description": "The cost of materials and supplies sold.",
+        "unit": "USD",
+    },
+    "materials_used": {
+        "type": "number",
+        "description": "The cost of materials and supplies used.",
+        "unit": "USD",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -11040,6 +11175,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             ),
             "constraints": {"enum": LIABILITY_TYPES_RUS12},
         },
+    },
+    "core_rus12__monthly_demand_and_energy_at_power_sources": {
+        "peak_demand_mw": {"description": "peak demand in a given timeframe."}
     },
 }
 

@@ -1,8 +1,8 @@
-"""Instantiate new base migration
+"""fresh start
 
-Revision ID: a4e2078b82ee
+Revision ID: 649d707df89a
 Revises:
-Create Date: 2026-02-18 15:49:19.664284
+Create Date: 2026-03-20 13:03:35.803133
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import sqlite
 
 # revision identifiers, used by Alembic.
-revision = 'a4e2078b82ee'
+revision = '649d707df89a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -85,12 +85,12 @@ def upgrade() -> None:
     sa.Column('code', sa.Text(), nullable=False, comment='Originally reported short code.'),
     sa.Column('label', sa.Text(), nullable=True, comment='Longer human-readable code using snake_case'),
     sa.Column('description', sa.Text(), nullable=True, comment='Long human-readable description of the meaning of a code/label.'),
-    sa.Column('balancing_authority_region_code_eia', sa.Enum('SE', 'MIDW', 'TEN', 'CENT', 'NW', 'SW', 'CAR', 'MIDA', 'NE', 'CAL', 'NY', 'TEX', 'CAN', 'MEX', 'FLA'), nullable=True, comment='EIA balancing authority region code.'),
+    sa.Column('balancing_authority_region_code_eia', sa.Enum('NE', 'MIDA', 'NW', 'MIDW', 'CAN', 'FLA', 'CENT', 'SW', 'CAR', 'NY', 'SE', 'TEX', 'CAL', 'MEX', 'TEN'), nullable=True, comment='EIA balancing authority region code.'),
     sa.Column('balancing_authority_region_name_eia', sa.Text(), nullable=True, comment='Human-readable name of the EIA balancing region.'),
     sa.Column('report_timezone', sa.Enum('America/Anchorage', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/New_York', 'America/Phoenix', 'Pacific/Honolulu'), nullable=True, comment='Timezone used by the reporting entity. For use in localizing UTC times.'),
     sa.Column('balancing_authority_retirement_date', sa.Date(), nullable=True, comment='Date on which the balancing authority ceased independent operation.'),
     sa.Column('is_generation_only', sa.Boolean(), nullable=True, comment='Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand.'),
-    sa.Column('interconnect_code_eia', sa.Enum('eastern', 'western', 'ercot'), nullable=True, comment='EIA interconnect code.'),
+    sa.Column('interconnect_code_eia', sa.Enum('ercot', 'western', 'eastern'), nullable=True, comment='EIA interconnect code.'),
     sa.PrimaryKeyConstraint('code', name=op.f('pk_core_eia__codes_balancing_authorities'))
     )
     op.create_table('core_eia__codes_boiler_generator_assn_types',
@@ -157,8 +157,8 @@ def upgrade() -> None:
     sa.Column('code', sa.Text(), nullable=False, comment='Originally reported short code.'),
     sa.Column('label', sa.Text(), nullable=True, comment='Longer human-readable code using snake_case'),
     sa.Column('fuel_units', sa.Enum('barrels', 'mcf', 'mwh', 'short_tons'), nullable=True, comment='Reported unit of measure for fuel.'),
-    sa.Column('min_fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Minimum heat content per physical unit of fuel in MMBtu.'),
-    sa.Column('max_fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Maximum heat content per physical unit of fuel in MMBtu.'),
+    sa.Column('min_fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Minimum heat content per physical unit of fuel in MMBTU.'),
+    sa.Column('max_fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Maximum heat content per physical unit of fuel in MMBTU.'),
     sa.Column('fuel_group_eia', sa.Enum('fossil', 'other', 'renewable'), nullable=True, comment='High level fuel group defined in the 2021-2023 EIA Form 860 instructions, Table 28.'),
     sa.Column('fuel_derived_from', sa.Enum('biomass', 'coal', 'gas', 'other', 'petroleum'), nullable=True, comment='Original fuel from which this refined fuel was derived.'),
     sa.Column('fuel_phase', sa.Enum('gas', 'liquid', 'solid'), nullable=True, comment='Physical phase of matter of the fuel.'),
@@ -338,8 +338,8 @@ def upgrade() -> None:
     sa.Column('sector_agg', sa.Text(), nullable=False, comment='Category of sectoral aggregation in EIA bulk electricity data.'),
     sa.Column('temporal_agg', sa.Text(), nullable=False, comment='Category of temporal aggregation in EIA bulk electricity data.'),
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('fuel_received_mmbtu', sa.Float(), nullable=True, comment='Aggregated fuel receipts, in MMBtu, in EIA bulk electricity data.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_received_mmbtu', sa.Float(), nullable=True, comment='Aggregated fuel receipts, in MMBTU, in EIA bulk electricity data.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.PrimaryKeyConstraint('fuel_agg', 'geo_agg', 'sector_agg', 'temporal_agg', 'report_date', name=op.f('pk_core_eia__yearly_fuel_receipts_costs_aggs'))
     )
     op.create_table('core_eiaaeo__yearly_projected_electric_sales',
@@ -357,9 +357,9 @@ def upgrade() -> None:
     sa.Column('region_type_eiaaeo', sa.Enum('us_census_division', 'country'), nullable=True, comment='Region type for EIA AEO energy consumption, indicating whether region_name_eiaaeo is a US Census Division or country (United States)'),
     sa.Column('model_case_eiaaeo', sa.Enum('aeo2022', 'aeo2023', 'alternative_electricity', 'alternative_transportation', 'fast_builds_plus_high_lng_price', 'high_economic_growth', 'high_lng_price', 'high_macro_and_high_zero_carbon_technology_cost', 'high_macro_and_low_zero_carbon_technology_cost', 'high_oil_and_gas_supply', 'high_oil_price', 'high_uptake_of_inflation_reduction_act', 'high_zero_carbon_technology_cost', 'low_economic_growth', 'low_lng_price', 'low_macro_and_high_zero_carbon_technology_cost', 'low_macro_and_low_zero_carbon_technology_cost', 'low_oil_and_gas_supply', 'low_oil_price', 'low_uptake_of_inflation_reduction_act', 'low_zero_carbon_technology_cost', 'no_inflation_reduction_act', 'reference'), nullable=False, comment='Factors such as economic growth, future oil prices, the ultimate size of domestic energy resources, and technological change are often uncertain. To illustrate some of these uncertainties, EIA runs side cases to show how the model responds to changes in key input variables compared with the Reference case. See https://www.eia.gov/outlooks/aeo/assumptions/case_descriptions.php for more details.'),
     sa.Column('projection_year', sa.Integer(), nullable=False, comment='The year of the projected value.'),
-    sa.Column('energy_use_sector', sa.Enum('residential', 'industrial', 'total', 'electric_power', 'commercial_other', 'transportation', 'commercial', 'other', 'unspecified', 'industrial_hydrogen_production'), nullable=False, comment='Sector for energy use figures in AEO Table 2. Similar to customer class, but with some missing and some extra values.'),
+    sa.Column('energy_use_sector', sa.Enum('electric_power', 'industrial', 'transportation', 'other', 'unspecified', 'commercial', 'industrial_hydrogen_production', 'total', 'residential', 'commercial_other'), nullable=False, comment='Sector for energy use figures in AEO Table 2. Similar to customer class, but with some missing and some extra values.'),
     sa.Column('energy_use_type', sa.Enum('biofuels_heat_and_coproducts', 'byproduct_hydrogen', 'coal', 'coal_subtotal', 'coal_to_liquids_heat_and_power', 'delivered_energy', 'distillate_fuel_oil', 'e85', 'electricity', 'electricity_imports', 'electricity_related_losses', 'ev_charging_commercial', 'ev_charging_residential', 'hydrocarbon_gas_liquids', 'hydrogen', 'hydrogen_related_losses', 'jet_fuel', 'kerosene', 'lease_and_plant_fuel', 'liquefaction', 'liquid_fuels_subtotal', 'liquefied_petroleum_gases', 'metallurgical_coal', 'motor_gasoline', 'natural_gas', 'natural_gas_subtotal', 'natural_gas_to_liquids_heat_and_power', 'net_coal_coke_imports', 'non_biogenic_municipal_waste', 'nuclear', 'other_industrial_coal', 'other_petroleum', 'other_coal', 'passenger_rail', 'petrochemical_feedstocks', 'pipeline_fuel_natural_gas', 'pipeline_natural_gas', 'propane', 'purchased_electricity', 'renewable_energy', 'residual_fuel_oil', 'steam_coal', 'total', 'total_energy'), nullable=False, comment='Type of energy use, indicating the name of the series from AEO Table 2. Includes fuels, electricity, losses, and various subtotals; consult table documentation for aggregation guidelines.'),
-    sa.Column('energy_use_mmbtu', sa.Float(), nullable=True, comment='Energy use, in MMBtu; also referred to as energy consumption, energy demand, or delivered energy, depending on type.'),
+    sa.Column('energy_use_mmbtu', sa.Float(), nullable=True, comment='Energy use, in MMBTU; also referred to as energy consumption, energy demand, or delivered energy, depending on type.'),
     sa.PrimaryKeyConstraint('report_year', 'region_name_eiaaeo', 'model_case_eiaaeo', 'projection_year', 'energy_use_sector', 'energy_use_type', name=op.f('pk_core_eiaaeo__yearly_projected_energy_use_by_sector_and_type'))
     )
     op.create_table('core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type',
@@ -368,8 +368,8 @@ def upgrade() -> None:
     sa.Column('model_case_eiaaeo', sa.Enum('aeo2022', 'aeo2023', 'alternative_electricity', 'alternative_transportation', 'fast_builds_plus_high_lng_price', 'high_economic_growth', 'high_lng_price', 'high_macro_and_high_zero_carbon_technology_cost', 'high_macro_and_low_zero_carbon_technology_cost', 'high_oil_and_gas_supply', 'high_oil_price', 'high_uptake_of_inflation_reduction_act', 'high_zero_carbon_technology_cost', 'low_economic_growth', 'low_lng_price', 'low_macro_and_high_zero_carbon_technology_cost', 'low_macro_and_low_zero_carbon_technology_cost', 'low_oil_and_gas_supply', 'low_oil_price', 'low_uptake_of_inflation_reduction_act', 'low_zero_carbon_technology_cost', 'no_inflation_reduction_act', 'reference'), nullable=False, comment='Factors such as economic growth, future oil prices, the ultimate size of domestic energy resources, and technological change are often uncertain. To illustrate some of these uncertainties, EIA runs side cases to show how the model responds to changes in key input variables compared with the Reference case. See https://www.eia.gov/outlooks/aeo/assumptions/case_descriptions.php for more details.'),
     sa.Column('projection_year', sa.Integer(), nullable=False, comment='The year of the projected value.'),
     sa.Column('fuel_type_eiaaeo', sa.Enum('coal', 'distillate_fuel_oil', 'residual_fuel_oil', 'petroleum', 'natural_gas', 'other_gaseous_fuels', 'renewable_sources', 'other'), nullable=False, comment='Fuel type reported for AEO end-use sector generation data.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
-    sa.Column('fuel_cost_real_per_mmbtu_eiaaeo', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in real USD, standardized to the value of a USD in the year defined by ``real_cost_basis_year``.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_real_per_mmbtu_eiaaeo', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in real USD, standardized to the value of a USD in the year defined by ``real_cost_basis_year``.'),
     sa.Column('real_cost_basis_year', sa.Integer(), nullable=True, comment="Four-digit year which is the basis for any 'real cost' monetary values (as opposed to nominal values)."),
     sa.PrimaryKeyConstraint('report_year', 'electricity_market_module_region_eiaaeo', 'model_case_eiaaeo', 'projection_year', 'fuel_type_eiaaeo', name=op.f('pk_core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type'))
     )
@@ -433,12 +433,12 @@ def upgrade() -> None:
     sa.Column('model_case_nrelatb', sa.Enum('Market', 'R&D'), nullable=True, comment="NREL's financial assumption cases. There are two cases which effect project financial assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"),
     sa.Column('model_tax_credit_case_nrelatb', sa.Enum('ITC', 'PTC + ITC', 'PTC'), nullable=True, comment="NREL's tax credit assumption cases. There are two types of tax credits: production tax credit (PTC) and investment tax credit (ITC). For more detail, see: https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"),
     sa.Column('projection_year', sa.Integer(), nullable=True, comment='The year of the projected value.'),
-    sa.Column('technology_description', sa.Enum('ResPV', 'Residential Battery Storage', 'UtilityPV', 'Coal_FE', 'CommPV', 'Coal_Retrofits', 'LandbasedWind', 'NaturalGas_Retrofits', 'OffShoreWind', 'Commercial Battery Storage', 'CSP', 'Hydropower', 'Geothermal', 'Pumped Storage Hydropower', 'Utility-Scale PV-Plus-Battery', 'DistributedWind', 'Biopower', 'Utility-Scale Battery Storage', 'Nuclear', 'AEO', 'NaturalGas_FE'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('technology_description', sa.Enum('UtilityPV', 'Coal_FE', 'Commercial Battery Storage', 'OffShoreWind', 'Utility-Scale Battery Storage', 'AEO', 'Biopower', 'Residential Battery Storage', 'DistributedWind', 'Pumped Storage Hydropower', 'Geothermal', 'CSP', 'NaturalGas_FE', 'CommPV', 'NaturalGas_Retrofits', 'LandbasedWind', 'Hydropower', 'Utility-Scale PV-Plus-Battery', 'ResPV', 'Nuclear', 'Coal_Retrofits'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('cost_recovery_period_years', sa.Integer(), nullable=True, comment='The period over which the initial capital investment to build a plant is recovered.'),
     sa.Column('scenario_atb', sa.Enum('Advanced', 'Moderate', 'Conservative'), nullable=True, comment='Technology innovation scenarios. https://atb.nrel.gov/electricity/2023/definitions#scenarios'),
     sa.Column('technology_description_detail_1', sa.Text(), nullable=True, comment='Technology details indicate resource levels and specific technology subcategories.'),
     sa.Column('technology_description_detail_2', sa.Text(), nullable=True, comment='Technology details indicate resource levels and specific technology subcategories.'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
     sa.Column('capex_per_kw', sa.Float(), nullable=True, comment='Capital cost (USD). Expenditures required to achieve commercial operation of the generation plant.'),
     sa.Column('capex_overnight_per_kw', sa.Float(), nullable=True, comment='capex if plant could be constructed overnight (i.e., excludes construction period financing); includes on-site electrical equipment (e.g., switchyard), a nominal-distance spur line (<1 mi), and necessary upgrades at a transmission substation.'),
     sa.Column('capex_overnight_additional_per_kw', sa.Float(), nullable=True, comment='capex for retrofits if plant could be constructed overnight (i.e., excludes construction period financing); includes on-site electrical equipment (e.g., switchyard), a nominal-distance spur line (<1 mi), and necessary upgrades at a transmission substation.'),
@@ -456,7 +456,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('model_case_nrelatb', sa.Enum('Market', 'R&D'), nullable=False, comment="NREL's financial assumption cases. There are two cases which effect project financial assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"),
     sa.Column('projection_year', sa.Integer(), nullable=False, comment='The year of the projected value.'),
-    sa.Column('technology_description', sa.Enum('ResPV', 'Residential Battery Storage', 'UtilityPV', 'Coal_FE', 'CommPV', 'Coal_Retrofits', 'LandbasedWind', 'NaturalGas_Retrofits', 'OffShoreWind', 'Commercial Battery Storage', 'CSP', 'Hydropower', 'Geothermal', 'Pumped Storage Hydropower', 'Utility-Scale PV-Plus-Battery', 'DistributedWind', 'Biopower', 'Utility-Scale Battery Storage', 'Nuclear', 'AEO', 'NaturalGas_FE'), nullable=False, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('technology_description', sa.Enum('UtilityPV', 'Coal_FE', 'Commercial Battery Storage', 'OffShoreWind', 'Utility-Scale Battery Storage', 'AEO', 'Biopower', 'Residential Battery Storage', 'DistributedWind', 'Pumped Storage Hydropower', 'Geothermal', 'CSP', 'NaturalGas_FE', 'CommPV', 'NaturalGas_Retrofits', 'LandbasedWind', 'Hydropower', 'Utility-Scale PV-Plus-Battery', 'ResPV', 'Nuclear', 'Coal_Retrofits'), nullable=False, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('inflation_rate', sa.Float(), nullable=True, comment='Rate of inflation. All dollar values are given in 2021 USD, using the Consumer Price Index for All Urban Consumers for dollar year conversions where the source year dollars do not match 2021.'),
     sa.Column('interest_rate_during_construction_nominal', sa.Float(), nullable=True, comment='Also referred to as construction finance cost. Portion of all-in capital cost associated with construction period financing. It is a function of construction duration, capital fraction during construction, and interest during construction.'),
     sa.Column('interest_rate_calculated_real', sa.Float(), nullable=True, comment='Calculated real interest rate.'),
@@ -471,7 +471,7 @@ def upgrade() -> None:
     sa.Column('model_case_nrelatb', sa.Enum('Market', 'R&D'), nullable=True, comment="NREL's financial assumption cases. There are two cases which effect project financial assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"),
     sa.Column('model_tax_credit_case_nrelatb', sa.Enum('ITC', 'PTC + ITC', 'PTC'), nullable=True, comment="NREL's tax credit assumption cases. There are two types of tax credits: production tax credit (PTC) and investment tax credit (ITC). For more detail, see: https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"),
     sa.Column('projection_year', sa.Integer(), nullable=True, comment='The year of the projected value.'),
-    sa.Column('technology_description', sa.Enum('ResPV', 'Residential Battery Storage', 'UtilityPV', 'Coal_FE', 'CommPV', 'Coal_Retrofits', 'LandbasedWind', 'NaturalGas_Retrofits', 'OffShoreWind', 'Commercial Battery Storage', 'CSP', 'Hydropower', 'Geothermal', 'Pumped Storage Hydropower', 'Utility-Scale PV-Plus-Battery', 'DistributedWind', 'Biopower', 'Utility-Scale Battery Storage', 'Nuclear', 'AEO', 'NaturalGas_FE'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('technology_description', sa.Enum('UtilityPV', 'Coal_FE', 'Commercial Battery Storage', 'OffShoreWind', 'Utility-Scale Battery Storage', 'AEO', 'Biopower', 'Residential Battery Storage', 'DistributedWind', 'Pumped Storage Hydropower', 'Geothermal', 'CSP', 'NaturalGas_FE', 'CommPV', 'NaturalGas_Retrofits', 'LandbasedWind', 'Hydropower', 'Utility-Scale PV-Plus-Battery', 'ResPV', 'Nuclear', 'Coal_Retrofits'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('scenario_atb', sa.Enum('Advanced', 'Moderate', 'Conservative'), nullable=True, comment='Technology innovation scenarios. https://atb.nrel.gov/electricity/2023/definitions#scenarios'),
     sa.Column('cost_recovery_period_years', sa.Integer(), nullable=True, comment='The period over which the initial capital investment to build a plant is recovered.'),
     sa.Column('capital_recovery_factor', sa.Float(), nullable=True, comment='Ratio of a constant annuity to the present value of receiving that annuity for a given length of time.'),
@@ -482,7 +482,7 @@ def upgrade() -> None:
     )
     op.create_table('core_nrelatb__yearly_technology_status',
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
-    sa.Column('technology_description', sa.Enum('ResPV', 'Residential Battery Storage', 'UtilityPV', 'Coal_FE', 'CommPV', 'Coal_Retrofits', 'LandbasedWind', 'NaturalGas_Retrofits', 'OffShoreWind', 'Commercial Battery Storage', 'CSP', 'Hydropower', 'Geothermal', 'Pumped Storage Hydropower', 'Utility-Scale PV-Plus-Battery', 'DistributedWind', 'Biopower', 'Utility-Scale Battery Storage', 'Nuclear', 'AEO', 'NaturalGas_FE'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('technology_description', sa.Enum('UtilityPV', 'Coal_FE', 'Commercial Battery Storage', 'OffShoreWind', 'Utility-Scale Battery Storage', 'AEO', 'Biopower', 'Residential Battery Storage', 'DistributedWind', 'Pumped Storage Hydropower', 'Geothermal', 'CSP', 'NaturalGas_FE', 'CommPV', 'NaturalGas_Retrofits', 'LandbasedWind', 'Hydropower', 'Utility-Scale PV-Plus-Battery', 'ResPV', 'Nuclear', 'Coal_Retrofits'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('technology_description_detail_1', sa.Text(), nullable=True, comment='Technology details indicate resource levels and specific technology subcategories.'),
     sa.Column('technology_description_detail_2', sa.Text(), nullable=True, comment='Technology details indicate resource levels and specific technology subcategories.'),
     sa.Column('is_technology_mature', sa.Boolean(), nullable=True, comment='Indicator of whether the technology is mature. Technologies are definedas mature if a representative plant is operating or under constructionin the United States in the Base Year.'),
@@ -530,13 +530,13 @@ def upgrade() -> None:
     op.create_table('core_pudl__codes_subdivisions',
     sa.Column('country_code', sa.Enum('CAN', 'USA'), nullable=False, comment='Three letter ISO-3166 country code (e.g. USA or CAN).'),
     sa.Column('country_name', sa.Text(), nullable=True, comment='Full country name (e.g. United States of America).'),
-    sa.Column('subdivision_code', sa.Enum('NC', 'WY', 'HI', 'LA', 'NM', 'WI', 'PA', 'KY', 'SC', 'NY', 'MA', 'PE', 'NH', 'OK', 'UT', 'MD', 'CT', 'SD', 'AS', 'WA', 'AK', 'ID', 'MP', 'NJ', 'IL', 'AL', 'DE', 'ME', 'NS', 'MT', 'MI', 'BC', 'TN', 'YT', 'NT', 'VT', 'VI', 'AB', 'MO', 'NE', 'OH', 'ON', 'NB', 'VA', 'TX', 'WV', 'AR', 'OR', 'IN', 'NL', 'AZ', 'PR', 'RI', 'SK', 'CA', 'IA', 'MB', 'FL', 'QC', 'MS', 'MN', 'DC', 'GU', 'KS', 'ND', 'GA', 'NU', 'CO', 'NV'), nullable=False, comment='Two-letter ISO-3166 political subdivision code (e.g. US state or Canadian province abbreviations like CA or AB).'),
+    sa.Column('subdivision_code', sa.Enum('IL', 'SD', 'OK', 'NM', 'RI', 'YT', 'DE', 'AZ', 'KS', 'QC', 'UT', 'ID', 'NB', 'ND', 'DC', 'IN', 'NE', 'NJ', 'NT', 'VA', 'WV', 'BC', 'MP', 'MS', 'LA', 'MD', 'AB', 'MN', 'AS', 'PR', 'NV', 'SC', 'NS', 'IA', 'MO', 'CO', 'NY', 'MB', 'NL', 'AK', 'SK', 'KY', 'MI', 'TN', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AR', 'WA', 'AL', 'GA', 'ME', 'NH', 'MA', 'TX', 'WI', 'WY', 'FL', 'NU', 'OH', 'CA', 'PA', 'HI', 'ON', 'VI', 'CT'), nullable=False, comment='Two-letter ISO-3166 political subdivision code (e.g. US state or Canadian province abbreviations like CA or AB).'),
     sa.Column('subdivision_name', sa.Text(), nullable=True, comment='Full name of political subdivision (e.g. US state or Canadian province names like California or Alberta.'),
     sa.Column('subdivision_type', sa.Text(), nullable=True, comment='ISO-3166 political subdivision type. E.g. state, province, outlying_area.'),
     sa.Column('timezone_approx', sa.Enum('Africa/Abidjan', 'Africa/Accra', 'Africa/Addis_Ababa', 'Africa/Algiers', 'Africa/Asmara', 'Africa/Asmera', 'Africa/Bamako', 'Africa/Bangui', 'Africa/Banjul', 'Africa/Bissau', 'Africa/Blantyre', 'Africa/Brazzaville', 'Africa/Bujumbura', 'Africa/Cairo', 'Africa/Casablanca', 'Africa/Ceuta', 'Africa/Conakry', 'Africa/Dakar', 'Africa/Dar_es_Salaam', 'Africa/Djibouti', 'Africa/Douala', 'Africa/El_Aaiun', 'Africa/Freetown', 'Africa/Gaborone', 'Africa/Harare', 'Africa/Johannesburg', 'Africa/Juba', 'Africa/Kampala', 'Africa/Khartoum', 'Africa/Kigali', 'Africa/Kinshasa', 'Africa/Lagos', 'Africa/Libreville', 'Africa/Lome', 'Africa/Luanda', 'Africa/Lubumbashi', 'Africa/Lusaka', 'Africa/Malabo', 'Africa/Maputo', 'Africa/Maseru', 'Africa/Mbabane', 'Africa/Mogadishu', 'Africa/Monrovia', 'Africa/Nairobi', 'Africa/Ndjamena', 'Africa/Niamey', 'Africa/Nouakchott', 'Africa/Ouagadougou', 'Africa/Porto-Novo', 'Africa/Sao_Tome', 'Africa/Timbuktu', 'Africa/Tripoli', 'Africa/Tunis', 'Africa/Windhoek', 'America/Adak', 'America/Anchorage', 'America/Anguilla', 'America/Antigua', 'America/Araguaina', 'America/Argentina/Buenos_Aires', 'America/Argentina/Catamarca', 'America/Argentina/ComodRivadavia', 'America/Argentina/Cordoba', 'America/Argentina/Jujuy', 'America/Argentina/La_Rioja', 'America/Argentina/Mendoza', 'America/Argentina/Rio_Gallegos', 'America/Argentina/Salta', 'America/Argentina/San_Juan', 'America/Argentina/San_Luis', 'America/Argentina/Tucuman', 'America/Argentina/Ushuaia', 'America/Aruba', 'America/Asuncion', 'America/Atikokan', 'America/Atka', 'America/Bahia', 'America/Bahia_Banderas', 'America/Barbados', 'America/Belem', 'America/Belize', 'America/Blanc-Sablon', 'America/Boa_Vista', 'America/Bogota', 'America/Boise', 'America/Buenos_Aires', 'America/Cambridge_Bay', 'America/Campo_Grande', 'America/Cancun', 'America/Caracas', 'America/Catamarca', 'America/Cayenne', 'America/Cayman', 'America/Chicago', 'America/Chihuahua', 'America/Ciudad_Juarez', 'America/Coral_Harbour', 'America/Cordoba', 'America/Costa_Rica', 'America/Coyhaique', 'America/Creston', 'America/Cuiaba', 'America/Curacao', 'America/Danmarkshavn', 'America/Dawson', 'America/Dawson_Creek', 'America/Denver', 'America/Detroit', 'America/Dominica', 'America/Edmonton', 'America/Eirunepe', 'America/El_Salvador', 'America/Ensenada', 'America/Fort_Nelson', 'America/Fort_Wayne', 'America/Fortaleza', 'America/Glace_Bay', 'America/Godthab', 'America/Goose_Bay', 'America/Grand_Turk', 'America/Grenada', 'America/Guadeloupe', 'America/Guatemala', 'America/Guayaquil', 'America/Guyana', 'America/Halifax', 'America/Havana', 'America/Hermosillo', 'America/Indiana/Indianapolis', 'America/Indiana/Knox', 'America/Indiana/Marengo', 'America/Indiana/Petersburg', 'America/Indiana/Tell_City', 'America/Indiana/Vevay', 'America/Indiana/Vincennes', 'America/Indiana/Winamac', 'America/Indianapolis', 'America/Inuvik', 'America/Iqaluit', 'America/Jamaica', 'America/Jujuy', 'America/Juneau', 'America/Kentucky/Louisville', 'America/Kentucky/Monticello', 'America/Knox_IN', 'America/Kralendijk', 'America/La_Paz', 'America/Lima', 'America/Los_Angeles', 'America/Louisville', 'America/Lower_Princes', 'America/Maceio', 'America/Managua', 'America/Manaus', 'America/Marigot', 'America/Martinique', 'America/Matamoros', 'America/Mazatlan', 'America/Mendoza', 'America/Menominee', 'America/Merida', 'America/Metlakatla', 'America/Mexico_City', 'America/Miquelon', 'America/Moncton', 'America/Monterrey', 'America/Montevideo', 'America/Montreal', 'America/Montserrat', 'America/Nassau', 'America/New_York', 'America/Nipigon', 'America/Nome', 'America/Noronha', 'America/North_Dakota/Beulah', 'America/North_Dakota/Center', 'America/North_Dakota/New_Salem', 'America/Nuuk', 'America/Ojinaga', 'America/Panama', 'America/Pangnirtung', 'America/Paramaribo', 'America/Phoenix', 'America/Port-au-Prince', 'America/Port_of_Spain', 'America/Porto_Acre', 'America/Porto_Velho', 'America/Puerto_Rico', 'America/Punta_Arenas', 'America/Rainy_River', 'America/Rankin_Inlet', 'America/Recife', 'America/Regina', 'America/Resolute', 'America/Rio_Branco', 'America/Rosario', 'America/Santa_Isabel', 'America/Santarem', 'America/Santiago', 'America/Santo_Domingo', 'America/Sao_Paulo', 'America/Scoresbysund', 'America/Shiprock', 'America/Sitka', 'America/St_Barthelemy', 'America/St_Johns', 'America/St_Kitts', 'America/St_Lucia', 'America/St_Thomas', 'America/St_Vincent', 'America/Swift_Current', 'America/Tegucigalpa', 'America/Thule', 'America/Thunder_Bay', 'America/Tijuana', 'America/Toronto', 'America/Tortola', 'America/Vancouver', 'America/Virgin', 'America/Whitehorse', 'America/Winnipeg', 'America/Yakutat', 'America/Yellowknife', 'Antarctica/Casey', 'Antarctica/Davis', 'Antarctica/DumontDUrville', 'Antarctica/Macquarie', 'Antarctica/Mawson', 'Antarctica/McMurdo', 'Antarctica/Palmer', 'Antarctica/Rothera', 'Antarctica/South_Pole', 'Antarctica/Syowa', 'Antarctica/Troll', 'Antarctica/Vostok', 'Arctic/Longyearbyen', 'Asia/Aden', 'Asia/Almaty', 'Asia/Amman', 'Asia/Anadyr', 'Asia/Aqtau', 'Asia/Aqtobe', 'Asia/Ashgabat', 'Asia/Ashkhabad', 'Asia/Atyrau', 'Asia/Baghdad', 'Asia/Bahrain', 'Asia/Baku', 'Asia/Bangkok', 'Asia/Barnaul', 'Asia/Beirut', 'Asia/Bishkek', 'Asia/Brunei', 'Asia/Calcutta', 'Asia/Chita', 'Asia/Choibalsan', 'Asia/Chongqing', 'Asia/Chungking', 'Asia/Colombo', 'Asia/Dacca', 'Asia/Damascus', 'Asia/Dhaka', 'Asia/Dili', 'Asia/Dubai', 'Asia/Dushanbe', 'Asia/Famagusta', 'Asia/Gaza', 'Asia/Harbin', 'Asia/Hebron', 'Asia/Ho_Chi_Minh', 'Asia/Hong_Kong', 'Asia/Hovd', 'Asia/Irkutsk', 'Asia/Istanbul', 'Asia/Jakarta', 'Asia/Jayapura', 'Asia/Jerusalem', 'Asia/Kabul', 'Asia/Kamchatka', 'Asia/Karachi', 'Asia/Kashgar', 'Asia/Kathmandu', 'Asia/Katmandu', 'Asia/Khandyga', 'Asia/Kolkata', 'Asia/Krasnoyarsk', 'Asia/Kuala_Lumpur', 'Asia/Kuching', 'Asia/Kuwait', 'Asia/Macao', 'Asia/Macau', 'Asia/Magadan', 'Asia/Makassar', 'Asia/Manila', 'Asia/Muscat', 'Asia/Nicosia', 'Asia/Novokuznetsk', 'Asia/Novosibirsk', 'Asia/Omsk', 'Asia/Oral', 'Asia/Phnom_Penh', 'Asia/Pontianak', 'Asia/Pyongyang', 'Asia/Qatar', 'Asia/Qostanay', 'Asia/Qyzylorda', 'Asia/Rangoon', 'Asia/Riyadh', 'Asia/Saigon', 'Asia/Sakhalin', 'Asia/Samarkand', 'Asia/Seoul', 'Asia/Shanghai', 'Asia/Singapore', 'Asia/Srednekolymsk', 'Asia/Taipei', 'Asia/Tashkent', 'Asia/Tbilisi', 'Asia/Tehran', 'Asia/Tel_Aviv', 'Asia/Thimbu', 'Asia/Thimphu', 'Asia/Tokyo', 'Asia/Tomsk', 'Asia/Ujung_Pandang', 'Asia/Ulaanbaatar', 'Asia/Ulan_Bator', 'Asia/Urumqi', 'Asia/Ust-Nera', 'Asia/Vientiane', 'Asia/Vladivostok', 'Asia/Yakutsk', 'Asia/Yangon', 'Asia/Yekaterinburg', 'Asia/Yerevan', 'Atlantic/Azores', 'Atlantic/Bermuda', 'Atlantic/Canary', 'Atlantic/Cape_Verde', 'Atlantic/Faeroe', 'Atlantic/Faroe', 'Atlantic/Jan_Mayen', 'Atlantic/Madeira', 'Atlantic/Reykjavik', 'Atlantic/South_Georgia', 'Atlantic/St_Helena', 'Atlantic/Stanley', 'Australia/ACT', 'Australia/Adelaide', 'Australia/Brisbane', 'Australia/Broken_Hill', 'Australia/Canberra', 'Australia/Currie', 'Australia/Darwin', 'Australia/Eucla', 'Australia/Hobart', 'Australia/LHI', 'Australia/Lindeman', 'Australia/Lord_Howe', 'Australia/Melbourne', 'Australia/NSW', 'Australia/North', 'Australia/Perth', 'Australia/Queensland', 'Australia/South', 'Australia/Sydney', 'Australia/Tasmania', 'Australia/Victoria', 'Australia/West', 'Australia/Yancowinna', 'Brazil/Acre', 'Brazil/DeNoronha', 'Brazil/East', 'Brazil/West', 'CET', 'CST6CDT', 'Canada/Atlantic', 'Canada/Central', 'Canada/Eastern', 'Canada/Mountain', 'Canada/Newfoundland', 'Canada/Pacific', 'Canada/Saskatchewan', 'Canada/Yukon', 'Chile/Continental', 'Chile/EasterIsland', 'Cuba', 'EET', 'EST', 'EST5EDT', 'Egypt', 'Eire', 'Etc/GMT', 'Etc/GMT+0', 'Etc/GMT+1', 'Etc/GMT+10', 'Etc/GMT+11', 'Etc/GMT+12', 'Etc/GMT+2', 'Etc/GMT+3', 'Etc/GMT+4', 'Etc/GMT+5', 'Etc/GMT+6', 'Etc/GMT+7', 'Etc/GMT+8', 'Etc/GMT+9', 'Etc/GMT-0', 'Etc/GMT-1', 'Etc/GMT-10', 'Etc/GMT-11', 'Etc/GMT-12', 'Etc/GMT-13', 'Etc/GMT-14', 'Etc/GMT-2', 'Etc/GMT-3', 'Etc/GMT-4', 'Etc/GMT-5', 'Etc/GMT-6', 'Etc/GMT-7', 'Etc/GMT-8', 'Etc/GMT-9', 'Etc/GMT0', 'Etc/Greenwich', 'Etc/UCT', 'Etc/UTC', 'Etc/Universal', 'Etc/Zulu', 'Europe/Amsterdam', 'Europe/Andorra', 'Europe/Astrakhan', 'Europe/Athens', 'Europe/Belfast', 'Europe/Belgrade', 'Europe/Berlin', 'Europe/Bratislava', 'Europe/Brussels', 'Europe/Bucharest', 'Europe/Budapest', 'Europe/Busingen', 'Europe/Chisinau', 'Europe/Copenhagen', 'Europe/Dublin', 'Europe/Gibraltar', 'Europe/Guernsey', 'Europe/Helsinki', 'Europe/Isle_of_Man', 'Europe/Istanbul', 'Europe/Jersey', 'Europe/Kaliningrad', 'Europe/Kiev', 'Europe/Kirov', 'Europe/Kyiv', 'Europe/Lisbon', 'Europe/Ljubljana', 'Europe/London', 'Europe/Luxembourg', 'Europe/Madrid', 'Europe/Malta', 'Europe/Mariehamn', 'Europe/Minsk', 'Europe/Monaco', 'Europe/Moscow', 'Europe/Nicosia', 'Europe/Oslo', 'Europe/Paris', 'Europe/Podgorica', 'Europe/Prague', 'Europe/Riga', 'Europe/Rome', 'Europe/Samara', 'Europe/San_Marino', 'Europe/Sarajevo', 'Europe/Saratov', 'Europe/Simferopol', 'Europe/Skopje', 'Europe/Sofia', 'Europe/Stockholm', 'Europe/Tallinn', 'Europe/Tirane', 'Europe/Tiraspol', 'Europe/Ulyanovsk', 'Europe/Uzhgorod', 'Europe/Vaduz', 'Europe/Vatican', 'Europe/Vienna', 'Europe/Vilnius', 'Europe/Volgograd', 'Europe/Warsaw', 'Europe/Zagreb', 'Europe/Zaporozhye', 'Europe/Zurich', 'GB', 'GB-Eire', 'GMT', 'GMT+0', 'GMT-0', 'GMT0', 'Greenwich', 'HST', 'Hongkong', 'Iceland', 'Indian/Antananarivo', 'Indian/Chagos', 'Indian/Christmas', 'Indian/Cocos', 'Indian/Comoro', 'Indian/Kerguelen', 'Indian/Mahe', 'Indian/Maldives', 'Indian/Mauritius', 'Indian/Mayotte', 'Indian/Reunion', 'Iran', 'Israel', 'Jamaica', 'Japan', 'Kwajalein', 'Libya', 'MET', 'MST', 'MST7MDT', 'Mexico/BajaNorte', 'Mexico/BajaSur', 'Mexico/General', 'NZ', 'NZ-CHAT', 'Navajo', 'PRC', 'PST8PDT', 'Pacific/Apia', 'Pacific/Auckland', 'Pacific/Bougainville', 'Pacific/Chatham', 'Pacific/Chuuk', 'Pacific/Easter', 'Pacific/Efate', 'Pacific/Enderbury', 'Pacific/Fakaofo', 'Pacific/Fiji', 'Pacific/Funafuti', 'Pacific/Galapagos', 'Pacific/Gambier', 'Pacific/Guadalcanal', 'Pacific/Guam', 'Pacific/Honolulu', 'Pacific/Johnston', 'Pacific/Kanton', 'Pacific/Kiritimati', 'Pacific/Kosrae', 'Pacific/Kwajalein', 'Pacific/Majuro', 'Pacific/Marquesas', 'Pacific/Midway', 'Pacific/Nauru', 'Pacific/Niue', 'Pacific/Norfolk', 'Pacific/Noumea', 'Pacific/Pago_Pago', 'Pacific/Palau', 'Pacific/Pitcairn', 'Pacific/Pohnpei', 'Pacific/Ponape', 'Pacific/Port_Moresby', 'Pacific/Rarotonga', 'Pacific/Saipan', 'Pacific/Samoa', 'Pacific/Tahiti', 'Pacific/Tarawa', 'Pacific/Tongatapu', 'Pacific/Truk', 'Pacific/Wake', 'Pacific/Wallis', 'Pacific/Yap', 'Poland', 'Portugal', 'ROC', 'ROK', 'Singapore', 'Turkey', 'UCT', 'US/Alaska', 'US/Aleutian', 'US/Arizona', 'US/Central', 'US/East-Indiana', 'US/Eastern', 'US/Hawaii', 'US/Indiana-Starke', 'US/Michigan', 'US/Mountain', 'US/Pacific', 'US/Samoa', 'UTC', 'Universal', 'W-SU', 'WET', 'Zulu'), nullable=True, comment='IANA timezone name of the timezone which encompasses the largest portion of the population in the associated geographic area.'),
     sa.Column('state_id_fips', sa.Text(), nullable=True, comment='Two digit state FIPS code.'),
     sa.Column('division_name_us_census', sa.Text(), nullable=True, comment='Longer human readable name describing the US Census division.'),
-    sa.Column('division_code_us_census', sa.Enum('ENC', 'MAT', 'WNC', 'PCN', 'ESC', 'PCC', 'NEW', 'SAT', 'MTN', 'WSC'), nullable=True, comment='Three-letter US Census division code as it appears in the bulk electricity data published by the EIA. Note that EIA splits the Pacific division into distinct contiguous (CA, OR, WA) and non-contiguous (AK, HI) states. For reference see this US Census region and division map: https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf'),
+    sa.Column('division_code_us_census', sa.Enum('SAT', 'NEW', 'MAT', 'PCC', 'WSC', 'ESC', 'MTN', 'WNC', 'PCN', 'ENC'), nullable=True, comment='Three-letter US Census division code as it appears in the bulk electricity data published by the EIA. Note that EIA splits the Pacific division into distinct contiguous (CA, OR, WA) and non-contiguous (AK, HI) states. For reference see this US Census region and division map: https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf'),
     sa.Column('region_name_us_census', sa.Text(), nullable=True, comment='Human-readable name of a US Census region.'),
     sa.Column('is_epacems_state', sa.Boolean(), nullable=True, comment="Indicates whether the associated state reports data within the EPA's Continuous Emissions Monitoring System."),
     sa.PrimaryKeyConstraint('country_code', 'subdivision_code', name=op.f('pk_core_pudl__codes_subdivisions'))
@@ -551,275 +551,27 @@ def upgrade() -> None:
     sa.Column('utility_name_pudl', sa.Text(), nullable=True, comment='Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only.'),
     sa.PrimaryKeyConstraint('utility_id_pudl', name=op.f('pk_core_pudl__entity_utilities_pudl'))
     )
-    op.create_table('core_rus12__scd_borrowers',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    op.create_table('core_rus12__entity_borrowers',
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('state', sa.Enum('WY', 'LA', 'NM', 'WI', 'PA', 'NH', 'OK', 'UT', 'SD', 'AS', 'AK', 'ID', 'FM', 'MH', 'MP', 'NJ', 'DE', 'TN', 'VT', 'MO', 'WV', 'VA', 'NL', 'PR', 'SK', 'CA', 'FL', 'QC', 'KS', 'ND', 'GA', 'NV', 'NS', 'NC', 'HI', 'SC', 'KY', 'NY', 'MA', 'PE', 'MD', 'CT', 'WA', 'IL', 'AL', 'ME', 'MT', 'MI', 'BC', 'YT', 'NT', 'VI', 'AB', 'NE', 'OH', 'ON', 'NB', 'TX', 'AR', 'OR', 'IN', 'RI', 'AZ', 'IA', 'MB', 'MS', 'MN', 'DC', 'GU', 'NU', 'CO'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus12__scd_borrowers'))
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.PrimaryKeyConstraint('borrower_id_rus', name=op.f('pk_core_rus12__entity_borrowers'))
     )
-    op.create_table('core_rus12__yearly_balance_sheet_assets',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    op.create_table('core_rus7__entity_borrowers',
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('asset_type', sa.Enum('utility_plant_in_service', 'construction_work_in_progress', 'total_utility_plant', 'depreciation_and_amortization', 'net_utility_plant', 'non_utility_property_asset', 'investments_subsidiary_companies', 'investments_associated_orgs_patronage_capital', 'investments_associated_orgs_other_general_funds', 'investments_associated_orgs_other_non_general_funds', 'investments_economic_development', 'investments_other', 'special_funds', 'total_other_property_and_investments', 'cash_general_funds', 'cash_construction_funds_trustee', 'special_deposits', 'investments_temporary', 'notes_receivable', 'accounts_receivable_sales_of_energy', 'accounts_receivable_other', 'fuel_stock', 'renewable_energy_credits', 'materials_and_supplies', 'prepayments', 'other_current_and_accrued', 'total_current_and_accrued', 'unamortized_debt_discount_property_losses', 'regulatory', 'other_deferred_debits', 'accumulated_deferred_income_taxes_debits', 'total'), nullable=False, comment='Type of asset being reported to the core_rus12__yearly_balance_sheet_assets table.'),
-    sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
-    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'asset_type', name=op.f('pk_core_rus12__yearly_balance_sheet_assets'))
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.PrimaryKeyConstraint('borrower_id_rus', name=op.f('pk_core_rus7__entity_borrowers'))
     )
-    op.create_table('core_rus12__yearly_balance_sheet_liabilities',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('liability_type', sa.Enum('memberships', 'assigned_and_assignable_patronage_capital', 'retired_this_year_patronage_capital', 'retired_prior_years_patronage_capital', 'patronage_capital', 'operating_margins_prior_years', 'operating_margins_current_year', 'non_operating_margins', 'other_margins_and_equities', 'total_margins_and_equities', 'long_term_debt_rus', 'payments_unapplied', 'long_term_debt_rus_economic_development', 'long_term_debt_ffb_rus_guaranteed', 'long_term_debt_other_rus_guaranteed', 'long_term_debt_other', 'total_long_term_debt', 'noncurrent_obligations_under_capital_leases', 'accumulated_operating_provisions', 'total_other_noncurrent_liabilities', 'notes_payable', 'accounts_payable', 'current_maturities_long_term_debt', 'rural_development', 'current_maturities_capital_leases', 'taxes_accrued', 'interest_accrued', 'other_current_and_accrued', 'total_current_and_accrued', 'deferred_credits', 'accumulated_deferred_income_taxes_credits', 'total_liabilities_and_other_credits'), nullable=False, comment='Type of liability being reported to the core_rus12__yearly_balance_sheet_liabilities table.'),
-    sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
-    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'liability_type', name=op.f('pk_core_rus12__yearly_balance_sheet_liabilities'))
-    )
-    op.create_table('core_rus12__yearly_lines_stations_labor_materials_cost',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('labor_or_material', sa.Enum('labor', 'material'), nullable=False, comment='Indicates whether the cost reported is for labor or material.'),
-    sa.Column('operation_or_maintenance', sa.Enum('operation', 'maintenance'), nullable=False, comment='Indicates whether the expenditure is for operation or maintenance.'),
-    sa.Column('lines_or_stations', sa.Enum('lines', 'stations'), nullable=False, comment='Indicates whether the cost reported pertains to  lines or stations.'),
-    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'labor_or_material', 'operation_or_maintenance', 'lines_or_stations', name=op.f('pk_core_rus12__yearly_lines_stations_labor_materials_cost'))
-    )
-    op.create_table('core_rus12__yearly_loans',
-    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('loan_organization', sa.Text(), nullable=True, comment='The organization from which a loan was received.'),
-    sa.Column('loan_maturity_date', sa.Date(), nullable=True, comment='The date on which a loan is scheduled to be fully paid.'),
-    sa.Column('loan_original_amount', sa.Float(), nullable=True, comment='The original amount of a loan.'),
-    sa.Column('loan_balance', sa.Float(), nullable=True, comment='The amount of money still owned on a loan at the end of the reporting year.'),
-    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.')
-    )
-    op.create_table('core_rus12__yearly_long_term_debt',
-    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('debt_description', sa.Text(), nullable=True, comment='Description of debt or loan. On the original form, there are nine provided descriptions and a section to add other free-form descriptions.'),
-    sa.Column('debt_ending_balance', sa.Float(), nullable=True, comment='The amount of principal still owned on the debt at the end of the report year.'),
-    sa.Column('debt_interest', sa.Float(), nullable=True, comment='The interest expense on the debt for the report year.'),
-    sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.'),
-    sa.Column('debt_total', sa.Float(), nullable=True, comment='The total amount of debt.')
-    )
-    op.create_table('core_rus12__yearly_meeting_and_board',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('last_annual_meeting_date', sqlite.DATETIME(), nullable=True, comment='The date of the last annual meeting.'),
-    sa.Column('members_num', sa.Integer(), nullable=True, comment='The total number of members.'),
-    sa.Column('members_present_at_meeting_num', sa.Integer(), nullable=True, comment='The number of members present at the last annual meeting.'),
-    sa.Column('was_quorum_present', sa.Boolean(), nullable=True, comment='Whether or not quorum was met.'),
-    sa.Column('members_voting_by_proxy_or_mail_num', sa.Integer(), nullable=True, comment='The number of members voting by mail or by proxy.'),
-    sa.Column('board_members_num', sa.Integer(), nullable=True, comment='The total number of board members.'),
-    sa.Column('fees_and_expenses_for_board_members', sa.Integer(), nullable=True, comment='The total amount of fees and expenses for board members.'),
-    sa.Column('does_manager_have_written_contract', sa.Boolean(), nullable=True, comment="Whether or not the RUS borrower's manager has a written contract."),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus12__yearly_meeting_and_board'))
-    )
-    op.create_table('core_rus12__yearly_plant_labor',
-    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
-    sa.Column('plant_type', sa.Enum('Combined Cycle', 'Steam', 'Hydro', 'Internal Combustion', 'Nuclear'), nullable=True, comment='Type of plant.'),
-    sa.Column('employees_full_time_num', sa.Integer(), nullable=True, comment='Number of employees hired full-time for normal operations of the system.'),
-    sa.Column('employees_part_time_num', sa.Integer(), nullable=True, comment='Number employees regularly employed on a part-time basis. Exclude employees hired for short periods of time to complete special jobs.'),
-    sa.Column('employee_hours_worked_total', sa.Float(), nullable=True, comment='Total number of hours worked by employees.'),
-    sa.Column('payroll_maintenance', sa.Float(), nullable=True, comment='The amount of payroll spent on plant maintenance.'),
-    sa.Column('payroll_operations', sa.Float(), nullable=True, comment='The amount of payroll spent on plant operations.'),
-    sa.Column('payroll_other_accounts', sa.Float(), nullable=True, comment='The amount of plant payroll spent on accounts other than maintenance and operations.')
-    )
-    op.create_table('core_rus12__yearly_renewable_plants',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('plant_name_rus', sa.Text(), nullable=False, comment='Name of the plant as reported to RUS.'),
-    sa.Column('prime_mover_id', sa.Integer(), nullable=False, comment='Unique numeric identifier for each prime mover type used by RUS borrowers.'),
-    sa.Column('prime_mover_type', sa.Enum('Hydro', 'Internal Combustion', 'Large Wind', 'Steam', 'Photovoltaic'), nullable=True, comment='Type of prime mover (e.g. Hydro, Internal Combustion).'),
-    sa.Column('primary_renewable_fuel_type_id', sa.Integer(), nullable=True, comment='Unique numeric identifier for each renewable fuel type.'),
-    sa.Column('primary_renewable_fuel_type', sa.Enum('Hydro', 'Methane - landfill gas', 'Wind', 'Biomass - wood', 'Methane - waste', 'Hybrid', 'Solar - photovoltaic', 'Solar - thermal generation', 'Other'), nullable=True, comment='Primary renewable fuel type used by the plant.'),
-    sa.Column('renewable_fuel_pct', sa.Float(), nullable=True, comment='Percentage of renewable fuel used.'),
-    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
-    sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
-    sa.Column('employees_num', sa.Integer(), nullable=True, comment='Number of employees.'),
-    sa.Column('opex_per_mwh', sa.Float(), nullable=True, comment='Total production expenses (USD per MWh generated).'),
-    sa.Column('power_cost_per_mwh', sa.Float(), nullable=True, comment='The cost of power per mwh.'),
-    sa.Column('invested', sa.Float(), nullable=True, comment='The amount of money invested.'),
-    sa.Column('ownership_pct', sa.Float(), nullable=True, comment='Percentage of the plant owned by the respondent.'),
-    sa.Column('rus_funding', sa.Float(), nullable=True, comment='Amount of funding received from the Rural Utilities Service (RUS).'),
-    sa.Column('comments', sa.Text(), nullable=True, comment='General comments field.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'plant_name_rus', 'prime_mover_id', name=op.f('pk_core_rus12__yearly_renewable_plants'))
-    )
-    op.create_table('core_rus12__yearly_sources_and_distribution',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('source_of_energy', sa.Enum('energy_available_for_sale', 'energy_used_by_borrower', 'purchased_power', 'total_energy_accounted', 'total_energy_losses', 'total_plant', 'total_sales', 'delivered_out_of_system_gross', 'net_interchange', 'received_into_system_gross', 'delivered_out_of_system_wheeling', 'net_energy_wheeled', 'received_into_system_wheeling', 'energy_furnished_without_charge'), nullable=False, comment='The source of energy (not plant type).'),
-    sa.Column('net_energy_received_mwh', sa.Float(), nullable=True, comment='The net amount of energy received into the system.'),
-    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'source_of_energy', name=op.f('pk_core_rus12__yearly_sources_and_distribution'))
-    )
-    op.create_table('core_rus12__yearly_sources_and_distribution_by_plant_type',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('plant_type', sa.Text(), nullable=False, comment='Type of plant.'),
-    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
-    sa.Column('plant_num', sa.Integer(), nullable=True, comment='Number of plants.'),
-    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
-    sa.Column('net_energy_received_mwh', sa.Float(), nullable=True, comment='The net amount of energy received into the system.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'plant_type', name=op.f('pk_core_rus12__yearly_sources_and_distribution_by_plant_type'))
-    )
-    op.create_table('core_rus12__yearly_statement_of_operations',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('opex_group', sa.Text(), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``opex_type`` column.'),
-    sa.Column('opex_type', sa.Text(), nullable=False, comment='Type of item from the statement of operations.'),
-    sa.Column('opex_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
-    sa.Column('opex_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
-    sa.Column('opex_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
-    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'opex_group', 'opex_type', name=op.f('pk_core_rus12__yearly_statement_of_operations'))
-    )
-    op.create_table('core_rus7__codes_investment_types',
+    op.create_table('core_rus__codes_fuel_types',
     sa.Column('code', sa.Text(), nullable=False, comment='Originally reported short code.'),
     sa.Column('description', sa.Text(), nullable=True, comment='Long human-readable description of the meaning of a code/label.'),
-    sa.PrimaryKeyConstraint('code', name=op.f('pk_core_rus7__codes_investment_types'))
+    sa.PrimaryKeyConstraint('code', name=op.f('pk_core_rus__codes_fuel_types'))
     )
-    op.create_table('core_rus7__scd_borrowers',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('state', sa.Enum('WY', 'LA', 'NM', 'WI', 'PA', 'NH', 'OK', 'UT', 'SD', 'AS', 'AK', 'ID', 'FM', 'MH', 'MP', 'NJ', 'DE', 'TN', 'VT', 'MO', 'WV', 'VA', 'NL', 'PR', 'SK', 'CA', 'FL', 'QC', 'KS', 'ND', 'GA', 'NV', 'NS', 'NC', 'HI', 'SC', 'KY', 'NY', 'MA', 'PE', 'MD', 'CT', 'WA', 'IL', 'AL', 'ME', 'MT', 'MI', 'BC', 'YT', 'NT', 'VI', 'AB', 'NE', 'OH', 'ON', 'NB', 'TX', 'AR', 'OR', 'IN', 'RI', 'AZ', 'IA', 'MB', 'MS', 'MN', 'DC', 'GU', 'NU', 'CO'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus7__scd_borrowers'))
-    )
-    op.create_table('core_rus7__yearly_balance_sheet_assets',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('asset_type', sa.Enum('utility_plant_in_service', 'construction_work_in_progress', 'total_utility_plant', 'net_utility_plant', 'depreciation_and_amortization', 'non_utility_property', 'investments_subsidiary_companies', 'investments_associated_orgs_patronage_capital', 'investments_associated_orgs_other_general_funds', 'investments_associated_orgs_other_non_general_funds', 'investments_economic_development', 'investments_other', 'special_funds', 'total_other_property_and_investments', 'cash_general_funds', 'cash_construction_funds_trustee', 'special_deposits', 'investments_temporary', 'notes_receivable', 'accounts_receivable_sales_of_energy', 'accounts_receivable_other', 'renewable_energy_credits', 'materials_and_supplies', 'prepayments', 'other_current_and_accrued', 'total_current_and_accrued', 'regulatory', 'other_deferred_debits', 'total'), nullable=False, comment='Type of asset being reported to the core_rus7__yearly_balance_sheet_assets table.'),
-    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
-    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'asset_type', name=op.f('pk_core_rus7__yearly_balance_sheet_assets'))
-    )
-    op.create_table('core_rus7__yearly_balance_sheet_liabilities',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('liability_type', sa.Enum('memberships', 'patronage_capital', 'operating_margins_prior_years', 'operating_margins_current_year', 'non_operating_margins', 'other_margins_and_equities', 'total_margins_and_equities', 'long_term_debt_rus', 'long_term_debt_ffb_rus_guaranteed', 'long_term_debt_other_rus_guaranteed', 'long_term_debt_other', 'long_term_debt_rus_economic_development', 'payments_unapplied', 'total_long_term_debt', 'noncurrent_obligations_under_capital_leases', 'noncurrent_obligations_asset_retirement', 'total_noncurrent_obligations', 'notes_payable', 'accounts_payable', 'consumer_deposits', 'current_maturities_long_term_debt', 'economic_development', 'current_maturities_capital_leases', 'other_current_and_accrued_liabilities', 'total_current_and_accrued_liabilities', 'regulatory', 'other_deferred_credits', 'total_liabilities_and_other_credits'), nullable=False, comment='Type of liability being reported to the core_rus7__yearly_balance_sheet_liabilities table.'),
-    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
-    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'liability_type', name=op.f('pk_core_rus7__yearly_balance_sheet_liabilities'))
-    )
-    op.create_table('core_rus7__yearly_employee_statistics',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('employees_fte_num', sa.Integer(), nullable=True, comment='The number of full time employees.'),
-    sa.Column('employee_hours_worked_regular_time', sa.Integer(), nullable=True, comment='The number of regular (non-overtime) hours worked by employees.'),
-    sa.Column('employee_hours_worked_over_time', sa.Integer(), nullable=True, comment='The number of overtime hours worked by employees.'),
-    sa.Column('payroll_expensed', sa.Integer(), nullable=True, comment='The amount of payroll spent that was expensed.'),
-    sa.Column('payroll_capitalized', sa.Integer(), nullable=True, comment='The amount of payroll spent that was capitalized.'),
-    sa.Column('payroll_other', sa.Integer(), nullable=True, comment='The amount of payroll spent that was funded by other means - not capitalized or expensed.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus7__yearly_employee_statistics'))
-    )
-    op.create_table('core_rus7__yearly_energy_efficiency',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('customer_class', sa.Enum('residential_excluding_seasonal', 'transmission', 'public_street_lighting', 'commercial_and_industrial_large', 'total', 'sales_for_resale_rus_borrowers', 'sales_for_resale_other', 'other_electric', 'commercial_and_industrial_small', 'irrigation', 'public_other', 'residential_seasonal'), nullable=False, comment='High level categorization of customer type.'),
-    sa.Column('observation_period', sa.Enum('ytd', 'avg', 'cumulative', 'report_month', 'ytd_budget', 'new_in_report_year', 'report_year', 'december'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
-    sa.Column('customers_num', sa.Float(), nullable=True, comment='Number of customers.'),
-    sa.Column('invested', sa.Float(), nullable=True, comment='The amount of money invested.'),
-    sa.Column('savings_mmbtu', sa.Float(), nullable=True, comment='The estimated amount of energy savings from energy efficiency programs. Warning: We found values much larger than expected that we have not yet cleaned - this is likely a reporting unit error.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', 'observation_period', name=op.f('pk_core_rus7__yearly_energy_efficiency'))
-    )
-    op.create_table('core_rus7__yearly_long_term_debt',
-    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('debt_description', sa.Text(), nullable=True, comment='Description of debt or loan. On the original form, there are nine provided descriptions and a section to add other free-form descriptions.'),
-    sa.Column('debt_ending_balance', sa.Float(), nullable=True, comment='The amount of principal still owned on the debt at the end of the report year.'),
-    sa.Column('debt_interest', sa.Float(), nullable=True, comment='The interest expense on the debt for the report year.'),
-    sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.'),
-    sa.Column('debt_total', sa.Float(), nullable=True, comment='The total amount of debt.')
-    )
-    op.create_table('core_rus7__yearly_meeting_and_board',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('last_annual_meeting_date', sqlite.DATETIME(), nullable=True, comment='The date of the last annual meeting.'),
-    sa.Column('members_num', sa.Integer(), nullable=True, comment='The total number of members.'),
-    sa.Column('members_present_at_meeting_num', sa.Integer(), nullable=True, comment='The number of members present at the last annual meeting.'),
-    sa.Column('was_quorum_present', sa.Boolean(), nullable=True, comment='Whether or not quorum was met.'),
-    sa.Column('members_voting_by_proxy_or_mail_num', sa.Integer(), nullable=True, comment='The number of members voting by mail or by proxy.'),
-    sa.Column('board_members_num', sa.Integer(), nullable=True, comment='The total number of board members.'),
-    sa.Column('fees_and_expenses_for_board_members', sa.Integer(), nullable=True, comment='The total amount of fees and expenses for board members.'),
-    sa.Column('does_manager_have_written_contract', sa.Boolean(), nullable=True, comment="Whether or not the RUS borrower's manager has a written contract."),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus7__yearly_meeting_and_board'))
-    )
-    op.create_table('core_rus7__yearly_patronage_capital',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('patronage_type', sa.Enum('received_lenders_of_electric_power', 'total_received', 'received_supplier_of_electric_power', 'distributions_special_retirements', 'total_distributions_retirements', 'distributions_general_retirements'), nullable=False, comment='Type of patronage capital distributed or received.'),
-    sa.Column('patronage_report_year', sa.Float(), nullable=True, comment='Amount of patronage distributed or received within report year.'),
-    sa.Column('patronage_cumulative', sa.Float(), nullable=True, comment='Amount of patronage distributed or received cumulatively. Received patronage capital is not reported cumulatively and thus will be null.'),
-    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'patronage_type', name=op.f('pk_core_rus7__yearly_patronage_capital'))
-    )
-    op.create_table('core_rus7__yearly_power_requirements',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('electric_sales_revenue', sa.Integer(), nullable=True, comment='Total Revenue Received From Sales of Electric Energy. Total of lines 1c thru 9c on the original form.'),
-    sa.Column('transmission_revenue', sa.Integer(), nullable=True, comment='Transmission revenue.'),
-    sa.Column('other_electric_revenue', sa.Integer(), nullable=True, comment='Electric revenue other than electric_sales_revenue.'),
-    sa.Column('purchases_and_generation_cost', sa.Integer(), nullable=True, comment='The cost of purchases and generation of electricity.'),
-    sa.Column('electric_sales_mwh', sa.Float(), nullable=True, comment='Total MWh Sold to electric sales. Total of lines 1b thru 9b on the original form.'),
-    sa.Column('own_use_mwh', sa.Float(), nullable=True, comment="The electricity in MWh used for the borrower's own internal use."),
-    sa.Column('purchased_mwh', sa.Float(), nullable=True, comment='The total electricity purchased.'),
-    sa.Column('generated_mwh', sa.Float(), nullable=True, comment='The total electricity generated.'),
-    sa.Column('interchange_mwh', sa.Float(), nullable=True, comment='The net interchange of electricity. The net amount of electricity exchanged in purchases and sales.'),
-    sa.Column('peak_mw', sa.Float(), nullable=True, comment='The peak system MWh - the sum of all MW.'),
-    sa.Column('is_peak_coincident', sa.Boolean(), nullable=True, comment='Whether or not the peak_mw is coincident or non-coincident peak.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus7__yearly_power_requirements'))
-    )
-    op.create_table('core_rus7__yearly_power_requirements_electric_customers',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('customer_class', sa.Enum('residential_excluding_seasonal', 'transmission', 'public_street_lighting', 'commercial_and_industrial_large', 'total', 'sales_for_resale_rus_borrowers', 'sales_for_resale_other', 'other_electric', 'commercial_and_industrial_small', 'irrigation', 'public_other', 'residential_seasonal'), nullable=False, comment='High level categorization of customer type.'),
-    sa.Column('observation_period', sa.Enum('ytd', 'avg', 'cumulative', 'report_month', 'ytd_budget', 'new_in_report_year', 'report_year', 'december'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
-    sa.Column('customers_num', sa.Float(), nullable=True, comment='Number of customers.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', 'observation_period', name=op.f('pk_core_rus7__yearly_power_requirements_electric_customers'))
-    )
-    op.create_table('core_rus7__yearly_power_requirements_electric_sales',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('customer_class', sa.Enum('residential_excluding_seasonal', 'transmission', 'public_street_lighting', 'commercial_and_industrial_large', 'total', 'sales_for_resale_rus_borrowers', 'sales_for_resale_other', 'other_electric', 'commercial_and_industrial_small', 'irrigation', 'public_other', 'residential_seasonal'), nullable=False, comment='High level categorization of customer type.'),
-    sa.Column('sales_mwh', sa.Float(), nullable=True, comment='Quantity of electricity sold in MWh.'),
-    sa.Column('revenue', sa.Float(), nullable=True, comment='Amount of revenue.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', name=op.f('pk_core_rus7__yearly_power_requirements_electric_sales'))
-    )
-    op.create_table('core_rus7__yearly_statement_of_operations',
-    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
-    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('opex_group', sa.Enum('patronage_and_operating_margins', 'cost_of_electric_service', 'opex', 'patronage_capital_or_margins'), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``opex_type`` column.'),
-    sa.Column('opex_type', sa.Enum('purchased_power', 'transmission', 'customer_service', 'distribution_maintenance', 'equity_investment_losses', 'other_capital_credits_ytd', 'sales', 'non_operating_margins_other', 'non_operating_margins_interest', 'tax_other', 'operating_revenue', 'extraordinary_items', 'depreciation', 'interest_charged_to_construction', 'construction_funds_allowance', 'other_deductions', 'other_capital_credits', 'customer_accounts', 'admin', 'distribution_operation', 'regional_market', 'interest_long_term_debt', 'total', 'tax_property', 'cost_of_electric_service', 'power_production', 'total_minus', 'generation_and_transmission_capital', 'interest_other'), nullable=False, comment='Type of item from the statement of operations.'),
-    sa.Column('opex_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
-    sa.Column('opex_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
-    sa.Column('opex_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
-    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'opex_group', 'opex_type', name=op.f('pk_core_rus7__yearly_statement_of_operations'))
+    op.create_table('core_rus__codes_investment_types',
+    sa.Column('code', sa.Text(), nullable=False, comment='Originally reported short code.'),
+    sa.Column('description', sa.Text(), nullable=True, comment='Long human-readable description of the meaning of a code/label.'),
+    sa.PrimaryKeyConstraint('code', name=op.f('pk_core_rus__codes_investment_types'))
     )
     op.create_table('core_sec10k__assn_exhibit_21_subsidiaries_and_filers',
     sa.Column('subsidiary_company_id_sec10k', sa.Text(), nullable=False, comment="PUDL-assigned ID for subsidiaries found in SEC 10-K Exhibit 21. The ID is created by concatenating the CIK of the company whose filing the subsidiary was found in, the subsidiary company's name, and location of incorporation. It is not guaranteed to be stable across different releases of PUDL and so should never be hard-coded in analyses."),
@@ -1053,28 +805,28 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('plant_id_eia', 'report_date', 'cooling_id_eia', name=op.f('pk__core_eia923__monthly_cooling_system_information'))
     )
     op.create_table('_core_eia923__yearly_byproduct_disposition',
-    sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('byproduct_description', sa.Enum('Ash from coal gasification (IGCC) units', 'Bottom ash from standard boiler units', 'Bottom (bed) ash from FBC units', 'FGD Gypsum', 'Fly ash from FBC units', 'Fly ash from standard boiler/PCD units', 'Fly ash from units with dry FGD', 'Other FGD byproducts', 'Other (specify via footnote on Schedule 9)', 'Steam Sales (MMBtu)'), nullable=False, comment='Description of combustion by-product.'),
-    sa.Column('byproduct_units', sa.Enum('mmbtu', 'tons'), nullable=True, comment='Reported unit of measure for combustion byproduct. MMBtu for steam, tons for all other byproducts.'),
-    sa.Column('disposal_landfill_units', sa.Float(), nullable=True, comment='Disposed by-products in landfill, to the nearest hundred tons or in MMBtu for steam sales.'),
-    sa.Column('disposal_offsite_units', sa.Float(), nullable=True, comment='Disposed by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.'),
-    sa.Column('disposal_ponds_units', sa.Float(), nullable=True, comment='Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales.'),
-    sa.Column('sold_units', sa.Float(), nullable=True, comment='Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBtu.'),
-    sa.Column('stored_offsite_units', sa.Float(), nullable=True, comment='Stored by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.'),
-    sa.Column('stored_onsite_units', sa.Float(), nullable=True, comment='Stored by-products onsite, to the nearest hundred tons or in MMBtu for steam sales.'),
-    sa.Column('used_offsite_units', sa.Float(), nullable=True, comment='Used offsite by-products, to the nearest hundred tons or in MMBtu for steam sales.'),
-    sa.Column('used_onsite_units', sa.Float(), nullable=True, comment='Used onsite by-products, to the nearest hundred tons or in MMBtu for steam sales.'),
-    sa.Column('total_disposal_units', sa.Float(), nullable=True, comment='Total by-product disposal, to the nearest hundred tons or in MMBtu for steam sales.'),
+    sa.Column('byproduct_units', sa.Enum('mmbtu', 'tons'), nullable=True, comment='Reported unit of measure for combustion byproduct. MMBTU for steam, tons for all other byproducts.'),
+    sa.Column('disposal_landfill_units', sa.Float(), nullable=True, comment='Disposed by-products in landfill, to the nearest hundred tons or in MMBTU for steam sales.'),
+    sa.Column('disposal_offsite_units', sa.Float(), nullable=True, comment='Disposed by-products offsite, to the nearest hundred tons or in MMBTU for steam sales.'),
+    sa.Column('disposal_ponds_units', sa.Float(), nullable=True, comment='Disposed by-products in ponds, to the nearest hundred tons or in MMBTU for steam sales.'),
+    sa.Column('sold_units', sa.Float(), nullable=True, comment='Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBTU.'),
+    sa.Column('stored_offsite_units', sa.Float(), nullable=True, comment='Stored by-products offsite, to the nearest hundred tons or in MMBTU for steam sales.'),
+    sa.Column('stored_onsite_units', sa.Float(), nullable=True, comment='Stored by-products onsite, to the nearest hundred tons or in MMBTU for steam sales.'),
+    sa.Column('used_offsite_units', sa.Float(), nullable=True, comment='Used offsite by-products, to the nearest hundred tons or in MMBTU for steam sales.'),
+    sa.Column('used_onsite_units', sa.Float(), nullable=True, comment='Used onsite by-products, to the nearest hundred tons or in MMBTU for steam sales.'),
+    sa.Column('total_disposal_units', sa.Float(), nullable=True, comment='Total by-product disposal, to the nearest hundred tons or in MMBTU for steam sales.'),
     sa.Column('no_byproducts_to_report', sa.Text(), nullable=True, comment="Whether any combustion by-products were produced by a plant. 'Y' indicates no byproducts to report. The 'Y' and 'N' values do not align with expected values of reported byproducts. This column is messy and requires standardization."),
     sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
     sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk__core_eia923__yearly_byproduct_disposition_data_maturity_core_pudl__codes_data_maturities')),
     sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk__core_eia923__yearly_byproduct_disposition_plant_id_eia_core_eia__entity_plants')),
-    sa.PrimaryKeyConstraint('plant_id_eia', 'report_year', 'byproduct_description', name=op.f('pk__core_eia923__yearly_byproduct_disposition'))
+    sa.PrimaryKeyConstraint('plant_id_eia', 'report_date', 'byproduct_description', name=op.f('pk__core_eia923__yearly_byproduct_disposition'))
     )
     op.create_table('_core_eia923__yearly_byproduct_expenses_and_revenues',
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
-    sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
     sa.Column('capex_air_abatement', sa.Float(), nullable=True, comment='Cost of new structures and/or equipment purchased to reduce, monitor, or eliminate airborne pollutants.'),
     sa.Column('capex_other_abatement', sa.Float(), nullable=True, comment='Other amortizable expenses and purchases of new structures and or equipment when such purchases are not allocated to a particular unit or item.'),
@@ -1106,7 +858,35 @@ def upgrade() -> None:
     sa.Column('revenues_total_byproduct', sa.Float(), nullable=True, comment='Total revenue from the sale of by-products.'),
     sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk__core_eia923__yearly_byproduct_expenses_and_revenues_data_maturity_core_pudl__codes_data_maturities')),
     sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk__core_eia923__yearly_byproduct_expenses_and_revenues_plant_id_eia_core_eia__entity_plants')),
-    sa.PrimaryKeyConstraint('plant_id_eia', 'report_year', name=op.f('pk__core_eia923__yearly_byproduct_expenses_and_revenues'))
+    sa.PrimaryKeyConstraint('plant_id_eia', 'report_date', name=op.f('pk__core_eia923__yearly_byproduct_expenses_and_revenues'))
+    )
+    op.create_table('_core_eia923__yearly_emissions_control',
+    sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('acid_gas_removal_efficiency', sa.Float(), nullable=True, comment='Removal efficiency for acid gas emissions. Ranges from 0 to 1.'),
+    sa.Column('annual_nox_emission_rate_lb_per_mmbtu', sa.Float(), nullable=True, comment='Actual controlled (or uncontrolled) nitrogen oxides emission rate. Based on data from CEMS where possible.'),
+    sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
+    sa.Column('environmental_equipment_name', sa.Text(), nullable=True, comment='Type of equipment or strategy for the control of air emissions.'),
+    sa.Column('fgd_electricity_consumption_mwh', sa.Float(), nullable=True, comment='Electric power consumed by the flue gas desulfurization unit (in MWh).'),
+    sa.Column('fgd_sorbent_consumption_tons', sa.Float(), nullable=True, comment='Quantity of flue gas desulfurization sorbent used, to the nearest 100 ton.'),
+    sa.Column('hours_in_service', sa.Integer(), nullable=True, comment='Total hours the emissions control was in service during the reporting year, rounded to the nearest hour.'),
+    sa.Column('mercury_control_id_eia', sa.Text(), nullable=True, comment='Mercury control identification number. This ID is not a unique identifier.'),
+    sa.Column('mercury_emission_rate_lb_per_trillion_btu', sa.Float(), nullable=True, comment='Actual controlled (or uncontrolled) mercury emission rate, based on data from CEMS, where possible.'),
+    sa.Column('mercury_removal_efficiency', sa.Float(), nullable=True, comment='Removal efficiency for mercury emissions. Ranges from 0 to 1.'),
+    sa.Column('nox_control_id_eia', sa.Text(), nullable=True, comment='Nitrogen oxide control identification number. This ID is not a unique identifier.'),
+    sa.Column('operational_status', sa.Text(), nullable=True, comment='The operating status of the asset. For generators this is based on which tab the generator was listed in in EIA 860.'),
+    sa.Column('ozone_season_nox_emission_rate_lb_per_mmbtu', sa.Float(), nullable=True, comment='Actual controlled (or uncontrolled) nitrogen oxides emission rate during the ozone season (May to September)'),
+    sa.Column('particulate_control_id_eia', sa.Text(), nullable=True, comment='Particulate matter control identification number. This ID is not a unique identifier.'),
+    sa.Column('particulate_emission_rate_lb_per_mmbtu', sa.Float(), nullable=True, comment='Average annual emission removal rate for particulate matter.'),
+    sa.Column('particulate_removal_efficiency_tested', sa.Float(), nullable=True, comment='The tested efficiency for the removal of particulate matter at 100 percent load. If not tested at 100 percent load, then the load at which the test was conducted is included as a comment on Schedule 9. If no test was conducted, the test date and tested efficiency field should be blank. Ranges from 0 to 1.'),
+    sa.Column('particulate_removal_efficiency_annual', sa.Float(), nullable=True, comment='Particulate removal efficiency, based on the annual operating factor, which is defined as annual fuel consumption (MMBTU) divided by the product of the boiler design firing rate (MMBTU per hour) and hours of operation per year.When actual data are not available, estimates are provided based on equipment design performance specifications. Ranges from 0 to 1.'),
+    sa.Column('particulate_test_date', sa.Date(), nullable=True, comment='Date of the latest efficiency test for the removal of particulate matter.'),
+    sa.Column('so2_control_id_eia', sa.Text(), nullable=True, comment='Sulfur dioxide control identification number. This ID is not a unique identifier.'),
+    sa.Column('so2_removal_efficiency_tested', sa.Float(), nullable=True, comment='The tested efficiency for the removal of sulfur dioxide at 100 percent load. If not tested at 100 percent load, then the load at which the test was conducted is included as a comment on Schedule 9. If no test was conducted, the test date and tested efficiency field should be blank. Ranges from 0 to 1.'),
+    sa.Column('so2_removal_efficiency_annual', sa.Float(), nullable=True, comment='Sulfur dioxide removal efficiency, based on the annual operating factor, which is defined as annual fuel consumption (MMBTU) divided by the product of the boiler design firing rate (MMBTU per hour) and hours of operation per year.When actual data are not available, estimates are provided based on equipment design performance specifications. Ranges from 0 to 1.'),
+    sa.Column('so2_test_date', sa.Date(), nullable=True, comment='Date of most recent test for sulfur dioxide removal efficiency.'),
+    sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk__core_eia923__yearly_emissions_control_data_maturity_core_pudl__codes_data_maturities')),
+    sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk__core_eia923__yearly_emissions_control_plant_id_eia_core_eia__entity_plants'))
     )
     op.create_table('_core_eia923__yearly_fgd_operation_maintenance',
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
@@ -1123,8 +903,8 @@ def upgrade() -> None:
     sa.Column('fgd_hours_in_service', sa.Integer(), nullable=True, comment='Number of hours the flue gas desulfurization equipment was in operation during the year.'),
     sa.Column('fgd_electricity_consumption_mwh', sa.Float(), nullable=True, comment='Electric power consumed by the flue gas desulfurization unit (in MWh).'),
     sa.Column('fgd_sorbent_consumption_tons', sa.Float(), nullable=True, comment='Quantity of flue gas desulfurization sorbent used, to the nearest 100 ton.'),
-    sa.Column('so2_removal_efficiency_tested', sa.Float(), nullable=True, comment='Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at tested rate at 100 percent load.'),
-    sa.Column('so2_removal_efficiency_annual', sa.Float(), nullable=True, comment='Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) based on designed firing rate and hours in operation (listed as a percentage).'),
+    sa.Column('so2_removal_efficiency_tested', sa.Float(), nullable=True, comment='The tested efficiency for the removal of sulfur dioxide at 100 percent load. If not tested at 100 percent load, then the load at which the test was conducted is included as a comment on Schedule 9. If no test was conducted, the test date and tested efficiency field should be blank. Ranges from 0 to 1.'),
+    sa.Column('so2_removal_efficiency_annual', sa.Float(), nullable=True, comment='Sulfur dioxide removal efficiency, based on the annual operating factor, which is defined as annual fuel consumption (MMBTU) divided by the product of the boiler design firing rate (MMBTU per hour) and hours of operation per year.When actual data are not available, estimates are provided based on equipment design performance specifications. Ranges from 0 to 1.'),
     sa.Column('so2_test_date', sa.Date(), nullable=True, comment='Date of most recent test for sulfur dioxide removal efficiency.'),
     sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
     sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk__core_eia923__yearly_fgd_operation_maintenance_data_maturity_core_pudl__codes_data_maturities')),
@@ -1140,7 +920,7 @@ def upgrade() -> None:
     sa.Column('operating_state', sa.Text(), nullable=False, comment='State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.'),
     sa.Column('install_decade', sa.Text(), nullable=False, comment='The decade the distribution pipeline was installed.'),
     sa.Column('mains_miles', sa.Float(), nullable=True, comment='The miles of mains distribution pipeline.'),
-    sa.Column('services', sa.Float(), nullable=True, comment='Number of end in system at end of year.'),
+    sa.Column('services', sa.Float(), nullable=True, comment='Number of services in system at end of year.'),
     sa.ForeignKeyConstraint(['report_id', 'report_date', 'operator_id_phmsa'], ['core_phmsagas__yearly_distribution_operators.report_id', 'core_phmsagas__yearly_distribution_operators.report_date', 'core_phmsagas__yearly_distribution_operators.operator_id_phmsa'], name=op.f('fk__core_phmsagas__yearly_distribution_by_install_decade_report_id_core_phmsagas__yearly_distribution_operators')),
     sa.PrimaryKeyConstraint('report_id', 'report_date', 'operator_id_phmsa', 'operating_state', 'install_decade', name=op.f('pk__core_phmsagas__yearly_distribution_by_install_decade'))
     )
@@ -1152,7 +932,7 @@ def upgrade() -> None:
     sa.Column('operating_state', sa.Text(), nullable=True, comment='State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.'),
     sa.Column('material', sa.Enum('unprotected_steel_bare', 'unprotected_steel_coated', 'cathodically_protected_steel_bare', 'cathodically_protected_steel_coated', 'steel', 'pvc', 'pe', 'abs', 'other_plastic', 'plastic', 'cast_or_wrought_iron', 'wrought_iron', 'ductile_iron', 'copper', 'other_alt', 'other_material', 'other', 'reconditioned_cast_iron', 'cast_iron', 'all_materials', 'total'), nullable=True, comment='The material of the gas distribution pipe. The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).'),
     sa.Column('mains_miles', sa.Float(), nullable=True, comment='The miles of mains distribution pipeline.'),
-    sa.Column('services', sa.Float(), nullable=True, comment='Number of end in system at end of year.'),
+    sa.Column('services', sa.Float(), nullable=True, comment='Number of services in system at end of year.'),
     sa.ForeignKeyConstraint(['report_id', 'report_date', 'operator_id_phmsa'], ['core_phmsagas__yearly_distribution_operators.report_id', 'core_phmsagas__yearly_distribution_operators.report_date', 'core_phmsagas__yearly_distribution_operators.operator_id_phmsa'], name=op.f('fk__core_phmsagas__yearly_distribution_by_material_report_id_core_phmsagas__yearly_distribution_operators'))
     )
     op.create_table('_core_phmsagas__yearly_distribution_by_material_and_size',
@@ -1164,7 +944,7 @@ def upgrade() -> None:
     sa.Column('main_size', sa.Enum('0.5_in_or_less', '0.5_to_1_in', '1_in_or_less', '1_to_2_in', '2_in_or_less', '2_to_4_in', '4_to_6_in', '4_to_8_in', '8_in', '8_to_12_in', '10_in', '12_in', 'over_12_in', 'total', 'unknown'), nullable=True, comment='Size range of mains. The size ranges have changed slightly over the years (ex: before 1984 they reported 0.5_in_or_less whereas after they reported 1_in_or_less).'),
     sa.Column('material', sa.Enum('unprotected_steel_bare', 'unprotected_steel_coated', 'cathodically_protected_steel_bare', 'cathodically_protected_steel_coated', 'steel', 'pvc', 'pe', 'abs', 'other_plastic', 'plastic', 'cast_or_wrought_iron', 'wrought_iron', 'ductile_iron', 'copper', 'other_alt', 'other_material', 'other', 'reconditioned_cast_iron', 'cast_iron', 'all_materials', 'total'), nullable=True, comment='The material of the gas distribution pipe. The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).'),
     sa.Column('mains_miles', sa.Float(), nullable=True, comment='The miles of mains distribution pipeline.'),
-    sa.Column('services', sa.Float(), nullable=True, comment='Number of end in system at end of year.'),
+    sa.Column('services', sa.Float(), nullable=True, comment='Number of services in system at end of year.'),
     sa.Column('main_other_material_detail', sa.Text(), nullable=True, comment='A free-form text field containing notes about the other material type. This column should only contain values in it for rows with other as the material type listed.'),
     sa.ForeignKeyConstraint(['report_id', 'report_date', 'operator_id_phmsa'], ['core_phmsagas__yearly_distribution_operators.report_id', 'core_phmsagas__yearly_distribution_operators.report_date', 'core_phmsagas__yearly_distribution_operators.operator_id_phmsa'], name=op.f('fk__core_phmsagas__yearly_distribution_by_material_and_size_report_id_core_phmsagas__yearly_distribution_operators'))
     )
@@ -1207,7 +987,7 @@ def upgrade() -> None:
     sa.Column('leak_severity', sa.Enum('all_leaks', 'hazardous_leaks'), nullable=True, comment='Whether or not the leak described in this record are all leaks or hazardous leaks.'),
     sa.Column('leak_source', sa.Enum('construction_defect', 'corrosion_failure', 'equipment_failure', 'excavation_damage', 'incorrect_operation', 'material_defect', 'natural_force_damage', 'other', 'other_outside_force', 'outside_force', 'pipe_weld_joint_failure', 'third_party', 'total'), nullable=True, comment='The cause of the leaks.'),
     sa.Column('mains', sa.Float(), nullable=True, comment='The number of mains distribution pipeline.'),
-    sa.Column('services', sa.Float(), nullable=True, comment='Number of end in system at end of year.'),
+    sa.Column('services', sa.Float(), nullable=True, comment='Number of services in system at end of year.'),
     sa.ForeignKeyConstraint(['report_id', 'report_date', 'operator_id_phmsa'], ['core_phmsagas__yearly_distribution_operators.report_id', 'core_phmsagas__yearly_distribution_operators.report_date', 'core_phmsagas__yearly_distribution_operators.operator_id_phmsa'], name=op.f('fk__core_phmsagas__yearly_distribution_leaks_report_id_core_phmsagas__yearly_distribution_operators'))
     )
     op.create_table('_core_phmsagas__yearly_distribution_misc',
@@ -1227,27 +1007,6 @@ def upgrade() -> None:
     sa.Column('unaccounted_for_gas_fraction', sa.Float(), nullable=True, comment='Unaccounted for gas as a fraction of total consumption for the 12 months ending June 30 of the reporting year. Calculated as follows: Take the sum of: (purchased gas + produced gas) minus (customer use + company use + appropriate adjustments). Then divide by the sum of (customer use + company use + appropriate adjustments). Prior to 2017, this field was calculated with a different deonominator (purchased gas + produced gas). The time period between 2010-2017 having this different calculation method ensured that there was no records that had a negative fraction. For all the other reporting years there are known and expected negative values in this column.'),
     sa.Column('excavation_tickets', sa.Integer(), nullable=True, comment='Number of Excavation Tickets received by the operator during the year, (i.e., receipt of information by the operator from the notification center).'),
     sa.ForeignKeyConstraint(['report_id', 'report_date', 'operator_id_phmsa'], ['core_phmsagas__yearly_distribution_operators.report_id', 'core_phmsagas__yearly_distribution_operators.report_date', 'core_phmsagas__yearly_distribution_operators.operator_id_phmsa'], name=op.f('fk__core_phmsagas__yearly_distribution_misc_report_id_core_phmsagas__yearly_distribution_operators'))
-    )
-    op.create_table('core_eia860__scd_emissions_control_equipment',
-    sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
-    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
-    sa.Column('emission_control_id_pudl', sa.Float(), nullable=False, comment='A PUDL-generated ID used to distinguish emission control units in the same report year and plant id. This ID should not be used to track units over time or between plants.'),
-    sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
-    sa.Column('emission_control_equipment_type_code', sa.Text(), nullable=True, comment='Short code indicating the type of emission control equipment installed.'),
-    sa.Column('operational_status_code', sa.Text(), nullable=True, comment='The operating status of the asset.'),
-    sa.Column('mercury_control_id_eia', sa.Text(), nullable=True, comment='Mercury control identification number. This ID is not a unique identifier.'),
-    sa.Column('nox_control_id_eia', sa.Text(), nullable=True, comment='Nitrogen oxide control identification number. This ID is not a unique identifier.'),
-    sa.Column('particulate_control_id_eia', sa.Text(), nullable=True, comment='Particulate matter control identification number. This ID is not a unique identifier.'),
-    sa.Column('so2_control_id_eia', sa.Text(), nullable=True, comment='Sulfur dioxide control identification number. This ID is not a unique identifier.'),
-    sa.Column('acid_gas_control', sa.Boolean(), nullable=True, comment='Indicates whether the emissions control equipment controls acid (HCl) gas.'),
-    sa.Column('emission_control_equipment_cost', sa.Float(), nullable=True, comment='The total cost to install a piece of emission control equipment.'),
-    sa.Column('emission_control_operating_date', sa.Date(), nullable=True, comment='The date a piece of emissions control equipment began operating. Derived from month and year columns in the raw data.'),
-    sa.Column('emission_control_retirement_date', sa.Date(), nullable=True, comment='The expected or actual retirement date for a piece of emissions control equipment. Derived from month and year columns in the raw data.'),
-    sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk_core_eia860__scd_emissions_control_equipment_data_maturity_core_pudl__codes_data_maturities')),
-    sa.ForeignKeyConstraint(['emission_control_equipment_type_code'], ['core_eia__codes_emission_control_equipment_types.code'], name=op.f('fk_core_eia860__scd_emissions_control_equipment_emission_control_equipment_type_code_core_eia__codes_emission_control_equipment_types')),
-    sa.ForeignKeyConstraint(['operational_status_code'], ['core_eia__codes_operational_status.code'], name=op.f('fk_core_eia860__scd_emissions_control_equipment_operational_status_code_core_eia__codes_operational_status')),
-    sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk_core_eia860__scd_emissions_control_equipment_plant_id_eia_core_eia__entity_plants')),
-    sa.PrimaryKeyConstraint('report_year', 'plant_id_eia', 'emission_control_id_pudl', name=op.f('pk_core_eia860__scd_emissions_control_equipment'))
     )
     op.create_table('core_eia860__scd_utilities',
     sa.Column('utility_id_eia', sa.Integer(), nullable=False, comment='The EIA Utility Identification number.'),
@@ -1918,53 +1677,481 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_core_pudl__assn_utilities_plants_utility_id_pudl_core_pudl__entity_utilities_pudl')),
     sa.PrimaryKeyConstraint('utility_id_pudl', 'plant_id_pudl', name=op.f('pk_core_pudl__assn_utilities_plants'))
     )
-    op.create_table('core_rus7__yearly_investments',
+    op.create_table('core_rus12__monthly_demand_and_energy_at_delivery_points',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('delivery_recipient', sa.Text(), nullable=False, comment='The recipient of the delivered energy or demand.'),
+    sa.Column('delivered_demand_mw', sa.Float(), nullable=True, comment='The amount of demand delivered in MW.'),
+    sa.Column('delivered_energy_mwh', sa.Float(), nullable=True, comment='The amount of energy delivered in MWh.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__monthly_demand_and_energy_at_delivery_points_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'delivery_recipient', name=op.f('pk_core_rus12__monthly_demand_and_energy_at_delivery_points'))
+    )
+    op.create_table('core_rus12__monthly_demand_and_energy_at_power_sources',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('energy_output_mwh', sa.Float(), nullable=True, comment='The amount of energy output in MWh.'),
+    sa.Column('peak_demand_mw', sa.Float(), nullable=True, comment='Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.'),
+    sa.Column('peak_demand_date', sqlite.DATETIME(), nullable=True, comment='The date of the peak demand.'),
+    sa.Column('is_peak_coincident', sa.Boolean(), nullable=True, comment='Whether or not the peak_mw is coincident or non-coincident peak.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__monthly_demand_and_energy_at_power_sources_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus12__monthly_demand_and_energy_at_power_sources'))
+    )
+    op.create_table('core_rus12__yearly_balance_sheet_assets',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('asset_type', sa.Enum('utility_plant_in_service', 'construction_work_in_progress', 'total_utility_plant', 'depreciation_and_amortization', 'net_utility_plant', 'non_utility_property_asset', 'investments_subsidiary_companies', 'investments_associated_orgs_patronage_capital', 'investments_associated_orgs_other_general_funds', 'investments_associated_orgs_other_non_general_funds', 'investments_economic_development', 'investments_other', 'special_funds', 'total_other_property_and_investments', 'cash_general_funds', 'cash_construction_funds_trustee', 'special_deposits', 'investments_temporary', 'notes_receivable', 'accounts_receivable_sales_of_energy', 'accounts_receivable_other', 'fuel_stock', 'renewable_energy_credits', 'materials_and_supplies', 'prepayments', 'other_current_and_accrued', 'total_current_and_accrued', 'unamortized_debt_discount_property_losses', 'regulatory', 'other_deferred_debits', 'accumulated_deferred_income_taxes_debits', 'total'), nullable=False, comment='Type of asset being reported to the core_rus12__yearly_balance_sheet_assets table.'),
+    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_balance_sheet_assets_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'asset_type', name=op.f('pk_core_rus12__yearly_balance_sheet_assets'))
+    )
+    op.create_table('core_rus12__yearly_balance_sheet_liabilities',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('liability_type', sa.Enum('memberships', 'assigned_and_assignable_patronage_capital', 'retired_this_year_patronage_capital', 'retired_prior_years_patronage_capital', 'patronage_capital', 'operating_margins_prior_years', 'operating_margins_current_year', 'non_operating_margins', 'other_margins_and_equities', 'total_margins_and_equities', 'long_term_debt_rus', 'payments_unapplied', 'long_term_debt_rus_economic_development', 'long_term_debt_ffb_rus_guaranteed', 'long_term_debt_other_rus_guaranteed', 'long_term_debt_other', 'total_long_term_debt', 'noncurrent_obligations_under_capital_leases', 'accumulated_operating_provisions', 'total_other_noncurrent_liabilities', 'notes_payable', 'accounts_payable', 'current_maturities_long_term_debt', 'rural_development', 'current_maturities_capital_leases', 'taxes_accrued', 'interest_accrued', 'other_current_and_accrued', 'total_current_and_accrued', 'deferred_credits', 'accumulated_deferred_income_taxes_credits', 'total_liabilities_and_other_credits'), nullable=False, comment='Type of liability being reported to the core_rus12__yearly_balance_sheet_liabilities table.'),
+    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_balance_sheet_liabilities_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'liability_type', name=op.f('pk_core_rus12__yearly_balance_sheet_liabilities'))
+    )
+    op.create_table('core_rus12__yearly_external_financial_risk_ratio',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('external_financial_risk_ratio', sa.Float(), nullable=True, comment='total investments + loan guarantee balances / total utility plant assets. This ratio shows how much a utility is financially exposed to outside entities relative to its own assets.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_external_financial_risk_ratio_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus12__yearly_external_financial_risk_ratio'))
+    )
+    op.create_table('core_rus12__yearly_investments',
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
-    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
     sa.Column('investment_description', sa.Text(), nullable=True, comment='Description of investment. This is a free-form text field and thus contains a wide variety of values.'),
     sa.Column('investment_type_code', sa.Integer(), nullable=True, comment='Investment type code.'),
     sa.Column('included_investments', sa.Float(), nullable=True, comment='Included investment.'),
     sa.Column('excluded_investments', sa.Float(), nullable=True, comment='Excluded investment.'),
     sa.Column('income_or_loss', sa.Float(), nullable=True, comment='Income or loss from investment.'),
-    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.'),
-    sa.ForeignKeyConstraint(['investment_type_code'], ['core_rus7__codes_investment_types.code'], name=op.f('fk_core_rus7__yearly_investments_investment_type_code_core_rus7__codes_investment_types'))
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment or loan is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_investments_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.ForeignKeyConstraint(['investment_type_code'], ['core_rus__codes_investment_types.code'], name=op.f('fk_core_rus12__yearly_investments_investment_type_code_core_rus__codes_investment_types'))
+    )
+    op.create_table('core_rus12__yearly_lines_stations_labor_materials_cost',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('labor_or_material', sa.Enum('labor', 'material'), nullable=False, comment='Indicates whether the cost reported is for labor or material.'),
+    sa.Column('operation_or_maintenance', sa.Enum('operation', 'maintenance'), nullable=False, comment='Indicates whether the expenditure is for operation or maintenance.'),
+    sa.Column('lines_or_stations', sa.Enum('lines', 'stations'), nullable=False, comment='Indicates whether the cost reported pertains to  lines or stations.'),
+    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_lines_stations_labor_materials_cost_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'labor_or_material', 'operation_or_maintenance', 'lines_or_stations', name=op.f('pk_core_rus12__yearly_lines_stations_labor_materials_cost'))
+    )
+    op.create_table('core_rus12__yearly_loans',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('loan_recipient', sa.Text(), nullable=True, comment='The organization that received a loan.'),
+    sa.Column('loan_maturity_date', sa.Date(), nullable=True, comment='The date on which a loan is scheduled to be fully paid.'),
+    sa.Column('loan_original_amount', sa.Float(), nullable=True, comment='The original amount of a loan.'),
+    sa.Column('loan_balance', sa.Float(), nullable=True, comment='The amount of money still owned on a loan at the end of the reporting year.'),
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment or loan is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.'),
+    sa.Column('is_loan_guarantee', sa.Boolean(), nullable=True, comment='Indicates a third-party loan that the reporting utility (referred as a borrower) has co-signed, taking on responsibility for repayment if the primary borrower defaults.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_loans_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('core_rus12__yearly_long_term_debt',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('debt_description', sa.Text(), nullable=True, comment='Description of debt or loan. On the original form, there are nine provided descriptions and a section to add other free-form descriptions.'),
+    sa.Column('debt_ending_balance', sa.Float(), nullable=True, comment='The amount of principal still owned on the debt at the end of the report year.'),
+    sa.Column('debt_interest', sa.Float(), nullable=True, comment='The interest expense on the debt for the report year.'),
+    sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.'),
+    sa.Column('debt_total', sa.Float(), nullable=True, comment='The total amount of debt.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_long_term_debt_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('core_rus12__yearly_meeting_and_board',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('last_annual_meeting_date', sqlite.DATETIME(), nullable=True, comment='The date of the last annual meeting.'),
+    sa.Column('members_num', sa.Integer(), nullable=True, comment='The total number of members.'),
+    sa.Column('members_present_at_meeting_num', sa.Integer(), nullable=True, comment='The number of members present at the last annual meeting.'),
+    sa.Column('was_quorum_present', sa.Boolean(), nullable=True, comment='Whether or not quorum was met.'),
+    sa.Column('members_voting_by_proxy_or_mail_num', sa.Integer(), nullable=True, comment='The number of members voting by mail or by proxy.'),
+    sa.Column('board_members_num', sa.Integer(), nullable=True, comment='The total number of board members.'),
+    sa.Column('fees_and_expenses_for_board_members', sa.Integer(), nullable=True, comment='The total amount of fees and expenses for board members.'),
+    sa.Column('does_manager_have_written_contract', sa.Boolean(), nullable=True, comment="Whether or not the RUS borrower's manager has a written contract."),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_meeting_and_board_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus12__yearly_meeting_and_board'))
+    )
+    op.create_table('core_rus12__yearly_plant_costs',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('cost_group', sa.Enum('total', 'capex', 'opex'), nullable=True, comment='High-level category of cost type.'),
+    sa.Column('cost_type', sa.Enum('allowances', 'coal_fuel', 'coolants_and_water', 'depreciation', 'electric', 'energy_for_compressed_air', 'energy_for_pumped_storage', 'fuel', 'gas_fuel', 'generation', 'hydraulic', 'interest', 'less_fuel_acquisition_adjustment', 'maintenance_boiler_plant', 'maintenance_electric_plant', 'maintenance_generating_and_electric_plant', 'maintenance_miscellaneous_plant', 'maintenance_other_plant', 'maintenance_reactor_plant_equipment', 'maintenance_reservoirs_dams_waterways', 'maintenance_structures', 'maintenance_supervision_and_engineering', 'maintenance_total', 'miscellaneous_power_generation', 'net_fuel', 'non_fuels_subtotal', 'oil_fuel', 'operations_total', 'other_fuel', 'other_generation', 'other_nuclear_power', 'plant_acquisition_adjustment', 'power', 'reactor_credits', 'rents', 'steam', 'steam_other_sources', 'steam_power', 'supervision_and_engineering', 'total', 'total_fixed', 'total_fuel', 'water_for_power'), nullable=True, comment='Detailed category of cost type.'),
+    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
+    sa.Column('cost_per_mwh', sa.Float(), nullable=True, comment='Unit cost of energy production in cost per MWh'),
+    sa.Column('cost_per_mmbtu', sa.Float(), nullable=True, comment='Unit cost of energy production in cost per MMBTU'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_plant_costs_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('core_rus12__yearly_plant_factors_and_maximum_demand',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
+    sa.Column('capacity_factor_running', sa.Float(), nullable=True, comment='Fraction of potential generation over the time period a plant was in operation. Actual energy generated / nameplate capacity * hours in operation.'),
+    sa.Column('load_factor', sa.Float(), nullable=True, comment='Fraction of consumption vs demand reported for a plant over a given timeframe. Total energy consumed / peak demand * hours.'),
+    sa.Column('peak_gross_demand_mw', sa.Float(), nullable=True, comment='The highest average power output recorded over any single 15 minute interval during the reporting period.'),
+    sa.Column('peak_gross_demand_nameplate_mw', sa.Float(), nullable=True, comment='The theoretical or nameplate peak the plant could produce under the best operating conditions during the reporting period.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_plant_factors_and_maximum_demand_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('core_rus12__yearly_plant_labor',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('employees_full_time_num', sa.Integer(), nullable=True, comment='Number of employees hired full-time for normal operations of the system.'),
+    sa.Column('employees_part_time_num', sa.Integer(), nullable=True, comment='Number employees regularly employed on a part-time basis. Exclude employees hired for short periods of time to complete special jobs.'),
+    sa.Column('employee_hours_worked_total', sa.Float(), nullable=True, comment='Total number of hours worked by employees.'),
+    sa.Column('payroll_maintenance', sa.Float(), nullable=True, comment='The amount of payroll spent on plant maintenance.'),
+    sa.Column('payroll_operations', sa.Float(), nullable=True, comment='The amount of payroll spent on plant operations.'),
+    sa.Column('payroll_other_accounts', sa.Float(), nullable=True, comment='The amount of plant payroll spent on accounts other than maintenance and operations.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_plant_labor_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('core_rus12__yearly_plant_operations_by_borrower',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('unit_id_rus', sa.Integer(), nullable=True, comment='RUS-assigned unit identification code.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
+    sa.Column('gross_generation_mwh', sa.Float(), nullable=True, comment='Gross electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.Column('ownership_pct', sa.Float(), nullable=True, comment='Percentage of the plant owned by the respondent.'),
+    sa.Column('is_full_ownership_portion', sa.Boolean(), nullable=True, comment='Whether or not the plant record represents the full plant - regardless of whether its fully owned by the borrower.'),
+    sa.Column('is_partly_owned_by_borrower', sa.Boolean(), nullable=True, comment='Whether or not the plant record is partially owned by the borrower. This column was not reported before 2009.'),
+    sa.Column('fuel_consumption_coal_lbs', sa.Float(), nullable=True, comment='Annual pounds of coal consumed for fuel.This field is only reported for plant_type steam.'),
+    sa.Column('fuel_consumption_gas_cubic_feet', sa.Float(), nullable=True, comment="Annual cubic feet of natural gas consumed for fuel.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('fuel_consumption_oil_gallons', sa.Float(), nullable=True, comment="Annual gallons of oil consumed for fuel.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('fuel_consumption_other', sa.Float(), nullable=True, comment="Annual other fuel consumed. Neither units nor type of fuel are documented.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('operating_hours_in_service', sa.Float(), nullable=True, comment='Number of operating hours in service.'),
+    sa.Column('operating_hours_on_standby', sa.Float(), nullable=True, comment='Number of operating hours on standby.'),
+    sa.Column('operating_hours_out_of_service_scheduled', sa.Float(), nullable=True, comment='Number of operating hours out of service which were scheduled.'),
+    sa.Column('operating_hours_out_of_service_unscheduled', sa.Float(), nullable=True, comment='Number of operating hours out of service which were unscheduled.'),
+    sa.Column('times_started', sa.Float(), nullable=True, comment="Number of times the plant was started. This field is only reported for plant_type's steam and nuclear."),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_plant_operations_by_borrower_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('core_rus12__yearly_plant_operations_by_plant',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('unit_id_rus', sa.Integer(), nullable=True, comment='RUS-assigned unit identification code.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
+    sa.Column('gross_generation_mwh', sa.Float(), nullable=True, comment='Gross electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.Column('ownership_pct', sa.Float(), nullable=True, comment='Percentage of the plant owned by the respondent.'),
+    sa.Column('is_partly_owned_by_borrower', sa.Boolean(), nullable=True, comment='Whether or not the plant record is partially owned by the borrower. This column was not reported before 2009.'),
+    sa.Column('fuel_consumption_coal_lbs', sa.Float(), nullable=True, comment='Annual pounds of coal consumed for fuel.This field is only reported for plant_type steam.'),
+    sa.Column('fuel_consumption_gas_cubic_feet', sa.Float(), nullable=True, comment="Annual cubic feet of natural gas consumed for fuel.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('fuel_consumption_oil_gallons', sa.Float(), nullable=True, comment="Annual gallons of oil consumed for fuel.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('fuel_consumption_other', sa.Float(), nullable=True, comment="Annual other fuel consumed. Neither units nor type of fuel are documented.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('operating_hours_in_service', sa.Float(), nullable=True, comment='Number of operating hours in service.'),
+    sa.Column('operating_hours_on_standby', sa.Float(), nullable=True, comment='Number of operating hours on standby.'),
+    sa.Column('operating_hours_out_of_service_scheduled', sa.Float(), nullable=True, comment='Number of operating hours out of service which were scheduled.'),
+    sa.Column('operating_hours_out_of_service_unscheduled', sa.Float(), nullable=True, comment='Number of operating hours out of service which were unscheduled.'),
+    sa.Column('times_started', sa.Float(), nullable=True, comment="Number of times the plant was started. This field is only reported for plant_type's steam and nuclear."),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_plant_operations_by_plant_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('core_rus12__yearly_renewable_plants',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=False, comment='Name of the plant as reported to RUS.'),
+    sa.Column('prime_mover_id', sa.Integer(), nullable=False, comment='Unique numeric identifier for each prime mover type used by RUS borrowers.'),
+    sa.Column('prime_mover_type', sa.Enum('Hydro', 'Internal Combustion', 'Large Wind', 'Steam', 'Photovoltaic'), nullable=True, comment='Type of prime mover (e.g. Hydro, Internal Combustion).'),
+    sa.Column('primary_renewable_fuel_type_id', sa.Integer(), nullable=True, comment='Unique numeric identifier for each renewable fuel type.'),
+    sa.Column('primary_renewable_fuel_type', sa.Enum('Hydro', 'Methane - landfill gas', 'Wind', 'Biomass - wood', 'Methane - waste', 'Hybrid', 'Solar - photovoltaic', 'Solar - thermal generation', 'Other'), nullable=True, comment='Primary renewable fuel type used by the plant.'),
+    sa.Column('renewable_fuel_pct', sa.Float(), nullable=True, comment='Percentage of renewable fuel used.'),
+    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
+    sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
+    sa.Column('employees_num', sa.Integer(), nullable=True, comment='Number of employees.'),
+    sa.Column('opex_per_mwh', sa.Float(), nullable=True, comment='Total production expenses (USD per MWh generated).'),
+    sa.Column('power_cost_per_mwh', sa.Float(), nullable=True, comment='The cost of power per mwh.'),
+    sa.Column('invested', sa.Float(), nullable=True, comment='The amount of money invested.'),
+    sa.Column('ownership_pct', sa.Float(), nullable=True, comment='Percentage of the plant owned by the respondent.'),
+    sa.Column('rus_funding', sa.Float(), nullable=True, comment='Amount of funding received from the Rural Utilities Service (RUS).'),
+    sa.Column('comments', sa.Text(), nullable=True, comment='General comments field.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_renewable_plants_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'plant_name_rus', 'prime_mover_id', name=op.f('pk_core_rus12__yearly_renewable_plants'))
+    )
+    op.create_table('core_rus12__yearly_sources_and_distribution',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('source_of_energy', sa.Enum('energy_available_for_sale', 'energy_used_by_borrower', 'purchased_power', 'total_energy_accounted', 'total_energy_losses', 'total_plant', 'total_sales', 'delivered_out_of_system_gross', 'net_interchange', 'received_into_system_gross', 'delivered_out_of_system_wheeling', 'net_energy_wheeled', 'received_into_system_wheeling', 'energy_furnished_without_charge'), nullable=False, comment='The source of energy (not plant type).'),
+    sa.Column('net_energy_received_mwh', sa.Float(), nullable=True, comment='The net amount of energy received into the system.'),
+    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_sources_and_distribution_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'source_of_energy', name=op.f('pk_core_rus12__yearly_sources_and_distribution'))
+    )
+    op.create_table('core_rus12__yearly_sources_and_distribution_by_plant_type',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=False, comment='Type of plant.'),
+    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
+    sa.Column('plant_num', sa.Integer(), nullable=True, comment='Number of plants.'),
+    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
+    sa.Column('net_energy_received_mwh', sa.Float(), nullable=True, comment='The net amount of energy received into the system.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_sources_and_distribution_by_plant_type_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'plant_type', name=op.f('pk_core_rus12__yearly_sources_and_distribution_by_plant_type'))
+    )
+    op.create_table('core_rus12__yearly_statement_of_operations',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('opex_group', sa.Text(), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``opex_type`` column.'),
+    sa.Column('opex_type', sa.Text(), nullable=False, comment='Type of item from the statement of operations.'),
+    sa.Column('opex_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
+    sa.Column('opex_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
+    sa.Column('opex_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus12__yearly_statement_of_operations_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'opex_group', 'opex_type', name=op.f('pk_core_rus12__yearly_statement_of_operations'))
+    )
+    op.create_table('core_rus7__yearly_balance_sheet_assets',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('asset_type', sa.Enum('utility_plant_in_service', 'construction_work_in_progress', 'total_utility_plant', 'net_utility_plant', 'depreciation_and_amortization', 'non_utility_property', 'investments_subsidiary_companies', 'investments_associated_orgs_patronage_capital', 'investments_associated_orgs_other_general_funds', 'investments_associated_orgs_other_non_general_funds', 'investments_economic_development', 'investments_other', 'special_funds', 'total_other_property_and_investments', 'cash_general_funds', 'cash_construction_funds_trustee', 'special_deposits', 'investments_temporary', 'notes_receivable', 'accounts_receivable_sales_of_energy', 'accounts_receivable_other', 'renewable_energy_credits', 'materials_and_supplies', 'prepayments', 'other_current_and_accrued', 'total_current_and_accrued', 'regulatory', 'other_deferred_debits', 'total'), nullable=False, comment='Type of asset being reported to the core_rus7__yearly_balance_sheet_assets table.'),
+    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_balance_sheet_assets_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'asset_type', name=op.f('pk_core_rus7__yearly_balance_sheet_assets'))
+    )
+    op.create_table('core_rus7__yearly_balance_sheet_liabilities',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('liability_type', sa.Enum('memberships', 'patronage_capital', 'operating_margins_prior_years', 'operating_margins_current_year', 'non_operating_margins', 'other_margins_and_equities', 'total_margins_and_equities', 'long_term_debt_rus', 'long_term_debt_ffb_rus_guaranteed', 'long_term_debt_other_rus_guaranteed', 'long_term_debt_other', 'long_term_debt_rus_economic_development', 'payments_unapplied', 'total_long_term_debt', 'noncurrent_obligations_under_capital_leases', 'noncurrent_obligations_asset_retirement', 'total_noncurrent_obligations', 'notes_payable', 'accounts_payable', 'consumer_deposits', 'current_maturities_long_term_debt', 'economic_development', 'current_maturities_capital_leases', 'other_current_and_accrued_liabilities', 'total_current_and_accrued_liabilities', 'regulatory', 'other_deferred_credits', 'total_liabilities_and_other_credits'), nullable=False, comment='Type of liability being reported to the core_rus7__yearly_balance_sheet_liabilities table.'),
+    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_balance_sheet_liabilities_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'liability_type', name=op.f('pk_core_rus7__yearly_balance_sheet_liabilities'))
+    )
+    op.create_table('core_rus7__yearly_customer_energy_efficiency_and_conservation_loans',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('loan_status', sa.Enum('loan_default', 'loan_delinquency'), nullable=False, comment='The repayment status of a loan.'),
+    sa.Column('actual_pct', sa.Float(), nullable=True, comment='Observed percentage.'),
+    sa.Column('anticipated_pct', sa.Float(), nullable=True, comment='Expected percentage.'),
+    sa.Column('ytd_dollars', sa.Float(), nullable=True, comment='Balance this current year, in U.S. dollars.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_customer_energy_efficiency_and_conservation_loans_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'loan_status', name=op.f('pk_core_rus7__yearly_customer_energy_efficiency_and_conservation_loans'))
+    )
+    op.create_table('core_rus7__yearly_distribution_services',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('service_status', sa.Enum('connected', 'idle', 'retired', 'total'), nullable=False, comment='Status of services (e.g., idle, retired) in report period. Idle services exclude seasonals.'),
+    sa.Column('services', sa.Float(), nullable=True, comment='Number of services in system at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_distribution_services_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'service_status', name=op.f('pk_core_rus7__yearly_distribution_services'))
+    )
+    op.create_table('core_rus7__yearly_employee_statistics',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('employees_fte_num', sa.Integer(), nullable=True, comment='The number of full time employees.'),
+    sa.Column('employee_hours_worked_regular_time', sa.Integer(), nullable=True, comment='The number of regular (non-overtime) hours worked by employees.'),
+    sa.Column('employee_hours_worked_over_time', sa.Integer(), nullable=True, comment='The number of overtime hours worked by employees.'),
+    sa.Column('payroll_expensed', sa.Integer(), nullable=True, comment='The amount of payroll spent that was expensed.'),
+    sa.Column('payroll_capitalized', sa.Integer(), nullable=True, comment='The amount of payroll spent that was capitalized.'),
+    sa.Column('payroll_other', sa.Integer(), nullable=True, comment='The amount of payroll spent that was funded by other means - not capitalized or expensed.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_employee_statistics_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus7__yearly_employee_statistics'))
+    )
+    op.create_table('core_rus7__yearly_energy_efficiency',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('customer_class', sa.Enum('public_other', 'public_street_lighting', 'residential_excluding_seasonal', 'irrigation', 'sales_for_resale_rus_borrowers', 'commercial_and_industrial_small', 'other_electric', 'commercial_and_industrial_large', 'residential_seasonal', 'sales_for_resale_other', 'total', 'transmission'), nullable=False, comment='High level categorization of customer type.'),
+    sa.Column('observation_period', sa.Enum('avg', 'new_in_report_year', 'report_month', 'report_year', 'ytd', 'december', 'ytd_budget', 'cumulative'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
+    sa.Column('customers_num', sa.Float(), nullable=True, comment='Number of customers.'),
+    sa.Column('invested', sa.Float(), nullable=True, comment='The amount of money invested.'),
+    sa.Column('savings_mmbtu', sa.Float(), nullable=True, comment='The estimated amount of energy savings from energy efficiency programs. Warning: We found values much larger than expected that we have not yet cleaned - this is likely a reporting unit error.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_energy_efficiency_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', 'observation_period', name=op.f('pk_core_rus7__yearly_energy_efficiency'))
+    )
+    op.create_table('core_rus7__yearly_energy_purchased',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('purchased_mwh', sa.Float(), nullable=True, comment='The total electricity purchased.'),
+    sa.Column('purchased_energy_cost_total', sa.Float(), nullable=True, comment='The total cost of purchased energy. Includes fuel cost adjustment and wheeling and other charges.'),
+    sa.Column('average_energy_cost_dollars_per_mwh', sa.Float(), nullable=True, comment='The average cost of fuel per MWh.'),
+    sa.Column('wheeling_and_other_charges', sa.Float(), nullable=True, comment='The cost of wheeling and other charges or credits related to fuel. Included in the total cost.'),
+    sa.Column('fuel_cost_adjustment', sa.Float(), nullable=True, comment="The variable fuel surcharge component of a distribution cooperative's wholesale purchased power bill, reflecting pass-through of actual fuel cost fluctuations from the supplying utility, reported separately from base power charges and wheeling costs. Included in the total cost."),
+    sa.Column('fuel_type_code_rus', sa.Integer(), nullable=True, comment='Unique numeric identifier for RUS fuel types.'),
+    sa.Column('is_supplier_eia_respondent', sa.Boolean(), nullable=True, comment='Whether the utility supplying energy to a RUS borrower is an EIA respondent.'),
+    sa.Column('supplier_code_rus', sa.Text(), nullable=True, comment='Unique numeric identifier for the utility supplying energy to a RUS borrower.'),
+    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
+    sa.Column('comments', sa.Text(), nullable=True, comment='General comments field.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_energy_purchased_borrower_id_rus_core_rus7__entity_borrowers'))
+    )
+    op.create_table('core_rus7__yearly_external_financial_risk_ratio',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('external_financial_risk_ratio', sa.Float(), nullable=True, comment='total investments + loan guarantee balances / total utility plant assets. This ratio shows how much a utility is financially exposed to outside entities relative to its own assets.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_external_financial_risk_ratio_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus7__yearly_external_financial_risk_ratio'))
+    )
+    op.create_table('core_rus7__yearly_investments',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('investment_description', sa.Text(), nullable=True, comment='Description of investment. This is a free-form text field and thus contains a wide variety of values.'),
+    sa.Column('investment_type_code', sa.Integer(), nullable=True, comment='Investment type code.'),
+    sa.Column('included_investments', sa.Float(), nullable=True, comment='Included investment.'),
+    sa.Column('excluded_investments', sa.Float(), nullable=True, comment='Excluded investment.'),
+    sa.Column('income_or_loss', sa.Float(), nullable=True, comment='Income or loss from investment.'),
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment or loan is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_investments_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.ForeignKeyConstraint(['investment_type_code'], ['core_rus__codes_investment_types.code'], name=op.f('fk_core_rus7__yearly_investments_investment_type_code_core_rus__codes_investment_types'))
+    )
+    op.create_table('core_rus7__yearly_loans',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('loan_recipient', sa.Text(), nullable=True, comment='The organization that received a loan.'),
+    sa.Column('loan_balance', sa.Float(), nullable=True, comment='The amount of money still owned on a loan at the end of the reporting year.'),
+    sa.Column('loan_maturity_date', sa.Date(), nullable=True, comment='The date on which a loan is scheduled to be fully paid.'),
+    sa.Column('loan_original_amount', sa.Float(), nullable=True, comment='The original amount of a loan.'),
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment or loan is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.'),
+    sa.Column('is_loan_guarantee', sa.Boolean(), nullable=True, comment='Indicates a third-party loan that the reporting utility (referred as a borrower) has co-signed, taking on responsibility for repayment if the primary borrower defaults.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_loans_borrower_id_rus_core_rus7__entity_borrowers'))
+    )
+    op.create_table('core_rus7__yearly_long_term_debt',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('debt_description', sa.Text(), nullable=True, comment='Description of debt or loan. On the original form, there are nine provided descriptions and a section to add other free-form descriptions.'),
+    sa.Column('debt_ending_balance', sa.Float(), nullable=True, comment='The amount of principal still owned on the debt at the end of the report year.'),
+    sa.Column('debt_interest', sa.Float(), nullable=True, comment='The interest expense on the debt for the report year.'),
+    sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.'),
+    sa.Column('debt_total', sa.Float(), nullable=True, comment='The total amount of debt.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_long_term_debt_borrower_id_rus_core_rus7__entity_borrowers'))
+    )
+    op.create_table('core_rus7__yearly_long_term_leases',
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('lending_organization', sa.Text(), nullable=True, comment='The organization that provided a lease or loan.'),
+    sa.Column('property_type', sa.Text(), nullable=True, comment='The type of property leased.'),
+    sa.Column('rental_cost_ytd', sa.Float(), nullable=True, comment='Year-to-date rental cost for leased property.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_long_term_leases_borrower_id_rus_core_rus7__entity_borrowers'))
+    )
+    op.create_table('core_rus7__yearly_materials_and_supplies',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('electric_or_other_materials', sa.Enum('electric_materials', 'other_materials'), nullable=False, comment='Whether the cost is for electric materials or other materials'),
+    sa.Column('materials_adjustment', sa.Float(), nullable=True, comment='An adjustment value for the cost of materials and supplies.'),
+    sa.Column('materials_ending_balance', sa.Float(), nullable=True, comment='The balance at the end of the report year for materials and supplies.'),
+    sa.Column('materials_purchased', sa.Float(), nullable=True, comment='The cost of materials and supplies purchased.'),
+    sa.Column('materials_salvaged', sa.Float(), nullable=True, comment='The cost of materials and supplies salvaged.'),
+    sa.Column('materials_sold', sa.Float(), nullable=True, comment='The cost of materials and supplies sold.'),
+    sa.Column('materials_used', sa.Float(), nullable=True, comment='The cost of materials and supplies used.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_materials_and_supplies_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'electric_or_other_materials', name=op.f('pk_core_rus7__yearly_materials_and_supplies'))
+    )
+    op.create_table('core_rus7__yearly_meeting_and_board',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('last_annual_meeting_date', sqlite.DATETIME(), nullable=True, comment='The date of the last annual meeting.'),
+    sa.Column('members_num', sa.Integer(), nullable=True, comment='The total number of members.'),
+    sa.Column('members_present_at_meeting_num', sa.Integer(), nullable=True, comment='The number of members present at the last annual meeting.'),
+    sa.Column('was_quorum_present', sa.Boolean(), nullable=True, comment='Whether or not quorum was met.'),
+    sa.Column('members_voting_by_proxy_or_mail_num', sa.Integer(), nullable=True, comment='The number of members voting by mail or by proxy.'),
+    sa.Column('board_members_num', sa.Integer(), nullable=True, comment='The total number of board members.'),
+    sa.Column('fees_and_expenses_for_board_members', sa.Integer(), nullable=True, comment='The total amount of fees and expenses for board members.'),
+    sa.Column('does_manager_have_written_contract', sa.Boolean(), nullable=True, comment="Whether or not the RUS borrower's manager has a written contract."),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_meeting_and_board_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus7__yearly_meeting_and_board'))
+    )
+    op.create_table('core_rus7__yearly_owed_by_customers',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('amount_due_over_60_days', sa.Float(), nullable=True, comment='Reported amount of dollars due over 60 days from consumers for electric service. Includes both connected and disconnected customers.'),
+    sa.Column('amount_written_off_ytd', sa.Float(), nullable=True, comment='Total charges due from consumers for electric service written off during the current year to Account 144.1, representing the write-off of uncollectible accounts.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_owed_by_customers_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus7__yearly_owed_by_customers'))
+    )
+    op.create_table('core_rus7__yearly_patronage_capital',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('patronage_type', sa.Enum('received_supplier_of_electric_power', 'distributions_special_retirements', 'distributions_general_retirements', 'received_lenders_of_electric_power', 'total_distributions_retirements', 'total_received'), nullable=False, comment='Type of patronage capital distributed or received.'),
+    sa.Column('patronage_report_year', sa.Float(), nullable=True, comment='Amount of patronage distributed or received within report year.'),
+    sa.Column('patronage_cumulative', sa.Float(), nullable=True, comment='Amount of patronage distributed or received cumulatively. Received patronage capital is not reported cumulatively and thus will be null.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_patronage_capital_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'patronage_type', name=op.f('pk_core_rus7__yearly_patronage_capital'))
+    )
+    op.create_table('core_rus7__yearly_power_requirements',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('electric_sales_revenue', sa.Integer(), nullable=True, comment='Total Revenue Received From Sales of Electric Energy. Total of lines 1c thru 9c on the original form.'),
+    sa.Column('transmission_revenue', sa.Integer(), nullable=True, comment='Transmission revenue.'),
+    sa.Column('other_electric_revenue', sa.Integer(), nullable=True, comment='Electric revenue other than electric_sales_revenue.'),
+    sa.Column('purchases_and_generation_cost', sa.Integer(), nullable=True, comment='The cost of purchases and generation of electricity.'),
+    sa.Column('electric_sales_mwh', sa.Float(), nullable=True, comment='Total MWh Sold to electric sales. Total of lines 1b thru 9b on the original form.'),
+    sa.Column('own_use_mwh', sa.Float(), nullable=True, comment="The electricity in MWh used for the borrower's own internal use."),
+    sa.Column('purchased_mwh', sa.Float(), nullable=True, comment='The total electricity purchased.'),
+    sa.Column('generated_mwh', sa.Float(), nullable=True, comment='The total electricity generated.'),
+    sa.Column('interchange_mwh', sa.Float(), nullable=True, comment='The net interchange of electricity. The net amount of electricity exchanged in purchases and sales.'),
+    sa.Column('peak_mw', sa.Float(), nullable=True, comment='The peak system MWh - the sum of all MW.'),
+    sa.Column('is_peak_coincident', sa.Boolean(), nullable=True, comment='Whether or not the peak_mw is coincident or non-coincident peak.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_power_requirements_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_core_rus7__yearly_power_requirements'))
+    )
+    op.create_table('core_rus7__yearly_power_requirements_electric_customers',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('customer_class', sa.Enum('public_other', 'public_street_lighting', 'residential_excluding_seasonal', 'irrigation', 'sales_for_resale_rus_borrowers', 'commercial_and_industrial_small', 'other_electric', 'commercial_and_industrial_large', 'residential_seasonal', 'sales_for_resale_other', 'total', 'transmission'), nullable=False, comment='High level categorization of customer type.'),
+    sa.Column('observation_period', sa.Enum('avg', 'new_in_report_year', 'report_month', 'report_year', 'ytd', 'december', 'ytd_budget', 'cumulative'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
+    sa.Column('customers_num', sa.Float(), nullable=True, comment='Number of customers.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_power_requirements_electric_customers_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', 'observation_period', name=op.f('pk_core_rus7__yearly_power_requirements_electric_customers'))
+    )
+    op.create_table('core_rus7__yearly_power_requirements_electric_sales',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('customer_class', sa.Enum('public_other', 'public_street_lighting', 'residential_excluding_seasonal', 'irrigation', 'sales_for_resale_rus_borrowers', 'commercial_and_industrial_small', 'other_electric', 'commercial_and_industrial_large', 'residential_seasonal', 'sales_for_resale_other', 'total', 'transmission'), nullable=False, comment='High level categorization of customer type.'),
+    sa.Column('sales_mwh', sa.Float(), nullable=True, comment='Quantity of electricity sold in MWh.'),
+    sa.Column('revenue', sa.Float(), nullable=True, comment='Amount of revenue.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_power_requirements_electric_sales_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', name=op.f('pk_core_rus7__yearly_power_requirements_electric_sales'))
+    )
+    op.create_table('core_rus7__yearly_service_interruptions',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('service_interruption_cause', sa.Enum('major_event', 'other', 'planned', 'power_supplier', 'total'), nullable=False, comment='Source of service interruption.'),
+    sa.Column('observation_period', sa.Enum('five_year_average', 'annual'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
+    sa.Column('saidi_minutes', sa.Float(), nullable=True, comment='Cumulative duration (minutes) of interruption for the average customer during the report year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_service_interruptions_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'service_interruption_cause', 'observation_period', name=op.f('pk_core_rus7__yearly_service_interruptions'))
+    )
+    op.create_table('core_rus7__yearly_statement_of_operations',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('opex_group', sa.Enum('patronage_capital_or_margins', 'cost_of_electric_service', 'opex', 'patronage_and_operating_margins'), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``opex_type`` column.'),
+    sa.Column('opex_type', sa.Enum('extraordinary_items', 'cost_of_electric_service', 'regional_market', 'other_capital_credits', 'interest_other', 'generation_and_transmission_capital', 'other_capital_credits_ytd', 'power_production', 'operating_revenue', 'purchased_power', 'interest_long_term_debt', 'customer_accounts', 'depreciation', 'non_operating_margins_interest', 'other_deductions', 'transmission', 'total', 'total_minus', 'non_operating_margins_other', 'sales', 'customer_service', 'tax_property', 'distribution_maintenance', 'admin', 'distribution_operation', 'tax_other', 'construction_funds_allowance', 'interest_charged_to_construction', 'equity_investment_losses'), nullable=False, comment='Type of item from the statement of operations.'),
+    sa.Column('opex_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
+    sa.Column('opex_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
+    sa.Column('opex_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_statement_of_operations_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'opex_group', 'opex_type', name=op.f('pk_core_rus7__yearly_statement_of_operations'))
+    )
+    op.create_table('core_rus7__yearly_transmission_and_distribution_mileage',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('line_type', sa.Enum('distribution_overhead', 'distribution_underground', 'transmission_line', 'total'), nullable=False, comment='The type of line mileage reported (e.g., transmission, overhead distribution).'),
+    sa.Column('miles', sa.Float(), nullable=True, comment='Line length at the end of the reported period, in miles.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_core_rus7__yearly_transmission_and_distribution_mileage_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'line_type', name=op.f('pk_core_rus7__yearly_transmission_and_distribution_mileage'))
     )
     op.create_table('core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities',
     sa.Column('subsidiary_company_id_sec10k', sa.Text(), nullable=False, comment="PUDL-assigned ID for subsidiaries found in SEC 10-K Exhibit 21. The ID is created by concatenating the CIK of the company whose filing the subsidiary was found in, the subsidiary company's name, and location of incorporation. It is not guaranteed to be stable across different releases of PUDL and so should never be hard-coded in analyses."),
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.ForeignKeyConstraint(['utility_id_eia'], ['core_eia__entity_utilities.utility_id_eia'], name=op.f('fk_core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities_utility_id_eia_core_eia__entity_utilities')),
     sa.PrimaryKeyConstraint('subsidiary_company_id_sec10k', name=op.f('pk_core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities'))
-    )
-    op.create_table('out_eia860__yearly_emissions_control_equipment',
-    sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
-    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
-    sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
-    sa.Column('plant_name_eia', sa.Text(), nullable=True, comment='Plant name.'),
-    sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
-    sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
-    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
-    sa.Column('emission_control_id_pudl', sa.Float(), nullable=False, comment='A PUDL-generated ID used to distinguish emission control units in the same report year and plant id. This ID should not be used to track units over time or between plants.'),
-    sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
-    sa.Column('emission_control_equipment_type_code', sa.Text(), nullable=True, comment='Short code indicating the type of emission control equipment installed.'),
-    sa.Column('operational_status_code', sa.Text(), nullable=True, comment='The operating status of the asset.'),
-    sa.Column('operational_status', sa.Text(), nullable=True, comment='The operating status of the asset. For generators this is based on which tab the generator was listed in in EIA 860.'),
-    sa.Column('mercury_control_id_eia', sa.Text(), nullable=True, comment='Mercury control identification number. This ID is not a unique identifier.'),
-    sa.Column('nox_control_id_eia', sa.Text(), nullable=True, comment='Nitrogen oxide control identification number. This ID is not a unique identifier.'),
-    sa.Column('particulate_control_id_eia', sa.Text(), nullable=True, comment='Particulate matter control identification number. This ID is not a unique identifier.'),
-    sa.Column('so2_control_id_eia', sa.Text(), nullable=True, comment='Sulfur dioxide control identification number. This ID is not a unique identifier.'),
-    sa.Column('acid_gas_control', sa.Boolean(), nullable=True, comment='Indicates whether the emissions control equipment controls acid (HCl) gas.'),
-    sa.Column('emission_control_equipment_cost', sa.Float(), nullable=True, comment='The total cost to install a piece of emission control equipment.'),
-    sa.Column('emission_control_operating_date', sa.Date(), nullable=True, comment='The date a piece of emissions control equipment began operating. Derived from month and year columns in the raw data.'),
-    sa.Column('emission_control_retirement_date', sa.Date(), nullable=True, comment='The expected or actual retirement date for a piece of emissions control equipment. Derived from month and year columns in the raw data.'),
-    sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_data_maturity_core_pudl__codes_data_maturities')),
-    sa.ForeignKeyConstraint(['emission_control_equipment_type_code'], ['core_eia__codes_emission_control_equipment_types.code'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_emission_control_equipment_type_code_core_eia__codes_emission_control_equipment_types')),
-    sa.ForeignKeyConstraint(['operational_status_code'], ['core_eia__codes_operational_status.code'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_operational_status_code_core_eia__codes_operational_status')),
-    sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_plant_id_eia_core_eia__entity_plants')),
-    sa.ForeignKeyConstraint(['plant_id_pudl'], ['core_pudl__entity_plants_pudl.plant_id_pudl'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_plant_id_pudl_core_pudl__entity_plants_pudl')),
-    sa.ForeignKeyConstraint(['utility_id_eia'], ['core_eia__entity_utilities.utility_id_eia'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_utility_id_eia_core_eia__entity_utilities')),
-    sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_utility_id_pudl_core_pudl__entity_utilities_pudl')),
-    sa.PrimaryKeyConstraint('report_year', 'plant_id_eia', 'emission_control_id_pudl', name=op.f('pk_out_eia860__yearly_emissions_control_equipment'))
     )
     op.create_table('out_eia923__fuel_receipts_costs',
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
@@ -1983,8 +2170,8 @@ def upgrade() -> None:
     sa.Column('supplier_name', sa.Text(), nullable=True, comment='Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner.'),
     sa.Column('fuel_received_units', sa.Float(), nullable=True, comment='Quantity of fuel received in tons, barrel, or Mcf.'),
     sa.Column('fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Heat content of the fuel in millions of Btus per physical unit.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
-    sa.Column('bulk_agg_fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Fuel cost per mmbtu reported in the EIA bulk electricity data. This is an aggregate average fuel price for a whole state, region, month, sector, etc. Used to fill in missing fuel prices.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
+    sa.Column('bulk_agg_fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Fuel cost per MMBTU reported in the EIA bulk electricity data. This is an aggregate average fuel price for a whole state, region, month, sector, etc. Used to fill in missing fuel prices.'),
     sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
     sa.Column('total_fuel_cost', sa.Float(), nullable=True, comment='Total annual reported fuel costs for the plant part. Includes costs from all fuels.'),
     sa.Column('fuel_cost_per_mmbtu_source', sa.Enum('original', 'eiaapi', 'rolling_avg', 'mixed'), nullable=True, comment="Indicates the source of the values in the fuel_cost_per_mmbtu column. The fuel cost either comes directly from the EIA forms (original), was filled in from the EIA's API using state-level averages (eiaapi), was filled in using a rolling average (rolling_avg) or When the records get aggregated together and contain multiple sources (mixed)."),
@@ -2044,18 +2231,18 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('plant_id_eia', 'report_date', 'prime_mover_code', 'energy_source_code', name=op.f('pk_out_eia923__generation_fuel_combined'))
     )
     op.create_table('out_eia923__monthly_fuel_receipts_costs',
-    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
     sa.Column('plant_name_eia', sa.Text(), nullable=True, comment='Plant name.'),
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
     sa.Column('state', sa.Text(), nullable=True, comment='Two letter US state abbreviation.'),
-    sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
+    sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=False, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_received_units', sa.Float(), nullable=True, comment='Quantity of fuel received in tons, barrel, or Mcf.'),
     sa.Column('fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Heat content of the fuel in millions of Btus per physical unit.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
     sa.Column('total_fuel_cost', sa.Float(), nullable=True, comment='Total annual reported fuel costs for the plant part. Includes costs from all fuels.'),
     sa.Column('fuel_cost_per_mmbtu_source', sa.Enum('original', 'eiaapi', 'rolling_avg', 'mixed'), nullable=True, comment="Indicates the source of the values in the fuel_cost_per_mmbtu column. The fuel cost either comes directly from the EIA forms (original), was filled in from the EIA's API using state-level averages (eiaapi), was filled in using a rolling average (rolling_avg) or When the records get aggregated together and contain multiple sources (mixed)."),
@@ -2069,7 +2256,8 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk_out_eia923__monthly_fuel_receipts_costs_plant_id_eia_core_eia__entity_plants')),
     sa.ForeignKeyConstraint(['plant_id_pudl'], ['core_pudl__entity_plants_pudl.plant_id_pudl'], name=op.f('fk_out_eia923__monthly_fuel_receipts_costs_plant_id_pudl_core_pudl__entity_plants_pudl')),
     sa.ForeignKeyConstraint(['utility_id_eia'], ['core_eia__entity_utilities.utility_id_eia'], name=op.f('fk_out_eia923__monthly_fuel_receipts_costs_utility_id_eia_core_eia__entity_utilities')),
-    sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_eia923__monthly_fuel_receipts_costs_utility_id_pudl_core_pudl__entity_utilities_pudl'))
+    sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_eia923__monthly_fuel_receipts_costs_utility_id_pudl_core_pudl__entity_utilities_pudl')),
+    sa.PrimaryKeyConstraint('plant_id_eia', 'fuel_type_code_pudl', 'report_date', name=op.f('pk_out_eia923__monthly_fuel_receipts_costs'))
     )
     op.create_table('out_eia923__monthly_generation_fuel_combined',
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
@@ -2135,6 +2323,558 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['respondent_id_ferc714'], ['core_pudl__assn_ferc714_pudl_respondents.respondent_id_ferc714'], name=op.f('fk_out_ferc714__summarized_demand_respondent_id_ferc714_core_pudl__assn_ferc714_pudl_respondents')),
     sa.PrimaryKeyConstraint('respondent_id_ferc714', 'report_date', name=op.f('pk_out_ferc714__summarized_demand'))
     )
+    op.create_table('out_rus12__monthly_demand_and_energy_at_delivery_points',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('delivery_recipient', sa.Text(), nullable=False, comment='The recipient of the delivered energy or demand.'),
+    sa.Column('delivered_demand_mw', sa.Float(), nullable=True, comment='The amount of demand delivered in MW.'),
+    sa.Column('delivered_energy_mwh', sa.Float(), nullable=True, comment='The amount of energy delivered in MWh.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__monthly_demand_and_energy_at_delivery_points_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'delivery_recipient', name=op.f('pk_out_rus12__monthly_demand_and_energy_at_delivery_points'))
+    )
+    op.create_table('out_rus12__monthly_demand_and_energy_at_power_sources',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('energy_output_mwh', sa.Float(), nullable=True, comment='The amount of energy output in MWh.'),
+    sa.Column('peak_demand_mw', sa.Float(), nullable=True, comment='Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.'),
+    sa.Column('peak_demand_date', sqlite.DATETIME(), nullable=True, comment='The date of the peak demand.'),
+    sa.Column('is_peak_coincident', sa.Boolean(), nullable=True, comment='Whether or not the peak_mw is coincident or non-coincident peak.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__monthly_demand_and_energy_at_power_sources_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_out_rus12__monthly_demand_and_energy_at_power_sources'))
+    )
+    op.create_table('out_rus12__yearly_balance_sheet_assets',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('asset_type', sa.Text(), nullable=False, comment='Type of asset being reported to the core_ferc1__yearly_balance_sheet_assets_sched110 table.'),
+    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_balance_sheet_assets_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'asset_type', name=op.f('pk_out_rus12__yearly_balance_sheet_assets'))
+    )
+    op.create_table('out_rus12__yearly_balance_sheet_liabilities',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('liability_type', sa.Text(), nullable=False, comment='Type of liability being reported to the core_ferc1__yearly_balance_sheet_liabilities_sched110 table.'),
+    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_balance_sheet_liabilities_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'liability_type', name=op.f('pk_out_rus12__yearly_balance_sheet_liabilities'))
+    )
+    op.create_table('out_rus12__yearly_external_financial_risk_ratio',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('external_financial_risk_ratio', sa.Float(), nullable=True, comment='total investments + loan guarantee balances / total utility plant assets. This ratio shows how much a utility is financially exposed to outside entities relative to its own assets.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_external_financial_risk_ratio_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_out_rus12__yearly_external_financial_risk_ratio'))
+    )
+    op.create_table('out_rus12__yearly_investments',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('investment_description', sa.Text(), nullable=True, comment='Description of investment. This is a free-form text field and thus contains a wide variety of values.'),
+    sa.Column('investment_type_code', sa.Integer(), nullable=True, comment='Investment type code.'),
+    sa.Column('included_investments', sa.Float(), nullable=True, comment='Included investment.'),
+    sa.Column('excluded_investments', sa.Float(), nullable=True, comment='Excluded investment.'),
+    sa.Column('income_or_loss', sa.Float(), nullable=True, comment='Income or loss from investment.'),
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment or loan is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_investments_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.ForeignKeyConstraint(['investment_type_code'], ['core_rus__codes_investment_types.code'], name=op.f('fk_out_rus12__yearly_investments_investment_type_code_core_rus__codes_investment_types'))
+    )
+    op.create_table('out_rus12__yearly_lines_stations_labor_materials_cost',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('labor_or_material', sa.Enum('labor', 'material'), nullable=False, comment='Indicates whether the cost reported is for labor or material.'),
+    sa.Column('operation_or_maintenance', sa.Enum('operation', 'maintenance'), nullable=False, comment='Indicates whether the expenditure is for operation or maintenance.'),
+    sa.Column('lines_or_stations', sa.Enum('lines', 'stations'), nullable=False, comment='Indicates whether the cost reported pertains to  lines or stations.'),
+    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_lines_stations_labor_materials_cost_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'labor_or_material', 'operation_or_maintenance', 'lines_or_stations', name=op.f('pk_out_rus12__yearly_lines_stations_labor_materials_cost'))
+    )
+    op.create_table('out_rus12__yearly_loans',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('loan_recipient', sa.Text(), nullable=True, comment='The organization that received a loan.'),
+    sa.Column('loan_maturity_date', sa.Date(), nullable=True, comment='The date on which a loan is scheduled to be fully paid.'),
+    sa.Column('loan_original_amount', sa.Float(), nullable=True, comment='The original amount of a loan.'),
+    sa.Column('loan_balance', sa.Float(), nullable=True, comment='The amount of money still owned on a loan at the end of the reporting year.'),
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment or loan is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.'),
+    sa.Column('is_loan_guarantee', sa.Boolean(), nullable=True, comment='Indicates a third-party loan that the reporting utility (referred as a borrower) has co-signed, taking on responsibility for repayment if the primary borrower defaults.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_loans_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('out_rus12__yearly_long_term_debt',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('debt_description', sa.Text(), nullable=True, comment='Description of debt or loan. On the original form, there are nine provided descriptions and a section to add other free-form descriptions.'),
+    sa.Column('debt_ending_balance', sa.Float(), nullable=True, comment='The amount of principal still owned on the debt at the end of the report year.'),
+    sa.Column('debt_interest', sa.Float(), nullable=True, comment='The interest expense on the debt for the report year.'),
+    sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.'),
+    sa.Column('debt_total', sa.Float(), nullable=True, comment='The total amount of debt.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_long_term_debt_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('out_rus12__yearly_meeting_and_board',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('last_annual_meeting_date', sqlite.DATETIME(), nullable=True, comment='The date of the last annual meeting.'),
+    sa.Column('members_num', sa.Integer(), nullable=True, comment='The total number of members.'),
+    sa.Column('members_present_at_meeting_num', sa.Integer(), nullable=True, comment='The number of members present at the last annual meeting.'),
+    sa.Column('was_quorum_present', sa.Boolean(), nullable=True, comment='Whether or not quorum was met.'),
+    sa.Column('members_voting_by_proxy_or_mail_num', sa.Integer(), nullable=True, comment='The number of members voting by mail or by proxy.'),
+    sa.Column('board_members_num', sa.Integer(), nullable=True, comment='The total number of board members.'),
+    sa.Column('fees_and_expenses_for_board_members', sa.Integer(), nullable=True, comment='The total amount of fees and expenses for board members.'),
+    sa.Column('does_manager_have_written_contract', sa.Boolean(), nullable=True, comment="Whether or not the RUS borrower's manager has a written contract."),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_meeting_and_board_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_out_rus12__yearly_meeting_and_board'))
+    )
+    op.create_table('out_rus12__yearly_plant_costs',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('cost_group', sa.Enum('total', 'capex', 'opex'), nullable=True, comment='High-level category of cost type.'),
+    sa.Column('cost_type', sa.Enum('allowances', 'coal_fuel', 'coolants_and_water', 'depreciation', 'electric', 'energy_for_compressed_air', 'energy_for_pumped_storage', 'fuel', 'gas_fuel', 'generation', 'hydraulic', 'interest', 'less_fuel_acquisition_adjustment', 'maintenance_boiler_plant', 'maintenance_electric_plant', 'maintenance_generating_and_electric_plant', 'maintenance_miscellaneous_plant', 'maintenance_other_plant', 'maintenance_reactor_plant_equipment', 'maintenance_reservoirs_dams_waterways', 'maintenance_structures', 'maintenance_supervision_and_engineering', 'maintenance_total', 'miscellaneous_power_generation', 'net_fuel', 'non_fuels_subtotal', 'oil_fuel', 'operations_total', 'other_fuel', 'other_generation', 'other_nuclear_power', 'plant_acquisition_adjustment', 'power', 'reactor_credits', 'rents', 'steam', 'steam_other_sources', 'steam_power', 'supervision_and_engineering', 'total', 'total_fixed', 'total_fuel', 'water_for_power'), nullable=True, comment='Detailed category of cost type.'),
+    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
+    sa.Column('cost_per_mwh', sa.Float(), nullable=True, comment='Unit cost of energy production in cost per MWh'),
+    sa.Column('cost_per_mmbtu', sa.Float(), nullable=True, comment='Unit cost of energy production in cost per MMBTU'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_plant_costs_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('out_rus12__yearly_plant_factors_and_maximum_demand',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
+    sa.Column('capacity_factor_running', sa.Float(), nullable=True, comment='Fraction of potential generation over the time period a plant was in operation. Actual energy generated / nameplate capacity * hours in operation.'),
+    sa.Column('load_factor', sa.Float(), nullable=True, comment='Fraction of consumption vs demand reported for a plant over a given timeframe. Total energy consumed / peak demand * hours.'),
+    sa.Column('peak_gross_demand_mw', sa.Float(), nullable=True, comment='The highest average power output recorded over any single 15 minute interval during the reporting period.'),
+    sa.Column('peak_gross_demand_nameplate_mw', sa.Float(), nullable=True, comment='The theoretical or nameplate peak the plant could produce under the best operating conditions during the reporting period.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_plant_factors_and_maximum_demand_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('out_rus12__yearly_plant_labor',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('employees_full_time_num', sa.Integer(), nullable=True, comment='Number of employees hired full-time for normal operations of the system.'),
+    sa.Column('employees_part_time_num', sa.Integer(), nullable=True, comment='Number employees regularly employed on a part-time basis. Exclude employees hired for short periods of time to complete special jobs.'),
+    sa.Column('employee_hours_worked_total', sa.Float(), nullable=True, comment='Total number of hours worked by employees.'),
+    sa.Column('payroll_maintenance', sa.Float(), nullable=True, comment='The amount of payroll spent on plant maintenance.'),
+    sa.Column('payroll_operations', sa.Float(), nullable=True, comment='The amount of payroll spent on plant operations.'),
+    sa.Column('payroll_other_accounts', sa.Float(), nullable=True, comment='The amount of plant payroll spent on accounts other than maintenance and operations.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_plant_labor_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('out_rus12__yearly_plant_operations_by_borrower',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('unit_id_rus', sa.Integer(), nullable=True, comment='RUS-assigned unit identification code.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
+    sa.Column('gross_generation_mwh', sa.Float(), nullable=True, comment='Gross electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.Column('ownership_pct', sa.Float(), nullable=True, comment='Percentage of the plant owned by the respondent.'),
+    sa.Column('is_full_ownership_portion', sa.Boolean(), nullable=True, comment='Whether or not the plant record represents the full plant - regardless of whether its fully owned by the borrower.'),
+    sa.Column('is_partly_owned_by_borrower', sa.Boolean(), nullable=True, comment='Whether or not the plant record is partially owned by the borrower. This column was not reported before 2009.'),
+    sa.Column('fuel_consumption_coal_lbs', sa.Float(), nullable=True, comment='Annual pounds of coal consumed for fuel.This field is only reported for plant_type steam.'),
+    sa.Column('fuel_consumption_gas_cubic_feet', sa.Float(), nullable=True, comment="Annual cubic feet of natural gas consumed for fuel.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('fuel_consumption_oil_gallons', sa.Float(), nullable=True, comment="Annual gallons of oil consumed for fuel.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('fuel_consumption_other', sa.Float(), nullable=True, comment="Annual other fuel consumed. Neither units nor type of fuel are documented.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('operating_hours_in_service', sa.Float(), nullable=True, comment='Number of operating hours in service.'),
+    sa.Column('operating_hours_on_standby', sa.Float(), nullable=True, comment='Number of operating hours on standby.'),
+    sa.Column('operating_hours_out_of_service_scheduled', sa.Float(), nullable=True, comment='Number of operating hours out of service which were scheduled.'),
+    sa.Column('operating_hours_out_of_service_unscheduled', sa.Float(), nullable=True, comment='Number of operating hours out of service which were unscheduled.'),
+    sa.Column('times_started', sa.Float(), nullable=True, comment="Number of times the plant was started. This field is only reported for plant_type's steam and nuclear."),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_plant_operations_by_borrower_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('out_rus12__yearly_plant_operations_by_plant',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
+    sa.Column('unit_id_rus', sa.Integer(), nullable=True, comment='RUS-assigned unit identification code.'),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=True, comment='Type of plant.'),
+    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
+    sa.Column('gross_generation_mwh', sa.Float(), nullable=True, comment='Gross electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.Column('ownership_pct', sa.Float(), nullable=True, comment='Percentage of the plant owned by the respondent.'),
+    sa.Column('is_partly_owned_by_borrower', sa.Boolean(), nullable=True, comment='Whether or not the plant record is partially owned by the borrower. This column was not reported before 2009.'),
+    sa.Column('fuel_consumption_coal_lbs', sa.Float(), nullable=True, comment='Annual pounds of coal consumed for fuel.This field is only reported for plant_type steam.'),
+    sa.Column('fuel_consumption_gas_cubic_feet', sa.Float(), nullable=True, comment="Annual cubic feet of natural gas consumed for fuel.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('fuel_consumption_oil_gallons', sa.Float(), nullable=True, comment="Annual gallons of oil consumed for fuel.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('fuel_consumption_other', sa.Float(), nullable=True, comment="Annual other fuel consumed. Neither units nor type of fuel are documented.This field is only reported for plant_type's combined_cycle, combined_cycle and steam."),
+    sa.Column('operating_hours_in_service', sa.Float(), nullable=True, comment='Number of operating hours in service.'),
+    sa.Column('operating_hours_on_standby', sa.Float(), nullable=True, comment='Number of operating hours on standby.'),
+    sa.Column('operating_hours_out_of_service_scheduled', sa.Float(), nullable=True, comment='Number of operating hours out of service which were scheduled.'),
+    sa.Column('operating_hours_out_of_service_unscheduled', sa.Float(), nullable=True, comment='Number of operating hours out of service which were unscheduled.'),
+    sa.Column('times_started', sa.Float(), nullable=True, comment="Number of times the plant was started. This field is only reported for plant_type's steam and nuclear."),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_plant_operations_by_plant_borrower_id_rus_core_rus12__entity_borrowers'))
+    )
+    op.create_table('out_rus12__yearly_renewable_plants',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_name_rus', sa.Text(), nullable=False, comment='Name of the plant as reported to RUS.'),
+    sa.Column('prime_mover_id', sa.Integer(), nullable=False, comment='Unique numeric identifier for each prime mover type used by RUS borrowers.'),
+    sa.Column('prime_mover_type', sa.Enum('Hydro', 'Internal Combustion', 'Large Wind', 'Steam', 'Photovoltaic'), nullable=True, comment='Type of prime mover (e.g. Hydro, Internal Combustion).'),
+    sa.Column('primary_renewable_fuel_type_id', sa.Integer(), nullable=True, comment='Unique numeric identifier for each renewable fuel type.'),
+    sa.Column('primary_renewable_fuel_type', sa.Enum('Hydro', 'Methane - landfill gas', 'Wind', 'Biomass - wood', 'Methane - waste', 'Hybrid', 'Solar - photovoltaic', 'Solar - thermal generation', 'Other'), nullable=True, comment='Primary renewable fuel type used by the plant.'),
+    sa.Column('renewable_fuel_pct', sa.Float(), nullable=True, comment='Percentage of renewable fuel used.'),
+    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
+    sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
+    sa.Column('employees_num', sa.Integer(), nullable=True, comment='Number of employees.'),
+    sa.Column('opex_per_mwh', sa.Float(), nullable=True, comment='Total production expenses (USD per MWh generated).'),
+    sa.Column('power_cost_per_mwh', sa.Float(), nullable=True, comment='The cost of power per mwh.'),
+    sa.Column('invested', sa.Float(), nullable=True, comment='The amount of money invested.'),
+    sa.Column('ownership_pct', sa.Float(), nullable=True, comment='Percentage of the plant owned by the respondent.'),
+    sa.Column('rus_funding', sa.Float(), nullable=True, comment='Amount of funding received from the Rural Utilities Service (RUS).'),
+    sa.Column('comments', sa.Text(), nullable=True, comment='General comments field.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_renewable_plants_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'plant_name_rus', 'prime_mover_id', name=op.f('pk_out_rus12__yearly_renewable_plants'))
+    )
+    op.create_table('out_rus12__yearly_sources_and_distribution',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('source_of_energy', sa.Enum('energy_available_for_sale', 'energy_used_by_borrower', 'purchased_power', 'total_energy_accounted', 'total_energy_losses', 'total_plant', 'total_sales', 'delivered_out_of_system_gross', 'net_interchange', 'received_into_system_gross', 'delivered_out_of_system_wheeling', 'net_energy_wheeled', 'received_into_system_wheeling', 'energy_furnished_without_charge'), nullable=False, comment='The source of energy (not plant type).'),
+    sa.Column('net_energy_received_mwh', sa.Float(), nullable=True, comment='The net amount of energy received into the system.'),
+    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_sources_and_distribution_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'source_of_energy', name=op.f('pk_out_rus12__yearly_sources_and_distribution'))
+    )
+    op.create_table('out_rus12__yearly_sources_and_distribution_by_plant_type',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('plant_type', sa.Enum('combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam'), nullable=False, comment='Type of plant.'),
+    sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
+    sa.Column('plant_num', sa.Integer(), nullable=True, comment='Number of plants.'),
+    sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
+    sa.Column('net_energy_received_mwh', sa.Float(), nullable=True, comment='The net amount of energy received into the system.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_sources_and_distribution_by_plant_type_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'plant_type', name=op.f('pk_out_rus12__yearly_sources_and_distribution_by_plant_type'))
+    )
+    op.create_table('out_rus12__yearly_statement_of_operations',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('opex_group', sa.Text(), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``opex_type`` column.'),
+    sa.Column('opex_type', sa.Text(), nullable=False, comment='Type of item from the statement of operations.'),
+    sa.Column('opex_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
+    sa.Column('opex_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
+    sa.Column('opex_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_statement_of_operations_borrower_id_rus_core_rus12__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'opex_group', 'opex_type', name=op.f('pk_out_rus12__yearly_statement_of_operations'))
+    )
+    op.create_table('out_rus7__yearly_balance_sheet_assets',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('asset_type', sa.Text(), nullable=False, comment='Type of asset being reported to the core_ferc1__yearly_balance_sheet_assets_sched110 table.'),
+    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_balance_sheet_assets_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'asset_type', name=op.f('pk_out_rus7__yearly_balance_sheet_assets'))
+    )
+    op.create_table('out_rus7__yearly_balance_sheet_liabilities',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('liability_type', sa.Text(), nullable=False, comment='Type of liability being reported to the core_ferc1__yearly_balance_sheet_liabilities_sched110 table.'),
+    sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_balance_sheet_liabilities_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'liability_type', name=op.f('pk_out_rus7__yearly_balance_sheet_liabilities'))
+    )
+    op.create_table('out_rus7__yearly_customer_energy_efficiency_and_conservation_loans',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('loan_status', sa.Enum('loan_default', 'loan_delinquency'), nullable=False, comment='The repayment status of a loan.'),
+    sa.Column('actual_pct', sa.Float(), nullable=True, comment='Observed percentage.'),
+    sa.Column('anticipated_pct', sa.Float(), nullable=True, comment='Expected percentage.'),
+    sa.Column('ytd_dollars', sa.Float(), nullable=True, comment='Balance this current year, in U.S. dollars.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_customer_energy_efficiency_and_conservation_loans_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'loan_status', name=op.f('pk_out_rus7__yearly_customer_energy_efficiency_and_conservation_loans'))
+    )
+    op.create_table('out_rus7__yearly_distribution_services',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('service_status', sa.Enum('connected', 'idle', 'retired', 'total'), nullable=False, comment='Status of services (e.g., idle, retired) in report period. Idle services exclude seasonals.'),
+    sa.Column('services', sa.Float(), nullable=True, comment='Number of services in system at end of year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_distribution_services_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'service_status', name=op.f('pk_out_rus7__yearly_distribution_services'))
+    )
+    op.create_table('out_rus7__yearly_employee_statistics',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('employees_fte_num', sa.Integer(), nullable=True, comment='The number of full time employees.'),
+    sa.Column('employee_hours_worked_regular_time', sa.Integer(), nullable=True, comment='The number of regular (non-overtime) hours worked by employees.'),
+    sa.Column('employee_hours_worked_over_time', sa.Integer(), nullable=True, comment='The number of overtime hours worked by employees.'),
+    sa.Column('payroll_expensed', sa.Integer(), nullable=True, comment='The amount of payroll spent that was expensed.'),
+    sa.Column('payroll_capitalized', sa.Integer(), nullable=True, comment='The amount of payroll spent that was capitalized.'),
+    sa.Column('payroll_other', sa.Integer(), nullable=True, comment='The amount of payroll spent that was funded by other means - not capitalized or expensed.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_employee_statistics_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_out_rus7__yearly_employee_statistics'))
+    )
+    op.create_table('out_rus7__yearly_energy_efficiency',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('customer_class', sa.Enum('public_other', 'public_street_lighting', 'residential_excluding_seasonal', 'irrigation', 'sales_for_resale_rus_borrowers', 'commercial_and_industrial_small', 'other_electric', 'commercial_and_industrial_large', 'residential_seasonal', 'sales_for_resale_other', 'total', 'transmission'), nullable=False, comment='High level categorization of customer type.'),
+    sa.Column('observation_period', sa.Enum('avg', 'new_in_report_year', 'report_month', 'report_year', 'ytd', 'december', 'ytd_budget', 'cumulative'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
+    sa.Column('customers_num', sa.Float(), nullable=True, comment='Number of customers.'),
+    sa.Column('invested', sa.Float(), nullable=True, comment='The amount of money invested.'),
+    sa.Column('savings_mmbtu', sa.Float(), nullable=True, comment='The estimated amount of energy savings from energy efficiency programs. Warning: We found values much larger than expected that we have not yet cleaned - this is likely a reporting unit error.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_energy_efficiency_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', 'observation_period', name=op.f('pk_out_rus7__yearly_energy_efficiency'))
+    )
+    op.create_table('out_rus7__yearly_energy_purchased',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('purchased_mwh', sa.Float(), nullable=True, comment='The total electricity purchased.'),
+    sa.Column('purchased_energy_cost_total', sa.Float(), nullable=True, comment='The total cost of purchased energy. Includes fuel cost adjustment and wheeling and other charges.'),
+    sa.Column('average_energy_cost_dollars_per_mwh', sa.Float(), nullable=True, comment='The average cost of fuel per MWh.'),
+    sa.Column('wheeling_and_other_charges', sa.Float(), nullable=True, comment='The cost of wheeling and other charges or credits related to fuel. Included in the total cost.'),
+    sa.Column('fuel_cost_adjustment', sa.Float(), nullable=True, comment="The variable fuel surcharge component of a distribution cooperative's wholesale purchased power bill, reflecting pass-through of actual fuel cost fluctuations from the supplying utility, reported separately from base power charges and wheeling costs. Included in the total cost."),
+    sa.Column('fuel_type_code_rus', sa.Integer(), nullable=True, comment='Unique numeric identifier for RUS fuel types.'),
+    sa.Column('is_supplier_eia_respondent', sa.Boolean(), nullable=True, comment='Whether the utility supplying energy to a RUS borrower is an EIA respondent.'),
+    sa.Column('supplier_code_rus', sa.Text(), nullable=True, comment='Unique numeric identifier for the utility supplying energy to a RUS borrower.'),
+    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
+    sa.Column('comments', sa.Text(), nullable=True, comment='General comments field.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_energy_purchased_borrower_id_rus_core_rus7__entity_borrowers'))
+    )
+    op.create_table('out_rus7__yearly_external_financial_risk_ratio',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('external_financial_risk_ratio', sa.Float(), nullable=True, comment='total investments + loan guarantee balances / total utility plant assets. This ratio shows how much a utility is financially exposed to outside entities relative to its own assets.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_external_financial_risk_ratio_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_out_rus7__yearly_external_financial_risk_ratio'))
+    )
+    op.create_table('out_rus7__yearly_investments',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('investment_description', sa.Text(), nullable=True, comment='Description of investment. This is a free-form text field and thus contains a wide variety of values.'),
+    sa.Column('investment_type_code', sa.Integer(), nullable=True, comment='Investment type code.'),
+    sa.Column('included_investments', sa.Float(), nullable=True, comment='Included investment.'),
+    sa.Column('excluded_investments', sa.Float(), nullable=True, comment='Excluded investment.'),
+    sa.Column('income_or_loss', sa.Float(), nullable=True, comment='Income or loss from investment.'),
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment or loan is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_investments_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.ForeignKeyConstraint(['investment_type_code'], ['core_rus__codes_investment_types.code'], name=op.f('fk_out_rus7__yearly_investments_investment_type_code_core_rus__codes_investment_types'))
+    )
+    op.create_table('out_rus7__yearly_loans',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('loan_recipient', sa.Text(), nullable=True, comment='The organization that received a loan.'),
+    sa.Column('loan_balance', sa.Float(), nullable=True, comment='The amount of money still owned on a loan at the end of the reporting year.'),
+    sa.Column('loan_maturity_date', sa.Date(), nullable=True, comment='The date on which a loan is scheduled to be fully paid.'),
+    sa.Column('loan_original_amount', sa.Float(), nullable=True, comment='The original amount of a loan.'),
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment or loan is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.'),
+    sa.Column('is_loan_guarantee', sa.Boolean(), nullable=True, comment='Indicates a third-party loan that the reporting utility (referred as a borrower) has co-signed, taking on responsibility for repayment if the primary borrower defaults.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_loans_borrower_id_rus_core_rus7__entity_borrowers'))
+    )
+    op.create_table('out_rus7__yearly_long_term_debt',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('debt_description', sa.Text(), nullable=True, comment='Description of debt or loan. On the original form, there are nine provided descriptions and a section to add other free-form descriptions.'),
+    sa.Column('debt_ending_balance', sa.Float(), nullable=True, comment='The amount of principal still owned on the debt at the end of the report year.'),
+    sa.Column('debt_interest', sa.Float(), nullable=True, comment='The interest expense on the debt for the report year.'),
+    sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.'),
+    sa.Column('debt_total', sa.Float(), nullable=True, comment='The total amount of debt.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_long_term_debt_borrower_id_rus_core_rus7__entity_borrowers'))
+    )
+    op.create_table('out_rus7__yearly_long_term_leases',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('lending_organization', sa.Text(), nullable=True, comment='The organization that provided a lease or loan.'),
+    sa.Column('property_type', sa.Text(), nullable=True, comment='The type of property leased.'),
+    sa.Column('rental_cost_ytd', sa.Float(), nullable=True, comment='Year-to-date rental cost for leased property.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_long_term_leases_borrower_id_rus_core_rus7__entity_borrowers'))
+    )
+    op.create_table('out_rus7__yearly_materials_and_supplies',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('electric_or_other_materials', sa.Enum('electric_materials', 'other_materials'), nullable=False, comment='Whether the cost is for electric materials or other materials'),
+    sa.Column('materials_adjustment', sa.Float(), nullable=True, comment='An adjustment value for the cost of materials and supplies.'),
+    sa.Column('materials_ending_balance', sa.Float(), nullable=True, comment='The balance at the end of the report year for materials and supplies.'),
+    sa.Column('materials_purchased', sa.Float(), nullable=True, comment='The cost of materials and supplies purchased.'),
+    sa.Column('materials_salvaged', sa.Float(), nullable=True, comment='The cost of materials and supplies salvaged.'),
+    sa.Column('materials_sold', sa.Float(), nullable=True, comment='The cost of materials and supplies sold.'),
+    sa.Column('materials_used', sa.Float(), nullable=True, comment='The cost of materials and supplies used.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_materials_and_supplies_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'electric_or_other_materials', name=op.f('pk_out_rus7__yearly_materials_and_supplies'))
+    )
+    op.create_table('out_rus7__yearly_meeting_and_board',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('last_annual_meeting_date', sqlite.DATETIME(), nullable=True, comment='The date of the last annual meeting.'),
+    sa.Column('members_num', sa.Integer(), nullable=True, comment='The total number of members.'),
+    sa.Column('members_present_at_meeting_num', sa.Integer(), nullable=True, comment='The number of members present at the last annual meeting.'),
+    sa.Column('was_quorum_present', sa.Boolean(), nullable=True, comment='Whether or not quorum was met.'),
+    sa.Column('members_voting_by_proxy_or_mail_num', sa.Integer(), nullable=True, comment='The number of members voting by mail or by proxy.'),
+    sa.Column('board_members_num', sa.Integer(), nullable=True, comment='The total number of board members.'),
+    sa.Column('fees_and_expenses_for_board_members', sa.Integer(), nullable=True, comment='The total amount of fees and expenses for board members.'),
+    sa.Column('does_manager_have_written_contract', sa.Boolean(), nullable=True, comment="Whether or not the RUS borrower's manager has a written contract."),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_meeting_and_board_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_out_rus7__yearly_meeting_and_board'))
+    )
+    op.create_table('out_rus7__yearly_owed_by_customers',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('amount_due_over_60_days', sa.Float(), nullable=True, comment='Reported amount of dollars due over 60 days from consumers for electric service. Includes both connected and disconnected customers.'),
+    sa.Column('amount_written_off_ytd', sa.Float(), nullable=True, comment='Total charges due from consumers for electric service written off during the current year to Account 144.1, representing the write-off of uncollectible accounts.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_owed_by_customers_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_out_rus7__yearly_owed_by_customers'))
+    )
+    op.create_table('out_rus7__yearly_patronage_capital',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('patronage_type', sa.Enum('received_supplier_of_electric_power', 'distributions_special_retirements', 'distributions_general_retirements', 'received_lenders_of_electric_power', 'total_distributions_retirements', 'total_received'), nullable=False, comment='Type of patronage capital distributed or received.'),
+    sa.Column('patronage_report_year', sa.Float(), nullable=True, comment='Amount of patronage distributed or received within report year.'),
+    sa.Column('patronage_cumulative', sa.Float(), nullable=True, comment='Amount of patronage distributed or received cumulatively. Received patronage capital is not reported cumulatively and thus will be null.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_patronage_capital_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'patronage_type', name=op.f('pk_out_rus7__yearly_patronage_capital'))
+    )
+    op.create_table('out_rus7__yearly_power_requirements',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('electric_sales_revenue', sa.Integer(), nullable=True, comment='Total Revenue Received From Sales of Electric Energy. Total of lines 1c thru 9c on the original form.'),
+    sa.Column('transmission_revenue', sa.Integer(), nullable=True, comment='Transmission revenue.'),
+    sa.Column('other_electric_revenue', sa.Integer(), nullable=True, comment='Electric revenue other than electric_sales_revenue.'),
+    sa.Column('purchases_and_generation_cost', sa.Integer(), nullable=True, comment='The cost of purchases and generation of electricity.'),
+    sa.Column('electric_sales_mwh', sa.Float(), nullable=True, comment='Total MWh Sold to electric sales. Total of lines 1b thru 9b on the original form.'),
+    sa.Column('own_use_mwh', sa.Float(), nullable=True, comment="The electricity in MWh used for the borrower's own internal use."),
+    sa.Column('purchased_mwh', sa.Float(), nullable=True, comment='The total electricity purchased.'),
+    sa.Column('generated_mwh', sa.Float(), nullable=True, comment='The total electricity generated.'),
+    sa.Column('interchange_mwh', sa.Float(), nullable=True, comment='The net interchange of electricity. The net amount of electricity exchanged in purchases and sales.'),
+    sa.Column('peak_mw', sa.Float(), nullable=True, comment='The peak system MWh - the sum of all MW.'),
+    sa.Column('is_peak_coincident', sa.Boolean(), nullable=True, comment='Whether or not the peak_mw is coincident or non-coincident peak.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_power_requirements_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', name=op.f('pk_out_rus7__yearly_power_requirements'))
+    )
+    op.create_table('out_rus7__yearly_power_requirements_electric_customers',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('customer_class', sa.Enum('public_other', 'public_street_lighting', 'residential_excluding_seasonal', 'irrigation', 'sales_for_resale_rus_borrowers', 'commercial_and_industrial_small', 'other_electric', 'commercial_and_industrial_large', 'residential_seasonal', 'sales_for_resale_other', 'total', 'transmission'), nullable=False, comment='High level categorization of customer type.'),
+    sa.Column('observation_period', sa.Enum('avg', 'new_in_report_year', 'report_month', 'report_year', 'ytd', 'december', 'ytd_budget', 'cumulative'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
+    sa.Column('customers_num', sa.Float(), nullable=True, comment='Number of customers.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_power_requirements_electric_customers_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', 'observation_period', name=op.f('pk_out_rus7__yearly_power_requirements_electric_customers'))
+    )
+    op.create_table('out_rus7__yearly_power_requirements_electric_sales',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('customer_class', sa.Enum('public_other', 'public_street_lighting', 'residential_excluding_seasonal', 'irrigation', 'sales_for_resale_rus_borrowers', 'commercial_and_industrial_small', 'other_electric', 'commercial_and_industrial_large', 'residential_seasonal', 'sales_for_resale_other', 'total', 'transmission'), nullable=False, comment='High level categorization of customer type.'),
+    sa.Column('sales_mwh', sa.Float(), nullable=True, comment='Quantity of electricity sold in MWh.'),
+    sa.Column('revenue', sa.Float(), nullable=True, comment='Amount of revenue.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_power_requirements_electric_sales_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', name=op.f('pk_out_rus7__yearly_power_requirements_electric_sales'))
+    )
+    op.create_table('out_rus7__yearly_service_interruptions',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('service_interruption_cause', sa.Enum('major_event', 'other', 'planned', 'power_supplier', 'total'), nullable=False, comment='Source of service interruption.'),
+    sa.Column('observation_period', sa.Enum('five_year_average', 'annual'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
+    sa.Column('saidi_minutes', sa.Float(), nullable=True, comment='Cumulative duration (minutes) of interruption for the average customer during the report year.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_service_interruptions_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'service_interruption_cause', 'observation_period', name=op.f('pk_out_rus7__yearly_service_interruptions'))
+    )
+    op.create_table('out_rus7__yearly_statement_of_operations',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('opex_group', sa.Text(), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``opex_type`` column.'),
+    sa.Column('opex_type', sa.Text(), nullable=False, comment='Type of item from the statement of operations.'),
+    sa.Column('opex_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
+    sa.Column('opex_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
+    sa.Column('opex_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_statement_of_operations_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'opex_group', 'opex_type', name=op.f('pk_out_rus7__yearly_statement_of_operations'))
+    )
+    op.create_table('out_rus7__yearly_transmission_and_distribution_mileage',
+    sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
+    sa.Column('state', sa.Enum('IL', 'OK', 'RI', 'YT', 'AZ', 'KS', 'DC', 'IN', 'NJ', 'VA', 'FM', 'MP', 'MN', 'MD', 'AS', 'PR', 'SC', 'NS', 'IA', 'MO', 'AK', 'MI', 'TN', 'AR', 'WA', 'GA', 'ME', 'MA', 'TX', 'WI', 'MH', 'WY', 'OH', 'CA', 'PA', 'HI', 'CT', 'SD', 'NM', 'DE', 'QC', 'UT', 'NB', 'ND', 'NE', 'NT', 'WV', 'BC', 'MS', 'LA', 'AB', 'NV', 'CO', 'NY', 'MB', 'NL', 'SK', 'KY', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AL', 'NH', 'FL', 'NU', 'ID', 'ON', 'VI'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
+    sa.Column('line_type', sa.Enum('distribution_overhead', 'distribution_underground', 'transmission_line', 'total'), nullable=False, comment='The type of line mileage reported (e.g., transmission, overhead distribution).'),
+    sa.Column('miles', sa.Float(), nullable=True, comment='Line length at the end of the reported period, in miles.'),
+    sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus7__yearly_transmission_and_distribution_mileage_borrower_id_rus_core_rus7__entity_borrowers')),
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'line_type', name=op.f('pk_out_rus7__yearly_transmission_and_distribution_mileage'))
+    )
     op.create_table('core_eia860__scd_plants',
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
@@ -2185,6 +2925,37 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['core_eia860__scd_utilities.utility_id_eia', 'core_eia860__scd_utilities.report_date'], name=op.f('fk_core_eia860__scd_plants_utility_id_eia_core_eia860__scd_utilities')),
     sa.PrimaryKeyConstraint('plant_id_eia', 'report_date', name=op.f('pk_core_eia860__scd_plants'))
     )
+    op.create_table('core_eia923__fuel_receipts_costs',
+    sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('contract_type_code', sa.Enum('S', 'C', 'NC', 'T'), nullable=True, comment='Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.'),
+    sa.Column('contract_expiration_date', sa.Date(), nullable=True, comment='Date contract expires.Format:  MMYY.'),
+    sa.Column('energy_source_code', sa.Text(), nullable=True, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
+    sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
+    sa.Column('fuel_group_code', sa.Enum('petroleum', 'other_gas', 'petroleum_coke', 'natural_gas', 'coal'), nullable=True, comment='Fuel groups used in the Electric Power Monthly'),
+    sa.Column('mine_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL mine identifier.'),
+    sa.Column('supplier_name', sa.Text(), nullable=True, comment='Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner.'),
+    sa.Column('fuel_received_units', sa.Float(), nullable=True, comment='Quantity of fuel received in tons, barrel, or Mcf.'),
+    sa.Column('fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Heat content of the fuel in millions of Btus per physical unit.'),
+    sa.Column('sulfur_content_pct', sa.Float(), nullable=True, comment='Sulfur content percentage by weight to the nearest 0.01 percent.'),
+    sa.Column('ash_content_pct', sa.Float(), nullable=True, comment='Ash content percentage by weight to the nearest 0.1 percent.'),
+    sa.Column('mercury_content_ppm', sa.Float(), nullable=True, comment='Mercury content in parts per million (ppm) to the nearest 0.001 ppm.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
+    sa.Column('primary_transportation_mode_code', sa.Text(), nullable=True, comment='Transportation mode for the longest distance transported.'),
+    sa.Column('secondary_transportation_mode_code', sa.Text(), nullable=True, comment='Transportation mode for the second longest distance transported.'),
+    sa.Column('natural_gas_transport_code', sa.Enum('firm', 'interruptible'), nullable=True, comment='Contract type for natural gas transportation service.'),
+    sa.Column('natural_gas_delivery_contract_type_code', sa.Enum('firm', 'interruptible'), nullable=True, comment='Contract type for natural gas delivery service:'),
+    sa.Column('moisture_content_pct', sa.Float(), nullable=True, comment='For coal only: the moisture content of the fuel in terms of moisture percentage by weight. Reported to the nearest 0.01 percent.'),
+    sa.Column('chlorine_content_ppm', sa.Float(), nullable=True, comment='For coal only: the chlorine content in parts per million (ppm) to the nearest 0.001 ppm. If lab tests of the coal do not include the chlorine content, this field contains the amount specified in the contract with the supplier.'),
+    sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
+    sa.ForeignKeyConstraint(['contract_type_code'], ['core_eia__codes_contract_types.code'], name=op.f('fk_core_eia923__fuel_receipts_costs_contract_type_code_core_eia__codes_contract_types')),
+    sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk_core_eia923__fuel_receipts_costs_data_maturity_core_pudl__codes_data_maturities')),
+    sa.ForeignKeyConstraint(['energy_source_code'], ['core_eia__codes_energy_sources.code'], name=op.f('fk_core_eia923__fuel_receipts_costs_energy_source_code_core_eia__codes_energy_sources')),
+    sa.ForeignKeyConstraint(['mine_id_pudl'], ['core_eia923__entity_coalmine.mine_id_pudl'], name=op.f('fk_core_eia923__fuel_receipts_costs_mine_id_pudl_core_eia923__entity_coalmine')),
+    sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk_core_eia923__fuel_receipts_costs_plant_id_eia_core_eia__entity_plants')),
+    sa.ForeignKeyConstraint(['primary_transportation_mode_code'], ['core_eia__codes_fuel_transportation_modes.code'], name=op.f('fk_core_eia923__fuel_receipts_costs_primary_transportation_mode_code_core_eia__codes_fuel_transportation_modes')),
+    sa.ForeignKeyConstraint(['secondary_transportation_mode_code'], ['core_eia__codes_fuel_transportation_modes.code'], name=op.f('fk_core_eia923__fuel_receipts_costs_secondary_transportation_mode_code_core_eia__codes_fuel_transportation_modes'))
+    )
     op.create_table('core_eia923__monthly_boiler_fuel',
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('boiler_id', sa.Text(), nullable=False, comment='Alphanumeric boiler ID.'),
@@ -2202,37 +2973,6 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['plant_id_eia', 'boiler_id'], ['core_eia__entity_boilers.plant_id_eia', 'core_eia__entity_boilers.boiler_id'], name=op.f('fk_core_eia923__monthly_boiler_fuel_plant_id_eia_core_eia__entity_boilers')),
     sa.ForeignKeyConstraint(['prime_mover_code'], ['core_eia__codes_prime_movers.code'], name=op.f('fk_core_eia923__monthly_boiler_fuel_prime_mover_code_core_eia__codes_prime_movers')),
     sa.PrimaryKeyConstraint('plant_id_eia', 'boiler_id', 'energy_source_code', 'prime_mover_code', 'report_date', name=op.f('pk_core_eia923__monthly_boiler_fuel'))
-    )
-    op.create_table('core_eia923__monthly_fuel_receipts_costs',
-    sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
-    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('contract_type_code', sa.Enum('S', 'C', 'NC', 'T'), nullable=True, comment='Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.'),
-    sa.Column('contract_expiration_date', sa.Date(), nullable=True, comment='Date contract expires.Format:  MMYY.'),
-    sa.Column('energy_source_code', sa.Text(), nullable=True, comment='A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.'),
-    sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
-    sa.Column('fuel_group_code', sa.Enum('petroleum', 'other_gas', 'petroleum_coke', 'natural_gas', 'coal'), nullable=True, comment='Fuel groups used in the Electric Power Monthly'),
-    sa.Column('mine_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL mine identifier.'),
-    sa.Column('supplier_name', sa.Text(), nullable=True, comment='Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner.'),
-    sa.Column('fuel_received_units', sa.Float(), nullable=True, comment='Quantity of fuel received in tons, barrel, or Mcf.'),
-    sa.Column('fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Heat content of the fuel in millions of Btus per physical unit.'),
-    sa.Column('sulfur_content_pct', sa.Float(), nullable=True, comment='Sulfur content percentage by weight to the nearest 0.01 percent.'),
-    sa.Column('ash_content_pct', sa.Float(), nullable=True, comment='Ash content percentage by weight to the nearest 0.1 percent.'),
-    sa.Column('mercury_content_ppm', sa.Float(), nullable=True, comment='Mercury content in parts per million (ppm) to the nearest 0.001 ppm.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
-    sa.Column('primary_transportation_mode_code', sa.Text(), nullable=True, comment='Transportation mode for the longest distance transported.'),
-    sa.Column('secondary_transportation_mode_code', sa.Text(), nullable=True, comment='Transportation mode for the second longest distance transported.'),
-    sa.Column('natural_gas_transport_code', sa.Enum('firm', 'interruptible'), nullable=True, comment='Contract type for natural gas transportation service.'),
-    sa.Column('natural_gas_delivery_contract_type_code', sa.Enum('firm', 'interruptible'), nullable=True, comment='Contract type for natural gas delivery service:'),
-    sa.Column('moisture_content_pct', sa.Float(), nullable=True, comment='For coal only: the moisture content of the fuel in terms of moisture percentage by weight. Reported to the nearest 0.01 percent.'),
-    sa.Column('chlorine_content_ppm', sa.Float(), nullable=True, comment='For coal only: the chlorine content in parts per million (ppm) to the nearest 0.001 ppm. If lab tests of the coal do not include the chlorine content, this field contains the amount specified in the contract with the supplier.'),
-    sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
-    sa.ForeignKeyConstraint(['contract_type_code'], ['core_eia__codes_contract_types.code'], name=op.f('fk_core_eia923__monthly_fuel_receipts_costs_contract_type_code_core_eia__codes_contract_types')),
-    sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk_core_eia923__monthly_fuel_receipts_costs_data_maturity_core_pudl__codes_data_maturities')),
-    sa.ForeignKeyConstraint(['energy_source_code'], ['core_eia__codes_energy_sources.code'], name=op.f('fk_core_eia923__monthly_fuel_receipts_costs_energy_source_code_core_eia__codes_energy_sources')),
-    sa.ForeignKeyConstraint(['mine_id_pudl'], ['core_eia923__entity_coalmine.mine_id_pudl'], name=op.f('fk_core_eia923__monthly_fuel_receipts_costs_mine_id_pudl_core_eia923__entity_coalmine')),
-    sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk_core_eia923__monthly_fuel_receipts_costs_plant_id_eia_core_eia__entity_plants')),
-    sa.ForeignKeyConstraint(['primary_transportation_mode_code'], ['core_eia__codes_fuel_transportation_modes.code'], name=op.f('fk_core_eia923__monthly_fuel_receipts_costs_primary_transportation_mode_code_core_eia__codes_fuel_transportation_modes')),
-    sa.ForeignKeyConstraint(['secondary_transportation_mode_code'], ['core_eia__codes_fuel_transportation_modes.code'], name=op.f('fk_core_eia923__monthly_fuel_receipts_costs_secondary_transportation_mode_code_core_eia__codes_fuel_transportation_modes'))
     )
     op.create_table('core_eia923__monthly_generation',
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
@@ -2287,7 +3027,7 @@ def upgrade() -> None:
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
-    sa.Column('amount_type', sa.Enum('cash_provided_by_outside_sources', 'other_construction_and_acquisition_of_plant_investment_activities', 'payments_for_retirement_abstract', 'investment_tax_credit_adjustments_net', 'net_income_loss_correction', 'payments_for_retirement_of_common_stock_financing_activities', 'gross_additions_to_nonutility_plant_investing_activities', 'cash_flows_provided_from_used_in_investment_activities_correction', 'net_increase_decrease_in_cash_and_cash_equivalents', 'proceeds_from_sales_of_investment_securities', 'net_increase_decrease_in_other_regulatory_assets_operating_activities', 'net_increase_decrease_in_other_regulatory_liabilities_operating_activities', 'allowance_for_other_funds_used_during_construction_investing_activities', 'purchase_of_investment_securities', 'other_adjustments_to_cash_flows_from_financing_activities', 'net_decrease_in_short_term_debt', 'gross_additions_to_utility_plant_less_nuclear_fuel_investing_activities', 'dividends_on_preferred_stock', 'cash_flows_provided_from_used_in_financing_activities', 'other_adjustments_to_cash_flows_from_operating_activities', 'net_cash_flow_from_operating_activities', 'undistributed_earnings_from_subsidiary_companies_operating_activities', 'dividends_on_common_stock', 'net_cash_flow_from_operating_activities_correction', 'acquisition_of_other_noncurrent_assets', 'net_increase_decrease_in_inventory_operating_activities', 'gross_additions_to_common_utility_plant_investing_activities', 'net_increase_decrease_in_payables_and_accrued_expenses_operating_activities', 'collections_on_loans', 'net_increase_in_short_term_debt', 'other_adjustments_by_outside_sources_to_cash_flows_from_financing_activities', 'net_increase_decrease_in_cash_and_cash_equivalents_abstract', 'ending_balance', 'net_increase_decrease_in_allowances_inventory_operating_activities', 'deferred_income_taxes_net', 'cash_outflows_for_plant_correction', 'cash_outflows_for_plant', 'depreciation_and_depletion', 'other_retirements_of_balances_impacting_cash_flows_from_financing_activities', 'loans_made_or_purchased', 'allowance_for_other_funds_used_during_construction_operating_activities', 'proceeds_from_issuance_of_common_stock_financing_activities', 'proceeds_from_issuance_of_preferred_stock_financing_activities', 'net_increase_decrease_in_receivables_operating_activities', 'proceeds_from_disposal_of_noncurrent_assets', 'cash_flows_provided_from_used_in_financing_activities_correction', 'payments_for_retirement_of_preferred_stock_financing_activities', 'payments_for_retirement_of_long_term_debt_financing_activities', 'net_increase_decrease_in_payables_and_accrued_expenses_investing_activities', 'net_increase_decrease_in_allowances_held_for_speculation_investing_activities', 'cash_provided_by_outside_sources_correction', 'starting_balance', 'disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies', 'net_income_loss', 'investments_in_and_advances_to_associated_and_subsidiary_companies', 'net_increase_decrease_in_inventory_investing_activities', 'other_adjustments_to_cash_flows_from_investment_activities', 'gross_additions_to_nuclear_fuel_investing_activities', 'cash_flows_provided_from_used_in_investment_activities', 'proceeds_from_issuance_of_long_term_debt_financing_activities', 'contributions_and_advances_from_associated_and_subsidiary_companies', 'disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies_abstract', 'net_increase_decrease_in_receivables_investing_activities', 'noncash_adjustments_to_cash_flows_from_operating_activities'), nullable=False, comment='Label describing the type of amount being reported. This could be a balance or a change in value.'),
+    sa.Column('amount_type', sa.Enum('cash_flows_provided_from_used_in_investment_activities_correction', 'gross_additions_to_nuclear_fuel_investing_activities', 'net_increase_decrease_in_receivables_investing_activities', 'starting_balance', 'net_increase_decrease_in_allowances_inventory_operating_activities', 'allowance_for_other_funds_used_during_construction_operating_activities', 'cash_flows_provided_from_used_in_investment_activities', 'disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies', 'ending_balance', 'net_decrease_in_short_term_debt', 'investment_tax_credit_adjustments_net', 'payments_for_retirement_abstract', 'gross_additions_to_utility_plant_less_nuclear_fuel_investing_activities', 'acquisition_of_other_noncurrent_assets', 'net_increase_decrease_in_payables_and_accrued_expenses_investing_activities', 'dividends_on_common_stock', 'cash_flows_provided_from_used_in_financing_activities_correction', 'net_income_loss_correction', 'payments_for_retirement_of_long_term_debt_financing_activities', 'other_adjustments_by_outside_sources_to_cash_flows_from_financing_activities', 'proceeds_from_issuance_of_preferred_stock_financing_activities', 'net_increase_decrease_in_inventory_operating_activities', 'net_cash_flow_from_operating_activities', 'cash_outflows_for_plant_correction', 'investments_in_and_advances_to_associated_and_subsidiary_companies', 'net_increase_in_short_term_debt', 'payments_for_retirement_of_common_stock_financing_activities', 'proceeds_from_issuance_of_long_term_debt_financing_activities', 'deferred_income_taxes_net', 'net_cash_flow_from_operating_activities_correction', 'net_increase_decrease_in_inventory_investing_activities', 'noncash_adjustments_to_cash_flows_from_operating_activities', 'depreciation_and_depletion', 'net_increase_decrease_in_receivables_operating_activities', 'loans_made_or_purchased', 'other_construction_and_acquisition_of_plant_investment_activities', 'gross_additions_to_nonutility_plant_investing_activities', 'proceeds_from_sales_of_investment_securities', 'cash_provided_by_outside_sources_correction', 'gross_additions_to_common_utility_plant_investing_activities', 'net_income_loss', 'contributions_and_advances_from_associated_and_subsidiary_companies', 'net_increase_decrease_in_other_regulatory_liabilities_operating_activities', 'other_adjustments_to_cash_flows_from_financing_activities', 'net_increase_decrease_in_allowances_held_for_speculation_investing_activities', 'other_adjustments_to_cash_flows_from_operating_activities', 'purchase_of_investment_securities', 'net_increase_decrease_in_other_regulatory_assets_operating_activities', 'collections_on_loans', 'cash_outflows_for_plant', 'dividends_on_preferred_stock', 'payments_for_retirement_of_preferred_stock_financing_activities', 'cash_flows_provided_from_used_in_financing_activities', 'undistributed_earnings_from_subsidiary_companies_operating_activities', 'proceeds_from_issuance_of_common_stock_financing_activities', 'disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies_abstract', 'proceeds_from_disposal_of_noncurrent_assets', 'net_increase_decrease_in_payables_and_accrued_expenses_operating_activities', 'other_retirements_of_balances_impacting_cash_flows_from_financing_activities', 'other_adjustments_to_cash_flows_from_investment_activities', 'allowance_for_other_funds_used_during_construction_investing_activities', 'net_increase_decrease_in_cash_and_cash_equivalents_abstract', 'cash_provided_by_outside_sources', 'net_increase_decrease_in_cash_and_cash_equivalents'), nullable=False, comment='Label describing the type of amount being reported. This could be a balance or a change in value.'),
     sa.Column('amount', sa.Float(), nullable=True, comment='Reported amount of dollars. This could be a balance or a change in value.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
@@ -2297,7 +3037,7 @@ def upgrade() -> None:
     op.create_table('core_ferc1__yearly_depreciation_by_function_sched219',
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
-    sa.Column('depreciation_type', sa.Enum('accumulated_depreciation_correction', 'accumulated_depreciation_subdimension_correction', 'accumulated_depreciation'), nullable=False, comment='Type of depreciation provision within FERC Account 108, including cost ofremoval, depreciation expenses, salvage, cost of retired plant, etc.'),
+    sa.Column('depreciation_type', sa.Enum('accumulated_depreciation_subdimension_correction', 'accumulated_depreciation_correction', 'accumulated_depreciation'), nullable=False, comment='Type of depreciation provision within FERC Account 108, including cost ofremoval, depreciation expenses, salvage, cost of retired plant, etc.'),
     sa.Column('plant_function', sa.Text(), nullable=False, comment='Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).'),
     sa.Column('plant_status', sa.Text(), nullable=False, comment='Utility plant financial status (in service, future, leased, total).'),
     sa.Column('utility_type', sa.Text(), nullable=False, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
@@ -2311,7 +3051,7 @@ def upgrade() -> None:
     op.create_table('core_ferc1__yearly_depreciation_changes_sched219',
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
-    sa.Column('depreciation_type', sa.Enum('net_charges_for_retired_plant_correction', 'depreciation_expense_excluding_adjustments_correction', 'depreciation_provision', 'transportation_expenses_clearing', 'book_cost_of_asset_retirement_costs', 'book_cost_of_retired_plant_subdimension_correction', 'depreciation_expense_for_asset_retirement_costs_correction', 'book_cost_of_asset_retirement_costs_subdimension_correction', 'expenses_of_electric_plant_leased_to_others_subdimension_correction', 'salvage_value_of_retired_plant', 'salvage_value_of_retired_plant_correction', 'starting_balance_correction', 'other_adjustments_to_accumulated_depreciation', 'other_clearing_accounts_subdimension_correction', 'depreciation_provision_subdimension_correction', 'depreciation_provision_correction', 'expenses_of_electric_plant_leased_to_others_correction', 'other_adjustments_to_accumulated_depreciation_subdimension_correction', 'depreciation_expense_for_asset_retirement_costs_subdimension_correction', 'book_cost_of_asset_retirement_costs_correction', 'net_charges_for_retired_plant', 'other_accounts', 'depreciation_expense_excluding_adjustments', 'transportation_expenses_clearing_subdimension_correction', 'other_accounts_subdimension_correction', 'other_clearing_accounts', 'other_accounts_correction', 'starting_balance', 'starting_balance_subdimension_correction', 'expenses_of_electric_plant_leased_to_others', 'book_cost_of_retired_plant', 'net_charges_for_retired_plant_subdimension_correction', 'other_adjustments_to_accumulated_depreciation_correction', 'depreciation_expense_excluding_adjustments_subdimension_correction', 'cost_of_removal_of_plant_subdimension_correction', 'other_clearing_accounts_correction', 'cost_of_removal_of_plant_correction', 'ending_balance_correction', 'cost_of_removal_of_plant', 'salvage_value_of_retired_plant_subdimension_correction', 'ending_balance', 'ending_balance_subdimension_correction', 'book_cost_of_retired_plant_correction', 'transportation_expenses_clearing_correction', 'depreciation_expense_for_asset_retirement_costs'), nullable=False, comment='Type of depreciation provision within FERC Account 108, including cost ofremoval, depreciation expenses, salvage, cost of retired plant, etc.'),
+    sa.Column('depreciation_type', sa.Enum('other_clearing_accounts', 'transportation_expenses_clearing_correction', 'cost_of_removal_of_plant_subdimension_correction', 'expenses_of_electric_plant_leased_to_others', 'starting_balance', 'book_cost_of_asset_retirement_costs', 'book_cost_of_retired_plant_correction', 'other_adjustments_to_accumulated_depreciation_correction', 'net_charges_for_retired_plant', 'book_cost_of_asset_retirement_costs_subdimension_correction', 'transportation_expenses_clearing', 'depreciation_expense_excluding_adjustments', 'starting_balance_subdimension_correction', 'other_accounts', 'expenses_of_electric_plant_leased_to_others_subdimension_correction', 'salvage_value_of_retired_plant', 'cost_of_removal_of_plant_correction', 'other_accounts_correction', 'salvage_value_of_retired_plant_subdimension_correction', 'depreciation_expense_for_asset_retirement_costs_subdimension_correction', 'expenses_of_electric_plant_leased_to_others_correction', 'ending_balance', 'ending_balance_correction', 'other_adjustments_to_accumulated_depreciation', 'ending_balance_subdimension_correction', 'book_cost_of_retired_plant_subdimension_correction', 'starting_balance_correction', 'depreciation_provision', 'net_charges_for_retired_plant_subdimension_correction', 'net_charges_for_retired_plant_correction', 'other_clearing_accounts_correction', 'salvage_value_of_retired_plant_correction', 'cost_of_removal_of_plant', 'depreciation_expense_excluding_adjustments_subdimension_correction', 'book_cost_of_retired_plant', 'other_adjustments_to_accumulated_depreciation_subdimension_correction', 'depreciation_provision_correction', 'depreciation_expense_excluding_adjustments_correction', 'book_cost_of_asset_retirement_costs_correction', 'other_clearing_accounts_subdimension_correction', 'depreciation_expense_for_asset_retirement_costs_correction', 'depreciation_expense_for_asset_retirement_costs', 'other_accounts_subdimension_correction', 'depreciation_provision_subdimension_correction', 'transportation_expenses_clearing_subdimension_correction'), nullable=False, comment='Type of depreciation provision within FERC Account 108, including cost ofremoval, depreciation expenses, salvage, cost of retired plant, etc.'),
     sa.Column('plant_status', sa.Text(), nullable=False, comment='Utility plant financial status (in service, future, leased, total).'),
     sa.Column('utility_type', sa.Text(), nullable=False, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
@@ -2327,7 +3067,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('plant_function', sa.Text(), nullable=False, comment='Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).'),
-    sa.Column('ferc_account_label', sa.Enum('amortization_other_electric_plant_correction', 'depreciation_expense_asset_retirement_correction', 'amortization_limited_term_electric_plant_correction', 'depreciation_expense_asset_retirement_subdimension_correction', 'amortization_other_electric_plant', 'depreciation_expense_correction', 'depreciation_expense', 'depreciation_expense_subdimension_correction', 'depreciation_amortization_total', 'depreciation_amortization_total_subdimension_correction', 'amortization_other_electric_plant_subdimension_correction', 'depreciation_amortization_total_correction', 'amortization_limited_term_electric_plant', 'depreciation_expense_asset_retirement', 'amortization_limited_term_electric_plant_subdimension_correction'), nullable=False, comment='Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.'),
+    sa.Column('ferc_account_label', sa.Enum('depreciation_expense_correction', 'amortization_other_electric_plant_subdimension_correction', 'depreciation_expense', 'amortization_limited_term_electric_plant_subdimension_correction', 'depreciation_amortization_total_correction', 'depreciation_expense_subdimension_correction', 'depreciation_expense_asset_retirement_correction', 'amortization_other_electric_plant', 'depreciation_amortization_total_subdimension_correction', 'amortization_other_electric_plant_correction', 'depreciation_expense_asset_retirement_subdimension_correction', 'amortization_limited_term_electric_plant', 'depreciation_amortization_total', 'depreciation_expense_asset_retirement', 'amortization_limited_term_electric_plant_correction'), nullable=False, comment='Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
@@ -2372,7 +3112,7 @@ def upgrade() -> None:
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
-    sa.Column('expense_type', sa.Enum('customer_assistance_expenses', 'generation_interconnection_studies', 'transmission_maintenance_expense_electric', 'maintenance_of_generating_and_electric_plant', 'advertising_expenses', 'maintenance_of_general_plant', 'reliability_planning_and_standards_development_services', 'rents_other_power_generation', 'demonstrating_and_selling_expenses', 'underground_line_expenses_transmission_expense', 'franchise_requirements', 'maintenance_of_electric_plant_steam_power_generation', 'maintenance_of_boiler_plant_steam_power_generation', 'power_production_expenses_correction', 'general_advertising_expenses', 'administrative_and_general_expenses_correction', 'distribution_expenses_correction', 'supervision_customer_service_and_information_expenses', 'administrative_and_general_operation_expense_correction', 'rents_transmission_electric_expense', 'transmission_operation_expense_correction', 'customer_account_expenses', 'maintenance_supervision_and_engineering_hydraulic_power_generation', 'power_production_expenses_hydraulic_power', 'regional_market_expenses', 'maintenance_of_computer_hardware_transmission', 'maintenance_of_structures', 'administrative_and_general_operation_expense', 'maintenance_supervision_and_engineering_nuclear_power_generation', 'maintenance_of_structures_transmission_expense', 'operations_and_maintenance_expenses_electric', 'operation_supervision_and_engineering_other_power_generation', 'ancillary_services_market_administration', 'maintenance_of_energy_storage_equipment', 'informational_and_instructional_advertising_expenses', 'load_dispatching', 'scheduling_system_control_and_dispatch_services', 'coolants_and_water', 'maintenance_of_computer_software_transmission', 'maintenance_of_underground_lines_transmission', 'distribution_expenses', 'maintenance_of_miscellaneous_steam_plant', 'transmission_of_electricity_by_others', 'maintenance_supervision_and_engineering_steam_power_generation', 'miscellaneous_customer_service_and_informational_expenses', 'water_for_power', 'injuries_and_damages', 'customer_records_and_collection_expenses', 'power_purchased_for_storage_operations', 'rents_steam_power_generation', 'miscellaneous_hydraulic_power_generation_expenses', 'steam_transferred_credit', 'maintenance_supervision_and_engineering_other_power_generation', 'transmission_rights_market_administration', 'maintenance_of_electric_plant_nuclear_power_generation', 'nuclear_power_generation_maintenance_expense', 'transmission_expenses', 'electric_expenses_steam_power_generation', 'maintenance_of_miscellaneous_regional_transmission_plant', 'purchased_power', 'operation_of_energy_storage_equipment', 'power_production_expenses_steam_power', 'regional_market_maintenance_expense', 'property_insurance', 'other_power_supply_expense_correction', 'office_supplies_and_expenses', 'steam_expenses_nuclear_power_generation', 'miscellaneous_customer_accounts_expenses', 'station_expenses_distribution', 'employee_pensions_and_benefits', 'other_expenses_other_power_supply_expenses', 'customer_account_expenses_correction', 'load_dispatch_reliability', 'regulatory_commission_expenses', 'transmission_service_studies', 'miscellaneous_steam_power_expenses', 'electric_expenses_nuclear_power_generation', 'steam_transferred_credit_nuclear_power_generation', 'maintenance_of_computer_hardware', 'miscellaneous_nuclear_power_expenses', 'hydraulic_power_generation_maintenance_expense', 'maintenance_of_electric_plant_hydraulic_power_generation', 'maintenance_of_miscellaneous_other_power_generation_plant', 'maintenance_of_line_transformers', 'maintenance_of_miscellaneous_transmission_plant', 'power_production_expenses_hydraulic_power_correction', 'steam_expenses_steam_power_generation', 'maintenance_of_overhead_lines_transmission', 'maintenance_of_station_equipment', 'steam_power_generation_operations_expense', 'electric_expenses_hydraulic_power_generation', 'operation_supervision_and_engineering_distribution_expense', 'nuclear_power_generation_operations_expense', 'generation_expenses', 'maintenance_of_miscellaneous_hydraulic_plant', 'rents_distribution_expense', 'customer_service_and_information_expenses', 'sales_expenses', 'load_dispatching_transmission_expense', 'market_monitoring_and_compliance', 'operation_supervision_and_engineering_nuclear_power_generation', 'nuclear_fuel_expense', 'customer_service_and_information_expenses_correction', 'maintenance_of_energy_storage_equipment_transmission', 'steam_from_other_sources_nuclear_power_generation', 'meter_expenses', 'regional_market_operation_expense', 'operation_supervision', 'distribution_operation_expenses_electric', 'underground_line_expenses', 'power_production_expenses_nuclear_power', 'distribution_maintenance_expense_electric', 'power_production_expenses_steam_power_correction', 'maintenance_of_computer_software', 'allowances', 'power_production_expenses_other_power', 'uncollectible_accounts', 'maintenance_of_structures_hydraulic_power_generation', 'other_power_generation_operations_expense_correction', 'maintenance_of_communication_equipment_electric_transmission', 'maintenance_of_energy_storage_equipment_other_power_generation', 'regional_market_expenses_correction', 'steam_power_generation_maintenance_expense', 'other_power_generation_operations_expense', 'administrative_expenses_transferred_credit', 'transmission_maintenance_expense_electric_correction', 'nuclear_power_generation_operations_expense_correction', 'maintenance_of_underground_lines', 'maintenance_of_structures_nuclear_power_generation', 'power_production_expenses_nuclear_power_correction', 'distribution_maintenance_expense_electric_correction', 'maintenance_of_reactor_plant_equipment_nuclear_power_generation', 'maintenance_of_miscellaneous_distribution_plant', 'system_control_and_load_dispatching_electric', 'reliability_planning_and_standards_development', 'overhead_line_expense', 'miscellaneous_general_expenses', 'hydraulic_power_generation_operations_expense_correction', 'sales_expenses_correction', 'hydraulic_power_generation_operations_expense', 'maintenance_of_station_equipment_transmission', 'station_expenses_transmission_expense', 'supervision_customer_account_expenses', 'other_power_generation_maintenance_expense_correction', 'rents_nuclear_power_generation', 'miscellaneous_other_power_generation_expenses', 'nuclear_power_generation_maintenance_expense_correction', 'maintenance_of_reservoirs_dams_and_waterways', 'street_lighting_and_signal_system_expenses', 'power_production_expenses_other_power_correction', 'operation_of_energy_storage_equipment_transmission_expense', 'miscellaneous_sales_expenses', 'day_ahead_and_real_time_market_administration', 'steam_power_generation_maintenance_expense_correction', 'customer_installations_expenses', 'fuel', 'power_production_expenses', 'other_power_supply_expense', 'other_power_generation_maintenance_expense', 'maintenance_of_structures_and_improvements_regional_market_expenses', 'maintenance_of_miscellaneous_nuclear_plant', 'hydraulic_expenses', 'administrative_and_general_expenses', 'steam_from_other_sources', 'hydraulic_power_generation_maintenance_expense_correction', 'maintenance_of_street_lighting_and_signal_systems', 'operation_supervision_and_engineering_steam_power_generation', 'maintenance_of_meters', 'load_dispatch_monitor_and_operate_transmission_system', 'rents_administrative_and_general_expense', 'distribution_operation_expenses_electric_correction', 'outside_services_employed', 'fuel_steam_power_generation', 'maintenance_of_miscellaneous_market_operation_plant', 'meter_reading_expenses', 'maintenance_supervision_and_engineering_electric_transmission_expenses', 'administrative_and_general_salaries', 'operation_supervision_and_engineering_hydraulic_power_generation', 'load_dispatch_transmission_service_and_scheduling', 'maintenance_of_communication_equipment_regional_market_expenses', 'maintenance_supervision_and_engineering', 'rents_regional_market_expenses', 'steam_power_generation_operations_expense_correction', 'supervision_sales_expense', 'operations_and_maintenance_expenses_electric_correction', 'capacity_market_administration', 'maintenance_of_structures_steam_power_generation', 'transmission_expenses_correction', 'overhead_line_expenses', 'miscellaneous_transmission_expenses', 'miscellaneous_distribution_expenses', 'operation_supervision_and_engineering_electric_transmission_expenses', 'maintenance_of_structures_distribution_expense', 'transmission_operation_expense', 'maintenance_of_overhead_lines', 'regional_market_operation_expense_correction', 'operation_of_energy_storage_equipment_distribution', 'duplicate_charges_credit', 'market_facilitation_monitoring_and_compliance_services', 'regional_market_maintenance_expense_correction', 'rents_hydraulic_power_generation'), nullable=False, comment='The type of expense.'),
+    sa.Column('expense_type', sa.Enum('rents_distribution_expense', 'operation_of_energy_storage_equipment_transmission_expense', 'load_dispatch_reliability', 'miscellaneous_customer_accounts_expenses', 'maintenance_of_computer_hardware_transmission', 'maintenance_of_miscellaneous_market_operation_plant', 'nuclear_power_generation_maintenance_expense', 'distribution_operation_expenses_electric', 'administrative_and_general_operation_expense_correction', 'nuclear_power_generation_operations_expense_correction', 'maintenance_of_miscellaneous_other_power_generation_plant', 'regional_market_maintenance_expense_correction', 'power_production_expenses_steam_power', 'nuclear_power_generation_operations_expense', 'maintenance_of_structures_steam_power_generation', 'maintenance_of_miscellaneous_nuclear_plant', 'reliability_planning_and_standards_development', 'hydraulic_power_generation_operations_expense_correction', 'maintenance_of_structures_nuclear_power_generation', 'maintenance_of_reservoirs_dams_and_waterways', 'operation_supervision_and_engineering_steam_power_generation', 'transmission_operation_expense_correction', 'nuclear_power_generation_maintenance_expense_correction', 'miscellaneous_transmission_expenses', 'customer_account_expenses_correction', 'other_power_generation_maintenance_expense', 'operation_supervision', 'power_production_expenses_steam_power_correction', 'maintenance_of_station_equipment_transmission', 'distribution_operation_expenses_electric_correction', 'steam_power_generation_maintenance_expense_correction', 'rents_other_power_generation', 'maintenance_of_electric_plant_hydraulic_power_generation', 'ancillary_services_market_administration', 'allowances', 'transmission_expenses', 'operation_supervision_and_engineering_nuclear_power_generation', 'miscellaneous_steam_power_expenses', 'distribution_expenses_correction', 'power_production_expenses_nuclear_power_correction', 'steam_from_other_sources', 'customer_installations_expenses', 'power_production_expenses_nuclear_power', 'power_production_expenses_other_power', 'supervision_customer_service_and_information_expenses', 'miscellaneous_distribution_expenses', 'overhead_line_expense', 'steam_power_generation_maintenance_expense', 'street_lighting_and_signal_system_expenses', 'miscellaneous_nuclear_power_expenses', 'injuries_and_damages', 'maintenance_of_electric_plant_steam_power_generation', 'maintenance_of_energy_storage_equipment_other_power_generation', 'generation_expenses', 'maintenance_of_line_transformers', 'customer_service_and_information_expenses_correction', 'maintenance_of_overhead_lines', 'operation_supervision_and_engineering_electric_transmission_expenses', 'maintenance_of_structures_and_improvements_regional_market_expenses', 'customer_service_and_information_expenses', 'advertising_expenses', 'steam_power_generation_operations_expense', 'purchased_power', 'regional_market_expenses_correction', 'load_dispatch_transmission_service_and_scheduling', 'employee_pensions_and_benefits', 'transmission_service_studies', 'property_insurance', 'maintenance_of_energy_storage_equipment', 'load_dispatching', 'steam_transferred_credit_nuclear_power_generation', 'water_for_power', 'maintenance_of_boiler_plant_steam_power_generation', 'hydraulic_power_generation_operations_expense', 'maintenance_of_computer_software', 'transmission_maintenance_expense_electric', 'system_control_and_load_dispatching_electric', 'hydraulic_power_generation_maintenance_expense_correction', 'rents_steam_power_generation', 'maintenance_of_miscellaneous_steam_plant', 'maintenance_of_underground_lines_transmission', 'operation_supervision_and_engineering_hydraulic_power_generation', 'maintenance_of_computer_software_transmission', 'maintenance_of_electric_plant_nuclear_power_generation', 'regional_market_operation_expense_correction', 'sales_expenses_correction', 'maintenance_of_structures_transmission_expense', 'administrative_and_general_operation_expense', 'maintenance_of_street_lighting_and_signal_systems', 'maintenance_of_station_equipment', 'power_production_expenses_hydraulic_power_correction', 'maintenance_of_miscellaneous_transmission_plant', 'maintenance_of_computer_hardware', 'maintenance_of_communication_equipment_regional_market_expenses', 'maintenance_supervision_and_engineering_nuclear_power_generation', 'fuel', 'maintenance_supervision_and_engineering_hydraulic_power_generation', 'maintenance_of_reactor_plant_equipment_nuclear_power_generation', 'office_supplies_and_expenses', 'other_power_generation_maintenance_expense_correction', 'steam_expenses_steam_power_generation', 'regional_market_maintenance_expense', 'distribution_expenses', 'rents_nuclear_power_generation', 'overhead_line_expenses', 'other_expenses_other_power_supply_expenses', 'power_purchased_for_storage_operations', 'steam_power_generation_operations_expense_correction', 'other_power_generation_operations_expense', 'day_ahead_and_real_time_market_administration', 'maintenance_supervision_and_engineering_other_power_generation', 'rents_hydraulic_power_generation', 'miscellaneous_general_expenses', 'maintenance_of_overhead_lines_transmission', 'miscellaneous_sales_expenses', 'demonstrating_and_selling_expenses', 'operation_of_energy_storage_equipment', 'generation_interconnection_studies', 'rents_regional_market_expenses', 'customer_account_expenses', 'maintenance_of_miscellaneous_distribution_plant', 'miscellaneous_hydraulic_power_generation_expenses', 'operation_supervision_and_engineering_other_power_generation', 'regulatory_commission_expenses', 'power_production_expenses_hydraulic_power', 'reliability_planning_and_standards_development_services', 'miscellaneous_customer_service_and_informational_expenses', 'coolants_and_water', 'operations_and_maintenance_expenses_electric_correction', 'scheduling_system_control_and_dispatch_services', 'uncollectible_accounts', 'fuel_steam_power_generation', 'administrative_expenses_transferred_credit', 'informational_and_instructional_advertising_expenses', 'customer_assistance_expenses', 'customer_records_and_collection_expenses', 'maintenance_of_structures_hydraulic_power_generation', 'market_facilitation_monitoring_and_compliance_services', 'load_dispatch_monitor_and_operate_transmission_system', 'maintenance_of_generating_and_electric_plant', 'steam_from_other_sources_nuclear_power_generation', 'transmission_maintenance_expense_electric_correction', 'sales_expenses', 'regional_market_operation_expense', 'steam_expenses_nuclear_power_generation', 'distribution_maintenance_expense_electric_correction', 'transmission_expenses_correction', 'hydraulic_expenses', 'maintenance_supervision_and_engineering_electric_transmission_expenses', 'power_production_expenses_other_power_correction', 'steam_transferred_credit', 'other_power_supply_expense', 'maintenance_of_underground_lines', 'market_monitoring_and_compliance', 'regional_market_expenses', 'underground_line_expenses', 'underground_line_expenses_transmission_expense', 'transmission_operation_expense', 'electric_expenses_nuclear_power_generation', 'supervision_sales_expense', 'administrative_and_general_salaries', 'administrative_and_general_expenses', 'maintenance_of_energy_storage_equipment_transmission', 'capacity_market_administration', 'outside_services_employed', 'electric_expenses_hydraulic_power_generation', 'maintenance_of_general_plant', 'supervision_customer_account_expenses', 'nuclear_fuel_expense', 'operations_and_maintenance_expenses_electric', 'power_production_expenses_correction', 'distribution_maintenance_expense_electric', 'transmission_of_electricity_by_others', 'general_advertising_expenses', 'transmission_rights_market_administration', 'operation_supervision_and_engineering_distribution_expense', 'maintenance_supervision_and_engineering', 'operation_of_energy_storage_equipment_distribution', 'maintenance_of_structures', 'miscellaneous_other_power_generation_expenses', 'station_expenses_transmission_expense', 'maintenance_supervision_and_engineering_steam_power_generation', 'franchise_requirements', 'station_expenses_distribution', 'maintenance_of_meters', 'rents_transmission_electric_expense', 'other_power_supply_expense_correction', 'hydraulic_power_generation_maintenance_expense', 'power_production_expenses', 'maintenance_of_structures_distribution_expense', 'maintenance_of_miscellaneous_regional_transmission_plant', 'load_dispatching_transmission_expense', 'meter_reading_expenses', 'other_power_generation_operations_expense_correction', 'duplicate_charges_credit', 'rents_administrative_and_general_expense', 'maintenance_of_communication_equipment_electric_transmission', 'meter_expenses', 'maintenance_of_miscellaneous_hydraulic_plant', 'electric_expenses_steam_power_generation', 'administrative_and_general_expenses_correction'), nullable=False, comment='The type of expense.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
@@ -2384,7 +3124,7 @@ def upgrade() -> None:
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
-    sa.Column('revenue_type', sa.Enum('miscellaneous_revenue', 'other_operating_revenues_correction', 'residential_sales', 'revenues_net_of_provision_for_refunds', 'revenues_net_of_provision_for_refunds_correction', 'sales_to_railroads_and_railways_correction', 'miscellaneous_service_revenues', 'large_or_industrial', 'public_street_and_highway_lighting_correction', 'sales_of_water_and_water_power', 'revenues_from_transmission_of_electricity_of_others', 'sales_of_electricity', 'electric_operating_revenues_correction', 'other_operating_revenues', 'sales_to_railroads_and_railways', 'regional_transmission_service_revenues', 'provision_for_rate_refunds', 'other_sales_to_public_authorities', 'other_sales_to_public_authorities_correction', 'sales_to_ultimate_consumers', 'sales_to_ultimate_consumers_correction', 'sales_for_resale_correction', 'large_or_industrial_correction', 'electric_operating_revenues', 'interdepartmental_rents', 'small_or_commercial_correction', 'small_or_commercial', 'rent_from_electric_property', 'sales_for_resale', 'residential_sales_correction', 'interdepartmental_sales', 'other_electric_revenue', 'sales_of_electricity_correction', 'forfeited_discounts', 'public_street_and_highway_lighting', 'interdepartmental_sales_correction', 'other_miscellaneous_operating_revenues'), nullable=False, comment='Label describing types of revenues.'),
+    sa.Column('revenue_type', sa.Enum('other_sales_to_public_authorities_correction', 'sales_for_resale', 'electric_operating_revenues_correction', 'electric_operating_revenues', 'rent_from_electric_property', 'revenues_net_of_provision_for_refunds', 'sales_for_resale_correction', 'regional_transmission_service_revenues', 'revenues_net_of_provision_for_refunds_correction', 'forfeited_discounts', 'other_operating_revenues', 'sales_of_electricity_correction', 'provision_for_rate_refunds', 'residential_sales', 'other_sales_to_public_authorities', 'other_miscellaneous_operating_revenues', 'large_or_industrial_correction', 'interdepartmental_rents', 'sales_to_railroads_and_railways_correction', 'miscellaneous_revenue', 'miscellaneous_service_revenues', 'large_or_industrial', 'residential_sales_correction', 'other_operating_revenues_correction', 'sales_of_water_and_water_power', 'other_electric_revenue', 'public_street_and_highway_lighting', 'small_or_commercial', 'sales_to_ultimate_consumers', 'revenues_from_transmission_of_electricity_of_others', 'interdepartmental_sales_correction', 'small_or_commercial_correction', 'sales_of_electricity', 'sales_to_railroads_and_railways', 'public_street_and_highway_lighting_correction', 'interdepartmental_sales', 'sales_to_ultimate_consumers_correction'), nullable=False, comment='Label describing types of revenues.'),
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.Column('sales_mwh', sa.Float(), nullable=True, comment='Quantity of electricity sold in MWh.'),
     sa.Column('avg_customers_per_month', sa.Float(), nullable=True, comment='Average number of customers per month.'),
@@ -2408,7 +3148,7 @@ def upgrade() -> None:
     op.create_table('core_ferc1__yearly_plant_in_service_sched204',
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
-    sa.Column('ferc_account_label', sa.Enum('miscellaneous_power_plant_equipment_other_production', 'generators_other_production', 'office_furniture_and_equipment_general_plant', 'laboratory_equipment_general_plant', 'line_transformers_distribution_plant', 'land_and_land_rights_general_plant', 'roads_and_trails_transmission_plant', 'accessory_electric_equipment_steam_production', 'land_and_land_rights_hydraulic_production', 'land_and_land_rights_regional_transmission_and_market_operation_plant', 'prime_movers_other_production', 'accessory_electric_equipment_hydraulic_production', 'steam_production_plant_correction', 'water_wheels_turbines_and_generators_hydraulic_production', 'structures_and_improvements_distribution_plant', 'station_equipment_distribution_plant', 'accessory_electric_equipment_nuclear_production', 'leased_property_on_customer_premises_distribution_plant', 'stores_equipment_general_plant', 'tools_shop_and_garage_equipment_general_plant', 'services_distribution_plant', 'land_and_land_rights_distribution_plant', 'reactor_plant_equipment_nuclear_production', 'steam_production_plant', 'communication_equipment_general_plant', 'miscellaneous_power_plant_equipment_steam_production', 'miscellaneous_power_plant_equipment_hydraulic_production', 'structures_and_improvements_general_plant', 'transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant', 'asset_retirement_costs_for_steam_production_plant_steam_production', 'other_production_plant_correction', 'structures_and_improvements_hydraulic_production', 'roads_railroads_and_bridges_hydraulic_production', 'turbogenerator_units_nuclear_production', 'energy_storage_equipment_transmission_plant', 'reservoirs_dams_and_waterways_hydraulic_production', 'electric_plant_sold', 'hydraulic_production_plant', 'electric_plant_in_service_and_completed_construction_not_classified_electric_correction', 'electric_plant_in_service_correction', 'power_operated_equipment_general_plant', 'other_tangible_property_general_plant', 'underground_conduit_distribution_plant', 'distribution_plant_correction', 'nuclear_production_plant', 'meters_distribution_plant', 'poles_towers_and_fixtures_distribution_plant', 'hydraulic_production_plant_correction', 'computer_software_regional_transmission_and_market_operation_plant', 'street_lighting_and_signal_systems_distribution_plant', 'structures_and_improvements_nuclear_production', 'boiler_plant_equipment_steam_production', 'franchises_and_consents', 'transmission_plant_correction', 'experimental_electric_plant_unclassified', 'general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant', 'land_and_land_rights_transmission_plant', 'land_and_land_rights_other_production', 'nuclear_production_plant_correction', 'underground_conductors_and_devices_transmission_plant', 'miscellaneous_equipment_general_plant', 'other_production_plant', 'general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant_correction', 'computer_hardware_regional_transmission_and_market_operation_plant', 'intangible_plant', 'asset_retirement_costs_for_general_plant_general_plant', 'distribution_plant', 'station_equipment_transmission_plant', 'installations_on_customer_premises_distribution_plant', 'production_plant_correction', 'organization', 'engines_and_engine_driven_generators_steam_production', 'electric_plant_in_service', 'structures_and_improvements_regional_transmission_and_market_operation_plant', 'turbogenerator_units_steam_production', 'overhead_conductors_and_devices_distribution_plant', 'transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_correction', 'electric_plant_purchased', 'energy_storage_equipment_other_production', 'asset_retirement_costs_for_other_production_plant_other_production', 'miscellaneous_intangible_plant', 'asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant', 'electric_plant_in_service_and_completed_construction_not_classified_electric', 'asset_retirement_costs_for_transmission_plant_transmission_plant', 'structures_and_improvements_transmission_plant', 'structures_and_improvements_steam_production', 'structures_and_improvements_other_production', 'towers_and_fixtures_transmission_plant', 'miscellaneous_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant', 'production_plant', 'miscellaneous_power_plant_equipment_nuclear_production', 'general_plant_correction', 'transmission_plant', 'overhead_conductors_and_devices_transmission_plant', 'fuel_holders_products_and_accessories_other_production', 'underground_conductors_and_devices_distribution_plant', 'land_and_land_rights_nuclear_production', 'transportation_equipment_general_plant', 'land_and_land_rights_steam_production', 'general_plant', 'poles_and_fixtures_transmission_plant', 'asset_retirement_costs_for_nuclear_production_plant_nuclear_production', 'accessory_electric_equipment_other_production', 'asset_retirement_costs_for_distribution_plant_distribution_plant', 'communication_equipment_regional_transmission_and_market_operation_plant', 'asset_retirement_costs_for_hydraulic_production_plant_hydraulic_production', 'energy_storage_equipment_distribution_plant', 'intangible_plant_correction', 'underground_conduit_transmission_plant'), nullable=False, comment='Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.'),
+    sa.Column('ferc_account_label', sa.Enum('communication_equipment_general_plant', 'general_plant', 'nuclear_production_plant', 'energy_storage_equipment_other_production', 'land_and_land_rights_regional_transmission_and_market_operation_plant', 'station_equipment_distribution_plant', 'station_equipment_transmission_plant', 'accessory_electric_equipment_other_production', 'engines_and_engine_driven_generators_steam_production', 'structures_and_improvements_regional_transmission_and_market_operation_plant', 'underground_conduit_distribution_plant', 'leased_property_on_customer_premises_distribution_plant', 'land_and_land_rights_distribution_plant', 'street_lighting_and_signal_systems_distribution_plant', 'roads_railroads_and_bridges_hydraulic_production', 'generators_other_production', 'structures_and_improvements_other_production', 'accessory_electric_equipment_steam_production', 'accessory_electric_equipment_nuclear_production', 'services_distribution_plant', 'installations_on_customer_premises_distribution_plant', 'accessory_electric_equipment_hydraulic_production', 'miscellaneous_intangible_plant', 'underground_conductors_and_devices_transmission_plant', 'land_and_land_rights_general_plant', 'general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant', 'intangible_plant', 'other_production_plant', 'turbogenerator_units_steam_production', 'asset_retirement_costs_for_distribution_plant_distribution_plant', 'asset_retirement_costs_for_general_plant_general_plant', 'fuel_holders_products_and_accessories_other_production', 'land_and_land_rights_transmission_plant', 'computer_software_regional_transmission_and_market_operation_plant', 'electric_plant_sold', 'towers_and_fixtures_transmission_plant', 'underground_conductors_and_devices_distribution_plant', 'production_plant_correction', 'poles_and_fixtures_transmission_plant', 'structures_and_improvements_general_plant', 'structures_and_improvements_steam_production', 'transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_correction', 'asset_retirement_costs_for_other_production_plant_other_production', 'boiler_plant_equipment_steam_production', 'transmission_plant_correction', 'office_furniture_and_equipment_general_plant', 'electric_plant_in_service_correction', 'distribution_plant', 'transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant', 'stores_equipment_general_plant', 'electric_plant_in_service_and_completed_construction_not_classified_electric_correction', 'communication_equipment_regional_transmission_and_market_operation_plant', 'nuclear_production_plant_correction', 'asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant', 'structures_and_improvements_nuclear_production', 'other_tangible_property_general_plant', 'transportation_equipment_general_plant', 'asset_retirement_costs_for_steam_production_plant_steam_production', 'miscellaneous_power_plant_equipment_other_production', 'land_and_land_rights_hydraulic_production', 'water_wheels_turbines_and_generators_hydraulic_production', 'overhead_conductors_and_devices_distribution_plant', 'energy_storage_equipment_transmission_plant', 'experimental_electric_plant_unclassified', 'electric_plant_in_service_and_completed_construction_not_classified_electric', 'land_and_land_rights_nuclear_production', 'roads_and_trails_transmission_plant', 'underground_conduit_transmission_plant', 'structures_and_improvements_distribution_plant', 'organization', 'structures_and_improvements_hydraulic_production', 'asset_retirement_costs_for_nuclear_production_plant_nuclear_production', 'meters_distribution_plant', 'general_plant_correction', 'miscellaneous_power_plant_equipment_steam_production', 'prime_movers_other_production', 'laboratory_equipment_general_plant', 'overhead_conductors_and_devices_transmission_plant', 'miscellaneous_power_plant_equipment_nuclear_production', 'miscellaneous_power_plant_equipment_hydraulic_production', 'line_transformers_distribution_plant', 'general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant_correction', 'franchises_and_consents', 'hydraulic_production_plant_correction', 'land_and_land_rights_other_production', 'energy_storage_equipment_distribution_plant', 'hydraulic_production_plant', 'steam_production_plant_correction', 'power_operated_equipment_general_plant', 'turbogenerator_units_nuclear_production', 'tools_shop_and_garage_equipment_general_plant', 'distribution_plant_correction', 'reactor_plant_equipment_nuclear_production', 'poles_towers_and_fixtures_distribution_plant', 'structures_and_improvements_transmission_plant', 'other_production_plant_correction', 'reservoirs_dams_and_waterways_hydraulic_production', 'transmission_plant', 'electric_plant_in_service', 'miscellaneous_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant', 'electric_plant_purchased', 'intangible_plant_correction', 'production_plant', 'asset_retirement_costs_for_transmission_plant_transmission_plant', 'steam_production_plant', 'computer_hardware_regional_transmission_and_market_operation_plant', 'land_and_land_rights_steam_production', 'miscellaneous_equipment_general_plant', 'asset_retirement_costs_for_hydraulic_production_plant_hydraulic_production'), nullable=False, comment='Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
@@ -2449,7 +3189,7 @@ def upgrade() -> None:
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
-    sa.Column('earnings_type', sa.Enum('appropriated_retained_earnings_amortization_reserve_federal', 'adjustments_to_retained_earnings_credit', 'balance_transferred_from_income', 'retained_earnings', 'unappropriated_retained_earnings_previous_year', 'equity_in_earnings_of_subsidiary_companies', 'dividends_received', 'changes_unappropriated_undistributed_subsidiary_earnings_credits', 'dividends_declared_preferred_stock', 'appropriated_retained_earnings_including_reserve_amortization_correction', 'retained_earnings_correction', 'transfers_from_unappropriated_undistributed_subsidiary_earnings', 'dividends_declared_common_stock', 'unappropriated_retained_earnings_correction', 'adjustments_to_retained_earnings_debit', 'unappropriated_retained_earnings', 'appropriations_of_retained_earnings', 'appropriated_retained_earnings', 'unappropriated_undistributed_subsidiary_earnings', 'unappropriated_undistributed_subsidiary_earnings_previous_year', 'appropriated_retained_earnings_including_reserve_amortization', 'unappropriated_undistributed_subsidiary_earnings_correction'), nullable=False, comment='Label describing types of earnings.'),
+    sa.Column('earnings_type', sa.Enum('dividends_declared_preferred_stock', 'unappropriated_retained_earnings_correction', 'adjustments_to_retained_earnings_credit', 'appropriated_retained_earnings_amortization_reserve_federal', 'unappropriated_undistributed_subsidiary_earnings', 'unappropriated_retained_earnings_previous_year', 'unappropriated_undistributed_subsidiary_earnings_previous_year', 'changes_unappropriated_undistributed_subsidiary_earnings_credits', 'equity_in_earnings_of_subsidiary_companies', 'unappropriated_undistributed_subsidiary_earnings_correction', 'balance_transferred_from_income', 'appropriations_of_retained_earnings', 'unappropriated_retained_earnings', 'appropriated_retained_earnings', 'adjustments_to_retained_earnings_debit', 'transfers_from_unappropriated_undistributed_subsidiary_earnings', 'dividends_received', 'appropriated_retained_earnings_including_reserve_amortization', 'retained_earnings_correction', 'appropriated_retained_earnings_including_reserve_amortization_correction', 'retained_earnings', 'dividends_declared_common_stock'), nullable=False, comment='Label describing types of earnings.'),
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
@@ -2685,9 +3425,9 @@ def upgrade() -> None:
     sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('planned_generator_retirement_date', sa.Date(), nullable=True, comment='Planned effective date of the scheduled retirement of the generator.'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
     sa.Column('fuel_cost_per_mmbtu_source', sa.Enum('original', 'eiaapi', 'rolling_avg', 'mixed'), nullable=True, comment="Indicates the source of the values in the fuel_cost_per_mmbtu column. The fuel cost either comes directly from the EIA forms (original), was filled in from the EIA's API using state-level averages (eiaapi), was filled in using a rolling average (rolling_avg) or When the records get aggregated together and contain multiple sources (mixed)."),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_cost_per_mwh', sa.Float(), nullable=True, comment='Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.'),
     sa.Column('unit_heat_rate_mmbtu_per_mwh', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'),
     sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
@@ -3392,7 +4132,7 @@ def upgrade() -> None:
     sa.Column('boiler_fuel_code_2', sa.Text(), nullable=True, comment='The code representing the second most predominant type of energy that fuels the boiler.'),
     sa.Column('boiler_fuel_code_3', sa.Text(), nullable=True, comment='The code representing the third most predominant type of energy that fuels the boiler.'),
     sa.Column('boiler_fuel_code_4', sa.Text(), nullable=True, comment='The code representing the fourth most predominant type of energy that fuels the boiler.'),
-    sa.Column('waste_heat_input_mmbtu_per_hour', sa.Float(), nullable=True, comment='Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour).'),
+    sa.Column('waste_heat_input_mmbtu_per_hour', sa.Float(), nullable=True, comment='Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBTU per hour).'),
     sa.Column('wet_dry_bottom', sa.Text(), nullable=True, comment='Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers.'),
     sa.Column('fly_ash_reinjection', sa.Boolean(), nullable=True, comment='Indicates whether the boiler is capable of re-injecting fly ash.'),
     sa.Column('hrsg', sa.Boolean(), nullable=True, comment='indicates if the boiler is a heat recovery steam generator (HRSG).'),
@@ -3519,6 +4259,27 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['wet_dry_bottom'], ['core_eia__codes_wet_dry_bottom.code'], name=op.f('fk_core_eia860__scd_boilers_wet_dry_bottom_core_eia__codes_wet_dry_bottom')),
     sa.PrimaryKeyConstraint('plant_id_eia', 'boiler_id', 'report_date', name=op.f('pk_core_eia860__scd_boilers'))
     )
+    op.create_table('core_eia860__scd_emissions_control_equipment',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('emission_control_id_pudl', sa.Float(), nullable=False, comment='A PUDL-generated ID used to distinguish emission control units in the same report year and plant id. This ID should not be used to track units over time or between plants.'),
+    sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
+    sa.Column('emission_control_equipment_type_code', sa.Text(), nullable=True, comment='Short code indicating the type of emission control equipment installed.'),
+    sa.Column('operational_status_code', sa.Text(), nullable=True, comment='The operating status of the asset.'),
+    sa.Column('mercury_control_id_eia', sa.Text(), nullable=True, comment='Mercury control identification number. This ID is not a unique identifier.'),
+    sa.Column('nox_control_id_eia', sa.Text(), nullable=True, comment='Nitrogen oxide control identification number. This ID is not a unique identifier.'),
+    sa.Column('particulate_control_id_eia', sa.Text(), nullable=True, comment='Particulate matter control identification number. This ID is not a unique identifier.'),
+    sa.Column('so2_control_id_eia', sa.Text(), nullable=True, comment='Sulfur dioxide control identification number. This ID is not a unique identifier.'),
+    sa.Column('acid_gas_control', sa.Boolean(), nullable=True, comment='Indicates whether the emissions control equipment controls acid (HCl) gas.'),
+    sa.Column('emission_control_equipment_cost', sa.Float(), nullable=True, comment='The total cost to install a piece of emission control equipment.'),
+    sa.Column('emission_control_operating_date', sa.Date(), nullable=True, comment='The date a piece of emissions control equipment began operating. Derived from month and year columns in the raw data.'),
+    sa.Column('emission_control_retirement_date', sa.Date(), nullable=True, comment='The expected or actual retirement date for a piece of emissions control equipment. Derived from month and year columns in the raw data.'),
+    sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk_core_eia860__scd_emissions_control_equipment_data_maturity_core_pudl__codes_data_maturities')),
+    sa.ForeignKeyConstraint(['emission_control_equipment_type_code'], ['core_eia__codes_emission_control_equipment_types.code'], name=op.f('fk_core_eia860__scd_emissions_control_equipment_emission_control_equipment_type_code_core_eia__codes_emission_control_equipment_types')),
+    sa.ForeignKeyConstraint(['operational_status_code'], ['core_eia__codes_operational_status.code'], name=op.f('fk_core_eia860__scd_emissions_control_equipment_operational_status_code_core_eia__codes_operational_status')),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'report_date'], ['core_eia860__scd_plants.plant_id_eia', 'core_eia860__scd_plants.report_date'], name=op.f('fk_core_eia860__scd_emissions_control_equipment_plant_id_eia_core_eia860__scd_plants')),
+    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'emission_control_id_pudl', name=op.f('pk_core_eia860__scd_emissions_control_equipment'))
+    )
     op.create_table('core_eia860__scd_generators',
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
@@ -3621,7 +4382,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('plant_name_ferc1', sa.Text(), nullable=True, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
     sa.Column('project_num', sa.Integer(), nullable=True, comment='FERC Licensed Project Number.'),
-    sa.Column('plant_type', sa.Enum('na_category', 'hydro', 'storage', 'run_of_river', 'run_of_river_with_storage'), nullable=True, comment='Type of plant.'),
+    sa.Column('plant_type', sa.Enum('hydro', 'storage', 'run_of_river_with_storage', 'na_category', 'run_of_river'), nullable=True, comment='Type of plant.'),
     sa.Column('construction_type', sa.Enum('conventional', 'outdoor', 'semioutdoor'), nullable=True, comment="Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."),
     sa.Column('construction_year', sa.Integer(), nullable=True, comment="Year the plant's oldest still operational unit was built."),
     sa.Column('installation_year', sa.Integer(), nullable=True, comment="Year the plant's most recently built unit was installed."),
@@ -3716,7 +4477,7 @@ def upgrade() -> None:
     sa.Column('opex_fuel', sa.Float(), nullable=True, comment='Production expenses: fuel (USD).'),
     sa.Column('opex_maintenance', sa.Float(), nullable=True, comment='Production expenses: Maintenance (USD).'),
     sa.Column('fuel_type', sa.Text(), nullable=True, comment='Type of fuel.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1', 'plant_name_ferc1'], ['core_pudl__assn_ferc1_pudl_plants.utility_id_ferc1', 'core_pudl__assn_ferc1_pudl_plants.plant_name_ferc1'], name=op.f('fk_core_ferc1__yearly_small_plants_sched410_utility_id_ferc1_core_pudl__assn_ferc1_pudl_plants'))
     )
     op.create_table('core_ferc1__yearly_steam_plants_fuel_sched402',
@@ -3730,7 +4491,7 @@ def upgrade() -> None:
     sa.Column('fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Heat content of the fuel in millions of Btus per physical unit.'),
     sa.Column('fuel_cost_per_unit_burned', sa.Float(), nullable=True, comment='Average cost of fuel consumed in the report year per reported fuel unit (USD).'),
     sa.Column('fuel_cost_per_unit_delivered', sa.Float(), nullable=True, comment='Average cost of fuel delivered in the report year per reported fuel unit (USD).'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1', 'plant_name_ferc1'], ['core_pudl__assn_ferc1_pudl_plants.utility_id_ferc1', 'core_pudl__assn_ferc1_pudl_plants.plant_name_ferc1'], name=op.f('fk_core_ferc1__yearly_steam_plants_fuel_sched402_utility_id_ferc1_core_pudl__assn_ferc1_pudl_plants'))
     )
     op.create_table('core_ferc1__yearly_steam_plants_sched402',
@@ -3738,7 +4499,7 @@ def upgrade() -> None:
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=True, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('plant_name_ferc1', sa.Text(), nullable=True, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
-    sa.Column('plant_type', sa.Enum('na_category', 'nuclear', 'photovoltaic', 'wind', 'steam', 'solar_thermal', 'combustion_turbine', 'geothermal', 'combined_cycle', 'internal_combustion'), nullable=True, comment='Type of plant.'),
+    sa.Column('plant_type', sa.Enum('wind', 'solar_thermal', 'na_category', 'internal_combustion', 'combined_cycle', 'combustion_turbine', 'nuclear', 'steam', 'photovoltaic', 'geothermal'), nullable=True, comment='Type of plant.'),
     sa.Column('construction_type', sa.Enum('conventional', 'outdoor', 'semioutdoor'), nullable=True, comment="Type of plant construction ('outdoor', 'semioutdoor', or 'conventional'). Categorized by PUDL based on our best guess of intended value in FERC1 freeform strings."),
     sa.Column('construction_year', sa.Integer(), nullable=True, comment="Year the plant's oldest still operational unit was built."),
     sa.Column('installation_year', sa.Integer(), nullable=True, comment="Year the plant's most recently built unit was installed."),
@@ -3775,19 +4536,49 @@ def upgrade() -> None:
     sa.Column('asset_retirement_cost', sa.Float(), nullable=True, comment='Asset retirement cost (USD).'),
     sa.ForeignKeyConstraint(['utility_id_ferc1', 'plant_name_ferc1'], ['core_pudl__assn_ferc1_pudl_plants.utility_id_ferc1', 'core_pudl__assn_ferc1_pudl_plants.plant_name_ferc1'], name=op.f('fk_core_ferc1__yearly_steam_plants_sched402_utility_id_ferc1_core_pudl__assn_ferc1_pudl_plants'))
     )
+    op.create_table('out_eia860__yearly_emissions_control_equipment',
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
+    sa.Column('plant_name_eia', sa.Text(), nullable=True, comment='Plant name.'),
+    sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
+    sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
+    sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
+    sa.Column('emission_control_id_pudl', sa.Float(), nullable=False, comment='A PUDL-generated ID used to distinguish emission control units in the same report year and plant id. This ID should not be used to track units over time or between plants.'),
+    sa.Column('data_maturity', sa.Text(), nullable=True, comment='Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.'),
+    sa.Column('emission_control_equipment_type_code', sa.Text(), nullable=True, comment='Short code indicating the type of emission control equipment installed.'),
+    sa.Column('operational_status_code', sa.Text(), nullable=True, comment='The operating status of the asset.'),
+    sa.Column('operational_status', sa.Text(), nullable=True, comment='The operating status of the asset. For generators this is based on which tab the generator was listed in in EIA 860.'),
+    sa.Column('mercury_control_id_eia', sa.Text(), nullable=True, comment='Mercury control identification number. This ID is not a unique identifier.'),
+    sa.Column('nox_control_id_eia', sa.Text(), nullable=True, comment='Nitrogen oxide control identification number. This ID is not a unique identifier.'),
+    sa.Column('particulate_control_id_eia', sa.Text(), nullable=True, comment='Particulate matter control identification number. This ID is not a unique identifier.'),
+    sa.Column('so2_control_id_eia', sa.Text(), nullable=True, comment='Sulfur dioxide control identification number. This ID is not a unique identifier.'),
+    sa.Column('acid_gas_control', sa.Boolean(), nullable=True, comment='Indicates whether the emissions control equipment controls acid (HCl) gas.'),
+    sa.Column('emission_control_equipment_cost', sa.Float(), nullable=True, comment='The total cost to install a piece of emission control equipment.'),
+    sa.Column('emission_control_operating_date', sa.Date(), nullable=True, comment='The date a piece of emissions control equipment began operating. Derived from month and year columns in the raw data.'),
+    sa.Column('emission_control_retirement_date', sa.Date(), nullable=True, comment='The expected or actual retirement date for a piece of emissions control equipment. Derived from month and year columns in the raw data.'),
+    sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_data_maturity_core_pudl__codes_data_maturities')),
+    sa.ForeignKeyConstraint(['emission_control_equipment_type_code'], ['core_eia__codes_emission_control_equipment_types.code'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_emission_control_equipment_type_code_core_eia__codes_emission_control_equipment_types')),
+    sa.ForeignKeyConstraint(['operational_status_code'], ['core_eia__codes_operational_status.code'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_operational_status_code_core_eia__codes_operational_status')),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'report_date'], ['core_eia860__scd_plants.plant_id_eia', 'core_eia860__scd_plants.report_date'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_plant_id_eia_core_eia860__scd_plants')),
+    sa.ForeignKeyConstraint(['plant_id_pudl'], ['core_pudl__entity_plants_pudl.plant_id_pudl'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_plant_id_pudl_core_pudl__entity_plants_pudl')),
+    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['core_eia860__scd_utilities.utility_id_eia', 'core_eia860__scd_utilities.report_date'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_utility_id_eia_core_eia860__scd_utilities')),
+    sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_eia860__yearly_emissions_control_equipment_utility_id_pudl_core_pudl__entity_utilities_pudl')),
+    sa.PrimaryKeyConstraint('report_date', 'plant_id_eia', 'emission_control_id_pudl', name=op.f('pk_out_eia860__yearly_emissions_control_equipment'))
+    )
     op.create_table('out_eia923__yearly_fuel_receipts_costs',
-    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
     sa.Column('plant_name_eia', sa.Text(), nullable=True, comment='Plant name.'),
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
     sa.Column('state', sa.Text(), nullable=True, comment='Two letter US state abbreviation.'),
-    sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
+    sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=False, comment='Simplified fuel type code used in PUDL'),
     sa.Column('fuel_received_units', sa.Float(), nullable=True, comment='Quantity of fuel received in tons, barrel, or Mcf.'),
     sa.Column('fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Heat content of the fuel in millions of Btus per physical unit.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
     sa.Column('total_fuel_cost', sa.Float(), nullable=True, comment='Total annual reported fuel costs for the plant part. Includes costs from all fuels.'),
     sa.Column('fuel_cost_per_mmbtu_source', sa.Enum('original', 'eiaapi', 'rolling_avg', 'mixed'), nullable=True, comment="Indicates the source of the values in the fuel_cost_per_mmbtu column. The fuel cost either comes directly from the EIA forms (original), was filled in from the EIA's API using state-level averages (eiaapi), was filled in using a rolling average (rolling_avg) or When the records get aggregated together and contain multiple sources (mixed)."),
@@ -3801,7 +4592,8 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['plant_id_eia', 'report_date'], ['core_eia860__scd_plants.plant_id_eia', 'core_eia860__scd_plants.report_date'], name=op.f('fk_out_eia923__yearly_fuel_receipts_costs_plant_id_eia_core_eia860__scd_plants')),
     sa.ForeignKeyConstraint(['plant_id_pudl'], ['core_pudl__entity_plants_pudl.plant_id_pudl'], name=op.f('fk_out_eia923__yearly_fuel_receipts_costs_plant_id_pudl_core_pudl__entity_plants_pudl')),
     sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['core_eia860__scd_utilities.utility_id_eia', 'core_eia860__scd_utilities.report_date'], name=op.f('fk_out_eia923__yearly_fuel_receipts_costs_utility_id_eia_core_eia860__scd_utilities')),
-    sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_eia923__yearly_fuel_receipts_costs_utility_id_pudl_core_pudl__entity_utilities_pudl'))
+    sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_eia923__yearly_fuel_receipts_costs_utility_id_pudl_core_pudl__entity_utilities_pudl')),
+    sa.PrimaryKeyConstraint('plant_id_eia', 'fuel_type_code_pudl', 'report_date', name=op.f('pk_out_eia923__yearly_fuel_receipts_costs'))
     )
     op.create_table('out_eia923__yearly_generation_fuel_combined',
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
@@ -3907,7 +4699,7 @@ def upgrade() -> None:
     sa.Column('plant_name_ferc1', sa.Text(), nullable=True, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
     sa.Column('asset_retirement_cost', sa.Float(), nullable=True, comment='Asset retirement cost (USD).'),
     sa.Column('avg_num_employees', sa.Float(), nullable=True, comment='The average number of employees assigned to each plant.'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
     sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('capex_annual_addition', sa.Float(), nullable=True, comment='Annual capital addition into `capex_total`.'),
     sa.Column('capex_annual_addition_rolling', sa.Float(), nullable=True, comment='Year-to-date capital addition into `capex_total`.'),
@@ -3953,7 +4745,7 @@ def upgrade() -> None:
     sa.Column('plant_type', sa.Text(), nullable=True, comment='Type of plant.'),
     sa.Column('record_id', sa.Text(), nullable=False, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('water_limited_capacity_mw', sa.Float(), nullable=True, comment='Plant capacity in MW when limited by condenser water.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_type', sa.Text(), nullable=True, comment='Type of fuel.'),
     sa.Column('license_id_ferc1', sa.Integer(), nullable=True, comment='FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.'),
     sa.Column('opex_maintenance', sa.Float(), nullable=True, comment='Production expenses: Maintenance (USD).'),
@@ -3992,7 +4784,7 @@ def upgrade() -> None:
     sa.Column('record_id', sa.Text(), nullable=False, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('asset_retirement_cost', sa.Float(), nullable=True, comment='Asset retirement cost (USD).'),
     sa.Column('avg_num_employees', sa.Float(), nullable=True, comment='The average number of employees assigned to each plant.'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
     sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('capex_equipment', sa.Float(), nullable=True, comment='Cost of plant: equipment (USD).'),
     sa.Column('capex_facilities', sa.Float(), nullable=True, comment='Cost of plant: reservoirs, dams, and waterways (USD).'),
@@ -4042,7 +4834,7 @@ def upgrade() -> None:
     sa.Column('record_id', sa.Text(), nullable=False, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('asset_retirement_cost', sa.Float(), nullable=True, comment='Asset retirement cost (USD).'),
     sa.Column('avg_num_employees', sa.Float(), nullable=True, comment='The average number of employees assigned to each plant.'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
     sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('capex_equipment_electric', sa.Float(), nullable=True, comment='Cost of plant: accessory electric equipment (USD).'),
     sa.Column('capex_equipment_misc', sa.Float(), nullable=True, comment='Cost of plant: miscellaneous power plant equipment (USD).'),
@@ -4099,7 +4891,7 @@ def upgrade() -> None:
     sa.Column('capex_per_mw', sa.Float(), nullable=True, comment='Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD.'),
     sa.Column('capex_total', sa.Float(), nullable=True, comment='Total cost of plant (USD).'),
     sa.Column('construction_year', sa.Integer(), nullable=True, comment="Year the plant's oldest still operational unit was built."),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_type', sa.Text(), nullable=True, comment='Type of fuel.'),
     sa.Column('license_id_ferc1', sa.Integer(), nullable=True, comment='FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.'),
     sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
@@ -4125,19 +4917,19 @@ def upgrade() -> None:
     sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
     sa.Column('plant_name_ferc1', sa.Text(), nullable=False, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
     sa.Column('coal_fraction_cost', sa.Float(), nullable=True, comment='Coal cost as a percentage of overall fuel cost.'),
-    sa.Column('coal_fraction_mmbtu', sa.Float(), nullable=True, comment='Coal heat content as a percentage of overall fuel heat content (mmBTU).'),
+    sa.Column('coal_fraction_mmbtu', sa.Float(), nullable=True, comment='Coal heat content as a percentage of overall fuel heat content (MMBTU).'),
     sa.Column('fuel_cost', sa.Float(), nullable=True, comment='Total fuel cost for plant (in $USD).'),
-    sa.Column('fuel_mmbtu', sa.Float(), nullable=True, comment='Total heat content for plant (in MMBtu).'),
+    sa.Column('fuel_mmbtu', sa.Float(), nullable=True, comment='Total heat content for plant (in MMBTU).'),
     sa.Column('gas_fraction_cost', sa.Float(), nullable=True, comment='Natural gas cost as a percentage of overall fuel cost.'),
-    sa.Column('gas_fraction_mmbtu', sa.Float(), nullable=True, comment='Natural gas heat content as a percentage of overall fuel heat content (MMBtu).'),
+    sa.Column('gas_fraction_mmbtu', sa.Float(), nullable=True, comment='Natural gas heat content as a percentage of overall fuel heat content (MMBTU).'),
     sa.Column('nuclear_fraction_cost', sa.Float(), nullable=True, comment='Nuclear cost as a percentage of overall fuel cost.'),
-    sa.Column('nuclear_fraction_mmbtu', sa.Float(), nullable=True, comment='Nuclear heat content as a percentage of overall fuel heat content (MMBtu).'),
+    sa.Column('nuclear_fraction_mmbtu', sa.Float(), nullable=True, comment='Nuclear heat content as a percentage of overall fuel heat content (MMBTU).'),
     sa.Column('oil_fraction_cost', sa.Float(), nullable=True, comment='Oil cost as a percentage of overall fuel cost.'),
-    sa.Column('oil_fraction_mmbtu', sa.Float(), nullable=True, comment='Oil heat content as a percentage of overall fuel heat content (MMBtu).'),
+    sa.Column('oil_fraction_mmbtu', sa.Float(), nullable=True, comment='Oil heat content as a percentage of overall fuel heat content (MMBTU).'),
     sa.Column('primary_fuel_by_cost', sa.Text(), nullable=True, comment='Primary fuel for plant as a percentage of cost.'),
     sa.Column('primary_fuel_by_mmbtu', sa.Text(), nullable=True, comment='Primary fuel for plant as a percentage of heat content.'),
     sa.Column('waste_fraction_cost', sa.Float(), nullable=True, comment='Waste-heat cost as a percentage of overall fuel cost.'),
-    sa.Column('waste_fraction_mmbtu', sa.Float(), nullable=True, comment='Waste-heat heat content as a percentage of overall fuel heat content (MMBtu).'),
+    sa.Column('waste_fraction_mmbtu', sa.Float(), nullable=True, comment='Waste-heat heat content as a percentage of overall fuel heat content (MMBTU).'),
     sa.ForeignKeyConstraint(['plant_id_pudl'], ['core_pudl__entity_plants_pudl.plant_id_pudl'], name=op.f('fk_out_ferc1__yearly_steam_plants_fuel_by_plant_sched402_plant_id_pudl_core_pudl__entity_plants_pudl')),
     sa.ForeignKeyConstraint(['utility_id_ferc1', 'plant_name_ferc1'], ['core_pudl__assn_ferc1_pudl_plants.utility_id_ferc1', 'core_pudl__assn_ferc1_pudl_plants.plant_name_ferc1'], name=op.f('fk_out_ferc1__yearly_steam_plants_fuel_by_plant_sched402_utility_id_ferc1_core_pudl__assn_ferc1_pudl_plants')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_steam_plants_fuel_by_plant_sched402_utility_id_pudl_core_pudl__entity_utilities_pudl')),
@@ -4155,7 +4947,7 @@ def upgrade() -> None:
     sa.Column('fuel_consumed_mmbtu', sa.Float(), nullable=True, comment='Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
     sa.Column('fuel_consumed_total_cost', sa.Float(), nullable=True, comment='Total cost of consumed fuel.'),
     sa.Column('fuel_consumed_units', sa.Float(), nullable=True, comment='Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_cost_per_unit_burned', sa.Float(), nullable=True, comment='Average cost of fuel consumed in the report year per reported fuel unit (USD).'),
     sa.Column('fuel_cost_per_unit_delivered', sa.Float(), nullable=True, comment='Average cost of fuel delivered in the report year per reported fuel unit (USD).'),
     sa.Column('fuel_mmbtu_per_unit', sa.Float(), nullable=True, comment='Heat content of the fuel in millions of Btus per physical unit.'),
@@ -4179,7 +4971,7 @@ def upgrade() -> None:
     sa.Column('plant_name_ferc1', sa.Text(), nullable=True, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
     sa.Column('asset_retirement_cost', sa.Float(), nullable=True, comment='Asset retirement cost (USD).'),
     sa.Column('avg_num_employees', sa.Float(), nullable=True, comment='The average number of employees assigned to each plant.'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
     sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('capex_annual_addition', sa.Float(), nullable=True, comment='Annual capital addition into `capex_total`.'),
     sa.Column('capex_annual_addition_rolling', sa.Float(), nullable=True, comment='Year-to-date capital addition into `capex_total`.'),
@@ -4367,7 +5159,7 @@ def upgrade() -> None:
     sa.Column('has_other_factors_that_limit_switching', sa.Boolean(), nullable=True, comment="Whether there are factors other than air permit limits and storage that limit the generator's ability to switch between oil and natural gas."),
     sa.Column('can_cofire_oil_and_gas', sa.Boolean(), nullable=True, comment='Whether the generator can co-fire oil and gas.'),
     sa.Column('can_cofire_100_oil', sa.Boolean(), nullable=True, comment='Whether the generator can co-fire 100 oil.'),
-    sa.Column('max_oil_heat_input', sa.Float(), nullable=True, comment='The maximum oil heat input (percent of MMBtus) expected for proposed unit when co-firing with natural gas'),
+    sa.Column('max_oil_heat_input', sa.Float(), nullable=True, comment='The maximum oil heat input (percent of MMBTUs) expected for proposed unit when co-firing with natural gas'),
     sa.Column('max_oil_output_mw', sa.Float(), nullable=True, comment='The maximum output (net MW) expected for proposed unit, when making the maximum use of oil and co-firing natural gas.'),
     sa.Column('can_fuel_switch', sa.Boolean(), nullable=True, comment='Whether a unit is able to switch fuels.'),
     sa.Column('has_regulatory_limits', sa.Boolean(), nullable=True, comment='Whether there are factors that limit the operation of the generator when running on 100 percent oil'),
@@ -4438,7 +5230,7 @@ def upgrade() -> None:
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
     sa.Column('owner_utility_name_eia', sa.Text(), nullable=True, comment='The name of the EIA owner utility.'),
-    sa.Column('owner_state', sa.Enum('NC', 'WY', 'HI', 'LA', 'NM', 'WI', 'PA', 'KY', 'SC', 'NY', 'MA', 'PE', 'NH', 'OK', 'UT', 'MD', 'CT', 'SD', 'AS', 'WA', 'AK', 'ID', 'MP', 'NJ', 'IL', 'AL', 'DE', 'ME', 'NS', 'MT', 'MI', 'BC', 'TN', 'YT', 'NT', 'VT', 'VI', 'AB', 'MO', 'NE', 'OH', 'ON', 'NB', 'VA', 'TX', 'WV', 'AR', 'OR', 'IN', 'NL', 'AZ', 'PR', 'RI', 'SK', 'CA', 'IA', 'MB', 'FL', 'QC', 'MS', 'MN', 'DC', 'GU', 'KS', 'ND', 'GA', 'NU', 'CO', 'NV'), nullable=True, comment='Two letter ISO-3166 political subdivision code.'),
+    sa.Column('owner_state', sa.Enum('IL', 'SD', 'OK', 'NM', 'RI', 'YT', 'DE', 'AZ', 'KS', 'QC', 'UT', 'ID', 'NB', 'ND', 'DC', 'IN', 'NE', 'NJ', 'NT', 'VA', 'WV', 'BC', 'MP', 'MS', 'LA', 'MD', 'AB', 'MN', 'AS', 'PR', 'NV', 'SC', 'NS', 'IA', 'MO', 'CO', 'NY', 'MB', 'NL', 'AK', 'SK', 'KY', 'MI', 'TN', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AR', 'WA', 'AL', 'GA', 'ME', 'NH', 'MA', 'TX', 'WI', 'WY', 'FL', 'NU', 'OH', 'CA', 'PA', 'HI', 'ON', 'VI', 'CT'), nullable=True, comment='Two letter ISO-3166 political subdivision code.'),
     sa.Column('owner_city', sa.Text(), nullable=True, comment='City of owner.'),
     sa.Column('owner_country', sa.Enum('CAN', 'USA'), nullable=True, comment='Three letter ISO-3166 country code.'),
     sa.Column('owner_street_address', sa.Text(), nullable=True, comment='Steet address of owner.'),
@@ -4460,7 +5252,7 @@ def upgrade() -> None:
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility. May not be stable over time.'),
     sa.Column('owner_utility_name_eia', sa.Text(), nullable=True, comment='The name of the EIA owner utility.'),
     sa.Column('generator_id', sa.Text(), nullable=False, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
-    sa.Column('owner_state', sa.Enum('NC', 'WY', 'HI', 'LA', 'NM', 'WI', 'PA', 'KY', 'SC', 'NY', 'MA', 'PE', 'NH', 'OK', 'UT', 'MD', 'CT', 'SD', 'AS', 'WA', 'AK', 'ID', 'MP', 'NJ', 'IL', 'AL', 'DE', 'ME', 'NS', 'MT', 'MI', 'BC', 'TN', 'YT', 'NT', 'VT', 'VI', 'AB', 'MO', 'NE', 'OH', 'ON', 'NB', 'VA', 'TX', 'WV', 'AR', 'OR', 'IN', 'NL', 'AZ', 'PR', 'RI', 'SK', 'CA', 'IA', 'MB', 'FL', 'QC', 'MS', 'MN', 'DC', 'GU', 'KS', 'ND', 'GA', 'NU', 'CO', 'NV'), nullable=True, comment='Two letter ISO-3166 political subdivision code.'),
+    sa.Column('owner_state', sa.Enum('IL', 'SD', 'OK', 'NM', 'RI', 'YT', 'DE', 'AZ', 'KS', 'QC', 'UT', 'ID', 'NB', 'ND', 'DC', 'IN', 'NE', 'NJ', 'NT', 'VA', 'WV', 'BC', 'MP', 'MS', 'LA', 'MD', 'AB', 'MN', 'AS', 'PR', 'NV', 'SC', 'NS', 'IA', 'MO', 'CO', 'NY', 'MB', 'NL', 'AK', 'SK', 'KY', 'MI', 'TN', 'PE', 'OR', 'MT', 'VT', 'GU', 'NC', 'AR', 'WA', 'AL', 'GA', 'ME', 'NH', 'MA', 'TX', 'WI', 'WY', 'FL', 'NU', 'OH', 'CA', 'PA', 'HI', 'ON', 'VI', 'CT'), nullable=True, comment='Two letter ISO-3166 political subdivision code.'),
     sa.Column('owner_city', sa.Text(), nullable=True, comment='City of owner.'),
     sa.Column('owner_country', sa.Enum('CAN', 'USA'), nullable=True, comment='Three letter ISO-3166 country code.'),
     sa.Column('owner_street_address', sa.Text(), nullable=True, comment='Steet address of owner.'),
@@ -4679,7 +5471,7 @@ def upgrade() -> None:
     sa.Column('unit_nox', sa.Text(), nullable=True, comment='Numeric value for the unit of measurement specified for nitrogen oxide.'),
     sa.Column('unit_particulate', sa.Text(), nullable=True, comment='Numeric value for the unit of measurement specified for particulate matter.'),
     sa.Column('unit_so2', sa.Text(), nullable=True, comment='Numeric value for the unit of measurement specified for sulfur dioxide.'),
-    sa.Column('waste_heat_input_mmbtu_per_hour', sa.Float(), nullable=True, comment='Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour).'),
+    sa.Column('waste_heat_input_mmbtu_per_hour', sa.Float(), nullable=True, comment='Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBTU per hour).'),
     sa.Column('wet_dry_bottom', sa.Text(), nullable=True, comment='Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers.'),
     sa.Column('zip_code', sa.Text(), nullable=True, comment='Five digit US Zip Code.'),
     sa.ForeignKeyConstraint(['boiler_fuel_code_1'], ['core_eia__codes_energy_sources.code'], name=op.f('fk_out_eia__yearly_boilers_boiler_fuel_code_1_core_eia__codes_energy_sources')),
@@ -4760,9 +5552,9 @@ def upgrade() -> None:
     sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('planned_generator_retirement_date', sa.Date(), nullable=True, comment='Planned effective date of the scheduled retirement of the generator.'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
     sa.Column('fuel_cost_per_mmbtu_source', sa.Enum('original', 'eiaapi', 'rolling_avg', 'mixed'), nullable=True, comment="Indicates the source of the values in the fuel_cost_per_mmbtu column. The fuel cost either comes directly from the EIA forms (original), was filled in from the EIA's API using state-level averages (eiaapi), was filled in using a rolling average (rolling_avg) or When the records get aggregated together and contain multiple sources (mixed)."),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_cost_per_mwh', sa.Float(), nullable=True, comment='Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.'),
     sa.Column('unit_heat_rate_mmbtu_per_mwh', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'),
     sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
@@ -4899,9 +5691,9 @@ def upgrade() -> None:
     sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('planned_generator_retirement_date', sa.Date(), nullable=True, comment='Planned effective date of the scheduled retirement of the generator.'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
     sa.Column('fuel_cost_per_mmbtu_source', sa.Enum('original', 'eiaapi', 'rolling_avg', 'mixed'), nullable=True, comment="Indicates the source of the values in the fuel_cost_per_mmbtu column. The fuel cost either comes directly from the EIA forms (original), was filled in from the EIA's API using state-level averages (eiaapi), was filled in using a rolling average (rolling_avg) or When the records get aggregated together and contain multiple sources (mixed)."),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_cost_per_mwh', sa.Float(), nullable=True, comment='Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.'),
     sa.Column('unit_heat_rate_mmbtu_per_mwh', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'),
     sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
@@ -4924,7 +5716,7 @@ def upgrade() -> None:
     sa.Column('record_id_eia', sa.Text(), nullable=False, comment='Identifier for EIA plant parts analysis records.'),
     sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
-    sa.Column('plant_part', sa.Enum('plant_unit', 'plant_ferc_acct', 'plant_prime_mover', 'plant_gen', 'plant_technology', 'plant', 'plant_operating_year', 'plant_prime_fuel', 'plant_match_ferc1'), nullable=True, comment='The part of the plant a record corresponds to.'),
+    sa.Column('plant_part', sa.Enum('plant', 'plant_gen', 'plant_prime_fuel', 'plant_prime_mover', 'plant_unit', 'plant_ferc_acct', 'plant_technology', 'plant_operating_year', 'plant_match_ferc1'), nullable=True, comment='The part of the plant a record corresponds to.'),
     sa.Column('generator_id', sa.Text(), nullable=True, comment='Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!'),
     sa.Column('unit_id_pudl', sa.Integer(), nullable=True, comment='Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.'),
     sa.Column('prime_mover_code', sa.Text(), nullable=True, comment='Code for the type of prime mover (e.g. CT, CG)'),
@@ -4933,15 +5725,15 @@ def upgrade() -> None:
     sa.Column('ferc_acct_name', sa.Enum('Hydraulic', 'Nuclear', 'Steam', 'Other'), nullable=True, comment='Name of FERC account, derived from technology description and prime mover code.'),
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('true_gran', sa.Boolean(), nullable=True, comment='Indicates whether a plant part list record is associated with the highest priority plant part for all identical records.'),
-    sa.Column('appro_part_label', sa.Enum('plant_unit', 'plant_ferc_acct', 'plant_prime_mover', 'plant_gen', 'plant_technology', 'plant', 'plant_operating_year', 'plant_prime_fuel', 'plant_match_ferc1'), nullable=True, comment='Plant part of the associated true granularity record.'),
+    sa.Column('appro_part_label', sa.Enum('plant', 'plant_gen', 'plant_prime_fuel', 'plant_prime_mover', 'plant_unit', 'plant_ferc_acct', 'plant_technology', 'plant_operating_year', 'plant_match_ferc1'), nullable=True, comment='Plant part of the associated true granularity record.'),
     sa.Column('appro_record_id_eia', sa.Text(), nullable=True, comment='EIA record ID of the associated true granularity record.'),
     sa.Column('ferc1_generator_agg_id', sa.Integer(), nullable=True, comment='ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. The ID is manually assigned and has not been updated since 2020, but only affects a couple hundred records total across all years.'),
     sa.Column('capacity_eoy_mw', sa.Float(), nullable=True, comment='Total end of year installed (nameplate) capacity for a plant part, in megawatts.'),
-    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Energy generated over time period / nameplate capacity * time period (hours/years/etc.).'),
     sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('construction_year', sa.Integer(), nullable=True, comment="Year the plant's oldest still operational unit was built."),
     sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
-    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_cost_per_mwh', sa.Float(), nullable=True, comment='Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD.'),
     sa.Column('fuel_type_code_pudl', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
     sa.Column('generator_retirement_date', sa.Date(), nullable=True, comment='Date of the scheduled or effected retirement of the generator.'),
@@ -4978,7 +5770,7 @@ def upgrade() -> None:
     sa.Column('record_id_eia', sa.Text(), nullable=True, comment='Identifier for EIA plant parts analysis records.'),
     sa.Column('match_type', sa.Text(), nullable=True, comment='Indicates the source and validation of the match between EIA and FERC. Match types include matches was generated from the model, verified by the training data, overridden by the training data, etc.'),
     sa.Column('plant_name_ppe', sa.Text(), nullable=True, comment='Derived plant name that includes EIA plant name and other strings associated with ID and PK columns of the plant part.'),
-    sa.Column('plant_part', sa.Enum('plant_unit', 'plant_ferc_acct', 'plant_prime_mover', 'plant_gen', 'plant_technology', 'plant', 'plant_operating_year', 'plant_prime_fuel', 'plant_match_ferc1'), nullable=True, comment='The part of the plant a record corresponds to.'),
+    sa.Column('plant_part', sa.Enum('plant', 'plant_gen', 'plant_prime_fuel', 'plant_prime_mover', 'plant_unit', 'plant_ferc_acct', 'plant_technology', 'plant_operating_year', 'plant_match_ferc1'), nullable=True, comment='The part of the plant a record corresponds to.'),
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
     sa.Column('ownership_record_type', sa.Enum('owned', 'total'), nullable=True, comment='Whether each generator record is for one owner or represents a total of all ownerships.'),
@@ -4994,7 +5786,7 @@ def upgrade() -> None:
     sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('true_gran', sa.Boolean(), nullable=True, comment='Indicates whether a plant part list record is associated with the highest priority plant part for all identical records.'),
-    sa.Column('appro_part_label', sa.Enum('plant_unit', 'plant_ferc_acct', 'plant_prime_mover', 'plant_gen', 'plant_technology', 'plant', 'plant_operating_year', 'plant_prime_fuel', 'plant_match_ferc1'), nullable=True, comment='Plant part of the associated true granularity record.'),
+    sa.Column('appro_part_label', sa.Enum('plant', 'plant_gen', 'plant_prime_fuel', 'plant_prime_mover', 'plant_unit', 'plant_ferc_acct', 'plant_technology', 'plant_operating_year', 'plant_match_ferc1'), nullable=True, comment='Plant part of the associated true granularity record.'),
     sa.Column('appro_record_id_eia', sa.Text(), nullable=True, comment='EIA record ID of the associated true granularity record.'),
     sa.Column('record_count', sa.Integer(), nullable=True, comment='Number of distinct generator IDs that participated in the aggregation for a plant part list record.'),
     sa.Column('fraction_owned', sa.Float(), nullable=True, comment='Proportion of generator ownership attributable to this utility.'),
@@ -5003,10 +5795,10 @@ def upgrade() -> None:
     sa.Column('operational_status_pudl', sa.Enum('operating', 'retired', 'proposed'), nullable=True, comment='The operating status of the asset using PUDL categories.'),
     sa.Column('plant_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL plant ID. May not be constant over time.'),
     sa.Column('total_fuel_cost_eia', sa.Float(), nullable=True, comment='Total annual reported fuel costs for the plant part. Includes costs from all fuels.'),
-    sa.Column('fuel_cost_per_mmbtu_eia', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu_eia', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('net_generation_mwh_eia', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
     sa.Column('capacity_mw_eia', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
-    sa.Column('capacity_factor_eia', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor_eia', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Actual energy generated / nameplate capacity * hours.'),
     sa.Column('total_mmbtu_eia', sa.Float(), nullable=True, comment='Total annual heat content of fuel consumed by a plant part record in the plant parts list.'),
     sa.Column('unit_heat_rate_mmbtu_per_mwh_eia', sa.Float(), nullable=True, comment='Fuel content per unit of electricity generated. Coming from MCOE calculation.'),
     sa.Column('fuel_type_code_pudl_eia', sa.Enum('coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'waste', 'wind'), nullable=True, comment='Simplified fuel type code used in PUDL'),
@@ -5018,7 +5810,7 @@ def upgrade() -> None:
     sa.Column('plant_name_ferc1', sa.Text(), nullable=True, comment='Name of the plant, as reported to FERC. This is a freeform string, not guaranteed to be consistent across references to the same plant.'),
     sa.Column('asset_retirement_cost', sa.Float(), nullable=True, comment='Asset retirement cost (USD).'),
     sa.Column('avg_num_employees', sa.Float(), nullable=True, comment='The average number of employees assigned to each plant.'),
-    sa.Column('capacity_factor_ferc1', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
+    sa.Column('capacity_factor_ferc1', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part. Actual energy generated / nameplate capacity * hours.'),
     sa.Column('capacity_mw_ferc1', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('capex_annual_addition', sa.Float(), nullable=True, comment='Annual capital addition into `capex_total`.'),
     sa.Column('capex_annual_addition_rolling', sa.Float(), nullable=True, comment='Year-to-date capital addition into `capex_total`.'),
@@ -5065,7 +5857,7 @@ def upgrade() -> None:
     sa.Column('plant_hours_connected_while_generating', sa.Float(), nullable=True, comment='Hours the plant was connected to load while generating in the report year.'),
     sa.Column('plant_type', sa.Text(), nullable=True, comment='Type of plant.'),
     sa.Column('water_limited_capacity_mw', sa.Float(), nullable=True, comment='Plant capacity in MW when limited by condenser water.'),
-    sa.Column('fuel_cost_per_mmbtu_ferc1', sa.Float(), nullable=True, comment='Average fuel cost per mmBTU of heat content in nominal USD.'),
+    sa.Column('fuel_cost_per_mmbtu_ferc1', sa.Float(), nullable=True, comment='Average fuel cost per MMBTU of heat content in nominal USD.'),
     sa.Column('fuel_type', sa.Text(), nullable=True, comment='Type of fuel.'),
     sa.Column('license_id_ferc1', sa.Integer(), nullable=True, comment='FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.'),
     sa.Column('opex_maintenance', sa.Float(), nullable=True, comment='Production expenses: Maintenance (USD).'),
@@ -5160,12 +5952,14 @@ def downgrade() -> None:
     op.drop_table('out_eia__yearly_plants')
     op.drop_table('out_eia923__yearly_generation_fuel_combined')
     op.drop_table('out_eia923__yearly_fuel_receipts_costs')
+    op.drop_table('out_eia860__yearly_emissions_control_equipment')
     op.drop_table('core_ferc1__yearly_steam_plants_sched402')
     op.drop_table('core_ferc1__yearly_steam_plants_fuel_sched402')
     op.drop_table('core_ferc1__yearly_small_plants_sched410')
     op.drop_table('core_ferc1__yearly_pumped_storage_plants_sched408')
     op.drop_table('core_ferc1__yearly_hydroelectric_plants_sched406')
     op.drop_table('core_eia860__scd_generators')
+    op.drop_table('core_eia860__scd_emissions_control_equipment')
     op.drop_table('core_eia860__scd_boilers')
     op.drop_table('_core_eia860__fgd_equipment')
     op.drop_table('_core_eia860__cooling_equipment')
@@ -5223,18 +6017,98 @@ def downgrade() -> None:
     op.drop_table('core_ferc1__yearly_balance_sheet_assets_sched110')
     op.drop_table('core_epa__assn_eia_epacamd')
     op.drop_table('core_eia923__monthly_generation')
-    op.drop_table('core_eia923__monthly_fuel_receipts_costs')
     op.drop_table('core_eia923__monthly_boiler_fuel')
+    op.drop_table('core_eia923__fuel_receipts_costs')
     op.drop_table('core_eia860__scd_plants')
+    op.drop_table('out_rus7__yearly_transmission_and_distribution_mileage')
+    op.drop_table('out_rus7__yearly_statement_of_operations')
+    op.drop_table('out_rus7__yearly_service_interruptions')
+    op.drop_table('out_rus7__yearly_power_requirements_electric_sales')
+    op.drop_table('out_rus7__yearly_power_requirements_electric_customers')
+    op.drop_table('out_rus7__yearly_power_requirements')
+    op.drop_table('out_rus7__yearly_patronage_capital')
+    op.drop_table('out_rus7__yearly_owed_by_customers')
+    op.drop_table('out_rus7__yearly_meeting_and_board')
+    op.drop_table('out_rus7__yearly_materials_and_supplies')
+    op.drop_table('out_rus7__yearly_long_term_leases')
+    op.drop_table('out_rus7__yearly_long_term_debt')
+    op.drop_table('out_rus7__yearly_loans')
+    op.drop_table('out_rus7__yearly_investments')
+    op.drop_table('out_rus7__yearly_external_financial_risk_ratio')
+    op.drop_table('out_rus7__yearly_energy_purchased')
+    op.drop_table('out_rus7__yearly_energy_efficiency')
+    op.drop_table('out_rus7__yearly_employee_statistics')
+    op.drop_table('out_rus7__yearly_distribution_services')
+    op.drop_table('out_rus7__yearly_customer_energy_efficiency_and_conservation_loans')
+    op.drop_table('out_rus7__yearly_balance_sheet_liabilities')
+    op.drop_table('out_rus7__yearly_balance_sheet_assets')
+    op.drop_table('out_rus12__yearly_statement_of_operations')
+    op.drop_table('out_rus12__yearly_sources_and_distribution_by_plant_type')
+    op.drop_table('out_rus12__yearly_sources_and_distribution')
+    op.drop_table('out_rus12__yearly_renewable_plants')
+    op.drop_table('out_rus12__yearly_plant_operations_by_plant')
+    op.drop_table('out_rus12__yearly_plant_operations_by_borrower')
+    op.drop_table('out_rus12__yearly_plant_labor')
+    op.drop_table('out_rus12__yearly_plant_factors_and_maximum_demand')
+    op.drop_table('out_rus12__yearly_plant_costs')
+    op.drop_table('out_rus12__yearly_meeting_and_board')
+    op.drop_table('out_rus12__yearly_long_term_debt')
+    op.drop_table('out_rus12__yearly_loans')
+    op.drop_table('out_rus12__yearly_lines_stations_labor_materials_cost')
+    op.drop_table('out_rus12__yearly_investments')
+    op.drop_table('out_rus12__yearly_external_financial_risk_ratio')
+    op.drop_table('out_rus12__yearly_balance_sheet_liabilities')
+    op.drop_table('out_rus12__yearly_balance_sheet_assets')
+    op.drop_table('out_rus12__monthly_demand_and_energy_at_power_sources')
+    op.drop_table('out_rus12__monthly_demand_and_energy_at_delivery_points')
     op.drop_table('out_ferc714__summarized_demand')
     op.drop_table('out_ferc714__respondents_with_fips')
     op.drop_table('out_eia923__monthly_generation_fuel_combined')
     op.drop_table('out_eia923__monthly_fuel_receipts_costs')
     op.drop_table('out_eia923__generation_fuel_combined')
     op.drop_table('out_eia923__fuel_receipts_costs')
-    op.drop_table('out_eia860__yearly_emissions_control_equipment')
     op.drop_table('core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities')
+    op.drop_table('core_rus7__yearly_transmission_and_distribution_mileage')
+    op.drop_table('core_rus7__yearly_statement_of_operations')
+    op.drop_table('core_rus7__yearly_service_interruptions')
+    op.drop_table('core_rus7__yearly_power_requirements_electric_sales')
+    op.drop_table('core_rus7__yearly_power_requirements_electric_customers')
+    op.drop_table('core_rus7__yearly_power_requirements')
+    op.drop_table('core_rus7__yearly_patronage_capital')
+    op.drop_table('core_rus7__yearly_owed_by_customers')
+    op.drop_table('core_rus7__yearly_meeting_and_board')
+    op.drop_table('core_rus7__yearly_materials_and_supplies')
+    op.drop_table('core_rus7__yearly_long_term_leases')
+    op.drop_table('core_rus7__yearly_long_term_debt')
+    op.drop_table('core_rus7__yearly_loans')
     op.drop_table('core_rus7__yearly_investments')
+    op.drop_table('core_rus7__yearly_external_financial_risk_ratio')
+    op.drop_table('core_rus7__yearly_energy_purchased')
+    op.drop_table('core_rus7__yearly_energy_efficiency')
+    op.drop_table('core_rus7__yearly_employee_statistics')
+    op.drop_table('core_rus7__yearly_distribution_services')
+    op.drop_table('core_rus7__yearly_customer_energy_efficiency_and_conservation_loans')
+    op.drop_table('core_rus7__yearly_balance_sheet_liabilities')
+    op.drop_table('core_rus7__yearly_balance_sheet_assets')
+    op.drop_table('core_rus12__yearly_statement_of_operations')
+    op.drop_table('core_rus12__yearly_sources_and_distribution_by_plant_type')
+    op.drop_table('core_rus12__yearly_sources_and_distribution')
+    op.drop_table('core_rus12__yearly_renewable_plants')
+    op.drop_table('core_rus12__yearly_plant_operations_by_plant')
+    op.drop_table('core_rus12__yearly_plant_operations_by_borrower')
+    op.drop_table('core_rus12__yearly_plant_labor')
+    op.drop_table('core_rus12__yearly_plant_factors_and_maximum_demand')
+    op.drop_table('core_rus12__yearly_plant_costs')
+    op.drop_table('core_rus12__yearly_meeting_and_board')
+    op.drop_table('core_rus12__yearly_long_term_debt')
+    op.drop_table('core_rus12__yearly_loans')
+    op.drop_table('core_rus12__yearly_lines_stations_labor_materials_cost')
+    op.drop_table('core_rus12__yearly_investments')
+    op.drop_table('core_rus12__yearly_external_financial_risk_ratio')
+    op.drop_table('core_rus12__yearly_balance_sheet_liabilities')
+    op.drop_table('core_rus12__yearly_balance_sheet_assets')
+    op.drop_table('core_rus12__monthly_demand_and_energy_at_power_sources')
+    op.drop_table('core_rus12__monthly_demand_and_energy_at_delivery_points')
     op.drop_table('core_pudl__assn_utilities_plants')
     op.drop_table('core_pudl__assn_ferc714_xbrl_pudl_respondents')
     op.drop_table('core_pudl__assn_ferc714_csv_pudl_respondents')
@@ -5279,7 +6153,6 @@ def downgrade() -> None:
     op.drop_table('core_eia861__yearly_advanced_metering_infrastructure')
     op.drop_table('core_eia860m__changelog_generators')
     op.drop_table('core_eia860__scd_utilities')
-    op.drop_table('core_eia860__scd_emissions_control_equipment')
     op.drop_table('_core_phmsagas__yearly_distribution_misc')
     op.drop_table('_core_phmsagas__yearly_distribution_leaks')
     op.drop_table('_core_phmsagas__yearly_distribution_filings')
@@ -5288,6 +6161,7 @@ def downgrade() -> None:
     op.drop_table('_core_phmsagas__yearly_distribution_by_material')
     op.drop_table('_core_phmsagas__yearly_distribution_by_install_decade')
     op.drop_table('_core_eia923__yearly_fgd_operation_maintenance')
+    op.drop_table('_core_eia923__yearly_emissions_control')
     op.drop_table('_core_eia923__yearly_byproduct_expenses_and_revenues')
     op.drop_table('_core_eia923__yearly_byproduct_disposition')
     op.drop_table('_core_eia923__monthly_cooling_system_information')
@@ -5303,31 +6177,10 @@ def downgrade() -> None:
     op.drop_table('core_sec10k__changelog_company_name')
     op.drop_table('core_sec10k__assn_sec10k_filers_and_eia_utilities')
     op.drop_table('core_sec10k__assn_exhibit_21_subsidiaries_and_filers')
-    op.drop_table('core_rus7__yearly_statement_of_operations')
-    op.drop_table('core_rus7__yearly_power_requirements_electric_sales')
-    op.drop_table('core_rus7__yearly_power_requirements_electric_customers')
-    op.drop_table('core_rus7__yearly_power_requirements')
-    op.drop_table('core_rus7__yearly_patronage_capital')
-    op.drop_table('core_rus7__yearly_meeting_and_board')
-    op.drop_table('core_rus7__yearly_long_term_debt')
-    op.drop_table('core_rus7__yearly_energy_efficiency')
-    op.drop_table('core_rus7__yearly_employee_statistics')
-    op.drop_table('core_rus7__yearly_balance_sheet_liabilities')
-    op.drop_table('core_rus7__yearly_balance_sheet_assets')
-    op.drop_table('core_rus7__scd_borrowers')
-    op.drop_table('core_rus7__codes_investment_types')
-    op.drop_table('core_rus12__yearly_statement_of_operations')
-    op.drop_table('core_rus12__yearly_sources_and_distribution_by_plant_type')
-    op.drop_table('core_rus12__yearly_sources_and_distribution')
-    op.drop_table('core_rus12__yearly_renewable_plants')
-    op.drop_table('core_rus12__yearly_plant_labor')
-    op.drop_table('core_rus12__yearly_meeting_and_board')
-    op.drop_table('core_rus12__yearly_long_term_debt')
-    op.drop_table('core_rus12__yearly_loans')
-    op.drop_table('core_rus12__yearly_lines_stations_labor_materials_cost')
-    op.drop_table('core_rus12__yearly_balance_sheet_liabilities')
-    op.drop_table('core_rus12__yearly_balance_sheet_assets')
-    op.drop_table('core_rus12__scd_borrowers')
+    op.drop_table('core_rus__codes_investment_types')
+    op.drop_table('core_rus__codes_fuel_types')
+    op.drop_table('core_rus7__entity_borrowers')
+    op.drop_table('core_rus12__entity_borrowers')
     op.drop_table('core_pudl__entity_utilities_pudl')
     op.drop_table('core_pudl__entity_plants_pudl')
     op.drop_table('core_pudl__codes_subdivisions')
