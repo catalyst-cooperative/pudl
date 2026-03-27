@@ -2122,10 +2122,10 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
     # of data is often a ytd year that doesn't get allocated.
     if len(gf.report_date.dt.year.unique()) <= 2:
         expected_allocation_pct = expected_allocation_pct / 2
-    if not all(total_allocation_test > 95.06):
+    if not all(total_allocation_test.allocated_pct > expected_allocation_pct):
         raise AssertionError(
             "The total portion of generation or fuel being allocated dipped below "
-            "the expected 95.06%."
+            f"the expected {expected_allocation_pct}%."
         )
     gf_test = pd.merge(
         original_gf,
