@@ -249,11 +249,10 @@ def load_etl_run_config_from_file(setting_filename: str) -> dict:
     """Load ETL run config from a packaged settings profile.
 
     The settings file path is resolved via ``importlib.resources`` so the config
-    works correctly regardless of the current working directory and whether the
-    package is installed in editable or non-editable mode.
+    works correctly regardless of the current working directory.
     """
-    settings = load_packaged_etl_settings(setting_filename)
-    if settings.ferc_to_sqlite_settings is None:
+    etl_settings = load_packaged_etl_settings(setting_filename)
+    if etl_settings.ferc_to_sqlite_settings is None:
         raise ValueError("Missing ferc_to_sqlite_settings in ETL settings file.")
 
     etl_settings_path = str(
@@ -348,7 +347,7 @@ def build_defs(
         # instantiation time, so overriding the top-level ``etl_settings`` resource alone
         # is not sufficient — the IO managers must be rebuilt against the same resource
         # instance. A follow-up PR will remove the nested dependency from the IO managers,
-        # after which this rebuild block can be deleted.
+        # after which this rebuild block can be deleted. See Issue #5118.
         if etl_settings_override is not None:
             if "ferc1_dbf_sqlite_io_manager" not in resource_overrides:
                 resources["ferc1_dbf_sqlite_io_manager"] = (

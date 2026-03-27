@@ -734,7 +734,7 @@ class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
         managers must be rebuilt against the new resource instance. ``build_defs``
         in ``pudl.etl`` handles that rebuilding explicitly. A follow-up PR will
         remove the nested dependency, at which point this base class can be
-        simplified or eliminated.
+        simplified or eliminated. See issue #5118
     """
 
     etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
