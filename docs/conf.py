@@ -170,7 +170,7 @@ html_theme_options = {
         }
     ],
     "switcher": {
-        "json_url": "https://krivard.github.io/pudl/available_versions.json",
+        "json_url": "https://docs.catalyst.coop/pudl/available_versions.json",
         "version_match": "latest",
     },
     "navbar_start": ["navbar-logo", "version-switcher"],
