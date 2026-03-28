@@ -180,10 +180,12 @@ furo = ">=2025"
 sphinx-tabs = ">=3.4.7"
 
 [tool.pixi.feature.dev.dependencies]
+jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.21"
 matplotx = ">=0.3.10"
 plotly = ">=6.6"
-ty = ">=0.0.25"
+ripgrep = ">=15" # Primarily for agent skills use
+ty = ">=0.0.25" # Experimental, also for agent skills use
 
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
@@ -739,3 +741,6 @@ extend-exclude = [
 
 [tool.ty.environment]
 python = ".pixi/envs/default/bin/python"
+python-version = "3.13"
+python-platform = "all"
+root = ["./src"]
