@@ -255,12 +255,12 @@ function notify_slack() {
     message+="$(slack_stage_status "Data Validations (FKs/dbt)" "$DATA_VALIDATION_STATUS" "$DATA_VALIDATION_DURATION")\n"
     message+="$(slack_stage_status "Write PUDL Datapackage" "$WRITE_DATAPACKAGE_STATUS" "$WRITE_DATAPACKAGE_DURATION")\n"
     message+="$(slack_stage_status "Save Build Outputs" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
-    message+="$(slack_stage_status "Prep Outputs for Distribution" "$CLEAN_UP_OUTPUTS_STATUS" "$CLEAN_UP_OUTPUTS_DURATION")\n"
+    message+="$(slack_stage_status "Prep Outputs for Distribution" "$PREP_OUTPUTS_STATUS" "$PREP_OUTPUTS_DURATION")\n"
     message+="$(slack_stage_status "Update \`nightly\` Branch" "$UPDATE_NIGHTLY_STATUS" "$UPDATE_NIGHTLY_DURATION")\n"
     message+="$(slack_stage_status "Update \`stable\` Branch" "$UPDATE_STABLE_STATUS" "$UPDATE_STABLE_DURATION")\n"
-    message+="$(slack_stage_status "Distribute Outputs to S3/GCS" "$DISTRIBUTION_BUCKET_STATUS" "$DISTRIBUTION_BUCKET_DURATION")\n"
-    message+="$(slack_stage_status "Redeploy PUDL Data Viewer :eel: :hole:" "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS" "$TRIGGER_DATA_VIEWER_DEPLOY_DURATION")\n"
-    message+="$(slack_stage_status "Write-protect \`$BUILD_REF\` Outputs on GCS" "$GCS_TEMPORARY_HOLD_STATUS" "$GCS_TEMPORARY_HOLD_DURATION")\n\n"
+    message+="$(slack_stage_status "Distribute \`$BUILD_REF\` to S3/GCS" "$DISTRIBUTION_BUCKET_STATUS" "$DISTRIBUTION_BUCKET_DURATION")\n"
+    message+="$(slack_stage_status "Redeploy Eel Hole :eel: :hole:" "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS" "$TRIGGER_DATA_VIEWER_DEPLOY_DURATION")\n"
+    message+="$(slack_stage_status "Protect \`$BUILD_REF\` GCS Outputs" "$GCS_TEMPORARY_HOLD_STATUS" "$GCS_TEMPORARY_HOLD_DURATION")\n\n"
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
     message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
     message+="<https://storage.cloud.google.com/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log|*Download logs to your computer*>\n\n"
@@ -279,7 +279,7 @@ function merge_tag_into_branch() {
         git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git" &&
         set -x &&
         echo "Updating $BRANCH branch to point at $TAG." &&
-        # Check out the original row counts so the working tree is clean.
+        # Check out the original row counts so the working tree is .
         # This is a temporary hack around the unstable row-counts in some tables.
         # TODO: fix this for real in issue #4364 / PR #4367
         git checkout -- dbt/seeds/ &&
@@ -303,7 +303,7 @@ function upload_stable_distribution() {
         upload_to_dist_path "stable"
 }
 
-function clean_up_outputs_for_distribution() {
+function prep_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
     pushd "$PUDL_OUTPUT" &&
         find ./ -maxdepth 1 -type f -name '*.sqlite' -print | parallel --will-cite 'zip -9 "{1}.zip" "{1}"' &&
@@ -318,7 +318,7 @@ function clean_up_outputs_for_distribution() {
         # Move the parquet datapackage to the output directory also!
         mv ./pudl_parquet_datapackage.json "$PUDL_OUTPUT" &&
         popd &&
-        # Remove any remaiining files and directories we don't want to distribute
+        # Remove any remaining files and directories we don't want to distribute
         rm -rf "$PUDL_OUTPUT/parquet" &&
         rm -f "$PUDL_OUTPUT/pudl_dbt_tests.duckdb"
 }
@@ -340,7 +340,7 @@ SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
 UPDATE_NIGHTLY_STATUS="$STAGE_SKIPPED"
 UPDATE_STABLE_STATUS="$STAGE_SKIPPED"
 WRITE_DATAPACKAGE_STATUS="$STAGE_SKIPPED"
-CLEAN_UP_OUTPUTS_STATUS="$STAGE_SKIPPED"
+PREP_OUTPUTS_STATUS="$STAGE_SKIPPED"
 DISTRIBUTION_BUCKET_STATUS="$STAGE_SKIPPED"
 TRIGGER_DATA_VIEWER_DEPLOY_STATUS="$STAGE_SKIPPED"
 GCS_TEMPORARY_HOLD_STATUS="$STAGE_SKIPPED"
@@ -353,7 +353,7 @@ SAVE_OUTPUTS_DURATION=""
 UPDATE_NIGHTLY_DURATION=""
 UPDATE_STABLE_DURATION=""
 WRITE_DATAPACKAGE_DURATION=""
-CLEAN_UP_OUTPUTS_DURATION=""
+PREP_OUTPUTS_DURATION=""
 DISTRIBUTION_BUCKET_DURATION=""
 TRIGGER_DATA_VIEWER_DEPLOY_DURATION=""
 GCS_TEMPORARY_HOLD_DURATION=""
@@ -421,9 +421,9 @@ exit_on_stage_failure "$DATA_VALIDATION_STATUS"
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
     run_stage UPDATE_NIGHTLY_STATUS UPDATE_NIGHTLY_DURATION append merge_tag_into_branch "$NIGHTLY_TAG" nightly
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    run_stage CLEAN_UP_OUTPUTS_STATUS CLEAN_UP_OUTPUTS_DURATION append clean_up_outputs_for_distribution
-    exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
-    # Copy cleaned up outputs to the S3 and GCS distribution buckets
+    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION append prep_outputs_for_distribution
+    exit_on_stage_failure "$PREP_OUTPUTS_STATUS"
+    # Copy ed up outputs to the S3 and GCS distribution buckets
     run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION append upload_nightly_distribution
     run_stage TRIGGER_DATA_VIEWER_DEPLOY_STATUS TRIGGER_DATA_VIEWER_DEPLOY_DURATION append deploy_data_viewer
     if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
@@ -437,9 +437,9 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
     run_stage UPDATE_STABLE_STATUS UPDATE_STABLE_DURATION append merge_tag_into_branch "$BUILD_REF" stable
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    run_stage CLEAN_UP_OUTPUTS_STATUS CLEAN_UP_OUTPUTS_DURATION append clean_up_outputs_for_distribution
-    exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
-    # Copy cleaned up outputs to the S3 and GCS distribution buckets
+    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION append prep_outputs_for_distribution
+    exit_on_stage_failure "$PREP_OUTPUTS_STATUS"
+    # Copy ed up outputs to the S3 and GCS distribution buckets
     run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION append upload_stable_distribution
     # This is a versioned release. Ensure that outputs can't be accidentally deleted.
     # We can only do this on the GCS bucket, not S3
@@ -455,8 +455,8 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    run_stage CLEAN_UP_OUTPUTS_STATUS CLEAN_UP_OUTPUTS_DURATION append clean_up_outputs_for_distribution
-    exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
+    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION append prep_outputs_for_distribution
+    exit_on_stage_failure "$PREP_OUTPUTS_STATUS"
 
     # Disable the test upload to the distribution bucket for now to avoid egress fees
     # and speed up the build. Uncomment if you need to test the distribution upload.
@@ -503,10 +503,10 @@ if ! any_stage_failed \
     "$SAVE_OUTPUTS_STATUS" \
     "$UPDATE_NIGHTLY_STATUS" \
     "$UPDATE_STABLE_STATUS" \
-    "$CLEAN_UP_OUTPUTS_STATUS" \
+    "$PREP_OUTPUTS_STATUS" \
     "$DISTRIBUTION_BUCKET_STATUS" \
-    "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS" \
-    "$GCS_TEMPORARY_HOLD_STATUS"; then
+    "$GCS_TEMPORARY_HOLD_STATUS" \
+    "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS"; then
     notify_slack "success"
 else
     notify_slack "failure"
