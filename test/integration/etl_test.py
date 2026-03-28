@@ -166,11 +166,8 @@ class TestFerc1ExtractDebugFunctions:
     @pytest.mark.usefixtures("ferc1_engine_dbf")
     def test_extract_dbf(self):
         """Test extract_dbf."""
-        years = [2020, 2021]  # add desired years here
-        configured_dataset_settings = DatasetsSettings(ferc1=Ferc1Settings(years=years))
-
         ferc1_dbf_raw_dfs: dict[str, pd.DataFrame] = pudl.extract.ferc1.extract_dbf(
-            dataset_settings=configured_dataset_settings
+            dataset_settings=DatasetsSettings(ferc1=Ferc1Settings(years=[2020, 2021]))
         )
 
         for table_name, df in ferc1_dbf_raw_dfs.items():
@@ -181,13 +178,10 @@ class TestFerc1ExtractDebugFunctions:
     @pytest.mark.usefixtures("ferc1_engine_xbrl")
     def test_extract_xbrl(self):
         """Test extract_xbrl."""
-        years = [2021]  # add desired years here
-        configured_dataset_settings = DatasetsSettings(ferc1=Ferc1Settings(years=years))
-
         ferc1_xbrl_raw_dfs: dict[
             str, dict[Literal["duration", "instant"], pd.DataFrame]
         ] = pudl.extract.ferc1.extract_xbrl(
-            dataset_settings=configured_dataset_settings
+            dataset_settings=DatasetsSettings(ferc1=Ferc1Settings(years=[2021]))
         )
 
         for table_name, xbrl_tables in ferc1_xbrl_raw_dfs.items():
