@@ -1,13 +1,15 @@
 // secrets
 locals {
   pudl_viewer_secret_versions = {
-    pudl_viewer_secret_key          = 1
-    pudl_viewer_db_username         = 1
-    pudl_viewer_db_password         = 1
-    pudl_viewer_db_name             = 1
-    pudl_viewer_auth0_domain        = 1
-    pudl_viewer_auth0_client_id     = 1
-    pudl_viewer_auth0_client_secret = 1
+    pudl_viewer_secret_key                   = 1
+    pudl_viewer_db_username                  = 1
+    pudl_viewer_db_password                  = 1
+    pudl_viewer_db_name                      = 1
+    pudl_viewer_auth0_domain                 = 1
+    pudl_viewer_auth0_client_id              = 1
+    pudl_viewer_auth0_client_secret          = 1
+    pudl_viewer_auth0_user_api_client_id     = 1
+    pudl_viewer_auth0_user_api_client_secret = 1
   }
 }
 
