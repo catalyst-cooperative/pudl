@@ -347,12 +347,12 @@ be processed, and are generally structured like this:
 .. code-block::
 
    # FERC-to-SQLite settings
-   ferc_to_sqlite:
-     ├── ferc1_dbf
+   ferc_to_sqlite_settings:
+     ├── ferc1_dbf_to_sqlite_settings
      |   └── years
-     ├── ferc1_xbrl
+     ├── ferc1_xbrl_to_sqlite_settings
      |   └── years
-     └── ferc2_xbrl
+     └── ferc2_xbrl_to_sqlite_settings
          └── years
 
    # PUDL ETL settings
