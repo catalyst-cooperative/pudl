@@ -1,8 +1,14 @@
 """Tests for xbrl extraction module."""
 
+from pathlib import Path
+
 import dagster as dg
 import pytest
 from dagster import ResourceDefinition
+from dagster._core.definitions.assets.definition.assets_definition import (
+    AssetsDefinition,
+)
+from dagster._core.execution.execute_in_process_result import ExecuteInProcessResult
 
 from pudl.etl import ferc_to_sqlite_assets
 from pudl.extract.ferc1 import Ferc1DbfExtractor
@@ -111,7 +117,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
         "pudl.etl.ferc_to_sqlite_assets.FercXbrlDatastore", return_value=mock_datastore
     )
 
-    xbrl_assets = [
+    xbrl_assets: list[AssetsDefinition] = [
         ferc_to_sqlite_assets.raw_ferc1_xbrl__sqlite,
         ferc_to_sqlite_assets.raw_ferc2_xbrl__sqlite,
         ferc_to_sqlite_assets.raw_ferc6_xbrl__sqlite,
@@ -119,7 +125,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
         ferc_to_sqlite_assets.raw_ferc714_xbrl__sqlite,
     ]
 
-    result = dg.materialize(
+    result: ExecuteInProcessResult = dg.materialize(
         assets=xbrl_assets,
         resources={
             "etl_settings": EtlSettings(ferc_to_sqlite_settings=settings),
@@ -167,7 +173,7 @@ def test_convert_form(mocker):
         years=[2020, 2021],
     )
 
-    output_path = PudlPaths().pudl_output
+    output_path: Path = PudlPaths().pudl_output
 
     # Test convert_form for every form number
     for form in XbrlFormNumber:
@@ -183,7 +189,7 @@ def test_convert_form(mocker):
         )
 
         # Verify extractor is called correctly
-        filings = [f"filings_{year}_{form.value}" for year in settings.years]
+        filings: list[str] = [f"filings_{year}_{form.value}" for year in settings.years]
         extractor_mock.assert_called_with(
             filings=filings,
             sqlite_path=output_path / f"ferc{form.value}_xbrl.sqlite",
