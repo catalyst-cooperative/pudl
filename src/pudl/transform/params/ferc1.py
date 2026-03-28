@@ -1967,7 +1967,7 @@ TRANSFORM_PARAMS = {
                     "depr_plnt_base": "depreciable_plant_base",  # $1000s
                     "est_avg_srvce_lf": "service_life_avg",  # est
                     "net_salvage": "net_salvage",  # pct
-                    "apply_depr_rate": "applied_depreciation_rates",  # pct
+                    "apply_depr_rate": "depreciation_rate",  # pct
                     "mrtlty_crv_typ": "mortality_curve_type",
                     "avg_remaining_lf": "remaining_life_avg",
                     "acct_num": "account_num",
@@ -1979,10 +1979,10 @@ TRANSFORM_PARAMS = {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
                     "estimated_depreciation_charges_factors_axis": "depreciation_charges",
-                    "utility_plant_applied_depreciation_rate": "applied_depreciation_rates",
+                    "utility_plant_applied_depreciation_rate": "depreciation_rate",
                     "utility_plant_estimated_average_service_life": "service_life_avg",
                     "utility_plant_weighted_average_remaining_life": "remaining_life_avg",
-                    "order_number": "order_number",
+                    "order_number": "order_num",
                     "mortality_curve_type": "mortality_curve_type",
                     "account_number_factors_used_in_estimating_depreciation_charges": "account_num",
                     "depreciable_plant_base": "depreciable_plant_base",

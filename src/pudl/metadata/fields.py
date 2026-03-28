@@ -9999,6 +9999,31 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The cost of materials and supplies used.",
         "unit": "USD",
     },
+    "depreciable_plant_base": {"type": "number", "description": ""},
+    "net_salvage": {"type": "number", "description": ""},
+    "depreciation_rate": {"type": "string", "description": ""},
+    "mortality_curve_type": {"type": "string", "description": ""},
+    "depreciation_charges": {"type": "string", "description": ""},
+    "order_num": {
+        "type": "number",
+        "description": (
+            "This field is defined in FERC-XBRL documentation as a feild that is used or sequence a table."
+            "FERC-XBRL documentation notes: 'This field is added to a table to control ordering of the items on the table.'"
+            "FERC's documentation also notes that this field should always be an integer - although "
+            "there are many instances of floating point values which seem to increment by decimal points. "
+            "Nonetheless, this field can be used to help understand the orignal order of the table. "
+            "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
+        ),
+    },
+    "account_num": {
+        "type": "string",
+        "description": "Account number(s) in connection with factors used in estimating depreciation charges.",
+    },
+    "service_life_avg": {
+        "type": "string",
+        "description": "Estimated average service life of utility plant.",
+    },
+    "remaining_life_avg": {"type": "string", "description": ""},
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 

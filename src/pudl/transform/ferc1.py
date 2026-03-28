@@ -5571,6 +5571,15 @@ class DepreciationChangesTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_CHANGES
     has_unique_record_ids: bool = False
 
+    def transform_main(self, df):
+        """Convert $1000s to $s after standard transform_main."""
+        df = (
+            super()
+            .transform_main(df)
+            .assign(depreciable_plant_base=lambda x: x.depreciable_plant_base / 1000)
+        )
+        return df
+
 
 class AccumulatedDepreciationTableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`core_ferc1__yearly_depreciation_changes_sched219` table."""
@@ -6113,6 +6122,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_operating_expenses_sched320": OperatingExpensesTableTransformer,
     "core_ferc1__yearly_balance_sheet_liabilities_sched110": BalanceSheetLiabilitiesTableTransformer,
     "core_ferc1__yearly_depreciation_summary_sched336": DepreciationSummaryTableTransformer,
+    # "core_ferc1__yearly_depreciation_changes_sched336": DepreciationChangesTransformer,
     "core_ferc1__yearly_balance_sheet_assets_sched110": BalanceSheetAssetsTableTransformer,
     "core_ferc1__yearly_income_statements_sched114": IncomeStatementsTableTransformer,
     "core_ferc1__yearly_depreciation_changes_sched219": AccumulatedDepreciationTableTransformer,

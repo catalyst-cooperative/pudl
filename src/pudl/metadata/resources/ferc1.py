@@ -54,6 +54,17 @@ TABLE_DESCRIPTIONS = {
             "amortization changes."
         ),
     },
+    "yearly_depreciation_changes_sched336": {
+        "additional_summary_text": "factors used in estimating depreciation charges.",
+        "additional_source_text": "(Schedule 336 - Section C)",
+        "usage_warnings": ["aggregation_hazard"],
+        "additional_details_text": (
+            "This table contains details at a variety of levels of granularity  "
+            "the "
+            "This table only "
+            "contains information from Section C:  Factors Used in Estimating Depreciation Charges."
+        ),
+    },
     "yearly_energy_sources_sched401": {
         "additional_summary_text": "sources of electric energy generated or purchased, exchanged and wheeled.",
         "additional_source_text": "(Schedule 401a)",
@@ -431,6 +442,35 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_function",
                 "ferc_account_label",
             ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "core_ferc1__yearly_depreciation_changes_sched336": {
+        "description": TABLE_DESCRIPTIONS["yearly_depreciation_changes_sched336"],
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                # belowww
+                "depreciable_plant_base",
+                "net_salvage",
+                "depreciation_rate",
+                "mortality_curve_type",
+                "depreciation_charges",
+                "order_num",
+                "account_num",
+                "service_life_avg",
+                "remaining_life_avg",
+            ],
+            # "primary_key": [
+            #     "utility_id_ferc1",
+            #     "report_year",
+            #     "plant_function",
+            #     "ferc_account_label",
+            # ],
         },
         "sources": ["ferc1"],
         "etl_group": "ferc1",
