@@ -69,7 +69,7 @@ def get_table_name_from_context(context: InputContext | OutputContext) -> str:
 
 def get_ferc_form_name(db_name: str) -> str:
     """Extract the FERC form name from a SQLite database name."""
-    match = re.search(r"ferc\d+", db_name)
+    match: re.Match[str] | None = re.search(r"ferc\d+", db_name)
     if match is None:
         raise ValueError(f"Could not determine FERC form from db_name={db_name!r}")
     return match.group()
@@ -632,7 +632,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """Reflect table metadata from the sqlite database into ``self.md``."""
         reflected = sa.MetaData()
         reflected.reflect(engine if engine is not None else self.engine)
-        self.md = reflected
+        self.md: sa.MetaData = reflected
 
     def _ensure_database_ready(self) -> None:
         """Ensure the sqlite DB exists and metadata has been reflected."""
