@@ -87,8 +87,8 @@ from pudl.extract.dbf import (
     deduplicate_by_year,
 )
 from pudl.io_managers import (
-    FercDBFSQLiteIOManager,
-    FercXBRLSQLiteIOManager,
+    FercDbfSQLiteIOManager,
+    FercXbrlSQLiteIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
@@ -467,7 +467,7 @@ def raw_ferc1_xbrl__metadata_json(
 # Ferc extraction functions for devtool notebook testing
 def extract_dbf_generic(
     table_names: list[str],
-    io_manager: FercDBFSQLiteIOManager,
+    io_manager: FercDbfSQLiteIOManager,
     dataset_settings: DatasetsSettings,
 ) -> pd.DataFrame:
     """Combine multiple raw dbf tables into one.
@@ -494,7 +494,7 @@ def extract_dbf_generic(
 
 def extract_xbrl_generic(
     table_names: list[str],
-    io_manager: FercXBRLSQLiteIOManager,
+    io_manager: FercXbrlSQLiteIOManager,
     dataset_settings: DatasetsSettings,
     period: Literal["duration", "instant"],
 ) -> pd.DataFrame:

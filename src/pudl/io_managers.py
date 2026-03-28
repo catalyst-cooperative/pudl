@@ -593,7 +593,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """
         # TODO(rousik): Note that this is a bit of a partially implemented IO manager that
         # is not actually used for writing anything. Given that this is derived from base
-        # SqliteIOManager, we do not support handling of parquet formats. This is probably
+        # SQLiteIOManager, we do not support handling of parquet formats. This is probably
         # okay for now.
         super().__init__(base_dir, db_name, md, timeout)
 
@@ -664,7 +664,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         )
 
 
-class FercDBFSQLiteIOManager(FercSQLiteIOManager):
+class FercDbfSQLiteIOManager(FercSQLiteIOManager):
     """IO Manager for reading tables from FERC DBF SQLite databases.
 
     This IO Manager is for reading data only. It does not handle outputs because the raw
@@ -678,7 +678,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
 
     def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
-        raise NotImplementedError("FercDBFSQLiteIOManager can't write outputs yet.")
+        raise NotImplementedError("FercDbfSQLiteIOManager can't write outputs yet.")
 
     def _query(self, table_name: str, dbf_years: list[int]) -> pd.DataFrame:
         """Execute the year-filtered read against the FERC DBF SQLite database.
@@ -770,9 +770,9 @@ class FercDbfSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
     """
 
     @cached_property
-    def _manager(self) -> FercDBFSQLiteIOManager:
+    def _manager(self) -> FercDbfSQLiteIOManager:
         """Build the underlying SQLite reader lazily."""
-        return FercDBFSQLiteIOManager(
+        return FercDbfSQLiteIOManager(
             base_dir=PudlPaths().output_dir,
             db_name=self.db_name,
         )
@@ -790,7 +790,7 @@ class FercDbfSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
         return self._manager._query(table_name, ferc_settings.dbf_years)
 
 
-class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
+class FercXbrlSQLiteIOManager(FercSQLiteIOManager):
     """IO Manager for only reading tables from the XBRL database.
 
     This IO Manager is for reading data only. It does not handle outputs because the raw
@@ -842,7 +842,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
     def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
-        raise NotImplementedError("FercXBRLSQLiteIOManager can't write outputs yet.")
+        raise NotImplementedError("FercXbrlSQLiteIOManager can't write outputs yet.")
 
     def _query(self, table_name: str, xbrl_years: list[int]) -> pd.DataFrame:
         """Execute the full-table read against the FERC XBRL SQLite database.
@@ -866,7 +866,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                 con=con,
             ).assign(sched_table_name=sched_table_name)
         return df.pipe(
-            FercXBRLSQLiteIOManager.refine_report_year, xbrl_years=xbrl_years
+            FercXbrlSQLiteIOManager.refine_report_year, xbrl_years=xbrl_years
         )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
@@ -891,9 +891,9 @@ class FercXbrlSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
     """Configurable IO manager for reading tables from a FERC XBRL SQLite database."""
 
     @cached_property
-    def _manager(self) -> FercXBRLSQLiteIOManager:
+    def _manager(self) -> FercXbrlSQLiteIOManager:
         """Build the underlying SQLite reader lazily."""
-        return FercXBRLSQLiteIOManager(
+        return FercXbrlSQLiteIOManager(
             base_dir=PudlPaths().output_dir,
             db_name=self.db_name,
         )
