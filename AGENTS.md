@@ -21,18 +21,35 @@ Key directories under `src/pudl/`:
 - `extract/` — one module per data source; reads raw inputs via the datastore and
   produces lightly-typed DataFrames
 - `transform/` — one module per data source; cleans, normalizes, and validates data
-- `etl/` — Dagster asset and job definitions, organized by data source; top-level
-  `defs` object and all jobs live in `pudl.etl`
+- `dagster/` — all Dagster orchestration code; the canonical home for everything
+  Dagster-specific. Sub-structure:
+  - `dagster/asset_checks.py` — asset-check definitions, factories, and helpers
+  - `dagster/assets/` — oddball asset definitions that don't fit the per-source layout;
+    `assets/core/` for processed assets, `assets/raw/` for raw-extraction assets
+  - `dagster/build.py` — assembles the `dagster.Definitions` object
+  - `dagster/config.py` — reusable Dagster run-config fragments and helpers
+  - `dagster/io_managers.py` — IO managers for SQLite, Parquet, and FERC SQLite reads
+  - `dagster/jobs.py` — named Dagster jobs (`pudl`, `ferc_to_sqlite`, `ferceqr`)
+  - `dagster/partitions.py` — shared partition definitions
+  - `dagster/provenance.py` — FERC SQLite fingerprinting and compatibility checks
+  - `dagster/resources.py` — `ConfigurableResource` definitions and default resource map
+  - `dagster/sensors.py` — sensor-based automation (e.g. the FERC EQR sensor)
+- `deploy/` — post-ETL deployment logic: publishing outputs to GCS/S3, updating
+  `nightly`/`stable` git branches, triggering Zenodo releases, applying GCS holds,
+  and redeploying the PUDL Viewer Cloud Run service. `ferceqr.py` contains Dagster
+  assets specific to the FERC EQR batch pipeline; `pudl.py` covers full PUDL builds.
+- `scripts/` — all CLI entry points as thin wrappers; one module per script, each
+  exposing a `main` Click command. Registered in `[project.scripts]` in `pyproject.toml`
 - `metadata/` — table and column metadata (`classes.py`, `fields.py`, `resources.py`);
   "Resources" are tables, "Fields" are columns
 - `glue/` — entity resolution tables that link IDs across data sources
 - `analysis/` — higher-level analytical assets built on top of the core ETL outputs
 - `helpers.py` — shared utility functions; check here before writing new helpers
-- `io_managers.py` — Dagster IO managers for SQLite, Parquet, and FERC SQLite reads
 - `settings.py` — Pydantic settings models for all datasets and ETL configuration
-- `resources.py` — Dagster resources (`etl_settings`, `datastore`, `zenodo_dois`, etc.)
-- `ferc_sqlite_provenance.py` — fingerprinting and compatibility checks for FERC SQLite
-  databases across separate job runs
+- `validate.py` — data validation helpers that need to be accessible outside Dagster
+  (foreign key checks, continuity checks)
+- `definitions.py` — stable `dg`-compatible entry point; re-exports `defs` from
+  `pudl.dagster`
 
 Other important directories:
 
@@ -324,6 +341,12 @@ user-visible or developer-visible changes must be summarized in `docs/release_no
 with references to the PR and any related issue numbers. Add release notes after
 the feature on a branch is complete and prior to marking a PR as ready for review.
 
+**When writing release notes, commit messages, or any other summary of changes, always
+compare the current branch against the branch it will merge into** (typically `main`,
+but check the PR base branch) using `git diff <upstream>...HEAD` or
+`git log <upstream>..HEAD`. Do not rely on memory or recent file reads alone — the diff
+is the authoritative record of what actually changed.
+
 ### Generated documentation files
 
 Several pages are assembled at build time from Jinja templates rather than edited
@@ -353,8 +376,17 @@ After debugging, remove the generated files with `pixi run docs-clean`.
 - Initialize the new worktree with `pixi install` and `pixi run pre-commit-install`.
 - Run pre-commit and fix all issues before committing.
 - Do not add spurious or generated files to source control.
+- Newly added functionality should include unit tests.
+- Write informative commit messages that summarize the changes and their motivation.
+  Use plaintext no more than 80 characters wide, with a short summary line (max 50
+  chars). For significant changes, follow the first summary with a blank line and
+  a more detailed description.
 - Do not skip pre-commit hooks (`--no-verify`); fix the underlying issue instead.
 - Include both the issue number and PR number in release notes entries.
+
+**When relocating code, documentation, or any other text between modules, move it
+verbatim — never rewrite or reinterpret it in the same step.** If the moved content
+also needs edits, make those as a separate step with explicit user approval.
 
 ### PR checklist
 
