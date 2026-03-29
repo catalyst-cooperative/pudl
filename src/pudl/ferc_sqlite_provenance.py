@@ -25,7 +25,7 @@ PROVENANCE_METADATA_SQLITE_PATH = "pudl_ferc_sqlite_path"
 
 
 @dataclass(frozen=True)
-class FercSqliteProvenance:
+class FercSQLiteProvenance:
     """Current provenance expectations for a FERC SQLite prerequisite asset."""
 
     asset_key: dg.AssetKey
@@ -56,7 +56,7 @@ def get_ferc_sqlite_provenance(
     db_name: str,
     etl_settings: EtlSettings,
     zenodo_dois: ZenodoDoiSettings,
-) -> "FercSqliteProvenance":
+) -> "FercSQLiteProvenance":
     """Build the expected provenance fingerprint for a FERC SQLite database."""
     dataset, data_format = _get_dataset_and_format(db_name)
     settings_attr = f"{dataset}_{data_format}_to_sqlite_settings"
@@ -64,7 +64,7 @@ def get_ferc_sqlite_provenance(
     if settings is None:
         raise ValueError(f"Missing {settings_attr} in ETL settings.")
 
-    return FercSqliteProvenance(
+    return FercSQLiteProvenance(
         asset_key=dg.AssetKey(f"raw_{db_name}__sqlite"),
         dataset=dataset,
         data_format=data_format,
@@ -82,7 +82,7 @@ def build_ferc_sqlite_provenance_metadata(
     status: str,
 ) -> dict[str, Any]:
     """Build materialization metadata for a FERC SQLite prerequisite asset."""
-    provenance: FercSqliteProvenance = get_ferc_sqlite_provenance(
+    provenance: FercSQLiteProvenance = get_ferc_sqlite_provenance(
         db_name=db_name,
         etl_settings=etl_settings,
         zenodo_dois=zenodo_dois,
@@ -137,7 +137,7 @@ def assert_ferc_sqlite_compatible(
     if instance is None:
         return
 
-    provenance: FercSqliteProvenance = get_ferc_sqlite_provenance(
+    provenance: FercSQLiteProvenance = get_ferc_sqlite_provenance(
         db_name=db_name,
         etl_settings=etl_settings,
         zenodo_dois=zenodo_dois,
