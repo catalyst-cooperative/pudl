@@ -128,8 +128,8 @@ pixi install
 pixi run pre-commit-install
 
 # Linting and formatting
-pixi run pre-commit run --all-files            # run all hooks on all files
-pixi run pre-commit run ruff-check --all-files # lint without fixing
+pixi run pre-commit run --all-files             # run all hooks on all files
+pixi run pre-commit run ruff-check --all-files  # lint without fixing
 pixi run pre-commit run ruff-format --all-files # fix formatting
 
 # Type checking (faster than mypy)
