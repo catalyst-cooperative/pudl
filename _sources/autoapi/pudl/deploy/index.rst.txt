@@ -1,0 +1,21 @@
+pudl.deploy
+===========
+
+.. py:module:: pudl.deploy
+
+.. autoapi-nested-parse::
+
+   Package for distributing PUDL data.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/deploy/ferceqr/index
+   /autoapi/pudl/deploy/pudl/index
+
+
