@@ -41,6 +41,7 @@ Performance Improvements
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 ```
 </details>
 

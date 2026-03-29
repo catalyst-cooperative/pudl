@@ -172,7 +172,7 @@ sources:
                         min_value: 7.0
                         max_value: 7.5
                       - quantile: 0.05
-                        min_value: 6.39
+                        min_value: 6.35
                       - quantile: 0.95
                         max_value: 13.0
                     weight_column: net_generation_mwh
