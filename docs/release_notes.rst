@@ -55,6 +55,17 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a bug in :mod:`pudl.analysis.allocate_gen_fuel` that caused
+  :ref:`out_eia923__monthly_generation_fuel_by_generator_energy_source` to incorrectly
+  allocate generation and fuel consumption to retired generators. The previous logic
+  identified "retiring" generators by checking whether any generation or fuel columns
+  were non-null after the generation fuel table was merged in on prime mover and energy
+  source code (not generator ID), so a retired generator sharing a PM/ESC combo with
+  active generators at the same plant was incorrectly kept as active. The fix narrows
+  the retiring-generator check to only the generator-level generation table column
+  and also preserves retired generators whose PM/ESC combination is unique to them at
+  the plant, enabling generator-level attribution of the reported fuel/generation.  See
+  :pr:`4789`. Thanks to :user:`grgmiller` for identifying this issue and making a PR!
 * Fixed a FERC EQR transform bug that was incorrectly parsing non-date contract
   fields as datetimes, which caused several output columns to become entirely
   ``NULL``. Also clarified and separated the ``product_name`` metadata
@@ -64,7 +75,6 @@ Bug Fixes & Data Cleaning
   :download:`v3.5 of the FERC EQR data dictionary
   <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
   See :pr:`5085`.
-
 * Fixed some wonky column names in the EIA-861
   ``core_eia861__yearly_demand_side_management_ee_dr`` table. See issue :issue:`5132`
   and PR :pr:`5135`.
