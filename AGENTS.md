@@ -14,6 +14,28 @@ outputs are written under `$PUDL_OUTPUT/` and include:
 - JSON datapackage descriptors (`$PUDL_OUTPUT/*_datapackage.json`) — frictionless
   datapackage metadata describing the schema and structure of the tabular outputs
 
+## About this file
+
+`AGENTS.md` is the canonical instruction file for this repository. `CLAUDE.md` in
+the same directory is a symlink that points to `AGENTS.md` — they are always
+identical, not independent files to be kept in sync.
+
+### Working across multiple worktrees
+
+When working in multiple git worktrees simultaneously, any `AGENTS.md` injected
+into your context at session start reflects the **primary working directory** only.
+If you encounter an `AGENTS.md` at a different path during the same session, do not
+assume it is the same file — it may be a different version of this document, or
+belong to an entirely different repository.
+
+To avoid this confusion:
+
+- Always use full absolute paths when referencing or comparing `AGENTS.md` files
+  across worktrees — this makes the distinction visible immediately.
+- When you need to know which `AGENTS.md` governs a particular worktree, read it
+  directly from that worktree's directory rather than relying on the
+  context-loaded version.
+
 ## Repository structure
 
 Key directories under `src/pudl/`:
