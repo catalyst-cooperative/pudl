@@ -13,6 +13,13 @@ sources:
               config:
                 error_if: ">38" # TODO: Investigate cases where loan balance exceeds original amount.
               description: "The original amount of the loan guarantee should be greater than or equal to the current balance of the loan."
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+              arguments:
+                column_A: loan_maturity_date
+                column_B: report_date
+              config:
+                error_if: ">223" # TODO: Investigate cases where loan maturity date is before
+              description: "The maturity date of the loan should be after the report date."
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_rus7__yearly_loans
