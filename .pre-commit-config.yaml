@@ -72,6 +72,7 @@ repos:
             |.*\.bib
             |.*\.csv
             |.*\.html
+            |.*\.json
             |src/pudl/package_data/ferc1/.*_categories\.yaml
           )$ | migrations/ | devtools/ | test/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
         args: [] # Make this read, not write
@@ -131,6 +132,15 @@ repos:
         always_run: false
         entry: pixi run jupyter nbconvert --clear-output
 
+      - id: pixi-lock-update
+        name: pixi-lock-update
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        pass_filenames: false
+        always_run: true
+        entry: bash -c 'pixi install --quiet && git add pixi.lock'
+
       - id: unit-tests
         name: unit-tests
         stages: [pre-commit]
@@ -150,5 +160,5 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, shellcheck]
+  skip: [pixi-lock-update, unit-tests, nb-output-clear, shellcheck]
   submodules: false

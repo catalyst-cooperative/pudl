@@ -20,8 +20,8 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      # 2025-07-17: because merge_group is an Object and run_code_checks is not a conditional, need to explicitly check for null-ness instead of relying on truthiness.
-      run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && (github.event.merge_group != null)) }}
+      # Run code checks for manual dispatches and merge queue runs with code changes.
+      run_code_checks: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'merge_group' && steps.filter.outputs.code == 'true') }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -47,6 +47,7 @@ jobs:
               - '!.github/workflows/bot-auto-merge.yml'
               - '!.github/workflows/build-deploy-docs.yml'
               - '!.github/workflows/build-deploy-pudl.yml'
+              - '!.github/workflows/deploy-pudl.yml'
               - '!.github/workflows/com-dev-notify.yml'
               - '!.github/workflows/docker-build-test.yml'
               - '!.github/workflows/q-update-issue-scheduler.yml'
@@ -77,7 +78,7 @@ jobs:
         run: |
           echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
           echo "found code changes: ${{ steps.filter.outputs.code }}"
-          echo "merge_group ${{ github.event.merge_group }} is not null: ${{ github.event.merge_group != null }}"
+          echo "event name (${{ github.event_name }}) is merge_group: ${{ github.event_name == 'merge_group' }}"
 
   ci-docs:
     permissions:

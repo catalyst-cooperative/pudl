@@ -44,6 +44,17 @@ class BuildResult(NamedTuple):
         return "\n=====\n".join(ctx.pretty_print() for ctx in self.failure_contexts)
 
 
+def install_dbt_deps(dbt: dbtRunner | None = None) -> dbtRunner:
+    """Ensure dbt package dependencies are installed in the project directory."""
+    if dbt is None:
+        dbt = dbtRunner()
+
+    with chdir(DBT_DIR):
+        dbt.invoke(["deps"])
+
+    return dbt
+
+
 def __get_failed_nodes(results: RunExecutionResult) -> list[GenericTestNode]:
     """Get test node output from tests that failed."""
     return [res.node for res in results if res.status == TestStatus.Fail]
@@ -132,10 +143,9 @@ def build_with_context(
     cli_args = ["--target", dbt_target, "--select", node_selection]
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
-    dbt = dbtRunner()
+    dbt = install_dbt_deps()
 
     with chdir(DBT_DIR):
-        dbt.invoke(["deps"])
         dbt.invoke(["seed"])
         build_output: dbtRunnerResult = dbt.invoke(["build"] + cli_args)
         build_results = cast(RunExecutionResult, build_output.result)

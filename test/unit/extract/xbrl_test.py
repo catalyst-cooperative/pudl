@@ -1,12 +1,21 @@
 """Tests for xbrl extraction module."""
 
+from pathlib import Path
+
+import dagster as dg
 import pytest
 from dagster import ResourceDefinition
+from dagster._core.definitions.assets.definition.assets_definition import (
+    AssetsDefinition,
+)
+from dagster._core.execution.execute_in_process_result import ExecuteInProcessResult
 
+from pudl.etl import ferc_to_sqlite_assets
+from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
-from pudl.ferc_to_sqlite import ferc_to_sqlite
 from pudl.resources import RuntimeSettings
 from pudl.settings import (
+    EtlSettings,
     Ferc1DbfToSqliteSettings,
     Ferc1XbrlToSqliteSettings,
     Ferc2XbrlToSqliteSettings,
@@ -17,6 +26,7 @@ from pudl.settings import (
     FercToSqliteSettings,
     XbrlFormNumber,
 )
+from pudl.workspace.datastore import ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
 
@@ -85,34 +95,50 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
             ),
             [],
         ),
+        (
+            FercToSqliteSettings(
+                ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(years=[]),
+                ferc2_xbrl_to_sqlite_settings=Ferc2XbrlToSqliteSettings(years=[]),
+                ferc6_xbrl_to_sqlite_settings=Ferc6XbrlToSqliteSettings(years=[]),
+                ferc60_xbrl_to_sqlite_settings=Ferc60XbrlToSqliteSettings(years=[]),
+                ferc714_xbrl_to_sqlite_settings=Ferc714XbrlToSqliteSettings(years=[]),
+            ),
+            [],
+        ),
     ],
 )
 def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
     convert_form_mock = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
+    mocker.patch("pudl.etl.ferc_to_sqlite_assets.convert_form", new=convert_form_mock)
 
     # Mock datastore object to allow comparison
     mock_datastore = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
+    mocker.patch(
+        "pudl.etl.ferc_to_sqlite_assets.FercXbrlDatastore", return_value=mock_datastore
+    )
 
-    # Only select operations that are tagged with data_format=xbrl.
-    op_selection = [
-        op.name
-        for op in ferc_to_sqlite.node_defs
-        if op.tags.get("data_format") == "xbrl"
+    xbrl_assets: list[AssetsDefinition] = [
+        ferc_to_sqlite_assets.raw_ferc1_xbrl__sqlite,
+        ferc_to_sqlite_assets.raw_ferc2_xbrl__sqlite,
+        ferc_to_sqlite_assets.raw_ferc6_xbrl__sqlite,
+        ferc_to_sqlite_assets.raw_ferc60_xbrl__sqlite,
+        ferc_to_sqlite_assets.raw_ferc714_xbrl__sqlite,
     ]
 
-    ferc_to_sqlite.execute_in_process(
-        op_selection=op_selection,
+    result: ExecuteInProcessResult = dg.materialize(
+        assets=xbrl_assets,
         resources={
-            "ferc_to_sqlite_settings": settings,
+            "etl_settings": EtlSettings(ferc_to_sqlite_settings=settings),
             "datastore": ResourceDefinition.mock_resource(),
             "runtime_settings": RuntimeSettings(
                 xbrl_batch_size=20,
                 xbrl_num_workers=10,
             ),
+            "zenodo_dois": ZenodoDoiSettings(),
         },
     )
+
+    assert result.success
 
     assert convert_form_mock.call_count == len(forms)
 
@@ -126,6 +152,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
             duckdb_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.duckdb",
             batch_size=20,
             workers=10,
+            loglevel="INFO",
         )
 
 
@@ -146,7 +173,7 @@ def test_convert_form(mocker):
         years=[2020, 2021],
     )
 
-    output_path = PudlPaths().pudl_output
+    output_path: Path = PudlPaths().pudl_output
 
     # Test convert_form for every form number
     for form in XbrlFormNumber:
@@ -162,22 +189,41 @@ def test_convert_form(mocker):
         )
 
         # Verify extractor is called correctly
-        filings = [f"filings_{year}_{form.value}" for year in settings.years]
+        filings: list[str] = [f"filings_{year}_{form.value}" for year in settings.years]
         extractor_mock.assert_called_with(
             filings=filings,
             sqlite_path=output_path / f"ferc{form.value}_xbrl.sqlite",
             duckdb_path=output_path / f"ferc{form.value}_xbrl.duckdb",
             taxonomy=f"raw_archive_{form.value}",
             form_number=form.value,
-            metadata_path=str(
-                output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
-            ),
-            datapackage_path=str(
-                output_path / f"ferc{form.value}_xbrl_datapackage.json"
-            ),
+            metadata_path=output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json",
+            datapackage_path=output_path / f"ferc{form.value}_xbrl_datapackage.json",
             workers=5,
             batch_size=10,
             loglevel="INFO",
             logfile=None,
         )
         extractor_mock.reset_mock()
+
+
+def test_ferc_dbf_extractor_skips_with_empty_years(mocker, tmp_path):
+    """FercDbfExtractor.execute() should return early when years=[]."""
+    mocker.patch.object(
+        Ferc1DbfExtractor, "get_dbf_reader", return_value=mocker.MagicMock()
+    )
+    mocker.patch("pudl.extract.dbf.sa.create_engine", return_value=mocker.MagicMock())
+    mocker.patch("pudl.extract.dbf.sa.MetaData", return_value=mocker.MagicMock())
+
+    settings = FercToSqliteSettings(
+        ferc1_dbf_to_sqlite_settings=Ferc1DbfToSqliteSettings(years=[]),
+    )
+    extractor = Ferc1DbfExtractor(
+        datastore=mocker.MagicMock(),
+        settings=settings,
+        output_path=tmp_path,
+    )
+
+    delete_schema_mock = mocker.patch.object(extractor, "delete_schema")
+    extractor.execute()
+
+    delete_schema_mock.assert_not_called()
