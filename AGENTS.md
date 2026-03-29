@@ -5,15 +5,6 @@
 PUDL ingests raw public energy data (EIA, FERC, EPA, and others) and transforms it into
 clean, analysis-ready tables. The pipeline is orchestrated using Dagster assets and jobs.
 
-Raw inputs are managed through the datastore and are rooted at `$PUDL_INPUT`. Pipeline
-outputs are written under `$PUDL_OUTPUT/` and include:
-
-- Apache Parquet files (`$PUDL_OUTPUT/parquet/`) — the primary analytical outputs
-- SQLite databases (`$PUDL_OUTPUT/*.sqlite`) — used for FERC raw data and some outputs
-- DuckDB databases (`$PUDL_OUTPUT/*.duckdb`) — currently only for FERC XBRL data
-- JSON datapackage descriptors (`$PUDL_OUTPUT/*_datapackage.json`) — frictionless
-  datapackage metadata describing the schema and structure of the tabular outputs
-
 ## About this file
 
 `AGENTS.md` is the canonical instruction file for this repository. `CLAUDE.md` in
@@ -83,6 +74,25 @@ Other important directories:
   (`dg_fast.yml`, `dg_full.yml`, `dg_pytest.yml`, `dg_nightly.yml`)
 
 ## Development environment
+
+### Inputs and outputs
+
+Raw inputs and pipeline outputs live **outside the repository**, in directories with
+sufficient disk space. Their locations are set by two environment variables:
+
+- `$PUDL_INPUT` — root of the raw input datastore. Raw data files are downloaded here
+  by the `pudl_datastore` CLI and read by the pipeline at runtime. Do not write to
+  this directory manually.
+- `$PUDL_OUTPUT` — root of all pipeline outputs. Contents include:
+  - Apache Parquet files (`$PUDL_OUTPUT/parquet/`) — the primary analytical outputs
+  - SQLite databases (`$PUDL_OUTPUT/*.sqlite`) — used for FERC raw data and some outputs
+  - DuckDB databases (`$PUDL_OUTPUT/*.duckdb`) — currently only for FERC XBRL data
+  - JSON datapackage descriptors (`$PUDL_OUTPUT/*_datapackage.json`) — frictionless
+    datapackage metadata describing the schema and structure of the tabular outputs
+
+Never assume these directories are inside the repository. Never hardcode paths to them.
+
+### Python environment
 
 PUDL uses `pixi` for dependency and task management. Always use `pixi run <command>` to
 ensure commands run in the correct environment.
