@@ -334,6 +334,23 @@ Metadata describing tables, columns, and data sources lives in `pudl.metadata`.
 "Resources" are tables; "Fields" are columns. Metadata classes in
 `pudl.metadata.classes` use Pydantic and mirror the frictionless datapackage standard.
 
+## PUDL developer reference docs
+
+The following files under `docs/dev/` and `docs/methodology/` cover PUDL-specific
+concepts that are not in the dagster-expert or dignified-python skills. **Read the
+relevant file before working in that area** rather than guessing at conventions.
+
+| File | When to read it |
+| ---- | --------------- |
+| `docs/dev/naming_conventions.rst` | Before naming any asset, table, column, variable, or code identifier — covers layer prefixes (`raw_`/`core_`/`out_`), table-type suffixes (`_assn`, `_ent`, `_scd`, etc.), and column-name patterns for IDs, codes, units, and flags |
+| `docs/dev/metadata.rst` | Before adding or modifying a table, column, or data source — explains how Resources (tables) and Fields (columns) are defined, validated with Pandera, and wired into the frictionless datapackage |
+| `docs/dev/data_guidelines.rst` | Before designing a new transformation — establishes what changes to raw data are acceptable, tidy-data requirements, unit conventions, and time-series completeness expectations |
+| `docs/dev/existing_data_updates.rst` | When integrating a new year or version of an existing data source — step-by-step workflow covering file maps, extraction, transformation, schema updates, ID mapping, and validation |
+| `docs/dev/datastore.rst` | When working with raw input data, the `pudl_datastore` CLI, or Zenodo DOI references in `zenodo_dois.yml` |
+| `docs/dev/clone_ferc1.rst` | Before touching FERC extraction or the `ferc_to_sqlite` job — explains the DBF→SQLite and XBRL→SQLite conversion pipeline and the raw FERC asset group |
+| `docs/dev/pudl_id_mapping.rst` | When working with cross-dataset entity resolution (`plant_id_pudl`, `utility_id_pudl`) or the manual ID mapping spreadsheet |
+| `docs/methodology/entity_resolution.rst` | When working with `pudl.glue` or entity/SCD tables — explains how PUDL reconciles inconsistent plant and utility identities across EIA and FERC reporting |
+
 ## Documentation and release notes
 
 Docs are built with Sphinx from reStructuredText source in `docs/`. Significant
