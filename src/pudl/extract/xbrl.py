@@ -71,7 +71,7 @@ class FercXbrlDatastore:
         """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
 
-    def get_taxonomy(self, form: XbrlFormNumber) -> tuple[io.BytesIO, str]:
+    def get_taxonomy(self, form: XbrlFormNumber) -> io.BytesIO:
         """Returns the path to the taxonomy entry point within the an archive."""
         raw_archive = self.datastore.get_unique_resource(
             f"ferc{form.value}",
@@ -108,9 +108,9 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
         datastore = FercXbrlDatastore(context.resources.datastore)
 
         logger.info(f"====== xbrl2sqlite runtime_settings: {rs}")
-        if settings is None or settings.disabled:
+        if settings is None or not settings.years:
             logger.info(
-                f"Skipping dataset ferc{form.value}_xbrl: no config or is disabled."
+                f"Skipping dataset ferc{form.value}_xbrl: no config or no years configured."
             )
             return
 
@@ -161,8 +161,8 @@ def convert_form(
     Returns:
         None
     """
-    datapackage_path = str(output_path / f"ferc{form.value}_xbrl_datapackage.json")
-    metadata_path = str(output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json")
+    datapackage_path = output_path / f"ferc{form.value}_xbrl_datapackage.json"
+    metadata_path = output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
 
     taxonomy_archive = datastore.get_taxonomy(form)
     # Process XBRL filings for each year requested

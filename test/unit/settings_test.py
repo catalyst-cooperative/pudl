@@ -1,13 +1,17 @@
 """Tests for settings validation."""
 
+import importlib.resources
+import inspect
 from typing import Self
 
 import pandas as pd
 import pytest
 from dagster import build_init_resource_context
+from dagster._core.execution.context.init import UnboundInitResourceContext
 from pandas import json_normalize
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
+import pudl.settings as _settings_module
 from pudl.dagster.resources import (
     DatastoreResource,
     PudlEtlSettingsResource,
@@ -22,7 +26,6 @@ from pudl.settings import (
     EiaSettings,
     EpaCemsSettings,
     EtlSettings,
-    Ferc1DbfToSqliteSettings,
     Ferc1Settings,
     Ferc1XbrlToSqliteSettings,
     FercToSqliteSettings,
@@ -47,21 +50,12 @@ class TestGenericDatasetSettings:
             working_tables = ["table"]
 
             class Test(GenericDatasetSettings):
-                data_source: DataSource = DataSource(
+                data_source: DataSource = DataSource(  # type: ignore  # noqa: PGH003
                     working_partitions=working_partitions,
-                    working_tables=working_tables,
+                    working_tables=working_tables,  # type: ignore  # noqa: PGH003
                 )
 
             Test()
-
-
-class TestFerc1DbfToSqliteSettings:
-    """Test Ferc1DbfToSqliteSettings."""
-
-    def test_ref_year(self: Self):
-        """Test reference year is within working years."""
-        with pytest.raises(ValidationError):
-            Ferc1DbfToSqliteSettings(ferc1_to_sqlite_refyear=1990)
 
 
 class TestFerc1Settings:
@@ -81,21 +75,27 @@ class TestFerc1Settings:
             _ = Ferc1Settings(years=[2001, 2001, 2000])
 
     def test_none_years_raise(self: Self):
-        """Test years are sorted and deduplicated."""
+        """Test that null years raise a validation error."""
         with pytest.raises(ValidationError):
-            _ = Ferc1Settings(years=None)
+            _ = Ferc1Settings(years=None)  # type: ignore  # noqa: PGH003
 
     def test_default_years(self: Self):
         """Test all years are used as default."""
         returned_settings = Ferc1Settings()
 
-        expected_years = DataSource.from_id("ferc1").working_partitions["years"]
+        expected_years: list[int] = DataSource.from_id("ferc1").working_partitions[
+            "years"
+        ]
         assert expected_years == returned_settings.years
 
-        dbf_expected_years = [year for year in expected_years if year <= 2020]
+        dbf_expected_years: list[int] = [
+            year for year in expected_years if year <= 2020
+        ]
         assert dbf_expected_years == returned_settings.dbf_years
 
-        xbrl_expected_years = [year for year in expected_years if year >= 2021]
+        xbrl_expected_years: list[int] = [
+            year for year in expected_years if year >= 2021
+        ]
         assert xbrl_expected_years == returned_settings.xbrl_years
 
 
@@ -116,23 +116,23 @@ class TestEpaCemsSettings:
         """Test all quarters are used as default."""
         returned_settings = EpaCemsSettings()
 
-        expected_year_quarters = DataSource.from_id("epacems").working_partitions[
-            "year_quarters"
-        ]
+        expected_year_quarters: list[str] = DataSource.from_id(
+            "epacems"
+        ).working_partitions["year_quarters"]
         assert expected_year_quarters == returned_settings.year_quarters
 
     def test_all_year_quarters(self: Self):
         """Test the `all` option for the cems settings."""
         epacems_settings_all = EpaCemsSettings(year_quarters=["all"])
-        working_partitions_all = DataSource.from_id("epacems").working_partitions[
-            "year_quarters"
-        ]
+        working_partitions_all: list[str] = DataSource.from_id(
+            "epacems"
+        ).working_partitions["year_quarters"]
         assert epacems_settings_all.year_quarters == working_partitions_all
 
     def test_none_quarters_raise(self: Self):
         """Test that setting a required partition to None raises an error."""
         with pytest.raises(ValidationError):
-            _ = EpaCemsSettings(quarters=None)
+            _ = EpaCemsSettings(quarters=None)  # type: ignore  # noqa: PGH003
 
 
 class TestEia860Settings:
@@ -141,7 +141,7 @@ class TestEia860Settings:
     def test_eia860_years_overlap_eia860m_years(self: Self):
         """Test validation error is raised when eia860m date is within eia860 years."""
         # Identify the last valid EIA-860 year:
-        max_eia860_year = max(Eia860Settings().years)
+        max_eia860_year: int = max(Eia860Settings().years)
         # Use that year to construct an EIA-860M year that overlaps the EIA-860 years:
         bad_eia860m_year_month = f"{max_eia860_year}-01"
 
@@ -156,9 +156,9 @@ class TestEia860Settings:
 
     def test_eia860m_years_overlap_eia860m_years(self: Self):
         """Test validation error is raised when eia860m years overlap."""
-        max_eia860_year = max(Eia860Settings().years)
-        acceptable_eia860m_year = max_eia860_year + 1
-        bad_eia860m_year_months = [
+        max_eia860_year: int = max(Eia860Settings().years)
+        acceptable_eia860m_year: int = max_eia860_year + 1
+        bad_eia860m_year_months: list[str] = [
             f"{acceptable_eia860m_year}-01",
             f"{acceptable_eia860m_year}-02",
         ]
@@ -176,7 +176,7 @@ class TestEia860Settings:
         max_eia860m = pd.to_datetime(
             max(DataSource.from_id("eia860m").working_partitions["year_months"])
         ).year
-        settings_eia860m_years = [
+        settings_eia860m_years: list[int] = [
             pd.to_datetime(date).year for date in settings_eia860.eia860m_year_months
         ]
         # Assert that the default eia860m settings years are a complete range between the
@@ -196,7 +196,7 @@ class TestEia860mSettings:
 
     def test_all_year_quarters(self: Self):
         """Test the `all` option for the eia860m settings."""
-        settings_all = Eia860mSettings(year_months=["all"]).year_months
+        settings_all: list[str] = Eia860mSettings(year_months=["all"]).year_months
         partitions_all = DataSource.from_id("eia860m").working_partitions["year_months"]
         assert settings_all == partitions_all
 
@@ -208,12 +208,13 @@ class TestEiaSettings:
         """Test that there is some overlap between EIA860 and EIA923 data."""
         eia923_settings = Eia923Settings()
         settings = EiaSettings(eia923=eia923_settings)
-        data_source = DataSource.from_id("eia860")
-        assert settings.eia860
+        data_source: DataSource = DataSource.from_id("eia860")
+        assert settings.eia860 is not None
+        assert settings.eia923 is not None
         # assign both EIA form years
-        eia860_years = settings.eia860.years
-        eia923_years_partition = data_source.working_partitions["years"]
-        eia923_years_settings = settings.eia923.years
+        eia860_years: list[int] = settings.eia860.years
+        eia923_years_partition: list[int] = data_source.working_partitions["years"]
+        eia923_years_settings: list[int] = settings.eia923.years
         # assert that there is some overlap between EIA years
         assert not set(eia860_years).isdisjoint(eia923_years_partition)
         assert not set(eia860_years).isdisjoint(eia923_years_settings)
@@ -222,12 +223,13 @@ class TestEiaSettings:
         """Test that there is some overlap between EIA860 and EIA923 data."""
         eia860_settings = Eia860Settings()
         settings = EiaSettings(eia860=eia860_settings)
-        data_source = DataSource.from_id("eia923")
-        assert settings.eia923
+        data_source: DataSource = DataSource.from_id("eia923")
+        assert settings.eia923 is not None
+        assert settings.eia860 is not None
         # assign both EIA form years
-        eia923_years = settings.eia923.years
-        eia860_years_partition = data_source.working_partitions["years"]
-        eia860_years_settings = settings.eia860.years
+        eia923_years: list[int] = settings.eia923.years
+        eia860_years_partition: list[int] = data_source.working_partitions["years"]
+        eia860_years_settings: list[int] = settings.eia860.years
         # assert that there is some overlap between EIA years
         assert not set(eia923_years).isdisjoint(eia860_years_partition)
         assert not set(eia923_years).isdisjoint(eia860_years_settings)
@@ -239,10 +241,11 @@ class TestDatasetsSettings:
     def test_default_behavior(self: Self):
         """Make sure all of the years are added if nothing is specified."""
         settings = DatasetsSettings()
-        data_source = DataSource.from_id("ferc1")
+        data_source: DataSource = DataSource.from_id("ferc1")
 
-        expected_years = data_source.working_partitions["years"]
-        returned_years = settings.ferc1.years
+        expected_years: list[int] = data_source.working_partitions["years"]
+        assert settings.ferc1 is not None
+        returned_years: list[int] = settings.ferc1.years
         assert expected_years == returned_years
 
         assert settings.eia, "EIA settings were not added."
@@ -275,12 +278,31 @@ class TestGridPathRAToolkitSettings:
 
     def test_fast_profile_gridpath_parts_not_empty(self: Self):
         """Ensure packaged fast settings yield GridPath parts used by Dagster assets."""
-        etl_settings = load_etl_settings("src/pudl/package_data/settings/etl_fast.yml")
+        with importlib.resources.as_file(
+            importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
+        ) as path:
+            etl_settings: EtlSettings = load_etl_settings(str(path))
         assert etl_settings.datasets is not None
 
-        gridpath_settings = etl_settings.datasets.gridpathratoolkit
+        gridpath_settings: GridPathRAToolkitSettings | None = (
+            etl_settings.datasets.gridpathratoolkit
+        )
+        assert gridpath_settings is not None
         assert gridpath_settings.parts
         assert "aggregated_extended_wind_capacity" in gridpath_settings.parts
+
+    def test_model_dump_round_trip(self: Self):
+        """GridPathRAToolkitSettings must survive a model_dump → reconstruct round-trip.
+
+        Regression: model_dump() includes computed fields by default in Pydantic v2,
+        so ``parts`` appeared in the dump. Passing it back to the constructor then raised
+        a ValidationError because ``parts`` is a computed field and the model uses
+        ``extra="forbid"``.
+        """
+        settings = GridPathRAToolkitSettings()
+        dumped = settings.model_dump()
+        # parts must not be present; if it is, reconstruction will raise ValidationError
+        GridPathRAToolkitSettings(**dumped)
 
 
 class TestEtlSettings:
@@ -327,17 +349,24 @@ class TestPudlEtlSettingsResource:
 
     def test_invalid_field_type(self: Self):
         """Test an error is thrown when the ETL settings path has the wrong type."""
-        init_context = build_init_resource_context(config={"etl_settings_path": 2021})
+        init_context: UnboundInitResourceContext = build_init_resource_context(
+            config={"etl_settings_path": 2021}
+        )
         with pytest.raises(ValidationError):
             _ = PudlEtlSettingsResource.from_resource_context(init_context)
 
     def test_loads_from_file(self: Self):
         """Test that ETL settings are loaded from the shared ETL settings file."""
-        init_context = build_init_resource_context(
-            config={"etl_settings_path": "src/pudl/package_data/settings/etl_fast.yml"}
-        )
+        with importlib.resources.as_file(
+            importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
+        ) as path:
+            init_context: UnboundInitResourceContext = build_init_resource_context(
+                config={"etl_settings_path": str(path)}
+            )
 
-        loaded_settings = PudlEtlSettingsResource.from_resource_context(init_context)
+        loaded_settings: EtlSettings = PudlEtlSettingsResource.from_resource_context(
+            init_context
+        )
 
         assert isinstance(loaded_settings, EtlSettings)
         assert loaded_settings.dataset_settings.ferc1 is not None
@@ -348,7 +377,7 @@ def test_datastore_resource_loads() -> None:
     with ZenodoDoiSettingsResource.from_resource_context_cm(
         build_init_resource_context()
     ) as zenodo_dois:
-        init_context = build_init_resource_context(
+        init_context: UnboundInitResourceContext = build_init_resource_context(
             config={
                 "cloud_cache_path": "s3://pudl.catalyst.coop/zenodo",
                 "use_local_cache": False,
@@ -360,18 +389,66 @@ def test_datastore_resource_loads() -> None:
             assert isinstance(datastore, Datastore)
 
 
+def _all_settings_instances() -> list[BaseModel]:
+    """Return one default instance of every concrete settings class in pudl.settings.
+
+    Abstract base classes that are not meant to be instantiated directly are
+    excluded. Classes that require non-default arguments are constructed
+    explicitly. All remaining classes are constructed with no arguments.
+
+    Any new settings class added to ``pudl.settings`` is automatically included
+    here, so :func:`test_all_settings_model_dump_round_trip` stays comprehensive
+    without manual maintenance.
+    """
+    # True abstract bases: no data_source / no years default — all concrete
+    # subclasses are already covered by their own entries in this list.
+    skip = {
+        _settings_module.FrozenBaseModel,
+        _settings_module.GenericDatasetSettings,
+        _settings_module.FercDbfToSqliteSettings,
+        _settings_module.FercGenericXbrlToSqliteSettings,
+    }
+    instances: list[BaseModel] = []
+    for _, cls in inspect.getmembers(_settings_module, inspect.isclass):
+        if (
+            not issubclass(cls, BaseModel)
+            or cls.__module__ != _settings_module.__name__
+            or cls in skip
+        ):
+            continue
+        instances.append(cls())
+    return instances
+
+
+@pytest.mark.parametrize(
+    "instance",
+    _all_settings_instances(),
+    ids=lambda i: type(i).__name__,
+)
+def test_all_settings_model_dump_round_trip(instance: BaseModel) -> None:
+    """Every settings class must survive a model_dump → reconstruct round-trip.
+
+    Verifies that ``model_dump()`` produces a dict that can be passed back to
+    the constructor without raising a ``ValidationError``. This catches accidental
+    use of ``@computed_field``, which includes derived values in ``model_dump()``
+    output that cannot be re-supplied to constructors on models with
+    ``extra="forbid"``.
+    """
+    dumped = instance.model_dump()
+    type(instance)(**dumped)
+
+
 def test_partitions_with_json_normalize(pudl_etl_settings):
     """Ensure the FERC1 and CEMS partitions normalize."""
     datasets = pudl_etl_settings.get_datasets()
-
-    ferc_parts = json_normalize(datasets["ferc1"].partitions)
+    ferc_parts: pd.DataFrame = json_normalize(datasets["ferc1"].partitions)
     if list(ferc_parts.columns) != ["year"]:
         raise AssertionError(
             "FERC1 paritions should have year and state columns only, found:"
             f"{ferc_parts}"
         )
 
-    cems_parts = json_normalize(datasets["epacems"].partitions)
+    cems_parts: pd.DataFrame = json_normalize(datasets["epacems"].partitions)
     if list(cems_parts.columns) != ["year_quarter"]:
         raise AssertionError(
             f"CEMS paritions should have year_quarter columns only, found:{cems_parts}"

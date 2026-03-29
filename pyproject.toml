@@ -179,6 +179,20 @@ zip = ">=3.0"
 furo = ">=2025"
 sphinx-tabs = ">=3.4.7"
 
+[tool.pixi.feature.dev.dependencies]
+jq = ">=1.8" # Primarily for agent skills use
+marimo = ">=0.21"
+matplotx = ">=0.3.10"
+plotly = ">=6.6"
+ripgrep = ">=15" # Primarily for agent skills use
+ty = ">=0.0.25" # Experimental, also for agent skills use
+
+[tool.pixi.environments]
+dev = { features = ["dev"], solve-group = "default" }
+
+########################################################################################
+# Conda package build configuration. This is used by pixi to build the conda package
+########################################################################################
 [tool.pixi.package]
 version = "v0.0.0"
 
@@ -191,9 +205,9 @@ channels = ["conda-forge"]
 python = ">=3.13,<3.14.0"
 
 [tool.pixi.package.host-dependencies]
-hatchling = ">=1.16"
+hatchling = ">=1.29"
 hatch-vcs = ">=0.5"
-uv = ">=0.10"
+uv = ">=0.11"
 
 # This is a list of the minimal set of run-time dependencies required for PUDL to
 # be installed and function properly. These should be kept in sync with the more
@@ -258,11 +272,19 @@ universal-pathlib = ">=0.3.10"
 urllib3 = ">=2.4"
 xlsxwriter = ">=3.2"
 
+########################################################################################
+########################################################################################
+
 [tool.pixi.activation.env]
 # Reusable variables for pixi tasks
 DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
 DG_NIGHTLY_CONFIG = "src/pudl/package_data/settings/dg_nightly.yml"
 
+########################################################################################
+# Pixi task definitions. These are used by pixi to run various tasks in a consistent
+# environment. They can be run with `pixi run <task-name>`, and can depend on each other
+# to create complex workflows. See the pixi documentation for more details:
+########################################################################################
 [tool.pixi.tasks]
 # Documentation tasks
 [tool.pixi.tasks.docs-clean]
@@ -333,7 +355,7 @@ description = "Run unit tests and doctests"
 
 [tool.pixi.tasks.pytest-integration]
 cmd = "pytest --cov-fail-under=0 test/integration"
-description = "Run integration and data validation tests with fast ETL settings"
+description = "Run integration tests with the default settings"
 
 [tool.pixi.tasks.pytest-unit-nightly]
 cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG test/unit"
@@ -717,3 +739,9 @@ extend-exclude = [
     "src/pudl/transform/params/ferc1.py",
     "src/pudl/package_data/ferc1/*_categories.yaml",
 ]
+
+[tool.ty.environment]
+python = ".pixi/envs/default/bin/python"
+python-version = "3.13"
+python-platform = "all"
+root = ["./src"]

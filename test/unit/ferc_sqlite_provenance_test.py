@@ -6,7 +6,7 @@ import dagster as dg
 import pytest
 
 from pudl.dagster.provenance import (
-    FercSqliteProvenance,
+    FercSQLiteProvenance,
     assert_ferc_sqlite_compatible,
     build_ferc_sqlite_provenance_metadata,
     get_ferc_sqlite_provenance,
@@ -44,12 +44,12 @@ def test_get_ferc_sqlite_provenance_dataset_and_format(
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """Provenance fingerprint extracts dataset and format from the db_name."""
-    provenance = get_ferc_sqlite_provenance(
+    provenance: FercSQLiteProvenance = get_ferc_sqlite_provenance(
         db_name=db_name,
         etl_settings=etl_settings,
         zenodo_dois=zenodo_dois,
     )
-    assert isinstance(provenance, FercSqliteProvenance)
+    assert isinstance(provenance, FercSQLiteProvenance)
     assert provenance.dataset == expected_dataset
     assert provenance.data_format == expected_format
     assert provenance.asset_key == dg.AssetKey(f"raw_{db_name}__sqlite")
@@ -82,7 +82,7 @@ def test_build_ferc_sqlite_provenance_metadata_keys(
         sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
         status="complete",
     )
-    required_keys = {
+    required_keys: set[str] = {
         "pudl_ferc_sqlite_dataset",
         "pudl_ferc_sqlite_status",
         "pudl_ferc_sqlite_zenodo_doi",
@@ -120,7 +120,7 @@ def test_assert_ferc_sqlite_compatible_passes_matching_provenance(
         sqlite_path=None,
         status="complete",
     )
-    instance = mocker.MagicMock()
+    instance: dg.DagsterInstance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=metadata)
     )
@@ -147,18 +147,18 @@ def test_assert_ferc_sqlite_compatible_passes_superset_years(
         sqlite_path=None,
         status="complete",
     )
-    instance = mocker.MagicMock()
+    instance: dg.DagsterInstance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=stored_metadata)
     )
 
     # Downstream run requests only a single year — a strict subset of what is stored.
-    stored_years = get_ferc_sqlite_provenance(
+    stored_years: list[int] = get_ferc_sqlite_provenance(
         db_name="ferc1_dbf",
         etl_settings=etl_settings,
         zenodo_dois=zenodo_dois,
     ).years
-    one_year = stored_years[len(stored_years) // 2]  # pick a year from the middle
+    one_year: int = stored_years[len(stored_years) // 2]  # pick a year from the middle
 
     from pudl.settings import Ferc1DbfToSqliteSettings
 
@@ -194,7 +194,7 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
         sqlite_path=None,
         status="complete",
     )
-    instance = mocker.MagicMock()
+    instance: dg.DagsterInstance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=metadata)
     )
@@ -230,7 +230,7 @@ def test_assert_ferc_sqlite_compatible_rejects_missing_years(
         sqlite_path=None,
         status="complete",
     )
-    instance = mocker.MagicMock()
+    instance: dg.DagsterInstance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=stored_metadata)
     )
@@ -250,7 +250,7 @@ def test_assert_ferc_sqlite_compatible_rejects_missing_materialization(
     mocker,
 ) -> None:
     """Missing materialization event should raise a descriptive RuntimeError."""
-    instance = mocker.MagicMock()
+    instance: dg.DagsterInstance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = None
     with pytest.raises(RuntimeError, match="No Dagster provenance metadata"):
         assert_ferc_sqlite_compatible(
@@ -266,7 +266,11 @@ def test_assert_ferc_sqlite_compatible_rejects_incomplete_status(
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
-    """A non-'complete' status should raise a descriptive RuntimeError."""
+    """A DB built with status='skipped' (e.g. years=[]) should raise RuntimeError.
+
+    A skipped extraction means the SQLite file was never populated, so downstream
+    IO managers must refuse to read from it.
+    """
     metadata = build_ferc_sqlite_provenance_metadata(
         db_name="ferc1_dbf",
         etl_settings=etl_settings,
@@ -274,7 +278,7 @@ def test_assert_ferc_sqlite_compatible_rejects_incomplete_status(
         sqlite_path=None,
         status="skipped",
     )
-    instance = mocker.MagicMock()
+    instance: dg.DagsterInstance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=metadata)
     )

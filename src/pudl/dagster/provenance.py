@@ -30,7 +30,7 @@ PROVENANCE_METADATA_SQLITE_PATH = "pudl_ferc_sqlite_path"
 
 
 @dataclass(frozen=True)
-class FercSqliteProvenance:
+class FercSQLiteProvenance:
     """Current provenance expectations for a FERC SQLite prerequisite asset."""
 
     asset_key: dg.AssetKey
@@ -41,11 +41,11 @@ class FercSqliteProvenance:
 
 
 def _get_dataset_and_format(db_name: str) -> tuple[str, str]:
-    match = re.search(r"ferc\d+", db_name)
+    match: re.Match[str] | None = re.search(r"ferc\d+", db_name)
     if match is None:
         raise ValueError(f"Could not determine FERC dataset from db_name={db_name!r}.")
 
-    dataset = match.group()
+    dataset: str = match.group()
     if db_name.endswith("_dbf"):
         return dataset, "dbf"
     if db_name.endswith("_xbrl"):
@@ -61,7 +61,7 @@ def get_ferc_sqlite_provenance(
     db_name: str,
     etl_settings: EtlSettings,
     zenodo_dois: ZenodoDoiSettings,
-) -> "FercSqliteProvenance":
+) -> "FercSQLiteProvenance":
     """Build the expected provenance fingerprint for a FERC SQLite database."""
     dataset, data_format = _get_dataset_and_format(db_name)
     settings_attr = f"{dataset}_{data_format}_to_sqlite_settings"
@@ -69,7 +69,7 @@ def get_ferc_sqlite_provenance(
     if settings is None:
         raise ValueError(f"Missing {settings_attr} in ETL settings.")
 
-    return FercSqliteProvenance(
+    return FercSQLiteProvenance(
         asset_key=dg.AssetKey(f"raw_{db_name}__sqlite"),
         dataset=dataset,
         data_format=data_format,
@@ -87,7 +87,7 @@ def build_ferc_sqlite_provenance_metadata(
     status: str,
 ) -> dict[str, Any]:
     """Build materialization metadata for a FERC SQLite prerequisite asset."""
-    provenance = get_ferc_sqlite_provenance(
+    provenance: FercSQLiteProvenance = get_ferc_sqlite_provenance(
         db_name=db_name,
         etl_settings=etl_settings,
         zenodo_dois=zenodo_dois,
@@ -142,7 +142,7 @@ def assert_ferc_sqlite_compatible(
     if instance is None:
         return
 
-    provenance = get_ferc_sqlite_provenance(
+    provenance: FercSQLiteProvenance = get_ferc_sqlite_provenance(
         db_name=db_name,
         etl_settings=etl_settings,
         zenodo_dois=zenodo_dois,
@@ -155,18 +155,18 @@ def assert_ferc_sqlite_compatible(
             f"{provenance.asset_key.to_user_string()}. Refresh the FERC SQLite assets."
         )
 
-    metadata = {
+    metadata: dict[str, Any] = {
         key: _unwrap_metadata_value(value)
         for key, value in (materialization.metadata or {}).items()
     }
-    required_keys = [
+    required_keys: list[str] = [
         PROVENANCE_METADATA_STATUS,
         PROVENANCE_METADATA_ZENODO_DOI,
         PROVENANCE_METADATA_YEARS,
     ]
-    missing_keys = [key for key in required_keys if key not in metadata]
+    missing_keys: list[str] = [key for key in required_keys if key not in metadata]
     if missing_keys:
-        missing_keys_str = ", ".join(sorted(missing_keys))
+        missing_keys_str: str = ", ".join(sorted(missing_keys))
         raise RuntimeError(
             f"Stored provenance metadata for {provenance.asset_key.to_user_string()} is "
             f"missing {missing_keys_str}. Refresh the FERC SQLite assets."
@@ -179,7 +179,7 @@ def assert_ferc_sqlite_compatible(
             "Refresh the FERC SQLite assets."
         )
 
-    mismatches = []
+    mismatches: list[str] = []
     if metadata[PROVENANCE_METADATA_ZENODO_DOI] != provenance.zenodo_doi:
         mismatches.append(
             "Zenodo DOI mismatch: "
@@ -187,9 +187,9 @@ def assert_ferc_sqlite_compatible(
             f"expected={provenance.zenodo_doi!r}"
         )
 
-    stored_years = set(metadata[PROVENANCE_METADATA_YEARS])
-    required_years = set(provenance.years)
-    missing_years = required_years - stored_years
+    stored_years: set[int] = set(metadata[PROVENANCE_METADATA_YEARS])
+    required_years: set[int] = set(provenance.years)
+    missing_years: set[int] = required_years - stored_years
     if missing_years:
         mismatches.append(
             "FERC SQLite DB is missing required years: "
@@ -199,7 +199,7 @@ def assert_ferc_sqlite_compatible(
         )
 
     if mismatches:
-        mismatch_summary = "; ".join(mismatches)
+        mismatch_summary: str = "; ".join(mismatches)
         raise RuntimeError(
             f"Stored prerequisite asset {provenance.asset_key.to_user_string()} is not "
             f"compatible with the current run configuration. {mismatch_summary}. "

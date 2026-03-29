@@ -80,54 +80,53 @@ when you switch branches.** The stable code location module is
 Configuring resources
 ---------------------
 Dagster resources are python objects that any assets can access.
-Resources can be configured using the dagster UI to change the behavior
-of a given resource. PUDL's default resource set is assembled in
-:mod:`pudl.dagster.resources` and includes datastore access, ETL settings,
-runtime settings, and several IO managers. The resources contributors most
-often need to adjust are:
+Resources can be configured using the Dagster UI or via a YAML config
+file to change the behavior of a given resource. PUDL's default resource
+set is assembled in :mod:`pudl.dagster.resources` and includes datastore
+access, ETL settings, runtime settings, and several IO managers. The
+resources contributors most often need to adjust are:
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:data:`pudl.dagster.resources.etl_settings`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``etl_settings`` resource tells the PUDL ETL which years
-of data to process. You can configure the dataset settings
-by holding shift while clicking the "Materialize All" button in the upper
-right hand corner of the Dagster UI. This will bring up a window
-where you change how the resource is configured:
+:class:`pudl.dagster.resources.PudlEtlSettingsResource`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The ``etl_settings`` resource loads a validated
+:class:`pudl.settings.EtlSettings` object from an ETL settings YAML
+file. It controls which datasets and years are processed by both
+the ``ferc_to_sqlite`` and ``pudl`` jobs. The path to the settings
+file is configured via the ``etl_settings_path`` field, and the
+standard packaged settings files are under
+``src/pudl/package_data/settings/``.
 
-.. image:: ../images/dataset_settings_config.png
-  :width: 800
-  :alt: Dagster UI home
-
-.. note::
-
-    If a dataset is not specified in the config, the dataset will be
-    processed using the default configuration values.
-
-The panel on the right hand side of the window displays the available
-config options and the expected types of inputs. You can also hover
-over the config options to view the default values. Once you've configured
-the resource you can select "Materialize All" to execute the selected
-assets.
+To override the settings for a single run from the Dagster UI, hold
+shift while clicking "Materialize All" to open the run configuration
+panel and set ``etl_settings.config.etl_settings_path`` to point at
+a custom settings YAML file.
 
 .. note::
 
-    The configuration edits you make in the dagster UI are only used
+    The configuration edits you make in the Dagster UI are only used
+    for a single run.  To save a resource configuration permanently,
+    update the Dagster config YAML (e.g. ``dg_fast.yml``) or pass a
+    ``--config`` flag to ``dg launch``.
+
+:class:`pudl.resources.DatastoreResource`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. note::
+
+    The configuration edits you make in the Dagster UI are only used
     for a single run. If want to save a resource configuration,
     change the default value of the resource, update one of the packaged
     Dagster YAML profiles, or define a custom job / ``Definitions`` override
     in :mod:`pudl.dagster.jobs` or :mod:`pudl.dagster.build`.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :data:`pudl.dagster.resources.datastore`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The datastore resource allows assets to to pull data from
+The datastore resource allows assets to pull data from
 PUDL's raw data archives on Zenodo.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :data:`pudl.dagster.resources.runtime_settings`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The ``runtime_settings`` resource controls run-scoped behavior that is not
 part of the dataset selection itself.
 

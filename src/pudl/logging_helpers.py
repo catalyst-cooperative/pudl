@@ -1,7 +1,7 @@
 """Configure logging for the PUDL package."""
 
 import logging
-import os
+from typing import Literal
 
 import coloredlogs
 from dagster import get_dagster_logger
@@ -21,19 +21,6 @@ DEFAULT_DEPENDENCY_LOGLEVELS: dict[str, int] = {
 }
 
 
-def _get_env_bool(var_name: str, default: bool) -> bool:
-    """Parse a boolean from environment variable values."""
-    value = os.getenv(var_name)
-    if value is None:
-        return default
-    value = value.strip().lower()
-    if value in {"1", "true", "t", "yes", "y", "on"}:
-        return True
-    if value in {"0", "false", "f", "no", "n", "off"}:
-        return False
-    return default
-
-
 def get_logger(name: str):
     """Helper function to append 'catalystcoop' to logger name and return logger."""
     return get_dagster_logger(f"catalystcoop.{name}")
@@ -41,31 +28,22 @@ def get_logger(name: str):
 
 def configure_root_logger(
     logfile: str | None = None,
-    loglevel: str | None = None,
+    loglevel: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO",
     dependency_loglevels: dict[str, int] | None = None,
-    color_logs: bool | None = None,
+    color_logs: bool = True,
     propagate: bool = False,
 ) -> None:
     """Configure the root catalystcoop logger.
 
     Args:
         logfile: Path to logfile or None.
-        loglevel: Level of detail at which to log. If omitted, read from
-            ``PUDL_LOGLEVEL`` env var and default to ``INFO``.
+        loglevel: Level of detail at which to log. Defaults to ``INFO``.
         dependency_loglevels: Dictionary mapping dependency name to desired loglevel.
             This allows us to filter excessive logs from dependencies.
-        color_logs: Whether to emit ANSI color codes. If omitted, read from
-            ``PUDL_COLOR_LOGS`` env var and default to ``True``.
+        color_logs: Whether to emit ANSI color codes. Defaults to ``True``.
         propagate: Whether to propagate logs to ancestor loggers. Useful for ensuring
             that pytest has access to PUDL logs during testing.
     """
-    if loglevel is None:
-        loglevel = os.getenv("PUDL_LOGLEVEL", "INFO")
-    if logfile is None:
-        logfile = os.getenv("PUDL_LOGFILE")
-    if color_logs is None:
-        color_logs = _get_env_bool("PUDL_COLOR_LOGS", default=True)
-
     if dependency_loglevels is None:
         dependency_loglevels = dict(DEFAULT_DEPENDENCY_LOGLEVELS)
 

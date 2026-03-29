@@ -1,11 +1,18 @@
 """Tests for xbrl extraction module."""
 
+from pathlib import Path
+
 import dagster as dg
 import pytest
 from dagster import ResourceDefinition
+from dagster._core.definitions.assets.definition.assets_definition import (
+    AssetsDefinition,
+)
+from dagster._core.execution.execute_in_process_result import ExecuteInProcessResult
 
 from pudl.dagster.assets.raw import ferc_to_sqlite
 from pudl.dagster.resources import FercXbrlRuntimeSettings
+from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.settings import (
     EtlSettings,
@@ -88,6 +95,16 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
             ),
             [],
         ),
+        (
+            FercToSqliteSettings(
+                ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(years=[]),
+                ferc2_xbrl_to_sqlite_settings=Ferc2XbrlToSqliteSettings(years=[]),
+                ferc6_xbrl_to_sqlite_settings=Ferc6XbrlToSqliteSettings(years=[]),
+                ferc60_xbrl_to_sqlite_settings=Ferc60XbrlToSqliteSettings(years=[]),
+                ferc714_xbrl_to_sqlite_settings=Ferc714XbrlToSqliteSettings(years=[]),
+            ),
+            [],
+        ),
     ],
 )
 def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
@@ -103,7 +120,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
         return_value=mock_datastore,
     )
 
-    xbrl_assets = [
+    xbrl_assets: list[AssetsDefinition] = [
         ferc_to_sqlite.raw_ferc1_xbrl__sqlite,
         ferc_to_sqlite.raw_ferc2_xbrl__sqlite,
         ferc_to_sqlite.raw_ferc6_xbrl__sqlite,
@@ -111,7 +128,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
         ferc_to_sqlite.raw_ferc714_xbrl__sqlite,
     ]
 
-    result = dg.materialize(
+    result: ExecuteInProcessResult = dg.materialize(
         assets=xbrl_assets,
         resources={
             "etl_settings": EtlSettings(ferc_to_sqlite_settings=settings),
@@ -159,7 +176,7 @@ def test_convert_form(mocker):
         years=[2020, 2021],
     )
 
-    output_path = PudlPaths().pudl_output
+    output_path: Path = PudlPaths().pudl_output
 
     # Test convert_form for every form number
     for form in XbrlFormNumber:
@@ -175,22 +192,41 @@ def test_convert_form(mocker):
         )
 
         # Verify extractor is called correctly
-        filings = [f"filings_{year}_{form.value}" for year in settings.years]
+        filings: list[str] = [f"filings_{year}_{form.value}" for year in settings.years]
         extractor_mock.assert_called_with(
             filings=filings,
             sqlite_path=output_path / f"ferc{form.value}_xbrl.sqlite",
             duckdb_path=output_path / f"ferc{form.value}_xbrl.duckdb",
             taxonomy=f"raw_archive_{form.value}",
             form_number=form.value,
-            metadata_path=str(
-                output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
-            ),
-            datapackage_path=str(
-                output_path / f"ferc{form.value}_xbrl_datapackage.json"
-            ),
+            metadata_path=output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json",
+            datapackage_path=output_path / f"ferc{form.value}_xbrl_datapackage.json",
             workers=5,
             batch_size=10,
             loglevel="INFO",
             logfile=None,
         )
         extractor_mock.reset_mock()
+
+
+def test_ferc_dbf_extractor_skips_with_empty_years(mocker, tmp_path):
+    """FercDbfExtractor.execute() should return early when years=[]."""
+    mocker.patch.object(
+        Ferc1DbfExtractor, "get_dbf_reader", return_value=mocker.MagicMock()
+    )
+    mocker.patch("pudl.extract.dbf.sa.create_engine", return_value=mocker.MagicMock())
+    mocker.patch("pudl.extract.dbf.sa.MetaData", return_value=mocker.MagicMock())
+
+    settings = FercToSqliteSettings(
+        ferc1_dbf_to_sqlite_settings=Ferc1DbfToSqliteSettings(years=[]),
+    )
+    extractor = Ferc1DbfExtractor(
+        datastore=mocker.MagicMock(),
+        settings=settings,
+        output_path=tmp_path,
+    )
+
+    delete_schema_mock = mocker.patch.object(extractor, "delete_schema")
+    extractor.execute()
+
+    delete_schema_mock.assert_not_called()

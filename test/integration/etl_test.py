@@ -6,12 +6,15 @@ before these tests run.
 """
 
 import logging
+from typing import Literal
 
+import pandas as pd
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.engine.reflection import Inspector
 
 import pudl
-from pudl.settings import DatasetsSettings
+from pudl.settings import DatasetsSettings, Ferc1Settings
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +27,7 @@ def test_pudl_engine(pudl_engine: sa.Engine):
     build can report it independently from the rest of the integration suite.
     """
     assert isinstance(pudl_engine, sa.Engine)
-    insp = sa.inspect(pudl_engine)
+    insp: Inspector = sa.inspect(pudl_engine)
     required_tables = (
         "core_pudl__entity_plants_pudl",
         "core_pudl__entity_utilities_pudl",
@@ -35,7 +38,7 @@ def test_pudl_engine(pudl_engine: sa.Engine):
 
     with pudl_engine.connect() as connection:
         for table_name in required_tables:
-            first_row = connection.execute(
+            first_row: int | None = connection.execute(
                 sa.select(sa.literal(1)).select_from(sa.table(table_name)).limit(1)
             ).scalar()
             assert first_row is not None, f"Expected {table_name} to contain data."
@@ -163,12 +166,9 @@ class TestFerc1ExtractDebugFunctions:
     @pytest.mark.usefixtures("ferc1_engine_dbf")
     def test_extract_dbf(self):
         """Test extract_dbf."""
-        years = [2020, 2021]  # add desired years here
-        configured_dataset_settings = DatasetsSettings.model_validate(
-            {"ferc1": {"years": years}}
+        ferc1_dbf_raw_dfs: dict[str, pd.DataFrame] = pudl.extract.ferc1.extract_dbf(
+            dataset_settings=DatasetsSettings(ferc1=Ferc1Settings(years=[2020, 2021]))
         )
-
-        ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(configured_dataset_settings)
 
         for table_name, df in ferc1_dbf_raw_dfs.items():
             assert (df.report_year >= 2020).all() and (df.report_year < 2022).all(), (
@@ -178,13 +178,10 @@ class TestFerc1ExtractDebugFunctions:
     @pytest.mark.usefixtures("ferc1_engine_xbrl")
     def test_extract_xbrl(self):
         """Test extract_xbrl."""
-        years = [2021]  # add desired years here
-        configured_dataset_settings = DatasetsSettings.model_validate(
-            {"ferc1": {"years": years}}
-        )
-
-        ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
-            configured_dataset_settings
+        ferc1_xbrl_raw_dfs: dict[
+            str, dict[Literal["duration", "instant"], pd.DataFrame]
+        ] = pudl.extract.ferc1.extract_xbrl(
+            dataset_settings=DatasetsSettings(ferc1=Ferc1Settings(years=[2021]))
         )
 
         for table_name, xbrl_tables in ferc1_xbrl_raw_dfs.items():

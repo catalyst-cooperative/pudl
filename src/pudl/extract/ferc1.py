@@ -82,8 +82,8 @@ from dagster import (
 
 import pudl
 from pudl.dagster.io_managers import (
-    FercDBFSQLiteIOManager,
-    FercXBRLSQLiteIOManager,
+    FercDbfSQLiteIOManager,
+    FercXbrlSQLiteIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
@@ -96,8 +96,8 @@ from pudl.extract.dbf import (
 from pudl.settings import (
     DatasetsSettings,
     EtlSettings,
+    FercDbfToSqliteSettings,
     FercToSqliteSettings,
-    GenericDatasetSettings,
 )
 from pudl.workspace.setup import PudlPaths
 
@@ -256,7 +256,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 
     def get_settings(
         self, global_settings: FercToSqliteSettings
-    ) -> GenericDatasetSettings:
+    ) -> FercDbfToSqliteSettings:
         """Returns settings for FERC Form 1 DBF dataset."""
         settings = global_settings.ferc1_dbf_to_sqlite_settings
         if settings is None:
@@ -468,7 +468,7 @@ def raw_ferc1_xbrl__metadata_json(
 # Ferc extraction functions for devtool notebook testing
 def extract_dbf_generic(
     table_names: list[str],
-    io_manager: FercDBFSQLiteIOManager,
+    io_manager: FercDbfSQLiteIOManager,
     dataset_settings: DatasetsSettings,
 ) -> pd.DataFrame:
     """Combine multiple raw dbf tables into one.
@@ -495,7 +495,7 @@ def extract_dbf_generic(
 
 def extract_xbrl_generic(
     table_names: list[str],
-    io_manager: FercXBRLSQLiteIOManager,
+    io_manager: FercXbrlSQLiteIOManager,
     dataset_settings: DatasetsSettings,
     period: Literal["duration", "instant"],
 ) -> pd.DataFrame:
