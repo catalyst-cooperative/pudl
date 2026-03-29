@@ -75,7 +75,7 @@ sufficient disk space. Their locations are set by two environment variables:
 
 Never assume these directories are inside the repository. Never hardcode paths to them.
 
-## Python environment
+### Python environment
 
 PUDL uses `pixi` for dependency and task management. Always use `pixi run <command>` to
 ensure commands run in the correct environment.
@@ -111,8 +111,8 @@ pixi install
 pixi run pre-commit-install
 
 # Linting and formatting
-pixi run pre-commit run --all-files            # run all hooks on all files
-pixi run pre-commit run ruff-check --all-files # lint without fixing
+pixi run pre-commit run --all-files             # run all hooks on all files
+pixi run pre-commit run ruff-check --all-files  # lint without fixing
 pixi run pre-commit run ruff-format --all-files # fix formatting
 
 # Type checking (faster than mypy)
