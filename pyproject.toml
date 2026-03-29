@@ -176,6 +176,7 @@ zip = ">=3.0"
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
 # Furo is pure python and the conda package is like a year out of date.
+detect-secrets = ">=1.5"
 furo = ">=2025"
 sphinx-tabs = ">=3.4.7"
 

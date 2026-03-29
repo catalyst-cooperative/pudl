@@ -95,6 +95,26 @@ repos:
     hooks:
       - id: actionlint
 
+  # Scan for secrets and credentials
+  - repo: https://github.com/trufflesecurity/trufflehog
+    rev: v3.94.1
+    hooks:
+      - id: trufflehog
+        name: TruffleHog
+        entry: trufflehog git file://. --since-commit HEAD --fail
+        language: golang
+        pass_filenames: false
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args:
+          - "--baseline"
+          - ".secrets.baseline"
+          - "--exclude-files"
+          - "(?x)(dbt/package-lock\\.yml|.*\\.ipynb|docs/.*\\.html|migrations/.*|skills-lock\\.json)"
+
   #####################################################################################
   # Our own pre-commit hooks, which don't come from the pre-commit project
   #####################################################################################
@@ -150,5 +170,5 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, shellcheck]
+  skip: [unit-tests, nb-output-clear, shellcheck, trufflehog, detect-secrets]
   submodules: false
