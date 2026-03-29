@@ -5,14 +5,27 @@
 PUDL ingests raw public energy data (EIA, FERC, EPA, and others) and transforms it into
 clean, analysis-ready tables. The pipeline is orchestrated using Dagster assets and jobs.
 
-Raw inputs are managed through the datastore and are rooted at `$PUDL_INPUT`. Pipeline
-outputs are written under `$PUDL_OUTPUT/` and include:
+## About this file
 
-- Apache Parquet files (`$PUDL_OUTPUT/parquet/`) — the primary analytical outputs
-- SQLite databases (`$PUDL_OUTPUT/*.sqlite`) — used for FERC raw data and some outputs
-- DuckDB databases (`$PUDL_OUTPUT/*.duckdb`) — currently only for FERC XBRL data
-- JSON datapackage descriptors (`$PUDL_OUTPUT/*_datapackage.json`) — frictionless
-  datapackage metadata describing the schema and structure of the tabular outputs
+`AGENTS.md` is the canonical instruction file for this repository. `CLAUDE.md` in
+the same directory is a symlink that points to `AGENTS.md` — they are always
+identical, not independent files to be kept in sync.
+
+### Working across multiple worktrees
+
+When working in multiple git worktrees simultaneously, any `AGENTS.md` injected
+into your context at session start reflects the **primary working directory** only.
+If you encounter an `AGENTS.md` at a different path during the same session, do not
+assume it is the same file — it may be a different version of this document, or
+belong to an entirely different repository.
+
+To avoid this confusion:
+
+- Always use full absolute paths when referencing or comparing `AGENTS.md` files
+  across worktrees — this makes the distinction visible immediately.
+- When you need to know which `AGENTS.md` governs a particular worktree, read it
+  directly from that worktree's directory rather than relying on the
+  context-loaded version.
 
 ## Repository structure
 
@@ -44,6 +57,25 @@ Other important directories:
   (`dg_fast.yml`, `dg_full.yml`, `dg_pytest.yml`, `dg_nightly.yml`)
 
 ## Development environment
+
+### Inputs and outputs
+
+Raw inputs and pipeline outputs live **outside the repository**, in directories with
+sufficient disk space. Their locations are set by two environment variables:
+
+- `$PUDL_INPUT` — root of the raw input datastore. Raw data files are downloaded here
+  by the `pudl_datastore` CLI and read by the pipeline at runtime. Do not write to
+  this directory manually.
+- `$PUDL_OUTPUT` — root of all pipeline outputs. Contents include:
+  - Apache Parquet files (`$PUDL_OUTPUT/parquet/`) — the primary analytical outputs
+  - SQLite databases (`$PUDL_OUTPUT/*.sqlite`) — used for FERC raw data and some outputs
+  - DuckDB databases (`$PUDL_OUTPUT/*.duckdb`) — currently only for FERC XBRL data
+  - JSON datapackage descriptors (`$PUDL_OUTPUT/*_datapackage.json`) — frictionless
+    datapackage metadata describing the schema and structure of the tabular outputs
+
+Never assume these directories are inside the repository. Never hardcode paths to them.
+
+## Python environment
 
 PUDL uses `pixi` for dependency and task management. Always use `pixi run <command>` to
 ensure commands run in the correct environment.
@@ -212,7 +244,7 @@ Unit tests live under `test/unit/`, take up to 2 minutes, and run automatically 
 pre-commit hook on every commit.
 
 ```bash
-pixi run pytest-unit                                                            # all unit tests
+pixi run pytest-unit                                                           # all unit tests
 pixi run pytest --no-cov test/unit/path/to/test_file.py                        # single file
 pixi run pytest --no-cov test/unit/extract/excel_test.py::TestGenericExtractor # single class
 ```
@@ -224,8 +256,8 @@ Integration tests live under `test/integration/` and take up to 60 minutes. They
 `dg_pytest.yml` as the default config. Do not run them interactively during development.
 
 ```bash
-pixi run pytest-integration                                     # full integration suite
-pixi run pytest-ci                                              # docs + unit + integration + dbt + coverage
+pixi run pytest-integration                                    # full integration suite
+pixi run pytest-ci                                             # docs + unit + integration + dbt + coverage
 pixi run pytest --no-cov --live-pudl-output test/integration   # using existing local outputs
 ```
 
@@ -317,12 +349,35 @@ Metadata describing tables, columns, and data sources lives in `pudl.metadata`.
 "Resources" are tables; "Fields" are columns. Metadata classes in
 `pudl.metadata.classes` use Pydantic and mirror the frictionless datapackage standard.
 
+## PUDL developer reference docs
+
+The following files under `docs/dev/` and `docs/methodology/` cover PUDL-specific
+concepts that are not in the dagster-expert or dignified-python skills. **Read the
+relevant file before working in that area** rather than guessing at conventions.
+
+| File | When to read it |
+| ---- | --------------- |
+| `docs/dev/naming_conventions.rst` | Before naming any asset, table, column, variable, or code identifier — covers layer prefixes (`raw_`/`core_`/`out_`), table-type suffixes (`_assn`, `_ent`, `_scd`, etc.), and column-name patterns for IDs, codes, units, and flags |
+| `docs/dev/metadata.rst` | Before adding or modifying a table, column, or data source — explains how Resources (tables) and Fields (columns) are defined, validated with Pandera, and wired into the frictionless datapackage |
+| `docs/dev/data_guidelines.rst` | Before designing a new transformation — establishes what changes to raw data are acceptable, tidy-data requirements, unit conventions, and time-series completeness expectations |
+| `docs/dev/existing_data_updates.rst` | When integrating a new year or version of an existing data source — step-by-step workflow covering file maps, extraction, transformation, schema updates, ID mapping, and validation |
+| `docs/dev/datastore.rst` | When working with raw input data, the `pudl_datastore` CLI, or Zenodo DOI references in `zenodo_dois.yml` |
+| `docs/dev/clone_ferc1.rst` | Before touching FERC extraction or the `ferc_to_sqlite` job — explains the DBF→SQLite and XBRL→SQLite conversion pipeline and the raw FERC asset group |
+| `docs/dev/pudl_id_mapping.rst` | When working with cross-dataset entity resolution (`plant_id_pudl`, `utility_id_pudl`) or the manual ID mapping spreadsheet |
+| `docs/methodology/entity_resolution.rst` | When working with `pudl.glue` or entity/SCD tables — explains how PUDL reconciles inconsistent plant and utility identities across EIA and FERC reporting |
+
 ## Documentation and release notes
 
 Docs are built with Sphinx from reStructuredText source in `docs/`. Significant
 user-visible or developer-visible changes must be summarized in `docs/release_notes.rst`
 with references to the PR and any related issue numbers. Add release notes after
 the feature on a branch is complete and prior to marking a PR as ready for review.
+
+**When writing release notes, commit messages, or any other summary of changes, always
+compare the current branch against the branch it will merge into** (typically `main`,
+but check the PR base branch) using `git diff <upstream>...HEAD` or
+`git log <upstream>..HEAD`. Do not rely on memory or recent file reads alone — the diff
+is the authoritative record of what actually changed.
 
 ### Generated documentation files
 
@@ -353,8 +408,17 @@ After debugging, remove the generated files with `pixi run docs-clean`.
 - Initialize the new worktree with `pixi install` and `pixi run pre-commit-install`.
 - Run pre-commit and fix all issues before committing.
 - Do not add spurious or generated files to source control.
+- Newly added functionality should include unit tests.
+- Write informative commit messages that summarize the changes and their motivation.
+  Use plaintext no more than 80 characters wide, with a short summary line (max 50
+  chars). For significant changes, follow the first summary with a blank line and
+  a more detailed description.
 - Do not skip pre-commit hooks (`--no-verify`); fix the underlying issue instead.
 - Include both the issue number and PR number in release notes entries.
+
+**When relocating code, documentation, or any other text between modules, move it
+verbatim — never rewrite or reinterpret it in the same step.** If the moved content
+also needs edits, make those as a separate step with explicit user approval.
 
 ### PR checklist
 
