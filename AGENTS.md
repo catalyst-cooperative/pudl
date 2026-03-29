@@ -261,7 +261,7 @@ Unit tests live under `test/unit/`, take up to 2 minutes, and run automatically 
 pre-commit hook on every commit.
 
 ```bash
-pixi run pytest-unit                                                            # all unit tests
+pixi run pytest-unit                                                           # all unit tests
 pixi run pytest --no-cov test/unit/path/to/test_file.py                        # single file
 pixi run pytest --no-cov test/unit/extract/excel_test.py::TestGenericExtractor # single class
 ```
@@ -273,8 +273,8 @@ Integration tests live under `test/integration/` and take up to 60 minutes. They
 `dg_pytest.yml` as the default config. Do not run them interactively during development.
 
 ```bash
-pixi run pytest-integration                                     # full integration suite
-pixi run pytest-ci                                              # docs + unit + integration + dbt + coverage
+pixi run pytest-integration                                    # full integration suite
+pixi run pytest-ci                                             # docs + unit + integration + dbt + coverage
 pixi run pytest --no-cov --live-pudl-output test/integration   # using existing local outputs
 ```
 
