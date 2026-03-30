@@ -668,6 +668,37 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     },
 }
 
+RESOURCE_METADATA_BASE_DRAFT = {
+    "core_rus7__yearly_utility_plant_changes": {
+        "description": {
+            "additional_summary_text": ("changes in utility plant"),
+            "additional_source_text": "(Part E)",
+            "usage_warnings": ["aggregation_hazard"],
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",  # enum UTILITY_PLANT_GROUP_RUS7
+                "utility_plant_item",  # enum bigger group
+                "retirements",
+                "additions",
+                "adjustments_and_transfers",
+                "ending_balance",
+                "is_total",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",
+                "utility_plant_item",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+}
 
 RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
     HARVESTED_CORE_TABLES_RUS7,

@@ -1082,3 +1082,15 @@ TRANSMISSION_DISTRIBUTION_TYPES_RUS7 = [
     "transmission_line",
     "total",
 ]
+
+UTILITY_PLANT_GROUP_RUS7 = ["utility_plant_in_service", "total_utility_plant"]
+
+UTILITY_PLANT_GROUP_RUS12 = [
+    "intangible_plant",
+    "production_plant",
+    "transmission_plant",
+    "distribution_plant",
+    "electric_plant_in_service",  # total = all the plants above totals + 2 sub-components
+    "utility_plant_in_service",  # total = electric_plant_in_service + 7 sub-components
+    "total_utility_plant",  # total = utility_plant_in_service + 1 sub-components
+]

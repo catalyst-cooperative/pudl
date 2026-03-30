@@ -700,6 +700,130 @@ RESOURCE_METADATA_BASE = {
     },
 }
 
+RESOURCE_METADATA_BASE_DRAFT = {
+    "core_rus12__yearly_utility_plant_changes": {
+        "description": {
+            "additional_summary_text": ("changes in utility plant"),
+            "additional_source_text": "(Part H - Section A)",
+            "usage_warnings": ["aggregation_hazard"],
+            "additional_details_text": (
+                "There are a few layers of nesting in this table, which can be distinguished by "
+                "the categories in the `utility_plant_group` column:\n\n"
+                " * intangible_plant: only has one total utility_plant_item\n"
+                " * production_plant: has several sub-component utility_plant_item and a standard total\n"
+                " * transmission_plant: has several sub-component utility_plant_item and a standard total\n"
+                " * distribution_plant: has several sub-component utility_plant_item and a standard total\n"
+                " * electric_plant_in_service: has two sub-components and a total which includes those sub-components and the totals of the above categories\n"
+                " * utility_plant_in_service: has several sub-components and the total is the sum of those sub-components as well as the total of electric_plant_in_service\n"
+                " * total_utility_plant: has one sub-component and the total is the sum of the sub-component and utility_plant_in_service\n\n"
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",  # enum UTILITY_PLANT_GROUP_RUS12
+                "utility_plant_item",  # enum bigger group
+                "retirements",
+                "additions",
+                "adjustments_and_transfers",
+                "ending_balance",
+                "is_total",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",
+                "utility_plant_item",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_accumulated_depreciation_changes": {
+        "description": {
+            "additional_summary_text": ("changes in utility plant"),
+            "additional_source_text": "(Part H - Section B)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "depreciation_and_amortization_group",  # enum: electric_plant_in_service,
+                "depreciation_and_amortization_item",  # enum bigger group
+                "comp_rate",
+                "accruals",
+                "retirements_less_net_salvage",
+                "adjustments_and_transfers",
+                "ending_balance",
+                "is_total",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",
+                "utility_plant_item",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_accumulated_depreciation": {  # QUESTION: is this a misc table?
+        "description": {
+            "additional_summary_text": ("changes in utility plant"),
+            "additional_source_text": "(Part H - Section B)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "depreciation_and_amortization_item",  # MISC_ENUM below
+                "ending_balance",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_non_utility_plant": {
+        "description": {
+            "additional_summary_text": ("changes in utility plant"),
+            "additional_source_text": "(Part H - Section B)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "non_utility_plant_item",  # non_utility_property| provision_for_depreciation_and_amortization_of_non_utility_plant
+                "additions",
+                "retirements",
+                "adjustments_and_transfers",
+                "ending_balance",
+            ],
+            "primary_key": ["report_date", "borrower_id_rus", "non_utility_plant_item"],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+}
+
+# TODO: Move to enum's once this is settled.
+MISC_ENUM = [
+    "annual_accrual_charged_to_expense",
+    "annual_accrual_charged_to_other_accounts",
+    "book_cost_property_retired",
+    "removal_cost_property_retired",
+    "salvage_material_from_property_retired",
+    "renewal_and_replacement_cost",
+]
 
 RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
     HARVESTED_CORE_TABLES_RUS12,
