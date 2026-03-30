@@ -75,6 +75,9 @@ Bug Fixes & Data Cleaning
   :download:`v3.5 of the FERC EQR data dictionary
   <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
   See :pr:`5085`.
+* Removed approximately 200 duplicate PUDL utility IDs from
+  ``src/pudl/package_data/glue/utility_id_pudl.csv``, where a FERC or EIA utility was
+  mapped to more than one PUDL ID. See :issue:`4988` and :pr:`5117`.
 * Fixed some wonky column names in the EIA-861
   ``core_eia861__yearly_demand_side_management_ee_dr`` table. See issue :issue:`5132`
   and PR :pr:`5135`.
