@@ -55,6 +55,17 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a bug in :mod:`pudl.analysis.allocate_gen_fuel` that caused
+  :ref:`out_eia923__monthly_generation_fuel_by_generator_energy_source` to incorrectly
+  allocate generation and fuel consumption to retired generators. The previous logic
+  identified "retiring" generators by checking whether any generation or fuel columns
+  were non-null after the generation fuel table was merged in on prime mover and energy
+  source code (not generator ID), so a retired generator sharing a PM/ESC combo with
+  active generators at the same plant was incorrectly kept as active. The fix narrows
+  the retiring-generator check to only the generator-level generation table column
+  and also preserves retired generators whose PM/ESC combination is unique to them at
+  the plant, enabling generator-level attribution of the reported fuel/generation.  See
+  :pr:`4789`. Thanks to :user:`grgmiller` for identifying this issue and making a PR!
 * Fixed a FERC EQR transform bug that was incorrectly parsing non-date contract
   fields as datetimes, which caused several output columns to become entirely
   ``NULL``. Also clarified and separated the ``product_name`` metadata
@@ -67,6 +78,9 @@ Bug Fixes & Data Cleaning
 * Removed approximately 200 duplicate PUDL utility IDs from
   ``src/pudl/package_data/glue/utility_id_pudl.csv``, where a FERC or EIA utility was
   mapped to more than one PUDL ID. See :issue:`4988` and :pr:`5117`.
+* Fixed some wonky column names in the EIA-861
+  ``core_eia861__yearly_demand_side_management_ee_dr`` table. See issue :issue:`5132`
+  and PR :pr:`5135`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -81,6 +95,12 @@ Quality of Life Improvements
   debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
   when needed (for example in CI docs checks to avoid external docs outages).
   See PR :pr:`5095`.
+* Added a fast ``docs-check`` Pixi task for validation-only Sphinx runs and
+  updated the ``pytest`` GitHub Actions docs check job to use it, while leaving
+  Read the Docs and GitHub Pages HTML builds unchanged. See PR :pr:`5128`.
+* Added a ``docs-linkcheck`` Pixi task and a separate manually triggered GitHub
+  Actions workflow for experimenting with automated documentation link checking.
+  See PR :pr:`5128`.
 
 .. _release-v2026.3.0:
 

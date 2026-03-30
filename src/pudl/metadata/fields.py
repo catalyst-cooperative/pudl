@@ -2780,11 +2780,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "energy_efficiency_annual_cost": {
+    "energy_efficiency_annual_direct_cost": {
         "type": "number",
         "description": (
-            "The sum of actual direct costs, incentive payments, and indirect costs "
-            "incurred in a given reporting year from energy efficiency programs."
+            "The sum of actual direct costs (excluding incentive payments) incurred "
+            "from energy efficiency programs in a given reporting year."
         ),
         "unit": "USD",
     },
@@ -2796,7 +2796,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    "energy_efficiency_annual_incentive_payment": {
+    "energy_efficiency_annual_incentive_cost": {
         "type": "number",
         "description": (
             "The cost of incentive payments incurred in a given reporting year "
@@ -4366,11 +4366,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "load_management_annual_cost": {
+    "load_management_annual_direct_cost": {
         "type": "number",
         "description": (
-            "The sum of actual direct costs, incentive payments, and indirect costs "
-            "incurred in a given reporting year from load management programs."
+            "The sum of actual direct costs (excluding incentive payments) incurred "
+            "from load management programs in a given reporting year."
         ),
         "unit": "USD",
     },
@@ -4382,7 +4382,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    "load_management_annual_incentive_payment": {
+    "load_management_annual_incentive_cost": {
         "type": "number",
         "description": (
             "The cost of incentive payments incurred in a given reporting year "
