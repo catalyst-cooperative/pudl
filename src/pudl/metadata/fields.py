@@ -21,6 +21,7 @@ from pudl.metadata.enums import (
     DAMAGE_SUB_TYPES_PHMSAGAS,
     DAMAGE_TYPES_PHMSAGAS,
     DIVISION_CODES_US_CENSUS,
+    EIA191_STORAGE_REGIONS,
     ELECTRICITY_MARKET_MODULE_REGIONS,
     ENERGY_DISPOSITION_TYPES_FERC1,
     ENERGY_SOURCE_TYPES_FERC1,
@@ -607,6 +608,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "balancing_authority_subregion_name_eia": {
         "type": "string",
         "description": "Name of the balancing authority subregion.",
+    },
+    "base_gas_mcf": {
+        "type": "number",
+        "description": (
+            "Volume of base gas (cushion gas) in the underground storage reservoir. "
+            "Base gas is the volume of gas intended as permanent inventory in a "
+            "reservoir to maintain adequate pressure and deliverability rates."
+        ),
+        "unit": "Mcf",
     },
     "bga_source": {
         "type": "string",
@@ -1210,7 +1220,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "company_name": {
         "type": "string",
-        "description": "Name of company submitting SEC 10k filing.",
+        "description": "Name of the reporting company.",
     },
     "company_name_new": {
         "type": "string",
@@ -3253,6 +3263,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
     },
+    "field_name": {
+        "type": "string",
+        "description": "Name of the natural gas storage field.",
+    },
+    "field_type": {
+        "type": "string",
+        "description": (
+            "Type of underground natural gas storage facility. One of: depleted field "
+            "(a reservoir previously used for natural gas production), aquifer (a "
+            "porous rock structure used to store gas), or salt dome (a cavern created "
+            "within a salt formation)."
+        ),
+        "constraints": {
+            "enum": ["aquifer", "depleted field", "salt dome"],
+        },
+    },
     "filename_sec10k": {
         "type": "string",
         "description": (
@@ -3711,6 +3737,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "street and highway lighting."
         ),
         "unit": "MWh",
+    },
+    "gas_field_id_eia": {
+        "type": "integer",
+        "description": "EIA-assigned numeric identifier for a natural gas storage field.",
     },
     "gas_fraction_cost": {
         "type": "number",
@@ -4535,6 +4565,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "lb_per_hour",
         "description": "Maximum continuous steam flow at 100 percent load.",
+    },
+    "maximum_daily_delivery_mcf": {
+        "type": "number",
+        "description": (
+            "Maximum daily quantity of gas that can be withdrawn from the underground "
+            "storage reservoir under normal operating conditions."
+        ),
+        "unit": "Mcf",
     },
     "mercury_content_ppm": {
         "type": "number",
@@ -6441,6 +6479,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped."
         ),
     },
+    "region": {
+        "type": "string",
+        "description": (
+            "EIA storage region in which the underground natural gas storage field "
+            "is located."
+        ),
+        "constraints": {"enum": EIA191_STORAGE_REGIONS},
+    },
     "region_name_eiaaeo": {
         "type": "string",
         "description": (
@@ -6561,6 +6607,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 )
             )
         },
+    },
+    "reservoir_id_eia": {
+        "type": "integer",
+        "description": (
+            "EIA-assigned numeric identifier for the individual storage reservoir "
+            "within a natural gas storage field."
+        ),
+    },
+    "reservoir_name": {
+        "type": "string",
+        "description": "Name of the individual underground natural gas storage reservoir.",
     },
     "respondent_id_ferc714": {
         "type": "integer",
@@ -7440,6 +7497,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "A code representing the enclosure type that best describes where the generator is located."
         ),
     },
+    "storage_field_id_eia": {
+        "type": "string",
+        "description": (
+            "EIA-assigned identifier for an underground natural gas storage reservoir. "
+            "IDs are assigned per company and state, so the same physical reservoir "
+            "may have different IDs if ownership changes."
+        ),
+    },
     "storage_technology_code_1": {
         "type": "string",
         "description": (
@@ -7888,6 +7953,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "unit or the anticipated costs to bring a planned flue gas desulfurization "
             "unit into commercial operation."
         ),
+    },
+    "total_field_capacity_mcf": {
+        "type": "number",
+        "description": (
+            "Total design capacity of the underground natural gas storage field "
+            "(base gas plus working gas)."
+        ),
+        "unit": "Mcf",
     },
     "total_fuel_cost": {
         "type": "number",
@@ -8383,6 +8456,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "demand is the greatest."
         ),
         "unit": "MW",
+    },
+    "working_gas_capacity_mcf": {
+        "type": "number",
+        "description": (
+            "Volume of working gas (the portion of stored gas available for withdrawal) "
+            "in the underground storage reservoir."
+        ),
+        "unit": "Mcf",
     },
     "year": {
         "type": "integer",
@@ -11178,6 +11259,12 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "core_rus12__monthly_demand_and_energy_at_power_sources": {
         "peak_demand_mw": {"description": "peak demand in a given timeframe."}
+    },
+    "core_eia191__monthly_gas_storage": {
+        "operational_status": {
+            "description": "Operational status of the underground natural gas storage reservoir.",
+            "constraints": {"enum": ["active", "inactive"]},
+        },
     },
 }
 
