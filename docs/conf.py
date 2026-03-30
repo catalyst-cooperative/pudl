@@ -76,6 +76,8 @@ bibtex_bibfiles = [
     "further_reading.bib",
 ]
 
+bibtex_default_style = "unsrt"
+
 # If PUDL_DOCS_KEEP_GENERATED_FILES is defined, don't clean up generated files after the
 # docs build. Useful for debugging formatting of generated RST files, but be sure to
 # clean them up when you're done!
