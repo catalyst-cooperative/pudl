@@ -360,6 +360,17 @@ logger.warning(f"Skipping {plant_id=} — missing required field.")
 - Parquet outputs use snappy compression and pyarrow dtypes.
 - For large datasets (>1GB), use polars or DuckDB to read data instead of pandas.
 
+### API compatibility and refactoring scope
+
+PUDL is an **application**, not a library. No external consumers depend on its internal
+APIs. You do not need to maintain backwards-compatibility shims, deprecation warnings, or
+gradual cut-overs when refactoring. A change is complete when every call-site and
+reference inside the repository has been updated and the tests pass.
+
+**Excluded from scope**: the `devtools/` and `notebooks/` directories are informal,
+untested, and already broken. Do not spend time updating them, and do not let broken
+references there block a refactor.
+
 ## Metadata system
 
 Metadata describing tables, columns, and data sources lives in `pudl.metadata`.
