@@ -6,7 +6,7 @@ from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 import pudl.transform.rus as rus
 from pudl import logging_helpers
 from pudl.helpers import cleanstrings_snake
-from pudl.metadata.enums import PLANT_TYPE_RUS12
+from pudl.metadata.enums import PLANT_TYPE_RUS12, UTILITY_PLANT_GROUP_RUS12
 from pudl.metadata.resource_helpers import HARVESTED_CORE_TABLES_RUS12
 from pudl.transform.eia import harvest_entity_tables
 
@@ -791,6 +791,55 @@ def _core_rus12__yearly_plant_factors_and_maximum_demand(
         return pd.concat([pre_2008, post_2008])
 
     return backfill_plant_type(df)
+
+
+@asset
+def _core_rus12__yearly_utility_plant_changes(
+    raw_rus12__utility_plant_changes: pd.DataFrame,
+):
+    """Transform the utility plant changes table."""
+    df = rus.early_transform(raw_df=raw_rus12__utility_plant_changes)
+    data_cols = [
+        "retirements",
+        "additions",
+        "adjustments_and_transfers",
+        "ending_balance",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(UTILITY_PLANT_GROUP_RUS12)})_(.+)_({'|'.join(data_cols)})$",
+        match_names=["utility_plant_group", "utility_plant_item", "data_cols"],
+        unstack_level=["utility_plant_group", "utility_plant_item"],
+    )
+    df["is_total"] = df.utility_plant_item.str.startswith("total")
+    return df
+
+
+@asset
+def _core_rus12__yearly_non_utility_plant_changes(raw_rus12__non_utility_plant):
+    """Transform the non-utility plant changes table."""
+    df = rus.early_transform(raw_df=raw_rus12__non_utility_plant)
+    non_utility_plant_item = [
+        "non_utility_property",
+        "provision_for_depreciation_and_amortization_of_non_utility_plant",
+    ]
+    data_cols = [
+        "retirements",
+        "additions",
+        "adjustments_and_transfers",
+        "ending_balance",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(non_utility_plant_item)})_({'|'.join(data_cols)})$",
+        match_names=["non_utility_plant_item", "data_cols"],
+        unstack_level=["non_utility_plant_item"],
+    )
+    return
 
 
 ######################################

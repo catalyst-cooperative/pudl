@@ -792,7 +792,7 @@ RESOURCE_METADATA_BASE_DRAFT = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_non_utility_plant": {
+    "core_rus12__yearly_non_utility_plant_changes": {
         "description": {
             "additional_summary_text": ("changes in utility plant"),
             "additional_source_text": "(Part H - Section B)",

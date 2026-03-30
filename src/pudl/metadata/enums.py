@@ -1084,6 +1084,17 @@ TRANSMISSION_DISTRIBUTION_TYPES_RUS7 = [
 ]
 
 UTILITY_PLANT_GROUP_RUS7 = ["utility_plant_in_service", "total_utility_plant"]
+UTILITY_PLANT_ITEM_RUS7 = [
+    "construction_work_in_progress",
+    "total",
+    "all_other",
+    "distribution",
+    "general",
+    "headquarters",
+    "intangibles",
+    "transmission",
+    "regional_transmission_and_market_operation",
+]
 
 UTILITY_PLANT_GROUP_RUS12 = [
     "intangible_plant",
