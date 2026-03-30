@@ -14,6 +14,8 @@ from pudl.dagster.provenance import (
 from pudl.settings import EtlSettings, FercToSqliteSettings
 from pudl.workspace.datastore import ZenodoDoiSettings
 
+# pytestmark: MarkDecorator = pytest.mark.ferc1_sqlite_provenance
+
 
 @pytest.fixture()
 def etl_settings() -> EtlSettings:

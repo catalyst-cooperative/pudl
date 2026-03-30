@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import pudl.validate as pv
 from pudl.dagster.asset_checks import group_mean_continuity_check
+from pudl.validate import quality as pv
 
 
 @pytest.mark.parametrize(

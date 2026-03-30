@@ -159,6 +159,7 @@ def test_ferc714_xbrl2sqlite(
         "core_ferc1__yearly_income_statements_sched114",
     ],
 )
+# @pytest.mark.ferc1_sqlite_provenance
 def test_filter_for_freshest_data(
     ferc1_engine_xbrl: sa.Engine,
     table_name: str,

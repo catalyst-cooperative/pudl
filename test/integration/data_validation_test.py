@@ -3,8 +3,8 @@
 import pytest
 import sqlalchemy as sa
 
-from pudl.dbt_wrapper import build_with_context
-from pudl.validate import check_foreign_keys
+from pudl.validate.dbt import build_with_context
+from pudl.validate.integrity import check_foreign_keys
 
 
 @pytest.mark.order(3)

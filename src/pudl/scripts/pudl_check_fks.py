@@ -54,7 +54,7 @@ def main(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path):
     from dotenv import load_dotenv  # noqa: PLC0415
 
     import pudl  # noqa: PLC0415
-    from pudl.validate import check_foreign_keys  # noqa: PLC0415
+    from pudl.validate.integrity import check_foreign_keys  # noqa: PLC0415
     from pudl.workspace.setup import PudlPaths  # noqa: PLC0415
 
     load_dotenv()

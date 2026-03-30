@@ -32,7 +32,7 @@ from pudl.settings import (
     Ferc1Settings,
     FercToSqliteSettings,
 )
-from pudl.validate import (
+from pudl.validate.integrity import (
     ForeignKeyError,
     ForeignKeyErrors,
     check_foreign_keys,
