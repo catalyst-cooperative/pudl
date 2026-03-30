@@ -63,7 +63,7 @@ extensions = [
     "autoapi.extension",
     "sphinx_issues",
     "sphinx_reredirects",
-    "sphinx_tabs.tabs",
+    "sphinx_design",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
     "sphinxcontrib.mermaid",
@@ -147,6 +147,7 @@ autoapi_dirs = [
 autoapi_ignore = [
     "*_test.py",
 ]
+autoapi_add_toctree_entry = False
 
 # GitHub repo
 issues_github_path = "catalyst-cooperative/pudl"
@@ -200,7 +201,7 @@ if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
 
 # The theme to use for HTML and HTML Help pages.
 master_doc = "index"
-html_theme = "furo"
+html_theme = "pydata_sphinx_theme"
 html_logo = "_static/catalyst_logo-200x200.png"
 html_icon = "_static/favicon.ico"
 
@@ -209,15 +210,30 @@ html_icon = "_static/favicon.ico"
 # documentation.
 html_theme_options = {
     "navigation_with_keys": True,
-    "light_css_variables": {
-        "color-announcement-background": "yellow",
-        "color-announcement-text": "red",
-    },
-    "dark_css_variables": {
-        "color-announcement-background": "yellow",
-        "color-announcement-text": "red",
-    },
+    "header_links_before_dropdown": 5,
     "announcement": '<b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b>',
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/catalyst-cooperative/pudl",
+            "icon": "fa-brands fa-square-github",
+            "type": "fontawesome",
+        }
+    ],
+    "switcher": {
+        "json_url": "https://docs.catalyst.coop/pudl/available_versions.json",
+        "version_match": "latest",
+    },
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "secondary_sidebar_items": {
+        "**": ["page-toc", "sourcelink"],
+    },
+    "show_nav_level": {
+        "**": 2,
+    },
+}
+html_sidebars = {
+    "release_notes": [],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
