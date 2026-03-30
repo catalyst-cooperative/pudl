@@ -44,6 +44,7 @@ Documentation
   * Development now houses the API reference, developer guide, contributing
     guide, and code of conduct
 
+  See issue :issue:`4822` and PR :pr:`5057` for more details.
 * Added a :doc:`methodology page </methodology/entity_resolution>` explaining
   how EIA entity harvesting reconciles inconsistently reported plant, utility,
   boiler, and generator attributes into normalized entity and yearly SCD
