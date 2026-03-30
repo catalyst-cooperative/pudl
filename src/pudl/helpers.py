@@ -111,6 +111,14 @@ def find_new_ferc1_strings(
     return all_strings.difference(old_strings)
 
 
+def get_ferc_form_name(db_name: str) -> str:
+    """Extract the FERC form name from a SQLite database name."""
+    match = re.search(r"ferc\d+", db_name)
+    if match is None:
+        raise ValueError(f"Could not determine FERC form from db_name={db_name!r}")
+    return match.group()
+
+
 def find_foreign_key_errors(dfs: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
     """Report foreign key violations from a dictionary of dataframes.
 

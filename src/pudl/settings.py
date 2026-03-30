@@ -9,7 +9,6 @@ from typing import Any, ClassVar, Self
 import fsspec
 import pandas as pd
 import yaml
-from dagster import StaticPartitionsDefinition
 from pydantic import (
     AnyHttpUrl,
     BaseModel,
@@ -26,9 +25,6 @@ from pudl.metadata.classes import DataSource
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 
 logger = pudl.logging_helpers.get_logger(__name__)
-ferceqr_year_quarters: StaticPartitionsDefinition = StaticPartitionsDefinition(
-    DataSource.from_id("ferceqr").working_partitions["year_quarters"]
-)
 
 
 @unique

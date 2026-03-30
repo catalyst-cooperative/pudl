@@ -1,76 +1,24 @@
-"""Check that foreign key constraints in the PUDL database are respected."""
+"""Database integrity validation checks for PUDL data.
 
-import pathlib
-import sys
+This module implements checks for structural database constraints such as foreign key
+relationships. These checks are applied after all data has been loaded into the database,
+since the parallel nature of the ETL pipeline means that foreign key constraints cannot
+be enforced during loading. As these checks are migrated into dbt, this module should
+shrink accordingly.
+"""
 
-import click
+from typing import cast
+
 import pandas as pd
 import sqlalchemy as sa
-from dotenv import load_dotenv
+import sqlalchemy.exc as sa_exc
 
-import pudl
-from pudl.workspace.setup import PudlPaths
+import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@click.command(
-    context_settings={"help_option_names": ["-h", "--help"]},
-)
-@click.option(
-    "--logfile",
-    help="If specified, write logs to this file.",
-    type=click.Path(
-        exists=False,
-        resolve_path=True,
-        path_type=pathlib.Path,
-    ),
-)
-@click.option(
-    "--loglevel",
-    default="INFO",
-    type=click.Choice(
-        ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], case_sensitive=False
-    ),
-)
-@click.option(
-    "--db_path",
-    help="Path to PUDL SQLite database where foreign keys should be checked.",
-    type=click.Path(
-        exists=False,
-        resolve_path=True,
-        path_type=pathlib.Path,
-    ),
-    default=None,
-)
-def pudl_check_fks(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path):
-    """Check that foreign key constraints in the PUDL database are respected.
-
-    Dagster manages the dependencies between various assets in our ETL pipeline,
-    attempting to materialize tables only after their upstream dependencies have been
-    satisfied. However, this order is non deterministic because they are executed in
-    parallel, and doesn't necessarily correspond to the foreign-key constraints within
-    the database, so durint the ETL we disable foreign key constraints within
-    ``pudl.sqlite``.
-
-    However, we still expect foreign key constraints to be satisfied once all of the
-    tables have been loaded, so we check that they are valid after the ETL has
-    completed. This script runs the same check.
-    """
-    load_dotenv()
-
-    # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
-
-    # Using PudlPaths to get default value for CLI causes validation issues
-    if not db_path:
-        db_path = PudlPaths().output_dir / "pudl.sqlite"
-
-    check_foreign_keys(sa.create_engine(f"sqlite:///{db_path}"))
-    return 0
-
-
-class ForeignKeyError(sa.exc.SQLAlchemyError):
+class ForeignKeyError(sa_exc.SQLAlchemyError):
     """Raised when data in a database violates a foreign key constraint."""
 
     def __init__(
@@ -109,7 +57,7 @@ class ForeignKeyError(sa.exc.SQLAlchemyError):
         return False
 
 
-class ForeignKeyErrors(sa.exc.SQLAlchemyError):  # noqa: N818
+class ForeignKeyErrors(sa_exc.SQLAlchemyError):  # noqa: N818
     """Raised when data in a database violate multiple foreign key constraints."""
 
     def __init__(self, fk_errors: list[ForeignKeyError]):
@@ -199,16 +147,12 @@ def check_foreign_keys(engine: sa.Engine):
         ), parent_fk_df in fk_errors_with_keys.groupby(["table", "parent", "fk"]):
             errors.append(
                 ForeignKeyError(
-                    child_table=table_name,
-                    parent_table=parent_name,
-                    foreign_key=parent_fk,
-                    rowids=parent_fk_df["rowid"].values,
+                    child_table=cast(str, table_name),
+                    parent_table=cast(str, parent_name),
+                    foreign_key=cast(str, parent_fk),
+                    rowids=cast(list[int], parent_fk_df["rowid"].tolist()),
                 )
             )
         raise ForeignKeyErrors(errors)
 
     logger.info("Success! No foreign key constraint errors found.")
-
-
-if __name__ == "__main__":
-    sys.exit(pudl_check_fks())

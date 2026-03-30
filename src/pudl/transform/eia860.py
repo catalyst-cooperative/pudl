@@ -1387,7 +1387,9 @@ def cooling_equipment_continuity(cooling_equipment):
     discontinuities that are worth investigating, but we're punting on that
     investigation since we're out of time.
     """
-    return pudl.validate.group_mean_continuity_check(
+    from pudl.dagster.asset_checks import group_mean_continuity_check
+
+    return group_mean_continuity_check(
         df=cooling_equipment,
         thresholds={
             "intake_rate_100pct_gallons_per_minute": 0.1,
@@ -1509,7 +1511,9 @@ def _core_eia860__fgd_equipment(
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
 def fgd_equipment_continuity(fgd):
     """Check to see if columns vary as slowly as expected."""
-    return pudl.validate.group_mean_continuity_check(
+    from pudl.dagster.asset_checks import group_mean_continuity_check
+
+    return group_mean_continuity_check(
         df=fgd,
         thresholds={
             "flue_gas_exit_rate_cubic_feet_per_minute": 0.1,

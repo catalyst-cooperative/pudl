@@ -1,7 +1,7 @@
 import dagster as dg
 import pytest
 
-from pudl.dbt_wrapper import dagster_to_dbt_selection
+from pudl.validate.dbt import dagster_to_dbt_selection
 
 
 @pytest.fixture(scope="session")

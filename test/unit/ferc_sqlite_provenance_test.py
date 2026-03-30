@@ -5,7 +5,7 @@ from pathlib import Path
 import dagster as dg
 import pytest
 
-from pudl.ferc_sqlite_provenance import (
+from pudl.dagster.provenance import (
     FercSQLiteProvenance,
     assert_ferc_sqlite_compatible,
     build_ferc_sqlite_provenance_metadata,
@@ -13,6 +13,8 @@ from pudl.ferc_sqlite_provenance import (
 )
 from pudl.settings import EtlSettings, FercToSqliteSettings
 from pudl.workspace.datastore import ZenodoDoiSettings
+
+# pytestmark: MarkDecorator = pytest.mark.ferc1_sqlite_provenance
 
 
 @pytest.fixture()

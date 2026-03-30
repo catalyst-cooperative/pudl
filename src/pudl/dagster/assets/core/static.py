@@ -1,9 +1,15 @@
-"""Dagster assets of static data tables."""
+"""Dagster assets for static reference tables.
+
+This module defines assets that materialize small, stable lookup tables and other
+reference data that PUDL ships as part of the pipeline itself. Put asset definitions
+here when the data comes from packaged metadata or code-maintained constants rather
+than an external extract step, and keep source-specific extract logic elsewhere.
+"""
 
 from typing import Literal
 
+import dagster as dg
 import pandas as pd
-from dagster import AssetOut, Output, multi_asset
 
 import pudl
 from pudl.metadata.classes import Package
@@ -43,9 +49,9 @@ def _read_static_encoding_tables(
     }
 
 
-@multi_asset(
+@dg.multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_pudl")
     },
     can_subset=True,
@@ -66,15 +72,15 @@ def static_pudl_tables(context):
 
     selected_outputs = set(context.selected_output_names)
     return (
-        Output(output_name=table_name, value=df)
+        dg.Output(output_name=table_name, value=df)
         for table_name, df in static_pudl_tables_dict.items()
         if table_name in selected_outputs
     )
 
 
-@multi_asset(
+@dg.multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_eia")
     },
     can_subset=True,
@@ -90,15 +96,15 @@ def static_eia_tables(context):
 
     selected_outputs = set(context.selected_output_names)
     return (
-        Output(output_name=table_name, value=df)
+        dg.Output(output_name=table_name, value=df)
         for table_name, df in static_tables.items()
         if table_name in selected_outputs
     )
 
 
-@multi_asset(
+@dg.multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_ferc1")
     },
     can_subset=True,
@@ -120,15 +126,15 @@ def static_ferc1_tables(context):
 
     selected_outputs = set(context.selected_output_names)
     return (
-        Output(output_name=table_name, value=df)
+        dg.Output(output_name=table_name, value=df)
         for table_name, df in static_table_dict.items()
         if table_name in selected_outputs
     )
 
 
-@multi_asset(
+@dg.multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
+        table_name: dg.AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_rus")
     },
     can_subset=True,
@@ -139,7 +145,7 @@ def static_rus_tables(context):
 
     selected_outputs = set(context.selected_output_names)
     return (
-        Output(output_name=table_name, value=df)
+        dg.Output(output_name=table_name, value=df)
         for table_name, df in static_tables.items()
         if table_name in selected_outputs
     )

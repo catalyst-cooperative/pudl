@@ -1,11 +1,13 @@
-"""PUDL data validation functions and test case specifications.
+"""Bespoke data quality checking utilities for PUDL data.
 
-Note that this module is being cannibalized and translated into dbt tests.
+This module contains Python-implemented data quality checks that are either too
+complex to express in SQL for dbt, or that need to be called from outside the Dagster
+context. Add validation functions here when they are meant to be reused across multiple
+asset checks, or when they don't cleanly apply to an individual asset.
 """
 
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult
 
 import pudl.logging_helpers
 
@@ -60,49 +62,6 @@ def no_null_rows(
         )
 
     return df
-
-
-def group_mean_continuity_check(
-    df: pd.DataFrame,
-    thresholds: dict[str, float],
-    groupby_col: str,
-    n_outliers_allowed: int = 0,
-) -> AssetCheckResult:
-    """Check that certain variables don't vary too much on average between groups.
-
-    Groups and sorts the data by ``groupby_col``, then takes the mean across
-    each group. Useful for saying something like "the average water usage of
-    cooling systems didn't jump by 10x from 2012-2013."
-
-    Args:
-        df: the df with the actual data
-        thresholds: a mapping from column names to the ratio by which those
-            columns are allowed to fluctuate from one group to the next.
-        groupby_col: the column by which we will group the data.
-        n_outliers_allowed: how many data points are allowed to be above the
-            threshold.
-    """
-    pct_change = (
-        df.loc[:, [groupby_col] + list(thresholds.keys())]
-        .groupby(groupby_col, sort=True)
-        .mean()
-        .pct_change()
-        .abs()
-        .dropna()
-    )
-    discontinuity = pct_change >= thresholds
-    metadata = {
-        col: {
-            "top5": list(pct_change[col][discontinuity[col]].nlargest(n=5)),
-            "threshold": thresholds[col],
-        }
-        for col in thresholds
-        if discontinuity[col].sum() > 0
-    }
-    if (discontinuity.sum() > n_outliers_allowed).any():
-        return AssetCheckResult(passed=False, metadata=metadata)
-
-    return AssetCheckResult(passed=True, metadata=metadata)
 
 
 def weighted_quantile(data: pd.Series, weights: pd.Series, quantile: float) -> float:

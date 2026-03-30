@@ -85,8 +85,8 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
-  PR :pr:`5023`.
+* Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989`
+  and PR :pr:`5023`.
 * Added environment variable controls for Sphinx docs builds:
   ``PUDL_DOCS_KEEP_GENERATED_FILES`` now preserves generated docs artifacts for
   debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
@@ -106,8 +106,9 @@ We did a major overhaul of our Dagster configuration to bring it closer to the
 framework's current best-practice recommendations, and also to experiment with the
 new ``dg`` CLI and `Dagster agent skills <https://github.com/dagster-io/skills>`__.
 
-See issue :issue:`5066` for an overview of the issues involved, including issue
-:issue:`5120` and PR :pr:`5071`. This refactor includes the following changes:
+See issue :issue:`5066` for an overview of the issues involved, including issues
+:issue:`5120,5123` and PRs :pr:`5071,5124`. This refactor includes the following
+changes:
 
 * **Replaced the custom ``pudl_etl`` and ``ferc_to_sqlite`` CLI entry points** with
   Dagster's official ``dg launch`` tool. The old entry points assembled hand-crafted
@@ -170,6 +171,13 @@ See issue :issue:`5066` for an overview of the issues involved, including issue
   asset materialisation metadata written by that subprocess. Pytest CLI flags are
   renamed for clarity: ``--live-dbs`` → ``--live-pudl-output``, ``--tmp-data`` →
   ``--temp-pudl-input``, ``--etl-settings`` → ``--dg-config``.
+* Made :mod:`pudl.dagster` the canonical Dagster orchestration package while keeping
+  :mod:`pudl.definitions` as the stable ``dg`` code location entrypoint. As part of
+  this boundary cleanup, Dagster-specific resources, (including the FERC EQR deployment
+  sensor and the FERC EQR partition definition) were consolidated under
+  :mod:`pudl.dagster`, older top-level Dagster compatibility exposure was removed, and
+  internal imports and documentation were updated to use :mod:`pudl.dagster`. See issue
+  :issue:`5123` and PR :pr:`5124`.
 
 .. _release-v2026.3.0:
 
@@ -2297,7 +2305,7 @@ Dagster Adoption
   * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
     `Definition <https://docs.dagster.io/concepts/code-locations>`__.
   * The ``pudl_settings``, ``Datastore`` and ``DatasetSettings`` are now dagster
-    resources. See :mod:`pudl.resources`.
+    resources. See ``pudl.resources``.
   * The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
     specific tables. The commands run all of the tables. Use dagster assets to
     run subsets of the tables.
@@ -2599,7 +2607,7 @@ Deprecations
   ``pudl.etl._etl_{datasource}`` functions have been deprecated. The coordination
   of ETL steps is being handled by dagster.
 * The ``pudl.load`` module has been removed in favor of using the
-  :mod:`pudl.io_managers.pudl_sqlite_io_manager`.
+  ``pudl.io_managers.pudl_sqlite_io_manager``.
 * The ``pudl_etl``  and ``ferc_to_sqlite`` commands no longer support loading
   specific tables. The commands run all of the tables. Use dagster assets to
   run subsets of the tables.
@@ -2616,9 +2624,10 @@ Deprecations
   ``pudl.extract.ferc1.extract_dbf_single``,
   ``pudl.extract.ferc1.extract_xbrl_generic``,
   ``pudl.extract.ferc1.extract_dbf_generic`` have all been deprecated. The extraction
-  logic is now covered by the :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
-  :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
-* ``pudl.extract.ferc1.extract_xbrl_metadata`` has been replaced by the
+  logic is now covered by the
+  ``pudl.io_managers.ferc1_xbrl_sqlite_io_manager`` and
+  ``pudl.io_managers.ferc1_dbf_sqlite_io_manager`` IO Managers.
+* ``pudl.ferc1.extract_xbrl_metadata`` has been replaced by the
   :func:`pudl.extract.ferc1.xbrl_metadata_json` asset.
 * All sub classes of :func:`pudl.settings.GenericDatasetSettings` in
   :mod:`pudl.settings` no longer have table attributes because the ETL no longer

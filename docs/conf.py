@@ -140,6 +140,7 @@ exclude_patterns = ["_build"]
 # See this issue: https://github.com/sphinx-doc/sphinx/issues/14223
 suppress_warnings = [
     "ref.python",  # Suppress ambiguous Python reference warnings
+    "autoapi.python_import_resolution",  # defs is a lazily-resolved attribute, not a submodule
 ]
 
 if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
@@ -186,7 +187,9 @@ def data_dictionary_metadata_to_rst(app):
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
-    package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
+    package.to_rst(
+        docs_dir=DOCS_DIR, path=str(DOCS_DIR / "data_dictionaries/pudl_db.rst")
+    )
 
 
 # When adding a new data source add it here and ALSO in pyproject.toml in the
@@ -258,7 +261,7 @@ def static_dfs_to_rst(app):
     codemetadata.to_rst(
         top_dir=DOCS_DIR,
         csv_subdir=csv_subdir,
-        rst_path=DOCS_DIR / "data_dictionaries/codes_and_labels.rst",
+        rst_path=str(DOCS_DIR / "data_dictionaries/codes_and_labels.rst"),
     )
 
 

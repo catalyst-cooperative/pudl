@@ -1,6 +1,7 @@
 """A CLI tool for matching FERC and EIA utilities."""
 
 import importlib
+import sys
 from pathlib import Path
 from typing import Literal
 
@@ -329,4 +330,4 @@ def main(test_run: bool):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

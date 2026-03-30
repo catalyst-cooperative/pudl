@@ -12,12 +12,12 @@ from pandas import json_normalize
 from pydantic import BaseModel, ValidationError
 
 import pudl.settings as _settings_module
-from pudl.metadata.classes import DataSource
-from pudl.resources import (
+from pudl.dagster.resources import (
     DatastoreResource,
     PudlEtlSettingsResource,
     ZenodoDoiSettingsResource,
 )
+from pudl.metadata.classes import DataSource
 from pudl.settings import (
     DatasetsSettings,
     Eia860mSettings,

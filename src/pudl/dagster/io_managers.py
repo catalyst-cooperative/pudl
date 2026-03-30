@@ -1,4 +1,14 @@
-"""Dagster IO Managers."""
+"""Dagster IO managers used by PUDL assets.
+
+This module defines the IO-manager implementations that translate between Dagster asset
+execution and PUDL's storage formats, including SQLite, Parquet, GeoParquet, and the
+FERC prerequisite databases. Put :class:`dagster.IOManager` and
+:class:`dagster.ConfigurableIOManager` classes here, along with configured singleton
+instances that the default code location reuses. Keep data-processing logic out of this
+module; it should focus on persistence, loading, and storage-compatibility concerns.
+
+For the underlying Dagster concept, see https://docs.dagster.io/guides/build/io-managers
+"""
 
 import json
 import re
@@ -15,28 +25,23 @@ import pyarrow.parquet as pq
 import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
-from dagster import (
-    ConfigurableIOManager,
-    DagsterInvariantViolationError,
-    InitResourceContext,
-    InputContext,
-    IOManager,
-    OutputContext,
-    io_manager,
-)
 from packaging import version
 from pydantic import model_validator
 
 import pudl
-from pudl.ferc_sqlite_provenance import assert_ferc_sqlite_compatible
-from pudl.helpers import get_parquet_table, get_parquet_table_polars
-from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
-from pudl.resources import (
+from pudl.dagster.provenance import assert_ferc_sqlite_compatible
+from pudl.dagster.resources import (
     PudlEtlSettingsResource,
     ZenodoDoiSettingsResource,
-    etl_settings,
-    zenodo_dois,
+    pudl_etl_settings_resource,
+    zenodo_doi_settings_resource,
 )
+from pudl.helpers import (
+    get_ferc_form_name,
+    get_parquet_table,
+    get_parquet_table_polars,
+)
+from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -45,7 +50,7 @@ MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
 def _get_dagster_instance_if_available(
-    context: InputContext,
+    context: dg.InputContext,
 ) -> dg.DagsterInstance | None:
     """Return the Dagster instance from an input context if one was provided.
 
@@ -55,11 +60,11 @@ def _get_dagster_instance_if_available(
     """
     try:
         return context.instance
-    except DagsterInvariantViolationError:
+    except dg.DagsterInvariantViolationError:
         return None
 
 
-def get_table_name_from_context(context: InputContext | OutputContext) -> str:
+def get_table_name_from_context(context: dg.InputContext | dg.OutputContext) -> str:
     """Retrieves the table name from the context object."""
     # TODO(rousik): Figure out which kind of identifier is used when.
     if context.has_asset_key:
@@ -67,15 +72,7 @@ def get_table_name_from_context(context: InputContext | OutputContext) -> str:
     return context.get_identifier()
 
 
-def get_ferc_form_name(db_name: str) -> str:
-    """Extract the FERC form name from a SQLite database name."""
-    match: re.Match[str] | None = re.search(r"ferc\d+", db_name)
-    if match is None:
-        raise ValueError(f"Could not determine FERC form from db_name={db_name!r}")
-    return match.group()
-
-
-class PudlMixedFormatIOManager(ConfigurableIOManager):
+class PudlMixedFormatIOManager(dg.ConfigurableIOManager):
     """Format switching IOManager that supports sqlite and parquet.
 
     This IOManager provides for the use of parquet files along with the standard SQLite
@@ -111,7 +108,7 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
         return PudlParquetIOManager()
 
     def handle_output(
-        self, context: OutputContext, obj: pd.DataFrame | pl.LazyFrame
+        self, context: dg.OutputContext, obj: pd.DataFrame | pl.LazyFrame
     ) -> None:
         """Passes the output to the appropriate IO manager instance."""
         self._sqlite_io_manager.handle_output(context, obj)
@@ -119,7 +116,7 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
             self._parquet_io_manager.handle_output(context, obj)
 
     def load_input(
-        self, context: InputContext
+        self, context: dg.InputContext
     ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
         """Reads input from the appropriate IO manager instance."""
         if self.read_from_parquet:
@@ -127,7 +124,7 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
         return self._sqlite_io_manager.load_input(context)
 
 
-class SQLiteIOManager(IOManager):
+class SQLiteIOManager(dg.IOManager):
     """IO Manager that writes and retrieves dataframes from a SQLite database."""
 
     def __init__(
@@ -218,7 +215,9 @@ class SQLiteIOManager(IOManager):
             )
         return sa_table
 
-    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame) -> None:
+    def _handle_pandas_output(
+        self, context: dg.OutputContext, df: pd.DataFrame
+    ) -> None:
         """Write dataframe to the database.
 
         SQLite does not support concurrent writes to the database. Instead, SQLite
@@ -255,7 +254,7 @@ class SQLiteIOManager(IOManager):
                 dtype={c.name: c.type for c in sa_table.columns},
             )
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame) -> None:
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame) -> None:
         """Handle an op or asset output.
 
         Args:
@@ -272,7 +271,7 @@ class SQLiteIOManager(IOManager):
             )
         self._handle_pandas_output(context, obj)
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
@@ -302,11 +301,11 @@ class SQLiteIOManager(IOManager):
             return df
 
 
-class PudlParquetIOManager(IOManager):
+class PudlParquetIOManager(dg.IOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
 
     def handle_output(
-        self, context: OutputContext, obj: pd.DataFrame | pl.LazyFrame
+        self, context: dg.OutputContext, obj: pd.DataFrame | pl.LazyFrame
     ) -> None:
         """Writes pudl dataframe to parquet file."""
         table_name = get_table_name_from_context(context)
@@ -335,7 +334,7 @@ class PudlParquetIOManager(IOManager):
             )
 
     def load_input(
-        self, context: InputContext
+        self, context: dg.InputContext
     ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
@@ -379,7 +378,7 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
         }
         return json.dumps(geo_metadata)
 
-    def handle_output(self, context: OutputContext, obj: gpd.GeoDataFrame) -> None:
+    def handle_output(self, context: dg.OutputContext, obj: gpd.GeoDataFrame) -> None:
         """Write a PUDL dataframe to GeoParquet."""
         if not isinstance(obj, gpd.GeoDataFrame):
             raise TypeError(
@@ -479,7 +478,9 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "--autogenerate -m 'relevant message' && alembic upgrade head`."
             )
 
-    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame) -> None:
+    def _handle_pandas_output(
+        self, context: dg.OutputContext, df: pd.DataFrame
+    ) -> None:
         """Enforce PUDL DB schema and write dataframe to SQLite."""
         table_name = get_table_name_from_context(context)
         # If table_name doesn't show up in the self.md object, this will raise an error
@@ -500,7 +501,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 dtype={c.name: c.type for c in sa_table.columns},
             )
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
@@ -548,14 +549,14 @@ class PudlSQLiteIOManager(SQLiteIOManager):
 pudl_mixed_format_io_manager = PudlMixedFormatIOManager()
 
 
-@io_manager
-def parquet_io_manager(init_context: InitResourceContext) -> IOManager:
+@dg.io_manager
+def parquet_io_manager(init_context: dg.InitResourceContext) -> dg.IOManager:
     """Create a Parquet only IO manager."""
     return PudlParquetIOManager()
 
 
-@io_manager
-def geoparquet_io_manager(init_context: InitResourceContext) -> IOManager:
+@dg.io_manager
+def geoparquet_io_manager(init_context: dg.InitResourceContext) -> dg.IOManager:
     """Create a GeoParquet only IO manager."""
     return PudlGeoParquetIOManager()
 
@@ -644,14 +645,14 @@ class FercSQLiteIOManager(SQLiteIOManager):
         if not self.md.tables:
             self._reflect_metadata()
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError(
             "FercSQLiteIOManager can't write outputs. Subclass FercSQLiteIOManager and "
             "implement the handle_output method."
         )
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
@@ -676,7 +677,7 @@ class FercDbfSQLiteIOManager(FercSQLiteIOManager):
     the corresponding settings object exposes a ``dbf_years`` attribute.
     """
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError("FercDbfSQLiteIOManager can't write outputs yet.")
 
@@ -700,7 +701,7 @@ class FercDbfSQLiteIOManager(FercSQLiteIOManager):
                 },
             ).assign(sched_table_name=table_name)
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a FERC DBF sqlite database.
 
         Args:
@@ -718,7 +719,7 @@ class FercDbfSQLiteIOManager(FercSQLiteIOManager):
         return self._query(table_name, ferc_settings.dbf_years)
 
 
-class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
+class _FercSQLiteConfigurableIOManagerBase(dg.ConfigurableIOManager):
     """Base class for Dagster-native FERC SQLite IO manager wrappers.
 
     Holds the shared resource dependencies (``etl_settings``, ``zenodo_dois``,
@@ -730,11 +731,11 @@ class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
         This wrapper pattern is a temporary workaround for nested ``etl_settings``
         resource dependencies inside the FERC IO managers. Because Dagster wires
         resource dependencies at instantiation time, overriding the top-level
-        ``etl_settings`` resource alone (e.g. in tests) is not enough — the IO
-        managers must be rebuilt against the new resource instance. ``build_defs``
-        in ``pudl.etl`` handles that rebuilding explicitly. A follow-up PR will
-        remove the nested dependency, at which point this base class can be
-        simplified or eliminated. See issue #5118
+        ``etl_settings`` resource alone (e.g. in tests) is not enough — the IO managers
+        must be rebuilt against the new resource instance.
+        :func:`pudl.dagster.build.build_defs` handles that rebuilding explicitly. A
+        follow-up PR will remove the nested dependency, at which point this base class
+        can be simplified or eliminated. See issue #5118
     """
 
     etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
@@ -746,11 +747,11 @@ class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
         """Expose the underlying SQLAlchemy engine for tests and helpers."""
         return self._manager.engine
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
         """Delegate writes to the underlying runtime IO manager."""
         return self._manager.handle_output(context, obj)
 
-    def _prepare(self, context: InputContext) -> None:
+    def _prepare(self, context: dg.InputContext) -> None:
         """Ensure the database is ready and provenance is compatible with this run."""
         self._manager._ensure_database_ready()
         assert_ferc_sqlite_compatible(
@@ -777,7 +778,7 @@ class FercDbfSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
             db_name=self.db_name,
         )
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a FERC DBF SQLite database."""
         self._prepare(context)
         ferc_settings = getattr(
@@ -840,7 +841,7 @@ class FercXbrlSQLiteIOManager(FercSQLiteIOManager):
             .reset_index(drop=True)
         )
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
+    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError("FercXbrlSQLiteIOManager can't write outputs yet.")
 
@@ -869,7 +870,7 @@ class FercXbrlSQLiteIOManager(FercSQLiteIOManager):
             FercXbrlSQLiteIOManager.refine_report_year, xbrl_years=xbrl_years
         )
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a sqlite database.
 
         Args:
@@ -898,7 +899,7 @@ class FercXbrlSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
             db_name=self.db_name,
         )
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC XBRL SQLite database."""
         self._prepare(context)
         ferc_settings = getattr(
@@ -912,17 +913,17 @@ class FercXbrlSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
 
 
 ferc1_dbf_sqlite_io_manager = FercDbfSQLiteConfigurableIOManager(
-    etl_settings=etl_settings,
-    zenodo_dois=zenodo_dois,
+    etl_settings=pudl_etl_settings_resource,
+    zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc1_dbf",
 )
 ferc1_xbrl_sqlite_io_manager = FercXbrlSQLiteConfigurableIOManager(
-    etl_settings=etl_settings,
-    zenodo_dois=zenodo_dois,
+    etl_settings=pudl_etl_settings_resource,
+    zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc1_xbrl",
 )
 ferc714_xbrl_sqlite_io_manager = FercXbrlSQLiteConfigurableIOManager(
-    etl_settings=etl_settings,
-    zenodo_dois=zenodo_dois,
+    etl_settings=pudl_etl_settings_resource,
+    zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc714_xbrl",
 )

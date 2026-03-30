@@ -606,7 +606,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/texttable-1.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/textual-8.2.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/timezonefinder-8.2.2-py313h54dd161_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/timezonefinder-8.2.1-py313h466dd7d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.4.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h366c992_103.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.4.1-pyhcf101f3_0.conda
@@ -1255,7 +1255,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/texttable-1.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/textual-8.2.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/timezonefinder-8.2.2-py313h22ab4a2_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/timezonefinder-8.2.1-py313he542bd1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.4.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tk-8.6.13-h7142dee_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.4.1-pyhcf101f3_0.conda
@@ -1887,7 +1887,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/texttable-1.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/textual-8.2.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/timezonefinder-8.2.2-py313h6688731_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/timezonefinder-8.2.1-py313head35a7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.4.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-h010d191_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.4.1-pyhcf101f3_0.conda
@@ -2577,7 +2577,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/texttable-1.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/textual-8.2.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/timezonefinder-8.2.2-py313h54dd161_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/timezonefinder-8.2.1-py313h466dd7d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.4.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h366c992_103.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.4.1-pyhcf101f3_0.conda
@@ -3243,7 +3243,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/texttable-1.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/textual-8.2.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/timezonefinder-8.2.2-py313h22ab4a2_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/timezonefinder-8.2.1-py313he542bd1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.4.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tk-8.6.13-h7142dee_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.4.1-pyhcf101f3_0.conda
@@ -3886,7 +3886,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/texttable-1.7.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/textual-8.2.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/timezonefinder-8.2.2-py313h6688731_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/timezonefinder-8.2.1-py313head35a7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.4.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-h010d191_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.4.1-pyhcf101f3_0.conda
@@ -5931,8 +5931,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.3.1.dev156
-  sha256: f7ea7542d44e697c5178e09b666d1b507f6fe25016ad85d63c8052817ec78603
+  version: 2026.3.1.dev170
+  sha256: ec4dc22454b583ad295a67b6b297277479085f8eec22b58966f7ab4151005ef1
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -19774,9 +19774,9 @@ packages:
   - pkg:pypi/threadpoolctl?source=hash-mapping
   size: 23869
   timestamp: 1741878358548
-- conda: https://conda.anaconda.org/conda-forge/linux-64/timezonefinder-8.2.2-py313h54dd161_0.conda
-  sha256: fff9cf64423847ae2ef94bc5cb3c879e86abffa9255d32812d968a0274576ae9
-  md5: b4bff510050d74ad397b5340b6d416bc
+- conda: https://conda.anaconda.org/conda-forge/linux-64/timezonefinder-8.2.1-py313h466dd7d_0.conda
+  sha256: 1ea84acdd57696f8e10e5c6d4a9af8f7df70b83d4e3b0b928aa426fbeb303ed3
+  md5: 0f9467cc536266e6b48be5e0cd4c4d42
   depends:
   - python
   - numpy >=2,<3
@@ -19789,44 +19789,44 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/timezonefinder?source=compressed-mapping
-  size: 47770473
-  timestamp: 1774794114730
-- conda: https://conda.anaconda.org/conda-forge/osx-64/timezonefinder-8.2.2-py313h22ab4a2_0.conda
-  sha256: 7acb053b019e1233e454bcaecae3f139d308fbaa4c284fe7138c46c7c5e0cd87
-  md5: db0a30f2963078c698ccfd1d74e8480d
+  - pkg:pypi/timezonefinder?source=hash-mapping
+  size: 47548315
+  timestamp: 1767951340846
+- conda: https://conda.anaconda.org/conda-forge/osx-64/timezonefinder-8.2.1-py313he542bd1_0.conda
+  sha256: d57361a801898cc654bc2f8acebeb2b89dab6ae5718594da720e96295311a2f0
+  md5: 0a44889a7393083aa2863a560a51790f
   depends:
   - python
   - numpy >=2,<3
   - h3-py >4
   - cffi >=1.15.1,<3
   - python-flatbuffers >=25.2.10
-  - __osx >=11.0
+  - __osx >=10.13
   - python_abi 3.13.* *_cp313
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/timezonefinder?source=compressed-mapping
-  size: 47770503
-  timestamp: 1774794190850
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/timezonefinder-8.2.2-py313h6688731_0.conda
-  sha256: a941a91479eb10ba1859060d9ff0a67bc06d4805494cd9fb7cf018137e788836
-  md5: 24763d92545e8c36856d9a07d6a1680d
+  - pkg:pypi/timezonefinder?source=hash-mapping
+  size: 47548123
+  timestamp: 1767951368440
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/timezonefinder-8.2.1-py313head35a7_0.conda
+  sha256: c1461c3cd111e3f1a8db841345ceb4b1e3218e3c7020093f615c6b64a41ed32f
+  md5: a8672c959bf8d17e11f990fee31ce62a
   depends:
   - python
   - numpy >=2,<3
   - h3-py >4
   - cffi >=1.15.1,<3
   - python-flatbuffers >=25.2.10
-  - __osx >=11.0
   - python 3.13.* *_cp313
+  - __osx >=11.0
   - python_abi 3.13.* *_cp313
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/timezonefinder?source=compressed-mapping
-  size: 47773354
-  timestamp: 1774794174827
+  - pkg:pypi/timezonefinder?source=hash-mapping
+  size: 47551084
+  timestamp: 1767951388956
 - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.4.0-pyhd8ed1ab_0.conda
   sha256: cad582d6f978276522f84bd209a5ddac824742fe2d452af6acf900f8650a73a2
   md5: f1acf5fdefa8300de697982bcb1761c9

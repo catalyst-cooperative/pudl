@@ -1,30 +1,41 @@
 """Programmatically defined Dagster asset checks for PUDL.
 
-We primarily use Dagster asset checks to validate the schemas of PUDL tables. We use
-Pandera to programmatically define dataframe schemas based on the PUDL metadata with the
-asset check factory :func:`asset_check_from_schema` defined below.
+This module should contain Dagster asset-check definitions and helper functions that
+evaluate the quality or structural correctness of already-materialized assets. Put
+checks here when they belong in the Dagster asset graph and should run as blocking or
+reporting validations attached to specific assets, especially when they can be derived
+from metadata or shared validation patterns. Keep business transformations and dbt-only
+data tests out of this module so it remains focused on Dagster-native asset validation.
 
-For data validation we almost entirely rely on dbt data tests.
+For the underlying Dagster concept see https://docs.dagster.io/guides/test/asset-checks
+
+For data validation we almost entirely rely on :mod:`dbt` data tests defined using SQL
+and executed across our Parquet outputs using :mod:`duckdb`.
+
+We primarily use Dagster asset checks to validate the schemas of PUDL tables throughout
+the pipeline. We use :mod:`pandera` to programmatically define dataframe schemas based
+on the PUDL metadata with the asset check factory :func:`asset_check_from_schema`
+defined below. A handful of asset checks that were particularly difficult to translate
+to SQL/dbt data tests are also defined here, but in general all data validation tests
+should go in dbt.
 """
 
+import itertools
 from typing import Any
 
+import dagster as dg
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import polars as pl
-from dagster import (
-    AssetCheckResult,
-    AssetChecksDefinition,
-    AssetKey,
-    asset_check,
-)
 from pandera.errors import SchemaErrors
 
+from pudl.dagster.assets import all_asset_modules, asset_keys
+from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
-from pudl.settings import ferceqr_year_quarters
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
@@ -111,8 +122,8 @@ def _collect_dtype_metadata(
             pandera_dtypes[field.name] = str(
                 field.to_pandera_column(use_pandas_backend=use_pandas_backend).dtype
             )
-        except Exception as e:
-            error_text = str(e)
+        except Exception as exc:
+            error_text = str(exc)
             pandera_dtypes[field.name] = f"Error: {error_text}"
             dtype_errors[field.name] = error_text
 
@@ -138,11 +149,14 @@ def _collect_dtype_metadata(
 
     common_columns = sorted(set(expected_columns) & set(actual_columns))
     type_mismatches = {}
-    for col in common_columns:
-        expected_type = pandera_dtypes.get(col, "Unknown")
-        actual_type = actual_dtypes.get(col, "Unknown")
+    for column in common_columns:
+        expected_type = pandera_dtypes.get(column, "Unknown")
+        actual_type = actual_dtypes.get(column, "Unknown")
         if expected_type != actual_type and expected_type != "Unknown":
-            type_mismatches[col] = {"expected": expected_type, "actual": actual_type}
+            type_mismatches[column] = {
+                "expected": expected_type,
+                "actual": actual_type,
+            }
 
     metadata = {
         "field_details": field_details,
@@ -202,13 +216,56 @@ def _process_schema_errors(schema_errors: SchemaErrors) -> dict[str, Any]:
     }
 
 
+def group_mean_continuity_check(
+    df: pd.DataFrame,
+    thresholds: dict[str, float],
+    groupby_col: str,
+    n_outliers_allowed: int = 0,
+) -> dg.AssetCheckResult:
+    """Check that certain variables don't vary too much on average between groups.
+
+    Groups and sorts the data by ``groupby_col``, then takes the mean across
+    each group. Useful for saying something like "the average water usage of
+    cooling systems didn't jump by 10x from 2012-2013."
+
+    Args:
+        df: the df with the actual data
+        thresholds: a mapping from column names to the ratio by which those
+            columns are allowed to fluctuate from one group to the next.
+        groupby_col: the column by which we will group the data.
+        n_outliers_allowed: how many data points are allowed to be above the
+            threshold.
+    """
+    pct_change = (
+        df.loc[:, [groupby_col] + list(thresholds.keys())]
+        .groupby(groupby_col, sort=True)
+        .mean()
+        .pct_change()
+        .abs()
+        .dropna()
+    )
+    discontinuity = pct_change >= thresholds
+    metadata = {
+        col: {
+            "top5": list(pct_change[col][discontinuity[col]].nlargest(n=5)),
+            "threshold": thresholds[col],
+        }
+        for col in thresholds
+        if discontinuity[col].sum() > 0
+    }
+    if (discontinuity.sum() > n_outliers_allowed).any():
+        return dg.AssetCheckResult(passed=False, metadata=metadata)
+
+    return dg.AssetCheckResult(passed=True, metadata=metadata)
+
+
 def asset_check_from_schema(  # noqa: C901
-    asset_key: AssetKey,
+    asset_key: dg.AssetKey,
     package: Package,
     duckdb_asset: bool,
     high_memory_asset: bool,
-) -> AssetChecksDefinition | None:
-    """Create a dagster asset check based on the resource schema, if defined.
+) -> dg.AssetChecksDefinition | None:
+    """Create a Dagster asset check based on the resource schema, if defined.
 
     The vast majority of assets will be loaded as Polars LazyFrames directly using
     the ``PudlParquetIOManager`` and validated with Pandera's Polars backend, but
@@ -240,8 +297,12 @@ def asset_check_from_schema(  # noqa: C901
             f"Expected a pandera `DataFrameSchema`, but got: `{type(pandera_schema)}`"
         )
 
-    @asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
-    def pandera_schema_check(asset_value: asset_type) -> AssetCheckResult:
+    @dg.asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
+    # Dagster uses this runtime annotation to select the correct IO manager load type,
+    # but static type checkers may reject the computed local variable in a type expression.
+    def pandera_schema_check(
+        asset_value: asset_type,  # type: ignore[valid-type]
+    ) -> dg.AssetCheckResult:
         if isinstance(asset_value, ParquetData):
             asset_value = get_parquet_table_polars(
                 table_name=resource_id,
@@ -263,18 +324,59 @@ def asset_check_from_schema(  # noqa: C901
                     validated_schema.collect(engine="streaming")
             else:
                 pandera_schema.validate(asset_value, lazy=True)
-            return AssetCheckResult(passed=True, metadata=metadata)
+            return dg.AssetCheckResult(passed=True, metadata=metadata)
 
         except SchemaErrors as schema_errors:
             metadata.update(_process_schema_errors(schema_errors))
-            return AssetCheckResult(passed=False, metadata=metadata)
+            return dg.AssetCheckResult(passed=False, metadata=metadata)
 
-        except Exception as e:
+        except Exception as exc:
             metadata["unexpected_error"] = {
-                "error_type": type(e).__name__,
-                "error_message": str(e),
-                "error_args": str(e.args) if hasattr(e, "args") else "No args",
+                "error_type": type(exc).__name__,
+                "error_message": str(exc),
+                "error_args": str(exc.args) if hasattr(exc, "args") else "No args",
             }
-            return AssetCheckResult(passed=False, metadata=metadata)
+            return dg.AssetCheckResult(passed=False, metadata=metadata)
 
     return pandera_schema_check
+
+
+default_asset_checks = list(
+    itertools.chain.from_iterable(
+        dg.load_asset_checks_from_modules(modules)
+        for modules in all_asset_modules.values()
+    )
+)
+
+duckdb_assets = [
+    "core_ferceqr__quarterly_identity",
+    "core_ferceqr__contracts",
+    "core_ferceqr__quarterly_index_pub",
+    "core_ferceqr__transactions",
+]
+high_memory_assets = [
+    "out_vcerare__hourly_available_capacity_factor",
+    "core_epacems__hourly_emissions",
+]
+
+default_asset_checks += [
+    check
+    for check in (
+        asset_check_from_schema(
+            asset_key,
+            PUDL_PACKAGE,
+            duckdb_asset=asset_key.to_user_string() in duckdb_assets,
+            high_memory_asset=asset_key.to_user_string() in high_memory_assets,
+        )
+        for asset_key in asset_keys
+    )
+    if check is not None
+]
+
+__all__ = [
+    "asset_check_from_schema",
+    "group_mean_continuity_check",
+    "default_asset_checks",
+    "duckdb_assets",
+    "high_memory_assets",
+]

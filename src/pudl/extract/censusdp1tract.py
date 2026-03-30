@@ -1,4 +1,4 @@
-"""Convert the US Census DP1 ESRI GeoDatabase into an SQLite Database.
+"""Extract the US Census DP1 ESRI GeoDatabase into an SQLite Database.
 
 This is a thin wrapper around the GDAL ogr2ogr command line tool. We use it to convert
 the Census DP1 data which is distributed as an ESRI GeoDB into an SQLite DB. The module

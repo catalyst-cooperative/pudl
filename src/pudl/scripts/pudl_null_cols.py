@@ -1,6 +1,7 @@
 """A CLI tool for generating expect_column_not_all_null dbt test conditions."""
 
 import re
+import sys
 
 import click
 import duckdb
@@ -228,4 +229,4 @@ def main(
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

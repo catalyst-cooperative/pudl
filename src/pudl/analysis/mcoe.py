@@ -15,8 +15,8 @@ from dagster import (
 )
 
 import pudl
-import pudl.validate as pv
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.validate import quality as pv
 
 DEFAULT_GENS_COLS = [
     "plant_id_eia",

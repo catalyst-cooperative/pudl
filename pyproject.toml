@@ -477,17 +477,17 @@ description = "Install skills from lockfile"
 
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
-metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
-pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
-pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
-pudl_deploy = "pudl.scripts.deploy:pudl_deploy"
-pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
-dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
+metadata_to_rst = "pudl.scripts.metadata_to_rst:main"
+pudl_check_fks = "pudl.scripts.pudl_check_fks:main"
+pudl_datastore = "pudl.scripts.pudl_datastore:main"
+pudl_deploy = "pudl.scripts.deploy:main"
+pudl_service_territories = "pudl.scripts.pudl_service_territories:main"
+dbt_helper = "pudl.scripts.dbt_helper:main"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
 pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
-zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
+zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -673,15 +673,16 @@ exclude_lines = [
 ]
 
 [tool.dagster]
-modules = [{ type = "module", name = "pudl.etl" }]
+modules = [{ type = "module", name = "pudl.definitions" }]
 
 [tool.dg]
 directory_type = "project"
 
 [tool.dg.project]
 root_module = "pudl"
+defs_module = "pudl.dagster"
 code_location_target_module = "pudl.definitions"
-registry_modules = ["pudl.etl"]
+registry_modules = ["pudl.dagster"]
 
 [tool.typos.default]
 # Ignore spellchecking all lines with # spellchecker:ignore

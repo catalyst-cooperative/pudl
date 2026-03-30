@@ -34,18 +34,35 @@ Key directories under `src/pudl/`:
 - `extract/` — one module per data source; reads raw inputs via the datastore and
   produces lightly-typed DataFrames
 - `transform/` — one module per data source; cleans, normalizes, and validates data
-- `etl/` — Dagster asset and job definitions, organized by data source; top-level
-  `defs` object and all jobs live in `pudl.etl`
+- `dagster/` — all Dagster orchestration code; the canonical home for everything
+  Dagster-specific. Sub-structure:
+  - `dagster/asset_checks.py` — asset-check definitions, factories, and helpers
+  - `dagster/assets/` — oddball asset definitions that don't fit the per-source layout;
+    `assets/core/` for processed assets, `assets/raw/` for raw-extraction assets
+  - `dagster/build.py` — assembles the `dagster.Definitions` object
+  - `dagster/config.py` — reusable Dagster run-config fragments and helpers
+  - `dagster/io_managers.py` — IO managers for SQLite, Parquet, and FERC SQLite reads
+  - `dagster/jobs.py` — named Dagster jobs (`pudl`, `ferc_to_sqlite`, `ferceqr`)
+  - `dagster/partitions.py` — shared partition definitions
+  - `dagster/provenance.py` — FERC SQLite fingerprinting and compatibility checks
+  - `dagster/resources.py` — `ConfigurableResource` definitions and default resource map
+  - `dagster/sensors.py` — sensor-based automation (e.g. the FERC EQR sensor)
+- `deploy/` — post-ETL deployment logic: publishing outputs to GCS/S3, updating
+  `nightly`/`stable` git branches, triggering Zenodo releases, applying GCS holds,
+  and redeploying the PUDL Viewer Cloud Run service. `ferceqr.py` contains Dagster
+  assets specific to the FERC EQR batch pipeline; `pudl.py` covers full PUDL builds.
+- `scripts/` — all CLI entry points as thin wrappers; one module per script, each
+  exposing a `main` Click command. Registered in `[project.scripts]` in `pyproject.toml`
 - `metadata/` — table and column metadata (`classes.py`, `fields.py`, `resources.py`);
   "Resources" are tables, "Fields" are columns
 - `glue/` — entity resolution tables that link IDs across data sources
 - `analysis/` — higher-level analytical assets built on top of the core ETL outputs
 - `helpers.py` — shared utility functions; check here before writing new helpers
-- `io_managers.py` — Dagster IO managers for SQLite, Parquet, and FERC SQLite reads
 - `settings.py` — Pydantic settings models for all datasets and ETL configuration
-- `resources.py` — Dagster resources (`etl_settings`, `datastore`, `zenodo_dois`, etc.)
-- `ferc_sqlite_provenance.py` — fingerprinting and compatibility checks for FERC SQLite
-  databases across separate job runs
+- `validate.py` — data validation helpers that need to be accessible outside Dagster
+  (foreign key checks, continuity checks)
+- `definitions.py` — stable `dg`-compatible entry point; re-exports `defs` from
+  `pudl.dagster`
 
 Other important directories:
 

@@ -25,6 +25,7 @@ changes before production use.
 """
 
 import os
+import sys
 import tempfile
 from pathlib import Path
 
@@ -140,7 +141,7 @@ def _deploy_outputs(
     ),
     show_default=True,
 )
-def pudl_deploy(
+def main(
     git_tag: str,
     staging: bool,
 ):
@@ -182,4 +183,4 @@ def pudl_deploy(
 
 
 if __name__ == "__main__":
-    pudl_deploy()
+    sys.exit(main())

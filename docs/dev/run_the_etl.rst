@@ -99,22 +99,31 @@ Dagster docs for more info.
 Core Dagster concepts used in PUDL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* **`The Dagster UI <https://docs.dagster.io/guides/operate/webserver>`__** is used for
-  monitoring and executing data processing runs interactively through a web app.
+* **`Definitions <https://docs.dagster.io/getting-started/concepts#definitions>`__**
+  are the top-level collection of Dagster objects that get loaded into a code location.
+  They bundle together the assets, asset checks, resources, jobs, schedules, and
+  sensors that Dagster can see and execute. In PUDL, the canonical Dagster assembly
+  lives in :mod:`pudl.dagster` and is exposed via :data:`pudl.dagster.defs`, while
+  :mod:`pudl.definitions` remains the stable top-level code location used by ``dg``.
+  The package is split by Dagster abstraction so contributors can edit the relevant
+  layer directly:
+
+  - :mod:`pudl.dagster.assets` loads and groups assets.
+  - :mod:`pudl.dagster.asset_checks` defines Dagster asset checks.
+  - :mod:`pudl.dagster.resources` defines the default resource set.
+  - :mod:`pudl.dagster.jobs` defines the standard PUDL jobs.
+  - :mod:`pudl.dagster.sensors` defines Dagster sensors.
+  - :mod:`pudl.dagster.config` contains reusable run-configuration helpers.
+  - :mod:`pudl.dagster.build` assembles :class:`dagster.Definitions` via
+    :func:`pudl.dagster.build_defs`.
+
 * **`Assets <https://docs.dagster.io/guides/build/assets>`__** are the
   primary building blocks in Dagster. They represent the underlying entities in our
   pipelines, such as database tables or machine learning models. In PUDL, most assets
-  represent a :py:class:`pandas.DataFrame` that is written to Parquet and SQLite files
-  on disk. Depending on which part of the PUDL DAG you are looking at, assets might
-  represent messy raw dataframes extracted from spreadsheets, partially cleaned
-  intermediary dataframes, or fully normalized tables ready for distribution.
-* **`IO Managers <https://docs.dagster.io/guides/build/io-managers>`__** in Dagster let
-  us keep the code for data processing separate from the code for reading and writing
-  data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
-  curate, for reading and writing Parquet files, and for writing out to SQLite. For
-  example :class:`pudl.io_managers.PudlMixedFormatIOManager` allows assets to read and
-  write dataframes to SQLite and Parquet-backed outputs using a single logical
-  interface.
+  represent a :py:class:`pandas.DataFrame` that is written to Parquet
+  and SQLite files on disk. Depending on which part of the PUDL DAG you are looking at,
+  assets might represent messy raw dataframes extracted from spreadsheets, partially
+  cleaned intermediary dataframes, or fully normalized tables ready for distribution.
 * **`Resources <https://docs.dagster.io/guides/build/external-resources>`__** are
   objects used by Dagster assets to provide access to external systems, databases, or
   services. In PUDL, we've defined a :py:class:`pudl.workspace.datastore.Datastore`
@@ -123,32 +132,46 @@ Core Dagster concepts used in PUDL
   :py:class:`pudl.workspace.datastore.ZenodoDoiSettings` Resource defines the current
   Zenodo DOI for each dataset. We also store our dataset-specific ETL settings (like
   what years of EIA-861 data to process) in a Resource
-  :py:class:`pudl.resources.PudlEtlSettingsResource`.
+  :py:class:`pudl.dagster.resources.PudlEtlSettingsResource`.
+* **`IO Managers <https://docs.dagster.io/guides/build/io-managers>`__** in Dagster let
+  us keep the code for data processing separate from the code for reading and writing
+  data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
+  curate, for reading and writing Parquet files, and for writing out to SQLite. For
+  example :class:`pudl.dagster.io_managers.PudlMixedFormatIOManager` allows assets to
+  read and write dataframes to SQLite and Parquet-backed outputs using a single logical
+  interface.
 * **`Jobs <https://docs.dagster.io/guides/build/jobs>`__** are preconfigured collections
   of assets, resources and IO Managers.  Jobs are the main unit of execution in Dagster.
-  The main jobs defined in :mod:`pudl.etl` are:
+  The main jobs assembled in :mod:`pudl.dagster` are:
 
   - ``ferc_to_sqlite`` to rebuild the raw FERC prerequisite databases only.
   - ``pudl`` to run the main PUDL ETL assuming those raw FERC databases already exist.
   - ``pudl_with_ferc_to_sqlite`` to run the full end-to-end build in one Dagster job.
   - ``ferceqr`` a DuckDB based pipeline to process the very large FERC EQR dataset.
 
-* **`Definitions <https://docs.dagster.io/getting-started/concepts#definitions>`__**
-  are the top-level collection of Dagster objects that get loaded into a code location.
-  They bundle together the assets, asset checks, resources, jobs, schedules, and
-  sensors that Dagster can see and execute. In PUDL, the main Dagster definitions live
-  in :mod:`pudl.etl` and are exposed via :data:`pudl.etl.defs`.
 * **`Configs <https://docs.dagster.io/guides/operate/configuration/run-configuration>`__**
   are the runtime settings passed to Dagster jobs, assets, and resources to control
   what gets executed and how. In PUDL, we usually store these settings in YAML files
   like ``dg_fast.yml``, ``dg_full.yml``, ``dg_pytest.yml``, and ``dg_nightly.yml``,
-  which configure execution options and shared resources like ``etl_settings``.
+  which configure execution options and shared resources like ``etl_settings``. The
+  reusable helpers that assemble these run configs live in
+  :mod:`pudl.dagster.config`.
+
+The Dagster Web UI
+^^^^^^^^^^^^^^^^^^
+
+`The Dagster UI <https://docs.dagster.io/guides/operate/webserver>`__ is the main
+interactive interface for inspecting the PUDL Dagster code location, launching jobs
+and asset materializations, reviewing logs, and debugging runs without dropping down
+to the CLI for every operation.
 
 The Dagster CLI: ``dg``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-PUDL is configured as a ``dg`` project. ``dg`` is Dagster's official CLI. It can
-perform many of the same actions managed through the Dagster UI. Some examples:
+``dg`` is `Dagster's official CLI <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
+It can perform many of the same actions managed through the Dagster UI, but is better
+suited to programmatic usage.  PUDL is configured as a ``dg`` project.  Some PUDL
+specific usage examples:
 
 .. code-block:: console
 
@@ -160,9 +183,6 @@ perform many of the same actions managed through the Dagster UI. Some examples:
     $ pixi run dg launch --assets "group:raw_eia861"
     # List all of the Dagster definitions
     $ pixi run dg list defs
-
-For full ``dg`` CLI documentation and options, see the Dagster docs:
-`dg CLI reference <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
 
 .. _run-dagster-ui:
 

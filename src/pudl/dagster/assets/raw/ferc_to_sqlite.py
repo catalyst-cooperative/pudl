@@ -1,8 +1,15 @@
-"""Dagster asset definitions for granular FERC-to-SQLite extraction."""
+"""Dagster asset definitions for granular FERC-to-SQLite extraction.
+
+This module defines the prerequisite assets that build the FERC DBF and XBRL derived
+SQLite databases used elsewhere in the PUDL pipeline. It should contain asset factories,
+resource requirements, and materialization metadata specific to those prerequisite
+databases, rather than the downstream transforms that consume them.
+"""
 
 import dagster as dg
 
 import pudl
+from pudl.dagster.provenance import build_ferc_sqlite_provenance_metadata
 from pudl.extract.ferc import (
     Ferc1DbfExtractor,
     Ferc2DbfExtractor,
@@ -10,7 +17,6 @@ from pudl.extract.ferc import (
     Ferc60DbfExtractor,
 )
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
-from pudl.ferc_sqlite_provenance import build_ferc_sqlite_provenance_metadata
 from pudl.settings import XbrlFormNumber
 from pudl.workspace.setup import PudlPaths
 

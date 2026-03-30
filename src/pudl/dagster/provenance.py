@@ -1,8 +1,13 @@
-"""Helpers for recording FERC SQLite provenance and checking compatibility.
+"""Helpers for recording asset provenance and checking compatibility.
 
-Compatibility between a persisted FERC SQLite prerequisite and a downstream
-PUDL run is determined by two independent criteria: do the Zenodo DOIs match,
-and does the FERC SQLite DB contain all the years needed by the downstream run?
+This module builds and interprets Dagster materialization metadata for assets so
+downstream consumers can verify that the data they are using was created with compatible
+inputs. Put provenance fingerprints, metadata builders, and compatibility checks here
+when they describe the identity of a materialized asset, rather than the extraction
+logic that produces the asset itself.
+
+For the closest Dagster concept, see
+https://docs.dagster.io/guides/build/assets/metadata-and-tags
 """
 
 import json

@@ -7,8 +7,8 @@ import re
 import pytest
 from click.testing import CliRunner
 
-from pudl.dbt_wrapper import install_dbt_deps
 from pudl.scripts.dbt_helper import dbt_helper
+from pudl.validate.dbt import install_dbt_deps
 
 
 @pytest.fixture(scope="module")

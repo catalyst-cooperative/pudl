@@ -4,7 +4,7 @@ from io import StringIO
 
 import pandas as pd
 
-import pudl.etl.glue_assets as glue_assets
+import pudl.dagster.assets.core.glue as glue_assets
 
 
 def test_epacamd_eia_subplant_ids():
