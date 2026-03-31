@@ -32,6 +32,19 @@ Expanded Data Coverage
 Documentation
 ^^^^^^^^^^^^^
 
+* We have a new look! As part of preparing to move our documentation from RTD to
+  our own GitHub Pages site, we needed to switch our Sphinx theme from Furo to
+  PyData, in order to take advantage of their version switcher feature. All
+  pages are still there, no URLs have changed, but you may find familiar links
+  in a different spot on the page than you are used to. The top nav bar has
+  limited real estate so we have collected our docs into two groups:
+
+  * Data Documentation now houses the data access, data dictionary, data source,
+    and methodology pages
+  * Development now houses the API reference, developer guide, contributing
+    guide, and code of conduct
+
+  See issue :issue:`4822` and PR :pr:`5057` for more details.
 * Added a :doc:`methodology page </methodology/entity_resolution>` explaining
   how EIA entity harvesting reconciles inconsistently reported plant, utility,
   boiler, and generator attributes into normalized entity and yearly SCD
@@ -75,6 +88,9 @@ Bug Fixes & Data Cleaning
   :download:`v3.5 of the FERC EQR data dictionary
   <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
   See :pr:`5085`.
+* Removed approximately 200 duplicate PUDL utility IDs from
+  ``src/pudl/package_data/glue/utility_id_pudl.csv``, where a FERC or EIA utility was
+  mapped to more than one PUDL ID. See :issue:`4988` and :pr:`5117`.
 * Fixed some wonky column names in the EIA-861
   ``core_eia861__yearly_demand_side_management_ee_dr`` table. See issue :issue:`5132`
   and PR :pr:`5135`.
