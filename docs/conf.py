@@ -14,6 +14,10 @@ import os
 import shutil
 from pathlib import Path
 
+from pybtex.plugin import register_plugin
+from pybtex.style.formatting.plain import Style as PlainStyle
+from pybtex.style.sorting import BaseSortingStyle
+
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import CodeMetadata, DataSource, Package, Resource
 from pudl.metadata.codes import CODE_METADATA
@@ -75,6 +79,53 @@ bibtex_bibfiles = [
     "catalyst_cites.bib",
     "further_reading.bib",
 ]
+
+# Handle bibtex formatting to produce a numbered list
+# without labels and sorted by descending date in document
+# we can't use any default style because there are multiple bibs on one page
+
+
+class YearDescendingSortingStyle(BaseSortingStyle):
+    """Create style that sorts by descending year."""
+
+    def sorting_key(self, entry):
+        """Return sorting key that descends by year."""
+        year_str = entry.fields.get("year", "0")
+        try:
+            year = int(year_str)
+        except ValueError:
+            year = 0
+
+        author = entry.persons.get("author", [])
+        author_key = str(author[0]) if author else ""
+        title = entry.fields.get("title", "")
+
+        return (-year, author_key, title)
+
+
+class NoLabelStyle(PlainStyle):
+    """Create citation style without label and sorting on descending year."""
+
+    default_sorting_style = "year_desc"
+
+    def format_label(self, entry):
+        """Override default label."""
+        return ""
+
+
+register_plugin(
+    "pybtex.style.sorting",
+    "year_desc",
+    YearDescendingSortingStyle,
+)
+
+register_plugin(
+    "pybtex.style.formatting",
+    "nolabel",
+    NoLabelStyle,
+)
+
+bibtex_default_style = "nolabel"
 
 # If PUDL_DOCS_KEEP_GENERATED_FILES is defined, don't clean up generated files after the
 # docs build. Useful for debugging formatting of generated RST files, but be sure to
