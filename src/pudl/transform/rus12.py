@@ -7,6 +7,8 @@ import pudl.transform.rus as rus
 from pudl import logging_helpers
 from pudl.helpers import cleanstrings_snake
 from pudl.metadata.enums import (
+    DEPRECIATION_CHANGES_GROUP_RUS12,
+    DEPRECIATION_CHANGES_ITEMS_RUS12,
     DEPRECIATION_ITEMS_MISC_RUS12,
     PLANT_TYPE_RUS12,
     UTILITY_PLANT_GROUP_RUS12,
@@ -847,15 +849,12 @@ def _core_rus12__yearly_non_utility_plant_changes(raw_rus12__non_utility_plant):
 
 
 @asset
-def _core_rus12__yearly_accumulated_depreciation_changes(
-    raw_rus12__utility_plant_accumulated_depreciation: pd.DataFrame,
+def _core_rus12__yearly_depreciation_changes(
+    raw_rus12__depreciation: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the accumulated depreciation changes table."""
-    df = rus.early_transform(raw_df=raw_rus12__utility_plant_accumulated_depreciation)
-    depreciation_and_amortization_groups = [
-        "electric_plant_in_service",
-        "provision_for_depreciation_and_amortization",
-    ]
+    df = rus.early_transform(raw_df=raw_rus12__depreciation)
+
     data_cols = [
         "comp_rate",
         "accruals",
@@ -867,7 +866,7 @@ def _core_rus12__yearly_accumulated_depreciation_changes(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
-        pattern=rf"^({'|'.join(depreciation_and_amortization_groups)})_(.+)_({'|'.join(data_cols)})$",
+        pattern=rf"^({'|'.join(DEPRECIATION_CHANGES_GROUP_RUS12)})_({'|'.join(DEPRECIATION_CHANGES_ITEMS_RUS12)})_({'|'.join(data_cols)})$",
         match_names=[
             "depreciation_and_amortization_group",
             "depreciation_and_amortization_item",
@@ -884,11 +883,11 @@ def _core_rus12__yearly_accumulated_depreciation_changes(
 
 
 @asset
-def _core_rus12__yearly_accumulated_depreciation(
-    raw_rus12__utility_plant_accumulated_depreciation: pd.DataFrame,
+def _core_rus12__yearly_depreciation_misc(
+    raw_rus12__depreciation: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the miscellaneous depreciation ending balance table."""
-    df = rus.early_transform(raw_df=raw_rus12__utility_plant_accumulated_depreciation)
+    df = rus.early_transform(raw_df=raw_rus12__depreciation)
     data_cols = ["ending_balance"]
     df = rus.multi_index_stack(
         df,

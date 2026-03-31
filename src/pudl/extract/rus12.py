@@ -117,6 +117,6 @@ raw_rus12_assets = [
         "non_utility_plant",
         "external_financial_risk_ratio",
         "utility_plant_changes",
-        "utility_plant_accumulated_depreciation",
+        "depreciation",
     ]
 ]

@@ -741,7 +741,7 @@ RESOURCE_METADATA_BASE_DRAFT = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_accumulated_depreciation_changes": {
+    "core_rus12__yearly_depreciation_changes": {
         "description": {
             "additional_summary_text": ("changes in accumulated depreciation."),
             "additional_source_text": "(Part H - Section B)",
@@ -770,7 +770,7 @@ RESOURCE_METADATA_BASE_DRAFT = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_accumulated_depreciation": {  # QUESTION: is this a misc table?
+    "core_rus12__yearly_depreciation_misc": {
         "description": {
             "additional_summary_text": ("accumulated depreciation."),
             "additional_source_text": "(Part H - 2nd part of Section B)",
