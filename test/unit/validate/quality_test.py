@@ -1,12 +1,9 @@
-"""Unit tests for validation helpers and related asset-check utilities."""
-
-import io
+"""Unit tests for pudl.validate.quality."""
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from pudl.dagster.asset_checks import group_mean_continuity_check
 from pudl.validate import quality as pv
 
 
@@ -101,70 +98,3 @@ def test_weighted_quantile_filtering(data, weights, quantile, expected):
     weights_series = pd.Series(weights)
     result = pv.weighted_quantile(data_series, weights_series, quantile)
     assert result == expected
-
-
-@pytest.mark.parametrize(
-    "column,threshold,n_outliers_allowed,expected_pass",
-    [
-        # Test cases that should PASS
-        ("stable_metric", 0.1, 0, True),
-        ("gradual_growth", 0.2, 0, True),
-        ("sudden_jump", 5.0, 0, True),
-        ("volatile_metric", 0.2, 1, True),
-        ("negative_change", 0.2, 0, True),
-        # Test cases that should FAIL
-        ("sudden_jump", 0.1, 0, False),
-        ("volatile_metric", 0.1, 0, False),
-        ("sudden_jump", 1.0, 0, False),
-        ("gradual_growth", 0.05, 0, False),
-    ],
-)
-def test_group_mean_continuity_check(
-    column, threshold, n_outliers_allowed, expected_pass
-):
-    """Test the group_mean_continuity_check function with various scenarios.
-
-    Uses a test dataframe with different column patterns:
-    - stable_metric: Values around 100 with minimal variation
-    - gradual_growth: Fixed growth of 10 per year
-    - sudden_jump: Large 5x jump from 2022 to 2023
-    - volatile_metric: Random fluctuations around 100, one of which is larger
-    - negative_change: Fixed decline of 100 per year
-    """
-    # Test data for group_mean_continuity_check function
-    # This dataframe contains various patterns for testing different scenarios
-    mean_continuity_df = pd.read_csv(
-        io.StringIO(
-            """year,stable_metric,gradual_growth,sudden_jump,volatile_metric,negative_change
-    2020,100,100,100,100,1000
-    2021,101,110,102,95,900
-    2022,99,120,105,130,800
-    2023,102,130,500,105,700
-    2024,98,140,510,90,600
-    """
-        )
-    )
-
-    result = group_mean_continuity_check(
-        df=mean_continuity_df,
-        thresholds={column: threshold},
-        groupby_col="year",
-        n_outliers_allowed=n_outliers_allowed,
-    )
-
-    assert result.passed == expected_pass
-
-    # Verify metadata structure
-    assert hasattr(result, "metadata")
-    assert isinstance(result.metadata, dict)
-
-    # If test failed, metadata should contain information about the failing column
-    if not expected_pass:
-        assert column in result.metadata
-        # The metadata values are wrapped in JsonMetadataValue objects
-        # Access the underlying data using the .data attribute
-        column_metadata = result.metadata[column].data
-        assert isinstance(column_metadata, dict)
-        assert "threshold" in column_metadata
-        assert column_metadata["threshold"] == threshold
-        assert "top5" in column_metadata
