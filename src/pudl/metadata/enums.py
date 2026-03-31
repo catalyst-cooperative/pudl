@@ -1139,7 +1139,6 @@ DEPRECIATION_CHANGES_ITEMS_RUS12 = [
     "depreciation_transmission_plant",
     "retirement_work_in_progress",
     "total_depreciation",
-    "total_depreciation_ending_balance",
     "amortization_acquisition_adj",
     "amortization_electric_plant_in_service",
     "amortization_leased_plant",
