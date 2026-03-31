@@ -1105,6 +1105,25 @@ UTILITY_PLANT_GROUP_RUS12 = [
     "utility_plant_in_service",  # total = electric_plant_in_service + 7 sub-components
     "total_utility_plant",  # total = utility_plant_in_service + 1 sub-components
 ]
+UTILITY_PLANT_ITEM_RUS12 = [
+    "land_and_land_rights",
+    "other",
+    "station_equipment",
+    "structures_and_improvements",
+    "total",
+    "general_plant",
+    "hydro",
+    "nuclear",
+    "steam",
+    "construction_work_in_progress",
+    "acquisition_adjustments",
+    "completed_construction",
+    "electric_plant_held_for_future_use",
+    "electric_plant_leased_to_others",
+    "electric_plant_purchased_or_sold",
+    "nuclear_fuel_assemblies",
+    "rto_iso_plant",
+]
 DEPRECIATION_CHANGES_GROUP_RUS12 = [
     "electric_plant_in_service",
     "provision_for_depreciation_and_amortization",

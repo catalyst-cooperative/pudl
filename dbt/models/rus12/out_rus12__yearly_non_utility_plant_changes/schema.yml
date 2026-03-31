@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus12__yearly_non_utility_plant_changes
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
+          - name: non_utility_plant_item
+          - name: additions
+          - name: retirements
+          - name: adjustments_and_transfers
+          - name: ending_balance

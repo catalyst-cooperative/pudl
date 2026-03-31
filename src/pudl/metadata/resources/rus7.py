@@ -666,9 +666,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-}
-
-RESOURCE_METADATA_BASE_DRAFT = {
     "core_rus7__yearly_utility_plant_changes": {
         "description": {
             "additional_summary_text": ("changes in utility plant"),

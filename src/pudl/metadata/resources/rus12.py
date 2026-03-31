@@ -698,9 +698,6 @@ RESOURCE_METADATA_BASE = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-}
-
-RESOURCE_METADATA_BASE_DRAFT = {
     "core_rus12__yearly_utility_plant_changes": {
         "description": {
             "additional_summary_text": ("changes in utility plant"),
@@ -752,7 +749,7 @@ RESOURCE_METADATA_BASE_DRAFT = {
                 "borrower_id_rus",
                 "depreciation_and_amortization_group",
                 "depreciation_and_amortization_item",
-                "comp_rate",
+                "composite_depreciation_rate",
                 "accruals",
                 "retirements_less_net_salvage",
                 "adjustments_and_transfers",
@@ -762,8 +759,8 @@ RESOURCE_METADATA_BASE_DRAFT = {
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "utility_plant_group",
-                "utility_plant_item",
+                "depreciation_and_amortization_group",
+                "depreciation_and_amortization_item",
             ],
         },
         "sources": ["rus12"],
@@ -805,7 +802,7 @@ RESOURCE_METADATA_BASE_DRAFT = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "non_utility_plant_item",  # non_utility_property| provision_for_depreciation_and_amortization_of_non_utility_plant
+                "non_utility_plant_item",
                 "additions",
                 "retirements",
                 "adjustments_and_transfers",

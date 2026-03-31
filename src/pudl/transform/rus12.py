@@ -856,7 +856,7 @@ def _core_rus12__yearly_depreciation_changes(
     df = rus.early_transform(raw_df=raw_rus12__depreciation)
 
     data_cols = [
-        "comp_rate",
+        "composite_depreciation_rate",
         "accruals",
         "retirements_less_net_salvage",
         "adjustments_and_transfers",
