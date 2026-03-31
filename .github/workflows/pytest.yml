@@ -234,7 +234,7 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: Run the integration tests
+      - name: Run the integration tests and data validations
         run: |
           pixi run pytest-integration
 

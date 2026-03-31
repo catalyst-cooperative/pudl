@@ -353,11 +353,15 @@ cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl tests/unit"
 description = "Run unit tests and doctests"
 
 [tool.pixi.tasks.pytest-integration]
-cmd = "pytest --cov-fail-under=0 tests/integration"
-description = "Run integration tests with the default settings"
+cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
+description = "Run integration tests and data validations (FK checks and dbt, excluding row counts)"
+
+[tool.pixi.tasks.pytest-validate]
+cmd = "pytest --no-cov --live-pudl-output tests/validate/data_test.py"
+description = "Run data validation tests (FK checks and dbt, excluding row counts) against existing PUDL_OUTPUT"
 
 [tool.pixi.tasks.pytest-unit-nightly]
-cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG tests/unit"
+cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG --doctest-modules src/pudl tests/unit"
 description = "Run nightly-build unit tests with the nightly Dagster config"
 
 [tool.pixi.tasks.pytest-integration-nightly]
