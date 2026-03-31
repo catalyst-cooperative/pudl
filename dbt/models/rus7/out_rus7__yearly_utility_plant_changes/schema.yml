@@ -39,4 +39,9 @@ sources:
           - name: additions
           - name: adjustments_and_transfers
           - name: ending_balance
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: utility_plant_item NOT IN ('construction_work_in_progress', 'all_other')
           - name: is_total
