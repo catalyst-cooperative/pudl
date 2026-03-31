@@ -13,7 +13,7 @@ sources:
               arguments:
                 expression: accruals + retirements_less_net_salvage + adjustments_and_transfers <= ending_balance
                 config:
-                  error_if: "<18"
+                  error_if: ">18"
                   where: depreciation_and_amortization_item != 'retirement_work_in_progress'
               description: "Check that annual changes don't exceed ending balance."
           - subcomponents_sum_to_total:
