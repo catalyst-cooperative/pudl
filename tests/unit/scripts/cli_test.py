@@ -1,4 +1,4 @@
-"""Test the PUDL console scripts from within PyTest."""
+"""Test that all PUDL console scripts start up without errors."""
 
 import importlib.metadata
 

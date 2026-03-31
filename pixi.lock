@@ -168,7 +168,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/future-1.0.0-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/gcsfs-2026.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.12.3-py313h1ee8c46_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/gdk-pixbuf-2.44.5-h2b0a6b4_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/gdk-pixbuf-2.44.6-h2b0a6b4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/geoarrow-c-0.3.1-py313h7033f15_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
@@ -185,14 +185,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/glpk-5.0-h445213a_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gmp-6.3.0-hac33072_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gnutls-3.8.11-h18acefa_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.0-pyhc195fe9_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.1-pyh0c4a08c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-python-client-2.193.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.49.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-httplib2-0.3.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.41.0-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/google-cloud-sdk-562.0.0-py313h78bf25f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.10.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-control-1.10.0-pyhcf101f3_0.conda
@@ -261,7 +261,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.26.0-hcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-1.1.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.3.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.8.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_console-6.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_core-5.9.1-pyhc90fa1f_0.conda
@@ -843,7 +843,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/future-1.0.0-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/gcsfs-2026.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.12.3-py313h369b93d_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/gdk-pixbuf-2.44.5-hae309b2_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/gdk-pixbuf-2.44.6-hae309b2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/geoarrow-c-0.3.1-py313hbc4457e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
@@ -859,14 +859,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/glog-0.7.1-h2790a97_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/glpk-5.0-h3cb5acd_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/osx-64/gmp-6.3.0-hf036a51_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.0-pyhc195fe9_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.1-pyh0c4a08c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-python-client-2.193.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.49.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-httplib2-0.3.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.41.0-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-562.0.0-py313habf4b1d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.10.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-control-1.10.0-pyhcf101f3_0.conda
@@ -935,7 +935,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.26.0-hcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-1.1.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.3.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.8.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_console-6.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_core-5.9.1-pyhc90fa1f_0.conda
@@ -1474,7 +1474,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/future-1.0.0-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/gcsfs-2026.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.12.3-py313h543f8f2_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdk-pixbuf-2.44.5-h4e57454_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdk-pixbuf-2.44.6-h4e57454_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/geoarrow-c-0.3.1-py313h6deaedc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
@@ -1490,14 +1490,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/glog-0.7.1-heb240a5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/glpk-5.0-h6d7a090_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gmp-6.3.0-h7bae524_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.0-pyhc195fe9_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.1-pyh0c4a08c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-python-client-2.193.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.49.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-httplib2-0.3.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.41.0-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-562.0.0-py313h8f79df9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.10.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-control-1.10.0-pyhcf101f3_0.conda
@@ -1566,7 +1566,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.26.0-hcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-1.1.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.3.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.8.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_console-6.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_core-5.9.1-pyhc90fa1f_0.conda
@@ -2118,7 +2118,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/future-1.0.0-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/gcsfs-2026.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.12.3-py313h1ee8c46_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/gdk-pixbuf-2.44.5-h2b0a6b4_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/gdk-pixbuf-2.44.6-h2b0a6b4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/geoarrow-c-0.3.1-py313h7033f15_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
@@ -2135,14 +2135,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/glpk-5.0-h445213a_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gmp-6.3.0-hac33072_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/gnutls-3.8.11-h18acefa_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.0-pyhc195fe9_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.1-pyh0c4a08c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-python-client-2.193.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.49.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-httplib2-0.3.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.41.0-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/google-cloud-sdk-562.0.0-py313h78bf25f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.10.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-control-1.10.0-pyhcf101f3_0.conda
@@ -2212,7 +2212,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.26.0-hcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-1.1.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.3.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.8.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_console-6.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_core-5.9.1-pyhc90fa1f_0.conda
@@ -2818,7 +2818,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/future-1.0.0-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/gcsfs-2026.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.12.3-py313h369b93d_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/gdk-pixbuf-2.44.5-hae309b2_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/gdk-pixbuf-2.44.6-hae309b2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/geoarrow-c-0.3.1-py313hbc4457e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
@@ -2834,14 +2834,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/glog-0.7.1-h2790a97_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/glpk-5.0-h3cb5acd_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/osx-64/gmp-6.3.0-hf036a51_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.0-pyhc195fe9_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.1-pyh0c4a08c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-python-client-2.193.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.49.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-httplib2-0.3.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.41.0-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-562.0.0-py313habf4b1d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.10.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-control-1.10.0-pyhcf101f3_0.conda
@@ -2911,7 +2911,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.26.0-hcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-1.1.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.3.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.8.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_console-6.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_core-5.9.1-pyhc90fa1f_0.conda
@@ -3460,7 +3460,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/future-1.0.0-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/gcsfs-2026.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.12.3-py313h543f8f2_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdk-pixbuf-2.44.5-h4e57454_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdk-pixbuf-2.44.6-h4e57454_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/geoarrow-c-0.3.1-py313h6deaedc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
@@ -3476,14 +3476,14 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/glog-0.7.1-heb240a5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/glpk-5.0-h6d7a090_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gmp-6.3.0-h7bae524_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.0-pyhc195fe9_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.1-pyh0c4a08c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-python-client-2.193.0-pyh332efcf_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.49.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-httplib2-0.3.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.1-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.41.0-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-562.0.0-py313h8f79df9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.10.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-control-1.10.0-pyhcf101f3_0.conda
@@ -3553,7 +3553,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/jsonschema-with-format-nongpl-4.26.0-hcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-1.1.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.3.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.8.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_console-6.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_core-5.9.1-pyhc90fa1f_0.conda
@@ -5922,8 +5922,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.3.1.dev225
-  sha256: b1e87fd41c94ef160b99a35312f5b7409d440426e0f3444179f5834d45a93b10
+  version: 2026.3.1.dev237
+  sha256: 1e81d8388576dd7f2c45b326c865e458e503c8ff485d1165d832c1c8489d44b2
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -5980,7 +5980,7 @@ packages:
   - python >=3.10
   license: ISC
   purls:
-  - pkg:pypi/certifi?source=compressed-mapping
+  - pkg:pypi/certifi?source=hash-mapping
   size: 151445
   timestamp: 1772001170301
 - conda: https://conda.anaconda.org/conda-forge/linux-64/cffi-2.0.0-py313hf46b229_1.conda
@@ -7740,54 +7740,54 @@ packages:
   - pkg:pypi/gdal?source=hash-mapping
   size: 1832805
   timestamp: 1774035488686
-- conda: https://conda.anaconda.org/conda-forge/linux-64/gdk-pixbuf-2.44.5-h2b0a6b4_1.conda
-  sha256: b2a6fb56b8f2d576a3ae5e6c57b2dbab91d52d1f1658bf1b258747ae25bb9fde
-  md5: 7eb4977dd6f60b3aaab0715a0ea76f11
+- conda: https://conda.anaconda.org/conda-forge/linux-64/gdk-pixbuf-2.44.6-h2b0a6b4_0.conda
+  sha256: c5594497f0646e9079705b3199dbb2d5b13c48173cf110000fa1c8818e2b3e0c
+  md5: 7892f39a39ed39591a89a28eba03e987
   depends:
   - __glibc >=2.17,<3.0.a0
   - libgcc >=14
   - libglib >=2.86.4,<3.0a0
   - libjpeg-turbo >=3.1.2,<4.0a0
   - liblzma >=5.8.2,<6.0a0
-  - libpng >=1.6.55,<1.7.0a0
+  - libpng >=1.6.56,<1.7.0a0
   - libtiff >=4.7.1,<4.8.0a0
   license: LGPL-2.1-or-later
   license_family: LGPL
   purls: []
-  size: 575109
-  timestamp: 1771530561157
-- conda: https://conda.anaconda.org/conda-forge/osx-64/gdk-pixbuf-2.44.5-hae309b2_1.conda
-  sha256: 594bc16f8e92ca10b106eb80f2b9f5be9b2d86ffef12f2c9b26686bb669626ae
-  md5: cde2fa97a1a466df37e78d071efb8579
+  size: 577414
+  timestamp: 1774985848058
+- conda: https://conda.anaconda.org/conda-forge/osx-64/gdk-pixbuf-2.44.6-hae309b2_0.conda
+  sha256: 27a223201fd86f85284c7e218121ac9ecf0be16e0a73eea42776701c8c90c50b
+  md5: 5f0f81650af65aa247f6fbc25ebcbdd4
   depends:
   - __osx >=11.0
   - libglib >=2.86.4,<3.0a0
   - libintl >=0.25.1,<1.0a0
   - libjpeg-turbo >=3.1.2,<4.0a0
   - liblzma >=5.8.2,<6.0a0
-  - libpng >=1.6.55,<1.7.0a0
+  - libpng >=1.6.56,<1.7.0a0
   - libtiff >=4.7.1,<4.8.0a0
   license: LGPL-2.1-or-later
   license_family: LGPL
   purls: []
-  size: 553039
-  timestamp: 1771530777722
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdk-pixbuf-2.44.5-h4e57454_1.conda
-  sha256: ed637a29deb9afb77c51a0e8b3961eb725fcbf7d6d84dadb0983a457f24dba24
-  md5: 444c1d08dc4c0303ae08fa7cd14497a4
+  size: 552947
+  timestamp: 1774986327487
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdk-pixbuf-2.44.6-h4e57454_0.conda
+  sha256: 07cbba4e12430de35ea608eb3006cf1f7f63832c4f89a081cd6f3872944c1aa6
+  md5: e67ebd2f639f46e52af8531622fa6051
   depends:
   - __osx >=11.0
   - libglib >=2.86.4,<3.0a0
   - libintl >=0.25.1,<1.0a0
   - libjpeg-turbo >=3.1.2,<4.0a0
   - liblzma >=5.8.2,<6.0a0
-  - libpng >=1.6.55,<1.7.0a0
+  - libpng >=1.6.56,<1.7.0a0
   - libtiff >=4.7.1,<4.8.0a0
   license: LGPL-2.1-or-later
   license_family: LGPL
   purls: []
-  size: 549384
-  timestamp: 1771530540200
+  size: 548309
+  timestamp: 1774986047281
 - conda: https://conda.anaconda.org/conda-forge/linux-64/geoarrow-c-0.3.1-py313h7033f15_0.conda
   sha256: 431b694824033dfd4c322ef11ac2bc2daf09cd518f9ab8a18c832ad2c4b1e34c
   md5: 1d5329176dcc09b5b2cccaf57dade78a
@@ -7887,7 +7887,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/geopandas?source=compressed-mapping
+  - pkg:pypi/geopandas?source=hash-mapping
   size: 254983
   timestamp: 1773131233972
 - conda: https://conda.anaconda.org/conda-forge/linux-64/geos-3.14.1-h480dda7_0.conda
@@ -8171,12 +8171,12 @@ packages:
   purls: []
   size: 2030992
   timestamp: 1768686277371
-- conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.0-pyhcf101f3_0.conda
-  sha256: 23b93f620c3fd07d8ac6440b547e3e04e6ce1192c585620f6236ef9381515fd0
-  md5: 7b98d992f037ebe87496162bd5885cf6
+- conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.30.1-pyhcf101f3_0.conda
+  sha256: 95d4c8b737d686163fedbf4d89fae916adf7a41b561ec85afa703c56de3226af
+  md5: e0f53d8202f3110e81b3b4c07aa5a99c
   depends:
   - python >=3.10
-  - googleapis-common-protos >=1.56.3,<2.0.0
+  - googleapis-common-protos >=1.63.2,<2.0.0
   - protobuf >=4.25.8,<7.0.0
   - proto-plus >=1.25.0,<2.0.0
   - google-auth >=2.14.1,<3.0.0
@@ -8185,23 +8185,23 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/google-api-core?source=hash-mapping
-  size: 105274
-  timestamp: 1771485965861
-- conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.0-pyhc195fe9_0.conda
-  sha256: d6b242bfb452b07a32547a979771b53d37b7c63680c180493a7ed7fbb1bada4d
-  md5: 8135a746d6fff7676e3b456ef0ed0595
+  - pkg:pypi/google-api-core?source=compressed-mapping
+  size: 105197
+  timestamp: 1774962228861
+- conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.30.1-pyh0c4a08c_0.conda
+  sha256: 4f3a7b6dea149ca58425c994733dbc05432d9304c85a36c0331966473b330356
+  md5: 0cf4b9abdfc93741389fc24879d7217d
   depends:
   - python >=3.10
-  - google-api-core ==2.30.0 pyhcf101f3_0
+  - google-api-core ==2.30.1 pyhcf101f3_0
   - grpcio >=1.75.1,<2.0.0
   - grpcio-status >=1.75.1,<2.0.0
   - python
   license: Apache-2.0
   license_family: APACHE
   purls: []
-  size: 11545
-  timestamp: 1771485965863
+  size: 11554
+  timestamp: 1774962228861
 - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-python-client-2.193.0-pyh332efcf_0.conda
   sha256: 9d0999c3f94fff30e40c661643c939993a98b51ec7cb280359227dd1db4c83be
   md5: f606090e845a83bbe783678c1d6a35a1
@@ -8214,7 +8214,7 @@ packages:
   - uritemplate >=3.0.1,<5
   license: Apache-2.0 and MIT
   purls:
-  - pkg:pypi/google-api-python-client?source=compressed-mapping
+  - pkg:pypi/google-api-python-client?source=hash-mapping
   size: 7316690
   timestamp: 1773780121346
 - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.49.1-pyhcf101f3_0.conda
@@ -8249,9 +8249,9 @@ packages:
   - pkg:pypi/google-auth-httplib2?source=hash-mapping
   size: 15860
   timestamp: 1765878744043
-- conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.0-pyhd8ed1ab_1.conda
-  sha256: f96c31e0add2c70f016e404551339160cc158d6713a73051d885edd78cf8a7e1
-  md5: 33aec69cc30741c35f9616d694e3542c
+- conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.3.1-pyhd8ed1ab_0.conda
+  sha256: 07cf7714a2decf46a82c3bd395733f9a211b2274f18fab9ecdfd5ae989115de9
+  md5: b08838c276eb2377455c4e45dd1b1d68
   depends:
   - click >=6.0.0
   - google-auth >=2.15.0,<3.0.0,!=2.43.0,!=2.44.0,!=2.45.0
@@ -8261,11 +8261,11 @@ packages:
   license_family: Apache
   purls:
   - pkg:pypi/google-auth-oauthlib?source=compressed-mapping
-  size: 22659
-  timestamp: 1773426913742
-- conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
-  sha256: 5ab29adfaf339782431b8a1ae3e76d36dc1b8a32bd068dbdfbb1951c04eb7872
-  md5: ecd7292287ed9377cb2cca3dfa11d45f
+  size: 22551
+  timestamp: 1774925616896
+- conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.41.0-pyhcf101f3_0.conda
+  sha256: 073def3ebc8bd744501dd4322ca5b073a62b2b0782c6fe8e1da119b461807b90
+  md5: ae5e94a77d80a900e65f46dfd64ff713
   depends:
   - python >=3.10
   - google-api-core-grpc >=2.11.1,<3.0.0
@@ -8277,27 +8277,25 @@ packages:
   - requests >=2.21.0,<3.0.0
   - python
   license: Apache-2.0
-  license_family: APACHE
   purls:
   - pkg:pypi/google-cloud-bigquery?source=hash-mapping
-  size: 193760
-  timestamp: 1771017108171
-- conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
-  sha256: fcef1d51f6de304a23c19ea6b3114dcab9ce54482d9f506f9a3e0b48be514744
-  md5: 48fcccc0b579087018df0afc332b8bd6
+  size: 194037
+  timestamp: 1774963154445
+- conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.1-pyhcf101f3_0.conda
+  sha256: c8d00b57bd7596dd83fa81b53cfae105bcb9ff40f7157184d6c9f402b11726d5
+  md5: 4ddaf759564b096dfb8a3829d6e64c2d
   depends:
-  - python >=3.10,<3.14
-  - google-api-core >=1.31.6,<3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0
-  - google-auth >=1.25.0,<3.0.0
-  - grpcio >=1.38.0,<2.0.0
+  - python >=3.10
+  - google-api-core >=2.11.0,<3.0.0
+  - google-auth >=2.14.1,<3.0.0,!=2.24.0,!=2.25.0
+  - grpcio >=1.75.1,<2.0.0
   - grpcio-status >=1.38.0,<2.0.0
   - python
   license: Apache-2.0
-  license_family: APACHE
   purls:
-  - pkg:pypi/google-cloud-core?source=hash-mapping
-  size: 33593
-  timestamp: 1768561863777
+  - pkg:pypi/google-cloud-core?source=compressed-mapping
+  size: 33563
+  timestamp: 1774963218524
 - conda: https://conda.anaconda.org/conda-forge/linux-64/google-cloud-sdk-562.0.0-py313h78bf25f_0.conda
   sha256: 2368a0e03c434c9eedb30d5d2f80947baa648bc92b2f747acdd6c96eda3a07ff
   md5: 9601b16e40cae889235dbc70946e6e88
@@ -9896,20 +9894,20 @@ packages:
   - pkg:pypi/jupyter-lsp?source=hash-mapping
   size: 60377
   timestamp: 1756388269267
-- conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.0-pyhd8ed1ab_0.conda
-  sha256: 24e1703b7d370b1435c8a49628b68c2650f588e89190afb51462fbc8de3b6fe7
-  md5: 9ef4adccd3a32f3f01fc998f2ad4bdf5
+- conda: https://conda.anaconda.org/conda-forge/noarch/jupyter-resource-usage-1.2.1-pyhd8ed1ab_0.conda
+  sha256: 7935959298800fa60fce96b71e1747c27af3eacd061feff0bb92f400f763bd80
+  md5: f6ea980ad873115c6ee41edf7b9db436
   depends:
   - jupyter_server >=2.0.0,<3
   - psutil >=5.6.0
-  - python >=3.9
+  - python >=3.10
   - pyzmq >=19
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/jupyter-resource-usage?source=hash-mapping
-  size: 43170
-  timestamp: 1755947631083
+  - pkg:pypi/jupyter-resource-usage?source=compressed-mapping
+  size: 43736
+  timestamp: 1774986387013
 - conda: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.8.0-pyhcf101f3_0.conda
   sha256: e402bd119720862a33229624ec23645916a7d47f30e1711a4af9e005162b84f3
   md5: 8a3d6d0523f66cf004e563a50d9392b3
@@ -15468,7 +15466,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/opentelemetry-proto?source=compressed-mapping
+  - pkg:pypi/opentelemetry-proto?source=hash-mapping
   size: 46752
   timestamp: 1772649159816
 - conda: https://conda.anaconda.org/conda-forge/noarch/opentelemetry-sdk-1.16.0-pyhd8ed1ab_0.conda
@@ -18130,7 +18128,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/pyzmq?source=compressed-mapping
+  - pkg:pypi/pyzmq?source=hash-mapping
   size: 191641
   timestamp: 1771717073430
 - conda: https://conda.anaconda.org/conda-forge/linux-64/qhull-2020.2-h434a139_5.conda
@@ -20248,7 +20246,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/universal-pathlib?source=compressed-mapping
+  - pkg:pypi/universal-pathlib?source=hash-mapping
   size: 66603
   timestamp: 1771855751804
 - conda: https://conda.anaconda.org/conda-forge/noarch/uri-template-1.3.0-pyhd8ed1ab_1.conda

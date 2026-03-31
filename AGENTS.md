@@ -67,8 +67,8 @@ Key directories under `src/pudl/`:
 Other important directories:
 
 - `dbt/` — dbt models used for data validation only (not transformation)
-- `test/unit/` — fast unit tests; run these during development
-- `test/integration/` — slow integration tests; do not run interactively
+- `tests/unit/` — fast unit tests; run these during development
+- `tests/integration/` — slow integration tests; do not run interactively
 - `docs/` — Sphinx documentation source (reStructuredText)
 - `src/pudl/package_data/settings/` — packaged Dagster run config YAML files
   (`dg_fast.yml`, `dg_full.yml`, `dg_pytest.yml`, `dg_nightly.yml`)
@@ -257,25 +257,25 @@ coverage collection and avoid spurious failures.
 
 ### Unit tests
 
-Unit tests live under `test/unit/`, take up to 2 minutes, and run automatically via the
+Unit tests live under `tests/unit/`, take up to 2 minutes, and run automatically via the
 pre-commit hook on every commit.
 
 ```bash
 pixi run pytest-unit                                                           # all unit tests
-pixi run pytest --no-cov test/unit/path/to/test_file.py                        # single file
-pixi run pytest --no-cov test/unit/extract/excel_test.py::TestGenericExtractor # single class
+pixi run pytest --no-cov tests/unit/path/to/test_file.py                        # single file
+pixi run pytest --no-cov tests/unit/extract/excel_test.py::TestGenericExtractor # single class
 ```
 
 ### Integration tests
 
-Integration tests live under `test/integration/` and take up to 60 minutes. They use a
+Integration tests live under `tests/integration/` and take up to 60 minutes. They use a
 `prebuilt_outputs` fixture that runs the full ETL via `dg launch` as a subprocess with
 `dg_pytest.yml` as the default config. Do not run them interactively during development.
 
 ```bash
 pixi run pytest-integration                                    # full integration suite
 pixi run pytest-ci                                             # docs + unit + integration + dbt + coverage
-pixi run pytest --no-cov --live-pudl-output test/integration   # using existing local outputs
+pixi run pytest --no-cov --live-pudl-output tests/integration   # using existing local outputs
 ```
 
 ### Custom pytest flags
@@ -490,7 +490,7 @@ pixi run ...
 environment when running commands, avoiding unexpected dependency resolution:
 
 ```bash
-pixi run --frozen pytest --no-cov test/unit
+pixi run --frozen pytest --no-cov tests/unit
 pixi run --frozen dg check defs --verbose
 ```
 

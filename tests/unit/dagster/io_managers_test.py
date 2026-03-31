@@ -194,9 +194,17 @@ def test_nullable_column_error(sqlite_io_manager_fixture):
         manager.handle_output(output_context, artist)
 
 
-@pytest.mark.xfail(reason="SQLite autoincrement behvior is breaking this test.")
 def test_null_primary_key_column_error(sqlite_io_manager_fixture):
-    """Ensure an error is thrown when a primary key contains a nullable value."""
+    """Ensure IntegrityError is raised when a primary key column contains NULL.
+
+    SQLite's ``INTEGER PRIMARY KEY`` is a ROWID alias: inserting NULL into such a
+    column silently assigns an auto-incremented value rather than raising a constraint
+    error. This is a documented SQLite deviation from the SQL standard and affects all
+    write paths (pandas ``to_sql``, SQLAlchemy core, raw SQL). The IO manager therefore
+    enforces the NOT NULL constraint on primary key columns explicitly before writing,
+    raising ``IntegrityError`` to match the error that a spec-compliant database would
+    raise.
+    """
     manager: SQLiteIOManager = sqlite_io_manager_fixture
 
     asset_key = "artist"

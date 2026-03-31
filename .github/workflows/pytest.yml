@@ -72,7 +72,7 @@ jobs:
               - '!.readthedocs.yaml'
               - '!.taplo.toml'
               - '!terraform/**'
-              - '!test/unit/**'
+              - '!tests/unit/**'
               - '!skills-lock.json'
       - name: print out components
         run: |

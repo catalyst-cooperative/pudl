@@ -74,7 +74,7 @@ repos:
             |.*\.html
             |.*\.json
             |src/pudl/package_data/ferc1/.*_categories\.yaml
-          )$ | migrations/ | devtools/ | test/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
+          )$ | migrations/ | devtools/ | tests/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
         args: [] # Make this read, not write
 
   # Lint Dockerfiles for errors and to ensure best practices
@@ -148,7 +148,7 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pixi run pytest --no-cov --doctest-modules src/pudl test/unit -m "not slow"
+        entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit -m "not slow"
 
 # Configuration for pre-commit.ci
 ci:

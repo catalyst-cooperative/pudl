@@ -176,7 +176,7 @@ changes:
   checked in addition to the years list. The ``disabled`` flag has been removed from
   all settings classes and YAML config files; FERC 2, 6, and 60 DBF/XBRL configs
   that previously used ``disabled: true`` now use ``years: []``.
-* **Reorganized the integration test infrastructure** in ``test/conftest.py``. The
+* **Reorganized the integration test infrastructure** in ``tests/conftest.py``. The
   old approach ran the PUDL ETL in-process using ``execute_in_process``, which
   bypassed the standard ``dg launch`` entry point and required each test fixture to
   hand-assemble Dagster ``run_config`` dicts. All three FERC extraction fixtures and

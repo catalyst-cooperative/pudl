@@ -431,7 +431,7 @@ def prebuilt_outputs(
     set ``PUDL_OUTPUT`` to point at a temporary pytest session directory.
     """
     if request.config.getoption("--live-pudl-output"):
-        logger.info("Using live DBs; skipping fixture-managed prebuild.")
+        logger.info("Using live PUDL_OUTPUT; skipping fixture-managed prebuild.")
         return
 
     logger.info(
