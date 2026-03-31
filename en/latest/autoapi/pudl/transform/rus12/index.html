@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.rus12 &#8212; PUDL 2026.3.1.dev39 documentation</title>
+    <title>pudl.transform.rus12 &#8212; PUDL 2026.3.1.dev40 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=1da4e7d9"></script>
+    <script src="../../../../_static/documentation_options.js?v=3539b385"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -137,8 +137,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev40 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev40 documentation - Home"/>
   
   
 </a></div>
@@ -816,6 +816,18 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand" title="pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus12__yearly_plant_factors_and_maximum_demand</span></code></a>(...)</p></td>
 <td><p>Transform the raw_rus12__plant_factors_and_maximum_demand table.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus12._core_rus12__yearly_utility_plant_changes" title="pudl.transform.rus12._core_rus12__yearly_utility_plant_changes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus12__yearly_utility_plant_changes</span></code></a>(...)</p></td>
+<td><p>Transform the utility plant changes table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes" title="pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus12__yearly_non_utility_plant_changes</span></code></a>(...)</p></td>
+<td><p>Transform the non-utility plant changes table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus12._core_rus12__yearly_depreciation_changes" title="pudl.transform.rus12._core_rus12__yearly_depreciation_changes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus12__yearly_depreciation_changes</span></code></a>(...)</p></td>
+<td><p>Transform the accumulated depreciation changes table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.rus12._core_rus12__yearly_depreciation_misc" title="pudl.transform.rus12._core_rus12__yearly_depreciation_misc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_rus12__yearly_depreciation_misc</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Transform the miscellaneous depreciation ending balance table.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.rus12.core_rus12__entity_borrowers" title="pudl.transform.rus12.core_rus12__entity_borrowers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_rus12__entity_borrowers</span></code></a>(context, **clean_dfs)</p></td>
 <td><p>Harvesting IDs &amp; consistent static attributes for RUS12 entity.</p></td>
 </tr>
@@ -992,6 +1004,30 @@ these tables’ resource metadata.</p>
 <dd><p>Transform the raw_rus12__plant_factors_and_maximum_demand table.</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.rus12._core_rus12__yearly_utility_plant_changes">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.rus12.</span></span><span class="sig-name descname"><span class="pre">_core_rus12__yearly_utility_plant_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_rus12__utility_plant_changes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/rus12.html#_core_rus12__yearly_utility_plant_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.rus12._core_rus12__yearly_utility_plant_changes" title="Link to this definition">#</a></dt>
+<dd><p>Transform the utility plant changes table.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.rus12.</span></span><span class="sig-name descname"><span class="pre">_core_rus12__yearly_non_utility_plant_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_rus12__non_utility_plant</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/rus12.html#_core_rus12__yearly_non_utility_plant_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes" title="Link to this definition">#</a></dt>
+<dd><p>Transform the non-utility plant changes table.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.rus12._core_rus12__yearly_depreciation_changes">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.rus12.</span></span><span class="sig-name descname"><span class="pre">_core_rus12__yearly_depreciation_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_rus12__depreciation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/rus12.html#_core_rus12__yearly_depreciation_changes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.rus12._core_rus12__yearly_depreciation_changes" title="Link to this definition">#</a></dt>
+<dd><p>Transform the accumulated depreciation changes table.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.rus12._core_rus12__yearly_depreciation_misc">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.rus12.</span></span><span class="sig-name descname"><span class="pre">_core_rus12__yearly_depreciation_misc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_rus12__depreciation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/rus12.html#_core_rus12__yearly_depreciation_misc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.rus12._core_rus12__yearly_depreciation_misc" title="Link to this definition">#</a></dt>
+<dd><p>Transform the miscellaneous depreciation ending balance table.</p>
+</dd></dl>
+
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.transform.rus12._CORE_RUS12_TABLES">
 <span class="sig-prename descclassname"><span class="pre">pudl.transform.rus12.</span></span><span class="sig-name descname"><span class="pre">_CORE_RUS12_TABLES</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/rus12.html#_CORE_RUS12_TABLES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.rus12._CORE_RUS12_TABLES" title="Link to this definition">#</a></dt>
@@ -1083,6 +1119,10 @@ these tables’ resource metadata.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_delivery_points"><code class="docutils literal notranslate"><span class="pre">_core_rus12__monthly_demand_and_energy_at_delivery_points()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_power_sources"><code class="docutils literal notranslate"><span class="pre">_core_rus12__monthly_demand_and_energy_at_power_sources()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand"><code class="docutils literal notranslate"><span class="pre">_core_rus12__yearly_plant_factors_and_maximum_demand()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12._core_rus12__yearly_utility_plant_changes"><code class="docutils literal notranslate"><span class="pre">_core_rus12__yearly_utility_plant_changes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes"><code class="docutils literal notranslate"><span class="pre">_core_rus12__yearly_non_utility_plant_changes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12._core_rus12__yearly_depreciation_changes"><code class="docutils literal notranslate"><span class="pre">_core_rus12__yearly_depreciation_changes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12._core_rus12__yearly_depreciation_misc"><code class="docutils literal notranslate"><span class="pre">_core_rus12__yearly_depreciation_misc()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12._CORE_RUS12_TABLES"><code class="docutils literal notranslate"><span class="pre">_CORE_RUS12_TABLES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12.core_rus12__entity_borrowers"><code class="docutils literal notranslate"><span class="pre">core_rus12__entity_borrowers()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.rus12.finished_rus_assets"><code class="docutils literal notranslate"><span class="pre">finished_rus_assets</span></code></a></li>

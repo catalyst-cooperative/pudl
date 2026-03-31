@@ -68,6 +68,13 @@ Attributes
    pudl.metadata.enums.SERVICE_INTERRUPTION_PERIODS_RUS7
    pudl.metadata.enums.SERVICE_STATUS_RUS7
    pudl.metadata.enums.TRANSMISSION_DISTRIBUTION_TYPES_RUS7
+   pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS7
+   pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS7
+   pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS12
+   pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS12
+   pudl.metadata.enums.DEPRECIATION_CHANGES_GROUP_RUS12
+   pudl.metadata.enums.DEPRECIATION_CHANGES_ITEMS_RUS12
+   pudl.metadata.enums.DEPRECIATION_ITEMS_MISC_RUS12
 
 
 Module Contents
@@ -385,5 +392,33 @@ Module Contents
 
 .. py:data:: TRANSMISSION_DISTRIBUTION_TYPES_RUS7
    :value: ['distribution_overhead', 'distribution_underground', 'transmission_line', 'total']
+
+
+.. py:data:: UTILITY_PLANT_GROUP_RUS7
+   :value: ['utility_plant_in_service', 'total_utility_plant']
+
+
+.. py:data:: UTILITY_PLANT_ITEM_RUS7
+   :value: ['construction_work_in_progress', 'total', 'all_other', 'distribution', 'general',...
+
+
+.. py:data:: UTILITY_PLANT_GROUP_RUS12
+   :value: ['intangible_plant', 'production_plant', 'transmission_plant', 'distribution_plant',...
+
+
+.. py:data:: UTILITY_PLANT_ITEM_RUS12
+   :value: ['land_and_land_rights', 'other', 'station_equipment', 'structures_and_improvements', 'total',...
+
+
+.. py:data:: DEPRECIATION_CHANGES_GROUP_RUS12
+   :value: ['electric_plant_in_service', 'provision_for_depreciation_and_amortization']
+
+
+.. py:data:: DEPRECIATION_CHANGES_ITEMS_RUS12
+   :value: ['depreciation_distribution_plant', 'depreciation_general_plant',...
+
+
+.. py:data:: DEPRECIATION_ITEMS_MISC_RUS12
+   :value: ['annual_accrual_charged_to_expense', 'annual_accrual_charged_to_other_accounts',...
 
 

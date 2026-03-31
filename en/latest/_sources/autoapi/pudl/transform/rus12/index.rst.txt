@@ -45,6 +45,10 @@ Functions
    pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_delivery_points
    pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_power_sources
    pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand
+   pudl.transform.rus12._core_rus12__yearly_utility_plant_changes
+   pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes
+   pudl.transform.rus12._core_rus12__yearly_depreciation_changes
+   pudl.transform.rus12._core_rus12__yearly_depreciation_misc
    pudl.transform.rus12.core_rus12__entity_borrowers
 
 
@@ -202,6 +206,26 @@ Module Contents
 .. py:function:: _core_rus12__yearly_plant_factors_and_maximum_demand(raw_rus12__plant_factors_and_maximum_demand) -> pandas.DataFrame
 
    Transform the raw_rus12__plant_factors_and_maximum_demand table.
+
+
+.. py:function:: _core_rus12__yearly_utility_plant_changes(raw_rus12__utility_plant_changes: pandas.DataFrame)
+
+   Transform the utility plant changes table.
+
+
+.. py:function:: _core_rus12__yearly_non_utility_plant_changes(raw_rus12__non_utility_plant)
+
+   Transform the non-utility plant changes table.
+
+
+.. py:function:: _core_rus12__yearly_depreciation_changes(raw_rus12__depreciation: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the accumulated depreciation changes table.
+
+
+.. py:function:: _core_rus12__yearly_depreciation_misc(raw_rus12__depreciation: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the miscellaneous depreciation ending balance table.
 
 
 .. py:data:: _CORE_RUS12_TABLES

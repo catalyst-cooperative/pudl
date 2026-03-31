@@ -106,6 +106,9 @@ PUDL Database Tables
    * - :ref:`core_rus7__yearly_transmission_and_distribution_mileage`
      - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_transmission_and_distribution_mileage
    
+   * - :ref:`core_rus7__yearly_utility_plant_changes`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_utility_plant_changes
+   
    * - :ref:`out_rus7__yearly_balance_sheet_assets`
      - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_balance_sheet_assets
    
@@ -171,6 +174,9 @@ PUDL Database Tables
    
    * - :ref:`out_rus7__yearly_transmission_and_distribution_mileage`
      - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_transmission_and_distribution_mileage
+   
+   * - :ref:`out_rus7__yearly_utility_plant_changes`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_utility_plant_changes
    
 
 

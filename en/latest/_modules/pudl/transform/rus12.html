@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.rus12 &#8212; PUDL 2026.3.1.dev39 documentation</title>
+    <title>pudl.transform.rus12 &#8212; PUDL 2026.3.1.dev40 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=1da4e7d9"></script>
+    <script src="../../../_static/documentation_options.js?v=3539b385"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -570,8 +570,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev40 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev40 documentation - Home"/>
   
   
 </a></div>
@@ -852,7 +852,13 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.transform.rus</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging_helpers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">cleanstrings_snake</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PLANT_TYPE_RUS12</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.enums</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEPRECIATION_CHANGES_GROUP_RUS12</span><span class="p">,</span>
+    <span class="n">DEPRECIATION_CHANGES_ITEMS_RUS12</span><span class="p">,</span>
+    <span class="n">DEPRECIATION_ITEMS_MISC_RUS12</span><span class="p">,</span>
+    <span class="n">PLANT_TYPE_RUS12</span><span class="p">,</span>
+    <span class="n">UTILITY_PLANT_GROUP_RUS12</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resource_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">HARVESTED_CORE_TABLES_RUS12</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.eia</span><span class="w"> </span><span class="kn">import</span> <span class="n">harvest_entity_tables</span>
 
@@ -1702,6 +1708,120 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pre_2008</span><span class="p">,</span> <span class="n">post_2008</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">backfill_plant_type</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_utility_plant_changes">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_utility_plant_changes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_utility_plant_changes</span><span class="p">(</span>
+    <span class="n">raw_rus12__utility_plant_changes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the utility plant changes table.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__utility_plant_changes</span><span class="p">)</span>
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;retirements&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;additions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">multi_index_stack</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">UTILITY_PLANT_GROUP_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(.+)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_plant_group&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_plant_group&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">utility_plant_item</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_non_utility_plant_changes">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_non_utility_plant_changes</span><span class="p">(</span><span class="n">raw_rus12__non_utility_plant</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the non-utility plant changes table.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__non_utility_plant</span><span class="p">)</span>
+    <span class="n">non_utility_plant_item</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;property&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;provision_for_depreciation_and_amortization&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;retirements&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;additions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">multi_index_stack</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">non_utility_plant_item</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;non_utility_plant_item&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;non_utility_plant_item&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_depreciation_changes">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_depreciation_changes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_depreciation_changes</span><span class="p">(</span>
+    <span class="n">raw_rus12__depreciation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the accumulated depreciation changes table.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__depreciation</span><span class="p">)</span>
+
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;composite_depreciation_rate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;accruals&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;retirements_less_net_salvage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">multi_index_stack</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEPRECIATION_CHANGES_GROUP_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEPRECIATION_CHANGES_ITEMS_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;depreciation_and_amortization_group&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_cols&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;depreciation_and_amortization_group&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">depreciation_and_amortization_item</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_depreciation_misc">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_depreciation_misc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_depreciation_misc</span><span class="p">(</span>
+    <span class="n">raw_rus12__depreciation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the miscellaneous depreciation ending balance table.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__depreciation</span><span class="p">)</span>
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ending_balance&quot;</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">multi_index_stack</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEPRECIATION_ITEMS_MISC_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">],</span>
+        <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">84</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
 
 
 

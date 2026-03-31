@@ -52,6 +52,12 @@ PUDL Database Tables
    * - :ref:`core_rus12__yearly_balance_sheet_liabilities`
      - https://data.catalyst.coop/preview/pudl/core_rus12__yearly_balance_sheet_liabilities
    
+   * - :ref:`core_rus12__yearly_depreciation_changes`
+     - https://data.catalyst.coop/preview/pudl/core_rus12__yearly_depreciation_changes
+   
+   * - :ref:`core_rus12__yearly_depreciation_misc`
+     - https://data.catalyst.coop/preview/pudl/core_rus12__yearly_depreciation_misc
+   
    * - :ref:`core_rus12__yearly_external_financial_risk_ratio`
      - https://data.catalyst.coop/preview/pudl/core_rus12__yearly_external_financial_risk_ratio
    
@@ -69,6 +75,9 @@ PUDL Database Tables
    
    * - :ref:`core_rus12__yearly_meeting_and_board`
      - https://data.catalyst.coop/preview/pudl/core_rus12__yearly_meeting_and_board
+   
+   * - :ref:`core_rus12__yearly_non_utility_plant_changes`
+     - https://data.catalyst.coop/preview/pudl/core_rus12__yearly_non_utility_plant_changes
    
    * - :ref:`core_rus12__yearly_plant_costs`
      - https://data.catalyst.coop/preview/pudl/core_rus12__yearly_plant_costs
@@ -97,6 +106,9 @@ PUDL Database Tables
    * - :ref:`core_rus12__yearly_statement_of_operations`
      - https://data.catalyst.coop/preview/pudl/core_rus12__yearly_statement_of_operations
    
+   * - :ref:`core_rus12__yearly_utility_plant_changes`
+     - https://data.catalyst.coop/preview/pudl/core_rus12__yearly_utility_plant_changes
+   
    * - :ref:`out_rus12__monthly_demand_and_energy_at_delivery_points`
      - https://data.catalyst.coop/preview/pudl/out_rus12__monthly_demand_and_energy_at_delivery_points
    
@@ -108,6 +120,12 @@ PUDL Database Tables
    
    * - :ref:`out_rus12__yearly_balance_sheet_liabilities`
      - https://data.catalyst.coop/preview/pudl/out_rus12__yearly_balance_sheet_liabilities
+   
+   * - :ref:`out_rus12__yearly_depreciation_changes`
+     - https://data.catalyst.coop/preview/pudl/out_rus12__yearly_depreciation_changes
+   
+   * - :ref:`out_rus12__yearly_depreciation_misc`
+     - https://data.catalyst.coop/preview/pudl/out_rus12__yearly_depreciation_misc
    
    * - :ref:`out_rus12__yearly_external_financial_risk_ratio`
      - https://data.catalyst.coop/preview/pudl/out_rus12__yearly_external_financial_risk_ratio
@@ -126,6 +144,9 @@ PUDL Database Tables
    
    * - :ref:`out_rus12__yearly_meeting_and_board`
      - https://data.catalyst.coop/preview/pudl/out_rus12__yearly_meeting_and_board
+   
+   * - :ref:`out_rus12__yearly_non_utility_plant_changes`
+     - https://data.catalyst.coop/preview/pudl/out_rus12__yearly_non_utility_plant_changes
    
    * - :ref:`out_rus12__yearly_plant_costs`
      - https://data.catalyst.coop/preview/pudl/out_rus12__yearly_plant_costs
@@ -153,6 +174,9 @@ PUDL Database Tables
    
    * - :ref:`out_rus12__yearly_statement_of_operations`
      - https://data.catalyst.coop/preview/pudl/out_rus12__yearly_statement_of_operations
+   
+   * - :ref:`out_rus12__yearly_utility_plant_changes`
+     - https://data.catalyst.coop/preview/pudl/out_rus12__yearly_utility_plant_changes
    
 
 

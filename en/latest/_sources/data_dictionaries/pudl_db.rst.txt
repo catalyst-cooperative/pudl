@@ -14178,6 +14178,227 @@ Columns
     - string
     - Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.
 
+.. _out_rus12__yearly_depreciation_changes:
+
+-------------------------------------------------------------------------------
+out_rus12__yearly_depreciation_changes
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_rus12__yearly_depreciation_changes>`__
+
+Annual time series of changes in accumulated depreciation.
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply (Part H - Section B)
+
+Primary key:
+  report_date, borrower_id_rus, depreciation_and_amortization_group, depreciation_and_amortization_item
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses the most consistent borrower name to facilitate cross-referencing even if that means some values will differ from the raw sources.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_rus12__yearly_depreciation_changes>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_changes.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_changes.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_changes.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_changes.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_changes.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - accruals
+    - number
+    - Value of additions into an asset class a.k.a accruals.
+  * - adjustments_and_transfers
+    - number
+    - Amount of adjustments and transfers within a class of assets.
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - borrower_name_rus
+    - string
+    - The name of the RUS (Rural Utilities Service) borrower.
+  * - composite_depreciation_rate
+    - number
+    - The composite depreciation rate within a given category. This is typically expressed as a number between 0 and 100.
+  * - depreciation_and_amortization_group
+    - string
+    - High-level category of depreciation and amortization items.
+  * - depreciation_and_amortization_item
+    - string
+    - Category of depreciation and amortization items.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - is_total
+    - boolean
+    - Whether or not this record represents a total.
+  * - report_date
+    - date
+    - Date reported.
+  * - retirements_less_net_salvage
+    - number
+    - Cost of retirements minus any net salvage value.
+  * - state
+    - string
+    - Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.
+
+.. _out_rus12__yearly_depreciation_misc:
+
+-------------------------------------------------------------------------------
+out_rus12__yearly_depreciation_misc
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_rus12__yearly_depreciation_misc>`__
+
+Annual time series of accumulated depreciation.
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply (Part H - 2nd part of Section B)
+
+Primary key:
+  report_date, borrower_id_rus, depreciation_and_amortization_item
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses the most consistent borrower name to facilitate cross-referencing even if that means some values will differ from the raw sources.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This is the second half of the depreciation table. It includes ending balances of six depreciation and amortization values.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_rus12__yearly_depreciation_misc>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_misc.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_misc.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_misc.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_misc.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_depreciation_misc.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - borrower_name_rus
+    - string
+    - The name of the RUS (Rural Utilities Service) borrower.
+  * - depreciation_and_amortization_item
+    - string
+    - Category of depreciation and amortization items.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - report_date
+    - date
+    - Date reported.
+  * - state
+    - string
+    - Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.
+
 .. _out_rus12__yearly_external_financial_risk_ratio:
 
 -------------------------------------------------------------------------------
@@ -14833,6 +15054,112 @@ Columns
   * - was_quorum_present
     - boolean
     - Whether or not quorum was met.
+
+.. _out_rus12__yearly_non_utility_plant_changes:
+
+-------------------------------------------------------------------------------
+out_rus12__yearly_non_utility_plant_changes
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_rus12__yearly_non_utility_plant_changes>`__
+
+Annual time series of changes in non-utility plant.
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply (Part H - Section C)
+
+Primary key:
+  report_date, borrower_id_rus, non_utility_plant_item
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses the most consistent borrower name to facilitate cross-referencing even if that means some values will differ from the raw sources.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_rus12__yearly_non_utility_plant_changes>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_rus12__yearly_non_utility_plant_changes.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_non_utility_plant_changes.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_non_utility_plant_changes.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_non_utility_plant_changes.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_non_utility_plant_changes.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - additions
+    - number
+    - Cost of acquisition of items classified within the account.
+  * - adjustments_and_transfers
+    - number
+    - Amount of adjustments and transfers within a class of assets.
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - borrower_name_rus
+    - string
+    - The name of the RUS (Rural Utilities Service) borrower.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - non_utility_plant_item
+    - string
+    - Category describing non-utility plant asset items.
+  * - report_date
+    - date
+    - Date reported.
+  * - retirements
+    - number
+    - Cost of disposal of items classified within the account.
+  * - state
+    - string
+    - Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.
 
 .. _out_rus12__yearly_plant_costs:
 
@@ -16001,6 +16328,137 @@ Columns
   * - state
     - string
     - Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.
+
+.. _out_rus12__yearly_utility_plant_changes:
+
+-------------------------------------------------------------------------------
+out_rus12__yearly_utility_plant_changes
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_rus12__yearly_utility_plant_changes>`__
+
+Annual time series of changes in utility plant
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply (Part H - Section A)
+
+Primary key:
+  report_date, borrower_id_rus, utility_plant_group, utility_plant_item
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
+
+* Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses the most consistent borrower name to facilitate cross-referencing even if that means some values will differ from the raw sources.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+There are a few layers of nesting in this table, which can be distinguished by the categories in the `utility_plant_group` column:
+
+ * intangible_plant: only has one total utility_plant_item
+ * production_plant: has several sub-component utility_plant_item and a standard total
+ * transmission_plant: has several sub-component utility_plant_item and a standard total
+ * distribution_plant: has several sub-component utility_plant_item and a standard total
+ * electric_plant_in_service: has two sub-components and a total which includes those sub-components and the totals of the above categories
+ * utility_plant_in_service: has several sub-components and the total is the sum of those sub-components as well as the total of electric_plant_in_service
+ * total_utility_plant: has one sub-component and the total is the sum of the sub-component and utility_plant_in_service
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_rus12__yearly_utility_plant_changes>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_rus12__yearly_utility_plant_changes.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_utility_plant_changes.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_utility_plant_changes.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus12__yearly_utility_plant_changes.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus12__yearly_utility_plant_changes.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - additions
+    - number
+    - Cost of acquisition of items classified within the account.
+  * - adjustments_and_transfers
+    - number
+    - Amount of adjustments and transfers within a class of assets.
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - borrower_name_rus
+    - string
+    - The name of the RUS (Rural Utilities Service) borrower.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - is_total
+    - boolean
+    - Whether or not this record represents a total.
+  * - report_date
+    - date
+    - Date reported.
+  * - retirements
+    - number
+    - Cost of disposal of items classified within the account.
+  * - state
+    - string
+    - Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.
+  * - utility_plant_group
+    - string
+    - High-level category of utility plant asset type.
+  * - utility_plant_item
+    - string
+    - Sub-category of utility_plant_group describing utility plant asset item.
 
 .. _out_rus7__yearly_balance_sheet_assets:
 
@@ -18393,6 +18851,120 @@ Columns
   * - state
     - string
     - Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.
+
+.. _out_rus7__yearly_utility_plant_changes:
+
+-------------------------------------------------------------------------------
+out_rus7__yearly_utility_plant_changes
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_rus7__yearly_utility_plant_changes>`__
+
+Annual time series of changes in utility plant
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution (Part E)
+
+Primary key:
+  report_date, borrower_id_rus, utility_plant_group, utility_plant_item
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
+
+* Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses the most consistent borrower name to facilitate cross-referencing even if that means some values will differ from the raw sources.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_rus7__yearly_utility_plant_changes>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_rus7__yearly_utility_plant_changes.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus7__yearly_utility_plant_changes.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus7__yearly_utility_plant_changes.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_rus7__yearly_utility_plant_changes.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_rus7__yearly_utility_plant_changes.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - additions
+    - number
+    - Cost of acquisition of items classified within the account.
+  * - adjustments_and_transfers
+    - number
+    - Amount of adjustments and transfers within a class of assets.
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - borrower_name_rus
+    - string
+    - The name of the RUS (Rural Utilities Service) borrower.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - is_total
+    - boolean
+    - Whether or not this record represents a total.
+  * - report_date
+    - date
+    - Date reported.
+  * - retirements
+    - number
+    - Cost of disposal of items classified within the account.
+  * - state
+    - string
+    - Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.
+  * - utility_plant_group
+    - string
+    - High-level category of utility plant asset type.
+  * - utility_plant_item
+    - string
+    - Sub-category of utility_plant_group describing utility plant asset item.
 
 .. _out_sec10k__changelog_company_name:
 
@@ -38677,6 +39249,201 @@ Columns
     - date
     - Date reported.
 
+.. _core_rus12__yearly_depreciation_changes:
+
+-------------------------------------------------------------------------------
+core_rus12__yearly_depreciation_changes
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_rus12__yearly_depreciation_changes>`__
+
+Annual time series of changes in accumulated depreciation.
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply (Part H - Section B)
+
+Primary key:
+  report_date, borrower_id_rus, depreciation_and_amortization_group, depreciation_and_amortization_item
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_rus12__yearly_depreciation_changes>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_changes.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_changes.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_changes.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_changes.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_changes.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - accruals
+    - number
+    - Value of additions into an asset class a.k.a accruals.
+  * - adjustments_and_transfers
+    - number
+    - Amount of adjustments and transfers within a class of assets.
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - composite_depreciation_rate
+    - number
+    - The composite depreciation rate within a given category. This is typically expressed as a number between 0 and 100.
+  * - depreciation_and_amortization_group
+    - string
+    - High-level category of depreciation and amortization items.
+  * - depreciation_and_amortization_item
+    - string
+    - Category of depreciation and amortization items.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - is_total
+    - boolean
+    - Whether or not this record represents a total.
+  * - report_date
+    - date
+    - Date reported.
+  * - retirements_less_net_salvage
+    - number
+    - Cost of retirements minus any net salvage value.
+
+.. _core_rus12__yearly_depreciation_misc:
+
+-------------------------------------------------------------------------------
+core_rus12__yearly_depreciation_misc
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_rus12__yearly_depreciation_misc>`__
+
+Annual time series of accumulated depreciation.
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply (Part H - 2nd part of Section B)
+
+Primary key:
+  report_date, borrower_id_rus, depreciation_and_amortization_item
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This is the second half of the depreciation table. It includes ending balances of six depreciation and amortization values.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_rus12__yearly_depreciation_misc>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_misc.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_misc.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_misc.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_misc.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_depreciation_misc.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - depreciation_and_amortization_item
+    - string
+    - Category of depreciation and amortization items.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - report_date
+    - date
+    - Date reported.
+
 .. _core_rus12__yearly_external_financial_risk_ratio:
 
 -------------------------------------------------------------------------------
@@ -39259,6 +40026,99 @@ Columns
   * - was_quorum_present
     - boolean
     - Whether or not quorum was met.
+
+.. _core_rus12__yearly_non_utility_plant_changes:
+
+-------------------------------------------------------------------------------
+core_rus12__yearly_non_utility_plant_changes
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_rus12__yearly_non_utility_plant_changes>`__
+
+Annual time series of changes in non-utility plant.
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply (Part H - Section C)
+
+Primary key:
+  report_date, borrower_id_rus, non_utility_plant_item
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_rus12__yearly_non_utility_plant_changes>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_rus12__yearly_non_utility_plant_changes.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_non_utility_plant_changes.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_non_utility_plant_changes.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_non_utility_plant_changes.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_non_utility_plant_changes.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - additions
+    - number
+    - Cost of acquisition of items classified within the account.
+  * - adjustments_and_transfers
+    - number
+    - Amount of adjustments and transfers within a class of assets.
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - non_utility_plant_item
+    - string
+    - Category describing non-utility plant asset items.
+  * - report_date
+    - date
+    - Date reported.
+  * - retirements
+    - number
+    - Cost of disposal of items classified within the account.
 
 .. _core_rus12__yearly_plant_costs:
 
@@ -40325,6 +41185,129 @@ Columns
   * - report_date
     - date
     - Date reported.
+
+.. _core_rus12__yearly_utility_plant_changes:
+
+-------------------------------------------------------------------------------
+core_rus12__yearly_utility_plant_changes
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_rus12__yearly_utility_plant_changes>`__
+
+Annual time series of changes in utility plant
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply (Part H - Section A)
+
+Primary key:
+  report_date, borrower_id_rus, utility_plant_group, utility_plant_item
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+There are a few layers of nesting in this table, which can be distinguished by the categories in the `utility_plant_group` column:
+
+ * intangible_plant: only has one total utility_plant_item
+ * production_plant: has several sub-component utility_plant_item and a standard total
+ * transmission_plant: has several sub-component utility_plant_item and a standard total
+ * distribution_plant: has several sub-component utility_plant_item and a standard total
+ * electric_plant_in_service: has two sub-components and a total which includes those sub-components and the totals of the above categories
+ * utility_plant_in_service: has several sub-components and the total is the sum of those sub-components as well as the total of electric_plant_in_service
+ * total_utility_plant: has one sub-component and the total is the sum of the sub-component and utility_plant_in_service
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_rus12__yearly_utility_plant_changes>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_rus12__yearly_utility_plant_changes.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_utility_plant_changes.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_utility_plant_changes.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus12__yearly_utility_plant_changes.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus12__yearly_utility_plant_changes.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - additions
+    - number
+    - Cost of acquisition of items classified within the account.
+  * - adjustments_and_transfers
+    - number
+    - Amount of adjustments and transfers within a class of assets.
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - is_total
+    - boolean
+    - Whether or not this record represents a total.
+  * - report_date
+    - date
+    - Date reported.
+  * - retirements
+    - number
+    - Cost of disposal of items classified within the account.
+  * - utility_plant_group
+    - string
+    - High-level category of utility plant asset type.
+  * - utility_plant_item
+    - string
+    - Sub-category of utility_plant_group describing utility plant asset item.
 
 .. _core_rus7__entity_borrowers:
 
@@ -42579,6 +43562,112 @@ Columns
   * - report_date
     - date
     - Date reported.
+
+.. _core_rus7__yearly_utility_plant_changes:
+
+-------------------------------------------------------------------------------
+core_rus7__yearly_utility_plant_changes
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_rus7__yearly_utility_plant_changes>`__
+
+Annual time series of changes in utility plant
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution (Part E)
+
+Primary key:
+  report_date, borrower_id_rus, utility_plant_group, utility_plant_item
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_rus7__yearly_utility_plant_changes>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_rus7__yearly_utility_plant_changes.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus7__yearly_utility_plant_changes.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus7__yearly_utility_plant_changes.parquet",
+               storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_rus7__yearly_utility_plant_changes.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_rus7__yearly_utility_plant_changes.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - additions
+    - number
+    - Cost of acquisition of items classified within the account.
+  * - adjustments_and_transfers
+    - number
+    - Amount of adjustments and transfers within a class of assets.
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - is_total
+    - boolean
+    - Whether or not this record represents a total.
+  * - report_date
+    - date
+    - Date reported.
+  * - retirements
+    - number
+    - Cost of disposal of items classified within the account.
+  * - utility_plant_group
+    - string
+    - High-level category of utility plant asset type.
+  * - utility_plant_item
+    - string
+    - Sub-category of utility_plant_group describing utility plant asset item.
 
 .. _core_rus__codes_fuel_types:
 

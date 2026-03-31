@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.fields &#8212; PUDL 2026.3.1.dev39 documentation</title>
+    <title>pudl.metadata.fields &#8212; PUDL 2026.3.1.dev40 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=1da4e7d9"></script>
+    <script src="../../../_static/documentation_options.js?v=3539b385"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -570,8 +570,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev40 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev40 documentation - Home"/>
   
   
 </a></div>
@@ -866,6 +866,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">CUSTOMER_CLASSES_EIA176</span><span class="p">,</span>
     <span class="n">DAMAGE_SUB_TYPES_PHMSAGAS</span><span class="p">,</span>
     <span class="n">DAMAGE_TYPES_PHMSAGAS</span><span class="p">,</span>
+    <span class="n">DEPRECIATION_CHANGES_GROUP_RUS12</span><span class="p">,</span>
+    <span class="n">DEPRECIATION_CHANGES_ITEMS_RUS12</span><span class="p">,</span>
+    <span class="n">DEPRECIATION_ITEMS_MISC_RUS12</span><span class="p">,</span>
     <span class="n">DIVISION_CODES_US_CENSUS</span><span class="p">,</span>
     <span class="n">ELECTRICITY_MARKET_MODULE_REGIONS</span><span class="p">,</span>
     <span class="n">ENERGY_DISPOSITION_TYPES_FERC1</span><span class="p">,</span>
@@ -910,6 +913,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">TRANSMISSION_DISTRIBUTION_TYPES_RUS7</span><span class="p">,</span>
     <span class="n">US_TIMEZONES</span><span class="p">,</span>
     <span class="n">UTILITY_PLANT_ASSET_TYPES_FERC1</span><span class="p">,</span>
+    <span class="n">UTILITY_PLANT_GROUP_RUS7</span><span class="p">,</span>
+    <span class="n">UTILITY_PLANT_GROUP_RUS12</span><span class="p">,</span>
+    <span class="n">UTILITY_PLANT_ITEM_RUS7</span><span class="p">,</span>
+    <span class="n">UTILITY_PLANT_ITEM_RUS12</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">ESTIMATED_OR_ACTUAL</span><span class="p">,</span> <span class="n">FUEL_UNITS_EIA</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOURCES</span>
@@ -10847,6 +10854,55 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The cost of materials and supplies used.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;utility_plant_group&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;High-level category of utility plant asset type.&quot;</span><span class="p">,</span>
+        <span class="c1"># constrains are by table in FIELD_METADATA_BY_RESOURCE</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Sub-category of utility_plant_group describing utility plant asset item.&quot;</span><span class="p">,</span>
+        <span class="c1"># constrains are by table in FIELD_METADATA_BY_RESOURCE</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;non_utility_plant_item&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Category describing non-utility plant asset items.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;property&quot;</span><span class="p">,</span> <span class="s2">&quot;provision_for_depreciation_and_amortization&quot;</span><span class="p">]</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Amount of adjustments and transfers within a class of assets.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;depreciation_and_amortization_group&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;High-level category of depreciation and amortization items.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">DEPRECIATION_CHANGES_GROUP_RUS12</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Category of depreciation and amortization items.&quot;</span><span class="p">,</span>
+        <span class="c1"># constrains are by table in FIELD_METADATA_BY_RESOURCE</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;composite_depreciation_rate&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;The composite depreciation rate within a given category. &quot;</span>
+            <span class="s2">&quot;This is typically expressed as a number between 0 and 100.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;accruals&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Value of additions into an asset class a.k.a accruals.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;retirements_less_net_salvage&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cost of retirements minus any net salvage value.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;Field attributes by PUDL identifier (`field.name`).&quot;&quot;&quot;</span>
@@ -12032,6 +12088,24 @@ window.runMermaid = runMermaid;</script>
     <span class="p">},</span>
     <span class="s2">&quot;core_rus12__monthly_demand_and_energy_at_power_sources&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;peak_demand_mw&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;peak demand in a given timeframe.&quot;</span><span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_rus12__yearly_depreciation_changes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">DEPRECIATION_CHANGES_ITEMS_RUS12</span><span class="p">}</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_rus12__yearly_depreciation_misc&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">DEPRECIATION_ITEMS_MISC_RUS12</span><span class="p">}</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_rus7__yearly_utility_plant_changes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;utility_plant_group&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">UTILITY_PLANT_GROUP_RUS7</span><span class="p">}},</span>
+        <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">UTILITY_PLANT_ITEM_RUS7</span><span class="p">}},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_rus12__yearly_utility_plant_changes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;utility_plant_group&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">UTILITY_PLANT_GROUP_RUS12</span><span class="p">}},</span>
+        <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">UTILITY_PLANT_ITEM_RUS12</span><span class="p">}},</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 
