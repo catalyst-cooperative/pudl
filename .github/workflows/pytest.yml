@@ -35,7 +35,7 @@ jobs:
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
               - '!devtools/**'
-              - '!docker/**'
+              - '!builds/**'
               - '!docs/**'
               - '!.github/**/*.md'
               - '!.github/FUNDING.yml'

@@ -9,7 +9,7 @@ function initialize_postgres() {
     # 1. start the dagster cluster, which is set to be owned by mambauser in the Dockerfile
     # 2. create a db within this cluster so we can do things
     # 3. tell it to actually fail when we mess up, instead of continuing blithely
-    # 4. create a *dagster* user, whose creds correspond with those in docker/dagster.yaml
+    # 4. create a *dagster* user, whose creds correspond with those in builds/dagster.yaml
     # 5. make a database for dagster, which is owned by the dagster user
     pg_ctlcluster "$PG_VERSION" dagster start &&
         createdb -h127.0.0.1 -p5433 &&

@@ -46,7 +46,7 @@ ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_REPO}
 
 # Copy dagster configuration file
-COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
+COPY builds/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 
 # Copy the entire PUDL repo into the image.
 # We can't install the PUDL package without .git/ because the version is dynamically
