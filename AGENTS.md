@@ -415,35 +415,47 @@ After debugging, remove the generated files with `pixi run docs-clean`.
 
 ## Contribution workflow
 
-- Create a new branch and a matching worktree with the same name for each feature.
-- Initialize the new worktree with `pixi install` and `pixi run pre-commit-install`.
-- Run `pixi run pre-commit-run` and fix all issues before committing.
-- Do not add spurious or generated files to source control.
-- Newly added functionality should include unit tests.
-- Write informative commit messages that summarize the changes and their motivation.
-  Use plaintext no more than 80 characters wide, with a short summary line (max 50
-  chars). For significant changes, follow the first summary with a blank line and
-  a more detailed description.
-- Do not skip pre-commit hooks (`--no-verify`); fix the underlying issue instead.
-- Include both the issue number and PR number in release notes entries.
+Create a new branch and a matching worktree with the same name for each feature that
+will become a PR. Initialize the new worktree with:
 
-**When relocating code, documentation, or any other text between modules, move it
-verbatim — never rewrite or reinterpret it in the same step.** If the moved content also
-needs edits, make those as a separate step with explicit user approval. When moving
-entire files, always use `git mv` to preserve history. When moving blocks of code
-between files or within the same file, first commit the verbatim move without changes,
-then make any necessary edits in a subsequent commit.
+```bash
+pixi install && pixi run pre-commit-install
+```
+
+After editing files run `pixi run ruff check` and `pixi run ruff format` on the changed
+files. If issues still remain, fix them yourself, until no issues remain.
+
+Newly added functionality should be accompanied by unit tests and release notes. Include
+both the issue number and PR number in release notes entries.
+
+Make focused commits composed of related changes. **When relocating code,
+documentation, or any other text between modules, move it verbatim — never rewrite or
+reinterpret it in the same step.** If the moved content also needs edits, make those as
+a separate step with explicit user approval. When moving entire files, always use `git
+mv` to preserve history. When moving blocks of code between files or within the same
+file, first commit the verbatim move without changes, then make any necessary edits in a
+subsequent commit.
+
+Write informative commit messages that summarize the changes and their motivation. Use
+plaintext no more than 80 characters wide, with a short summary line (max 50 chars). For
+significant changes, follow the first summary with a blank line and a more detailed
+description. Do not add spurious or generated files to source control.
+
+When you are ready to commit, run `pixi run pre-commit-run` and fix all issues before
+attempting to commit.  NEVER skip pre-commit hooks by using `--no-verify`. Fix the
+underlying issue or ask for help — do not bypass the checks.
 
 ### PR checklist
 
 Before marking a PR as ready for review:
 
+- [ ] Pre-commit hooks pass on all files: `pixi run pre-commit-run`
 - [ ] All unit tests pass: `pixi run pytest-unit`
-- [ ] Pre-commit hooks pass on all files: `pixi run pre-commit run --all-files`
-- [ ] If public behavior changed: release notes entry added to `docs/release_notes.rst`
-      with the issue number and PR number
+- [ ] Docs check passes with no errors or warnings: `pixi run docs-check`
+- [ ] If public or contributor-facing behavior changed: release notes entry has been
+      added to `docs/release_notes.rst` with the issue number and PR number
 - [ ] The PR description includes a summary of the change, the motivation, and any
-      relevant context
+      relevant context to direct reviewer attention
 - [ ] No generated files, credentials, or unrelated changes included in the diff
 
 ## Sandbox safe execution
