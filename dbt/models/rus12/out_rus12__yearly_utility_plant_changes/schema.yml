@@ -55,7 +55,22 @@ sources:
           - name: utility_plant_group
           - name: utility_plant_item
           - name: retirements
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">21"
+                  description: "Check that most of the retirements are positive."
           - name: additions
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: utility_plant_item!='construction_work_in_progress'
+                  config:
+                    error_if: ">199"
+                  description: "Check that most of the additions are positive - expect construction_work_in_progress. This is about 1% of the table."
           - name: adjustments_and_transfers
           - name: ending_balance
             data_tests:
