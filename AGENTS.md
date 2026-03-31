@@ -417,7 +417,7 @@ After debugging, remove the generated files with `pixi run docs-clean`.
 
 - Create a new branch and a matching worktree with the same name for each feature.
 - Initialize the new worktree with `pixi install` and `pixi run pre-commit-install`.
-- Run pre-commit and fix all issues before committing.
+- Run `pixi run pre-commit-run` and fix all issues before committing.
 - Do not add spurious or generated files to source control.
 - Newly added functionality should include unit tests.
 - Write informative commit messages that summarize the changes and their motivation.
@@ -428,8 +428,11 @@ After debugging, remove the generated files with `pixi run docs-clean`.
 - Include both the issue number and PR number in release notes entries.
 
 **When relocating code, documentation, or any other text between modules, move it
-verbatim — never rewrite or reinterpret it in the same step.** If the moved content
-also needs edits, make those as a separate step with explicit user approval.
+verbatim — never rewrite or reinterpret it in the same step.** If the moved content also
+needs edits, make those as a separate step with explicit user approval. When moving
+entire files, always use `git mv` to preserve history. When moving blocks of code
+between files or within the same file, first commit the verbatim move without changes,
+then make any necessary edits in a subsequent commit.
 
 ### PR checklist
 
