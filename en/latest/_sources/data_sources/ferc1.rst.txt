@@ -43,73 +43,73 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_ferc1__yearly_balance_sheet_assets_sched110`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_balance_sheet_assets_sched110
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_balance_sheet_assets_sched110
    
    * - :ref:`core_ferc1__yearly_balance_sheet_liabilities_sched110`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_balance_sheet_liabilities_sched110
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_balance_sheet_liabilities_sched110
    
    * - :ref:`core_ferc1__yearly_cash_flows_sched120`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_cash_flows_sched120
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_cash_flows_sched120
    
    * - :ref:`core_ferc1__yearly_depreciation_by_function_sched219`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_by_function_sched219
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_depreciation_by_function_sched219
    
    * - :ref:`core_ferc1__yearly_depreciation_changes_sched219`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_changes_sched219
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_depreciation_changes_sched219
    
    * - :ref:`core_ferc1__yearly_depreciation_summary_sched336`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_summary_sched336
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_depreciation_summary_sched336
    
    * - :ref:`core_ferc1__yearly_energy_dispositions_sched401`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_energy_dispositions_sched401
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_energy_dispositions_sched401
    
    * - :ref:`core_ferc1__yearly_energy_sources_sched401`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_energy_sources_sched401
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_energy_sources_sched401
    
    * - :ref:`core_ferc1__yearly_hydroelectric_plants_sched406`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_hydroelectric_plants_sched406
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_hydroelectric_plants_sched406
    
    * - :ref:`core_ferc1__yearly_income_statements_sched114`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_income_statements_sched114
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_income_statements_sched114
    
    * - :ref:`core_ferc1__yearly_operating_expenses_sched320`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_operating_expenses_sched320
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_operating_expenses_sched320
    
    * - :ref:`core_ferc1__yearly_operating_revenues_sched300`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_operating_revenues_sched300
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_operating_revenues_sched300
    
    * - :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_other_regulatory_liabilities_sched278
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_other_regulatory_liabilities_sched278
    
    * - :ref:`core_ferc1__yearly_plant_in_service_sched204`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_plant_in_service_sched204
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_plant_in_service_sched204
    
    * - :ref:`core_ferc1__yearly_pumped_storage_plants_sched408`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_pumped_storage_plants_sched408
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_pumped_storage_plants_sched408
    
    * - :ref:`core_ferc1__yearly_purchased_power_and_exchanges_sched326`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_purchased_power_and_exchanges_sched326
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_purchased_power_and_exchanges_sched326
    
    * - :ref:`core_ferc1__yearly_retained_earnings_sched118`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_retained_earnings_sched118
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_retained_earnings_sched118
    
    * - :ref:`core_ferc1__yearly_sales_by_rate_schedules_sched304`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_sales_by_rate_schedules_sched304
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_sales_by_rate_schedules_sched304
    
    * - :ref:`core_ferc1__yearly_small_plants_sched410`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_small_plants_sched410
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_small_plants_sched410
    
    * - :ref:`core_ferc1__yearly_steam_plants_fuel_sched402`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_steam_plants_fuel_sched402
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_steam_plants_fuel_sched402
    
    * - :ref:`core_ferc1__yearly_steam_plants_sched402`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_steam_plants_sched402
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_steam_plants_sched402
    
    * - :ref:`core_ferc1__yearly_transmission_lines_sched422`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_transmission_lines_sched422
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_transmission_lines_sched422
    
    * - :ref:`core_ferc1__yearly_utility_plant_summary_sched200`
-     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_utility_plant_summary_sched200
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_utility_plant_summary_sched200
    
 
 We've also created the following tables mapping manually assigned PUDL IDs to FERC
@@ -123,16 +123,16 @@ respondent IDs, enabling a connection between the FERC and EIA data sets.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_pudl__assn_ferc1_dbf_pudl_utilities`
-     - https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_dbf_pudl_utilities
+     - https://data.catalyst.coop/preview/pudl/core_pudl__assn_ferc1_dbf_pudl_utilities
    
    * - :ref:`core_pudl__assn_ferc1_pudl_plants`
-     - https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_pudl_plants
+     - https://data.catalyst.coop/preview/pudl/core_pudl__assn_ferc1_pudl_plants
    
    * - :ref:`core_pudl__assn_ferc1_pudl_utilities`
-     - https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_pudl_utilities
+     - https://data.catalyst.coop/preview/pudl/core_pudl__assn_ferc1_pudl_utilities
    
    * - :ref:`core_pudl__assn_ferc1_xbrl_pudl_utilities`
-     - https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_xbrl_pudl_utilities
+     - https://data.catalyst.coop/preview/pudl/core_pudl__assn_ferc1_xbrl_pudl_utilities
    
 
 Background

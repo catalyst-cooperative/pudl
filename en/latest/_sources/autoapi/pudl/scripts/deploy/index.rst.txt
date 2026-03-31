@@ -1,0 +1,88 @@
+pudl.scripts.deploy
+===================
+
+.. py:module:: pudl.scripts.deploy
+
+.. autoapi-nested-parse::
+
+   Deploy PUDL ETL outputs to cloud storage and update git branches.
+
+   This CLI orchestrates deployment of completed PUDL ETL builds to public cloud
+   storage (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.
+
+   The script takes a git tag, and an optional staging flag for safe testing. It will
+   use the git tag to identify builds associated with the tag, and determine whether
+   the deployment is intended to be a nightly or stable deployment. It expects nightly
+   deployments to have tags conforming to the pattern 'nightly-YYYY-MM-DD' and stable
+   deployments 'vYYYY.M.D'.
+
+   .. rubric:: Examples
+
+   Deploy nightly build to production:
+       pudl_deploy nightly-2025-02-05
+
+   Deploy stable release to production:
+       pudl_deploy v2025.2.3
+
+   Test deployment changes with staging mode:
+       pudl_deploy nightly-2025-02-05 --staging
+
+   Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
+   triggers, and Cloud Run deployments. This allows safe validation of deployment
+   changes before production use.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.deploy.logger
+   pudl.scripts.deploy.DEPLOYMENT_TYPE_STATIC_SETTINGS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.deploy._get_deployment_path_suffixes
+   pudl.scripts.deploy._get_zenodo_release_source_dir
+   pudl.scripts.deploy._deploy_outputs
+   pudl.scripts.deploy.pudl_deploy
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: DEPLOYMENT_TYPE_STATIC_SETTINGS
+
+.. py:function:: _get_deployment_path_suffixes(deploy_type: pudl.deploy.pudl.DeploymentType, git_tag: str, staging: bool) -> list[str]
+
+.. py:function:: _get_zenodo_release_source_dir(deploy_type: pudl.deploy.pudl.DeploymentType, git_tag: str) -> str
+
+.. py:function:: _deploy_outputs(source_dir: pathlib.Path, deploy_type: pudl.deploy.pudl.DeploymentType, git_tag: str, staging: bool, github_token: str)
+
+   Execute stable or nightly deployment workflow.
+
+   Upload outputs to paths associated with build type, trigger zenodo release,
+   and update git branch. If ``deploy_type`` is stable, also sets GCS temporary
+   hold on versioned release.
+
+
+.. py:function:: pudl_deploy(git_tag: str, staging: bool)
+
+   Deploy PUDL ETL outputs to cloud storage and external services.
+
+   Orchestrates the full deployment workflow:
+   1. Prepare outputs (compress SQLite, create parquet archive)
+   2. Upload to cloud storage (GCS and S3)
+   3. Update git branches (if not staging)
+   4. Set GCS temporary hold for versioned releases (stable only, not staging)
+   5. Trigger Zenodo release (if not staging)
+   6. Update Cloud Run service (nightly only, not staging)
+
+

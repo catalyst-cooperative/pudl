@@ -101,7 +101,7 @@ Module Contents
    Extract raw EIA 860M data from excel sheets into dict of dataframes.
 
 
-.. py:function:: extract_eia860m(raw_eia860m__all_dfs: dict[str, pandas.DataFrame])
+.. py:function:: extract_eia860m(context, raw_eia860m__all_dfs: dict[str, pandas.DataFrame])
 
    Extract raw EIA data from excel sheets into dataframes.
 

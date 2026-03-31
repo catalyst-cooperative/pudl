@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia &#8212; PUDL 2025.11.1.dev115 documentation</title>
+    <title>pudl.transform.eia &#8212; PUDL 2026.3.1.dev39 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
@@ -49,14 +49,450 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/documentation_options.js?v=1da4e7d9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/transform/eia';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -134,8 +570,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
   
   
 </a></div>
@@ -171,20 +607,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -193,14 +615,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -292,20 +721,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -314,14 +729,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -469,6 +891,32 @@
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.logger">[docs]</a>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HARVESTABLE_ASSETS">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia.HARVESTABLE_ASSETS">[docs]</a>
+<span class="n">HARVESTABLE_ASSETS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;_core_eia860__boiler_cooling&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__boiler_emissions_control_equipment_assn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia923__boiler_fuel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__boiler_generator_assn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__boiler_stack_flue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__boilers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia923__coalmine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__emissions_control_equipment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia923__energy_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia923__generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia923__generation_fuel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia923__generation_fuel_nuclear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__generators&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__generators_energy_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__generators_wind&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__generators_solar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__generators_multifuel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__ownership&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__plants&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;_core_eia860__utilities&quot;</span><span class="p">,</span>
+<span class="p">)</span></div>
 
 
 
@@ -906,24 +1354,18 @@
 
 <div class="viewcode-block" id="_manage_strictness">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia/index.html#pudl.transform.eia._manage_strictness">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_manage_strictness</span><span class="p">(</span><span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">eia860m</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_manage_strictness</span><span class="p">(</span><span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">special_case_strictness</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Manage the strictness level for each column.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        col: name of column</span>
-<span class="sd">        eia860m: if True, ETL is attempting to include year-to-date EIA 860M data.</span>
+<span class="sd">        special_case_strictness: dictionary of column names (keys) and strictness</span>
+<span class="sd">            values. The default strictness for harvesting consistent records is</span>
+<span class="sd">            0.7. If any column you want to have a different consistency requirement,</span>
+<span class="sd">            add it into this special case dictionary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">strictness_default</span> <span class="o">=</span> <span class="mf">0.7</span>
-    <span class="c1"># the longitude column is very different in the ytd 860M data (it appears</span>
-    <span class="c1"># to have an additional decimal point) bc it shows up in the generator</span>
-    <span class="c1"># table but it is a plant level data point, it mucks up the consistency</span>
-    <span class="n">strictness_cols</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">eia860m</span> <span class="k">else</span> <span class="mf">0.7</span><span class="p">,</span>
-        <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">strictness_cols</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">strictness_default</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">special_case_strictness</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">strictness_default</span><span class="p">)</span></div>
 
 
 
@@ -932,7 +1374,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">harvest_entity_tables</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">entity</span><span class="p">:</span> <span class="n">EiaEntity</span><span class="p">,</span>
     <span class="n">clean_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-    <span class="n">eia_settings</span><span class="p">:</span> <span class="n">EiaSettings</span><span class="p">,</span>
+    <span class="n">special_case_strictness</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile consistent records for various entities.</span>
@@ -964,8 +1406,10 @@
 <span class="sd">    Args:</span>
 <span class="sd">        entity: One of: plants, generators, boilers, or utilities</span>
 <span class="sd">        clean_dfs: A dictionary of table names (keys) and clean dfs (values).</span>
-<span class="sd">        eia860m: if True, the etl run is attempting to include year-to-date updated from</span>
-<span class="sd">            EIA 860M.</span>
+<span class="sd">        special_case_strictness: dictionary of column names (keys) and strictness</span>
+<span class="sd">            values. The default strictness for harvesting consistent records is</span>
+<span class="sd">            0.7. If any column you want to have a different consistency requirement,</span>
+<span class="sd">            add it into this special case dictionary.</span>
 <span class="sd">        debug: if True, log when columns are inconsistent, but don&#39;t raise an error.</span>
 
 <span class="sd">    Returns:</span>
@@ -982,25 +1426,6 @@
 <span class="sd">        * Determine what to do with null records</span>
 <span class="sd">        * Determine how to treat mostly static records</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Do some final cleanup and assign appropriate types:</span>
-    <span class="n">clean_dfs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">convert_cols_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">clean_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-    <span class="p">}</span>
-
-    <span class="k">if</span> <span class="n">entity</span> <span class="o">==</span> <span class="n">EiaEntity</span><span class="o">.</span><span class="n">UTILITIES</span><span class="p">:</span>
-        <span class="c1"># Remove location columns that are associated with plants, not utilities:</span>
-        <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">clean_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="s2">&quot;plant_id_eia&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                <span class="n">plant_location_cols</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="s2">&quot;street_address&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;city&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;zip_code&quot;</span><span class="p">,</span>
-                <span class="p">]</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing </span><span class="si">{</span><span class="n">plant_location_cols</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> table.&quot;</span><span class="p">)</span>
-                <span class="n">clean_dfs</span><span class="p">[</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">plant_location_cols</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
-
     <span class="c1"># we know these columns must be in the dfs</span>
     <span class="n">id_cols</span> <span class="o">=</span> <span class="n">ENTITIES</span><span class="p">[</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="p">][</span><span class="s2">&quot;id_cols&quot;</span><span class="p">]</span>
     <span class="n">static_cols</span> <span class="o">=</span> <span class="n">ENTITIES</span><span class="p">[</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="p">][</span><span class="s2">&quot;static_cols&quot;</span><span class="p">]</span>
@@ -1037,7 +1462,7 @@
         <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">static_cols</span><span class="p">:</span>
             <span class="n">cols_to_consit</span> <span class="o">=</span> <span class="n">id_cols</span>
 
-        <span class="n">strictness</span> <span class="o">=</span> <span class="n">_manage_strictness</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">eia_settings</span><span class="o">.</span><span class="n">eia860</span><span class="o">.</span><span class="n">eia860m</span><span class="p">)</span>
+        <span class="n">strictness</span> <span class="o">=</span> <span class="n">_manage_strictness</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">special_case_strictness</span><span class="p">)</span>
         <span class="n">col_df</span> <span class="o">=</span> <span class="n">occurrence_consistency</span><span class="p">(</span>
             <span class="n">id_cols</span><span class="p">,</span> <span class="n">compiled_df</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">cols_to_consit</span><span class="p">,</span> <span class="n">strictness</span><span class="o">=</span><span class="n">strictness</span>
         <span class="p">)</span>
@@ -1136,13 +1561,6 @@
         <span class="p">)</span>
     <span class="n">mcs</span> <span class="o">=</span> <span class="n">consistency</span><span class="p">[</span><span class="s2">&quot;consistent_ratio&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average consistency of static </span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> values is </span><span class="si">{</span><span class="n">mcs</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">entity</span> <span class="o">==</span> <span class="n">EiaEntity</span><span class="o">.</span><span class="n">PLANTS</span><span class="p">:</span>
-        <span class="c1"># Post-processing specific to the plants entity tables</span>
-        <span class="n">entity_df</span> <span class="o">=</span> <span class="n">_add_additional_epacems_plants</span><span class="p">(</span><span class="n">entity_df</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_add_timezone</span><span class="p">)</span>
-        <span class="n">annual_df</span> <span class="o">=</span> <span class="n">fillna_balancing_authority_codes_via_names</span><span class="p">(</span><span class="n">annual_df</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
-            <span class="n">fix_balancing_authority_codes_with_state</span><span class="p">,</span> <span class="n">plants_entity</span><span class="o">=</span><span class="n">entity_df</span>
-        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">entity_df</span><span class="p">,</span> <span class="n">annual_df</span><span class="p">,</span> <span class="n">col_dfs</span></div>
 
@@ -1721,32 +2139,9 @@
     <span class="n">entity</span><span class="p">:</span> <span class="n">EiaEntity</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetsDefinition</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an asset definition for the harvested entity tables.&quot;&quot;&quot;</span>
-    <span class="n">harvestable_assets</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;_core_eia860__boiler_cooling&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__boiler_emissions_control_equipment_assn&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia923__boiler_fuel&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__boiler_generator_assn&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__boiler_stack_flue&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__boilers&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia923__coalmine&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__emissions_control_equipment&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia923__energy_storage&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia923__generation&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia923__generation_fuel&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia923__generation_fuel_nuclear&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__generators&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__generators_energy_storage&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__generators_wind&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__generators_solar&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__generators_multifuel&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__ownership&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__plants&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_core_eia860__utilities&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
 
     <span class="nd">@multi_asset</span><span class="p">(</span>
-        <span class="n">ins</span><span class="o">=</span><span class="p">{</span><span class="n">table_name</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">()</span> <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">harvestable_assets</span><span class="p">},</span>
+        <span class="n">ins</span><span class="o">=</span><span class="p">{</span><span class="n">table_name</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">()</span> <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">HARVESTABLE_ASSETS</span><span class="p">},</span>
         <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
             <span class="sa">f</span><span class="s2">&quot;core_eia__entity_</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">),</span>
             <span class="sa">f</span><span class="s2">&quot;core_eia860__scd_</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">),</span>
@@ -1767,15 +2162,52 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">harvested_entity</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">clean_dfs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Harvesting IDs &amp; consistent static attributes for EIA entity.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Harvesting IDs &amp; consistent static attributes for EIA </span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">eia_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span>
+
         <span class="n">debug</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span>
         <span class="n">clean_dfs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">df_name</span><span class="p">:</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">clean_dfs</span><span class="p">[</span><span class="n">df_name</span><span class="p">])</span> <span class="k">for</span> <span class="n">df_name</span> <span class="ow">in</span> <span class="n">clean_dfs</span>
+            <span class="n">df_name</span><span class="p">:</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">clean_dfs</span><span class="p">[</span><span class="n">df_name</span><span class="p">])</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+                <span class="n">convert_cols_dtypes</span><span class="p">,</span> <span class="s2">&quot;eia&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">df_name</span> <span class="ow">in</span> <span class="n">clean_dfs</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">entity</span> <span class="o">==</span> <span class="n">EiaEntity</span><span class="o">.</span><span class="n">UTILITIES</span><span class="p">:</span>
+            <span class="c1"># Remove location columns that are associated with plants, not utilities:</span>
+            <span class="k">for</span> <span class="n">df_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">clean_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="s2">&quot;plant_id_eia&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">plant_location_cols</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="s2">&quot;street_address&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;city&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;zip_code&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing </span><span class="si">{</span><span class="n">plant_location_cols</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2"> table.&quot;</span><span class="p">)</span>
+                    <span class="n">clean_dfs</span><span class="p">[</span><span class="n">df_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+                        <span class="n">columns</span><span class="o">=</span><span class="n">plant_location_cols</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span>
+                    <span class="p">)</span>
+        <span class="c1"># the longitude column is very different in the ytd 860M data (it appears</span>
+        <span class="c1"># to have an additional decimal point) bc it shows up in the generator</span>
+        <span class="c1"># table but it is a plant level data point, it mucks up the consistency</span>
+        <span class="n">eia_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span>
+        <span class="n">special_case_strictness</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">eia_settings</span><span class="o">.</span><span class="n">eia860</span><span class="o">.</span><span class="n">eia860m</span> <span class="k">else</span> <span class="mf">0.7</span><span class="p">,</span>
+            <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="n">entity_df</span><span class="p">,</span> <span class="n">annual_df</span><span class="p">,</span> <span class="n">_col_dfs</span> <span class="o">=</span> <span class="n">harvest_entity_tables</span><span class="p">(</span>
-            <span class="n">entity</span><span class="p">,</span> <span class="n">clean_dfs</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span> <span class="n">eia_settings</span><span class="o">=</span><span class="n">eia_settings</span>
+            <span class="n">entity</span><span class="p">,</span>
+            <span class="n">clean_dfs</span><span class="p">,</span>
+            <span class="n">special_case_strictness</span><span class="o">=</span><span class="n">special_case_strictness</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
         <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">entity</span> <span class="o">==</span> <span class="n">EiaEntity</span><span class="o">.</span><span class="n">PLANTS</span><span class="p">:</span>
+            <span class="c1"># Post-processing specific to the plants entity tables</span>
+            <span class="n">entity_df</span> <span class="o">=</span> <span class="n">_add_additional_epacems_plants</span><span class="p">(</span><span class="n">entity_df</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_add_timezone</span><span class="p">)</span>
+            <span class="n">annual_df</span> <span class="o">=</span> <span class="n">fillna_balancing_authority_codes_via_names</span><span class="p">(</span><span class="n">annual_df</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+                <span class="n">fix_balancing_authority_codes_with_state</span><span class="p">,</span> <span class="n">plants_entity</span><span class="o">=</span><span class="n">entity_df</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">Output</span><span class="p">(</span><span class="n">output_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;core_eia__entity_</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">entity_df</span><span class="p">),</span>
@@ -1839,7 +2271,7 @@
         <span class="s2">&quot;core_eia923__monthly_boiler_fuel&quot;</span><span class="p">:</span> <span class="s2">&quot;_core_eia923__boiler_fuel&quot;</span><span class="p">,</span>
         <span class="s2">&quot;core_eia923__entity_coalmine&quot;</span><span class="p">:</span> <span class="s2">&quot;_core_eia923__coalmine&quot;</span><span class="p">,</span>
         <span class="s2">&quot;core_eia923__monthly_energy_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;_core_eia923__energy_storage&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;core_eia923__monthly_fuel_receipts_costs&quot;</span><span class="p">:</span> <span class="s2">&quot;_core_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;core_eia923__fuel_receipts_costs&quot;</span><span class="p">:</span> <span class="s2">&quot;_core_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
         <span class="s2">&quot;core_eia923__monthly_generation&quot;</span><span class="p">:</span> <span class="s2">&quot;_core_eia923__generation&quot;</span><span class="p">,</span>
         <span class="s2">&quot;core_eia923__monthly_generation_fuel&quot;</span><span class="p">:</span> <span class="s2">&quot;_core_eia923__generation_fuel&quot;</span><span class="p">,</span>
         <span class="s2">&quot;core_eia923__monthly_generation_fuel_nuclear&quot;</span><span class="p">:</span> <span class="s2">&quot;_core_eia923__generation_fuel_nuclear&quot;</span><span class="p">,</span>

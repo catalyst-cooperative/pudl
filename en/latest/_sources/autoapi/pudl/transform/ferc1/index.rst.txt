@@ -1257,7 +1257,7 @@ Module Contents
 
    .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
 
-      Calculate the mangnitude of the errors relative to total reported value.
+      Calculate the magnitude of the errors relative to total reported value.
 
 
 
@@ -1274,7 +1274,7 @@ Module Contents
 
    .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
 
-      Calculate the absolute mangnitude of XBRL calculation errors.
+      Calculate the absolute magnitude of XBRL calculation errors.
 
 
 

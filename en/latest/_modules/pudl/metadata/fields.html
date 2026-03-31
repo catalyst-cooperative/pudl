@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.fields &#8212; PUDL 2025.11.1.dev115 documentation</title>
+    <title>pudl.metadata.fields &#8212; PUDL 2026.3.1.dev39 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
@@ -49,14 +49,450 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/documentation_options.js?v=1da4e7d9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/fields';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -134,8 +570,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
   
   
 </a></div>
@@ -171,20 +607,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -193,14 +615,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -292,20 +721,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -314,14 +729,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -427,7 +849,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pytz</span><span class="w"> </span><span class="kn">import</span> <span class="n">all_timezones</span>
@@ -462,10 +884,12 @@
     <span class="n">LIABILITY_TYPES_FERC1</span><span class="p">,</span>
     <span class="n">LIABILITY_TYPES_RUS7</span><span class="p">,</span>
     <span class="n">LIABILITY_TYPES_RUS12</span><span class="p">,</span>
+    <span class="n">LOAN_STATUS_TYPES_RUS7</span><span class="p">,</span>
     <span class="n">MAIN_PIPE_SIZES_PHMSAGAS</span><span class="p">,</span>
     <span class="n">MATERIAL_TYPES_PHMSAGAS</span><span class="p">,</span>
     <span class="n">MODEL_CASES_EIAAEO</span><span class="p">,</span>
     <span class="n">NERC_REGIONS</span><span class="p">,</span>
+    <span class="n">PLANT_COST_TYPES_RUS12</span><span class="p">,</span>
     <span class="n">PLANT_PARTS</span><span class="p">,</span>
     <span class="n">PLANT_TYPE_RUS12</span><span class="p">,</span>
     <span class="n">PRIME_MOVER_TYPES_RUS12</span><span class="p">,</span>
@@ -474,12 +898,16 @@
     <span class="n">REVENUE_CLASSES_EIA176</span><span class="p">,</span>
     <span class="n">REVENUE_CLASSES_EIA861</span><span class="p">,</span>
     <span class="n">RTO_CLASSES</span><span class="p">,</span>
+    <span class="n">SERVICE_INTERRUPTION_PERIODS_RUS7</span><span class="p">,</span>
+    <span class="n">SERVICE_INTERRUPTION_TYPES_RUS7</span><span class="p">,</span>
+    <span class="n">SERVICE_STATUS_RUS7</span><span class="p">,</span>
     <span class="n">SOURCE_OF_ENERGY_RUS12</span><span class="p">,</span>
     <span class="n">SUBDIVISION_CODES_ISO3166</span><span class="p">,</span>
     <span class="n">TECH_CLASSES</span><span class="p">,</span>
     <span class="n">TECH_DESCRIPTIONS</span><span class="p">,</span>
     <span class="n">TECH_DESCRIPTIONS_EIAAEO</span><span class="p">,</span>
     <span class="n">TECH_DESCRIPTIONS_NRELATB</span><span class="p">,</span>
+    <span class="n">TRANSMISSION_DISTRIBUTION_TYPES_RUS7</span><span class="p">,</span>
     <span class="n">US_TIMEZONES</span><span class="p">,</span>
     <span class="n">UTILITY_PLANT_ASSET_TYPES_FERC1</span><span class="p">,</span>
 <span class="p">)</span>
@@ -496,7 +924,7 @@
 <span class="n">FIELD_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;delivered_gas_heat_content_mmbtu_per_mcf&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The average annual heat content of gas delivered directly to consumers.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu_per_Mcf&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU_per_Mcf&quot;</span><span class="p">,</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;operational_consumption_facility_space_heat_mcf&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -659,6 +1087,18 @@
             <span class="s2">&quot;Indicates whether the emissions control equipment controls acid (HCl) gas.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
+    <span class="s2">&quot;acid_gas_removal_efficiency&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Removal efficiency for acid gas emissions. Ranges from 0 to 1.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;anticipated_pct&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Expected percentage.&quot;</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;actual_pct&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Observed percentage.&quot;</span><span class="p">),</span>
+    <span class="p">},</span>
     <span class="s2">&quot;actual_peak_demand_savings_mw&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -794,6 +1234,14 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;annual_nox_emission_rate_lb_per_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Actual controlled (or uncontrolled) nitrogen oxides emission rate. &quot;</span>
+            <span class="s2">&quot;Based on data from CEMS where possible.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;lb_per_MMBTU&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;annual_total_chlorine_lbs&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Amount of elemental chlorine added to cooling water annually. &quot;</span>
@@ -818,11 +1266,26 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;amount_due_over_60_days&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Reported amount of dollars due over 60 days from consumers for electric service. Includes both connected and disconnected customers.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;amount_type&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Label describing the type of amount being reported. This could be a balance or a change in value.&quot;</span>
         <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;amount_written_off_ytd&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Total charges due from consumers for electric service written off during the current year to &quot;</span>
+            <span class="s2">&quot;Account 144.1, representing the write-off of uncollectible accounts.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;appro_part_label&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -1081,7 +1544,7 @@
     <span class="s2">&quot;bulk_agg_fuel_cost_per_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Fuel cost per mmbtu reported in the EIA bulk electricity data. This is an &quot;</span>
+            <span class="s2">&quot;Fuel cost per MMBTU reported in the EIA bulk electricity data. This is an &quot;</span>
             <span class="s2">&quot;aggregate average fuel price for a whole state, region, month, sector, &quot;</span>
             <span class="s2">&quot;etc. Used to fill in missing fuel prices.&quot;</span>
         <span class="p">),</span>
@@ -1144,7 +1607,7 @@
     <span class="s2">&quot;byproduct_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Reported unit of measure for combustion byproduct. MMBtu for steam, tons for all other byproducts.&quot;</span>
+            <span class="s2">&quot;Reported unit of measure for combustion byproduct. MMBTU for steam, tons for all other byproducts.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;tons&quot;</span><span class="p">]},</span>
     <span class="p">},</span>
@@ -1209,19 +1672,29 @@
     <span class="s2">&quot;capacity_factor&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Fraction of potential generation that was actually reported for a plant part.&quot;</span>
+            <span class="s2">&quot;Fraction of potential generation that was actually reported for a plant part. &quot;</span>
+            <span class="s2">&quot;Energy generated over time period / nameplate capacity * time period (hours/years/etc.).&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;capacity_factor_eia&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Fraction of potential generation that was actually reported for a plant part.&quot;</span>
+            <span class="s2">&quot;Fraction of potential generation that was actually reported for a plant part. &quot;</span>
+            <span class="s2">&quot;Energy generated over time period / nameplate capacity * time period (hours/years/etc.).&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;capacity_factor_ferc1&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Fraction of potential generation that was actually reported for a plant part.&quot;</span>
+            <span class="s2">&quot;Fraction of potential generation that was actually reported for a plant part. &quot;</span>
+            <span class="s2">&quot;Energy generated over time period / nameplate capacity * time period (hours/years/etc.).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;capacity_factor_running&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Fraction of potential generation over the time period a plant was in operation. &quot;</span>
+            <span class="s2">&quot;Energy generated over time period / nameplate capacity * time period (hours/years/etc.).&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;capacity_factor_offshore_wind&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -1522,7 +1995,7 @@
     <span class="s2">&quot;coal_fraction_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Coal heat content as a percentage of overall fuel heat content (mmBTU).&quot;</span>
+            <span class="s2">&quot;Coal heat content as a percentage of overall fuel heat content (MMBTU).&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;coalmine_county_id_fips&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -1993,7 +2466,7 @@
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Per-capita annual demand, averaged using Census county-level population estimates.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MWh/person&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MWh_per_person&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;demand_charges&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -2008,7 +2481,7 @@
     <span class="s2">&quot;demand_density_mwh_km2&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Annual demand per km2 of a given service territory.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MWh/km2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MWh_per_km2&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;has_air_permit_limits&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
@@ -2094,19 +2567,19 @@
     <span class="s2">&quot;disposal_landfill_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Disposed by-products in landfill, to the nearest hundred tons or in MMBtu for steam sales.&quot;</span>
+            <span class="s2">&quot;Disposed by-products in landfill, to the nearest hundred tons or in MMBTU for steam sales.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;disposal_offsite_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Disposed by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.&quot;</span>
+            <span class="s2">&quot;Disposed by-products offsite, to the nearest hundred tons or in MMBTU for steam sales.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;disposal_ponds_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales.&quot;</span>
+            <span class="s2">&quot;Disposed by-products in ponds, to the nearest hundred tons or in MMBTU for steam sales.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;distributed_generation&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -3099,6 +3572,14 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Total number of hours worked by employees.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;external_financial_risk_ratio&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;total investments + loan guarantee balances / &quot;</span>
+            <span class="s2">&quot;total utility plant assets. This ratio shows how much a utility is &quot;</span>
+            <span class="s2">&quot;financially exposed to outside entities relative to its own assets.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
     <span class="s2">&quot;end_point&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The end point of a transmission line.&quot;</span><span class="p">,</span>
@@ -3147,11 +3628,11 @@
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MW&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;energy_efficiency_annual_cost&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;energy_efficiency_annual_direct_cost&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;The sum of actual direct costs, incentive payments, and indirect costs &quot;</span>
-            <span class="s2">&quot;incurred in a given reporting year from energy efficiency programs.&quot;</span>
+            <span class="s2">&quot;The sum of actual direct costs (excluding incentive payments) incurred &quot;</span>
+            <span class="s2">&quot;from energy efficiency programs in a given reporting year.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
     <span class="p">},</span>
@@ -3163,7 +3644,7 @@
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;energy_efficiency_annual_incentive_payment&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;energy_efficiency_annual_incentive_cost&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;The cost of incentive payments incurred in a given reporting year &quot;</span>
@@ -3355,9 +3836,9 @@
     <span class="s2">&quot;energy_use_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Energy use, in MMBtu; also referred to as energy consumption, energy demand, or delivered energy, depending on type.&quot;</span>
+            <span class="s2">&quot;Energy use, in MMBTU; also referred to as energy consumption, energy demand, or delivered energy, depending on type.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;energy_use_sector&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -3379,6 +3860,10 @@
     <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Entity type of principal owner.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;environmental_equipment_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Type of equipment or strategy for the control of air emissions.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;estimated_or_actual_capacity_data&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -3747,7 +4232,7 @@
     <span class="s2">&quot;for_rural_development&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Whether or not the investment is for rural development. &quot;</span>
+            <span class="s2">&quot;Whether or not the investment or loan is for rural development. &quot;</span>
             <span class="s2">&quot;This includes investments in any/all types of projects or &quot;</span>
             <span class="s2">&quot;products that were made to improve the economy and/or quality &quot;</span>
             <span class="s2">&quot;of life in the specified area.&quot;</span>
@@ -3784,7 +4269,7 @@
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Total consumption of fuel to produce electricity, in physical unit, year to date.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;fuel_consumed_for_electricity_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -3797,7 +4282,7 @@
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;fuel_consumed_total_cost&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -3829,23 +4314,23 @@
     <span class="p">},</span>
     <span class="s2">&quot;fuel_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Total heat content for plant (in MMBtu).&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Total heat content for plant (in MMBTU).&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Average fuel cost per mmBTU of heat content in nominal USD.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Average fuel cost per MMBTU of heat content in nominal USD.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;fuel_cost_per_mmbtu_eia&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Average fuel cost per mmBTU of heat content in nominal USD.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Average fuel cost per MMBTU of heat content in nominal USD.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;fuel_cost_per_mmbtu_ferc1&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Average fuel cost per mmBTU of heat content in nominal USD.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Average fuel cost per MMBTU of heat content in nominal USD.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;fuel_cost_per_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -3885,11 +4370,11 @@
     <span class="s2">&quot;fuel_cost_real_per_mmbtu_eiaaeo&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Average fuel cost per mmBTU of heat content in real USD, &quot;</span>
+            <span class="s2">&quot;Average fuel cost per MMBTU of heat content in real USD, &quot;</span>
             <span class="s2">&quot;standardized to the value of a USD in the year defined by &quot;</span>
             <span class="s2">&quot;``real_cost_basis_year``.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;fuel_derived_from&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -3931,7 +4416,7 @@
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Heat content of the fuel in millions of Btus per physical unit.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu_per_unit&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU_per_unit&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;fuel_pct&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -3953,9 +4438,9 @@
     <span class="s2">&quot;fuel_received_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Aggregated fuel receipts, in MMBtu, in EIA bulk electricity data.&quot;</span>
+            <span class="s2">&quot;Aggregated fuel receipts, in MMBTU, in EIA bulk electricity data.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;fuel_received_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -4082,7 +4567,7 @@
     <span class="s2">&quot;gas_fraction_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Natural gas heat content as a percentage of overall fuel heat content (MMBtu).&quot;</span>
+            <span class="s2">&quot;Natural gas heat content as a percentage of overall fuel heat content (MMBTU).&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;generation_activity&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -4217,7 +4702,7 @@
     <span class="s2">&quot;heat_content_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The energy contained in fuel burned, measured in million BTU.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;hour_of_year&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
@@ -4230,33 +4715,33 @@
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Fuel content per unit of electricity generated. Coming from MCOE calculation.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu_MWh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU_MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh_eia&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Fuel content per unit of electricity generated. Coming from MCOE calculation.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu_MWh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU_MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh_ferc1&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu_MWh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU_MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;heat_rate_mmbtu_per_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Fuel content per unit of electricity generated.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu_MWh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU_MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;heat_rate_penalty&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Heat rate penalty for retrofitting. This column only has contents to retrofit technologies. It seems to be a rate between 0.35 and 0.09&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu_MWh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU_MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;highest_distribution_voltage_kv&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -4268,6 +4753,14 @@
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Number of AMI meters with home area network (HAN) gateway enabled.&quot;</span>
         <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;hours_in_service&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Total hours the emissions control was in service during the reporting year, &quot;</span>
+            <span class="s2">&quot;rounded to the nearest hour.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;hr&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;hrsg&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
@@ -4613,6 +5106,13 @@
             <span class="s2">&quot;Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
+    <span class="s2">&quot;is_loan_guarantee&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Indicates a third-party loan that the reporting utility (referred as a borrower) &quot;</span>
+            <span class="s2">&quot;has co-signed, taking on responsibility for repayment if the primary borrower defaults.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
     <span class="s2">&quot;iso_rto_code&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -4639,6 +5139,10 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The cause of the leaks.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">LEAK_SOURCE_PHMSAGAS</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;lending_organization&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The organization that provided a lease or loan.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;levelized_cost_of_energy_per_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -4688,6 +5192,13 @@
         <span class="p">),</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;labor&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">]},</span>
     <span class="p">},</span>
+    <span class="s2">&quot;line_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;The type of line mileage reported (e.g., transmission, overhead distribution).&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">TRANSMISSION_DISTRIBUTION_TYPES_RUS7</span><span class="p">},</span>
+    <span class="p">},</span>
     <span class="s2">&quot;lines_or_stations&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -4703,11 +5214,11 @@
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MW&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;load_management_annual_cost&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;load_management_annual_direct_cost&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;The sum of actual direct costs, incentive payments, and indirect costs &quot;</span>
-            <span class="s2">&quot;incurred in a given reporting year from load management programs.&quot;</span>
+            <span class="s2">&quot;The sum of actual direct costs (excluding incentive payments) incurred &quot;</span>
+            <span class="s2">&quot;from load management programs in a given reporting year.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
     <span class="p">},</span>
@@ -4719,7 +5230,7 @@
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;load_management_annual_incentive_payment&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;load_management_annual_incentive_cost&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;The cost of incentive payments incurred in a given reporting year &quot;</span>
@@ -4773,14 +5284,19 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The date on which a loan is scheduled to be fully paid.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;loan_organization&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The organization from which a loan was received.&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
     <span class="s2">&quot;loan_original_amount&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The original amount of a loan.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;loan_recipient&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The organization that received a loan.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;loan_status&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The repayment status of a loan.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">LOAN_STATUS_TYPES_RUS7</span><span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -4846,15 +5362,15 @@
     <span class="p">},</span>
     <span class="s2">&quot;max_fuel_mmbtu_per_unit&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Maximum heat content per physical unit of fuel in MMBtu.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Maximum heat content per physical unit of fuel in MMBTU.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;max_oil_heat_input&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;The maximum oil heat input (percent of MMBtus) expected for proposed unit when co-firing with natural gas&quot;</span>
+            <span class="s2">&quot;The maximum oil heat input (percent of MMBTUs) expected for proposed unit when co-firing with natural gas&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;% MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;% MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;max_oil_output_mw&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -4865,7 +5381,7 @@
     <span class="p">},</span>
     <span class="s2">&quot;max_steam_flow_lbs_per_hour&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;lbs_per_hour&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;lb_per_hour&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Maximum continuous steam flow at 100 percent load.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;mercury_content_ppm&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -4935,6 +5451,17 @@
             <span class="s2">&quot;Proposed strategy to comply with the most stringent mercury regulation.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
+    <span class="s2">&quot;mercury_emission_rate_lb_per_trillion_btu&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Actual controlled (or uncontrolled) mercury emission rate, based on &quot;</span>
+            <span class="s2">&quot;data from CEMS, where possible.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;mercury_removal_efficiency&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Removal efficiency for mercury emissions. Ranges from 0 to 1.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;merge_address&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Address of new parent company.&quot;</span><span class="p">,</span>
@@ -4955,10 +5482,15 @@
         <span class="p">),</span>
         <span class="c1"># TODO: Add ENUM constraint.</span>
     <span class="p">},</span>
+    <span class="s2">&quot;miles&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Line length at the end of the reported period, in miles.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;miles&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;min_fuel_mmbtu_per_unit&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Minimum heat content per physical unit of fuel in MMBtu.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Minimum heat content per physical unit of fuel in MMBTU.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;mine_id_msha&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;MSHA issued mine identifier.&quot;</span><span class="p">},</span>
     <span class="s2">&quot;mine_id_pudl&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -5467,7 +5999,7 @@
     <span class="s2">&quot;nuclear_fraction_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Nuclear heat content as a percentage of overall fuel heat content (MMBtu).&quot;</span>
+            <span class="s2">&quot;Nuclear heat content as a percentage of overall fuel heat content (MMBTU).&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;nuclear_unit_id&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -5510,7 +6042,7 @@
     <span class="s2">&quot;oil_fraction_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Oil heat content as a percentage of overall fuel heat content (MMBtu).&quot;</span>
+            <span class="s2">&quot;Oil heat content as a percentage of overall fuel heat content (MMBTU).&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;operates_generating_plant&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -6026,6 +6558,11 @@
             <span class="s2">&quot;Whether a plant part record has a duplicate record with different ownership status.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
+    <span class="s2">&quot;ozone_season_nox_emission_rate_lb_per_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Actual controlled (or uncontrolled) nitrogen oxides emission rate during the ozone season (May to September)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;lb_per_MMBTU&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;ownership_pct&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Percentage of the plant owned by the respondent.&quot;</span><span class="p">,</span>
@@ -6163,6 +6700,34 @@
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;If boiler is not in compliance with particulate matter regulations, strategy for compliance.&quot;</span>
         <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;particulate_emission_rate_lb_per_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Average annual emission removal rate for particulate matter.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;lb_per_MMBTU&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;particulate_removal_efficiency_tested&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;The tested efficiency for the removal of particulate matter at 100 percent load. &quot;</span>
+            <span class="s2">&quot;If not tested at 100 percent load, then the load at which the test was conducted &quot;</span>
+            <span class="s2">&quot;is included as a comment on Schedule 9. If no test was conducted, the test date &quot;</span>
+            <span class="s2">&quot;and tested efficiency field should be blank. Ranges from 0 to 1.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;particulate_removal_efficiency_annual&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Particulate removal efficiency, based on the annual operating factor, &quot;</span>
+            <span class="s2">&quot;which is defined as annual fuel consumption (MMBTU) divided by the product &quot;</span>
+            <span class="s2">&quot;of the boiler design firing rate (MMBTU per hour) and hours of operation per year.&quot;</span>
+            <span class="s2">&quot;When actual data are not available, estimates are provided based on equipment &quot;</span>
+            <span class="s2">&quot;design performance specifications. Ranges from 0 to 1.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;particulate_test_date&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Date of the latest efficiency test for the removal of particulate matter.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;partitions&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -6476,7 +7041,7 @@
     <span class="s2">&quot;power_cost_per_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;The cost of power per mwh.&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD/MWh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;power_requirement_mw&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -6553,7 +7118,8 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Unique numeric identifier for each renewable fuel type.&quot;</span><span class="p">),</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">)),</span>
+            <span class="s2">&quot;minimum&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;maximum&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;primary_transportation_mode_code&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -6595,6 +7161,10 @@
                 <span class="s2">&quot;Power Administrations&quot;</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;property_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The type of property leased.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;pudl_version&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -6756,6 +7326,10 @@
                 <span class="s2">&quot;country&quot;</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;rental_cost_ytd&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Year-to-date rental cost for leased property.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;has_regulatory_limits&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
@@ -7045,6 +7619,14 @@
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;saidi_minutes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Cumulative duration (minutes) of interruption for the average customer &quot;</span>
+            <span class="s2">&quot;during the report year.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;saidi_w_major_event_days_minus_loss_of_service_minutes&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -7260,6 +7842,18 @@
             <span class="s2">&quot;Service area in which plant is located; for unregulated companies, it&#39;s the electric utility with which plant is interconnected&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
+    <span class="s2">&quot;service_interruption_cause&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Source of service interruption.&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SERVICE_INTERRUPTION_TYPES_RUS7</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;service_status&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Status of services (e.g., idle, retired) in report period. Idle services exclude seasonals.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SERVICE_STATUS_RUS7</span><span class="p">},</span>
+    <span class="p">},</span>
     <span class="s2">&quot;services_efv_in_system&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -7301,7 +7895,7 @@
     <span class="p">},</span>
     <span class="s2">&quot;services&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of end in system at end of year.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of services in system at end of year.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;short_form&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
@@ -7427,7 +8021,7 @@
     <span class="p">},</span>
     <span class="s2">&quot;so2_emission_rate_lbs_per_hour&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;lbs_per_hour&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;lb_per_hour&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Sulfur dioxide emission rate when operating at 100 percent load (pounds per hour).&quot;</span>
         <span class="p">),</span>
@@ -7469,13 +8063,20 @@
     <span class="s2">&quot;so2_removal_efficiency_tested&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at tested rate at 100 percent load.&quot;</span>
+            <span class="s2">&quot;The tested efficiency for the removal of sulfur dioxide at 100 percent load. &quot;</span>
+            <span class="s2">&quot;If not tested at 100 percent load, then the load at which the test was conducted &quot;</span>
+            <span class="s2">&quot;is included as a comment on Schedule 9. If no test was conducted, the test date &quot;</span>
+            <span class="s2">&quot;and tested efficiency field should be blank. Ranges from 0 to 1.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;so2_removal_efficiency_annual&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) based on designed firing rate and hours in operation (listed as a percentage).&quot;</span>
+            <span class="s2">&quot;Sulfur dioxide removal efficiency, based on the annual operating factor, &quot;</span>
+            <span class="s2">&quot;which is defined as annual fuel consumption (MMBTU) divided by the product &quot;</span>
+            <span class="s2">&quot;of the boiler design firing rate (MMBTU per hour) and hours of operation per year.&quot;</span>
+            <span class="s2">&quot;When actual data are not available, estimates are provided based on equipment &quot;</span>
+            <span class="s2">&quot;design performance specifications. Ranges from 0 to 1.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;so2_test_date&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -7487,7 +8088,7 @@
     <span class="s2">&quot;sold_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBtu.&quot;</span>
+            <span class="s2">&quot;Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBTU.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;sold_to_utility_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -7719,16 +8320,16 @@
     <span class="p">},</span>
     <span class="s2">&quot;stored_offsite_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or MMBTU&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Stored by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.&quot;</span>
+            <span class="s2">&quot;Stored by-products offsite, to the nearest hundred tons or in MMBTU for steam sales.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;stored_onsite_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or MMBTU&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Stored by-products onsite, to the nearest hundred tons or in MMBtu for steam sales.&quot;</span>
+            <span class="s2">&quot;Stored by-products onsite, to the nearest hundred tons or in MMBTU for steam sales.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;street_address&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -8105,9 +8706,9 @@
     <span class="p">},</span>
     <span class="s2">&quot;total_disposal_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or MMBTU&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Total by-product disposal, to the nearest hundred tons or in MMBtu for steam sales.&quot;</span>
+            <span class="s2">&quot;Total by-product disposal, to the nearest hundred tons or in MMBTU for steam sales.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;total_disposition_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -8345,16 +8946,16 @@
     <span class="p">},</span>
     <span class="s2">&quot;used_offsite_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or MMBTU&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Used offsite by-products, to the nearest hundred tons or in MMBtu for steam sales.&quot;</span>
+            <span class="s2">&quot;Used offsite by-products, to the nearest hundred tons or in MMBTU for steam sales.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;used_onsite_units&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;tons or MMBTU&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Used onsite by-products, to the nearest hundred tons or in MMBtu for steam sales.&quot;</span>
+            <span class="s2">&quot;Used onsite by-products, to the nearest hundred tons or in MMBTU for steam sales.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -8513,14 +9114,14 @@
     <span class="s2">&quot;waste_fraction_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Waste-heat heat content as a percentage of overall fuel heat content (MMBtu).&quot;</span>
+            <span class="s2">&quot;Waste-heat heat content as a percentage of overall fuel heat content (MMBTU).&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;waste_heat_input_mmbtu_per_hour&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu_per_hour&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU_per_hour&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour).&quot;</span>
+            <span class="s2">&quot;Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBTU per hour).&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;num_water_heaters&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -8558,7 +9159,7 @@
     <span class="p">},</span>
     <span class="s2">&quot;wet_dry_bottom&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu_per_hour&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU_per_hour&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers.&quot;</span>
         <span class="p">),</span>
@@ -8635,6 +9236,11 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Year the data was reported in, used for partitioning EPA CEMS.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;ytd_dollars&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Balance this current year, in U.S. dollars.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;zip_code&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Five digit US Zip Code.&quot;</span><span class="p">,</span>
@@ -8688,7 +9294,10 @@
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;The wind quality class for turbines at this generator. See table core_eia__codes_wind_quality_class for specifications about each class.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]},</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;minimum&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;maximum&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;wind_speed_avg_ms&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -9878,7 +10487,7 @@
             <span class="s2">&quot;Warning: We found values much larger than expected that we have not yet &quot;</span>
             <span class="s2">&quot;cleaned - this is likely a reporting unit error.&quot;</span>
         <span class="p">),</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;electric_sales_revenue&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
@@ -9937,9 +10546,12 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Investment type code.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span>
-                <span class="n">CODE_METADATA</span><span class="p">[</span><span class="s2">&quot;core_rus7__codes_investment_types&quot;</span><span class="p">][</span><span class="s2">&quot;df&quot;</span><span class="p">][</span><span class="s2">&quot;code&quot;</span><span class="p">]</span>
-            <span class="p">)</span>
+            <span class="s2">&quot;minimum&quot;</span><span class="p">:</span> <span class="n">CODE_METADATA</span><span class="p">[</span><span class="s2">&quot;core_rus__codes_investment_types&quot;</span><span class="p">][</span><span class="s2">&quot;df&quot;</span><span class="p">][</span>
+                <span class="s2">&quot;code&quot;</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+            <span class="s2">&quot;maximum&quot;</span><span class="p">:</span> <span class="n">CODE_METADATA</span><span class="p">[</span><span class="s2">&quot;core_rus__codes_investment_types&quot;</span><span class="p">][</span><span class="s2">&quot;df&quot;</span><span class="p">][</span>
+                <span class="s2">&quot;code&quot;</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;included_investments&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -10012,6 +10624,227 @@
     <span class="s2">&quot;opex_ytd_budget&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The year-to-date budget for amount of operational expense, cost or income.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;unit_id_rus&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;RUS-assigned unit identification code.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;cost_group&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;High-level category of cost type.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;capex&quot;</span><span class="p">,</span> <span class="s2">&quot;opex&quot;</span><span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="p">}},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;cost_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Detailed category of cost type.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">PLANT_COST_TYPES_RUS12</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;cost_per_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Unit cost of energy production in cost per MWh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MWh&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;cost_per_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Unit cost of energy production in cost per MMBTU&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD_per_MMBTU&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Whether or not the plant record represents the full plant - regardless of &quot;</span>
+            <span class="s2">&quot;whether its fully owned by the borrower.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Whether or not the plant record is partially owned by the borrower. &quot;</span>
+            <span class="s2">&quot;This column was not reported before 2009.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;fuel_consumption_coal_lbs&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Annual pounds of coal consumed for fuel.&quot;</span>
+            <span class="s2">&quot;This field is only reported for plant_type steam.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;lb&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;fuel_consumption_gas_cubic_feet&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Annual cubic feet of natural gas consumed for fuel.&quot;</span>
+            <span class="s2">&quot;This field is only reported for plant_type&#39;s combined_cycle, combined_cycle and steam.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;cf&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;fuel_consumption_oil_gallons&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Annual gallons of oil consumed for fuel.&quot;</span>
+            <span class="s2">&quot;This field is only reported for plant_type&#39;s combined_cycle, combined_cycle and steam.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;gal&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;fuel_consumption_other&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Annual other fuel consumed. Neither units nor type of fuel are documented.&quot;</span>
+            <span class="s2">&quot;This field is only reported for plant_type&#39;s combined_cycle, combined_cycle and steam.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;operating_hours_in_service&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of operating hours in service.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;hours&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;operating_hours_on_standby&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of operating hours on standby.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;hours&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;operating_hours_out_of_service_scheduled&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of operating hours out of service which were scheduled.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;hours&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;operating_hours_out_of_service_unscheduled&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of operating hours out of service which were unscheduled.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;hours&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;times_started&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Number of times the plant was started. &quot;</span>
+            <span class="s2">&quot;This field is only reported for plant_type&#39;s steam and nuclear.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;delivered_demand_mw&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The amount of demand delivered in MW.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MW&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;delivered_energy_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The amount of energy delivered in MWh.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MWh&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;delivery_recipient&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The recipient of the delivered energy or demand.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;energy_output_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The amount of energy output in MWh.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MWh&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;peak_demand_date&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The date of the peak demand.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;load_factor&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Fraction of consumption vs demand reported for a plant over a given timeframe. &quot;</span>
+            <span class="s2">&quot;Energy consumed over time period / peak demand * time period (hours/years/etc.).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;peak_gross_demand_mw&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;The highest average power output recorded over any single 15 minute &quot;</span>
+            <span class="s2">&quot;interval during the reporting period.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MW&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;peak_gross_demand_nameplate_mw&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;The theoretical or nameplate peak the plant could produce under the best &quot;</span>
+            <span class="s2">&quot;operating conditions during the reporting period.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MW&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;average_energy_cost_dollars_per_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The average cost of energy per MWh.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;dollars_per_MWh&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;purchased_energy_cost_total&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;The total cost of purchased energy. Includes fuel cost adjustment and wheeling and other charges.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;is_supplier_eia_respondent&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Whether the utility supplying energy to a RUS borrower is an EIA respondent.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;supplier_code_rus&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Unique numeric identifier for the utility supplying energy to a RUS borrower.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;wheeling_and_other_charges&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;The cost of wheeling and other charges or credits related to fuel. &quot;</span>
+            <span class="s2">&quot;Included in the total cost.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;fuel_cost_adjustment&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;The variable fuel surcharge component of a distribution cooperative&#39;s wholesale &quot;</span>
+            <span class="s2">&quot;purchased power bill, reflecting pass-through of actual fuel cost fluctuations &quot;</span>
+            <span class="s2">&quot;from the supplying utility, reported separately from base power charges and &quot;</span>
+            <span class="s2">&quot;wheeling costs. Included in the total cost.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;fuel_type_code_rus&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Unique numeric identifier for RUS fuel types.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;minimum&quot;</span><span class="p">:</span> <span class="n">CODE_METADATA</span><span class="p">[</span><span class="s2">&quot;core_rus__codes_fuel_types&quot;</span><span class="p">][</span><span class="s2">&quot;df&quot;</span><span class="p">][</span><span class="s2">&quot;code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+            <span class="s2">&quot;maximum&quot;</span><span class="p">:</span> <span class="n">CODE_METADATA</span><span class="p">[</span><span class="s2">&quot;core_rus__codes_fuel_types&quot;</span><span class="p">][</span><span class="s2">&quot;df&quot;</span><span class="p">][</span><span class="s2">&quot;code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;electric_or_other_materials&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Whether the cost is for electric materials or other materials&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;electric_materials&quot;</span><span class="p">,</span> <span class="s2">&quot;other_materials&quot;</span><span class="p">}},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;materials_adjustment&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;An adjustment value for the cost of materials and supplies.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;materials_ending_balance&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The balance at the end of the report year for materials and supplies.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;materials_purchased&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The cost of materials and supplies purchased.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;materials_salvaged&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The cost of materials and supplies salvaged.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;materials_sold&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The cost of materials and supplies sold.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;materials_used&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The cost of materials and supplies used.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
@@ -10107,6 +10940,10 @@
             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.&quot;</span><span class="p">,</span>
             <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SUBDIVISION_CODES_ISO3166</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;MH&quot;</span><span class="p">,</span> <span class="s2">&quot;FM&quot;</span><span class="p">}},</span>
         <span class="p">},</span>
+        <span class="s2">&quot;plant_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">PLANT_TYPE_RUS12</span><span class="p">},</span>
+        <span class="p">},</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 
@@ -10120,14 +10957,6 @@
 <div class="viewcode-block" id="FIELD_METADATA_BY_RESOURCE">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE">[docs]</a>
 <span class="n">FIELD_METADATA_BY_RESOURCE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_rus12__yearly_plant_labor&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;plant_type&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">PLANT_TYPE_RUS12</span><span class="p">,</span>
-            <span class="p">},</span>
-        <span class="p">}</span>
-    <span class="p">},</span>
     <span class="s2">&quot;core_eia176__yearly_gas_disposition_by_consumer&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;operating_state&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;State that the operator is reporting for.&quot;</span><span class="p">,</span>
@@ -10931,7 +11760,44 @@
     <span class="p">},</span>
     <span class="s2">&quot;core_ferceqr__contracts&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;product_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Description of product being offered. Note that allowed values&quot;</span>
+                <span class="s2">&quot; differ slightly from those in :ref:`core_ferceqr__transactions`.&quot;</span>
+                <span class="s2">&quot; BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service).&quot;</span>
+                <span class="s2">&quot; CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis.&quot;</span>
+                <span class="s2">&quot; CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service.&quot;</span>
+                <span class="s2">&quot; DIRECT ASSIGNMENT FACILITIES CHARGE: Charges for facilities or portions of facilities that are constructed or used for the sole use/benefit of a particular customer.&quot;</span>
+                <span class="s2">&quot; EMERGENCY ENERGY: Contractual provisions to supply energy or capacity to another entity during critical situations.&quot;</span>
+                <span class="s2">&quot; ENERGY: A quantity of electricity that is sold or transmitted over a period of time.&quot;</span>
+                <span class="s2">&quot; ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO.&quot;</span>
+                <span class="s2">&quot; FUEL CHARGE: Charge based on the cost or amount of fuel used for generation.&quot;</span>
+                <span class="s2">&quot; GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs.&quot;</span>
+                <span class="s2">&quot; INTERCONNECTION AGREEMENT: Contract that provides the terms and conditions for a generator, distribution system owner, transmission owner, transmission provider, or transmission system to physically connect to a transmission system or distribution system.&quot;</span>
+                <span class="s2">&quot; MEMBERSHIP AGREEMENT: Agreement to participate and be subject to rules of a system operator.&quot;</span>
+                <span class="s2">&quot; MUST RUN AGREEMENT: An agreement that requires a unit to run.&quot;</span>
+                <span class="s2">&quot; NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies).&quot;</span>
+                <span class="s2">&quot; NETWORK: Transmission service under contract providing network service.&quot;</span>
+                <span class="s2">&quot; NETWORK OPERATING AGREEMENT: An executed agreement that contains the terms and conditions under which a network customer operates its facilities and the technical and operational matters associated with the implementation of network integration transmission service.&quot;</span>
+                <span class="s2">&quot; OTHER: Product name not otherwise included.&quot;</span>
+                <span class="s2">&quot; POINT-TO-POINT AGREEMENT: Transmission service under contract between specified Points of Receipt and Delivery.&quot;</span>
+                <span class="s2">&quot; PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over.&quot;</span>
+                <span class="s2">&quot; REACTIVE SUPPLY &amp; VOLTAGE CONTROL: Production or absorption of reactive power to maintain voltage levels on transmission systems (Ancillary Service).&quot;</span>
+                <span class="s2">&quot; REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system.&quot;</span>
+                <span class="s2">&quot; REASSIGNMENT AGREEMENT: Transmission capacity reassignment agreement.&quot;</span>
+                <span class="s2">&quot; REGULATION &amp; FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products.&quot;</span>
+                <span class="s2">&quot; SCHEDULE SYSTEM CONTROL &amp; DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service).&quot;</span>
+                <span class="s2">&quot; SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; SYSTEM OPERATING AGREEMENTS: An executed agreement that contains the terms and conditions under which a system or network customer shall operate its facilities and the technical and operational matters associated with the implementation of network.&quot;</span>
+                <span class="s2">&quot; TOLLING ENERGY: Energy sold from a plant whereby the buyer provides fuel to a generator (seller) and receives power in return for pre-established fees.&quot;</span>
+                <span class="s2">&quot; TRANSMISSION OWNERS AGREEMENT: The agreement that establishes the terms and conditions under which a transmission owner transfers operational control over designated transmission facilities.&quot;</span>
+                <span class="s2">&quot; UPLIFT: A make-whole payment by an RTO/ISO to a utility.&quot;</span>
+            <span class="p">),</span>
             <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span>
                     <span class="s2">&quot;BLACK START SERVICE&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;CAPACITY&quot;</span><span class="p">,</span>
@@ -10965,11 +11831,66 @@
                     <span class="s2">&quot;TOLLING ENERGY&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;TRANSMISSION OWNERS AGREEMENT&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;UPLIFT&quot;</span><span class="p">,</span>
-                <span class="p">]</span>
+                <span class="p">],</span>
             <span class="p">},</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;core_ferceqr__transactions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;product_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Description of product being offered. Note that allowed values&quot;</span>
+                <span class="s2">&quot; differ slightly from those in :ref:`core_ferceqr__contracts`.&quot;</span>
+                <span class="s2">&quot; BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service).&quot;</span>
+                <span class="s2">&quot; BOOKED OUT POWER: Energy or capacity contractually committed bilaterally for delivery but not actually delivered due to some offsetting or countervailing trade (Transaction only).&quot;</span>
+                <span class="s2">&quot; CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis.&quot;</span>
+                <span class="s2">&quot; CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service.&quot;</span>
+                <span class="s2">&quot; ENERGY: A quantity of electricity that is sold or transmitted over a period of time.&quot;</span>
+                <span class="s2">&quot; ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO.&quot;</span>
+                <span class="s2">&quot; FUEL CHARGE: Charge based on the cost or amount of fuel used for generation.&quot;</span>
+                <span class="s2">&quot; GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs.&quot;</span>
+                <span class="s2">&quot; NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies).&quot;</span>
+                <span class="s2">&quot; OTHER: Product name not otherwise included.&quot;</span>
+                <span class="s2">&quot; PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over.&quot;</span>
+                <span class="s2">&quot; REACTIVE SUPPLY &amp; VOLTAGE CONTROL: Production or absorption of reactive power to maintain voltage levels on transmission systems (Ancillary Service).&quot;</span>
+                <span class="s2">&quot; REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system.&quot;</span>
+                <span class="s2">&quot; REGULATION &amp; FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products.&quot;</span>
+                <span class="s2">&quot; SCHEDULE SYSTEM CONTROL &amp; DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service).&quot;</span>
+                <span class="s2">&quot; SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported.&quot;</span>
+                <span class="s2">&quot; TOLLING ENERGY: Energy sold from a plant whereby the buyer provides fuel to a generator (seller) and receives power in return for pre-established fees.&quot;</span>
+                <span class="s2">&quot; UPLIFT: A make-whole payment by an RTO/ISO to a utility.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;BLACK START SERVICE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;BOOKED OUT POWER&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;CAPACITY&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;CUSTOMER CHARGE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ENERGY&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ENERGY IMBALANCE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EXCHANGE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;FUEL CHARGE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;GENERATOR IMBALANCE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;GRANDFATHERED BUNDLED&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;NEGOTIATED-RATE TRANSMISSION&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;OTHER&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;PRIMARY FREQUENCY RESPONSE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;REACTIVE SUPPLY &amp; VOLTAGE CONTROL&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;REAL POWER TRANSMISSION LOSS&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;REGULATION &amp; FREQUENCY RESPONSE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;REQUIREMENTS SERVICE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SCHEDULE SYSTEM CONTROL &amp; DISPATCH&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SPINNING RESERVE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SUPPLEMENTAL RESERVE&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TOLLING ENERGY&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;UPLIFT&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
         <span class="s2">&quot;timezone&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -11015,35 +11936,6 @@
                 <span class="p">],</span>
             <span class="p">},</span>
         <span class="p">},</span>
-        <span class="s2">&quot;product_name&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;BLACK START SERVICE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;BOOKED OUT POWER&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;CAPACITY&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;CUSTOMER CHARGE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;EMERGENCY ENERGY&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;ENERGY&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;ENERGY IMBALANCE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;EXCHANGE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;FUEL CHARGE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;GENERATOR IMBALANCE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;GRANDFATHERED BUNDLED&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;NEGOTIATED-RATE TRANSMISSION&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;OTHER&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;PRIMARY FREQUENCY RESPONSE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;REACTIVE SUPPLY &amp; VOLTAGE CONTROL&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;REAL POWER TRANSMISSION LOSS&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;REGULATION &amp; FREQUENCY RESPONSE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;REQUIREMENTS SERVICE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;SCHEDULE SYSTEM CONTROL &amp; DISPATCH&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;SPINNING RESERVE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;SUPPLEMENTAL RESERVE&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;TOLLING ENERGY&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;UPLIFT&quot;</span><span class="p">,</span>
-                <span class="p">]</span>
-            <span class="p">},</span>
-        <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;core_rus7__yearly_balance_sheet_assets&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;asset_type&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -11052,6 +11944,16 @@
                 <span class="s2">&quot;Type of asset being reported to the core_rus7__yearly_balance_sheet_assets table.&quot;</span>
             <span class="p">),</span>
             <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">ASSET_TYPES_RUS7</span><span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_rus7__yearly_service_interruptions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;observation_period&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SERVICE_INTERRUPTION_PERIODS_RUS7</span><span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_rus7__yearly_service_interruptions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;observation_period&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SERVICE_INTERRUPTION_PERIODS_RUS7</span><span class="p">},</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;core_rus7__yearly_balance_sheet_liabilities&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -11082,7 +11984,7 @@
                     <span class="s2">&quot;cost_of_electric_service&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;customer_accounts&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;customer_service&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;deprecation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;depreciation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;distribution_maintenance&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;distribution_operation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;equity_investment_losses&quot;</span><span class="p">,</span>
@@ -11127,6 +12029,9 @@
             <span class="p">),</span>
             <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">LIABILITY_TYPES_RUS12</span><span class="p">},</span>
         <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_rus12__monthly_demand_and_energy_at_power_sources&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;peak_demand_mw&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;peak demand in a given timeframe.&quot;</span><span class="p">}</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 

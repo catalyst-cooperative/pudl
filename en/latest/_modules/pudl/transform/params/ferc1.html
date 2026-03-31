@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.params.ferc1 &#8212; PUDL 2025.11.1.dev115 documentation</title>
+    <title>pudl.transform.params.ferc1 &#8212; PUDL 2026.3.1.dev39 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=7e24c9f5" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
@@ -49,14 +49,450 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../../_static/documentation_options.js?v=1da4e7d9"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/transform/params/ferc1';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -134,8 +570,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
   
   
 </a></div>
@@ -171,20 +607,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -193,14 +615,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -292,20 +721,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -314,14 +729,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -429,6 +851,7 @@
 <span class="sd">found in :mod:`pudl.transform.classes` and :mod:`pudl.transform.ferc1`</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -847,446 +1270,8 @@
 <div class="viewcode-block" id="FUEL_CATEGORIES">
 <a class="viewcode-back" href="../../../../autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.FUEL_CATEGORIES">[docs]</a>
 <span class="n">FUEL_CATEGORIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;coal&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;bit coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bit-coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ciak&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coa&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal &amp; gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal &amp; oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal (sb)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal - subbit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal and gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal bit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal mcf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal tons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal unit #3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal&amp;coke&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal(sb)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-lig&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-lignite&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-sub&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-sub bit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-subb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-subbit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-subbitum&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-u3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-unit #3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal. gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal.oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal/gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal/oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coals&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coke&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fossil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lignite&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lignite/coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other-steam expenses:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pet. coke&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;petcoke&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam-common production&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam-common production plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam heating plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam plant&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;oil&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;# 2  oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;# 2 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;# 6 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#1 diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#1 uls diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#1 fuel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#1 kerosene&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#1 ls diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#1 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2 diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2 fue oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2 fuel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2 fuel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2 ls diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2 uls diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2 oil-diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#2oil diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#6 &amp; used&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#6 hvy oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#6 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbl.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;biofuel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;black start diesel units&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;black start diesel units:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blend oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blended oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bunker oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comp oil/gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;dielel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;dielsel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel fuel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel generators&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel-low&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel-low s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel-low s or gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel-ultra low s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel/&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel/compo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel/compos&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesle-low s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;heavy oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;jet&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;jet fuel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;jet oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kero&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;light oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;montauk diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nno. 2 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no 2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no. 2 diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no 2 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no 2. oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no 6 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no. 2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no. 2  oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no. 2 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no. 2 oils&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no. 6 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no.2 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no.2 oil gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no.6 oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no.6&amp; used&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oial&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil #6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil (#2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil (#6)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil (6)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil (used)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil - 2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil / gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil 6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil bbl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil bbls&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil bls&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil un 1 &amp; 2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil(#2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-8&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-fuel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-kero&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-u1&amp;2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-unit #1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-unit1&amp;2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil, nat .gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil, nat. gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil,n.gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil,nat.gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil/diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil/gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oill&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oils&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oiul&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oli&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resid. oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;residual oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tall oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;used oil&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;gas&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;# 6 gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;#6 gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;* propane&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blast gaa&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blast gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal.gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coke gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coke oven gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;dinner lake gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;g&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ga&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gac&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas #2016&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas &amp; oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas - oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas / oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas ct&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas expander&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas mcf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbines:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas, fuel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas, oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas-oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas.oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas/oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas/fuel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas`&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gass&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lp gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;methane&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;methane gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n. gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nat  gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nat gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nat. gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nat.gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natl gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natuaral gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natural&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natural  gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natural gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natural gas/fuel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ng&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ng, fo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;prop&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;prop.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;propane&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;propane **&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;propane**&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;syngas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;syngass&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;waste heat/gas&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;solar&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;community solar gardens&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;photovoltaic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;photo voltaic generating plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;proj dvlpmnt div solar photovoltaic project:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sixth street solar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar array&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar electric&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar photovoltaic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar photovoltiac&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other production - solar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;customer hosted solar:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar farms&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;wind&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;rosiere wind turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind:&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;hydro&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional hydro plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional hydro&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydraulic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydraulic (1):&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydraulic:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hyrdo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro -&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro : licensed proj. no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro electric&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro lic project no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro lic. project no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro license&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro license no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plant:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plants: licensed proj no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plants: licensed proj. no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro-electric&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro-neal shoals&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro: lic project no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro: lic. project no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro: license no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric : licensed proj. no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric generating plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric generating plants :&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric generating plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric: licensed proj. no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other hydro assets (resvr., strm gages, etc.)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other hydro assets (resvr.,strm gages, etc.)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other hydro costs:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;research and development costs (hydros)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;run of river&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;run-of-river&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;run-of-rr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;run-of-rv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;small hydroelectric plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;small hydroelectric generating plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unallocated hydros&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unallocated - hydros&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;water&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lewiston canal facilities:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plants hydro plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;neal shoals-hydro license&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;nuclear&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams of uran&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams of&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams of  ura&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nucleur&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nulear&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nucl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nucleart&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nucelar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gr.uranium&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams of urm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (9)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nulcear&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gr. uranium&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;uranium&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear mw da&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams of ura&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nucvlear&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (1)&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;waste&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;biomass&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;landfill&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;landfill gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;landfill:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rdf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rdf, gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;refuse&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;switchgrass&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tdf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tire&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tire chips&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tire refuse&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tires&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tires/refuse&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;waste&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;waste oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wood&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wood chips&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wood waste&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;woodchips&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;woodships&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="c1"># This should really be NA but we require a fuel_type_code_pudl</span>
-        <span class="s2">&quot;other&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;# 6 &amp; used&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;*&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;/#2a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;120976&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;20&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;77509&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;a, b&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;a,b&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all fuel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all fuels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all fuels =&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all fuels are&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all fuels to&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;alt. fuel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;alt. fuels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;alternative&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;at right&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;average&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;avg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;avg.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bio fuel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blo bls&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bng&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;c&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;c omposite&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comp&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;compos.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;composit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;composite&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;compsite&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel cell:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel cell&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;furfural&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kagv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lime&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;m&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mbtu&#39;s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mbtus&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw days&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n.a.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;na&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;purch steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;purch. steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rrm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;the right are&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;toal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;total&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;total pc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;total pr crk&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;total prairie&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;waste heat&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;watson bng&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;—&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;---------&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span>
-            <span class="s2">&quot;storage/pipelines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydrogen&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;na_category&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;na_category&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gold creek internal combustion:&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span>
+    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.ferc1&quot;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s2">&quot;fuel_categories.yaml&quot;</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;A mapping a canonical fuel name to a set of strings which are used to represent that</span>
@@ -1298,330 +1283,8 @@
 <div class="viewcode-block" id="FUEL_UNIT_CATEGORIES">
 <a class="viewcode-back" href="../../../../autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.FUEL_UNIT_CATEGORIES">[docs]</a>
 <span class="n">FUEL_UNIT_CATEGORIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;ton&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;ton&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;toms&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;taons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tones&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;col-tons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;toncoaleq&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tons coal eq&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-tons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tons coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-ton&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tires-tons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal tons -2 &quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-tons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal tons 200&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ton-2000&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal tons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal tons -2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-tone&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tire-ton&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tire-tons&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ton coal eqv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tos&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal tons - 2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;c. t.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;c.t.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;t&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;toncoalequiv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal - ton&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;toons&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;mcf&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;mcf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcf&#39;s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcfs&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcf.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcfe&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas mcf&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;&quot;gas&quot; mcf&#39;</span><span class="p">,</span>
-            <span class="s2">&quot;gas-mcf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mfc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mct&quot;</span><span class="p">,</span>
-            <span class="s2">&quot; mcf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;msfs&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mlf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mscf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mci&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;m.cu.ft.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kcf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(mcf)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcf *(4)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcf00&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;m.cu.ft..&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1000 c.f&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas - mcf&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;bbl&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;bbl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbls&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbrl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbl.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbls.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil 42 gal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-barrels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrrels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbl-42 gal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-barrel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bb.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrells&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbld&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil- barrel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrels    .&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbl .&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrell&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;berrels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbl.s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-bbl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bls&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbl:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrles&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;propane-bbl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barriel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;berriel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrile&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(bbl.)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrel *(4)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(4) barrel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;blb.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(bbl)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bb1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbsl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrrel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrels 100%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bsrrels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bbl&#39;s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;*barrels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil - barrels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil 42 gal ba&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bll&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler barrel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas barrel&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;&quot;boiler&quot; barr&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;&quot;gas&quot; barrel&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;&quot;boiler&quot;barre&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;&quot;boiler barre&#39;</span><span class="p">,</span>
-            <span class="s2">&quot;barrels .&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bariel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;brrels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil barrel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barreks&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-bbls&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-bbs&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boe&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil- bbl&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;mmbbl&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;mmbbl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mmbbls&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mmboe&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;gal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;gal&quot;</span><span class="p">,</span> <span class="s2">&quot;gallons&quot;</span><span class="p">,</span> <span class="s2">&quot;gal.&quot;</span><span class="p">,</span> <span class="s2">&quot;gals&quot;</span><span class="p">,</span> <span class="s2">&quot;gals.&quot;</span><span class="p">,</span> <span class="s2">&quot;gallon&quot;</span><span class="p">,</span> <span class="s2">&quot;galllons&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;kgal&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;kgal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil(1000 gal)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil(1000)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil (1000)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil(1000&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil(1000ga)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1000 gals&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1000 gal&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;grams&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;gram&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gm u&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams u235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams u-235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams of uran&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams: u-235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams:u-235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams:u235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams u308&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams: u235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams of&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams - n/a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gms uran&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;s e uo2 grams&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gms uranium&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams of urm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gms. of uran&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams (100%)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams v-235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;se uo2 grams&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams u&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;g&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grams of uranium&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;kg&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;kg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kg of uranium&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kg uranium&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kilg. u-235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kg u-235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kilograms-u23&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kilograms u-2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kilograms&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kg of&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kg-u-235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kilgrams&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kilogr. u235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;uranium kg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kg uranium25&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kilogr. u-235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kg uranium 25&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kilgr. u-235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kguranium 25&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kg-u235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kgm&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;klbs&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;klbs&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;k lbs.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;k lbs&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1000 / lbs&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1000 lbs&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;mmbtu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mmbtus&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mbtus&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(mmbtu)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mmbtu&#39;s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear-mmbtu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear-mmbt&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mmbtul&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;btu&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;btu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;btus&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;mwdth&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;mwdth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwd therman&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw days-therm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwd thrml&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwd thermal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwd/mtu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw days&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwd&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw day&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;dth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwdaysthermal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw day therml&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw days thrml&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear mwd&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mmwd&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw day/therml&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw days/therm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw days (th&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ermal)&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;mwhth&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;nwh therm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwhth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh them&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh threm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh therm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh therms.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh term.uts&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh thermal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh thermals&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mw hr therm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh therma&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh therm.uts&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;na_category&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;na_category&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;na&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1265&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mwh units&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;composite&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;therms&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mbtu/kg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;uranium 235&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ccf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2261&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;uo2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(7)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil #2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil #6&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;a&quot;&#39;</span><span class="p">,</span>
-            <span class="s2">&quot;dekatherm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;62,679&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;uranium&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil/gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;thermal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(thermal)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;se uo2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;181679&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;83&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;3070&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;248&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;273976&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;747&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;are total&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pr. creek&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;decatherms&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;uramium&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;total pr crk&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;total&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;alternative-t&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-mcf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;3303671&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;929&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;7182175&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;319&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1490442&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;10881&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1363663&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;7171&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1726497&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;4783&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;7800&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;12559&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2398&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;creek fuels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;propane-barre&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;509&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;barrels/mcf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;propane-bar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;4853325&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;4069628&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1431536&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;708903&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcf/oil (1000&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;344&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mcf / gallen&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;—&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span>
+    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.ferc1&quot;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s2">&quot;fuel_unit_categories.yaml&quot;</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;A mapping of canonical fuel units (keys) to sets of strings representing those fuel</span>
@@ -1630,533 +1293,8 @@
 <div class="viewcode-block" id="PLANT_TYPE_CATEGORIES">
 <a class="viewcode-back" href="../../../../autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.PLANT_TYPE_CATEGORIES">[docs]</a>
 <span class="n">PLANT_TYPE_CATEGORIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;steam&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;*resp. share steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(6) milwaukee county is a steam utility plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(steam)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;40</span><span class="si">% s</span><span class="s2">hare steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;40</span><span class="si">% s</span><span class="s2">hare steamsteam (2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal fired steam tur&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal fired steam turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coal-fired steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mpc 50</span><span class="si">% s</span><span class="s2">hare steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mpc 50</span><span class="si">% s</span><span class="s2">hares steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mpc 50</span><span class="si">%s</span><span class="s2">hare steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mpc40</span><span class="si">%s</span><span class="s2">hare steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mpc50</span><span class="si">% s</span><span class="s2">hare steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil-fired steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other-steam expenses:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp share st note 3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp share st note3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp share stm note3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;respondent&#39;s sh-st&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;respondent&#39;s sh.-st.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (1) &amp; (2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (4)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (5)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (6)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (7)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (8)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (a)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (a,b)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (incl i.c.)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (leased)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (note 1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (retired)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (see note 1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (see note 1,&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (see note 3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (see notes)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam - 100%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam - 64%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam - 72%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam 1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam 100&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam 4, 5&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam conventional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam fossil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam heating plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam retired 2013&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 1 2 3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 1 and 2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 1, 2, 3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 1,2,3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 3 and 4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 4 &amp; 6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 4 5&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 4&amp;5&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 4&amp;6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam units 4, 5&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam- 64%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam- 72%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam-100%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam-64%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam-common production&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam-common production plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam-internal comb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam/fossil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam;retired - 2013&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steams&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;stean&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;stream&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit total steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit total-steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam/fuel oil&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;combustion_turbine&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;* gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;*gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;*gas turbine(note 3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;*gas turbine(note3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;add to gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;b-combustion turbine unit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;com turbine peaking&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb turb peak units&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb turb peaking&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb turbine peaking&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. turb-gas oper&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. turb-gas oper.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. turb.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. turb. oil oper&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. turbine (a)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. turine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb.turb-gas oper.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb.turb.gas/oil op&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb.turb.oil oper&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb.turb.oil oper.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb.turb.peak.units&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combusion turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combusition turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustine turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustion and gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustion burbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustion tubine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustion turbin&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustion turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustion_turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustionturbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combution turbin&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combution turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combutsion turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comubstion turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conbustion turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;cumbustion turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas - turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas expander turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas trubine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb(see notes)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb, diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb, int. comb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb, int. comb.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb. (see note&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb.(see note5)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb.(see notes)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbin (leasd)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbin (lease&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine # 1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine #1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (a)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (leasd)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (lease&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (lease)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (leased&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (leased)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (note 1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (note 3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (note1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine (see nos&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine - note 1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine note 3,6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine note 4,6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine peaker&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine peaking&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine peakload&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine-simple&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine-unit 2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine/int comb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine/int. cm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine/intcomb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine; retired&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbines:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbinint comb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbne/int comb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas-turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gasturbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gt&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gtg/gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;i.c.e. /gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;i.c.e./gas tubine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;i.c.e./gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;i.c.e/ gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;i.c.e/gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;jet&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;jet engine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;jet powered turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;jet turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp share gas note3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;simple cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;simple cycle turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine/fuel oil&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;combined_cycle&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;Combined cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;cc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;cc / gas turb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;com cycle gas turb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;com. cyc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;com. cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb cyc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb cyc (a) (b)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb cycle (a,b)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb cycle gas turb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb cycle/steam tur&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. cycle gas turb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combine cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combine cycle oper&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle (a,b)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle - 40%&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle ctg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle oper&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle operation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle opern&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle plant:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined_cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combinedcycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ctg steam gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ctg/steam -gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ctg/steam-gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas &amp; steam turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas / steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas fired cc turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas trb &amp; heat rec&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas tur &amp; comb cyc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas tur &amp; comb cycl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb-combined cy&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb. &amp; heat rec&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb/comb cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb/comb. cyc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb/cumb. cyc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turb/cumbus cycl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine / steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine-combine cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine-combined cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine/ steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine/steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas/steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas/steam comb cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas/steam comb. cycl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gasturb/comb cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;igcc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;igcc/gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ngcc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;st/gas turb comb cyc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam &amp; cc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam &amp; comb cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam &amp; combined ce&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam &amp; gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (comb. cycle)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (comb. cycle)gas turbine/steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam and cc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam cc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam comb cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam/gas turb.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam/gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle-40%&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;nuclear&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam(nuclear)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear(see note4)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear - steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (a)(b)(c)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (b)(c)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;* nuclear&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (b) (c)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (see notes)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam (nuclear)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;* nuclear (note 2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (note 2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (see note 2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear(see notes)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear-steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear (see note 3)&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;geothermal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;steam - geothermal&quot;</span><span class="p">,</span> <span class="s2">&quot;steam_geothermal&quot;</span><span class="p">,</span> <span class="s2">&quot;geothermal&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;internal_combustion&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;*int combustion (1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;*int. combustion (1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;*internal combust&#39;n&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;auke bay internal combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;auke bay internal combustion:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;available for specific diesel unit.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;available for specific diesel units.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;a-internal combustion unit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;black start diesel units&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;black start diesel units:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. cyc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conemaugh - internal combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel engine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel generators&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;diesel turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;east hampton diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gold creek internal combustion:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int combust (note 1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int combust (note1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int combust - note 1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int. combust (note1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int. combust - note1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int. combustine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int. combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int. combustion (1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;int.combustine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;interal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal conbustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;interal combustion:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal comb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal comb recip&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal comb.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combust.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion :&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion auxiliary&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion peaking units&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion reciprocating&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion-diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion: (emergency standby&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal conbustion:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal_combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;international combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internl combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lemon creek internal combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lemon creek internal combustion:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;montauk diesel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other / internal combustion :&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other/internal combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reciprocating engine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;shawville - internal combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam internal comb&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;wind&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;(7) montfort wind farm was purchased dec. 2012.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rosiere wind turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;suisun wind power plant (r)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind energy&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind - turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind generation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbin&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind:&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;photovoltaic&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;community solar gardens&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other production - solar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;photovoltaic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sixth street solar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar array&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar electric&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar photovoltaic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar photovoltiac&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar project&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;proj dvlpmnt div solar photovoltaic project:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;photo voltaic generating plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;customer hosted solar:&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;solar_thermal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;solar thermal&quot;</span><span class="p">,</span> <span class="s2">&quot;solar_thermal&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;fuel_cell&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fuel cell&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_cell&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel cell:&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;hydro&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;(1) the dixon hydro electric generating facility&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(6) excludes portion allocated to other water&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(hydroelectric facility)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;a - hydro license project no. 2315.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;a-hydro license project no. 2315&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional hydro plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all other hydro misc. plant, resv., etc.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all other hydro miscellaneous plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all other hydro plant, resv., misc., etc.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional hydro&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydraulic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydraulic (1):&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydraulic race (project no. 2424)(note 1)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydraulic:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro -&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro : licensed proj. no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro electric&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro lic project no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro lic. project no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro license&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro license no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plant:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plants: licensed proj no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro plants: licensed proj. no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro-electric&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro-neal shoals&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro: lic project no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro: lic. project no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydro: license no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric : licensed proj. no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric generating plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric generating plants :&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric generating plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hydroelectric: licensed proj. no.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hyrdo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;neal shoals-hydro license&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other hydro assets (resvr., strm gages, etc.)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other hydro assets (resvr.,strm gages, etc.)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other hydro costs:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;research and development costs (hydros)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;small hydroelectric generating plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;small hydroelectric plants:&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;talcville hydro station(project no. 4402)(note 1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;the hydro plant above&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unallocated - hydros&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unallocated hydros&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;daily storage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;storage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;storage (re-reg)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;storage - dailey&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;storage - daily&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;storage - weekly&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;storage reservoir&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;weekly storage&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;na_category&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(left blank)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(see note 5)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(see note 7)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;0.0000&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined heat/power&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;common&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;common expenses&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;expenses commom to&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;expenses common to&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;footnote&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel facilities&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;na&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;na_category&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;non-applicable&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;none.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;not applicable&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;not applicable.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;not in service&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;not in service in&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other generation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other generation plt&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;package&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;peach bottom&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plant retired- 2013&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plants sold in 1999&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp share (note 11)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp share - note 11&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp share - note 5&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note 2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note 3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note 4)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note 6)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note 8)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note 9)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note11)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note4)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note6)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share (note8)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share - note 2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share - note 4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share - note 6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share - note 7&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share - note 8&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share - note 9&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;resp. share note 11&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;respondent&#39;s share&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;retired&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;retired - 2013&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;retired in 1978&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;retired in 1981&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;see pgs 402.1-402.3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;see pgs 403.1-403.9&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sold april 16, 1999&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sold may 07, 1999&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;storage/pipelines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit total (note 2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit total (note 3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit total (note2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit total (note3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;waste heat&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;—&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span>
+    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.ferc1&quot;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s2">&quot;plant_type_categories.yaml&quot;</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;A mapping from canonical plant kinds (keys) to the associated freeform strings</span>
@@ -2283,387 +1421,8 @@
 <div class="viewcode-block" id="CONSTRUCTION_TYPE_CATEGORIES">
 <a class="viewcode-back" href="../../../../autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.CONSTRUCTION_TYPE_CATEGORIES">[docs]</a>
 <span class="n">CONSTRUCTION_TYPE_CATEGORIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;outdoor&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor boilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outboilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoors&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler outdoor&amp; full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler outdoor&amp;full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor boiler&amp; full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full -outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ob&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor automatic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor repower&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor boiler &amp; ful&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full-outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor  boiler&amp;full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler outdoor &amp;full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor boiler &amp;full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler outdoor &amp; ful&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor-boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor - boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor const.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;4 outdoor boilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;3 outdoor boilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full outdoors&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full oudoors&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor (auto oper)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outside boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor boiler&amp;full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor hrsg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor-steel encl.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler-outdr &amp; full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;con.&amp; full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;partial outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor (auto. oper)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor (auto.oper)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor construction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1 outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 outdoor boilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor enclosure&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 outoor boilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler outdr.&amp; full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler outdr. &amp; full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ful outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor-steel enclos&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor (auto oper.)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;con. &amp; full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdore&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler &amp; full outdor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full &amp; outdr boilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outodoor (auto oper)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor steel encl.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full outoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler &amp; outdoor ful&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;otdr. blr. &amp; f. otdr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;f.otdr &amp; otdr.blr.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;oudoor (auto oper)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor constructin&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;f. otdr. &amp; otdr. blr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor boiler &amp; fue&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor boiler &amp;fuel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional; outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coven./outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv &amp; outdoor boiler&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;semioutdoor&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;semioutdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;more than 50</span><span class="si">% o</span><span class="s2">utdoors&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;more than 50</span><span class="si">% o</span><span class="s2">utdoo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;more than 50</span><span class="si">% o</span><span class="s2">utdos&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;over 50</span><span class="si">% o</span><span class="s2">utdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;over 50</span><span class="si">% o</span><span class="s2">utdoors&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;semi-outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;semi - outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;semi outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;semi-enclosed&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;semi-outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;semi outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;semi- outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;semi - outdoors&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;semi -outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven &amp; semi-outdr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv &amp; semi-outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv &amp; semi- outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convent. semi-outdr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. semi outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv(u1)/semiod(u2)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv u1/semi-od u2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv-one blr-semi-od&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convent semioutdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. u1/semi-od u2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv - 1 blr semi od&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. ui/semi-od u2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv-1 blr semi-od&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven. semi-outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv semi-outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;u1-conv./u2-semi-od&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;u1-conv./u2-semi -od&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convent. semi-outdoo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;u1-conv. / u2-semi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdr &amp; conventnl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven. full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. &amp; outdoor blr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. &amp; outdoor blr.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. &amp; outdoor boil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. &amp; outdr boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. &amp; out. boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convntl,outdoor blr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor &amp; conv.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 conv., 1 out. boil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor/conventional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. boiler outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv-one boiler-outd&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional outdor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv.outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional outdr.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven,outdoorboiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven,full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1 out boil, 2 conv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. &amp; full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. &amp; outdr. boilr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convention. outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. sem. outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convntl, outdoor blr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv &amp; outdoor boil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv &amp; outdoor boil.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor &amp; conv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. broiler outdor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1 out boilr, 2 conv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv.&amp; outdoor boil.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven,outdr.boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven,outdr boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor &amp; conventil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1 out boilr 2 conv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv &amp; outdr. boilr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven, full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven full outdr.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven, full outdr.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv/outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convnt&#39;l outdr boilr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1 out boil 2 conv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven, outdr boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional/outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv&amp;outdoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outdoor &amp; convention&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv &amp; outdoor boilr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv &amp; full outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convntl. outdoor blr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv - ob&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1conv&#39;l/2odboilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2conv&#39;l/1odboiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv-ob&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv.-ob&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1 conv/ 2odboilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 conv /1 odboilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv- ob&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv -ob&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;con sem outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;cnvntl, outdr, boilr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;less than 50</span><span class="si">% o</span><span class="s2">utdoo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;less than 50</span><span class="si">% o</span><span class="s2">utdoors&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;under 50</span><span class="si">% o</span><span class="s2">utdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;under 50</span><span class="si">% o</span><span class="s2">utdoors&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1cnvntnl/2odboilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2cnvntnl1/1odboiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;con &amp; ob&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combination (b)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor &amp; outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven. blr. &amp; full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. &amp; otdr. blr.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combination&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor and outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven boiler &amp; full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2conv&#39;l/10dboiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;4 indor/outdr boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;4 indr/outdr boilerr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;4 indr/outdr boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor &amp; outdoof&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convet. semi-outdoor&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;conventional&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;conventional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional - boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv-b&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventionall&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convention&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;coventional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven full boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;c0nventional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventtional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convential&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional bulb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventrional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;*conventional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convetional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventioanl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventioinal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventaional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor construction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convenional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventinal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convntional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventionl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventionsl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventiional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convntl steam plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor const.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full indoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor automatic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor boiler and steam turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(peak load) indoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventionl,indoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventionl, indoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional, indoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional;outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven./outdoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional;semi-ou&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. cycle indoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb cycle indoor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;3 indoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 indoor boilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1 indoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 indoor boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;3 indoor boilers&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fully contained&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv - b&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional/boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;cnventional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. cycle indooor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sonventional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ind enclosures&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conentional&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional - boilr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;indoor boiler and st&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conv. underground&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conven. underground&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;conventional (a)&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;na_category&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;na_category&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;na&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;automatic operation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. turb. installn&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb. turb. instaln&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;com. turb. installn&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;for detailed info.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;for detailed info&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;not applicable&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;heated individually&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;metal enclosure&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pressurized water&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;jet engine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;storage/pipelines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;during 1994&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;peaking - automatic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine/int. cm&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 oil/gas turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;package&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mobile&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;auto-operated&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;steam plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other production&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;all nuclear plants&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other power gen.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;automatically operad&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;automatically operd&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;circ fluidized bed&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;jet turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbne/int comb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;automatically oper.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;retired 1/1/95&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;during 1995&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1996. plant sold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reactivated 7/1/96&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine/int comb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;portable&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;head individually&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;automatic opertion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;peaking-automatic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full order&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;circ. fluidized bed&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas turbine/intcomb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;0.0000&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 oil / gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;block &amp; steel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;and 2000&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb.turb. instaln&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;automatic oper.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pakage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;---&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;—&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n/a (ct)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;comb turb instain&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ind encloures&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 oil /gas turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combustion turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1970&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas/oil turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;combined cycle steam&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pwr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 oil/ gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 oil / gas turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas / oil turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;no boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;internal combustion&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gasturbine no boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tower -10 unit facy&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gas trubine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;4 gas/oil trubines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 oil/ 4 gas/oil tur&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;5 gas/oil turbines&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tower 16&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2 on 1 gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tower 23&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tower -10 unit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tower - 101 unit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;3 on 1 gas turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tower - 10 units&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tower - 165 units&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind turbine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fixed tilt pv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;tracking pv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;o&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind trubine&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wind generator&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;subcritical&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sucritical&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;simple cycle&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;simple &amp; reciprocat&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pre-fab power plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;prefab power plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;prefab. power plant&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pump storage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;underground&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;see page 402&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;non-applicable&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;duct burner&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;see footnote&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;simple and reciprocat&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--not applicable--&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;---not applicable---&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;not applicable.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;schedule is n/a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;none.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;see note&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;not appicable&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pv tracking&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;r of r/storage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;simple and reciprocating&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;simple &amp; reciprocating&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span>
+    <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.ferc1&quot;</span><span class="p">)</span>
+    <span class="o">/</span> <span class="s2">&quot;construction_type_categories.yaml&quot;</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;A dictionary of construction types (keys) and lists of construction type strings</span>

@@ -37,44 +37,140 @@ PUDL Database Tables
 
    * - Data Dictionary
      - Browse Online
-   * - :ref:`core_rus7__scd_borrowers`
-     - https://data.catalyst.coop/search?q=name:core_rus7__scd_borrowers
+   * - :ref:`core_rus7__entity_borrowers`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__entity_borrowers
    
    * - :ref:`core_rus7__yearly_balance_sheet_assets`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_balance_sheet_assets
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_balance_sheet_assets
    
    * - :ref:`core_rus7__yearly_balance_sheet_liabilities`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_balance_sheet_liabilities
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_balance_sheet_liabilities
+   
+   * - :ref:`core_rus7__yearly_customer_energy_efficiency_and_conservation_loans`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_customer_energy_efficiency_and_conservation_loans
+   
+   * - :ref:`core_rus7__yearly_distribution_services`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_distribution_services
    
    * - :ref:`core_rus7__yearly_employee_statistics`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_employee_statistics
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_employee_statistics
    
    * - :ref:`core_rus7__yearly_energy_efficiency`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_energy_efficiency
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_energy_efficiency
+   
+   * - :ref:`core_rus7__yearly_energy_purchased`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_energy_purchased
+   
+   * - :ref:`core_rus7__yearly_external_financial_risk_ratio`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_external_financial_risk_ratio
    
    * - :ref:`core_rus7__yearly_investments`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_investments
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_investments
+   
+   * - :ref:`core_rus7__yearly_loans`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_loans
    
    * - :ref:`core_rus7__yearly_long_term_debt`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_long_term_debt
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_long_term_debt
+   
+   * - :ref:`core_rus7__yearly_long_term_leases`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_long_term_leases
+   
+   * - :ref:`core_rus7__yearly_materials_and_supplies`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_materials_and_supplies
    
    * - :ref:`core_rus7__yearly_meeting_and_board`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_meeting_and_board
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_meeting_and_board
+   
+   * - :ref:`core_rus7__yearly_owed_by_customers`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_owed_by_customers
    
    * - :ref:`core_rus7__yearly_patronage_capital`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_patronage_capital
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_patronage_capital
    
    * - :ref:`core_rus7__yearly_power_requirements`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_power_requirements
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_power_requirements
    
    * - :ref:`core_rus7__yearly_power_requirements_electric_customers`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_power_requirements_electric_customers
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_power_requirements_electric_customers
    
    * - :ref:`core_rus7__yearly_power_requirements_electric_sales`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_power_requirements_electric_sales
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_power_requirements_electric_sales
+   
+   * - :ref:`core_rus7__yearly_service_interruptions`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_service_interruptions
    
    * - :ref:`core_rus7__yearly_statement_of_operations`
-     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_statement_of_operations
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_statement_of_operations
+   
+   * - :ref:`core_rus7__yearly_transmission_and_distribution_mileage`
+     - https://data.catalyst.coop/preview/pudl/core_rus7__yearly_transmission_and_distribution_mileage
+   
+   * - :ref:`out_rus7__yearly_balance_sheet_assets`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_balance_sheet_assets
+   
+   * - :ref:`out_rus7__yearly_balance_sheet_liabilities`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_balance_sheet_liabilities
+   
+   * - :ref:`out_rus7__yearly_customer_energy_efficiency_and_conservation_loans`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_customer_energy_efficiency_and_conservation_loans
+   
+   * - :ref:`out_rus7__yearly_distribution_services`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_distribution_services
+   
+   * - :ref:`out_rus7__yearly_employee_statistics`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_employee_statistics
+   
+   * - :ref:`out_rus7__yearly_energy_efficiency`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_energy_efficiency
+   
+   * - :ref:`out_rus7__yearly_energy_purchased`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_energy_purchased
+   
+   * - :ref:`out_rus7__yearly_external_financial_risk_ratio`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_external_financial_risk_ratio
+   
+   * - :ref:`out_rus7__yearly_investments`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_investments
+   
+   * - :ref:`out_rus7__yearly_loans`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_loans
+   
+   * - :ref:`out_rus7__yearly_long_term_debt`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_long_term_debt
+   
+   * - :ref:`out_rus7__yearly_long_term_leases`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_long_term_leases
+   
+   * - :ref:`out_rus7__yearly_materials_and_supplies`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_materials_and_supplies
+   
+   * - :ref:`out_rus7__yearly_meeting_and_board`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_meeting_and_board
+   
+   * - :ref:`out_rus7__yearly_owed_by_customers`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_owed_by_customers
+   
+   * - :ref:`out_rus7__yearly_patronage_capital`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_patronage_capital
+   
+   * - :ref:`out_rus7__yearly_power_requirements`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_power_requirements
+   
+   * - :ref:`out_rus7__yearly_power_requirements_electric_customers`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_power_requirements_electric_customers
+   
+   * - :ref:`out_rus7__yearly_power_requirements_electric_sales`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_power_requirements_electric_sales
+   
+   * - :ref:`out_rus7__yearly_service_interruptions`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_service_interruptions
+   
+   * - :ref:`out_rus7__yearly_statement_of_operations`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_statement_of_operations
+   
+   * - :ref:`out_rus7__yearly_transmission_and_distribution_mileage`
+     - https://data.catalyst.coop/preview/pudl/out_rus7__yearly_transmission_and_distribution_mileage
    
 
 
@@ -110,8 +206,12 @@ What data is available through PUDL?
 ------------------------------------
 
 
-We've integrated all RUS 12 tables with the exception of six totals tables
-containing aggregated versions of values present in other tables.
+We've integrated all RUS-7 tables with the exception of six totals tables
+containing aggregated versions of values present in other tables. RUS data
+is only available through 2021 because this is the last year a FOIA request
+was submitted. Future updates of this data will require additional FOIA
+requests. If you are interesting in supporting this please contact
+pudl@catalyst.coop.
 
 
 

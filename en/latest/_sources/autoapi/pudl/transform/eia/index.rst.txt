@@ -30,6 +30,7 @@ Attributes
 .. autoapisummary::
 
    pudl.transform.eia.logger
+   pudl.transform.eia.HARVESTABLE_ASSETS
    pudl.transform.eia.harvested_entities
    pudl.transform.eia.finished_eia_assets
 
@@ -69,6 +70,10 @@ Module Contents
 ---------------
 
 .. py:data:: logger
+
+.. py:data:: HARVESTABLE_ASSETS
+   :value: ('_core_eia860__boiler_cooling', '_core_eia860__boiler_emissions_control_equipment_assn',...
+
 
 .. py:class:: EiaEntity
 
@@ -237,15 +242,18 @@ Module Contents
    entity id.
 
 
-.. py:function:: _manage_strictness(col: str, eia860m: bool) -> float
+.. py:function:: _manage_strictness(col: str, special_case_strictness: dict[str, float]) -> float
 
    Manage the strictness level for each column.
 
    :param col: name of column
-   :param eia860m: if True, ETL is attempting to include year-to-date EIA 860M data.
+   :param special_case_strictness: dictionary of column names (keys) and strictness
+                                   values. The default strictness for harvesting consistent records is
+                                   0.7. If any column you want to have a different consistency requirement,
+                                   add it into this special case dictionary.
 
 
-.. py:function:: harvest_entity_tables(entity: EiaEntity, clean_dfs: dict[str, pandas.DataFrame], eia_settings: pudl.settings.EiaSettings, debug: bool = False) -> tuple
+.. py:function:: harvest_entity_tables(entity: EiaEntity, clean_dfs: dict[str, pandas.DataFrame], special_case_strictness: dict[str, float] = {}, debug: bool = False) -> tuple
 
    Compile consistent records for various entities.
 
@@ -275,8 +283,10 @@ Module Contents
 
    :param entity: One of: plants, generators, boilers, or utilities
    :param clean_dfs: A dictionary of table names (keys) and clean dfs (values).
-   :param eia860m: if True, the etl run is attempting to include year-to-date updated from
-                   EIA 860M.
+   :param special_case_strictness: dictionary of column names (keys) and strictness
+                                   values. The default strictness for harvesting consistent records is
+                                   0.7. If any column you want to have a different consistency requirement,
+                                   add it into this special case dictionary.
    :param debug: if True, log when columns are inconsistent, but don't raise an error.
 
    :returns: entity_df (the harvested entity table), annual_df (the annual entity table),

@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>EPA Hourly Continuous Emission Monitoring System (CEMS) &#8212; PUDL 2025.11.1.dev115 documentation</title>
+    <title>EPA Hourly Continuous Emission Monitoring System (CEMS) &#8212; PUDL 2026.3.1.dev39 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7e24c9f5" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
@@ -50,14 +50,14 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../_static/documentation_options.js?v=1da4e7d9"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'data_sources/epacems';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -137,8 +137,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
   
   
 </a></div>
@@ -174,20 +174,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -196,14 +182,21 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -297,20 +290,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -319,14 +298,21 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -410,6 +396,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_access.html">Data Access</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../methodology/index.html">Methodology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/entity_resolution.html">Entity Resolution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
 </ul>
@@ -530,7 +517,7 @@ it as part of our SQLite database, but it is available through all of our other
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-epacems-hourly-emissions"><span class="std std-ref">core_epacems__hourly_emissions</span></a></p></td>
-<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_epacems__hourly_emissions">https://data.catalyst.coop/search?q=name:core_epacems__hourly_emissions</a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions">https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -549,6 +536,7 @@ units and EIA boilers isn’t perfect. See “Notable Irregularities” below.</
 <h3>Download additional documentation<a class="headerlink" href="#download-additional-documentation" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference download internal" download="" href="../_downloads/7f77fdc7b4f9859c2c2f027a2dfc111c/camd_power_sector_emissions_guide.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Camd</span> <span class="pre">Power</span> <span class="pre">Sector</span> <span class="pre">Emissions</span> <span class="pre">Guide</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/285eb2466521b5e2d7f0cdc5c6b6182c/plain_english_guide_to_the_part_75_rule.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Plain</span> <span class="pre">English</span> <span class="pre">Guide</span> <span class="pre">To</span> <span class="pre">The</span> <span class="pre">Part</span> <span class="pre">75</span> <span class="pre">Rule</span> <span class="pre">(PDF)</span></code></a></p></li>
 </ul>
 </section>
 <section id="data-available-through-pudl">
@@ -559,7 +547,7 @@ update the CEMS data within PUDL on a quarterly schedule.</p>
 </section>
 <section id="who-is-required-to-install-cems-and-report-to-epa">
 <h3>Who is required to install CEMS and report to EPA?<a class="headerlink" href="#who-is-required-to-install-cems-and-report-to-epa" title="Link to this heading">#</a></h3>
-<p><a class="reference external" href="https://www.ecfr.gov/cgi-bin/retrieveECFR?gp=&amp;SID=d20546b42dd4ea978d0de7eabe15cbf4&amp;mc=true&amp;n=pt40.18.75&amp;r=PART&amp;ty=HTML#se40.18.75_12">Part 75</a>
+<p><a class="reference external" href="https://www.ecfr.gov/current/title-40/chapter-I/subchapter-C/part-75?toc=1">Part 75</a>
 of the Code of Federal Regulations (CFR), the backbone of the Clean Air Act’s Acid Rain
 Program, requires fossil-combustion units to install and use CEMS. The qualifications
 (§75.2(a), §72.6(a)) are closely followed by a myriad of exceptions (§75.2(b), §72.6(b),
@@ -570,9 +558,10 @@ and units burning low-sulfer fuels.</p>
 <p>Once CEMS are installed, Part 75 requires hourly data recording, including during
 startup, shutdown, and instances of malfunction as well as quarterly data reporting to
 the EPA. The regulation further details the protocol for missing data calculations and
-backup monitoring for instances of CEMS failure (see §§75.31-37).</p>
+backup monitoring for instances of CEMS failure (see §75.31-37).</p>
 <p>A plain English explanation of the requirements of Part 75 is available in section
-<a class="reference external" href="https://www.epa.gov/sites/production/files/2015-05/documents/plain_english_guide_to_the_part_75_rule.pdf">2.0 Overview of Part 75 Monitoring Requirements</a></p>
+2.0 Overview of Part 75 Monitoring Requirements in the
+<a class="reference download internal" download="" href="../_downloads/285eb2466521b5e2d7f0cdc5c6b6182c/plain_english_guide_to_the_part_75_rule.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Plain</span> <span class="pre">English</span> <span class="pre">Guide</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">Part</span> <span class="pre">75</span> <span class="pre">Rule</span></code></a>.</p>
 </section>
 <section id="what-does-the-original-data-look-like">
 <h3>What does the original data look like?<a class="headerlink" href="#what-does-the-original-data-look-like" title="Link to this heading">#</a></h3>

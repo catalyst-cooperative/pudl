@@ -1,0 +1,169 @@
+pudl.deploy.pudl
+================
+
+.. py:module:: pudl.deploy.pudl
+
+.. autoapi-nested-parse::
+
+   Distribute PUDL ETL outputs to cloud storage and update git branches.
+
+   This module handles distribution of completed ETL builds to public cloud storage
+   (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.deploy.pudl.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.deploy.pudl.DeploymentType
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.deploy.pudl.prepare_outputs_for_distribution
+   pudl.deploy.pudl._run
+   pudl.deploy.pudl.upload_outputs
+   pudl.deploy.pudl.update_git_branch
+   pudl.deploy.pudl.trigger_zenodo_release
+   pudl.deploy.pudl.update_pudl_viewer
+   pudl.deploy.pudl.set_gcs_temporary_hold
+   pudl.deploy.pudl.check_build_success
+   pudl.deploy.pudl.get_build_from_tag
+   pudl.deploy.pudl.get_deployment_type_from_tag
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: DeploymentType(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Deployments can be 'nightly' or 'stable'.
+
+
+   .. py:attribute:: NIGHTLY
+      :value: 'nightly'
+
+
+
+   .. py:attribute:: STABLE
+      :value: 'stable'
+
+
+
+.. py:function:: prepare_outputs_for_distribution(local_path: pathlib.Path, build_path: upath.UPath) -> None
+
+   Prepare ETL outputs for distribution.
+
+   Takes raw ETL output structure and produces distribution-ready outputs:
+   - Moves parquet files from parquet/ subdirectory to root
+   - Compresses SQLite databases with maximum compression
+   - Creates parquet archive (no compression, already compressed)
+   - Removes test databases and temporary directories
+
+   In general, we want to know if these files don't exist, so
+   FileNotFoundErrors are OK and we don't need to pre-emptively try to avoid
+   them.
+
+   :param local_path: Path on local filesystem where we will prep outputs for distribution.
+   :param build_path: Remote path containing raw build outputs.
+
+
+.. py:function:: _run(cmd: list[str]) -> str | None
+
+   Wrap subprocess.run so we see error output.
+
+
+.. py:function:: upload_outputs(source_dir: pathlib.Path, path_suffixes: list[str]) -> None
+
+   Upload outputs to cloud storage paths.
+
+   Uploads all files from source directory to GCS and S3 using the provided path
+   suffixes. Each suffix is uploaded to both gs://pudl.catalyst.coop/{suffix}/ and
+   s3://pudl.catalyst.coop/{suffix}/.
+
+   :param source_dir: Local directory containing prepared outputs to upload.
+   :param path_suffixes: Path suffixes to upload to (e.g., ["nightly", "eel-hole"]).
+
+
+.. py:function:: update_git_branch(tag: str, branch: str, staging: bool) -> None
+
+   Merge git tag into branch and push to origin.
+
+   Performs fast-forward merge of a tag into a branch and pushes the result.
+   This updates the nightly or stable branch to point to the tagged release.
+
+   In staging, will try the checkout and merge, but skip the git push.
+
+   :param tag: Git tag to merge (e.g., "nightly-2025-02-05" or "v2025.2.3").
+   :param branch: Target branch to update (e.g., "nightly" or "stable").
+   :param staging: True if this is a staging environment.
+
+   :raises subprocess.CalledProcessError: If git commands fail.
+
+
+.. py:function:: trigger_zenodo_release(build_ref: str, env: str, source_dir: str, ignore_regex: str, publish: bool, token: str) -> None
+
+   Trigger Zenodo data release GitHub Actions workflow.
+
+   Dispatches the zenodo-data-release workflow to create or update a Zenodo
+   deposition with PUDL data outputs.
+
+   :param build_ref: The git reference for the workflow. The reference can be a branch or tag name.
+   :param env: Zenodo environment - "sandbox" or "production".
+   :param source_dir: Cloud storage path to source data (e.g., "s3://pudl.catalyst.coop/nightly/").
+   :param ignore_regex: Regex pattern for files to exclude from upload.
+   :param publish: If True, automatically publish the Zenodo record.
+   :param token: the bearer token to authenticate to GitHub.
+
+
+.. py:function:: update_pudl_viewer() -> None
+
+   Update PUDL Viewer Cloud Run service to latest image.
+
+   :param service_name: Name of the Cloud Run service (e.g., "pudl-viewer").
+
+
+.. py:function:: set_gcs_temporary_hold(gcs_path: str) -> None
+
+   Set temporary hold on GCS objects to prevent deletion.
+
+   Applies a temporary hold to protect versioned release artifacts from
+   accidental deletion or lifecycle policies.
+
+   :param gcs_path: GCS path to objects (e.g., "gs://pudl.catalyst.coop/v2025.2.3/").
+   :param billing_project: which project to bill for Requester Pays buckets.
+
+
+.. py:function:: check_build_success(build_path: upath.UPath) -> upath.UPath
+
+   Raise error if success file doesn't exist in build directory.
+
+
+.. py:function:: get_build_from_tag(tag: str) -> upath.UPath
+
+   Find any builds associated with a git tag and return a GCS path to most recent build.
+
+
+.. py:function:: get_deployment_type_from_tag(git_tag: str) -> DeploymentType
+
+   Check if tag looks like a 'nightly' or 'stable' tag.
+
+

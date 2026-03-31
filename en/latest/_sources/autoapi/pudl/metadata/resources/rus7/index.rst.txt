@@ -14,12 +14,15 @@ Attributes
 
 .. autoapisummary::
 
+   pudl.metadata.resources.rus7.RESOURCE_METADATA_BASE
    pudl.metadata.resources.rus7.RESOURCE_METADATA
 
 
 Module Contents
 ---------------
 
-.. py:data:: RESOURCE_METADATA
+.. py:data:: RESOURCE_METADATA_BASE
    :type:  dict[str, dict[str, Any]]
+
+.. py:data:: RESOURCE_METADATA
 

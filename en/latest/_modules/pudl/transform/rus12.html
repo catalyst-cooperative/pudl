@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.rus12 &#8212; PUDL 2025.11.1.dev115 documentation</title>
+    <title>pudl.transform.rus12 &#8212; PUDL 2026.3.1.dev39 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
@@ -49,14 +49,450 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/documentation_options.js?v=1da4e7d9"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/transform/rus12';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -134,8 +570,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
   
   
 </a></div>
@@ -171,20 +607,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -193,14 +615,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -292,20 +721,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -314,14 +729,21 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -425,15 +847,25 @@
 <span></span><span class="sd">&quot;&quot;&quot;Transform the RUS12 tables.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetIn</span><span class="p">,</span> <span class="n">AssetOut</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">multi_asset</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.transform.rus</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">cleanstrings_snake</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PLANT_TYPE_RUS12</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resource_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">HARVESTED_CORE_TABLES_RUS12</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.eia</span><span class="w"> </span><span class="kn">import</span> <span class="n">harvest_entity_tables</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_meeting_and_board">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_meeting_and_board">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_meeting_and_board</span><span class="p">(</span><span class="n">raw_rus12__meeting_and_board</span><span class="p">):</span>
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_meeting_and_board">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_meeting_and_board">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_meeting_and_board</span><span class="p">(</span><span class="n">raw_rus12__meeting_and_board</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_meeting_and_board table.&quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
         <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__meeting_and_board</span><span class="p">,</span>
@@ -451,10 +883,10 @@
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_balance_sheet_assets">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_balance_sheet_assets">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_balance_sheet_assets</span><span class="p">(</span><span class="n">raw_rus12__balance_sheet</span><span class="p">):</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_balance_sheet_assets">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_balance_sheet_assets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_balance_sheet_assets</span><span class="p">(</span><span class="n">raw_rus12__balance_sheet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_balance_sheet_assets table.&quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__balance_sheet</span><span class="p">)</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -465,7 +897,7 @@
         <span class="n">id_vars</span><span class="o">=</span><span class="n">idx_ish</span><span class="p">,</span>
         <span class="n">value_vars</span><span class="o">=</span><span class="n">value_vars</span><span class="p">,</span>
         <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;asset_type&quot;</span><span class="p">,</span>
-        <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;balance&quot;</span><span class="p">,</span>
+        <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;_assets&quot;</span><span class="p">)</span>
     <span class="c1"># POST-MELT</span>
@@ -474,10 +906,10 @@
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_balance_sheet_liabilities">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_balance_sheet_liabilities">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_balance_sheet_liabilities</span><span class="p">(</span><span class="n">raw_rus12__balance_sheet</span><span class="p">):</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_balance_sheet_liabilities">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_balance_sheet_liabilities">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_balance_sheet_liabilities</span><span class="p">(</span><span class="n">raw_rus12__balance_sheet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_balance_sheet_liabilities table.&quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__balance_sheet</span><span class="p">)</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -488,7 +920,7 @@
         <span class="n">id_vars</span><span class="o">=</span><span class="n">idx_ish</span><span class="p">,</span>
         <span class="n">value_vars</span><span class="o">=</span><span class="n">value_vars</span><span class="p">,</span>
         <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;liability_type&quot;</span><span class="p">,</span>
-        <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;balance&quot;</span><span class="p">,</span>
+        <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;_liabilities&quot;</span><span class="p">)</span>
     <span class="c1"># POST-MELT</span>
@@ -497,10 +929,10 @@
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__scd_borrowers">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__scd_borrowers">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__scd_borrowers</span><span class="p">(</span><span class="n">raw_rus12__borrowers</span><span class="p">):</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__scd_borrowers">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__scd_borrowers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__scd_borrowers</span><span class="p">(</span><span class="n">raw_rus12__borrowers</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__scd_borrowers table.&quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__borrowers</span><span class="p">)</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -511,10 +943,57 @@
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_renewable_plants">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_renewable_plants">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_renewable_plants</span><span class="p">(</span><span class="n">raw_rus12__renewable_plants</span><span class="p">):</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_external_financial_risk_ratio">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_external_financial_risk_ratio">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_external_financial_risk_ratio</span><span class="p">(</span>
+    <span class="n">raw_rus12__external_financial_risk_ratio</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__external_financial_risk_ratio table.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__external_financial_risk_ratio</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;external_financial_risk_ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;external_financial_risk_ratio&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_investments">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_investments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_investments</span><span class="p">(</span>
+    <span class="n">raw_rus12__investments</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the investments table.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
+        <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__investments</span><span class="p">,</span>
+        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;for_rural_development&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="c1"># Spot fix bad investment type code values that is 0 and should be 1.</span>
+    <span class="c1"># 0 is not a valid code and the same description was later listed as 1.</span>
+    <span class="c1"># Need 2006 conditional for integration tests that run the fast ETL with</span>
+    <span class="c1"># only the most recent year of data.</span>
+    <span class="k">if</span> <span class="mi">2006</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">():</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">borrower_id_rus</span> <span class="o">==</span> <span class="s2">&quot;KY0059&quot;</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">report_date</span> <span class="o">==</span> <span class="s2">&quot;2006-12-01&quot;</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">investment_description</span>
+                <span class="o">==</span> <span class="s2">&quot;Temporary Investments - Cooperative Finance Corp&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;Expected exactly one record to be affected by this spot fix.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;investment_type_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># TO-DO: clean up property_type field</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_renewable_plants">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_renewable_plants">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_renewable_plants</span><span class="p">(</span><span class="n">raw_rus12__renewable_plants</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_renewable_plants table.&quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__renewable_plants</span><span class="p">)</span>
 
@@ -543,20 +1022,20 @@
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_long_term_debt">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_long_term_debt">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_long_term_debt</span><span class="p">(</span><span class="n">raw_rus12__long_term_debt</span><span class="p">):</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_long_term_debt">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_long_term_debt">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_long_term_debt</span><span class="p">(</span><span class="n">raw_rus12__long_term_debt</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_long_term_debt table.&quot;&quot;&quot;</span>
     <span class="c1"># TODO: the debt_description column could potentially get some cleaning.</span>
     <span class="k">return</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__long_term_debt</span><span class="p">)</span></div>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_lines_stations_labor_materials_cost">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_lines_stations_labor_materials_cost">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_lines_stations_labor_materials_cost</span><span class="p">(</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_lines_stations_labor_materials_cost">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_lines_stations_labor_materials_cost">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_lines_stations_labor_materials_cost</span><span class="p">(</span>
     <span class="n">raw_rus12__lines_and_stations_labor_materials</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__lines_and_stations_labor_materials table.&quot;&quot;&quot;</span>
@@ -579,43 +1058,42 @@
             <span class="s2">&quot;operation_or_maintenance&quot;</span><span class="p">,</span>
             <span class="s2">&quot;lines_or_stations&quot;</span><span class="p">,</span>
         <span class="p">],</span>
+        <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># NOTE: this multi_index_stack function is dropping the employees_num column for now. I&#39;m assuming we can get this data from another table, else I can circle back.</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_loans">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_loans">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_loans</span><span class="p">(</span><span class="n">raw_rus12__loans</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__loans table.&quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__loans</span><span class="p">)</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_loans">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_loans">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_loans</span><span class="p">(</span><span class="n">raw_rus12__loans</span><span class="p">,</span> <span class="n">raw_rus12__loan_guarantees</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__loans and raw_rus12__loan_guarantees tables.&quot;&quot;&quot;</span>
+    <span class="n">df_loans</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
+        <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__loans</span><span class="p">,</span>
+        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;for_rural_development&quot;</span><span class="p">],</span>
+        <span class="n">string_cols_to_simplify</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;loan_recipient&quot;</span><span class="p">],</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">is_loan_guarantee</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">df_loan_guarantees</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
+        <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__loan_guarantees</span><span class="p">,</span>
+        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;for_rural_development&quot;</span><span class="p">],</span>
+        <span class="n">string_cols_to_simplify</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;loan_recipient&quot;</span><span class="p">],</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">is_loan_guarantee</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_loans</span><span class="p">,</span> <span class="n">df_loan_guarantees</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Convert all loan_maturity_dates to datetime</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loan_maturity_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loan_maturity_date</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mixed&quot;</span><span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">for_rural_development</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">for_rural_development</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;boolean&quot;</span><span class="p">)</span>
-
     <span class="k">return</span> <span class="n">df</span></div>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_plant_labor">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_plant_labor">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_plant_labor</span><span class="p">(</span><span class="n">raw_rus12__plant_labor</span><span class="p">):</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_plant_labor">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_labor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_plant_labor</span><span class="p">(</span><span class="n">raw_rus12__plant_labor</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__plant_labor table.&quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__plant_labor</span><span class="p">)</span>
-
-    <span class="c1"># Remove duplicate Walter Scott plant entries.</span>
-    <span class="n">exclude_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">]</span>
-    <span class="n">dupe_mask</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;IA0083&quot;</span><span class="p">,</span> <span class="s2">&quot;IA0084&quot;</span><span class="p">])</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;plant_name_rus&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Walter Scott&quot;</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">exclude_cols</span><span class="p">)</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="p">(</span>
-            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;IA0083&quot;</span>
-        <span class="p">)</span>  <span class="c1"># dropping the IA0083 and keeping the IA0084 so both borrowers show up in the data.</span>
-    <span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">dupe_mask</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">cleanstrings_snake</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">])</span>
 
     <span class="c1"># Test payroll_total column so can remove it in the schema</span>
     <span class="n">payroll_cols</span> <span class="o">=</span> <span class="p">[</span>
@@ -633,10 +1111,10 @@
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_sources_and_distribution_by_plant_type">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_sources_and_distribution_by_plant_type">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_sources_and_distribution_by_plant_type</span><span class="p">(</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_sources_and_distribution_by_plant_type">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_sources_and_distribution_by_plant_type">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_sources_and_distribution_by_plant_type</span><span class="p">(</span>
     <span class="n">raw_rus12__sources_and_distribution</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__sources_and_distribution table.</span>
@@ -648,26 +1126,18 @@
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__sources_and_distribution</span><span class="p">)</span>
     <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;capacity_kw&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_num&quot;</span><span class="p">,</span> <span class="s2">&quot;net_energy_received_mwh&quot;</span><span class="p">]</span>
 
-    <span class="n">plant_types</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;fossil_steam&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;hydro&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;internal_combustion&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;combined_cycle&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;other&quot;</span><span class="p">,</span>
-    <span class="p">]</span>
-
     <span class="c1"># Stack by plant type</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
         <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plant_types</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PLANT_TYPE_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
         <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
         <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span>
             <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">drop_zero_rows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Convert units</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
@@ -682,10 +1152,10 @@
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_sources_and_distribution">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_sources_and_distribution">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_sources_and_distribution</span><span class="p">(</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_sources_and_distribution">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_sources_and_distribution">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_sources_and_distribution</span><span class="p">(</span>
     <span class="n">raw_rus12__sources_and_distribution</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__sources_and_distribution table.</span>
@@ -707,15 +1177,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__sources_and_distribution</span><span class="p">)</span>
     <span class="c1"># Remove plant type columns handled in sources_and_distribution_by_plant_type function</span>
-    <span class="n">plant_types</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;fossil_steam&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;hydro&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;internal_combustion&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;combined_cycle&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;other&quot;</span><span class="p">,</span>
-    <span class="p">]</span>
-    <span class="n">plant_type_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">_&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">plant_types</span><span class="p">))</span>
+    <span class="n">plant_type_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">_&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">PLANT_TYPE_RUS12</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">plant_type_mask</span><span class="p">]</span>
 
     <span class="c1"># Stack by cost and mwh</span>
@@ -730,15 +1194,16 @@
             <span class="s2">&quot;source_of_energy&quot;</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">drop_zero_rows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="core_rus12__yearly_statement_of_operations">
-<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__yearly_statement_of_operations">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__yearly_statement_of_operations</span><span class="p">(</span><span class="n">raw_rus12__statement_of_operations</span><span class="p">):</span>
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_statement_of_operations">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_statement_of_operations">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_statement_of_operations</span><span class="p">(</span><span class="n">raw_rus12__statement_of_operations</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__statement_of_operations table.</span>
 
 <span class="sd">    This function drops a number of columns that contain per_kwh values that are</span>
@@ -779,10 +1244,536 @@
         <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opex_group</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(.+)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
         <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;opex_group&quot;</span><span class="p">,</span> <span class="s2">&quot;opex_type&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
         <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;opex_group&quot;</span><span class="p">,</span> <span class="s2">&quot;opex_type&quot;</span><span class="p">],</span>
+        <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>  <span class="c1"># per_kwh columns we checked above and opex_report_month</span>
     <span class="p">)</span>
     <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">opex_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;total_&quot;</span><span class="p">)</span>
     <span class="c1"># TODO: could remove total columns that aren&#39;t used as part of the calculation for others.</span>
     <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_plant_costs">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_costs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_plant_costs</span><span class="p">(</span>
+    <span class="n">raw_rus12__combined_cycle_plant_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_rus12__hydro_plant_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_rus12__internal_combustion_plant_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_rus12__nuclear_plant_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_rus12__steam_plant_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the plant cost tables.</span>
+
+<span class="sd">    This transform takes all of the plant production cost tables, processes</span>
+<span class="sd">    them similarly and combines them into one plant cost table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plant_cost_tables</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;combined_cycle&quot;</span><span class="p">:</span> <span class="n">raw_rus12__combined_cycle_plant_costs</span><span class="p">,</span>
+        <span class="s2">&quot;hydro&quot;</span><span class="p">:</span> <span class="n">raw_rus12__hydro_plant_costs</span><span class="p">,</span>
+        <span class="s2">&quot;internal_combustion&quot;</span><span class="p">:</span> <span class="n">raw_rus12__internal_combustion_plant_costs</span><span class="p">,</span>
+        <span class="s2">&quot;nuclear&quot;</span><span class="p">:</span> <span class="n">raw_rus12__nuclear_plant_costs</span><span class="p">,</span>
+        <span class="s2">&quot;steam&quot;</span><span class="p">:</span> <span class="n">raw_rus12__steam_plant_costs</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">df_outs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">plant_type</span><span class="p">,</span> <span class="n">raw_table</span> <span class="ow">in</span> <span class="n">plant_cost_tables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_table</span><span class="p">)</span>
+        <span class="c1"># there are duplicates for the &quot;Walter Scott&quot; steam plant</span>
+        <span class="k">if</span> <span class="n">plant_type</span> <span class="o">!=</span> <span class="s2">&quot;steam&quot;</span><span class="p">:</span>
+            <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">,</span> <span class="n">pk_early</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="n">data_cols</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;cost&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_per_mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_per_mwh&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">plant_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;hydro&quot;</span><span class="p">,</span> <span class="s2">&quot;nuclear&quot;</span><span class="p">]</span>
+            <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;cost&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_per_mwh&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;^(capex|opex|total)_(.+)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">multi_index_stack</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span>
+            <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
+            <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">,</span>
+            <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cost_group&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_type&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
+            <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cost_group&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_type&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plant_type</span>
+        <span class="n">df_outs</span><span class="p">[</span><span class="n">plant_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+    <span class="n">df_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_outs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="c1"># this total flag is a little different than the others. it grabs the high-level</span>
+    <span class="c1"># cost group totals and it flags the cost_type&#39;s of net and less. Because these</span>
+    <span class="c1"># are clearly calculated fields from looking at the form.</span>
+    <span class="n">df_all</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">cost_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;total|net|less&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
+        <span class="n">df_all</span><span class="o">.</span><span class="n">cost_group</span> <span class="o">==</span> <span class="s2">&quot;total&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_all</span></div>
+
+
+
+<div class="viewcode-block" id="drop_bad_ownership_plant">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.drop_bad_ownership_plant">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">drop_bad_ownership_plant</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop 1 plant record with unexpected ownership label and duplicate data.</span>
+
+<span class="sd">    There is a Wisdom steam plant record that is labeled to be both fully owned by</span>
+<span class="sd">    borrower and partly owned for one year. Which is an unexpected combo based on the</span>
+<span class="sd">    `_OR_PowerSupply Plant File Documentation.rst` documentation file in the rus12</span>
+<span class="sd">    archive. Luckily this plant has exactly the same records as the other Wisdom steam</span>
+<span class="sd">    plant that year with more expected ownership labels.</span>
+
+<span class="sd">    So we check if the two plant records for that year have the same data, then</span>
+<span class="sd">    drop the one badly labeled ownership record.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bad_ownership_label_mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">is_full_ownership_portion</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">is_partly_owned_by_borrower</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">bad_ownership_label_mask</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="n">wisdom_steam_2019_mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">plant_name_rus</span> <span class="o">==</span> <span class="s2">&quot;Wisdom&quot;</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="mi">2019</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">plant_type</span> <span class="o">==</span> <span class="s2">&quot;steam&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="n">df</span><span class="p">[</span>
+        <span class="n">wisdom_steam_2019_mask</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">empty</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">wisdom_steam_2019_mask</span> <span class="o">&amp;</span> <span class="n">bad_ownership_label_mask</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="fix_string_unit_id_rus">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.fix_string_unit_id_rus">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fix_string_unit_id_rus</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fix unit_id_rus&#39;s bad string IDs.</span>
+
+<span class="sd">    There are two instances of unit_id_rus&#39;s that have string values in them.</span>
+<span class="sd">    Based on pre-cleaned data, we were able to clearly identify that we can use</span>
+<span class="sd">    just the numeric values in these bad strings. This enables us to have an integer</span>
+<span class="sd">    type for this unit_id_rus column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;WSL&quot;</span><span class="p">)])</span> <span class="o">&lt;=</span> <span class="mi">4</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;WSL GT 12&quot;</span><span class="p">:</span> <span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;WSL ST 10&quot;</span><span class="p">:</span> <span class="s2">&quot;10&quot;</span><span class="p">})</span>
+        <span class="c1"># then actually convert the dtype to make sure</span>
+        <span class="c1"># it can be an int. convert to a float first because</span>
+        <span class="c1"># this column could have been converted into an object with</span>
+        <span class="c1"># floaty string with things like &quot;2.0&quot; that don&#39;t love being</span>
+        <span class="c1"># directly converted into an int</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@multi_asset</span><span class="p">(</span>
+    <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;_core_rus12__yearly_plant_operations_by_plant&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(),</span>
+        <span class="s2">&quot;_core_rus12__yearly_plant_operations_by_borrower&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(),</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="_core_rus12__yearly_plant_operations">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_operations">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_plant_operations</span><span class="p">(</span>
+    <span class="n">raw_rus12__combined_cycle_plant_operations</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_rus12__hydro_plant_operations</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_rus12__internal_combustion_plant_operations</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_rus12__nuclear_plant_operations</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_rus12__steam_plant_operations</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the plant operations tables.</span>
+
+<span class="sd">    This transform takes all of the plant operations tables, processes</span>
+<span class="sd">    them similarly and combines them into one plant table. Which is then</span>
+<span class="sd">    split out into two tables: by borrower and by plant. The details of</span>
+<span class="sd">    which record should end up in which output table are documented in</span>
+<span class="sd">    these tables&#39; resource metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">raw_plant_operations_tables</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;combined_cycle&quot;</span><span class="p">:</span> <span class="n">raw_rus12__combined_cycle_plant_operations</span><span class="p">,</span>
+        <span class="s2">&quot;hydro&quot;</span><span class="p">:</span> <span class="n">raw_rus12__hydro_plant_operations</span><span class="p">,</span>
+        <span class="s2">&quot;internal_combustion&quot;</span><span class="p">:</span> <span class="n">raw_rus12__internal_combustion_plant_operations</span><span class="p">,</span>
+        <span class="s2">&quot;nuclear&quot;</span><span class="p">:</span> <span class="n">raw_rus12__nuclear_plant_operations</span><span class="p">,</span>
+        <span class="s2">&quot;steam&quot;</span><span class="p">:</span> <span class="n">raw_rus12__steam_plant_operations</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">df_outs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">plant_type</span><span class="p">,</span> <span class="n">raw_table</span> <span class="ow">in</span> <span class="n">raw_plant_operations_tables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">df_plant_type</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
+            <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_table</span><span class="p">,</span>
+            <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">df_plant_type</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plant_type</span>
+        <span class="n">df_outs</span><span class="p">[</span><span class="n">plant_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_plant_type</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_outs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">old_unit</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;1000_lbs&quot;</span><span class="p">,</span> <span class="s2">&quot;1000_cubic_feet&quot;</span><span class="p">,</span> <span class="s2">&quot;1000_gallons&quot;</span><span class="p">]:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span>
+            <span class="n">old_unit</span><span class="o">=</span><span class="n">old_unit</span><span class="p">,</span>
+            <span class="n">new_unit</span><span class="o">=</span><span class="n">old_unit</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;1000_&quot;</span><span class="p">),</span>
+            <span class="n">converter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">old_unit</span><span class="o">=</span><span class="s2">&quot;kw&quot;</span><span class="p">,</span>
+        <span class="n">new_unit</span><span class="o">=</span><span class="s2">&quot;mw&quot;</span><span class="p">,</span>
+        <span class="n">converter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">(),</span>
+                <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">(),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">drop_bad_ownership_plant</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">fix_string_unit_id_rus</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># for old years, there is no is_partly_owned_by_borrower column and no</span>
+    <span class="c1"># accompanying documentation. We assume if its a full ownership portion,</span>
+    <span class="c1"># it should go in both. if not full ownership portion  it should go in by borrower.</span>
+    <span class="n">null_partly_owned_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2007</span><span class="p">,</span> <span class="mi">2008</span><span class="p">])</span>
+
+    <span class="c1"># From _OR_PowerSupply Plant File Documentation.rtf in 2021 archive</span>
+    <span class="c1"># TO FOCUS ONLY ON DATA FOR THE BORROWERS’ SHARE OF THE PLANTS</span>
+    <span class="c1"># FullOwnershipScope    BorrowerShared</span>
+    <span class="c1"># FALSE                 TRUE</span>
+    <span class="c1"># TRUE                  FALSE</span>
+    <span class="n">df_by_borrower</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">null_partly_owned_mask</span><span class="p">)</span>
+        <span class="o">|</span> <span class="p">(</span>
+            <span class="p">(</span><span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">is_full_ownership_portion</span> <span class="o">&amp;</span> <span class="n">df</span><span class="o">.</span><span class="n">is_partly_owned_by_borrower</span><span class="p">)</span>
+            <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">is_full_ownership_portion</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">is_partly_owned_by_borrower</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+    <span class="c1"># TO FOCUS ON DATA FOR THE WHOLE PLANT</span>
+    <span class="c1"># FullOwnershipScope    BorrowerShared</span>
+    <span class="c1"># TRUE                  TRUE</span>
+    <span class="c1"># TRUE                  FALSE</span>
+    <span class="n">df_by_plant</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">null_partly_owned_mask</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">is_full_ownership_portion</span><span class="p">)</span>
+        <span class="o">|</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">is_full_ownership_portion</span> <span class="o">&amp;</span> <span class="n">df</span><span class="o">.</span><span class="n">is_partly_owned_by_borrower</span><span class="p">)</span>
+            <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">is_full_ownership_portion</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">is_partly_owned_by_borrower</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+    <span class="c1"># Some validation checks...</span>
+    <span class="n">idx_check</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit_id_rus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># we want to check whether or not we are loosing any records:</span>
+    <span class="n">both</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">df_by_borrower</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_check</span><span class="p">),</span> <span class="n">df_by_plant</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_check</span><span class="p">)],</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
+        <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+        <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># There is some overlap between the by_borrower and by_plant records but we</span>
+    <span class="c1"># should have all of the original df records</span>
+    <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_check</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">both</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">empty</span>
+    <span class="c1"># Also, there are a small number of plants that have duplicated values...</span>
+    <span class="c1"># which seem hard to reconcile.</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_by_borrower</span><span class="p">[</span><span class="n">df_by_borrower</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">idx_check</span><span class="p">)])</span> <span class="o">&lt;</span> <span class="mi">35</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_by_plant</span><span class="p">[</span><span class="n">df_by_plant</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">idx_check</span><span class="p">)])</span> <span class="o">&lt;</span> <span class="mi">38</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">Output</span><span class="p">(</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;_core_rus12__yearly_plant_operations_by_plant&quot;</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">df_by_plant</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">Output</span><span class="p">(</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;_core_rus12__yearly_plant_operations_by_borrower&quot;</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">df_by_borrower</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__monthly_demand_and_energy_at_delivery_points">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_delivery_points">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__monthly_demand_and_energy_at_delivery_points</span><span class="p">(</span>
+    <span class="n">raw_rus12__demand_and_energy_at_delivery_points</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__demand_and_energy_at_delivery_points table.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__demand_and_energy_at_delivery_points</span><span class="p">)</span>
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;energy_mwh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;demand_mw&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">delivery_recipient</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;others&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rus_borrowers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">timeframe</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;jan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;feb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;apr&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;may&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jun&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jul&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aug&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sep&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;oct&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nov&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;peak&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">multi_index_stack</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^delivered_(?:to_)?(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">delivery_recipient</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeframe</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;delivery_recipient&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">,</span> <span class="s2">&quot;timeframe&quot;</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;delivery_recipient&quot;</span><span class="p">,</span> <span class="s2">&quot;timeframe&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;demand_mw&quot;</span><span class="p">:</span> <span class="s2">&quot;delivered_demand_mw&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;energy_mwh&quot;</span><span class="p">:</span> <span class="s2">&quot;delivered_energy_mwh&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># Remove total/peak values. We are dropping the annual values</span>
+    <span class="c1"># so we can convert this into a monthly time series. We could make</span>
+    <span class="c1"># monthly and yearly tables w/ a multi-asset if desired but choose not</span>
+    <span class="c1"># to because this info is duplicative.</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;total&quot;</span><span class="p">,</span> <span class="s2">&quot;peak&quot;</span><span class="p">])]</span>
+    <span class="c1"># Convert month cols to date:</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%b %Y&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__monthly_demand_and_energy_at_power_sources">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__monthly_demand_and_energy_at_power_sources">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__monthly_demand_and_energy_at_power_sources</span><span class="p">(</span>
+    <span class="n">raw_rus12__demand_and_energy_at_power_sources</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__demand_and_energy_at_power_sources table.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__demand_and_energy_at_power_sources</span><span class="p">)</span>
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;energy_output_mwh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;peak_demand_mw&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;peak_demand_reading_type&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;peak_demand_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">timeframe</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;jan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;feb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;apr&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;may&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jun&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jul&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aug&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sep&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;oct&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nov&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;annual&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">multi_index_stack</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeframe</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;data_cols&quot;</span><span class="p">,</span> <span class="s2">&quot;timeframe&quot;</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="c1"># Add hour to peak demand date</span>
+    <span class="c1"># First check that the hours are valid:</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">peak_hours</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">bad_hours</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">peak_hours</span> <span class="k">if</span> <span class="n">h</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">)]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad_hours</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Found invalid peak demand hours: </span><span class="si">{</span><span class="n">bad_hours</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_date&quot;</span><span class="p">],</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mixed&quot;</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">)</span>
+    <span class="c1"># Change cols so it&#39;s consistent with cols in other tables</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_peak_coincident&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_reading_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;Coincident&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Non-coincident&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># Remove total/peak values. We are dropping the annual values</span>
+    <span class="c1"># so we can convert this into a monthly time series. We could make</span>
+    <span class="c1"># monthly and yearly tables w/ a multi-asset if desired but choose not</span>
+    <span class="c1"># to because this info is duplicative.</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;annual&quot;</span><span class="p">]</span>
+    <span class="c1"># Reformat report date</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%b %Y&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_rus12__yearly_plant_factors_and_maximum_demand">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_plant_factors_and_maximum_demand</span><span class="p">(</span>
+    <span class="n">raw_rus12__plant_factors_and_maximum_demand</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__plant_factors_and_maximum_demand table.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
+        <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__plant_factors_and_maximum_demand</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Convert units</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">old_unit</span><span class="o">=</span><span class="s2">&quot;kw&quot;</span><span class="p">,</span>
+        <span class="n">new_unit</span><span class="o">=</span><span class="s2">&quot;mw&quot;</span><span class="p">,</span>
+        <span class="n">converter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Convert plant_type to snake case</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">cleanstrings_snake</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">backfill_plant_type</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Backfill plant_type for pre-2009 records based on post-2008 consistency.&quot;&quot;&quot;</span>
+        <span class="n">post_2008</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">&gt;</span> <span class="mi">2008</span><span class="p">]</span>
+
+        <span class="c1"># Plants that consistently have only one plant_type across all post-2008 years</span>
+        <span class="n">single_plant_type</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">post_2008</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">])[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">eligible_plants</span> <span class="o">=</span> <span class="n">single_plant_type</span><span class="p">[</span>
+            <span class="n">single_plant_type</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">index</span>  <span class="c1"># MultiIndex of (borrower_id_rus, plant_name_rus)</span>
+
+        <span class="c1"># Get the plant_type mapping for those plants</span>
+        <span class="n">plant_type_map</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">post_2008</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">eligible_plants</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">])</span>
+        <span class="p">)[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Backfill into pre-2008 rows</span>
+        <span class="n">pre_2008</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">2008</span><span class="p">]</span>
+        <span class="n">pre_2008</span> <span class="o">=</span> <span class="n">pre_2008</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">plant_type_map</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;plant_type_filled&quot;</span><span class="p">),</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Use filled value where plant_type is missing</span>
+        <span class="n">pre_2008</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pre_2008</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+            <span class="n">pre_2008</span><span class="p">[</span><span class="s2">&quot;plant_type_filled&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># pre_2008 = pre_2008.drop(columns=&quot;plant_type_filled&quot;)</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pre_2008</span><span class="p">,</span> <span class="n">post_2008</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">backfill_plant_type</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+
+
+<span class="c1">######################################</span>
+<span class="c1"># HARVESTING aka NORMALIZATION</span>
+<span class="c1">######################################</span>
+<span class="c1"># The USDA would be proud of this name</span>
+
+
+<div class="viewcode-block" id="_CORE_RUS12_TABLES">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._CORE_RUS12_TABLES">[docs]</a>
+<span class="n">_CORE_RUS12_TABLES</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">HARVESTED_CORE_TABLES_RUS12</span><span class="p">]</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
+        <span class="n">table_name</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_core_rus12__scd_borrowers&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">_CORE_RUS12_TABLES</span>
+    <span class="p">},</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
+    <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;If True, allow inconsistent values in harvested columns and &quot;</span>
+                <span class="s2">&quot;produce additional debugging output.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="core_rus12__entity_borrowers">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__entity_borrowers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__entity_borrowers</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">clean_dfs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Harvesting IDs &amp; consistent static attributes for RUS12 entity.&quot;&quot;&quot;</span>
+    <span class="n">entity</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">RusEntity</span><span class="o">.</span><span class="n">BORROWERS</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Harvesting IDs &amp; consistent static attributes for RUS Borrowers&quot;</span><span class="p">)</span>
+    <span class="c1"># We want **all** borrowers to have non-null names in this entity</span>
+    <span class="c1"># table. They aren&#39;t always super consistent over time, but we have</span>
+    <span class="c1"># vetted them (see https://github.com/catalyst-cooperative/pudl/pull/5056#issuecomment-4008247047)</span>
+    <span class="c1"># and thus decided to set the threshold for consistency strictness</span>
+    <span class="c1"># at 0% (instead of the default 70%) so we the most consistent value</span>
+    <span class="c1"># no matter what.</span>
+    <span class="n">special_case_strictness</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="c1"># We only need the entity table, but the harvesting process</span>
+    <span class="c1"># always produces entity (aka static) as annual (aka scd) tables.</span>
+    <span class="c1"># as well as a helpful-for-debugging dictionary of dfs for all</span>
+    <span class="c1"># values columns we are harvesting</span>
+    <span class="n">entity_df</span><span class="p">,</span> <span class="n">annual_df</span><span class="p">,</span> <span class="n">_col_dfs</span> <span class="o">=</span> <span class="n">harvest_entity_tables</span><span class="p">(</span>
+        <span class="n">entity</span><span class="p">,</span>
+        <span class="n">clean_dfs</span><span class="p">,</span>
+        <span class="n">special_case_strictness</span><span class="o">=</span><span class="n">special_case_strictness</span><span class="p">,</span>
+        <span class="n">debug</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">entity_df</span></div>
+
+
+
+<div class="viewcode-block" id="finished_rus_assets">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.finished_rus_assets">[docs]</a>
+<span class="n">finished_rus_assets</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">rus</span><span class="o">.</span><span class="n">finished_rus_asset_factory</span><span class="p">(</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="n">_core_table_name</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">),</span>
+        <span class="n">_core_table_name</span><span class="o">=</span><span class="n">_core_table_name</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">_core_table_name</span> <span class="ow">in</span> <span class="n">_CORE_RUS12_TABLES</span>
+    <span class="c1"># Don&#39;t attempt to core-ify this table</span>
+    <span class="k">if</span> <span class="n">_core_table_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_core_rus12__scd_borrowers&quot;</span><span class="p">]</span>
+<span class="p">]</span></div>
 
 </pre></div>
 

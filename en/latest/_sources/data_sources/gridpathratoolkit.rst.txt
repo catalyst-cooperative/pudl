@@ -37,10 +37,10 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`
-     - https://data.catalyst.coop/search?q=name:core_gridpathratoolkit__assn_generator_aggregation_group
+     - https://data.catalyst.coop/preview/pudl/core_gridpathratoolkit__assn_generator_aggregation_group
    
    * - :ref:`out_gridpathratoolkit__hourly_available_capacity_factor`
-     - https://data.catalyst.coop/search?q=name:out_gridpathratoolkit__hourly_available_capacity_factor
+     - https://data.catalyst.coop/preview/pudl/out_gridpathratoolkit__hourly_available_capacity_factor
    
 
 

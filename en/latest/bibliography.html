@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Bibliography &#8212; PUDL 2025.11.1.dev115 documentation</title>
+    <title>Bibliography &#8212; PUDL 2026.3.1.dev39 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7e24c9f5" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
@@ -50,14 +50,14 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="_static/documentation_options.js?v=1da4e7d9"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'bibliography';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -137,8 +137,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev39 documentation - Home"/>
   
   
 </a></div>
@@ -174,20 +174,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -196,14 +182,21 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -297,20 +290,6 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="index.html">
-    About PUDL
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="release_notes.html">
-    Release Notes
-  </a>
-</li>
-
-
-<li class="nav-item ">
   <a class="nav-link nav-external" href="https://data.catalyst.coop">
     PUDL Data Viewer
   </a>
@@ -319,14 +298,21 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="data.html">
-    Data
+    Data Documentation
   </a>
 </li>
 
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="code.html">
-    Code
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release_notes.html">
+    Release Notes
   </a>
 </li>
 
@@ -410,6 +396,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="data_access.html">Data Access</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="methodology/index.html">Methodology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="methodology/entity_resolution.html">Entity Resolution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
 </ul>
@@ -484,410 +471,131 @@
 all of our publications and the input data for PUDL in the
 <a class="reference external" href="https://zenodo.org/communities/catalyst-cooperative/">Catalyst Cooperative Zenodo Community</a>.</p>
 <div class="docutils container" id="id1">
-<div role="list" class="citation-list">
-<div class="citation" id="id2" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>cat26<span class="fn-bracket">]</span></span>
-<p>Catalyst Cooperative Zenodo Data Archives. <a class="reference external" href="https://zenodo.org/communities/catalyst-cooperative/">https://zenodo.org/communities/catalyst-cooperative/</a>, 2026. Accessed: 2026-01-02.</p>
-</div>
-<div class="citation" id="id3" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>LBS+24<span class="fn-bracket">]</span></span>
-<p>Katherine Lamb, Ella Belfer, Zane Selvans, Bennett Norman, Christina Gosnell, Dazhong Xia, Austen Sharpe, and Zach Schira. The public utility data liberation project: providing open data for a clean energy transition. In <em>2024 56th North American Power Symposium (NAPS)</em>, volume, 1–6. 2024. <a class="reference external" href="https://doi.org/10.1109/NAPS61145.2024.10741747">doi:10.1109/NAPS61145.2024.10741747</a>.</p>
-</div>
-<div class="citation" id="id7" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>lam24<span class="fn-bracket">]</span></span>
-<p><em>The Public Utility Data Liberation Project: Providing Open Data for a Clean Energy Transition</em>, Zenodo, October 2024. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.13948332">https://doi.org/10.5281/zenodo.13948332</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.13948332">doi:10.5281/zenodo.13948332</a>.</p>
-</div>
-<div class="citation" id="id5" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SSX+25<span class="fn-bracket">]</span></span>
-<p>Zach Schira, Zane Selvans, Dazhong Xia, E. Belfer, Jan Rous, and Bennett Norman. Catalyst-cooperative/ferc-xbrl-extractor: v1.8.0. GitHub repository archived on Zenodo, December 2025. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.18079635">https://doi.org/10.5281/zenodo.18079635</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.18079635">doi:10.5281/zenodo.18079635</a>.</p>
-</div>
-<div class="citation" id="id8" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Sel19<span class="fn-bracket">]</span></span>
-<p>Zane Selvans. Public utility data liberation. May 2019. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.2825635">https://doi.org/10.5281/zenodo.2825635</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.2825635">doi:10.5281/zenodo.2825635</a>.</p>
-</div>
-<div class="citation" id="id10" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Sel24a<span class="fn-bracket">]</span></span>
-<p>Zane Selvans. Open data for an open energy transition. February 2024. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.10723221">https://doi.org/10.5281/zenodo.10723221</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.10723221">doi:10.5281/zenodo.10723221</a>.</p>
-</div>
-<div class="citation" id="id11" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Sel24b<span class="fn-bracket">]</span></span>
-<p>Zane Selvans. Workplace democracy, open data, and open source. May 2024. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.11402754">https://doi.org/10.5281/zenodo.11402754</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.11402754">doi:10.5281/zenodo.11402754</a>.</p>
-</div>
-<div class="citation" id="id9" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SG21<span class="fn-bracket">]</span></span>
-<p>Zane Selvans and Christina Gosnell. Distributing power with open data. May 2021. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.4739560">https://doi.org/10.5281/zenodo.4739560</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.4739560">doi:10.5281/zenodo.4739560</a>.</p>
-</div>
-<div class="citation" id="id4" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SGW+25<span class="fn-bracket">]</span></span>
-<p>Zane Selvans, Christina Gosnell, Steven Winter, Ethan Welty, Jan Rousik, Bennett Norman, Trenton Bush, Austen Sharpe, Zachary Schira, Katherine Lamb, Dazhong Xia, Ella Belfer, and Kathryn Mazaitis. Catalyst-cooperative/pudl: pudl v2025.12.1. GitHub repository archived on Zenodo, December 2025. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.3404014">https://doi.org/10.5281/zenodo.3404014</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.3404014">doi:10.5281/zenodo.3404014</a>.</p>
-</div>
-<div class="citation" id="id6" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SGS+25<span class="fn-bracket">]</span></span>
-<p>Zane A. Selvans, Christina M. Gosnell, Austen Sharpe, Steven Winter, Ethan Welty, Jan Rousik, Bennett Norman, Trenton Bush, Zach Schira, Katherine Lamb, Dazhong Xia, Ella Belfer, and Kathryn Mazaitis. PUDL data releases. Dataset archived on Zenodo, 2025. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.3653158">https://doi.org/10.5281/zenodo.3653158</a> (visited on 2026-01-02), <a class="reference external" href="https://doi.org/10.5281/zenodo.3653158">doi:10.5281/zenodo.3653158</a>.</p>
-</div>
-</div>
+<ol class="arabic simple" start="1">
+<li id="id2"><p>Catalyst Cooperative Zenodo Data Archives. 2026. URL: <a class="reference external" href="https://zenodo.org/communities/catalyst-cooperative/">https://zenodo.org/communities/catalyst-cooperative/</a>.</p></li>
+<li id="id5"><p>Zach Schira, Zane Selvans, Dazhong Xia, E. Belfer, Jan Rous, and Bennett Norman. Catalyst-cooperative/ferc-xbrl-extractor: v1.8.0. December 2025. Published: GitHub repository archived on Zenodo. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.18079635">https://doi.org/10.5281/zenodo.18079635</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.18079635">doi:10.5281/zenodo.18079635</a>.</p></li>
+<li id="id4"><p>Zane Selvans, Christina Gosnell, Steven Winter, Ethan Welty, Jan Rousik, Bennett Norman, Trenton Bush, Austen Sharpe, Zachary Schira, Katherine Lamb, Dazhong Xia, Ella Belfer, and Kathryn Mazaitis. Catalyst-cooperative/pudl: PUDL v2025.12.1. December 2025. Published: GitHub repository archived on Zenodo. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.3404014">https://doi.org/10.5281/zenodo.3404014</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.3404014">doi:10.5281/zenodo.3404014</a>.</p></li>
+<li id="id6"><p>Zane A. Selvans, Christina M. Gosnell, Austen Sharpe, Steven Winter, Ethan Welty, Jan Rousik, Bennett Norman, Trenton Bush, Zach Schira, Katherine Lamb, Dazhong Xia, Ella Belfer, and Kathryn Mazaitis. PUDL Data Releases. 2025. Published: Dataset archived on Zenodo. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.3653158">https://doi.org/10.5281/zenodo.3653158</a> (visited on 2026-01-02), <a class="reference external" href="https://doi.org/10.5281/zenodo.3653158">doi:10.5281/zenodo.3653158</a>.</p></li>
+<li id="id3"><p>Katherine Lamb, Ella Belfer, Zane Selvans, Bennett Norman, Christina Gosnell, Dazhong Xia, Austen Sharpe, and Zach Schira. The Public Utility Data Liberation Project: Providing Open Data For a Clean Energy Transition. In <em>2024 56th North American Power Symposium (NAPS)</em>, 1–6. 2024. <a class="reference external" href="https://doi.org/10.1109/NAPS61145.2024.10741747">doi:10.1109/NAPS61145.2024.10741747</a>.</p></li>
+<li id="id9"><p>Zane Selvans. Open Data for an Open Energy Transition. February 2024. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.10723221">https://doi.org/10.5281/zenodo.10723221</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.10723221">doi:10.5281/zenodo.10723221</a>.</p></li>
+<li id="id10"><p>Zane Selvans. Workplace Democracy, Open Data, and Open Source. May 2024. Version Number: v1. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.11402754">https://doi.org/10.5281/zenodo.11402754</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.11402754">doi:10.5281/zenodo.11402754</a>.</p></li>
+<li id="id8"><p>Zane Selvans and Christina Gosnell. Distributing Power with Open Data. May 2021. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.4739560">https://doi.org/10.5281/zenodo.4739560</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.4739560">doi:10.5281/zenodo.4739560</a>.</p></li>
+<li id="id7"><p>Zane Selvans. Public Utility Data Liberation. May 2019. Version Number: v0.1.0. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.2825635">https://doi.org/10.5281/zenodo.2825635</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.2825635">doi:10.5281/zenodo.2825635</a>.</p></li>
+</ol>
 </div>
 </section>
 <section id="work-citing-pudl-and-other-catalyst-analyses">
 <h2>Work Citing PUDL and other Catalyst Analyses<a class="headerlink" href="#work-citing-pudl-and-other-catalyst-analyses" title="Link to this heading">#</a></h2>
 <p>Academic, policy, and industry publications that reference PUDL and analyses done by
 Catalyst Cooperative.</p>
-<div class="docutils container" id="id12">
-<div role="list" class="citation-list">
-<div class="citation" id="id67" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>BM20<span class="fn-bracket">]</span></span>
-<p>John E.T. Bistline and James H. Merrick. Parameterizing open-source energy models: statistical learning to estimate unknown power plant attributes. <em>Applied Energy</em>, 269:114941, 2020. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0306261920304530">https://www.sciencedirect.com/science/article/pii/S0306261920304530</a> (visited on 2021-11-01), <a class="reference external" href="https://doi.org/10.1016/j.apenergy.2020.114941">doi:10.1016/j.apenergy.2020.114941</a>.</p>
-</div>
-<div class="citation" id="id25" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>BKL25<span class="fn-bracket">]</span></span>
-<p>Jesse Buchsbaum and Jenya Kahn-Lang. What’s happening to electricity affordability? in five charts. <em>Resources for the Future</em>, Aug 2025. URL: <a class="reference external" href="https://www.resources.org/archives/whats-happening-to-electricity-affordability-in-five-charts/">https://www.resources.org/archives/whats-happening-to-electricity-affordability-in-five-charts/</a>.</p>
-</div>
-<div class="citation" id="id28" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Cic25<span class="fn-bracket">]</span></span>
-<p>Steve Cicala. Restructuring the rate base. <em>AEA Papers and Proceedings</em>, 115:363–68, May 2025. URL: <a class="reference external" href="https://www.aeaweb.org/articles?id=10.1257/pandp.20251112">https://www.aeaweb.org/articles?id=10.1257/pandp.20251112</a>, <a class="reference external" href="https://doi.org/10.1257/pandp.20251112">doi:10.1257/pandp.20251112</a>.</p>
-</div>
-<div class="citation" id="id64" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Cli<span class="fn-bracket">]</span></span>
-<p>Open Source Climate. Open source climate initiative. Website. URL: <a class="reference external" href="https://www.os-climate.org/">https://www.os-climate.org/</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id66" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>DMGM20<span class="fn-bracket">]</span></span>
-<p>Steven Dahlke, Mahesh Morjaria, Vahan Gevorgian, and Barry Mather. The economics of flexible solar for electricity markets in transition. Technical Report, First Solar, 2020. URL: <a class="reference external" href="https://www.firstsolar.com/es-CSA/-/media/First-Solar/Documents/Grid-Evolution/The_Economics_of_Flexible_Solar_for_Electricity_Markets_in_Transition.ashx">https://www.firstsolar.com/es-CSA/-/media/First-Solar/Documents/Grid-Evolution/The_Economics_of_Flexible_Solar_for_Electricity_Markets_in_Transition.ashx</a> (visited on 2021-11-01).</p>
-</div>
-<div class="citation" id="id51" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>DHR23<span class="fn-bracket">]</span></span>
-<p>Lucas W. Davis, Catherine Hausman, and Nancy L. Rose. Transmission impossible? prospects for decarbonizing the U.S. grid. <em>Journal of Economic Perspectives</em>, 37(4):155–80, December 2023. URL: <a class="reference external" href="https://www.aeaweb.org/articles?id=10.1257/jep.37.4.155">https://www.aeaweb.org/articles?id=10.1257/jep.37.4.155</a>, <a class="reference external" href="https://doi.org/10.1257/jep.37.4.155">doi:10.1257/jep.37.4.155</a>.</p>
-</div>
-<div class="citation" id="id65" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>DJJ+20<span class="fn-bracket">]</span></span>
-<p>Joseph F. DeCarolis, Paulina Jaramillo, Jeremiah X. Johnson, David L. McCollum, Evelina Trutnevyte, David C. Daniels, Gökçe Akın-Olçum, Joule Bergerson, Soolyeon Cho, Joon-Ho Choi, Michael T. Craig, Anderson R. de Queiroz, Hadi Eshraghi, Christopher S. Galik, Timothy G. Gutowski, Karl R. Haapala, Bri-Mathias Hodge, Simi Hoque, Jesse D. Jenkins, Alan Jenn, Daniel J.A. Johansson, Noah Kaufman, Juha Kiviluoma, Zhenhong Lin, Heather L. MacLean, Eric Masanet, Mohammad S. Masnadi, Colin A. McMillan, Destenie S. Nock, Neha Patankar, Dalia Patino-Echeverri, Greg Schivley, Sauleh Siddiqui, Amanda D. Smith, Aranya Venkatesh, Gernot Wagner, Sonia Yeh, and Yuyu Zhou. Leveraging open-source tools for collaborative macro-energy system modeling efforts. <em>Joule</em>, 4:2523–2526, 12 2020. URL: <a class="reference external" href="https://doi.org/10.1016/j.joule.2020.11.002">https://doi.org/10.1016/j.joule.2020.11.002</a>, <a class="reference external" href="https://doi.org/10.1016/j.joule.2020.11.002">doi:10.1016/j.joule.2020.11.002</a>.</p>
-</div>
-<div class="citation" id="id60" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>DK21<span class="fn-bracket">]</span></span>
-<p>Priya L. Donti and J. Zico Kolter. Machine learning for sustainable energy systems. <em>Annual Review of Environment and Resources</em>, 46(1):719–747, 2021. URL: <a class="reference external" href="https://doi.org/10.1146/annurev-environ-020220-061831">https://doi.org/10.1146/annurev-environ-020220-061831</a>, <a class="reference external" href="https://doi.org/10.1146/annurev-environ-020220-061831">doi:10.1146/annurev-environ-020220-061831</a>.</p>
-</div>
-<div class="citation" id="id49" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>DSG24<span class="fn-bracket">]</span></span>
-<p>Samuel Dotson, Lee Shaver, and James Gignac. Storing the Future: A modeling analysis of Illinois storage needs. 2024. URL: <a class="reference external" href="https://doi.org/10.7910/DVN/7QRME4">https://doi.org/10.7910/DVN/7QRME4</a>, <a class="reference external" href="https://doi.org/10.7910/DVN/7QRME4">doi:10.7910/DVN/7QRME4</a>.</p>
-</div>
-<div class="citation" id="id57" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Fit21<span class="fn-bracket">]</span></span>
-<p>Tyler Fitch. Carbon stranding: climate risk and stranded assets in Duke's integrated resource plan. Technical Report, Energy Transition Institute, January 2021. URL: <a class="reference external" href="https://votesolar.org/wp-content/uploads/2021/02/ETI_CarbonStrandingReport_2021.pdf">https://votesolar.org/wp-content/uploads/2021/02/ETI_CarbonStrandingReport_2021.pdf</a> (visited on 2021-10-14).</p>
-</div>
-<div class="citation" id="id34" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Gaf25<span class="fn-bracket">]</span></span>
-<p>Austyn Gaffney. Science data may soon vanish from government websites. <em>The New York Times</em>, 2025. URL: <a class="reference external" href="https://www.nytimes.com/2025/03/21/climate/government-websites-climate-environment-data.html">https://www.nytimes.com/2025/03/21/climate/government-websites-climate-environment-data.html</a>.</p>
-</div>
-<div class="citation" id="id63" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>GMOBoyle21<span class="fn-bracket">]</span></span>
-<p>Eric Gimon, Amanda Meyers, and Mike O'Boyle. Coal cost crossover 2.0. Technical Report, Energy Innovation, 2021. URL: <a class="reference external" href="https://energyinnovation.org/publication/the-coal-cost-crossover-2021/">https://energyinnovation.org/publication/the-coal-cost-crossover-2021/</a> (visited on 2021-10-14).</p>
-</div>
-<div class="citation" id="id68" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>GOBoyleCM19<span class="fn-bracket">]</span></span>
-<p>Eric Gimon, Mike O'Boyle, Christopher T M Clack, and Sarah A McKee. The coal cost crossover: economic viability of existing coal compared to new local wind and solar resources. Technical Report, Energy Innovation and Vibrant Clean Energy, 2019. URL: <a class="reference external" href="https://energyinnovation.org/publication/the-coal-cost-crossover/">https://energyinnovation.org/publication/the-coal-cost-crossover/</a> (visited on 2021-10-14).</p>
-</div>
-<div class="citation" id="id55" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>GLZ22<span class="fn-bracket">]</span></span>
-<p>Gautam Gowrisankaran, Ashley Langer, and Wendan Zhang. Policy uncertainty in the market for coal electricity: the case of air toxics standards. Working Paper 30297, National Bureau of Economic Research, July 2022. URL: <a class="reference external" href="http://www.nber.org/papers/w30297">http://www.nber.org/papers/w30297</a>, <a class="reference external" href="https://doi.org/10.3386/w30297">doi:10.3386/w30297</a>.</p>
-</div>
-<div class="citation" id="id29" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>GLZ25<span class="fn-bracket">]</span></span>
-<p>Gautam Gowrisankaran, Ashley Langer, and Wendan Zhang. Policy uncertainty in the market for coal electricity: the case of air toxics standards. <em>Journal of Political Economy</em>, 133(6):1757–1795, 2025. URL: <a class="reference external" href="https://doi.org/10.1086/734779">https://doi.org/10.1086/734779</a>, <a class="reference external" href="https://doi.org/10.1086/734779">doi:10.1086/734779</a>.</p>
-</div>
-<div class="citation" id="id47" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>HXWH24<span class="fn-bracket">]</span></span>
-<p>Bavly Hanna, Guandong Xu, Xianzhi Wang, and Jahangir Hossain. Leveraging artificial intelligence for affordable and clean energy: advancing UN sustainable development goal 7. In <em>2024 11th International Conference on Behavioural and Social Computing (BESC)</em>, volume, 1–9. 2024. <a class="reference external" href="https://doi.org/10.1109/BESC64747.2024.10780659">doi:10.1109/BESC64747.2024.10780659</a>.</p>
-</div>
-<div class="citation" id="id14" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Han25<span class="fn-bracket">]</span></span>
-<p>Bavly Samy Helmy Hanna. <em>Leveraging industry 4.0 enabled technologies to achieve UN sustainable development goals</em>. PhD thesis, University of Technology Sydney, 2025. URL: <a class="reference external" href="http://hdl.handle.net/10453/190581">http://hdl.handle.net/10453/190581</a>.</p>
-</div>
-<div class="citation" id="id31" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Hen25<span class="fn-bracket">]</span></span>
-<p>Jacques Henno. Datas : la résistance s'organise face à la censure de Trump. <em>Les Echos</em>, 2025. URL: <a class="reference external" href="https://www.lesechos.fr/idees-debats/sciences-prospective/datas-la-resistance-sorganise-face-a-la-censure-de-trump-2164763">https://www.lesechos.fr/idees-debats/sciences-prospective/datas-la-resistance-sorganise-face-a-la-censure-de-trump-2164763</a>.</p>
-</div>
-<div class="citation" id="id39" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>HWdH+23<span class="fn-bracket">]</span></span>
-<p>Candise Henry, Jared Woollacott, Alison Bean de Hernández, Andrew Schreiber, and David A. Evans. Construction and application of the micro-level engineering, environmental, and economic detail of electricity (MEEDE) dataset, version 2. <em>Environmental Economics Working Paper Series</em>, 2023. URL: <a class="reference external" href="https://www.epa.gov/environmental-economics/construction-and-application-micro-level-engineering-environmental-and">https://www.epa.gov/environmental-economics/construction-and-application-micro-level-engineering-environmental-and</a>.</p>
-</div>
-<div class="citation" id="id62" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>HGN+21<span class="fn-bracket">]</span></span>
-<p>Daniel Huppmann, Matthew J Gidden, Zebedee Nicholls, Jonas Hörsch, Robin Lamboll, Paul N Kishimoto, Thorsten Burandt, Oliver Fricko, Edward Byers, Jarmo Kikstra, and others. Pyam: analysis and visualisation of integrated assessment and macro-energy scenarios. <em>Open Research Europe</em>, 2021.</p>
-</div>
-<div class="citation" id="id46" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>JMJ24<span class="fn-bracket">]</span></span>
-<p>Anna F Jacobson, Denise L Mauzerall, and Jesse D Jenkins. Quantifying the impact of energy system model resolution on siting, cost, reliability, and emissions for electricity generation. <em>Environmental Research: Energy</em>, 1(3):035009, September 2024. URL: <a class="reference external" href="https://dx.doi.org/10.1088/2753-3751/ad6d6f">https://dx.doi.org/10.1088/2753-3751/ad6d6f</a>, <a class="reference external" href="https://doi.org/10.1088/2753-3751/ad6d6f">doi:10.1088/2753-3751/ad6d6f</a>.</p>
-</div>
-<div class="citation" id="id13" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Jac25<span class="fn-bracket">]</span></span>
-<p>Anna FL Jacobson. <em>Structural Uncertainty in Energy Systems Models: Techniques for Mitigation and Impact Quantification</em>. PhD thesis, Princeton University, 2025. URL: <a class="reference external" href="http://arks.princeton.edu/ark:/88435/dsp01cv43p128p">http://arks.princeton.edu/ark:/88435/dsp01cv43p128p</a>.</p>
-</div>
-<div class="citation" id="id19" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>JS25<span class="fn-bracket">]</span></span>
-<p>Alida Johannsen and Sebastian Schwenen. Temperature shocks, cash windfalls and efficiency. Online, July 2025. <a class="reference external" href="https://doi.org/10.2139/ssrn.5371960">doi:10.2139/ssrn.5371960</a>.</p>
-</div>
-<div class="citation" id="id42" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>JDA+24<span class="fn-bracket">]</span></span>
-<p>Katherine H. Jordan, Luke R. Dennin, Peter J. Adams, Paulina Jaramillo, and Nicholas Z. Muller. Climate policy reduces racial disparities in air pollution from transportation and power generation. <em>Environmental Science &amp; Technology</em>, 58(49):21510–21522, 2024. PMID: 39593208. URL: <a class="reference external" href="https://doi.org/10.1021/acs.est.4c03719">https://doi.org/10.1021/acs.est.4c03719</a>, <a class="reference external" href="https://doi.org/10.1021/acs.est.4c03719">doi:10.1021/acs.est.4c03719</a>.</p>
-</div>
-<div class="citation" id="id38" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Jor24<span class="fn-bracket">]</span></span>
-<p>Katherine Halloran Jordan. <em>An Energy Systems Model Approach to US Decarbonization: Technological Solutions, Policy Pathways, and Equity Outcomes</em>. PhD thesis, Carnegie Mellon University, 2024.</p>
-</div>
-<div class="citation" id="id32" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>KRW25a<span class="fn-bracket">]</span></span>
-<p>Drew A. Kassel, Joshua Rhodes, and Dr. Michael E. Webber. A method for assessing economic, environmental, and reliability tradeoffs of interregional transmission connecting ERCOT (the Texas grid) to the eastern and western grids. Online, 2025. <a class="reference external" href="https://doi.org/10.2139/ssrn.5258850">doi:10.2139/ssrn.5258850</a>.</p>
-</div>
-<div class="citation" id="id40" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>KRW25b<span class="fn-bracket">]</span></span>
-<p>Drew A. Kassel, Joshua D. Rhodes, and Michael E. Webber. A method to analyze the costs and emissions tradeoffs of connecting ERCOT to WECC. <em>Applied Energy</em>, 378:124732, 2025. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0306261924021159">https://www.sciencedirect.com/science/article/pii/S0306261924021159</a>, <a class="reference external" href="https://doi.org/10.1016/j.apenergy.2024.124732">doi:10.1016/j.apenergy.2024.124732</a>.</p>
-</div>
-<div class="citation" id="id16" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>LRN25<span class="fn-bracket">]</span></span>
-<p>Jason Landsborough, Neil C Rowe, and Thuy D Nguyen. Database deception using large language models. In <em>2025 Annual Computer Security Applications Conference Workshops (ACSAC Workshops)</em>. 2025. URL: <a class="reference external" href="https://faculty.nps.edu/ncrowe/WAITI_Data_based_deception_paper.pdf">https://faculty.nps.edu/ncrowe/WAITI_Data_based_deception_paper.pdf</a>.</p>
-</div>
-<div class="citation" id="id15" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>LMM25a<span class="fn-bracket">]</span></span>
-<p>Jun Wen Law, Bryan K. Mignone, and Dharik S. Mallapragada. Decarbonization pathways for liquid fuels: a multi-sector energy system perspective. 2025. URL: <a class="reference external" href="https://arxiv.org/abs/2511.19159">https://arxiv.org/abs/2511.19159</a>, <a class="reference external" href="https://arxiv.org/abs/2511.19159">arXiv:2511.19159</a>, <a class="reference external" href="https://doi.org/10.48550/arXiv.2511.19159">doi:10.48550/arXiv.2511.19159</a>.</p>
-</div>
-<div class="citation" id="id26" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>LMM25b<span class="fn-bracket">]</span></span>
-<p>Jun Wen Law, Bryan K. Mignone, and Dharik S. Mallapragada. Role of technology flexibility and grid coupling on hydrogen deployment in net-zero energy systems. <em>Environmental Science &amp; Technology</em>, 59(10):4974–4988, 2025. PMID: 40036667. URL: <a class="reference external" href="https://doi.org/10.1021/acs.est.4c12166">https://doi.org/10.1021/acs.est.4c12166</a>, <a class="reference external" href="https://doi.org/10.1021/acs.est.4c12166">doi:10.1021/acs.est.4c12166</a>.</p>
-</div>
-<div class="citation" id="id69" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Leh18<span class="fn-bracket">]</span></span>
-<p>Ron Lehr. Utility transition financial impacts: from fossil to clean. Technical Report, Energy Innovation, 2018. URL: <a class="reference external" href="https://energyinnovation.org/wp-content/uploads/2018/12/From-Fossil-to-Clean-Brief_12.3.18.pdf">https://energyinnovation.org/wp-content/uploads/2018/12/From-Fossil-to-Clean-Brief_12.3.18.pdf</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id22" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Liu25<span class="fn-bracket">]</span></span>
-<p>Yifei Liu. Market structure and transmission investments in U.S. electricity markets. Working Paper, Department of Agricultural and Applied Economics, University of Wisconsin-Madison, Madison, WI 53706, Sep 2025. Online available at: <a class="reference external" href="https://yifei-liu-yl.github.io/YLiu_Market_Dispatch_Transmission_Investment.pdf">https://yifei-liu-yl.github.io/YLiu_Market_Dispatch_Transmission_Investment.pdf</a>.</p>
-</div>
-<div class="citation" id="id27" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>MMPJ25<span class="fn-bracket">]</span></span>
-<p>Aneesha Manocha, Gabriel Mantegna, Neha Patankar, and Jesse D Jenkins. Reducing transmission expansion by co-optimizing sizing of wind, solar, storage and grid connection capacity. <em>Environmental Research: Energy</em>, 2(1):015011, feb 2025. URL: <a class="reference external" href="https://dx.doi.org/10.1088/2753-3751/adafab">https://dx.doi.org/10.1088/2753-3751/adafab</a>, <a class="reference external" href="https://doi.org/10.1088/2753-3751/adafab">doi:10.1088/2753-3751/adafab</a>.</p>
-</div>
-<div class="citation" id="id44" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>McK24<span class="fn-bracket">]</span></span>
-<p>Andrew McKinley. Short circuited: costly transitions under the Clean Air Act. Technical Report, Booth School of Business, University of Chicago, December 2024. URL: <a class="reference external" href="https://dx.doi.org/10.2139/ssrn.4972091">https://dx.doi.org/10.2139/ssrn.4972091</a>, <a class="reference external" href="https://doi.org/10.2139/ssrn.4972091">doi:10.2139/ssrn.4972091</a>.</p>
-</div>
-<div class="citation" id="id54" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>MPSJ23<span class="fn-bracket">]</span></span>
-<p>Gregory J Miller, Gailin Pease, Wenbo Shi, and Alan Jenn. Evaluating the hourly emissions intensity of the U.S. electricity system. <em>Environmental Research Letters</em>, 18(4):044020, April 2023. URL: <a class="reference external" href="https://dx.doi.org/10.1088/1748-9326/acc119">https://dx.doi.org/10.1088/1748-9326/acc119</a>, <a class="reference external" href="https://doi.org/10.1088/1748-9326/acc119">doi:10.1088/1748-9326/acc119</a>.</p>
-</div>
-<div class="citation" id="id35" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Mul25<span class="fn-bracket">]</span></span>
-<p>Scott J Mulligan. Inside the race to archive the US government’s websites. <em>MIT Technology Review</em>, 2025. URL: <a class="reference external" href="https://www.technologyreview.com/2025/02/07/1111328/inside-the-race-to-archive-the-us-governments-websites/">https://www.technologyreview.com/2025/02/07/1111328/inside-the-race-to-archive-the-us-governments-websites/</a>.</p>
-</div>
-<div class="citation" id="id61" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>OFallonG21<span class="fn-bracket">]</span></span>
-<p>Cheyney O'Fallon and Avi Gopstein. <em>Quantifying Operational Resilience Benefits of the Smart Grid</em>. Department of Commerce. National Institute of Standards and Technology, 2021. URL: <a class="reference external" href="https://doi.org/10.6028/NIST.TN.2137">https://doi.org/10.6028/NIST.TN.2137</a>, <a class="reference external" href="https://doi.org/10.6028/NIST.TN.2137">doi:10.6028/NIST.TN.2137</a>.</p>
-</div>
-<div class="citation" id="id17" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>PSSV25<span class="fn-bracket">]</span></span>
-<p>Rina Palta, Max Shron, Alex Smith, and Juan-Pablo Velez. Blending hydrogen and natural gas: a road to nowhere for new jersey. Technical Report, SwitchBox, 2025. URL: <a class="reference external" href="https://www.switch.box/gh2nj">https://www.switch.box/gh2nj</a>.</p>
-</div>
-<div class="citation" id="id59" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Pes21<span class="fn-bracket">]</span></span>
-<p>Ari Peskoe. Is the utility transmission syndicate forever? <em>Energy Law Journal</em>, 2021. URL: <a class="reference external" href="https://www.eba-net.org/assets/1/6/5_-_%5BPeskoe%5D%5B1-66%5D.pdf">https://www.eba-net.org/assets/1/6/5_-_%5BPeskoe%5D%5B1-66%5D.pdf</a> (visited on 2021-11-01), <a class="reference external" href="https://doi.org/10.2139/ssrn.3770740">doi:10.2139/ssrn.3770740</a>.</p>
-</div>
-<div class="citation" id="id20" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>PG25a<span class="fn-bracket">]</span></span>
-<p>Kristina Pitman and Ben Gilbert. The distributional effects of renewable energy, a plant-level analysis. Online, November 2025. <a class="reference external" href="https://doi.org/10.2139/ssrn.5690682">doi:10.2139/ssrn.5690682</a>.</p>
-</div>
-<div class="citation" id="id21" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>PG25b<span class="fn-bracket">]</span></span>
-<p>Kristina Pitman and Ben Gilbert. The impact of trade on emissions responses to renewable supply variation. Online, October 2025. <a class="reference external" href="https://doi.org/10.2139/ssrn.5690663">doi:10.2139/ssrn.5690663</a>.</p>
-</div>
-<div class="citation" id="id18" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SBB+25a<span class="fn-bracket">]</span></span>
-<p>Greg Schivley, Aurora Barone, Michael Blackhurst, Patricia Hidalgo-Gonzalez, Jesse Jenkins, Oleg Lugovoy, Qian Luo, Michael J Roberts, Rangrang Zheng, Cameron Wade, and Matthias Fripp. Process and policy insights from an intercomparison of open electricity system capacity expansion models. <em>Environmental Research: Energy</em>, 2(4):045006, nov 2025. URL: <a class="reference external" href="https://doi.org/10.1088/2753-3751/ade548">https://doi.org/10.1088/2753-3751/ade548</a>, <a class="reference external" href="https://doi.org/10.1088/2753-3751/ade548">doi:10.1088/2753-3751/ade548</a>.</p>
-</div>
-<div class="citation" id="id33" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SBB+25b<span class="fn-bracket">]</span></span>
-<p>Greg Schivley, Aurora Barone, Michael Blackhurst, Patricia Hidalgo-Gonzalez, Jesse Jenkins, Olеg Lugovoy, Qian Luo, Michael Roberts, Rangrang Zheng, Cameron Wade, and Matthias Fripp. Process and policy insights from an intercomparison of open electricity system capacity expansion models. Technical Report 25-01, Environmental Defense Fund, 2025. <a class="reference external" href="https://doi.org/10.2139/ssrn.5205762">doi:10.2139/ssrn.5205762</a>.</p>
-</div>
-<div class="citation" id="id50" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SWP+24<span class="fn-bracket">]</span></span>
-<p>Greg Schivley, Ethan Welty, Neha Patankar, Anna Jacobson, Qingyu Xu, Aneesha Manocha, Braden Pecora, Riti Bhandarkar, Jesse D. Jenkins, and Matthias Fripp. PowerGenome/PowerGenome: v0.6.3. GitHub repository archived on Zenodo, May 2024. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.4426096">https://doi.org/10.5281/zenodo.4426096</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.4426096">doi:10.5281/zenodo.4426096</a>.</p>
-</div>
-<div class="citation" id="id37" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SRKJ23<span class="fn-bracket">]</span></span>
-<p>Jacob A Schwartz, Wilson Ricks, Egemen Kolemen, and Jesse D Jenkins. The value of fusion energy to a decarbonized United States electric grid. <em>Joule</em>, 7(4):675–699, 2023.</p>
-</div>
-<div class="citation" id="id23" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Sei25<span class="fn-bracket">]</span></span>
-<p>Ivy Seidel. Investigating nuclear energy viability with decision making model GenX. Master's thesis, The University of Texas at Austin, 2025. Online available at: <a class="reference external" href="https://repositories.lib.utexas.edu/items/d955baeb-1418-4a17-823a-45451ffb27ed">https://repositories.lib.utexas.edu/items/d955baeb-1418-4a17-823a-45451ffb27ed</a>.</p>
-</div>
-<div class="citation" id="id58" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SHvdNDsouza+21<span class="fn-bracket">]</span></span>
-<p>Jonathan Sims, Catharina Hillenbrand von der Neyen, Durand D‘souza, Lily Chau, Nicolás González-Jiménez, and Lorenzo Sani. Put gas on standby. Technical Report, Carbon Tracker Initiative, 2021. URL: <a class="reference external" href="https://carbontracker.org/reports/put-gas-on-standby/">https://carbontracker.org/reports/put-gas-on-standby/</a> (visited on 2021-10-30).</p>
-</div>
-<div class="citation" id="id30" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SOS25<span class="fn-bracket">]</span></span>
-<p>Madalsa Singh, Alison Ong, and Rayan Sud. Wires and fire: wildfire investment and network cost differences across California’s power providers. <em>The Electricity Journal</em>, 38(3):107475, 2025. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S104061902500020X">https://www.sciencedirect.com/science/article/pii/S104061902500020X</a>, <a class="reference external" href="https://doi.org/10.1016/j.tej.2025.107475">doi:10.1016/j.tej.2025.107475</a>.</p>
-</div>
-<div class="citation" id="id45" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SOS24<span class="fn-bracket">]</span></span>
-<p>Madalsa Singh, Allison Ong, and Rayan Sud. Trends and drivers of utility costs in California. Technical Report, Stanford University, October 2024. URL: <a class="reference external" href="https://dx.doi.org/10.2139/ssrn.4987198">https://dx.doi.org/10.2139/ssrn.4987198</a>, <a class="reference external" href="https://doi.org/10.2139/ssrn.4987198">doi:10.2139/ssrn.4987198</a>.</p>
-</div>
-<div class="citation" id="id43" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>TBFA24<span class="fn-bracket">]</span></span>
-<p>Kamran Tehranchi, Trevor Barnes, Martha Frysztacki, and Ines Azevedo. PyPSA-USA: a flexible open-source energy system model and optimization tool for the United States. November 2024. URL: <a class="reference external" href="https://dx.doi.org/10.2139/ssrn.5029120">https://dx.doi.org/10.2139/ssrn.5029120</a>, <a class="reference external" href="https://doi.org/10.2139/ssrn.5029120">doi:10.2139/ssrn.5029120</a>.</p>
-</div>
-<div class="citation" id="id41" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>vderJagtPJ24<span class="fn-bracket">]</span></span>
-<p>Sam van der Jagt, Neha Patankar, and Jesse D. Jenkins. Understanding the role and design space of demand sinks in low-carbon power systems. <em>Energy and Climate Change</em>, 5:100132, 2024. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S2666278724000084">https://www.sciencedirect.com/science/article/pii/S2666278724000084</a>, <a class="reference external" href="https://doi.org/10.1016/j.egycc.2024.100132">doi:10.1016/j.egycc.2024.100132</a>.</p>
-</div>
-<div class="citation" id="id24" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>WDKVT25<span class="fn-bracket">]</span></span>
-<p>William D. Kenworthy, Curt Volkmann, and Boratha Tan. Direct testimony and exhibits of william d. kenworthy, curt volkmann, and boratha tan on behalf of the ecology center, the environmental law &amp; policy center, union of concerned scientists, and vote solar. Aug 2025. URL: <a class="reference external" href="https://mi-psc.my.site.com/sfc/servlet.shepherd/version/download/068cs000016rwhrAAA">https://mi-psc.my.site.com/sfc/servlet.shepherd/version/download/068cs000016rwhrAAA</a>.</p>
-</div>
-<div class="citation" id="id52" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>WZ23<span class="fn-bracket">]</span></span>
-<p>John D. Wilson and Zach Zimmerman. The era of flat power demand is over. Technical Report, Grid Strategies LLC, December 2023. URL: <a class="reference external" href="https://gridstrategiesllc.com/wp-content/uploads/2023/12/National-Load-Growth-Report-2023.pdf">https://gridstrategiesllc.com/wp-content/uploads/2023/12/National-Load-Growth-Report-2023.pdf</a>.</p>
-</div>
-<div class="citation" id="id53" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>WZG24<span class="fn-bracket">]</span></span>
-<p>John D. Wilson, Zach Zimmerman, and Rob Gramlich. Strategic industries surging: driving us power demand. Technical Report, Grid Strategies LLC, December 2024. URL: <a class="reference external" href="https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf">https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf</a>.</p>
-</div>
-<div class="citation" id="id56" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>ZPELW22<span class="fn-bracket">]</span></span>
-<p>Xiaodong Zhang, Dalia Patino-Echeverri, Mingquan Li, and Libo Wu. A review of publicly available data sources for models to study renewables integration in China's power system. <em>Renewable and Sustainable Energy Reviews</em>, 159:112215, 2022. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1364032122001381">https://www.sciencedirect.com/science/article/pii/S1364032122001381</a>, <a class="reference external" href="https://doi.org/10.1016/j.rser.2022.112215">doi:10.1016/j.rser.2022.112215</a>.</p>
-</div>
-<div class="citation" id="id48" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>ZSHG+24<span class="fn-bracket">]</span></span>
-<p>Rangrang Zheng, Greg Schivley, Patricia Hidalgo-Gonzalez, Matthias Fripp, and Michael J. Roberts. Optimal transmission expansion minimally reduces decarbonization costs of U.S. electricity. 2024. URL: <a class="reference external" href="https://doi.org/10.48550/arXiv.2402.14189">https://doi.org/10.48550/arXiv.2402.14189</a>, <a class="reference external" href="https://arxiv.org/abs/2402.14189">arXiv:2402.14189</a>, <a class="reference external" href="https://doi.org/10.48550/arXiv.2402.14189">doi:10.48550/arXiv.2402.14189</a>.</p>
-</div>
-<div class="citation" id="id36" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Zwa25<span class="fn-bracket">]</span></span>
-<p>Carlyn Zwarenstein. Trump is gutting environmental data, obscuring climate and pollution risks to the public. <em>Salon</em>, 2025. URL: <a class="reference external" href="https://www.salon.com/2025/02/27/is-gutting-environmental-data-obscuring-climate-and-pollution-risks-to-the-public/">https://www.salon.com/2025/02/27/is-gutting-environmental-data-obscuring-climate-and-pollution-risks-to-the-public/</a>.</p>
-</div>
-</div>
+<div class="docutils container" id="id11">
+<ol class="arabic simple" start="1">
+<li id="id69"><p>Michael Craig, Wei Ai, and Jacqueline Dowling. Resolving the Mechanism and Value of Hydrogen-Based Seasonal Flexibility. March 2026. ISSN: 2693-5015. URL: <a class="reference external" href="https://www.researchsquare.com/article/rs-8875261/v1">https://www.researchsquare.com/article/rs-8875261/v1</a> (visited on 2026-03-30), <a class="reference external" href="https://doi.org/10.21203/rs.3.rs-8875261/v1">doi:10.21203/rs.3.rs-8875261/v1</a>.</p></li>
+<li id="id71"><p>Steven Dahlke. Power Plant Economics and Data Availability for the Energy Transition. Working Paper, Colorado Public Utilities Commission, SSRN, January 2026. URL: <a class="reference external" href="https://ssrn.com/abstract=6103410">https://ssrn.com/abstract=6103410</a> (visited on 2026-03-30), <a class="reference external" href="https://doi.org/10.2139/ssrn.6103410">doi:10.2139/ssrn.6103410</a>.</p></li>
+<li id="id70"><p>Max Vanatta, Brian Sergi, Wesley Cole, Paul Denholm, and Trieu Mai. The past, present, and future of peaking thermal power plants in the United States. <em>iScience</em>, March 2026. URL: <a class="reference external" href="https://www.cell.com/iscience/abstract/S2589-0042(26)00261-0">https://www.cell.com/iscience/abstract/S2589-0042(26)00261-0</a> (visited on 2026-03-30), <a class="reference external" href="https://doi.org/10.1016/j.isci.2026.114886">doi:10.1016/j.isci.2026.114886</a>.</p></li>
+<li id="id72"><p>Fischer J. Espiritu Argosino and Christopher R. Knittel. Renewables and Electricity Affordability: Untangling Correlation from Causation. Working Paper 2025-22, MIT Center for Energy and Environmental Policy Research, December 2025. URL: <a class="reference external" href="https://ceepr.mit.edu/wp-content/uploads/2025/12/MIT-CEEPR-WP-2025-22.pdf">https://ceepr.mit.edu/wp-content/uploads/2025/12/MIT-CEEPR-WP-2025-22.pdf</a> (visited on 2026-03-30).</p></li>
+<li id="id24"><p>Jesse Buchsbaum and Jenya Kahn-Lang. What’s happening to electricity affordability? in Five charts. <em>Resources for the Future</em>, August 2025. URL: <a class="reference external" href="https://www.resources.org/archives/whats-happening-to-electricity-affordability-in-five-charts/">https://www.resources.org/archives/whats-happening-to-electricity-affordability-in-five-charts/</a>.</p></li>
+<li id="id27"><p>Steve Cicala. Restructuring the Rate Base. <em>AEA Papers and Proceedings</em>, 115:363–68, May 2025. URL: <a class="reference external" href="https://www.aeaweb.org/articles?id=10.1257/pandp.20251112">https://www.aeaweb.org/articles?id=10.1257/pandp.20251112</a>, <a class="reference external" href="https://doi.org/10.1257/pandp.20251112">doi:10.1257/pandp.20251112</a>.</p></li>
+<li id="id33"><p>Austyn Gaffney. Science Data May Soon Vanish From Government Websites. <em>The New York Times</em>, March 2025. URL: <a class="reference external" href="https://www.nytimes.com/2025/03/21/climate/government-websites-climate-environment-data.html">https://www.nytimes.com/2025/03/21/climate/government-websites-climate-environment-data.html</a>.</p></li>
+<li id="id28"><p>Gautam Gowrisankaran, Ashley Langer, and Wendan Zhang. Policy Uncertainty in the Market for Coal Electricity: The Case of Air Toxics Standards. <em>Journal of Political Economy</em>, 133(6):1757–1795, 2025. URL: <a class="reference external" href="https://doi.org/10.1086/734779">https://doi.org/10.1086/734779</a>, <a class="reference external" href="https://doi.org/10.1086/734779">doi:10.1086/734779</a>.</p></li>
+<li id="id13"><p>Bavly Samy Helmy Hanna. <em>Leveraging industry 4.0 enabled technologies to achieve UN sustainable development goals</em>. PhD Thesis, University of Technology Sydney, 2025. URL: <a class="reference external" href="http://hdl.handle.net/10453/190581">http://hdl.handle.net/10453/190581</a>.</p></li>
+<li id="id30"><p>Jacques Henno. Datas : la résistance s'organise face à la censure de Trump. <em>Les Echos</em>, May 2025. URL: <a class="reference external" href="https://www.lesechos.fr/idees-debats/sciences-prospective/datas-la-resistance-sorganise-face-a-la-censure-de-trump-2164763">https://www.lesechos.fr/idees-debats/sciences-prospective/datas-la-resistance-sorganise-face-a-la-censure-de-trump-2164763</a>.</p></li>
+<li id="id12"><p>Anna FL Jacobson. <em>Structural Uncertainty in Energy Systems Models: Techniques for Mitigation and Impact Quantification</em>. PhD Thesis, Princeton University, 2025. URL: <a class="reference external" href="http://arks.princeton.edu/ark:/88435/dsp01cv43p128p">http://arks.princeton.edu/ark:/88435/dsp01cv43p128p</a>.</p></li>
+<li id="id18"><p>Alida Johannsen and Sebastian Schwenen. Temperature Shocks, Cash Windfalls and Efficiency. July 2025. <a class="reference external" href="https://doi.org/10.2139/ssrn.5371960">doi:10.2139/ssrn.5371960</a>.</p></li>
+<li id="id39"><p>Drew A. Kassel, Joshua D. Rhodes, and Michael E. Webber. A method to analyze the costs and emissions tradeoffs of connecting ERCOT to WECC. <em>Applied Energy</em>, 378:124732, 2025. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0306261924021159">https://www.sciencedirect.com/science/article/pii/S0306261924021159</a>, <a class="reference external" href="https://doi.org/10.1016/j.apenergy.2024.124732">doi:10.1016/j.apenergy.2024.124732</a>.</p></li>
+<li id="id31"><p>Drew A. Kassel, Joshua Rhodes, and Dr. Michael E. Webber. A Method for Assessing Economic, Environmental, and Reliability Tradeoffs of Interregional Transmission Connecting ERCOT (the Texas Grid) to the Eastern and Western Grids. May 2025. _eprinttype: ssrn. <a class="reference external" href="https://doi.org/10.2139/ssrn.5258850">doi:10.2139/ssrn.5258850</a>.</p></li>
+<li id="id23"><p>William D. Kenworthy, Curt Volkmann, and Boratha Tan. Direct Testimony and Exhibits of William D. Kenworthy, Curt Volkmann, and Boratha Tan on behalf of The Ecology Center, The Environmental Law &amp; Policy Center, Union of Concerned Scientists, and Vote Solar. August 2025. Issue: Case U-21860. URL: <a class="reference external" href="https://mi-psc.my.site.com/sfc/servlet.shepherd/version/download/068cs000016rwhrAAA">https://mi-psc.my.site.com/sfc/servlet.shepherd/version/download/068cs000016rwhrAAA</a>.</p></li>
+<li id="id15"><p>Jason Landsborough, Neil C Rowe, and Thuy D Nguyen. Database Deception using Large Language Models. In <em>2025 Annual Computer Security Applications Conference Workshops (ACSAC Workshops)</em>. 2025. URL: <a class="reference external" href="https://faculty.nps.edu/ncrowe/WAITI_Data_based_deception_paper.pdf">https://faculty.nps.edu/ncrowe/WAITI_Data_based_deception_paper.pdf</a>.</p></li>
+<li id="id14"><p>Jun Wen Law, Bryan K. Mignone, and Dharik S. Mallapragada. Decarbonization pathways for liquid fuels: A multi-sector energy system perspective. 2025. _eprint: 2511.19159. URL: <a class="reference external" href="https://arxiv.org/abs/2511.19159">https://arxiv.org/abs/2511.19159</a>, <a class="reference external" href="https://doi.org/10.48550/arXiv.2511.19159">doi:10.48550/arXiv.2511.19159</a>.</p></li>
+<li id="id25"><p>Jun Wen Law, Bryan K. Mignone, and Dharik S. Mallapragada. Role of Technology Flexibility and Grid Coupling on Hydrogen Deployment in Net-Zero Energy Systems. <em>Environmental Science &amp; Technology</em>, 59(10):4974–4988, 2025. URL: <a class="reference external" href="https://doi.org/10.1021/acs.est.4c12166">https://doi.org/10.1021/acs.est.4c12166</a>, <a class="reference external" href="https://doi.org/10.1021/acs.est.4c12166">doi:10.1021/acs.est.4c12166</a>.</p></li>
+<li id="id21"><p>Yifei Liu. Market Structure and Transmission Investments in U.S. Electricity Markets. Working Paper, Department of Agricultural and Applied Economics, University of Wisconsin-Madison, Madison, WI 53706, September 2025.</p></li>
+<li id="id26"><p>Aneesha Manocha, Gabriel Mantegna, Neha Patankar, and Jesse D Jenkins. Reducing transmission expansion by co-optimizing sizing of wind, solar, storage and grid connection capacity. <em>Environmental Research: Energy</em>, 2(1):015011, February 2025. URL: <a class="reference external" href="https://dx.doi.org/10.1088/2753-3751/adafab">https://dx.doi.org/10.1088/2753-3751/adafab</a>, <a class="reference external" href="https://doi.org/10.1088/2753-3751/adafab">doi:10.1088/2753-3751/adafab</a>.</p></li>
+<li id="id34"><p>Scott J. Mulligan. Inside the race to archive the US government’s websites. <em>MIT Technology Review</em>, February 2025. URL: <a class="reference external" href="https://www.technologyreview.com/2025/02/07/1111328/inside-the-race-to-archive-the-us-governments-websites/">https://www.technologyreview.com/2025/02/07/1111328/inside-the-race-to-archive-the-us-governments-websites/</a>.</p></li>
+<li id="id16"><p>Rina Palta, Max Shron, Alex Smith, and Juan-Pablo Velez. Blending Hydrogen and Natural Gas: A road to nowhere for New Jersey. Technical Report, SwitchBox, 2025. URL: <a class="reference external" href="https://www.switch.box/gh2nj">https://www.switch.box/gh2nj</a>.</p></li>
+<li id="id19"><p>Kristina Pitman and Ben Gilbert. The Distributional Effects of Renewable Energy, a Plant-level Analysis. November 2025. <a class="reference external" href="https://doi.org/10.2139/ssrn.5690682">doi:10.2139/ssrn.5690682</a>.</p></li>
+<li id="id20"><p>Kristina Pitman and Ben Gilbert. The Impact of Trade on Emissions Responses to Renewable Supply Variation. October 2025. <a class="reference external" href="https://doi.org/10.2139/ssrn.5690663">doi:10.2139/ssrn.5690663</a>.</p></li>
+<li id="id17"><p>Greg Schivley, Aurora Barone, Michael Blackhurst, Patricia Hidalgo-Gonzalez, Jesse Jenkins, Oleg Lugovoy, Qian Luo, Michael J Roberts, Rangrang Zheng, Cameron Wade, and Matthias Fripp. Process and policy insights from an intercomparison of open electricity system capacity expansion models. <em>Environmental Research: Energy</em>, 2(4):045006, November 2025. URL: <a class="reference external" href="https://doi.org/10.1088/2753-3751/ade548">https://doi.org/10.1088/2753-3751/ade548</a>, <a class="reference external" href="https://doi.org/10.1088/2753-3751/ade548">doi:10.1088/2753-3751/ade548</a>.</p></li>
+<li id="id32"><p>Greg Schivley, Aurora Barone, Michael Blackhurst, Patricia Hidalgo-Gonzalez, Jesse Jenkins, Olеg Lugovoy, Qian Luo, Michael Roberts, Rangrang Zheng, Cameron Wade, and Matthias Fripp. Process and Policy Insights from an Intercomparison of Open Electricity System Capacity Expansion Models. Technical Report 25-01, Environmental Defense Fund, March 2025. Series: Economics Discussion Paper Series _eprinttype: ssrn. <a class="reference external" href="https://doi.org/10.2139/ssrn.5205762">doi:10.2139/ssrn.5205762</a>.</p></li>
+<li id="id22"><p>Ivy Seidel. Investigating nuclear energy viability with decision making model GenX. Master's thesis, The University of Texas at Austin, 2025.</p></li>
+<li id="id29"><p>Madalsa Singh, Alison Ong, and Rayan Sud. Wires and fire: Wildfire investment and network cost differences across California’s power providers. <em>The Electricity Journal</em>, 38(3):107475, 2025. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S104061902500020X">https://www.sciencedirect.com/science/article/pii/S104061902500020X</a>, <a class="reference external" href="https://doi.org/10.1016/j.tej.2025.107475">doi:10.1016/j.tej.2025.107475</a>.</p></li>
+<li id="id35"><p>Carlyn Zwarenstein. Trump is gutting environmental data, obscuring climate and pollution risks to the public. <em>Salon</em>, February 2025. URL: <a class="reference external" href="https://www.salon.com/2025/02/27/is-gutting-environmental-data-obscuring-climate-and-pollution-risks-to-the-public/">https://www.salon.com/2025/02/27/is-gutting-environmental-data-obscuring-climate-and-pollution-risks-to-the-public/</a>.</p></li>
+<li id="id48"><p>Samuel Dotson, Lee Shaver, and James Gignac. Storing the Future: A modeling analysis of Illinois storage needs. 2024. Version Number: V1. URL: <a class="reference external" href="https://doi.org/10.7910/DVN/7QRME4">https://doi.org/10.7910/DVN/7QRME4</a>, <a class="reference external" href="https://doi.org/10.7910/DVN/7QRME4">doi:10.7910/DVN/7QRME4</a>.</p></li>
+<li id="id46"><p>Bavly Hanna, Guandong Xu, Xianzhi Wang, and Jahangir Hossain. Leveraging Artificial Intelligence for Affordable and Clean Energy: Advancing UN Sustainable Development Goal 7. In <em>2024 11th International Conference on Behavioural and Social Computing (BESC)</em>, 1–9. 2024. <a class="reference external" href="https://doi.org/10.1109/BESC64747.2024.10780659">doi:10.1109/BESC64747.2024.10780659</a>.</p></li>
+<li id="id45"><p>Anna F Jacobson, Denise L Mauzerall, and Jesse D Jenkins. Quantifying the impact of energy system model resolution on siting, cost, reliability, and emissions for electricity generation. <em>Environmental Research: Energy</em>, 1(3):035009, September 2024. URL: <a class="reference external" href="https://dx.doi.org/10.1088/2753-3751/ad6d6f">https://dx.doi.org/10.1088/2753-3751/ad6d6f</a>, <a class="reference external" href="https://doi.org/10.1088/2753-3751/ad6d6f">doi:10.1088/2753-3751/ad6d6f</a>.</p></li>
+<li id="id40"><p>Sam van der Jagt, Neha Patankar, and Jesse D. Jenkins. Understanding the role and design space of demand sinks in low-carbon power systems. <em>Energy and Climate Change</em>, 5:100132, 2024. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S2666278724000084">https://www.sciencedirect.com/science/article/pii/S2666278724000084</a>, <a class="reference external" href="https://doi.org/10.1016/j.egycc.2024.100132">doi:10.1016/j.egycc.2024.100132</a>.</p></li>
+<li id="id41"><p>Katherine H. Jordan, Luke R. Dennin, Peter J. Adams, Paulina Jaramillo, and Nicholas Z. Muller. Climate Policy Reduces Racial Disparities in Air Pollution from Transportation and Power Generation. <em>Environmental Science &amp; Technology</em>, 58(49):21510–21522, 2024. URL: <a class="reference external" href="https://doi.org/10.1021/acs.est.4c03719">https://doi.org/10.1021/acs.est.4c03719</a>, <a class="reference external" href="https://doi.org/10.1021/acs.est.4c03719">doi:10.1021/acs.est.4c03719</a>.</p></li>
+<li id="id37"><p>Katherine Halloran Jordan. <em>An Energy Systems Model Approach to US Decarbonization: Technological Solutions, Policy Pathways, and Equity Outcomes</em>. PhD Thesis, Carnegie Mellon University, 2024.</p></li>
+<li id="id43"><p>Andrew McKinley. Short Circuited: Costly Transitions under The Clean Air Act. Technical Report, SSRN, December 2024. Backup Publisher: Booth School of Business, University of Chicago. URL: <a class="reference external" href="https://dx.doi.org/10.2139/ssrn.4972091">https://dx.doi.org/10.2139/ssrn.4972091</a>, <a class="reference external" href="https://doi.org/10.2139/ssrn.4972091">doi:10.2139/ssrn.4972091</a>.</p></li>
+<li id="id49"><p>Greg Schivley, Ethan Welty, Neha Patankar, Anna Jacobson, Qingyu Xu, Aneesha Manocha, Braden Pecora, Riti Bhandarkar, Jesse D. Jenkins, and Matthias Fripp. PowerGenome/PowerGenome: v0.6.3. May 2024. Version Number: v0.6.3 Published: GitHub repository archived on Zenodo. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.4426096">https://doi.org/10.5281/zenodo.4426096</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.4426096">doi:10.5281/zenodo.4426096</a>.</p></li>
+<li id="id44"><p>Madalsa Singh, Allison Ong, and Rayan Sud. Trends and drivers of utility costs in California. Technical Report, SSRN, October 2024. Backup Publisher: Stanford University. URL: <a class="reference external" href="https://dx.doi.org/10.2139/ssrn.4987198">https://dx.doi.org/10.2139/ssrn.4987198</a>, <a class="reference external" href="https://doi.org/10.2139/ssrn.4987198">doi:10.2139/ssrn.4987198</a>.</p></li>
+<li id="id42"><p>Kamran Tehranchi, Trevor Barnes, Martha Frysztacki, and Ines Azevedo. PyPSA-USA: A Flexible Open-Source Energy System Model and Optimization Tool for the United States. November 2024. URL: <a class="reference external" href="https://dx.doi.org/10.2139/ssrn.5029120">https://dx.doi.org/10.2139/ssrn.5029120</a>, <a class="reference external" href="https://doi.org/10.2139/ssrn.5029120">doi:10.2139/ssrn.5029120</a>.</p></li>
+<li id="id52"><p>John D. Wilson, Zach Zimmerman, and Rob Gramlich. Strategic Industries Surging: Driving US Power Demand. Technical Report, Grid Strategies LLC, December 2024. URL: <a class="reference external" href="https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf">https://gridstrategiesllc.com/wp-content/uploads/National-Load-Growth-Report-2024.pdf</a>.</p></li>
+<li id="id47"><p>Rangrang Zheng, Greg Schivley, Patricia Hidalgo-Gonzalez, Matthias Fripp, and Michael J. Roberts. Optimal transmission expansion minimally reduces decarbonization costs of U.S. electricity. 2024. _eprint: 2402.14189. URL: <a class="reference external" href="https://doi.org/10.48550/arXiv.2402.14189">https://doi.org/10.48550/arXiv.2402.14189</a>, <a class="reference external" href="https://doi.org/10.48550/arXiv.2402.14189">doi:10.48550/arXiv.2402.14189</a>.</p></li>
+<li id="id50"><p>Lucas W. Davis, Catherine Hausman, and Nancy L. Rose. Transmission Impossible? Prospects for Decarbonizing the U.S. Grid. <em>Journal of Economic Perspectives</em>, 37(4):155–80, December 2023. URL: <a class="reference external" href="https://www.aeaweb.org/articles?id=10.1257/jep.37.4.155">https://www.aeaweb.org/articles?id=10.1257/jep.37.4.155</a>, <a class="reference external" href="https://doi.org/10.1257/jep.37.4.155">doi:10.1257/jep.37.4.155</a>.</p></li>
+<li id="id38"><p>Candise Henry, Jared Woollacott, Alison Bean de Hernández, Andrew Schreiber, and David A. Evans. Construction and Application of the Micro-level Engineering, Environmental, and Economic Detail of Electricity (MEEDE) Dataset, Version 2. <em>Environmental Economics Working Paper Series</em>, 2023. URL: <a class="reference external" href="https://www.epa.gov/environmental-economics/construction-and-application-micro-level-engineering-environmental-and">https://www.epa.gov/environmental-economics/construction-and-application-micro-level-engineering-environmental-and</a>.</p></li>
+<li id="id53"><p>Gregory J. Miller, Gailin Pease, Wenbo Shi, and Alan Jenn. Evaluating the hourly emissions intensity of the U.S. electricity system. <em>Environmental Research Letters</em>, 18(4):044020, April 2023. URL: <a class="reference external" href="https://dx.doi.org/10.1088/1748-9326/acc119">https://dx.doi.org/10.1088/1748-9326/acc119</a>, <a class="reference external" href="https://doi.org/10.1088/1748-9326/acc119">doi:10.1088/1748-9326/acc119</a>.</p></li>
+<li id="id36"><p>Jacob A Schwartz, Wilson Ricks, Egemen Kolemen, and Jesse D Jenkins. The value of fusion energy to a decarbonized United States electric grid. <em>Joule</em>, 7(4):675–699, 2023.</p></li>
+<li id="id51"><p>John D. Wilson and Zach Zimmerman. The era of flat power demand is over. Technical Report, Grid Strategies LLC, December 2023. URL: <a class="reference external" href="https://gridstrategiesllc.com/wp-content/uploads/2023/12/National-Load-Growth-Report-2023.pdf">https://gridstrategiesllc.com/wp-content/uploads/2023/12/National-Load-Growth-Report-2023.pdf</a>.</p></li>
+<li id="id54"><p>Gautam Gowrisankaran, Ashley Langer, and Wendan Zhang. Policy Uncertainty in the Market for Coal Electricity: The Case of Air Toxics Standards. Working Paper 30297, National Bureau of Economic Research, July 2022. Series: Working Paper Series. URL: <a class="reference external" href="http://www.nber.org/papers/w30297">http://www.nber.org/papers/w30297</a>, <a class="reference external" href="https://doi.org/10.3386/w30297">doi:10.3386/w30297</a>.</p></li>
+<li id="id55"><p>Xiaodong Zhang, Dalia Patino-Echeverri, Mingquan Li, and Libo Wu. A review of publicly available data sources for models to study renewables integration in China's power system. <em>Renewable and Sustainable Energy Reviews</em>, 159:112215, 2022. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1364032122001381">https://www.sciencedirect.com/science/article/pii/S1364032122001381</a>, <a class="reference external" href="https://doi.org/10.1016/j.rser.2022.112215">doi:10.1016/j.rser.2022.112215</a>.</p></li>
+<li id="id59"><p>Priya L. Donti and J. Zico Kolter. Machine Learning for Sustainable Energy Systems. <em>Annual Review of Environment and Resources</em>, 46(1):719–747, 2021. URL: <a class="reference external" href="https://doi.org/10.1146/annurev-environ-020220-061831">https://doi.org/10.1146/annurev-environ-020220-061831</a>, <a class="reference external" href="https://doi.org/10.1146/annurev-environ-020220-061831">doi:10.1146/annurev-environ-020220-061831</a>.</p></li>
+<li id="id56"><p>Tyler Fitch. Carbon Stranding: Climate Risk and Stranded Assets in Duke's Integrated Resource Plan. Technical Report, Energy Transition Institute, January 2021. URL: <a class="reference external" href="https://votesolar.org/wp-content/uploads/2021/02/ETI_CarbonStrandingReport_2021.pdf">https://votesolar.org/wp-content/uploads/2021/02/ETI_CarbonStrandingReport_2021.pdf</a> (visited on 2021-10-14).</p></li>
+<li id="id62"><p>Eric Gimon, Amanda Meyers, and Mike O'Boyle. Coal Cost Crossover 2.0. Technical Report, Energy Innovation, 2021. URL: <a class="reference external" href="https://energyinnovation.org/publication/the-coal-cost-crossover-2021/">https://energyinnovation.org/publication/the-coal-cost-crossover-2021/</a> (visited on 2021-10-14).</p></li>
+<li id="id61"><p>Daniel Huppmann, Matthew J Gidden, Zebedee Nicholls, Jonas Hörsch, Robin Lamboll, Paul N Kishimoto, Thorsten Burandt, Oliver Fricko, Edward Byers, Jarmo Kikstra, and others. Pyam: Analysis and visualisation of integrated assessment and macro-energy scenarios. <em>Open Research Europe</em>, 2021.</p></li>
+<li id="id60"><p>Cheyney O'Fallon and Avi Gopstein. <em>Quantifying Operational Resilience Benefits of the Smart Grid</em>. Department of Commerce. National Institute of Standards and Technology, 2021. URL: <a class="reference external" href="https://doi.org/10.6028/NIST.TN.2137">https://doi.org/10.6028/NIST.TN.2137</a>, <a class="reference external" href="https://doi.org/10.6028/NIST.TN.2137">doi:10.6028/NIST.TN.2137</a>.</p></li>
+<li id="id58"><p>Ari Peskoe. Is the Utility Transmission Syndicate Forever? <em>Energy Law Journal</em>, 2021. URL: <a class="reference external" href="https://www.eba-net.org/assets/1/6/5_-_%5BPeskoe%5D%5B1-66%5D.pdf">https://www.eba-net.org/assets/1/6/5_-_%5BPeskoe%5D%5B1-66%5D.pdf</a> (visited on 2021-11-01), <a class="reference external" href="https://doi.org/10.2139/ssrn.3770740">doi:10.2139/ssrn.3770740</a>.</p></li>
+<li id="id57"><p>Jonathan Sims, Catharina Hillenbrand von der Neyen, Durand D‘souza, Lily Chau, Nicolás González-Jiménez, and Lorenzo Sani. Put Gas On Standby. Technical Report, Carbon Tracker Initiative, 2021. URL: <a class="reference external" href="https://carbontracker.org/reports/put-gas-on-standby/">https://carbontracker.org/reports/put-gas-on-standby/</a> (visited on 2021-10-30).</p></li>
+<li id="id66"><p>John E.T. Bistline and James H. Merrick. Parameterizing open-source energy models: Statistical learning to estimate unknown power plant attributes. <em>Applied Energy</em>, 269:114941, 2020. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0306261920304530">https://www.sciencedirect.com/science/article/pii/S0306261920304530</a> (visited on 2021-11-01), <a class="reference external" href="https://doi.org/10.1016/j.apenergy.2020.114941">doi:10.1016/j.apenergy.2020.114941</a>.</p></li>
+<li id="id65"><p>Steven Dahlke, Mahesh Morjaria, Vahan Gevorgian, and Barry Mather. The Economics of Flexible Solar for Electricity Markets in Transition. Technical Report, First Solar, 2020. URL: <a class="reference external" href="https://www.firstsolar.com/es-CSA/-/media/First-Solar/Documents/Grid-Evolution/The_Economics_of_Flexible_Solar_for_Electricity_Markets_in_Transition.ashx">https://www.firstsolar.com/es-CSA/-/media/First-Solar/Documents/Grid-Evolution/The_Economics_of_Flexible_Solar_for_Electricity_Markets_in_Transition.ashx</a> (visited on 2021-11-01).</p></li>
+<li id="id64"><p>Joseph F. DeCarolis, Paulina Jaramillo, Jeremiah X. Johnson, David L. McCollum, Evelina Trutnevyte, David C. Daniels, Gökçe Akın-Olçum, Joule Bergerson, Soolyeon Cho, Joon-Ho Choi, Michael T. Craig, Anderson R. de Queiroz, Hadi Eshraghi, Christopher S. Galik, Timothy G. Gutowski, Karl R. Haapala, Bri-Mathias Hodge, Simi Hoque, Jesse D. Jenkins, Alan Jenn, Daniel J. A. Johansson, Noah Kaufman, Juha Kiviluoma, Zhenhong Lin, Heather L. MacLean, Eric Masanet, Mohammad S. Masnadi, Colin A. McMillan, Destenie S. Nock, Neha Patankar, Dalia Patino-Echeverri, Greg Schivley, Sauleh Siddiqui, Amanda D. Smith, Aranya Venkatesh, Gernot Wagner, Sonia Yeh, and Yuyu Zhou. Leveraging Open-Source Tools for Collaborative Macro-energy System Modeling Efforts. <em>Joule</em>, 4(12):2523–2526, December 2020. URL: <a class="reference external" href="https://doi.org/10.1016/j.joule.2020.11.002">https://doi.org/10.1016/j.joule.2020.11.002</a>, <a class="reference external" href="https://doi.org/10.1016/j.joule.2020.11.002">doi:10.1016/j.joule.2020.11.002</a>.</p></li>
+<li id="id67"><p>Eric Gimon, Mike O'Boyle, Christopher T. M. Clack, and Sarah A. McKee. The Coal Cost Crossover: Economic Viability of Existing Coal Compared to New Local Wind and Solar Resources. Technical Report, Energy Innovation and Vibrant Clean Energy, 2019. URL: <a class="reference external" href="https://energyinnovation.org/publication/the-coal-cost-crossover/">https://energyinnovation.org/publication/the-coal-cost-crossover/</a> (visited on 2021-10-14).</p></li>
+<li id="id68"><p>Ron Lehr. Utility Transition Financial Impacts: From Fossil to Clean. Technical Report, Energy Innovation, 2018. URL: <a class="reference external" href="https://energyinnovation.org/wp-content/uploads/2018/12/From-Fossil-to-Clean-Brief_12.3.18.pdf">https://energyinnovation.org/wp-content/uploads/2018/12/From-Fossil-to-Clean-Brief_12.3.18.pdf</a> (visited on 2021-10-15).</p></li>
+<li id="id63"><p>Open Source Climate. Open Source Climate Initiative. Published: Website. URL: <a class="reference external" href="https://www.os-climate.org/">https://www.os-climate.org/</a> (visited on 2021-10-15).</p></li>
+</ol>
 </div>
 </section>
 <section id="work-citing-catalyst-cooperative">
 <h2>Work Citing Catalyst Cooperative<a class="headerlink" href="#work-citing-catalyst-cooperative" title="Link to this heading">#</a></h2>
 <p>Academic, policy, and industry publications referencing Catalyst’s role as a
 worker-owned software cooperative.</p>
-<div class="docutils container" id="id70">
-<div role="list" class="citation-list">
-<div class="citation" id="id72" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>JU25<span class="fn-bracket">]</span></span>
-<p>Lakshmi A. J and Abilash Unny. <em>Digital Transformation and Cooperatives: Perspectives from the United Kingdom, Japan, and India</em>. Routledge, London, November 2025. ISBN 978-1-003-56375-4. <a class="reference external" href="https://doi.org/10.4324/9781003563754">doi:10.4324/9781003563754</a>.</p>
-</div>
-<div class="citation" id="id71" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SdNJEspanaC26<span class="fn-bracket">]</span></span>
-<p>Joram Scholten, Chris de Nijs, Slinger Jansen, and Sergio España-Cubillo. Democratising work in the software sector: insights on cooperative businesses. In Georg Herzwurm, Dimitri Petrik, Gero Strobel, Thomas Kude, and Lukas Block, editors, <em>Software Business</em>, 309–324. Cham, 2026. Springer Nature Switzerland.</p>
-</div>
-</div>
+<div class="docutils container" id="id73">
+<ol class="arabic simple" start="1">
+<li id="id74"><p>Joram Scholten, Chris de Nijs, Slinger Jansen, and Sergio España-Cubillo. Democratising Work in the Software Sector: Insights on Cooperative Businesses. In Georg Herzwurm, Dimitri Petrik, Gero Strobel, Thomas Kude, and Lukas Block, editors, <em>Software Business</em>, 309–324. Cham, 2026. Springer Nature Switzerland.</p></li>
+<li id="id75"><p>Lakshmi A. J and Abilash Unny. <em>Digital Transformation and Cooperatives: Perspectives from the United Kingdom, Japan, and India</em>. Routledge, London, November 2025. ISBN 978-1-003-56375-4. <a class="reference external" href="https://doi.org/10.4324/9781003563754">doi:10.4324/9781003563754</a>.</p></li>
+</ol>
 </div>
 </section>
 <section id="further-reading">
 <h2>Further Reading<a class="headerlink" href="#further-reading" title="Link to this heading">#</a></h2>
 <p>Other research and publications relevant to the work we do.</p>
-<div class="docutils container" id="id73">
-<div role="list" class="citation-list">
-<div class="citation" id="id75" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>AAB+21<span class="fn-bracket">]</span></span>
-<p>Ryan P. Abernathey, Tom Augspurger, Anderson Banihirwe, Charles C. Blackmon-Luca, Timothy J. Crone, Chelle L. Gentemann, Joseph J. Hamman, Naomi Henderson, Chiara Lepore, Theo A. McCaie, Niall H. Robinson, and Richard P. Signell. Cloud-native repositories for big scientific data. <em>Computing in Science &amp; Engineering</em>, 23(2):26–35, March 2021. URL: <a class="reference external" href="https://doi.org/10.1109/MCSE.2021.3059437">https://doi.org/10.1109/MCSE.2021.3059437</a>, <a class="reference external" href="https://doi.org/10.1109/MCSE.2021.3059437">doi:10.1109/MCSE.2021.3059437</a>.</p>
-</div>
-<div class="citation" id="id85" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>BSL+20<span class="fn-bracket">]</span></span>
-<p>Marilyn A Brown, Anmol Soni, Melissa V Lapsa, Katie Southworth, and Matt Cox. High energy burden and low-income energy affordability: conclusions from a literature review. <em>Progress in Energy</em>, 2(4):042003, October 2020. URL: <a class="reference external" href="https://doi.org/10.1088/2516-1083/abb954">https://doi.org/10.1088/2516-1083/abb954</a>, <a class="reference external" href="https://doi.org/10.1088/2516-1083/abb954">doi:10.1088/2516-1083/abb954</a>.</p>
-</div>
-<div class="citation" id="id95" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Bro19<span class="fn-bracket">]</span></span>
-<p>Patrick R. Brown. Spatial and temporal variation in the value of solar power across United States electricity markets. December 2019. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.3562896">https://doi.org/10.5281/zenodo.3562896</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.3562896">doi:10.5281/zenodo.3562896</a>.</p>
-</div>
-<div class="citation" id="id94" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>BOSullivan19a<span class="fn-bracket">]</span></span>
-<p>Patrick R. Brown and Francis M. O'Sullivan. Shaping photovoltaic array output to align with changing wholesale electricity price profiles. September 2019. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.3368397">https://doi.org/10.5281/zenodo.3368397</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.3368397">doi:10.5281/zenodo.3368397</a>.</p>
-</div>
-<div class="citation" id="id97" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>BOSullivan20<span class="fn-bracket">]</span></span>
-<p>Patrick R. Brown and Francis M. O'Sullivan. Spatial and temporal variation in the value of solar power across United States electricity markets. <em>Renewable and Sustainable Energy Reviews</em>, 121:109594, 2020. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1364032119308020">https://www.sciencedirect.com/science/article/pii/S1364032119308020</a>, <a class="reference external" href="https://doi.org/10.1016/j.rser.2019.109594">doi:10.1016/j.rser.2019.109594</a>.</p>
-</div>
-<div class="citation" id="id96" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>BOSullivan19b<span class="fn-bracket">]</span></span>
-<p>Patrick R. Brown and Francis M. O’Sullivan. Shaping photovoltaic array output to align with changing wholesale electricity price profiles. <em>Applied Energy</em>, 256:113734, 2019. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0306261919314217">https://www.sciencedirect.com/science/article/pii/S0306261919314217</a>, <a class="reference external" href="https://doi.org/10.1016/j.apenergy.2019.113734">doi:10.1016/j.apenergy.2019.113734</a>.</p>
-</div>
-<div class="citation" id="id98" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>CGH21<span class="fn-bracket">]</span></span>
-<p>Jeff D. Colgan, Jessica F. Green, and Thomas N. Hale. Asset revaluation and the existential politics of climate change. <em>International Organization</em>, 75(2):586–610, 2021. URL: <a class="reference external" href="https://doi.org/10.1017/S0020818320000296">https://doi.org/10.1017/S0020818320000296</a>, <a class="reference external" href="https://doi.org/10.1017/S0020818320000296">doi:10.1017/S0020818320000296</a>.</p>
-</div>
-<div class="citation" id="id78" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>CV20<span class="fn-bracket">]</span></span>
-<p>Danny Cullenward and David G. Victor. <em>Making Climate Policy Work</em>. John Wiley &amp; Sons, Ltd, 2020. ISBN 9781509541805. URL: <a class="reference external" href="https://www.wiley.com/en-us/Making+Climate+Policy+Work-p-9781509541805">https://www.wiley.com/en-us/Making+Climate+Policy+Work-p-9781509541805</a>.</p>
-</div>
-<div class="citation" id="id83" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>DJB+21<span class="fn-bracket">]</span></span>
-<p>Tim Donaghy, Charlie Jiang, Colette Pichon Battle, Emma Collin, Ryan Schleeter, and Janet Redman. Fossil fuel racism: how phasing out oil, gas, and coal can protect communities. Technical Report, Greenpeace USA, 2021. URL: <a class="reference external" href="https://www.greenpeace.org/usa/reports/fossil-fuel-racism/">https://www.greenpeace.org/usa/reports/fossil-fuel-racism/</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id84" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>DRA20<span class="fn-bracket">]</span></span>
-<p>Ariel Drehobl, Lauren Ross, and Roxanna Ayala. How high are household energy burdens? Technical Report, American Council for an Energy-Efficient Economy, 2020. URL: <a class="reference external" href="https://www.aceee.org/research-report/u2006">https://www.aceee.org/research-report/u2006</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id82" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Gro21<span class="fn-bracket">]</span></span>
-<p>DataCite Metadata Working Group. DataCite metadata schema documentation for the publication and citation of research data and other research outputs. Technical Report, DataCite e.V., 2021. URL: <a class="reference external" href="https://doi.org/10.14454/3w3z-sa82">https://doi.org/10.14454/3w3z-sa82</a> (visited on 2021-10-15), <a class="reference external" href="https://doi.org/10.14454/3w3z-sa82">doi:10.14454/3w3z-sa82</a>.</p>
-</div>
-<div class="citation" id="id91" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Hir20<span class="fn-bracket">]</span></span>
-<p>Lion Hirth. Open data for electricity modeling: legal aspects. <em>Energy Strategy Reviews</em>, 27:100433, 2020. URL: <a class="reference external" href="https://doi.org/10.1016/j.esr.2019.100433">https://doi.org/10.1016/j.esr.2019.100433</a>, <a class="reference external" href="https://doi.org/10.1016/j.esr.2019.100433">doi:10.1016/j.esr.2019.100433</a>.</p>
-</div>
-<div class="citation" id="id92" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>IC19<span class="fn-bracket">]</span></span>
-<p>Ihab F. Ilyas and Xu Chu. <em>Data Cleaning</em>. Association for Computing Machinery, New York, NY, USA, 2019. ISBN 9781450371520. URL: <a class="reference external" href="https://dl.acm.org/doi/book/10.1145/3310205">https://dl.acm.org/doi/book/10.1145/3310205</a>, <a class="reference external" href="https://doi.org/10.1145/3310205">doi:10.1145/3310205</a>.</p>
-</div>
-<div class="citation" id="id87" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>LOBoyle18a<span class="fn-bracket">]</span></span>
-<p>Ron Lehr and Mike O'Boyle. Debt for equity utility refinance. Technical Report, Energy Innovation, 2018. URL: <a class="reference external" href="https://energyinnovation.org/wp-content/uploads/2018/11/Debt-for-Equity-Issue-Brief_12.3.18.pdf">https://energyinnovation.org/wp-content/uploads/2018/11/Debt-for-Equity-Issue-Brief_12.3.18.pdf</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id89" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>LOBoyle18b<span class="fn-bracket">]</span></span>
-<p>Ron Lehr and Mike O'Boyle. Depreciation and early plant retirements. Technical Report, Energy Innovation, 2018. URL: <a class="reference external" href="https://energyinnovation.org/wp-content/uploads/2018/12/Depreciation-and-Early-Plant-Retirements-Brief_12.3.2018.pdf">https://energyinnovation.org/wp-content/uploads/2018/12/Depreciation-and-Early-Plant-Retirements-Brief_12.3.2018.pdf</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id88" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>LOBoyle18c<span class="fn-bracket">]</span></span>
-<p>Ron Lehr and Mike O'Boyle. Steel for fuel: opportunities for investors and customers. Technical Report, Energy Innovation, 2018. URL: <a class="reference external" href="https://energyinnovation.org/wp-content/uploads/2018/11/Steel-for-Fuel-Brief_12.3.18.pdf">https://energyinnovation.org/wp-content/uploads/2018/11/Steel-for-Fuel-Brief_12.3.18.pdf</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id74" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>OBoyleL20<span class="fn-bracket">]</span></span>
-<p>Mike O'Boyle and Ron Lehr. Comparing 2019 securitization legislation in Colorado, Montana, and New Mexico. Report, Energy Innovation, 2020. URL: <a class="reference external" href="https://energyinnovation.org/publication/comparing-2019-securitization-legislation-in-colorado-montana-and-new-mexico/">https://energyinnovation.org/publication/comparing-2019-securitization-legislation-in-colorado-montana-and-new-mexico/</a> (visited on 2021-10-12).</p>
-</div>
-<div class="citation" id="id81" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>oC21<span class="fn-bracket">]</span></span>
-<p>Public Service Company of Colorado. 2021 clean energy plan. Electronic filing 21A-0141E, 2021. URL: <a class="reference external" href="https://www.xcelenergy.com/company/rates_and_regulations/resource_plans/clean_energy_plan">https://www.xcelenergy.com/company/rates_and_regulations/resource_plans/clean_energy_plan</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id90" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>RBB+19<span class="fn-bracket">]</span></span>
-<p>Michael Rossol, Gregory Brinkman, Grant Buster, Paul Denholm, Joshua Novacheck, and Gord Stephen. An analysis of thermal plant flexibility using a national generator performance database. <em>Environmental Science &amp; Technology</em>, 53(22):13486–13494, 2019. PMID: 31644271. URL: <a class="reference external" href="https://doi.org/10.1021/acs.est.9b04522">https://doi.org/10.1021/acs.est.9b04522</a>, <a class="reference external" href="https://doi.org/10.1021/acs.est.9b04522">doi:10.1021/acs.est.9b04522</a>.</p>
-</div>
-<div class="citation" id="id76" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>SKH+21<span class="fn-bracket">]</span></span>
-<p>Nithya Sambasivan, Shivani Kapania, Hannah Highfill, Diana Akrong, Praveen Paritosh, and Lora M Aroyo. “Everyone wants to do the model work, not the data work”: data cascades in high-stakes AI. In <em>Proceedings of the 2021 CHI Conference on Human Factors in Computing Systems</em>. New York, NY, USA, 2021. Association for Computing Machinery. URL: <a class="reference external" href="https://doi.org/10.1145/3411764.3445518">https://doi.org/10.1145/3411764.3445518</a>, <a class="reference external" href="https://doi.org/10.1145/3411764.3445518">doi:10.1145/3411764.3445518</a>.</p>
-</div>
-<div class="citation" id="id79" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>ST16<span class="fn-bracket">]</span></span>
-<p>Thomas F. Stacey and George S. Taylor. The levelized cost of electricity from existing generation resources. Technical Report, Institute for Energy Research, July 2016. URL: <a class="reference external" href="https://www.instituteforenergyresearch.org/wp-content/uploads/2016/07/IER_LCOE_2016-2.pdf">https://www.instituteforenergyresearch.org/wp-content/uploads/2016/07/IER_LCOE_2016-2.pdf</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id80" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>ST19<span class="fn-bracket">]</span></span>
-<p>Thomas F. Stacey and George S. Taylor. The levelized cost of electricity from existing generation resources. Technical Report, Institute for Energy Research, June 2019. URL: <a class="reference external" href="https://www.instituteforenergyresearch.org/wp-content/uploads/2019/06/IER_LCOE2019Final-.pdf">https://www.instituteforenergyresearch.org/wp-content/uploads/2019/06/IER_LCOE2019Final-.pdf</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id77" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Sto20<span class="fn-bracket">]</span></span>
-<p>Leah Cardmore Stokes. <em>Short Circuiting Policy: Interest Groups and the Battle Over Clean Energy and Climate Policy in the American States</em>. Studies in Postwar American Political Development Series. Oxford University Press, 2020. ISBN 9780190074258. URL: <a class="reference external" href="https://books.google.com/books?id=uLTRDwAAQBAJ">https://books.google.com/books?id=uLTRDwAAQBAJ</a>.</p>
-</div>
-<div class="citation" id="id86" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>VPF18<span class="fn-bracket">]</span></span>
-<p>Uday Varadarajan, David Posner, and Jeremy Fisher. Harnessing financial tools to transform the electric sector. Technical Report, Sierra Club, 2018. URL: <a class="reference external" href="https://www.sierraclub.org/sites/www.sierraclub.org/files/sierra-club-harnessing-financial-tools-electric-sector.pdf">https://www.sierraclub.org/sites/www.sierraclub.org/files/sierra-club-harnessing-financial-tools-electric-sector.pdf</a> (visited on 2021-10-15).</p>
-</div>
-<div class="citation" id="id93" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>vM06<span class="fn-bracket">]</span></span>
-<p>Alexandra von Meier. <em>Electric Power Systems: A Conceptual Introduction</em>. John Wiley &amp; Sons, Ltd, 2006. ISBN 9780470036426. URL: <a class="reference external" href="https://onlinelibrary.wiley.com/doi/abs/10.1002/0470036427">https://onlinelibrary.wiley.com/doi/abs/10.1002/0470036427</a>, <a class="reference external" href="https://doi.org/10.1002/0470036427">doi:10.1002/0470036427</a>.</p>
-</div>
-</div>
+<div class="docutils container" id="id76">
+<ol class="arabic simple" start="1">
+<li id="id78"><p>Ryan P. Abernathey, Tom Augspurger, Anderson Banihirwe, Charles C. Blackmon-Luca, Timothy J. Crone, Chelle L. Gentemann, Joseph J. Hamman, Naomi Henderson, Chiara Lepore, Theo A. McCaie, Niall H. Robinson, and Richard P. Signell. Cloud-Native Repositories for Big Scientific Data. <em>Computing in Science &amp; Engineering</em>, 23(2):26–35, March 2021. URL: <a class="reference external" href="https://doi.org/10.1109/MCSE.2021.3059437">https://doi.org/10.1109/MCSE.2021.3059437</a>, <a class="reference external" href="https://doi.org/10.1109/MCSE.2021.3059437">doi:10.1109/MCSE.2021.3059437</a>.</p></li>
+<li id="id101"><p>Jeff D. Colgan, Jessica F. Green, and Thomas N. Hale. Asset Revaluation and the Existential Politics of Climate Change. <em>International Organization</em>, 75(2):586–610, 2021. URL: <a class="reference external" href="https://doi.org/10.1017/S0020818320000296">https://doi.org/10.1017/S0020818320000296</a>, <a class="reference external" href="https://doi.org/10.1017/S0020818320000296">doi:10.1017/S0020818320000296</a>.</p></li>
+<li id="id84"><p>Public Service Company of Colorado. 2021 Clean Energy Plan. 2021. Published: Electronic filing 21A-0141E. URL: <a class="reference external" href="https://www.xcelenergy.com/company/rates_and_regulations/resource_plans/clean_energy_plan">https://www.xcelenergy.com/company/rates_and_regulations/resource_plans/clean_energy_plan</a> (visited on 2021-10-15).</p></li>
+<li id="id86"><p>Tim Donaghy, Charlie Jiang, Colette Pichon Battle, Emma Collin, Ryan Schleeter, and Janet Redman. Fossil Fuel Racism: How Phasing out Oil, Gas, and Coal Can Protect Communities. Technical Report, Greenpeace USA, 2021. URL: <a class="reference external" href="https://www.greenpeace.org/usa/reports/fossil-fuel-racism/">https://www.greenpeace.org/usa/reports/fossil-fuel-racism/</a> (visited on 2021-10-15).</p></li>
+<li id="id85"><p>DataCite Metadata Working Group. DataCite Metadata Schema Documentation for the Publication and Citation of Research Data and Other Research Outputs. Technical Report, DataCite e.V., 2021. Version Number: 4.4. URL: <a class="reference external" href="https://doi.org/10.14454/3w3z-sa82">https://doi.org/10.14454/3w3z-sa82</a> (visited on 2021-10-15), <a class="reference external" href="https://doi.org/10.14454/3w3z-sa82">doi:10.14454/3w3z-sa82</a>.</p></li>
+<li id="id79"><p>Nithya Sambasivan, Shivani Kapania, Hannah Highfill, Diana Akrong, Praveen Paritosh, and Lora M Aroyo. “Everyone wants to do the model work, not the data work”: Data Cascades in High-Stakes AI. In <em>Proceedings of the 2021 CHI Conference on Human Factors in Computing Systems</em>. New York, NY, USA, 2021. Association for Computing Machinery. URL: <a class="reference external" href="https://doi.org/10.1145/3411764.3445518">https://doi.org/10.1145/3411764.3445518</a>, <a class="reference external" href="https://doi.org/10.1145/3411764.3445518">doi:10.1145/3411764.3445518</a>.</p></li>
+<li id="id88"><p>Marilyn A. Brown, Anmol Soni, Melissa V. Lapsa, Katie Southworth, and Matt Cox. High energy burden and low-income energy affordability: conclusions from a literature review. <em>Progress in Energy</em>, 2(4):042003, October 2020. URL: <a class="reference external" href="https://doi.org/10.1088/2516-1083/abb954">https://doi.org/10.1088/2516-1083/abb954</a>, <a class="reference external" href="https://doi.org/10.1088/2516-1083/abb954">doi:10.1088/2516-1083/abb954</a>.</p></li>
+<li id="id100"><p>Patrick R. Brown and Francis M. O'Sullivan. Spatial and temporal variation in the value of solar power across United States electricity markets. <em>Renewable and Sustainable Energy Reviews</em>, 121:109594, 2020. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1364032119308020">https://www.sciencedirect.com/science/article/pii/S1364032119308020</a>, <a class="reference external" href="https://doi.org/10.1016/j.rser.2019.109594">doi:10.1016/j.rser.2019.109594</a>.</p></li>
+<li id="id81"><p>Danny Cullenward and David G. Victor. <em>Making Climate Policy Work</em>. John Wiley &amp; Sons, Ltd, 2020. ISBN 978-1-5095-4180-5. URL: <a class="reference external" href="https://www.wiley.com/en-us/Making+Climate+Policy+Work-p-9781509541805">https://www.wiley.com/en-us/Making+Climate+Policy+Work-p-9781509541805</a>.</p></li>
+<li id="id87"><p>Ariel Drehobl, Lauren Ross, and Roxanna Ayala. How High are Household Energy Burdens? Technical Report, American Council for an Energy-Efficient Economy, 2020. URL: <a class="reference external" href="https://www.aceee.org/research-report/u2006">https://www.aceee.org/research-report/u2006</a> (visited on 2021-10-15).</p></li>
+<li id="id94"><p>Lion Hirth. Open data for electricity modeling: Legal aspects. <em>Energy Strategy Reviews</em>, 27:100433, 2020. URL: <a class="reference external" href="https://doi.org/10.1016/j.esr.2019.100433">https://doi.org/10.1016/j.esr.2019.100433</a>, <a class="reference external" href="https://doi.org/10.1016/j.esr.2019.100433">doi:10.1016/j.esr.2019.100433</a>.</p></li>
+<li id="id77"><p>Mike O'Boyle and Ron Lehr. Comparing 2019 Securitization Legislation In Colorado, Montana, and New Mexico. Report, Energy Innovation, 2020. URL: <a class="reference external" href="https://energyinnovation.org/publication/comparing-2019-securitization-legislation-in-colorado-montana-and-new-mexico/">https://energyinnovation.org/publication/comparing-2019-securitization-legislation-in-colorado-montana-and-new-mexico/</a> (visited on 2021-10-12).</p></li>
+<li id="id80"><p>Leah Cardmore Stokes. <em>Short Circuiting Policy: Interest Groups and the Battle Over Clean Energy and Climate Policy in the American States</em>. Studies in Postwar American Political Development Series. Oxford University Press, 2020. ISBN 978-0-19-007425-8. URL: <a class="reference external" href="https://books.google.com/books?id=uLTRDwAAQBAJ">https://books.google.com/books?id=uLTRDwAAQBAJ</a>.</p></li>
+<li id="id97"><p>Patrick R. Brown and Francis M. O'Sullivan. Shaping photovoltaic array output to align with changing wholesale electricity price profiles. September 2019. Version Number: 1.0.0. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.3368397">https://doi.org/10.5281/zenodo.3368397</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.3368397">doi:10.5281/zenodo.3368397</a>.</p></li>
+<li id="id99"><p>Patrick R. Brown and Francis M. O’Sullivan. Shaping photovoltaic array output to align with changing wholesale electricity price profiles. <em>Applied Energy</em>, 256:113734, 2019. URL: <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0306261919314217">https://www.sciencedirect.com/science/article/pii/S0306261919314217</a>, <a class="reference external" href="https://doi.org/10.1016/j.apenergy.2019.113734">doi:10.1016/j.apenergy.2019.113734</a>.</p></li>
+<li id="id98"><p>Patrick R. Brown. Spatial and temporal variation in the value of solar power across United States electricity markets. December 2019. Version Number: 1.0.0. URL: <a class="reference external" href="https://doi.org/10.5281/zenodo.3562896">https://doi.org/10.5281/zenodo.3562896</a>, <a class="reference external" href="https://doi.org/10.5281/zenodo.3562896">doi:10.5281/zenodo.3562896</a>.</p></li>
+<li id="id95"><p>Ihab F. Ilyas and Xu Chu. <em>Data Cleaning</em>. Association for Computing Machinery, New York, NY, USA, 2019. ISBN 978-1-4503-7152-0. URL: <a class="reference external" href="https://dl.acm.org/doi/book/10.1145/3310205">https://dl.acm.org/doi/book/10.1145/3310205</a>, <a class="reference external" href="https://doi.org/10.1145/3310205">doi:10.1145/3310205</a>.</p></li>
+<li id="id93"><p>Michael Rossol, Gregory Brinkman, Grant Buster, Paul Denholm, Joshua Novacheck, and Gord Stephen. An Analysis of Thermal Plant Flexibility Using a National Generator Performance Database. <em>Environmental Science &amp; Technology</em>, 53(22):13486–13494, 2019. URL: <a class="reference external" href="https://doi.org/10.1021/acs.est.9b04522">https://doi.org/10.1021/acs.est.9b04522</a>, <a class="reference external" href="https://doi.org/10.1021/acs.est.9b04522">doi:10.1021/acs.est.9b04522</a>.</p></li>
+<li id="id83"><p>Thomas F. Stacey and George S. Taylor. The Levelized Cost of Electricity from Existing Generation Resources. Technical Report, Institute for Energy Research, June 2019. URL: <a class="reference external" href="https://www.instituteforenergyresearch.org/wp-content/uploads/2019/06/IER_LCOE2019Final-.pdf">https://www.instituteforenergyresearch.org/wp-content/uploads/2019/06/IER_LCOE2019Final-.pdf</a> (visited on 2021-10-15).</p></li>
+<li id="id90"><p>Ron Lehr and Mike O'Boyle. Debt for Equity Utility Refinance. Technical Report, Energy Innovation, 2018. URL: <a class="reference external" href="https://energyinnovation.org/wp-content/uploads/2018/11/Debt-for-Equity-Issue-Brief_12.3.18.pdf">https://energyinnovation.org/wp-content/uploads/2018/11/Debt-for-Equity-Issue-Brief_12.3.18.pdf</a> (visited on 2021-10-15).</p></li>
+<li id="id92"><p>Ron Lehr and Mike O'Boyle. Depreciation and Early Plant Retirements. Technical Report, Energy Innovation, 2018. URL: <a class="reference external" href="https://energyinnovation.org/wp-content/uploads/2018/12/Depreciation-and-Early-Plant-Retirements-Brief_12.3.2018.pdf">https://energyinnovation.org/wp-content/uploads/2018/12/Depreciation-and-Early-Plant-Retirements-Brief_12.3.2018.pdf</a> (visited on 2021-10-15).</p></li>
+<li id="id91"><p>Ron Lehr and Mike O'Boyle. Steel for Fuel: Opportunities for Investors and Customers. Technical Report, Energy Innovation, 2018. URL: <a class="reference external" href="https://energyinnovation.org/wp-content/uploads/2018/11/Steel-for-Fuel-Brief_12.3.18.pdf">https://energyinnovation.org/wp-content/uploads/2018/11/Steel-for-Fuel-Brief_12.3.18.pdf</a> (visited on 2021-10-15).</p></li>
+<li id="id89"><p>Uday Varadarajan, David Posner, and Jeremy Fisher. Harnessing Financial Tools to Transform the Electric Sector. Technical Report, Sierra Club, 2018. URL: <a class="reference external" href="https://www.sierraclub.org/sites/www.sierraclub.org/files/sierra-club-harnessing-financial-tools-electric-sector.pdf">https://www.sierraclub.org/sites/www.sierraclub.org/files/sierra-club-harnessing-financial-tools-electric-sector.pdf</a> (visited on 2021-10-15).</p></li>
+<li id="id82"><p>Thomas F. Stacey and George S. Taylor. The Levelized Cost of Electricity from Existing Generation Resources. Technical Report, Institute for Energy Research, July 2016. URL: <a class="reference external" href="https://www.instituteforenergyresearch.org/wp-content/uploads/2016/07/IER_LCOE_2016-2.pdf">https://www.instituteforenergyresearch.org/wp-content/uploads/2016/07/IER_LCOE_2016-2.pdf</a> (visited on 2021-10-15).</p></li>
+<li id="id96"><p>Alexandra von Meier. <em>Electric Power Systems: A Conceptual Introduction</em>. John Wiley &amp; Sons, Ltd, 2006. ISBN 978-0-470-03642-6. URL: <a class="reference external" href="https://onlinelibrary.wiley.com/doi/abs/10.1002/0470036427">https://onlinelibrary.wiley.com/doi/abs/10.1002/0470036427</a>, <a class="reference external" href="https://doi.org/10.1002/0470036427">doi:10.1002/0470036427</a>.</p></li>
+</ol>
 </div>
 </section>
 </section>

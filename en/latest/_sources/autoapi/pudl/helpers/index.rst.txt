@@ -103,6 +103,7 @@ Functions
    pudl.helpers.df_from_parquet
    pudl.helpers.duckdb_relation_from_parquet
    pudl.helpers.duckdb_extract_zipped_csv
+   pudl.helpers.normalize_year_fragments
 
 
 Module Contents
@@ -184,7 +185,7 @@ Module Contents
    :returns: None
 
 
-.. py:function:: add_fips_ids(df: pandas.DataFrame, geocodes: pandas.DataFrame, state_col: str = 'state', county_col: str = 'county') -> pandas.DataFrame
+.. py:function:: add_fips_ids(df: pandas.DataFrame, geocodes: pandas.DataFrame, state_col: str = 'state', county_col: str | None = 'county') -> pandas.DataFrame
 
    Add State and County FIPS IDs to a dataframe.
 
@@ -363,8 +364,9 @@ Module Contents
                     unique group of these ID columns that are present in the dataframe.
    :param date_col: Name of the datetime column being expanded into a full timeseries.
    :param freq: The frequency of the time series to expand the data to.
-                See :ref:`here <timeseries.offset_aliases>` for a list of
-                frequency aliases.
+                See :mod:`pandas.tseries.offsets` and
+                :func:`pandas.tseries.frequencies.to_offset` for valid frequency
+                aliases.
    :param fill_through_freq: The frequency in which to fill in the data through. For
                              example, if equal to "year" the data will be filled in through the end of
                              the last reported year for each grouping of ``key_cols``. Valid frequencies
@@ -412,7 +414,7 @@ Module Contents
    :returns: The whole DataFrame that was passed in, with the string columns cleaned up.
 
 
-.. py:function:: cleanstrings_series(col: pandas.Series, str_map: dict[str, list[str]], unmapped: str | None = None, simplify: bool = True) -> pandas.Series
+.. py:function:: cleanstrings_series(col: pandas.Series, str_map: dict[str, list[str]], unmapped: str | pandas._libs.missing.NAType | None = None, simplify: bool = True) -> pandas.Series
 
    Clean up the strings in a single column/Series.
 
@@ -433,7 +435,7 @@ Module Contents
              in a :class:`pandas.DataFrame`.
 
 
-.. py:function:: cleanstrings(df: pandas.DataFrame, columns: list[str], stringmaps: list[dict[str, list[str]]], unmapped: str | None = None, simplify: bool = True) -> pandas.DataFrame
+.. py:function:: cleanstrings(df: pandas.DataFrame, columns: list[str], stringmaps: list[dict[str, list[str]]], unmapped: str | pandas._libs.missing.NAType | None = None, simplify: bool = True) -> pandas.DataFrame
 
    Consolidate freeform strings in several dataframe columns.
 
@@ -1099,9 +1101,15 @@ Module Contents
                   kwargs too.
 
 
-.. py:function:: get_parquet_table_polars(table_name: str) -> polars.LazyFrame
+.. py:function:: get_parquet_table_polars(table_name: str, partitions: dict | None = None) -> polars.LazyFrame
 
    Read a table from a parquet file and return as a polars LazyFrame.
+
+   :param table_name: Name of the table to read.
+   :param partitions: Optional dictionary of partitions to filter the data. See
+                      :class:`ParquetData` definition for details.
+
+   :returns: A polars LazyFrame representing the table.
 
 
 .. py:function:: get_parquet_table(table_name: str, columns: list[str] | None = None, filters: list[tuple[str, str, Any]] | list[list[tuple[str, str, Any]]] | None = None) -> pandas.DataFrame | geopandas.GeoDataFrame
@@ -1155,9 +1163,22 @@ Module Contents
    .. py:attribute:: table_name
       :type:  str
 
+      Name of the table corresponding to the parquet data.
+
 
    .. py:attribute:: partitions
       :type:  dict[str, Any]
+      :value: None
+
+
+      Optional dictionary of partition values indicating what data is being offloaded to disk.
+
+      If passed ``{'years': 1995}`` then this class will produce a parquet file at the
+      path ``PudlPaths().parquet_path() / table_name / 1995.parquet``.  if passed
+      ``{'years': 1995, 'states': 'CA'}`` then this class will produce a parquet file at
+      the path ``PudlPaths().parquet_path() / table_name / 1995_ca.parquet``.  If
+      partitions is empty, then the parquet file will be written
+      ``PudlPaths().parquet_path() / table_name / {table_name}.parquet``.
 
 
    .. py:property:: parquet_directory
@@ -1174,18 +1195,17 @@ Module Contents
       Get name of an individual parquet file corresponding to a single partition of data.
 
 
-.. py:function:: persist_table_as_parquet(table_data: pandas.DataFrame | polars.LazyFrame | duckdb.DuckDBPyRelation, table_name: str, partitions: dict = {}, compression: Literal['zstd', 'snappy', 'gzip', 'brotli'] = 'zstd') -> ParquetData
+.. py:function:: persist_table_as_parquet(table_data: pandas.DataFrame | polars.LazyFrame | duckdb.DuckDBPyRelation, table_name: str, partitions: dict[str, Any] | None = None, compression: Literal['zstd', 'snappy', 'gzip', 'brotli'] = 'zstd') -> ParquetData
 
    Write data from DataFrame or LazyFrame to disk as a parquet file.
 
    Offloading data to disk allows Polars and duckdb to perform highly efficient
    transforms.
 
-   :param table_data: Data to write to disk as either a Pandas DataFrame, Polars LazyFrame, or duckdb relation.
+   :param table_data: Tabular data to write to disk.
    :param table_name: Table name used to construct path to/name of parquet file.
-   :param partitions: Partitions which correspond to the table_data. If passed
-                      ``{'years': 1995}`` then this method will produce a parquet file at the path
-                      ``PudlPaths().parquet_path() / table_name / '1995.parquet'``.
+   :param partitions: Optional partition dimension values indicating the data to be
+                      written.
 
 
 .. py:function:: lf_from_parquet(parquet_data: ParquetData, use_all_partitions: bool = False) -> polars.LazyFrame
@@ -1235,5 +1255,34 @@ Module Contents
    :param datastore: Instance of PUDL datastore to get raw data.
    :param zip_path: Base path within zipfile that points to where CSV files are stored.
                     If not explicitly set, assume CSV files are at the top level of the zipfile.
+
+
+.. py:function:: normalize_year_fragments(raw_year: pandas.Series, min_valid_year: int, max_valid_year: int, base_century: int = 2000) -> pandas.Series
+
+   Normalize year fragments into 4-digit years using a rolling-century rule.
+
+   This helper accepts a Series of string years that are either 2-digit (e.g. ``"05"``
+   or ``"95"``) or 4-digit (e.g. ``"2008"``) and returns integer 4-digit years.
+
+   Two-digit years are interpreted using a rolling-century rule anchored to
+   ``base_century``. By default ``base_century=2000``, so this logic is geared toward
+   20th/21st century data: two-digit values are first mapped into 2000-2099, and then
+   shifted back 100 years when they exceed ``max_valid_year``.
+
+   For example, with ``base_century=2000`` and ``max_valid_year=2026``:
+
+   * ``"05"`` -> ``2005``
+   * ``"95"`` -> ``1995``
+
+   :param raw_year: Series of string-like year tokens extracted from raw date text.
+   :param min_valid_year: Lower year bound used to avoid mapping to past years.
+   :param max_valid_year: Upper year bound used to avoid mapping to future years.
+   :param base_century: Century anchor for two-digit years. Must be divisible by 100.
+                        Defaults to 2000.
+
+   :returns: A Series of integer-like 4-digit year values.
+
+   :raises ValueError: If the valid year range is too wide to apply the rolling-century
+       logic, or if any resulting year falls outside the valid range.
 
 
