@@ -37,7 +37,6 @@ from pudl.dagster.resources import (
     zenodo_doi_settings_resource,
 )
 from pudl.helpers import (
-    get_ferc_form_name,
     get_parquet_table,
     get_parquet_table_polars,
 )
@@ -47,6 +46,14 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 MINIMUM_SQLITE_VERSION = "3.32.0"
+
+
+def _get_ferc_form_name(db_name: str) -> str:
+    """Extract the FERC form name from a SQLite database name."""
+    match = re.search(r"ferc\d+", db_name)
+    if match is None:
+        raise ValueError(f"Could not determine FERC form from db_name={db_name!r}")
+    return match.group()
 
 
 def _get_dagster_instance_if_available(
@@ -672,7 +679,7 @@ class FercDbfSQLiteIOManager(FercSQLiteIOManager):
     FERC tables are not known prior to running the ETL and are not recorded in our
     metadata.
 
-    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so
+    The form name is inferred from ``self.db_name`` via :func:`_get_ferc_form_name`, so
     a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as
     the corresponding settings object exposes a ``dbf_years`` attribute.
     """
@@ -711,7 +718,7 @@ class FercDbfSQLiteIOManager(FercSQLiteIOManager):
         self._ensure_database_ready()
         ferc_settings = getattr(
             context.resources.etl_settings.dataset_settings,
-            get_ferc_form_name(self.db_name),
+            _get_ferc_form_name(self.db_name),
         )
         table_name = get_table_name_from_context(context).replace(
             f"raw_{self.db_name}__", ""
@@ -765,7 +772,7 @@ class _FercSQLiteConfigurableIOManagerBase(dg.ConfigurableIOManager):
 class FercDbfSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
     """Configurable IO manager for reading tables from FERC DBF SQLite databases.
 
-    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so
+    The form name is inferred from ``self.db_name`` via :func:`_get_ferc_form_name`, so
     a single class serves all FERC DBF datasets. Instantiate with the appropriate
     ``db_name`` (e.g. ``"ferc1_dbf"``, ``"ferc2_dbf"``) to target a specific form.
     """
@@ -783,7 +790,7 @@ class FercDbfSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
         self._prepare(context)
         ferc_settings = getattr(
             self.etl_settings.dataset_settings,
-            get_ferc_form_name(self.db_name),
+            _get_ferc_form_name(self.db_name),
         )
         table_name = get_table_name_from_context(context).replace(
             f"raw_{self.db_name}__", ""
@@ -880,7 +887,7 @@ class FercXbrlSQLiteIOManager(FercSQLiteIOManager):
         self._ensure_database_ready()
         ferc_settings = getattr(
             context.resources.etl_settings.dataset_settings,
-            get_ferc_form_name(self.db_name),
+            _get_ferc_form_name(self.db_name),
         )
         table_name = get_table_name_from_context(context).replace(
             f"raw_{self.db_name}__", ""
@@ -904,7 +911,7 @@ class FercXbrlSQLiteConfigurableIOManager(_FercSQLiteConfigurableIOManagerBase):
         self._prepare(context)
         ferc_settings = getattr(
             self.etl_settings.dataset_settings,
-            get_ferc_form_name(self.db_name),
+            _get_ferc_form_name(self.db_name),
         )
         table_name = get_table_name_from_context(context).replace(
             f"raw_{self.db_name}__", ""
