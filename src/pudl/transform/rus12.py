@@ -6,7 +6,11 @@ from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 import pudl.transform.rus as rus
 from pudl import logging_helpers
 from pudl.helpers import cleanstrings_snake
-from pudl.metadata.enums import PLANT_TYPE_RUS12, UTILITY_PLANT_GROUP_RUS12
+from pudl.metadata.enums import (
+    DEPRECIATION_ITEMS_MISC_RUS12,
+    PLANT_TYPE_RUS12,
+    UTILITY_PLANT_GROUP_RUS12,
+)
 from pudl.metadata.resource_helpers import HARVESTED_CORE_TABLES_RUS12
 from pudl.transform.eia import harvest_entity_tables
 
@@ -822,8 +826,8 @@ def _core_rus12__yearly_non_utility_plant_changes(raw_rus12__non_utility_plant):
     """Transform the non-utility plant changes table."""
     df = rus.early_transform(raw_df=raw_rus12__non_utility_plant)
     non_utility_plant_item = [
-        "non_utility_property",
-        "provision_for_depreciation_and_amortization_of_non_utility_plant",
+        "property",
+        "provision_for_depreciation_and_amortization",
     ]
     data_cols = [
         "retirements",
@@ -839,7 +843,63 @@ def _core_rus12__yearly_non_utility_plant_changes(raw_rus12__non_utility_plant):
         match_names=["non_utility_plant_item", "data_cols"],
         unstack_level=["non_utility_plant_item"],
     )
-    return
+    return df
+
+
+@asset
+def _core_rus12__yearly_accumulated_depreciation_changes(
+    raw_rus12__utility_plant_accumulated_depreciation: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the accumulated depreciation changes table."""
+    df = rus.early_transform(raw_df=raw_rus12__utility_plant_accumulated_depreciation)
+    depreciation_and_amortization_groups = [
+        "electric_plant_in_service",
+        "provision_for_depreciation_and_amortization",
+    ]
+    data_cols = [
+        "comp_rate",
+        "accruals",
+        "retirements_less_net_salvage",
+        "adjustments_and_transfers",
+        "ending_balance",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(depreciation_and_amortization_groups)})_(.+)_({'|'.join(data_cols)})$",
+        match_names=[
+            "depreciation_and_amortization_group",
+            "depreciation_and_amortization_item",
+            "data_cols",
+        ],
+        unstack_level=[
+            "depreciation_and_amortization_group",
+            "depreciation_and_amortization_item",
+        ],
+        expected_dropped_cols=6,
+    )
+    df["is_total"] = df.depreciation_and_amortization_item.str.startswith("total")
+    return df
+
+
+@asset
+def _core_rus12__yearly_accumulated_depreciation(
+    raw_rus12__utility_plant_accumulated_depreciation: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the miscellaneous depreciation ending balance table."""
+    df = rus.early_transform(raw_df=raw_rus12__utility_plant_accumulated_depreciation)
+    data_cols = ["ending_balance"]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(DEPRECIATION_ITEMS_MISC_RUS12)})_({'|'.join(data_cols)})$",
+        match_names=["depreciation_and_amortization_item", "data_cols"],
+        unstack_level=["depreciation_and_amortization_item"],
+        expected_dropped_cols=84,
+    )
+    return df
 
 
 ######################################

@@ -743,15 +743,15 @@ RESOURCE_METADATA_BASE_DRAFT = {
     },
     "core_rus12__yearly_accumulated_depreciation_changes": {
         "description": {
-            "additional_summary_text": ("changes in utility plant"),
+            "additional_summary_text": ("changes in accumulated depreciation."),
             "additional_source_text": "(Part H - Section B)",
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "depreciation_and_amortization_group",  # enum: electric_plant_in_service,
-                "depreciation_and_amortization_item",  # enum bigger group
+                "depreciation_and_amortization_group",
+                "depreciation_and_amortization_item",
                 "comp_rate",
                 "accruals",
                 "retirements_less_net_salvage",
@@ -772,20 +772,24 @@ RESOURCE_METADATA_BASE_DRAFT = {
     },
     "core_rus12__yearly_accumulated_depreciation": {  # QUESTION: is this a misc table?
         "description": {
-            "additional_summary_text": ("changes in utility plant"),
-            "additional_source_text": "(Part H - Section B)",
-            "additional_details_text": "",
+            "additional_summary_text": ("accumulated depreciation."),
+            "additional_source_text": "(Part H - 2nd part of Section B)",
+            "additional_details_text": (
+                "This is the second half of the depreciation table. "
+                "It includes ending balances of six depreciation and amortization values."
+            ),
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "depreciation_and_amortization_item",  # MISC_ENUM below
+                "depreciation_and_amortization_item",
                 "ending_balance",
             ],
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
+                "depreciation_and_amortization_item",
             ],
         },
         "sources": ["rus12"],
@@ -794,8 +798,8 @@ RESOURCE_METADATA_BASE_DRAFT = {
     },
     "core_rus12__yearly_non_utility_plant_changes": {
         "description": {
-            "additional_summary_text": ("changes in utility plant"),
-            "additional_source_text": "(Part H - Section B)",
+            "additional_summary_text": ("changes in non-utility plant."),
+            "additional_source_text": "(Part H - Section C)",
         },
         "schema": {
             "fields": [
@@ -815,15 +819,6 @@ RESOURCE_METADATA_BASE_DRAFT = {
     },
 }
 
-# TODO: Move to enum's once this is settled.
-MISC_ENUM = [
-    "annual_accrual_charged_to_expense",
-    "annual_accrual_charged_to_other_accounts",
-    "book_cost_property_retired",
-    "removal_cost_property_retired",
-    "salvage_material_from_property_retired",
-    "renewal_and_replacement_cost",
-]
 
 RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
     HARVESTED_CORE_TABLES_RUS12,

@@ -1105,3 +1105,12 @@ UTILITY_PLANT_GROUP_RUS12 = [
     "utility_plant_in_service",  # total = electric_plant_in_service + 7 sub-components
     "total_utility_plant",  # total = utility_plant_in_service + 1 sub-components
 ]
+
+DEPRECIATION_ITEMS_MISC_RUS12 = [
+    "annual_accrual_charged_to_expense",
+    "annual_accrual_charged_to_other_accounts",
+    "book_cost_property_retired",
+    "removal_cost_property_retired",
+    "salvage_material_from_property_retired",
+    "renewal_and_replacement_cost",
+]
