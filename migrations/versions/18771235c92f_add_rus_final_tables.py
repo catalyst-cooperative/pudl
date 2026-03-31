@@ -1,8 +1,8 @@
 """add rus final tables
 
-Revision ID: 99e62bb14b04
+Revision ID: 18771235c92f
 Revises: dda245dd4f19
-Create Date: 2026-03-31 12:09:05.201975
+Create Date: 2026-03-31 16:13:53.787167
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '99e62bb14b04'
+revision = '18771235c92f'
 down_revision = 'dda245dd4f19'
 branch_labels = None
 depends_on = None
@@ -25,7 +25,7 @@ def upgrade() -> None:
     sa.Column('depreciation_and_amortization_item', sa.Enum('depreciation_distribution_plant', 'depreciation_general_plant', 'depreciation_hydraulic_production_plant', 'depreciation_nuclear_production_plant', 'depreciation_other_production_plant', 'depreciation_steam_production_plant', 'depreciation_transmission_plant', 'retirement_work_in_progress', 'total_depreciation', 'amortization_acquisition_adj', 'amortization_electric_plant_in_service', 'amortization_leased_plant', 'amortization_nuclear_fuel', 'amortization_plant_held_for_future_use', 'depreciation_and_amortization_other_plant', 'depreciation_plant_held_for_future_use', 'depreciation_plant_leased_to_others', 'total'), nullable=False, comment='Category of depreciation and amortization items.'),
     sa.Column('composite_depreciation_rate', sa.Float(), nullable=True, comment='The composite depreciation rate within a given category. This is typically expressed as a number between 0 and 100.'),
     sa.Column('accruals', sa.Float(), nullable=True, comment='Value of additions into an asset class a.k.a accruals.'),
-    sa.Column('retirements_less_net_salvage', sa.Float(), nullable=True, comment='Cost of retiremetns minus any net salvage value.'),
+    sa.Column('retirements_less_net_salvage', sa.Float(), nullable=True, comment='Cost of retirements minus any net salvage value.'),
     sa.Column('adjustments_and_transfers', sa.Float(), nullable=True, comment='Amount of adjustments and transfers within a class of assets.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
@@ -81,12 +81,12 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('state', sa.Enum('IA', 'MT', 'ON', 'BC', 'NM', 'UT', 'TX', 'MD', 'NS', 'MI', 'NC', 'PR', 'FL', 'CO', 'ND', 'NT', 'NU', 'MS', 'NV', 'MN', 'SK', 'VI', 'HI', 'NJ', 'AB', 'NH', 'ME', 'MP', 'NB', 'VT', 'DE', 'MH', 'QC', 'WV', 'AR', 'IL', 'LA', 'MB', 'KY', 'WI', 'KS', 'CT', 'WY', 'OR', 'VA', 'YT', 'ID', 'TN', 'GA', 'MO', 'AL', 'IN', 'FM', 'NL', 'PA', 'SD', 'GU', 'RI', 'WA', 'NY', 'AK', 'NE', 'AS', 'MA', 'CA', 'OH', 'SC', 'PE', 'AZ', 'DC', 'OK'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('state', sa.Enum('NJ', 'YT', 'KS', 'WY', 'NM', 'NT', 'PE', 'AS', 'TX', 'OH', 'PA', 'AB', 'AZ', 'ME', 'OR', 'MH', 'HI', 'VI', 'TN', 'NC', 'NY', 'GU', 'WI', 'MB', 'SC', 'NU', 'ON', 'ND', 'NV', 'CT', 'MA', 'WV', 'ID', 'MN', 'SD', 'MS', 'LA', 'WA', 'GA', 'AK', 'AL', 'CO', 'KY', 'NH', 'CA', 'MP', 'NB', 'IA', 'OK', 'IN', 'VT', 'NE', 'AR', 'MD', 'RI', 'QC', 'IL', 'SK', 'FM', 'PR', 'VA', 'MI', 'NS', 'UT', 'MO', 'MT', 'BC', 'DE', 'DC', 'NL', 'FL'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
     sa.Column('depreciation_and_amortization_group', sa.Enum('electric_plant_in_service', 'provision_for_depreciation_and_amortization'), nullable=False, comment='High-level category of depreciation and amortization items.'),
     sa.Column('depreciation_and_amortization_item', sa.Text(), nullable=False, comment='Category of depreciation and amortization items.'),
     sa.Column('composite_depreciation_rate', sa.Float(), nullable=True, comment='The composite depreciation rate within a given category. This is typically expressed as a number between 0 and 100.'),
     sa.Column('accruals', sa.Float(), nullable=True, comment='Value of additions into an asset class a.k.a accruals.'),
-    sa.Column('retirements_less_net_salvage', sa.Float(), nullable=True, comment='Cost of retiremetns minus any net salvage value.'),
+    sa.Column('retirements_less_net_salvage', sa.Float(), nullable=True, comment='Cost of retirements minus any net salvage value.'),
     sa.Column('adjustments_and_transfers', sa.Float(), nullable=True, comment='Amount of adjustments and transfers within a class of assets.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
@@ -97,7 +97,7 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('state', sa.Enum('IA', 'MT', 'ON', 'BC', 'NM', 'UT', 'TX', 'MD', 'NS', 'MI', 'NC', 'PR', 'FL', 'CO', 'ND', 'NT', 'NU', 'MS', 'NV', 'MN', 'SK', 'VI', 'HI', 'NJ', 'AB', 'NH', 'ME', 'MP', 'NB', 'VT', 'DE', 'MH', 'QC', 'WV', 'AR', 'IL', 'LA', 'MB', 'KY', 'WI', 'KS', 'CT', 'WY', 'OR', 'VA', 'YT', 'ID', 'TN', 'GA', 'MO', 'AL', 'IN', 'FM', 'NL', 'PA', 'SD', 'GU', 'RI', 'WA', 'NY', 'AK', 'NE', 'AS', 'MA', 'CA', 'OH', 'SC', 'PE', 'AZ', 'DC', 'OK'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('state', sa.Enum('NJ', 'YT', 'KS', 'WY', 'NM', 'NT', 'PE', 'AS', 'TX', 'OH', 'PA', 'AB', 'AZ', 'ME', 'OR', 'MH', 'HI', 'VI', 'TN', 'NC', 'NY', 'GU', 'WI', 'MB', 'SC', 'NU', 'ON', 'ND', 'NV', 'CT', 'MA', 'WV', 'ID', 'MN', 'SD', 'MS', 'LA', 'WA', 'GA', 'AK', 'AL', 'CO', 'KY', 'NH', 'CA', 'MP', 'NB', 'IA', 'OK', 'IN', 'VT', 'NE', 'AR', 'MD', 'RI', 'QC', 'IL', 'SK', 'FM', 'PR', 'VA', 'MI', 'NS', 'UT', 'MO', 'MT', 'BC', 'DE', 'DC', 'NL', 'FL'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
     sa.Column('depreciation_and_amortization_item', sa.Text(), nullable=False, comment='Category of depreciation and amortization items.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk_out_rus12__yearly_depreciation_misc_borrower_id_rus_core_rus12__entity_borrowers')),
@@ -107,7 +107,7 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('state', sa.Enum('IA', 'MT', 'ON', 'BC', 'NM', 'UT', 'TX', 'MD', 'NS', 'MI', 'NC', 'PR', 'FL', 'CO', 'ND', 'NT', 'NU', 'MS', 'NV', 'MN', 'SK', 'VI', 'HI', 'NJ', 'AB', 'NH', 'ME', 'MP', 'NB', 'VT', 'DE', 'MH', 'QC', 'WV', 'AR', 'IL', 'LA', 'MB', 'KY', 'WI', 'KS', 'CT', 'WY', 'OR', 'VA', 'YT', 'ID', 'TN', 'GA', 'MO', 'AL', 'IN', 'FM', 'NL', 'PA', 'SD', 'GU', 'RI', 'WA', 'NY', 'AK', 'NE', 'AS', 'MA', 'CA', 'OH', 'SC', 'PE', 'AZ', 'DC', 'OK'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('state', sa.Enum('NJ', 'YT', 'KS', 'WY', 'NM', 'NT', 'PE', 'AS', 'TX', 'OH', 'PA', 'AB', 'AZ', 'ME', 'OR', 'MH', 'HI', 'VI', 'TN', 'NC', 'NY', 'GU', 'WI', 'MB', 'SC', 'NU', 'ON', 'ND', 'NV', 'CT', 'MA', 'WV', 'ID', 'MN', 'SD', 'MS', 'LA', 'WA', 'GA', 'AK', 'AL', 'CO', 'KY', 'NH', 'CA', 'MP', 'NB', 'IA', 'OK', 'IN', 'VT', 'NE', 'AR', 'MD', 'RI', 'QC', 'IL', 'SK', 'FM', 'PR', 'VA', 'MI', 'NS', 'UT', 'MO', 'MT', 'BC', 'DE', 'DC', 'NL', 'FL'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
     sa.Column('non_utility_plant_item', sa.Enum('property', 'provision_for_depreciation_and_amortization'), nullable=False, comment='Category describing non-utility plant asset items.'),
     sa.Column('additions', sa.Float(), nullable=True, comment='Cost of acquisition of items classified within the account.'),
     sa.Column('retirements', sa.Float(), nullable=True, comment='Cost of disposal of items classified within the account.'),
@@ -120,7 +120,7 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('state', sa.Enum('IA', 'MT', 'ON', 'BC', 'NM', 'UT', 'TX', 'MD', 'NS', 'MI', 'NC', 'PR', 'FL', 'CO', 'ND', 'NT', 'NU', 'MS', 'NV', 'MN', 'SK', 'VI', 'HI', 'NJ', 'AB', 'NH', 'ME', 'MP', 'NB', 'VT', 'DE', 'MH', 'QC', 'WV', 'AR', 'IL', 'LA', 'MB', 'KY', 'WI', 'KS', 'CT', 'WY', 'OR', 'VA', 'YT', 'ID', 'TN', 'GA', 'MO', 'AL', 'IN', 'FM', 'NL', 'PA', 'SD', 'GU', 'RI', 'WA', 'NY', 'AK', 'NE', 'AS', 'MA', 'CA', 'OH', 'SC', 'PE', 'AZ', 'DC', 'OK'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('state', sa.Enum('NJ', 'YT', 'KS', 'WY', 'NM', 'NT', 'PE', 'AS', 'TX', 'OH', 'PA', 'AB', 'AZ', 'ME', 'OR', 'MH', 'HI', 'VI', 'TN', 'NC', 'NY', 'GU', 'WI', 'MB', 'SC', 'NU', 'ON', 'ND', 'NV', 'CT', 'MA', 'WV', 'ID', 'MN', 'SD', 'MS', 'LA', 'WA', 'GA', 'AK', 'AL', 'CO', 'KY', 'NH', 'CA', 'MP', 'NB', 'IA', 'OK', 'IN', 'VT', 'NE', 'AR', 'MD', 'RI', 'QC', 'IL', 'SK', 'FM', 'PR', 'VA', 'MI', 'NS', 'UT', 'MO', 'MT', 'BC', 'DE', 'DC', 'NL', 'FL'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
     sa.Column('utility_plant_group', sa.Text(), nullable=False, comment='High-level category of utility plant asset type.'),
     sa.Column('utility_plant_item', sa.Text(), nullable=False, comment='Sub-category of utility_plant_group describing utility plant asset item.'),
     sa.Column('retirements', sa.Float(), nullable=True, comment='Cost of disposal of items classified within the account.'),
@@ -135,7 +135,7 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('state', sa.Enum('IA', 'MT', 'ON', 'BC', 'NM', 'UT', 'TX', 'MD', 'NS', 'MI', 'NC', 'PR', 'FL', 'CO', 'ND', 'NT', 'NU', 'MS', 'NV', 'MN', 'SK', 'VI', 'HI', 'NJ', 'AB', 'NH', 'ME', 'MP', 'NB', 'VT', 'DE', 'MH', 'QC', 'WV', 'AR', 'IL', 'LA', 'MB', 'KY', 'WI', 'KS', 'CT', 'WY', 'OR', 'VA', 'YT', 'ID', 'TN', 'GA', 'MO', 'AL', 'IN', 'FM', 'NL', 'PA', 'SD', 'GU', 'RI', 'WA', 'NY', 'AK', 'NE', 'AS', 'MA', 'CA', 'OH', 'SC', 'PE', 'AZ', 'DC', 'OK'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('state', sa.Enum('NJ', 'YT', 'KS', 'WY', 'NM', 'NT', 'PE', 'AS', 'TX', 'OH', 'PA', 'AB', 'AZ', 'ME', 'OR', 'MH', 'HI', 'VI', 'TN', 'NC', 'NY', 'GU', 'WI', 'MB', 'SC', 'NU', 'ON', 'ND', 'NV', 'CT', 'MA', 'WV', 'ID', 'MN', 'SD', 'MS', 'LA', 'WA', 'GA', 'AK', 'AL', 'CO', 'KY', 'NH', 'CA', 'MP', 'NB', 'IA', 'OK', 'IN', 'VT', 'NE', 'AR', 'MD', 'RI', 'QC', 'IL', 'SK', 'FM', 'PR', 'VA', 'MI', 'NS', 'UT', 'MO', 'MT', 'BC', 'DE', 'DC', 'NL', 'FL'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
     sa.Column('utility_plant_group', sa.Text(), nullable=False, comment='High-level category of utility plant asset type.'),
     sa.Column('utility_plant_item', sa.Text(), nullable=False, comment='Sub-category of utility_plant_group describing utility plant asset item.'),
     sa.Column('retirements', sa.Float(), nullable=True, comment='Cost of disposal of items classified within the account.'),

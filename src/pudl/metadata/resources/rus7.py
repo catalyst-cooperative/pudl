@@ -676,8 +676,8 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "utility_plant_group",  # enum UTILITY_PLANT_GROUP_RUS7
-                "utility_plant_item",  # enum bigger group
+                "utility_plant_group",
+                "utility_plant_item",
                 "retirements",
                 "additions",
                 "adjustments_and_transfers",

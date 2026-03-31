@@ -10009,10 +10009,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_plant_group": {
         "type": "string",
         "description": "High-level category of utility plant asset type.",
+        # constrains are by table in FIELD_METADATA_BY_RESOURCE
     },
     "utility_plant_item": {
         "type": "string",
         "description": "Sub-category of utility_plant_group describing utility plant asset item.",
+        # constrains are by table in FIELD_METADATA_BY_RESOURCE
     },
     "non_utility_plant_item": {
         "type": "string",
@@ -10050,7 +10052,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "retirements_less_net_salvage": {
         "type": "number",
-        "description": "Cost of retiremetns minus any net salvage value.",
+        "description": "Cost of retirements minus any net salvage value.",
         "unit": "USD",
     },
 }
