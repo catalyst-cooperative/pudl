@@ -27,6 +27,7 @@ from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from packaging import version
 from pydantic import model_validator
+from sqlalchemy.exc import IntegrityError
 
 import pudl
 from pudl.dagster.provenance import assert_ferc_sqlite_compatible
@@ -244,6 +245,26 @@ class SQLiteIOManager(dg.IOManager):
         if column_difference:
             raise ValueError(
                 f"{table_name} dataframe is missing columns: {column_difference}"
+            )
+
+        # SQLite's INTEGER PRIMARY KEY is a ROWID alias: a single-column INTEGER PK
+        # silently treats NULL as "assign the next available rowid" rather than raising
+        # a constraint error. Composite PKs and non-INTEGER single PKs are not ROWID
+        # aliases, so SQLite enforces NOT NULL on them normally. Check explicitly only
+        # for the one case SQLite misses.
+        pk_cols = list(sa_table.primary_key.columns)
+        if (
+            len(pk_cols) == 1
+            and isinstance(pk_cols[0].type, sa.Integer)
+            and pk_cols[0].name in df.columns
+            and df[pk_cols[0].name].isna().any()
+        ):
+            raise IntegrityError(
+                f"INSERT INTO {table_name}",
+                {},
+                Exception(
+                    f"NOT NULL constraint failed: {table_name}.{pk_cols[0].name}"
+                ),
             )
 
         engine = self.engine
