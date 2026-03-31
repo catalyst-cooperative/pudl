@@ -157,8 +157,8 @@ changes:
   :class:`pudl.workspace.datastore.ZenodoDoiSettingsResource` replace the legacy
   ``@resource``-decorated functions;
   :class:`pudl.io_managers.PudlMixedFormatIOManager`,
-  :class:`pudl.io_managers.FercDbfSQLiteConfigurableIOManager`, and
-  :class:`pudl.io_managers.FercXbrlSQLiteConfigurableIOManager` replace the legacy
+  :class:`pudl.io_managers.FercDbfSqliteConfigurableIOManager`, and
+  :class:`pudl.io_managers.FercXbrlSqliteConfigurableIOManager` replace the legacy
   ``@io_manager`` wrappers. Resources now receive settings via Pydantic field
   injection rather than via :func:`dagster.build_init_resource_context` config dicts.
 * **Added FERC SQLite provenance tracking** via the new

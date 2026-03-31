@@ -165,7 +165,7 @@ produces cleaner output.
 
 ```bash
 rg "class FercDbfExtractor" src/          # basic search
-rg -t py "FercSQLiteProvenance" src/      # restrict to Python files
+rg -t py "FercSqliteProvenance" src/      # restrict to Python files
 rg -C 3 "assert_ferc_sqlite_compatible" src/  # show 3 lines of context
 rg '"plant_id_eia"' src/pudl/metadata/    # find a field/column definition in metadata
 ```
@@ -302,9 +302,7 @@ Use pytest-mock (`mocker`). Avoid `unittest` and `monkeypatch`.
 ## Code style
 
 **Acronyms in compound class names**: In compound class names that contain multiple
-acronyms, capitalize acronyms as words: e.g. `FercDbf`, `FercXbrl`, `SQLite` (SQLite
-is a special case — all SQL letters are capitalized because the L participates in both
-the acronym and the word "Lite").
+acronyms, capitalize acronyms as words: e.g. `FercDbf`, `FercXbrl`.
 
 **Line length**: limit lines to 88 characters. Do not artificially restrict to 80.
 

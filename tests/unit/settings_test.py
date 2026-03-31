@@ -30,7 +30,7 @@ from pudl.settings import (
     Ferc1XbrlToSqliteSettings,
     FercToSqliteSettings,
     GenericDatasetSettings,
-    GridPathRAToolkitSettings,
+    GridPathRaToolkitSettings,
     load_etl_settings,
 )
 from pudl.workspace.datastore import Datastore
@@ -259,12 +259,12 @@ class TestDatasetsSettings:
         assert settings.glue.ferc1
 
 
-class TestGridPathRAToolkitSettings:
+class TestGridPathRaToolkitSettings:
     """Test GridPath RA Toolkit settings validation and part selection."""
 
     def test_parts_compiled_from_selected_options(self: Self):
         """Ensure parts are derived even when ``parts`` is omitted from config."""
-        settings = GridPathRAToolkitSettings(
+        settings = GridPathRaToolkitSettings(
             technology_types=["wind"],
             processing_levels=["extended"],
             daily_weather=True,
@@ -284,7 +284,7 @@ class TestGridPathRAToolkitSettings:
             etl_settings: EtlSettings = load_etl_settings(str(path))
         assert etl_settings.datasets is not None
 
-        gridpath_settings: GridPathRAToolkitSettings | None = (
+        gridpath_settings: GridPathRaToolkitSettings | None = (
             etl_settings.datasets.gridpathratoolkit
         )
         assert gridpath_settings is not None
@@ -292,17 +292,17 @@ class TestGridPathRAToolkitSettings:
         assert "aggregated_extended_wind_capacity" in gridpath_settings.parts
 
     def test_model_dump_round_trip(self: Self):
-        """GridPathRAToolkitSettings must survive a model_dump → reconstruct round-trip.
+        """GridPathRaToolkitSettings must survive a model_dump → reconstruct round-trip.
 
         Regression: model_dump() includes computed fields by default in Pydantic v2,
         so ``parts`` appeared in the dump. Passing it back to the constructor then raised
         a ValidationError because ``parts`` is a computed field and the model uses
         ``extra="forbid"``.
         """
-        settings = GridPathRAToolkitSettings()
+        settings = GridPathRaToolkitSettings()
         dumped = settings.model_dump()
         # parts must not be present; if it is, reconstruction will raise ValidationError
-        GridPathRAToolkitSettings(**dumped)
+        GridPathRaToolkitSettings(**dumped)
 
 
 class TestEtlSettings:

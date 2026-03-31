@@ -82,8 +82,8 @@ from dagster import (
 
 import pudl
 from pudl.dagster.io_managers import (
-    FercDbfSQLiteIOManager,
-    FercXbrlSQLiteIOManager,
+    FercDbfSqliteIOManager,
+    FercXbrlSqliteIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
@@ -468,7 +468,7 @@ def raw_ferc1_xbrl__metadata_json(
 # Ferc extraction functions for devtool notebook testing
 def extract_dbf_generic(
     table_names: list[str],
-    io_manager: FercDbfSQLiteIOManager,
+    io_manager: FercDbfSqliteIOManager,
     dataset_settings: DatasetsSettings,
 ) -> pd.DataFrame:
     """Combine multiple raw dbf tables into one.
@@ -495,7 +495,7 @@ def extract_dbf_generic(
 
 def extract_xbrl_generic(
     table_names: list[str],
-    io_manager: FercXbrlSQLiteIOManager,
+    io_manager: FercXbrlSqliteIOManager,
     dataset_settings: DatasetsSettings,
     period: Literal["duration", "instant"],
 ) -> pd.DataFrame:

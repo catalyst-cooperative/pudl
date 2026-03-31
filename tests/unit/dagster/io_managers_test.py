@@ -12,14 +12,14 @@ from dagster._core.execution.context.output import OutputContext
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from pudl.dagster.io_managers import (
-    FercDbfSQLiteConfigurableIOManager,
-    FercDbfSQLiteIOManager,
-    FercXbrlSQLiteConfigurableIOManager,
-    FercXbrlSQLiteIOManager,
+    FercDbfSqliteConfigurableIOManager,
+    FercDbfSqliteIOManager,
+    FercXbrlSqliteConfigurableIOManager,
+    FercXbrlSqliteIOManager,
     PudlMixedFormatIOManager,
     PudlParquetIOManager,
-    PudlSQLiteIOManager,
-    SQLiteIOManager,
+    PudlSqliteIOManager,
+    SqliteIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
@@ -96,15 +96,15 @@ def test_pkg() -> Package:
 
 
 @pytest.fixture
-def sqlite_io_manager_fixture(tmp_path, test_pkg) -> SQLiteIOManager:
-    """Create a SQLiteIOManager fixture with a simple database schema."""
+def sqlite_io_manager_fixture(tmp_path, test_pkg) -> SqliteIOManager:
+    """Create a SqliteIOManager fixture with a simple database schema."""
     md: sa.MetaData = test_pkg.to_sql()
-    return SQLiteIOManager(base_dir=tmp_path, db_name="pudl", md=md)
+    return SqliteIOManager(base_dir=tmp_path, db_name="pudl", md=md)
 
 
 def test_sqlite_io_manager_delete_stmt(sqlite_io_manager_fixture):
     """Test we are replacing the data without dropping the table schema."""
-    manager: SQLiteIOManager = sqlite_io_manager_fixture
+    manager: SqliteIOManager = sqlite_io_manager_fixture
 
     asset_key = "artist"
     artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
@@ -156,7 +156,7 @@ def test_foreign_key_failure(sqlite_io_manager_fixture):
 
 def test_extra_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when there is an extra column in the dataframe."""
-    manager: SQLiteIOManager = sqlite_io_manager_fixture
+    manager: SqliteIOManager = sqlite_io_manager_fixture
 
     asset_key = "artist"
     artist = pd.DataFrame(
@@ -169,7 +169,7 @@ def test_extra_column_error(sqlite_io_manager_fixture):
 
 def test_missing_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when a dataframe is missing a column in the schema."""
-    manager: SQLiteIOManager = sqlite_io_manager_fixture
+    manager: SqliteIOManager = sqlite_io_manager_fixture
 
     asset_key = "artist"
     artist = pd.DataFrame(
@@ -184,7 +184,7 @@ def test_missing_column_error(sqlite_io_manager_fixture):
 
 def test_nullable_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when a non nullable column is missing data."""
-    manager: SQLiteIOManager = sqlite_io_manager_fixture
+    manager: SqliteIOManager = sqlite_io_manager_fixture
 
     asset_key = "artist"
     artist = pd.DataFrame({"artistid": [1, 2], "artistname": ["Co-op Mop", pd.NA]})
@@ -205,7 +205,7 @@ def test_null_primary_key_column_error(sqlite_io_manager_fixture):
     raising ``IntegrityError`` to match the error that a spec-compliant database would
     raise.
     """
-    manager: SQLiteIOManager = sqlite_io_manager_fixture
+    manager: SqliteIOManager = sqlite_io_manager_fixture
 
     asset_key = "artist"
     artist = pd.DataFrame(
@@ -218,7 +218,7 @@ def test_null_primary_key_column_error(sqlite_io_manager_fixture):
 
 def test_primary_key_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when a primary key is violated."""
-    manager: SQLiteIOManager = sqlite_io_manager_fixture
+    manager: SqliteIOManager = sqlite_io_manager_fixture
 
     asset_key = "artist"
     artist = pd.DataFrame({"artistid": [1, 1], "artistname": ["Co-op Mop", "Cxtxlyst"]})
@@ -229,7 +229,7 @@ def test_primary_key_column_error(sqlite_io_manager_fixture):
 
 def test_incorrect_type_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when dataframe type doesn't match the table schema."""
-    manager: SQLiteIOManager = sqlite_io_manager_fixture
+    manager: SqliteIOManager = sqlite_io_manager_fixture
 
     asset_key = "artist"
     artist = pd.DataFrame({"artistid": ["abc"], "artistname": ["Co-op Mop"]})
@@ -240,7 +240,7 @@ def test_incorrect_type_error(sqlite_io_manager_fixture):
 
 def test_missing_schema_error(sqlite_io_manager_fixture):
     """Test a ValueError is raised when a table without a schema is loaded."""
-    manager: SQLiteIOManager = sqlite_io_manager_fixture
+    manager: SqliteIOManager = sqlite_io_manager_fixture
 
     asset_key = "venues"
     venue = pd.DataFrame({"venueid": [1], "venuename": "Vans Dive Bar"})
@@ -252,20 +252,20 @@ def test_missing_schema_error(sqlite_io_manager_fixture):
 @pytest.fixture
 def fake_pudl_sqlite_io_manager_fixture(
     tmp_path, test_pkg, monkeypatch
-) -> PudlSQLiteIOManager:
-    """Create a SQLiteIOManager fixture with a fake database schema."""
+) -> PudlSqliteIOManager:
+    """Create a SqliteIOManager fixture with a fake database schema."""
     db_path: Path = tmp_path / "fake.sqlite"
 
     # Create the database and schemas
     engine: sa.Engine = sa.create_engine(f"sqlite:///{db_path}")
     md: sa.MetaData = test_pkg.to_sql()
     md.create_all(engine)
-    return PudlSQLiteIOManager(base_dir=tmp_path, db_name="fake", package=test_pkg)
+    return PudlSqliteIOManager(base_dir=tmp_path, db_name="fake", package=test_pkg)
 
 
 def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture):
     """Test we are replacing the data without dropping the table schema."""
-    manager: PudlSQLiteIOManager = fake_pudl_sqlite_io_manager_fixture
+    manager: PudlSqliteIOManager = fake_pudl_sqlite_io_manager_fixture
 
     asset_key = "artist"
     artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
@@ -290,10 +290,10 @@ def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture)
 
 @pytest.mark.slow
 def test_migrations_match_metadata(tmp_path, monkeypatch):
-    """If you create a `PudlSQLiteIOManager` that points at a non-existing
+    """If you create a `PudlSqliteIOManager` that points at a non-existing
     `pudl.sqlite` - it will initialize the DB based on the `package`.
 
-    If you create a `PudlSQLiteIOManager` that points at an existing
+    If you create a `PudlSqliteIOManager` that points at an existing
     `pudl.sqlite`, like one initialized via `alembic upgrade head`, it
     will compare the existing db schema with the db schema in `package`.
 
@@ -307,7 +307,7 @@ def test_migrations_match_metadata(tmp_path, monkeypatch):
     # run all the migrations on a fresh DB at tmp_path/pudl.sqlite
     alembic.config.main(["upgrade", "head"])
 
-    PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=PUDL_PACKAGE)
+    PudlSqliteIOManager(base_dir=tmp_path, db_name="pudl", package=PUDL_PACKAGE)
 
     # all we care about is that it didn't raise an error
     assert True
@@ -331,10 +331,10 @@ def test_mixed_format_io_manager_invalid_config():
 
 def test_mixed_format_io_manager_initializes_backends(mocker):
     """The migrated mixed-format IO manager should lazily expose both backends."""
-    sqlite_manager: PudlSQLiteIOManager = mocker.MagicMock(spec=PudlSQLiteIOManager)
+    sqlite_manager: PudlSqliteIOManager = mocker.MagicMock(spec=PudlSqliteIOManager)
     parquet_manager: PudlParquetIOManager = mocker.MagicMock()
     mocker.patch(
-        "pudl.dagster.io_managers.PudlSQLiteIOManager", return_value=sqlite_manager
+        "pudl.dagster.io_managers.PudlSqliteIOManager", return_value=sqlite_manager
     )
     mocker.patch(
         "pudl.dagster.io_managers.PudlParquetIOManager", return_value=parquet_manager
@@ -354,15 +354,15 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
         ferc_to_sqlite_settings=FercToSqliteSettings(),
     )
     zenodo_dois: ZenodoDoiSettings = ZenodoDoiSettings()
-    fake_manager: FercDbfSQLiteIOManager = mocker.MagicMock()
+    fake_manager: FercDbfSqliteIOManager = mocker.MagicMock()
     fake_manager._query.return_value = pd.DataFrame(
         {"sched_table_name": ["f1_respondent_id"]}
     )
     mocker.patch(
-        "pudl.dagster.io_managers.FercDbfSQLiteIOManager", return_value=fake_manager
+        "pudl.dagster.io_managers.FercDbfSqliteIOManager", return_value=fake_manager
     )
 
-    manager: FercDbfSQLiteConfigurableIOManager = (
+    manager: FercDbfSqliteConfigurableIOManager = (
         ferc1_dbf_sqlite_io_manager.model_copy(
             update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
         )
@@ -406,10 +406,10 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
         {"report_year": [2021], "sched_table_name": ["plant_in_service"]}
     )
     mocker.patch(
-        "pudl.dagster.io_managers.FercXbrlSQLiteIOManager", return_value=fake_manager
+        "pudl.dagster.io_managers.FercXbrlSqliteIOManager", return_value=fake_manager
     )
 
-    manager: FercXbrlSQLiteConfigurableIOManager = (
+    manager: FercXbrlSqliteConfigurableIOManager = (
         ferc1_xbrl_sqlite_io_manager.model_copy(
             update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
         )
@@ -456,11 +456,11 @@ def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):
     fake_manager = mocker.MagicMock()
     fake_manager.engine: sa.Engine = fake_engine
     mocker.patch(
-        "pudl.dagster.io_managers.FercDbfSQLiteIOManager", return_value=fake_manager
+        "pudl.dagster.io_managers.FercDbfSqliteIOManager", return_value=fake_manager
     )
     read_sql_query = mocker.patch("pudl.dagster.io_managers.pd.read_sql_query")
 
-    manager: FercDbfSQLiteConfigurableIOManager = (
+    manager: FercDbfSqliteConfigurableIOManager = (
         ferc1_dbf_sqlite_io_manager.model_copy(
             update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
         )
@@ -503,11 +503,11 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
     fake_manager = mocker.MagicMock()
     fake_manager.engine = fake_engine
     mocker.patch(
-        "pudl.dagster.io_managers.FercDbfSQLiteIOManager", return_value=fake_manager
+        "pudl.dagster.io_managers.FercDbfSqliteIOManager", return_value=fake_manager
     )
     read_sql_query = mocker.patch("pudl.dagster.io_managers.pd.read_sql_query")
 
-    manager: FercDbfSQLiteConfigurableIOManager = (
+    manager: FercDbfSqliteConfigurableIOManager = (
         ferc1_dbf_sqlite_io_manager.model_copy(
             update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
         )
@@ -561,7 +561,7 @@ def test_report_year_fixing_instant():
         ]
     )
 
-    observed: pd.Series = FercXbrlSQLiteIOManager.refine_report_year(
+    observed: pd.Series = FercXbrlSqliteIOManager.refine_report_year(
         instant_df, xbrl_years=[2021, 2022]
     ).report_year
     expected = pd.Series([2020])
@@ -588,7 +588,7 @@ def test_report_year_fixing_duration():
         ]
     )
 
-    observed: pd.Series = FercXbrlSQLiteIOManager.refine_report_year(
+    observed: pd.Series = FercXbrlSqliteIOManager.refine_report_year(
         duration_df, xbrl_years=[2021, 2022]
     ).report_year
     expected: pd.Series = pd.Series([2021])
@@ -647,4 +647,4 @@ def test_report_year_fixing_duration():
 )
 def test_report_year_fixing_bad_values(df, match):
     with pytest.raises(ValueError, match=match):
-        FercXbrlSQLiteIOManager.refine_report_year(df, xbrl_years=[2021, 2022])
+        FercXbrlSqliteIOManager.refine_report_year(df, xbrl_years=[2021, 2022])

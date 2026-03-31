@@ -6,7 +6,7 @@ import dagster as dg
 import pytest
 
 from pudl.dagster.provenance import (
-    FercSQLiteProvenance,
+    FercSqliteProvenance,
     assert_ferc_sqlite_compatible,
     build_ferc_sqlite_provenance_metadata,
     get_ferc_sqlite_provenance,
@@ -46,12 +46,12 @@ def test_get_ferc_sqlite_provenance_dataset_and_format(
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """Provenance fingerprint extracts dataset and format from the db_name."""
-    provenance: FercSQLiteProvenance = get_ferc_sqlite_provenance(
+    provenance: FercSqliteProvenance = get_ferc_sqlite_provenance(
         db_name=db_name,
         etl_settings=etl_settings,
         zenodo_dois=zenodo_dois,
     )
-    assert isinstance(provenance, FercSQLiteProvenance)
+    assert isinstance(provenance, FercSqliteProvenance)
     assert provenance.dataset == expected_dataset
     assert provenance.data_format == expected_format
     assert provenance.asset_key == dg.AssetKey(f"raw_{db_name}__sqlite")
