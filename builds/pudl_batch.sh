@@ -253,6 +253,7 @@ function notify_slack() {
     message+="$(slack_stage_status "Unit Tests" "$UNIT_TEST_STATUS" "$UNIT_TEST_DURATION")\n"
     message+="$(slack_stage_status "Integration Tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")\n"
     message+="$(slack_stage_status "Data Validations (FKs/dbt)" "$DATA_VALIDATION_STATUS" "$DATA_VALIDATION_DURATION")\n"
+    message+="$(slack_stage_status "Row Count Checks (dbt)" "$ROW_COUNT_VALIDATION_STATUS" "$ROW_COUNT_VALIDATION_DURATION")\n"
     message+="$(slack_stage_status "Write PUDL Datapackage" "$WRITE_DATAPACKAGE_STATUS" "$WRITE_DATAPACKAGE_DURATION")\n"
     message+="$(slack_stage_status "Save Build Outputs" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
     message+="$(slack_stage_status "Prep Outputs for Distribution" "$PREP_OUTPUTS_STATUS" "$PREP_OUTPUTS_DURATION")\n"
@@ -336,6 +337,7 @@ DAGSTER_STATUS="$STAGE_SKIPPED"
 UNIT_TEST_STATUS="$STAGE_SKIPPED"
 INTEGRATION_TEST_STATUS="$STAGE_SKIPPED"
 DATA_VALIDATION_STATUS="$STAGE_SKIPPED"
+ROW_COUNT_VALIDATION_STATUS="$STAGE_SKIPPED"
 SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
 UPDATE_NIGHTLY_STATUS="$STAGE_SKIPPED"
 UPDATE_STABLE_STATUS="$STAGE_SKIPPED"
@@ -349,6 +351,7 @@ DAGSTER_DURATION=""
 UNIT_TEST_DURATION=""
 INTEGRATION_TEST_DURATION=""
 DATA_VALIDATION_DURATION=""
+ROW_COUNT_VALIDATION_DURATION=""
 SAVE_OUTPUTS_DURATION=""
 UPDATE_NIGHTLY_DURATION=""
 UPDATE_STABLE_DURATION=""
@@ -392,13 +395,15 @@ set -x
 run_stage DAGSTER_STATUS DAGSTER_DURATION overwrite run_dagster
 run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION append pixi run pytest-unit-nightly
 run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION append pixi run pytest-integration-nightly
-run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION append pixi run pytest-data-validation-nightly
+run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION append pixi run pytest-validate-nightly
+run_stage ROW_COUNT_VALIDATION_STATUS ROW_COUNT_VALIDATION_DURATION append pixi run pytest-validate-row-counts-nightly
 
 if ! any_stage_failed \
     "$DAGSTER_STATUS" \
     "$UNIT_TEST_STATUS" \
     "$INTEGRATION_TEST_STATUS" \
-    "$DATA_VALIDATION_STATUS"; then
+    "$DATA_VALIDATION_STATUS" \
+    "$ROW_COUNT_VALIDATION_STATUS"; then
     touch "$PUDL_OUTPUT/success"
 fi
 
@@ -417,6 +422,7 @@ exit_on_stage_failure "$DAGSTER_STATUS"
 exit_on_stage_failure "$UNIT_TEST_STATUS"
 exit_on_stage_failure "$INTEGRATION_TEST_STATUS"
 exit_on_stage_failure "$DATA_VALIDATION_STATUS"
+exit_on_stage_failure "$ROW_COUNT_VALIDATION_STATUS"
 
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
     run_stage UPDATE_NIGHTLY_STATUS UPDATE_NIGHTLY_DURATION append merge_tag_into_branch "$NIGHTLY_TAG" nightly
@@ -499,6 +505,7 @@ if ! any_stage_failed \
     "$UNIT_TEST_STATUS" \
     "$INTEGRATION_TEST_STATUS" \
     "$DATA_VALIDATION_STATUS" \
+    "$ROW_COUNT_VALIDATION_STATUS" \
     "$WRITE_DATAPACKAGE_STATUS" \
     "$SAVE_OUTPUTS_STATUS" \
     "$UPDATE_NIGHTLY_STATUS" \
