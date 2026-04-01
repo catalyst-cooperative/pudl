@@ -8,11 +8,11 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_rus7__yearly_materials_and_supplies
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - dbt_utils.expression_is_true:
               arguments:
                 expression: materials_purchased + materials_salvaged - materials_sold - materials_used + materials_adjustment <= materials_ending_balance
-              description: "Check that annual changes don't exceed ending balance."
+              description: Check that annual changes don't exceed ending balance.
               config:
                 error_if: ">3"
         columns:

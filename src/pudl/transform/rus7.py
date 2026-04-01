@@ -12,6 +12,8 @@ from pudl.metadata.enums import (
     SERVICE_INTERRUPTION_TYPES_RUS7,
     SERVICE_STATUS_RUS7,
     TRANSMISSION_DISTRIBUTION_TYPES_RUS7,
+    UTILITY_PLANT_GROUP_RUS7,
+    UTILITY_PLANT_ITEM_RUS7,
 )
 from pudl.metadata.resources.rus12 import HARVESTED_CORE_TABLES_RUS7
 from pudl.transform.eia import harvest_entity_tables
@@ -631,6 +633,30 @@ def _core_rus7__yearly_materials_and_supplies(
         unstack_level=["electric_or_other_materials"],
     )
     df = df.rename(columns={x: "materials_" + x for x in data_cols})
+    return df
+
+
+@asset
+def _core_rus7__yearly_utility_plant_changes(
+    raw_rus7__utility_plant_changes: pd.DataFrame,
+):
+    """Transform the utility plant changes table."""
+    df = rus.early_transform(raw_df=raw_rus7__utility_plant_changes)
+    data_cols = [
+        "retirements",
+        "additions",
+        "adjustments_and_transfers",
+        "ending_balance",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(UTILITY_PLANT_GROUP_RUS7)})_({'|'.join(UTILITY_PLANT_ITEM_RUS7)})_({'|'.join(data_cols)})$",
+        match_names=["utility_plant_group", "utility_plant_item", "data_cols"],
+        unstack_level=["utility_plant_group", "utility_plant_item"],
+    )
+    df["is_total"] = df.utility_plant_item == "total"
     return df
 
 
