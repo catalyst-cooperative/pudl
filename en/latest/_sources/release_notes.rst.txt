@@ -102,7 +102,7 @@ Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
-  PR :pr:`5023`.
+  PR :pr:`5023`. Thanks to :user:`andbusch` for getting this in!
 * Added environment variable controls for Sphinx docs builds:
   ``PUDL_DOCS_KEEP_GENERATED_FILES`` now preserves generated docs artifacts for
   debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
