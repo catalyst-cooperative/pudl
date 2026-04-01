@@ -213,14 +213,18 @@ To make sure they are run before you commit any code, you need to enable the
 
 .. code-block:: console
 
-    $ pixi run pre-commit-install
+    $ pixi run prek-install
 
-The scripts that run are configured in the ``.pre-commit-config.yaml`` file.
+The scripts that run are configured in the ``.pre-commit-config.yaml`` file. We use
+`prek <https://prek.j178.dev>`__, a fast, parallelized drop-in replacement for
+pre-commit written in Rust.
 
 .. seealso::
 
     * The `pre-commit project <https://pre-commit.com/>`__: A framework for
       managing and maintaining multi-language pre-commit hooks.
+    * `prek <https://prek.j178.dev>`__: A fast Rust-based replacement for
+      pre-commit with parallel hook execution.
     * `Real Python Code Quality Tools and Best Practices <https://realpython.com/python-code-quality/>`__
       gives a good overview of available linters and static code analysis tools.
 
