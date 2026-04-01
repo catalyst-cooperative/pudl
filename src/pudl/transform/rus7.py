@@ -5,6 +5,7 @@ from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
+from pudl.helpers import make_changelog
 from pudl.metadata.enums import (
     LOAN_STATUS_TYPES_RUS7,
     LOAN_UNIT_TYPES_RUS7,
@@ -669,12 +670,11 @@ def _core_rus7__yearly_utility_plant_changes(
 _CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
 
 
-@asset(
+@multi_asset(
     ins={
         table_name: AssetIn()
         for table_name in ["_core_rus7__scd_borrowers"] + _CORE_RUS7_TABLES
     },
-    io_manager_key="pudl_io_manager",
     config_schema={
         "debug": Field(
             bool,
@@ -684,6 +684,10 @@ _CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
                 "produce additional debugging output."
             ),
         ),
+    },
+    outs={
+        "core_rus7__entity_borrowers": AssetOut(io_manager_key="pudl_io_manager"),
+        "_core_rus7__changelog_borrower_names": AssetOut(),
     },
 )
 def core_rus7__entity_borrowers(context, **clean_dfs):
@@ -707,8 +711,9 @@ def core_rus7__entity_borrowers(context, **clean_dfs):
         special_case_strictness=special_case_strictness,
         debug=context.op_config["debug"],
     )
-
-    return entity_df
+    rus_borrower_names_all = _col_dfs["borrower_name_rus"]
+    _core_rus7__changelog_borrower_names = make_changelog(rus_borrower_names_all)
+    return entity_df, _core_rus7__changelog_borrower_names
 
 
 finished_rus_assets = [
