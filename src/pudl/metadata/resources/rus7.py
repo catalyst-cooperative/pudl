@@ -16,7 +16,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
                 "governance information about RUS borrowers' annual "
                 "member meetings as well as information about their board."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part M)",
         },
         "schema": {
@@ -46,7 +45,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "assets and other debts from the balance sheet."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part C)",
         },
         "schema": {
@@ -72,7 +71,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "liabilities and other credits from the balance sheet."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part C)",
         },
         "schema": {
@@ -96,7 +95,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_employee_statistics": {
         "description": {
             "additional_summary_text": ("statistics about employment and payroll."),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H)",
         },
         "schema": {
@@ -121,9 +119,10 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     },
     "core_rus7__yearly_energy_efficiency": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": (
+                "investments in and impacts of energy efficiency programs."
+            ),
             "usage_warnings": [
-                "experimental_wip",
                 {
                     "type": "custom",
                     "description": "The savings_mmbtu likely contains values with incorrect units.",
@@ -157,7 +156,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "power requirements - number of customers served by customer type."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part O)",
         },
         "schema": {
@@ -184,7 +182,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "power requirements - revenue and energy sold by customer type."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part O)",
         },
         "schema": {
@@ -210,7 +207,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "power requirements - revenue and generation summary."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part O)",
             "additional_details_text": (
                 "This table includes totals of electric sales and revenue which also appear in "
@@ -249,7 +245,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_investments": {
         "description": {
             "additional_summary_text": ("investments, loan guarantees and loans."),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part P - Section I)",
             "additional_details_text": (
                 "Reporting of investments is required by 7 CFR 1717, Subpart N. Investment "
@@ -281,7 +276,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "long term debt and debt service requirements."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part N)",
             "additional_primary_key_text": (
                 "This table has no native primary key. It is a list of all debts "
@@ -306,7 +300,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_long_term_leases": {
         "description": {
             "additional_summary_text": ("long term leases by property type."),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part L)",
             "additional_primary_key_text": (
                 "Borrowers may receive multiple leases from ``lending_organizations`` in a given year."
@@ -328,7 +321,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_patronage_capital": {
         "description": {
             "additional_summary_text": ("patronage capital distributed and received."),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part I)",
         },
         "schema": {
@@ -351,7 +344,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "opex and cost of electric service for RUS borrowers by time period."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part A)",
         },
         "schema": {
@@ -378,8 +371,8 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     },
     "core_rus7__entity_borrowers": {
         "description": {
-            "additional_summary_text": ("active RUS borrowers"),
-            "usage_warnings": ["experimental_wip", "harvested"],
+            "additional_summary_text": ("active RUS borrowers."),
+            "usage_warnings": ["harvested_rus"],
             "additional_details_text": (
                 "This table contains canonical values for borrowers are set. It contains "
                 "values which are expected to remain fixed over time."
@@ -420,7 +413,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_owed_by_customers": {
         "description": {
             "additional_summary_text": ("debt owed by customers."),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part J)",
         },
         "schema": {
@@ -444,7 +436,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "the repayment status of loans made by a borrower to customers for investments in energy efficiency and conservation initiatives."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part J)",
             "additional_details_text": (
                 "Energy Resources Conservation (ERC) loans are defined by the RUS as loans "
@@ -478,7 +469,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_service_interruptions": {
         "description": {
             "additional_summary_text": ("service interruptions by cause."),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part G)",
         },
         "schema": {
@@ -504,7 +495,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_distribution_services": {
         "description": {
             "additional_summary_text": ("distribution services."),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part B)",
         },
         "schema": {
@@ -526,7 +517,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "miles of transmission and distribution infrastructure."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part B)",
             "additional_details_text": (
                 "Note that according to RUS, 'underbuild in "
@@ -557,7 +548,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_loans": {
         "description": {
             "additional_summary_text": ("loans provided by RUS borrowers."),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part Q - Sections II & IV)",
             "additional_primary_key_text": (
                 "Borrowers may receive multiple loans from ``lending_organizations`` in a given year."
@@ -593,7 +583,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "ratio of investments and loan guarantee balances to total utility plant assets."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part Q - Section III)",
         },
         "schema": {
@@ -614,12 +603,16 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_energy_purchased": {
         "description": {
             "additional_summary_text": "energy purchased by RUS borrowers.",
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part K)",
             "additional_primary_key_text": (
                 "The primary key would probably be report_date, borrower_id_rus, fuel_type_code, "
                 "supplier_code_rus, renewable_energy_program if not for certain EIA utilities "
                 "represented as Miscellaneous (supplier code 700000)."
+            ),
+            "additional_details_text": (
+                "A number of records report purchases from an unspecified entity. "
+                "These fields all have reported utility names beginning with an \\*, including \\*Miscellaneous, "
+                "\\*Adjustments, and \\*Residential Renewable Supplier."
             ),
         },
         "schema": {
@@ -649,7 +642,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
                 "cost of electric vs. other materials that were purchased, salvaged, "
                 "used, or sold."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part F)",
         },
         "schema": {
@@ -674,8 +666,36 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+    "core_rus7__yearly_utility_plant_changes": {
+        "description": {
+            "additional_summary_text": ("changes in utility plant"),
+            "additional_source_text": "(Part E)",
+            "usage_warnings": ["aggregation_hazard"],
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",
+                "utility_plant_item",
+                "retirements",
+                "additions",
+                "adjustments_and_transfers",
+                "ending_balance",
+                "is_total",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",
+                "utility_plant_item",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
 }
-
 
 RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
     HARVESTED_CORE_TABLES_RUS7,
