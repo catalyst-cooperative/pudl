@@ -20,6 +20,9 @@ from pudl.metadata.enums import (
     CUSTOMER_CLASSES_EIA176,
     DAMAGE_SUB_TYPES_PHMSAGAS,
     DAMAGE_TYPES_PHMSAGAS,
+    DEPRECIATION_CHANGES_GROUP_RUS12,
+    DEPRECIATION_CHANGES_ITEMS_RUS12,
+    DEPRECIATION_ITEMS_MISC_RUS12,
     DIVISION_CODES_US_CENSUS,
     ELECTRICITY_MARKET_MODULE_REGIONS,
     ENERGY_DISPOSITION_TYPES_FERC1,
@@ -64,6 +67,10 @@ from pudl.metadata.enums import (
     TRANSMISSION_DISTRIBUTION_TYPES_RUS7,
     US_TIMEZONES,
     UTILITY_PLANT_ASSET_TYPES_FERC1,
+    UTILITY_PLANT_GROUP_RUS7,
+    UTILITY_PLANT_GROUP_RUS12,
+    UTILITY_PLANT_ITEM_RUS7,
+    UTILITY_PLANT_ITEM_RUS12,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
@@ -9999,19 +10006,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The cost of materials and supplies used.",
         "unit": "USD",
     },
-    "depreciable_plant_base": {"type": "number", "description": ""},
-    "net_salvage": {"type": "number", "description": ""},
-    "depreciation_rate": {"type": "string", "description": ""},
-    "mortality_curve_type": {"type": "string", "description": ""},
-    "depreciation_charges": {"type": "string", "description": ""},
+    "depreciable_plant_base": {
+        "type": "number",
+        "description": "Depreciable plant balance (depreciable base) to which rates are applied.",
+    },
+    "net_salvage": {"type": "number", "description": "TODO"},
+    "depreciation_rate": {"type": "string", "description": "TODO"},
+    "mortality_curve_type": {"type": "string", "description": "TODO"},
+    "depreciation_charges": {"type": "string", "description": "TODO"},
     "order_num": {
         "type": "number",
         "description": (
-            "This field is defined in FERC-XBRL documentation as a feild that is used or sequence a table."
+            "This field is defined in FERC-XBRL documentation as a field that is used or sequence a table."
             "FERC-XBRL documentation notes: 'This field is added to a table to control ordering of the items on the table.'"
             "FERC's documentation also notes that this field should always be an integer - although "
             "there are many instances of floating point values which seem to increment by decimal points. "
-            "Nonetheless, this field can be used to help understand the orignal order of the table. "
+            "Nonetheless, this field can be used to help understand the original order of the table. "
             "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
         ),
     },
@@ -10021,9 +10031,63 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "service_life_avg": {
         "type": "string",
-        "description": "Estimated average service life of utility plant.",
+        "description": (
+            "Estimated average service life of utility plant. This field is typed as a string because it contains "
+            "a mix of year-like numbers and strings `PnYnMnDTnHnMnS`."
+            "FERC1's Taxonomy documents this field as:\n\n"
+            "Estimated average service life of utility plant, in 'PnYnMnDTnHnMnS' format, for example 'P4Y7M12D' represents a fact of four years, seven months, and 12 days."
+        ),
     },
-    "remaining_life_avg": {"type": "string", "description": ""},
+    "remaining_life_avg": {"type": "string", "description": "TODO"},
+    "utility_plant_group": {
+        "type": "string",
+        "description": "High-level category of utility plant asset type.",
+        # constrains are by table in FIELD_METADATA_BY_RESOURCE
+    },
+    "utility_plant_item": {
+        "type": "string",
+        "description": "Sub-category of utility_plant_group describing utility plant asset item.",
+        # constrains are by table in FIELD_METADATA_BY_RESOURCE
+    },
+    "non_utility_plant_item": {
+        "type": "string",
+        "description": "Category describing non-utility plant asset items.",
+        "constraints": {
+            "enum": ["property", "provision_for_depreciation_and_amortization"]
+        },
+    },
+    "adjustments_and_transfers": {
+        "type": "number",
+        "description": "Amount of adjustments and transfers within a class of assets.",
+        "unit": "USD",
+    },
+    "depreciation_and_amortization_group": {
+        "type": "string",
+        "description": "High-level category of depreciation and amortization items.",
+        "constraints": {"enum": DEPRECIATION_CHANGES_GROUP_RUS12},
+    },
+    "depreciation_and_amortization_item": {
+        "type": "string",
+        "description": "Category of depreciation and amortization items.",
+        # constrains are by table in FIELD_METADATA_BY_RESOURCE
+    },
+    "composite_depreciation_rate": {
+        "type": "number",
+        "description": (
+            "The composite depreciation rate within a given category. "
+            "This is typically expressed as a number between 0 and 100."
+        ),
+    },
+    "accruals": {
+        "type": "number",
+        "description": "Value of additions into an asset class a.k.a accruals.",
+        "unit": "USD",
+    },
+    "retirements_less_net_salvage": {
+        "type": "number",
+        "description": "Cost of retirements minus any net salvage value.",
+        "unit": "USD",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -11203,6 +11267,24 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "core_rus12__monthly_demand_and_energy_at_power_sources": {
         "peak_demand_mw": {"description": "peak demand in a given timeframe."}
+    },
+    "core_rus12__yearly_depreciation_changes": {
+        "depreciation_and_amortization_item": {
+            "constraints": {"enum": DEPRECIATION_CHANGES_ITEMS_RUS12}
+        },
+    },
+    "core_rus12__yearly_depreciation_misc": {
+        "depreciation_and_amortization_item": {
+            "constraints": {"enum": DEPRECIATION_ITEMS_MISC_RUS12}
+        },
+    },
+    "core_rus7__yearly_utility_plant_changes": {
+        "utility_plant_group": {"constraints": {"enum": UTILITY_PLANT_GROUP_RUS7}},
+        "utility_plant_item": {"constraints": {"enum": UTILITY_PLANT_ITEM_RUS7}},
+    },
+    "core_rus12__yearly_utility_plant_changes": {
+        "utility_plant_group": {"constraints": {"enum": UTILITY_PLANT_GROUP_RUS12}},
+        "utility_plant_item": {"constraints": {"enum": UTILITY_PLANT_ITEM_RUS12}},
     },
 }
 

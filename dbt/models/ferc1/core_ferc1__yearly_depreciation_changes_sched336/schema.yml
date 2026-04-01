@@ -1,0 +1,18 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_depreciation_changes_sched336
+        columns:
+          - name: record_id
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: depreciable_plant_base
+          - name: net_salvage
+          - name: depreciation_rate
+          - name: mortality_curve_type
+          - name: depreciation_charges
+          - name: order_num
+          - name: account_num
+          - name: service_life_avg
+          - name: remaining_life_avg

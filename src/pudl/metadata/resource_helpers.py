@@ -28,6 +28,10 @@ HARVESTED_CORE_TABLES_RUS12 = [
     "core_rus12__monthly_demand_and_energy_at_delivery_points",
     "core_rus12__monthly_demand_and_energy_at_power_sources",
     "core_rus12__yearly_plant_factors_and_maximum_demand",
+    "core_rus12__yearly_non_utility_plant_changes",
+    "core_rus12__yearly_utility_plant_changes",
+    "core_rus12__yearly_depreciation_changes",
+    "core_rus12__yearly_depreciation_misc",
 ]
 
 HARVESTED_CORE_TABLES_RUS7 = [
@@ -53,6 +57,7 @@ HARVESTED_CORE_TABLES_RUS7 = [
     "core_rus7__yearly_service_interruptions",
     "core_rus7__yearly_distribution_services",
     "core_rus7__yearly_transmission_and_distribution_mileage",
+    "core_rus7__yearly_utility_plant_changes",
 ]
 
 HARVESTING_DETAIL_TEXT_EIA = """EIA reports many attributes in many different tables across
