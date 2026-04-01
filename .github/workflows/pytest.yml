@@ -54,6 +54,7 @@ jobs:
               - '!.github/workflows/update-lockfiles.yml'
               - '!.github/workflows/zenodo-cache-sync.yml'
               - '!.github/workflows/zenodo-data-release.yml'
+              - '!.github/workflows/docs-linkcheck.yml'
               - '!.github/skills/**'
               - '!.github/agents/**'
               - '!.github/instructions/**'
@@ -68,7 +69,7 @@ jobs:
               - '!.git-blame-ignore-revs'
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
-              - '!.mypy.ini'
+              - '!.taplo.toml'
               - '!terraform/**'
               - '!test/unit/**'
               - '!skills-lock.json'
@@ -83,8 +84,6 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    env:
-      PUDL_DOCS_DISABLE_INTERSPHINX: "1"
     strategy:
       fail-fast: false
     defaults:
@@ -106,9 +105,9 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: Lint and build PUDL documentation with Sphinx
+      - name: Lint and check PUDL documentation with Sphinx
         run: |
-          pixi run docs-build
+          pixi run docs-check
 
       - name: Upload docs coverage artifact
         uses: actions/upload-artifact@v7
@@ -284,7 +283,7 @@ jobs:
           pixi run coverage xml --fail-under=0
           pixi run coverage report --fail-under=0
       - name: Upload XML coverage report to CodeCov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           disable_search: true
           files: ./coverage.xml

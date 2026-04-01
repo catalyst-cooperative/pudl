@@ -28,6 +28,10 @@ HARVESTED_CORE_TABLES_RUS12 = [
     "core_rus12__monthly_demand_and_energy_at_delivery_points",
     "core_rus12__monthly_demand_and_energy_at_power_sources",
     "core_rus12__yearly_plant_factors_and_maximum_demand",
+    "core_rus12__yearly_non_utility_plant_changes",
+    "core_rus12__yearly_utility_plant_changes",
+    "core_rus12__yearly_depreciation_changes",
+    "core_rus12__yearly_depreciation_misc",
 ]
 
 HARVESTED_CORE_TABLES_RUS7 = [
@@ -53,6 +57,7 @@ HARVESTED_CORE_TABLES_RUS7 = [
     "core_rus7__yearly_service_interruptions",
     "core_rus7__yearly_distribution_services",
     "core_rus7__yearly_transmission_and_distribution_mileage",
+    "core_rus7__yearly_utility_plant_changes",
 ]
 
 HARVESTING_DETAIL_TEXT_EIA = """EIA reports many attributes in many different tables across
@@ -61,7 +66,8 @@ collects all instances of these values and and chooses a canonical value. By def
 PUDL chooses the most consistently reported value of a given attribute as long as it
 is at least 70% of the given instances reported. If an attribute was reported
 inconsistently across the original EIA tables, then it will show up as a
-null value."""
+null value. See :doc:`/methodology/entity_resolution` for a conceptual overview of
+this process."""
 
 
 HARVESTING_DETAIL_TEXT_RUS = """RUS reports many attributes in many different tables
@@ -160,11 +166,18 @@ def core_to_out_harvested_resources(
                 #     if core_tlb in special_cols.keys()
                 #     else out_cols_to_add
                 # )
-                meta_part["fields"] = out_cols_to_add + meta_part["fields"]
+                # Reorder columns so that the out_cols_to_add directly follow the borrower ID
+                id_idx = meta_part["fields"].index("borrower_id_rus") + 1
+                meta_part["fields"] = (
+                    meta_part["fields"][0:id_idx]
+                    + out_cols_to_add
+                    + meta_part["fields"][id_idx:]
+                )
             elif meta_part_name == "description":
-                meta_part["usage_warnings"] = ["harvested"] + meta_part[
-                    "usage_warnings"
-                ]
+                if "usage_warnings" in meta_part:
+                    meta_part["usage_warnings"].append("harvested_rus")
+                else:
+                    meta_part["usage_warnings"] = ["harvested_rus"]
             meta_tbl[meta_part_name] = meta_part
         out_resources[f"out_{core_tbl.removeprefix('core_')}"] = meta_tbl
     return out_resources

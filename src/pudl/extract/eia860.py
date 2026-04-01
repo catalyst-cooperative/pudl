@@ -119,12 +119,18 @@ def extract_eia860(context, raw_eia860__all_dfs):
     ds = context.resources.datastore
     selected_outputs = set(context.selected_output_names)
 
+    # Intersect the requested outputs with the three generator tables that EIA-860M
+    # can supplement (existing, proposed, retired). Strip the "raw_eia860__" prefix
+    # first so the names match the keys used by the 860M append function.
     selected_eia860m_appendable_tables = {
         output_name.removeprefix("raw_eia860__")
         for output_name in selected_outputs
         if output_name.startswith("raw_eia860__")
     } & {"generator_existing", "generator_proposed", "generator_retired"}
 
+    # EIA-860M only augments the generator tabs that overlap with annual EIA-860.
+    # When subsetting this multi-asset, only extract and append 860M data if the user
+    # requested at least one of those appendable raw outputs and 860M is enabled.
     if eia_settings.eia860.eia860m and selected_eia860m_appendable_tables:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
             year_month=eia_settings.eia860.eia860m_year_months

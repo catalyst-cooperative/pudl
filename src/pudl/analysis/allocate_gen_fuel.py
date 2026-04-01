@@ -369,7 +369,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     # do the association! --> this step is where a small no. of plants are dropped for
     # an unknown reason. Investigate in issue #2978.
     gen_assoc = associate_generator_tables(
-        gens=gens_at_freq, gf=gf, gen=gen, bf=bf, bga=bga
+        gens_at_freq=gens_at_freq, gf=gf, gen=gen, bf=bf, bga=bga
     )
     # Generate a fraction to use to allocate net generation and fuel consumption by.
     # These two methods create a column called `frac`, which will be a fraction
@@ -660,7 +660,7 @@ def stack_generators(
 
 
 def associate_generator_tables(
-    gens: pd.DataFrame,
+    gens_at_freq: pd.DataFrame,
     gf: pd.DataFrame,
     gen: pd.DataFrame,
     bf: pd.DataFrame,
@@ -718,11 +718,11 @@ def associate_generator_tables(
         :func:`allocate_fuel_by_gen_esc`.
     """
     stack_gens = stack_generators(
-        gens, cat_col="energy_source_code_num", stacked_col="energy_source_code"
+        gens_at_freq, cat_col="energy_source_code_num", stacked_col="energy_source_code"
     ).pipe(apply_pudl_dtypes, group="eia")
     # allocate the boiler fuel data to generators
     bf_by_gens = (
-        allocate_bf_data_to_gens(bf, gens, bga)
+        allocate_bf_data_to_gens(bf, gens_at_freq, bga)
         .set_index(IDX_GENS_PM_ESC)
         .add_suffix("_bf_tbl")
         .reset_index()
@@ -786,6 +786,17 @@ def associate_generator_tables(
     return gen_assoc
 
 
+def _label_gf_unique_to_gen(gen_assoc: pd.DataFrame):
+    # identify whether a PM/ESC combo is unique to the generator_id at the plant
+    gen_assoc["gf_unique_to_gen"] = (
+        gen_assoc.groupby(
+            ["plant_id_eia", "report_date", "prime_mover_code", "energy_source_code"]
+        )["generator_id"].transform("nunique")
+        == 1
+    )
+    return gen_assoc
+
+
 def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Remove the retired generators.
 
@@ -795,7 +806,8 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     statuses other than ``existing`` but which report non-zero data despite being
     ``retired`` or ``proposed``. This includes several categories of generators/plants:
 
-        * ``retiring_generators``: generators that retire mid-year
+        * ``retiring_generators``: generators that retire mid-year or report data after
+          retiring.
         * ``retired_plants``: entire plants that supposedly retired prior to
           the current year but which report data. If a plant has a mix of gens
           which are existing and retired, they are not included in this category.
@@ -812,7 +824,9 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     is possible that the reported generation from the gf table belongs to one
     of the other existing generators. Thus, we want to only keep proposed/retired
     generators where the entire plant is proposed/retired (in which case the gf-
-    reported generation could only come from one of the new/retired generators).
+    reported generation could only come from one of the new/retired generators). If the
+    reported gf data is for a prime_mover / energy_source_code combo that is unique
+    to the retiring/proposed generator, we can identify it at the generator level.
 
     We also want to keep unassociated plants that have no ``generator_id`` which will
     be associated via :func:`_allocate_unassociated_records`.
@@ -822,6 +836,8 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             generation data from the core_eia923__monthly_generation and core_eia923__monthly_generation_fuel
             tables. Output of :func:`associate_generator_tables`.
     """
+    gen_assoc = _label_gf_unique_to_gen(gen_assoc)
+
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
 
     retiring_generators = identify_retiring_generators(gen_assoc)
@@ -851,10 +867,14 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify any generators that retire mid-year.
 
-    We want to include all of the generator records within any given year that
-    retired mid-year or any generators that reported any fuel use or generation.
-    These are generators with a mid-year retirement date or which report
-    generator-specific generation or fuel use after they are labeled as retired.
+    These are "retired" generators that either:
+
+    A) have a mid-year retirement date, OR
+    B) report generator-specific generation data in the g table for a month after the
+       retirement date, OR
+    C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
+       is unique to that generator at the plant, for a month after the retirement date.
+
     """
     gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
     # identify the complete set of generator ids that are retiring mid year
@@ -863,8 +883,19 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
         (gen_assoc.operational_status == "retired")
         & (
             (gen_assoc.report_date <= gen_assoc.generator_retirement_date)
-            | gen_assoc.filter(like="net_generation_mwh").notnull().any(axis=1)
-            | gen_assoc.filter(like="fuel_consumed").notnull().any(axis=1)
+            | (
+                gen_assoc.net_generation_mwh_g_tbl.notnull()
+                | (
+                    gen_assoc["gf_unique_to_gen"]
+                    & (
+                        (
+                            gen_assoc.net_generation_mwh_gf_tbl.notnull()
+                            & (gen_assoc.net_generation_mwh_gf_tbl != 0)
+                        )
+                        | (gen_assoc.filter(like="fuel_consumed_") > 0).any(axis=1)
+                    )
+                )
+            )
         ),
         ["plant_id_eia", "generator_id", "report_year"],
     ].drop_duplicates()
@@ -939,14 +970,30 @@ def identify_retired_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 def identify_generators_coming_online(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify generators that are coming online mid-year.
 
-    These are defined as generators that have a proposed status but which report
-    generator-specific generation data in the g table
+    These are defined as "proposed" generators that either:
+
+    A) report generator-specific generation data in the g table, OR
+    B) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
+       is unique to that generator at the plant.
+
     """
     # sometimes a plant will report generation data before its proposed operating date
     # we want to keep any data that is reported for proposed generators
     proposed_generators = gen_assoc.loc[
         (gen_assoc.operational_status == "proposed")
-        & (gen_assoc.net_generation_mwh_g_tbl.notnull())
+        & (
+            gen_assoc.net_generation_mwh_g_tbl.notnull()
+            | (
+                gen_assoc["gf_unique_to_gen"]
+                & (
+                    (
+                        gen_assoc.net_generation_mwh_gf_tbl.notnull()
+                        & (gen_assoc.net_generation_mwh_gf_tbl != 0)
+                    )
+                    | ((gen_assoc.filter(like="fuel_consumed_") > 0).any(axis=1))
+                )
+            )
+        )
     ]
     return proposed_generators
 
@@ -2052,11 +2099,41 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
         AssertionError: If the difference between the allocated and original data for
             any plant/year is off by more than x10 or x-5.
     """
-    gf_test = pd.merge(
-        gf.assign(year=lambda x: x.report_date.dt.year).groupby(by)[data_columns].sum(),
+    original_gf = (
+        gf.assign(year=lambda x: x.report_date.dt.year).groupby(by)[data_columns].sum()
+    )
+    allocated_gf = (
         gf_allocated.assign(year=lambda x: x.report_date.dt.year)
         .groupby(by)[data_columns]
-        .sum(),
+        .sum()
+    )
+    # Check how well the allocation is working on the aggregate. Is the vast majority of
+    # original generation & fuel from the gf table being allocated?
+    total_allocation_test = pd.merge(
+        pd.DataFrame(allocated_gf.sum(), columns=["allocated_sum"]),
+        pd.DataFrame(original_gf.sum(), columns=["original_sum"]),
+        right_index=True,
+        left_index=True,
+    ).assign(allocated_pct=lambda x: (x.allocated_sum / x.original_sum) * 100)[
+        ["allocated_pct"]
+    ]
+    logger.info(
+        "The % of the original data that has been allocated from the generation fuel "
+        f"table for each column is:\n{total_allocation_test}"
+    )
+    expected_allocation_pct = 95.06
+    # we know that with the fast ETL this coverage is weird bad because the last year
+    # of data is often a ytd year that doesn't get allocated.
+    if len(gf.report_date.dt.year.unique()) <= 2:
+        expected_allocation_pct = expected_allocation_pct / 2
+    if not all(total_allocation_test.allocated_pct > expected_allocation_pct):
+        raise AssertionError(
+            "The total portion of generation or fuel being allocated dipped below "
+            f"the expected {expected_allocation_pct}%."
+        )
+    gf_test = pd.merge(
+        original_gf,
+        allocated_gf,
         right_index=True,
         left_index=True,
         suffixes=("_og", "_allocated"),
