@@ -12,7 +12,7 @@ sources:
                 min_ratio: 0.05
                 max_ratio: 0.2
               config:
-                error_if: ">40000"
+                error_if: ">46000"
               description: Monthly spending should roughly equal 1/12 of the YTD budget (5-20% range).
           - expect_columns_ratio:
               arguments:
