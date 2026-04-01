@@ -85,7 +85,8 @@ create Python environments. Do not run `uv run`, `uv pip install`, `python -m ve
 anything similar. Pixi is the only permitted environment manager.
 
 Project tasks and environments are defined in `pyproject.toml` under `[tool.pixi]`.
-Git pre-commit hooks are defined in `.pre-commit-config.yaml`.
+Git pre-commit hooks are defined in `.pre-commit-config.yaml`. We use `prek` to run
+pre-commit hooks both interactively and as git hooks.
 
 ### Adding dependencies
 
@@ -101,19 +102,19 @@ Dev-only or test-only dependencies belong only in `[tool.pixi.dependencies]` (or
 the lockfile.
 
 If a new pre-commit hook is needed, add it to `.pre-commit-config.yaml` and run
-`pixi run pre-commit-install` to update the git hooks.
+`pixi run prek install` to update the git hooks.
 
 ## Common commands
 
 ```bash
 # New worktree initialization
 pixi install
-pixi run pre-commit-install
+pixi run prek install
 
 # Linting and formatting
-pixi run pre-commit run --all-files             # run all hooks on all files
-pixi run pre-commit run ruff-check --all-files  # lint without fixing
-pixi run pre-commit run ruff-format --all-files # fix formatting
+pixi run prek run --all-files             # run all hooks on all files
+pixi run prek run ruff-check --all-files  # lint without fixing
+pixi run prek run ruff-format --all-files # fix formatting
 
 # Type checking (faster than mypy)
 pixi run ty check src/pudl/path/to/file.py
@@ -203,13 +204,13 @@ Use `pixi run dg` to ensure `dg` is always run in the correct environment.
 
 ### ruff
 
-Can be run directly on specific files or via pre-commit on all files.
+Can be run directly on specific files or via `prek` on all files.
 
 ```bash
 pixi run ruff check src/pudl/path/to/file.py    # check a specific file
 pixi run ruff format src/pudl/path/to/file.py   # format a specific file
-pixi run pre-commit run ruff-check --all-files  # check everything before committing
-pixi run pre-commit run ruff-format --all-files # format everything before committing
+pixi run prek run ruff-check --all-files  # check everything before committing
+pixi run prek run ruff-format --all-files # format everything before committing
 ```
 
 ## Available skills
@@ -419,7 +420,7 @@ Create a new branch and a matching worktree with the same name for each feature 
 will become a PR. Initialize the new worktree with:
 
 ```bash
-pixi install && pixi run pre-commit-install
+pixi install && pixi run prek install
 ```
 
 After editing files run `pixi run ruff check` and `pixi run ruff format` on the changed
@@ -441,7 +442,7 @@ plaintext no more than 80 characters wide, with a short summary line (max 50 cha
 significant changes, follow the first summary with a blank line and a more detailed
 description. Do not add spurious or generated files to source control.
 
-When you are ready to commit, run `pixi run pre-commit-run` and fix all issues before
+When you are ready to commit, run `pixi run prek-run` and fix all issues before
 attempting to commit.  NEVER skip pre-commit hooks by using `--no-verify`. Fix the
 underlying issue or ask for help — do not bypass the checks.
 
@@ -449,7 +450,7 @@ underlying issue or ask for help — do not bypass the checks.
 
 Before marking a PR as ready for review:
 
-- [ ] Pre-commit hooks pass on all files: `pixi run pre-commit-run`
+- [ ] Pre-commit hooks pass on all files: `pixi run prek-run`
 - [ ] All unit tests pass: `pixi run pytest-unit`
 - [ ] Docs check passes with no errors or warnings: `pixi run docs-check`
 - [ ] If public or contributor-facing behavior changed: release notes entry has been

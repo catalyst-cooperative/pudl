@@ -13,6 +13,12 @@ sources:
               config:
                 error_if: ">38" # TODO: Investigate cases where loan balance exceeds original amount.
               description: "The original amount of the loan guarantee should be greater than or equal to the current balance of the loan."
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: date_trunc('year', report_date) <= date_trunc('year', loan_maturity_date)
+              config:
+                error_if: ">58"
+              description: "The report date year should be before or equal to the loan maturity date year."
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_rus7__yearly_loans

@@ -121,7 +121,7 @@ pandoc = ">=3.7"
 pandera-polars = ">=0.30"
 parallel = ">=20250822"
 polars = ">=1.39"
-pre-commit = ">=4.5"
+prek = ">=0.3.8"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.7,<4"
 # pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
@@ -177,6 +177,7 @@ zip = ">=3.0"
 # above in [tools.pixi.dependenccies] (for conda packages) or in this section, if they
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
+detect-secrets = ">=1.5"
 
 [tool.pixi.feature.dev.dependencies]
 jq = ">=1.8" # Primarily for agent skills use
@@ -447,17 +448,17 @@ depends-on = ["ferc-to-sqlite-clean", "pudl-clean"]
 description = "Run the full PUDL ETL (including FERC) using the nightly Dagster config"
 
 # Code quality tasks
-[tool.pixi.tasks.pre-commit-run]
-cmd = "pre-commit run --all-files"
+[tool.pixi.tasks.prek-run]
+cmd = "prek run --all-files"
 description = "Run all pre-commit hooks"
 
-[tool.pixi.tasks.pre-commit-install]
-cmd = "pre-commit install"
+[tool.pixi.tasks.prek-install]
+cmd = "prek install"
 description = "Install pre-commit hooks"
 
 # Dependency Update tasks
-[tool.pixi.tasks.pre-commit-autoupdate]
-cmd = "pre-commit autoupdate"
+[tool.pixi.tasks.prek-autoupdate]
+cmd = "prek autoupdate"
 description = "Update pre-commit hook versions"
 
 [tool.pixi.tasks.dbt-deps-upgrade]
