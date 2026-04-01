@@ -8,7 +8,7 @@ the extracted EIA 860M dataframes to the extracted EIA 860 dataframes. Example
 setup with pre-generated `eia860_raw_dfs` and datastore as `ds`:
 
 eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-    Eia860Settings.eia860m_date)
+    Eia860DataConfig.eia860m_date)
 eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
     eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 """
@@ -92,15 +92,15 @@ def append_eia860m(
     return eia860_raw_dfs
 
 
-@asset(required_resource_keys={"datastore", "etl_settings"})
+@asset(required_resource_keys={"datastore", "global_data_config"})
 def raw_eia860m__all_dfs(context):
     """Extract raw EIA 860M data from excel sheets into dict of dataframes."""
-    eia_settings = context.resources.etl_settings.dataset_settings.eia
+    eia_data_config = context.resources.global_data_config.pudl.eia
     ds = context.resources.datastore
 
     eia860m_extractor = Extractor(ds=ds)
     raw_eia860m__all_dfs = eia860m_extractor.extract(
-        year_month=eia_settings.eia860m.year_months
+        year_month=eia_data_config.eia860m.year_months
     )
     return raw_eia860m__all_dfs
 

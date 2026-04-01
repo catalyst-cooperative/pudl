@@ -35,7 +35,7 @@ def dbf_to_sqlite_asset_factory(
         key=key,
         group_name="raw_ferc_to_sqlite",
         required_resource_keys={
-            "etl_settings",
+            "global_data_config",
             "datastore",
             "runtime_settings",
             "zenodo_dois",
@@ -45,7 +45,7 @@ def dbf_to_sqlite_asset_factory(
     def _asset(context) -> dg.MaterializeResult[str]:
         extractor_class(
             datastore=context.resources.datastore,
-            settings=context.resources.etl_settings.ferc_to_sqlite,
+            data_config=context.resources.global_data_config.ferc_to_sqlite,
             output_path=PudlPaths().output_dir,
         ).execute()
         return dg.MaterializeResult(
@@ -57,10 +57,10 @@ def dbf_to_sqlite_asset_factory(
                         data_format="dbf",
                         status="complete",
                         zenodo_doi=context.resources.zenodo_dois.get_doi(dataset),
-                        years=context.resources.etl_settings.ferc_to_sqlite.get_dataset_years(
+                        years=context.resources.global_data_config.ferc_to_sqlite.get_dataset_years(
                             dataset=dataset, data_format="dbf"
                         ),
-                        settings=context.resources.etl_settings.ferc_to_sqlite,
+                        data_config=context.resources.global_data_config.ferc_to_sqlite,
                         sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
                     ).model_dump(mode="json")
                 )
@@ -79,7 +79,7 @@ def xbrl_to_sqlite_asset_factory(
         key=key,
         group_name="raw_ferc_to_sqlite",
         required_resource_keys={
-            "etl_settings",
+            "global_data_config",
             "datastore",
             "runtime_settings",
             "zenodo_dois",
@@ -88,10 +88,12 @@ def xbrl_to_sqlite_asset_factory(
     )
     def _asset(context) -> dg.MaterializeResult[str]:
         runtime_settings = context.resources.runtime_settings
-        settings = context.resources.etl_settings.ferc_to_sqlite.get_dataset_settings(
-            dataset=form, data_format="xbrl"
+        data_config = (
+            context.resources.global_data_config.ferc_to_sqlite.get_data_config(
+                dataset=form, data_format="xbrl"
+            )
         )
-        if settings is None or not settings.years:
+        if data_config is None or not data_config.years:
             logger.info(f"No years configured for {form}_xbrl: skipping extraction.")
             return dg.MaterializeResult(
                 value="not_configured",
@@ -115,9 +117,9 @@ def xbrl_to_sqlite_asset_factory(
             duckdb_path.unlink()
 
         convert_form(
-            settings,
-            form,
-            FercXbrlDatastore(context.resources.datastore),
+            form_data_config=data_config,
+            form=form,
+            datastore=FercXbrlDatastore(context.resources.datastore),
             output_path=output_path,
             sqlite_path=sqlite_path,
             duckdb_path=duckdb_path,
@@ -135,10 +137,10 @@ def xbrl_to_sqlite_asset_factory(
                         data_format="xbrl",
                         status="complete",
                         zenodo_doi=context.resources.zenodo_dois.get_doi(str(form)),
-                        years=context.resources.etl_settings.ferc_to_sqlite.get_dataset_years(
+                        years=context.resources.global_data_config.ferc_to_sqlite.get_dataset_years(
                             dataset=form, data_format="xbrl"
                         ),
-                        settings=context.resources.etl_settings.ferc_to_sqlite,
+                        data_config=context.resources.global_data_config.ferc_to_sqlite,
                         sqlite_path=PudlPaths().sqlite_db_path(f"{form}_xbrl"),
                     ).model_dump(mode="json")
                 )

@@ -44,15 +44,16 @@ def build_defs(
     if resource_overrides:
         # Merge the overrides into the existing resources
         resources.update(resource_overrides)
-        etl_settings_override = resources.get("etl_settings")
+
+        global_data_config_override = resource_overrides.get("global_data_config")
         zenodo_dois_override = resources.get("zenodo_dois")
         if zenodo_dois_override is None:
             raise ValueError("zenodo_dois_override cannot be None")
-        if etl_settings_override is not None:
+        if global_data_config_override is not None:
             if "ferc1_dbf_sqlite_io_manager" not in resource_overrides:
                 resources["ferc1_dbf_sqlite_io_manager"] = (
                     FercDbfSqliteConfigurableIOManager(
-                        etl_settings=etl_settings_override,
+                        global_data_config=global_data_config_override,
                         zenodo_dois=zenodo_dois_override,
                         dataset="ferc1",
                     )
@@ -61,7 +62,7 @@ def build_defs(
             if "ferc1_xbrl_sqlite_io_manager" not in resource_overrides:
                 resources["ferc1_xbrl_sqlite_io_manager"] = (
                     FercXbrlSqliteConfigurableIOManager(
-                        etl_settings=etl_settings_override,
+                        global_data_config=global_data_config_override,
                         zenodo_dois=zenodo_dois_override,
                         dataset="ferc1",
                     )
@@ -70,7 +71,7 @@ def build_defs(
             if "ferc714_xbrl_sqlite_io_manager" not in resource_overrides:
                 resources["ferc714_xbrl_sqlite_io_manager"] = (
                     FercXbrlSqliteConfigurableIOManager(
-                        etl_settings=etl_settings_override,
+                        global_data_config=global_data_config_override,
                         zenodo_dois=zenodo_dois_override,
                         dataset="ferc714",
                     )

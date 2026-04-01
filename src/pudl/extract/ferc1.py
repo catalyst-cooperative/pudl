@@ -94,10 +94,11 @@ from pudl.extract.dbf import (
     deduplicate_by_year,
 )
 from pudl.settings import (
-    DatasetsSettings,
-    EtlSettings,
-    FercDbfToSqliteSettings,
-    FercToSqliteSettings,
+    Ferc1DbfToSqliteDataConfig,
+    FercDbfToSqliteDataConfig,
+    FercToSqliteDataConfig,
+    GlobalDataConfig,
+    PudlDataConfig,
 )
 from pudl.workspace.datastore import ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
@@ -273,14 +274,16 @@ class Ferc1DbfExtractor(FercDbfExtractor):
     DATASET = "ferc1"
     DATABASE_NAME = "ferc1_dbf.sqlite"
 
-    def get_settings(
-        self, global_settings: FercToSqliteSettings
-    ) -> FercDbfToSqliteSettings:
-        """Returns settings for FERC Form 1 DBF dataset."""
-        settings = global_settings.ferc1_dbf_to_sqlite_settings
-        if settings is None:
-            raise ValueError("ferc1_dbf_to_sqlite_settings must be configured")
-        return settings
+    def get_data_config(
+        self, ferc_to_sqlite_data_config: FercToSqliteDataConfig
+    ) -> FercDbfToSqliteDataConfig:
+        """Returns data config for FERC Form 1 DBF dataset."""
+        data_config: Ferc1DbfToSqliteDataConfig | None = (
+            ferc_to_sqlite_data_config.ferc1_dbf
+        )
+        if data_config is None:
+            raise ValueError("ferc_to_sqlite.ferc1_dbf must be configured")
+        return data_config
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Modifies schema before it's written to sqlite database.
@@ -488,7 +491,7 @@ def raw_ferc1_xbrl__metadata_json(
 def extract_dbf_generic(
     table_names: list[str],
     io_manager: FercDbfSqliteConfigurableIOManager,
-    dataset_settings: DatasetsSettings,
+    pudl_data_config: PudlDataConfig,
 ) -> pd.DataFrame:
     """Combine multiple raw dbf tables into one.
 
@@ -496,7 +499,7 @@ def extract_dbf_generic(
         table_names: The name of the raw dbf tables you want to combine
             under dbf. These are the tables you want to combine.
         io_manager: IO Manager that reads tables out of ``ferc1_dbf.sqlite``.
-        dataset_settings: object containing desired years to extract.
+        pudl_data_config: object containing desired years to extract.
 
     Return:
         Concatenation of all tables in table_names as a dataframe.
@@ -506,7 +509,7 @@ def extract_dbf_generic(
         context = build_input_context(
             asset_key=AssetKey(table_name),
             upstream_output=None,
-            resources={"etl_settings": EtlSettings(datasets=dataset_settings)},
+            resources={"global_data_config": GlobalDataConfig(pudl=pudl_data_config)},
         )
         tables.append(io_manager.load_input(context))
     return pd.concat(tables)
@@ -515,7 +518,7 @@ def extract_dbf_generic(
 def extract_xbrl_generic(
     table_names: list[str],
     io_manager: FercXbrlSqliteConfigurableIOManager,
-    dataset_settings: DatasetsSettings,
+    pudl_data_config: PudlDataConfig,
     period: Literal["duration", "instant"],
 ) -> pd.DataFrame:
     """Combine multiple raw dbf tables into one.
@@ -524,7 +527,7 @@ def extract_xbrl_generic(
         table_names: The name of the raw dbf tables you want to combine
             under xbrl. These are the tables you want to combine.
         io_manager: IO Manager that reads tables out of ``ferc1_xbrl.sqlite``.
-        dataset_settings: object containing desired years to extract.
+        pudl_data_config: object containing desired years to extract.
         period: Either duration or instant, specific to xbrl data.
 
     Return:
@@ -536,20 +539,20 @@ def extract_xbrl_generic(
         context = build_input_context(
             asset_key=AssetKey(full_xbrl_table_name),
             upstream_output=None,
-            resources={"etl_settings": EtlSettings(datasets=dataset_settings)},
+            resources={"global_data_config": GlobalDataConfig(pudl=pudl_data_config)},
         )
         tables.append(io_manager.load_input(context))
     return pd.concat(tables)
 
 
-def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
+def extract_dbf(pudl_data_config: PudlDataConfig) -> dict[str, pd.DataFrame]:
     """Coordinates the extraction of all FERC Form 1 tables into PUDL.
 
     This function is not used in the dagster ETL and is only intended
     to be used in notebooks for debugging the FERC Form 1 transforms.
 
     Args:
-        dataset_settings: object containing desired years to extract.
+        pudl_data_config: object containing desired years to extract.
 
     Returns:
         A dictionary of DataFrames, with the names of PUDL database tables as the keys.
@@ -561,10 +564,7 @@ def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
 
     io_manager = ferc1_dbf_sqlite_io_manager.model_copy(
         update={
-            "etl_settings": EtlSettings(
-                datasets=dataset_settings,
-                ferc_to_sqlite_settings=FercToSqliteSettings(),
-            ),
+            "global_data_config": GlobalDataConfig(pudl=pudl_data_config),
             "zenodo_dois": ZenodoDoiSettings(),
         },
     )
@@ -577,13 +577,13 @@ def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
             dbf_tables = dbf_table_or_tables
 
         ferc1_dbf_raw_dfs[table_name] = extract_dbf_generic(
-            dbf_tables, io_manager, dataset_settings
+            dbf_tables, io_manager, pudl_data_config
         )
     return ferc1_dbf_raw_dfs
 
 
 def extract_xbrl(
-    dataset_settings: DatasetsSettings,
+    pudl_data_config: PudlDataConfig,
 ) -> dict[str, dict[Literal["duration", "instant"], pd.DataFrame]]:
     """Coordinates the extraction of all FERC Form 1 tables into PUDL from XBRL data.
 
@@ -591,7 +591,7 @@ def extract_xbrl(
     to be used in notebooks for debugging the FERC Form 1 transforms.
 
     Args:
-        dataset_settings: object containing desired years to extract.
+        pudl_data_config: object containing desired years to extract.
 
     Returns:
         A dictionary where keys are the names of the PUDL database tables, values are
@@ -602,10 +602,7 @@ def extract_xbrl(
 
     io_manager = ferc1_xbrl_sqlite_io_manager.model_copy(
         update={
-            "etl_settings": EtlSettings(
-                datasets=dataset_settings,
-                ferc_to_sqlite_settings=FercToSqliteSettings(),
-            ),
+            "global_data_config": GlobalDataConfig(pudl=pudl_data_config),
             "zenodo_dois": ZenodoDoiSettings(),
         },
     )
@@ -621,6 +618,6 @@ def extract_xbrl(
 
         for period in ("duration", "instant"):
             ferc1_xbrl_raw_dfs[table_name][period] = extract_xbrl_generic(
-                xbrl_tables, io_manager, dataset_settings, period
+                xbrl_tables, io_manager, pudl_data_config, period
             )
     return ferc1_xbrl_raw_dfs

@@ -9,7 +9,7 @@ from pudl.extract.dbf import (
     add_key_constraints,
     deduplicate_by_year,
 )
-from pudl.settings import FercDbfToSqliteSettings, FercToSqliteSettings
+from pudl.settings import FercDbfToSqliteDataConfig, FercToSqliteDataConfig
 
 
 class Ferc6DbfExtractor(FercDbfExtractor):
@@ -18,11 +18,11 @@ class Ferc6DbfExtractor(FercDbfExtractor):
     DATASET = "ferc6"
     DATABASE_NAME = "ferc6_dbf.sqlite"
 
-    def get_settings(
-        self, global_settings: FercToSqliteSettings
-    ) -> FercDbfToSqliteSettings:
-        """Returns settings for FERC Form 6 DBF dataset."""
-        return global_settings.ferc6_dbf_to_sqlite_settings
+    def get_data_config(
+        self, ferc_to_sqlite_data_config: FercToSqliteDataConfig
+    ) -> FercDbfToSqliteDataConfig:
+        """Returns data config for FERC Form 6 DBF dataset."""
+        return ferc_to_sqlite_data_config.ferc6_dbf
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Add primary and foreign keys for respondent_id."""

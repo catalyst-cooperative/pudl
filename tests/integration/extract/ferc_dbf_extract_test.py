@@ -31,7 +31,7 @@ def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
     ],
 )
 @pytest.mark.order(1)
-def test_ferc_schema(ferc_to_sqlite_settings, pudl_datastore_fixture, extractor_class):
+def test_ferc_schema(ferc_to_sqlite_data_config, zenodo_datastore, extractor_class):
     """Check to make sure we aren't missing any old FERC Form N tables or fields.
 
     Exhaustively enumerate all historical sets of FERC Form N database tables and their
@@ -45,9 +45,9 @@ def test_ferc_schema(ferc_to_sqlite_settings, pudl_datastore_fixture, extractor_
         )
 
     dataset = extractor_class.DATASET
-    dbf_settings = getattr(ferc_to_sqlite_settings, f"{dataset}_dbf_to_sqlite_settings")
-    refyear = dbf_settings.refyear
-    dbf_reader = FercDbfReader(pudl_datastore_fixture, dataset=dataset)
+    dbf_data_config = getattr(ferc_to_sqlite_data_config, f"{dataset}_dbf")
+    refyear = dbf_data_config.refyear
+    dbf_reader = FercDbfReader(zenodo_datastore, dataset=dataset)
     ref_archive = dbf_reader.get_archive(year=refyear, data_format="dbf")
 
     logger.info(f"Checking for new, unrecognized {dataset} tables in {refyear}.")
@@ -60,9 +60,9 @@ def test_ferc_schema(ferc_to_sqlite_settings, pudl_datastore_fixture, extractor_
             )
 
     # Retrieve all supported partitions for the dataset
-    descriptor = pudl_datastore_fixture.get_datapackage_descriptor(dataset)
+    descriptor = zenodo_datastore.get_datapackage_descriptor(dataset)
     parts = list(descriptor.get_partition_filters(data_format="dbf"))
-    for yr in dbf_settings.years:
+    for yr in dbf_data_config.years:
         # Check that for each year in the settings, there are partitions defined.
         yr_parts = [p for p in parts if p.get("year", None) == yr]
         if not yr_parts:

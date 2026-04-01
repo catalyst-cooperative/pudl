@@ -2,25 +2,25 @@
 ###########################################################################
 # Settings for FERC-to-SQLite extraction
 ###########################################################################
-ferc_to_sqlite_settings:
-  ferc1_dbf_to_sqlite_settings:
+ferc_to_sqlite:
+  ferc1_dbf:
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [2019, 2020]
-  ferc1_xbrl_to_sqlite_settings:
+  ferc1_xbrl:
     years: [2021, 2024]
-  ferc2_dbf_to_sqlite_settings:
+  ferc2_dbf:
     years: []
-  ferc2_xbrl_to_sqlite_settings:
+  ferc2_xbrl:
     years: []
-  ferc6_dbf_to_sqlite_settings:
+  ferc6_dbf:
     years: []
-  ferc6_xbrl_to_sqlite_settings:
+  ferc6_xbrl:
     years: []
-  ferc60_dbf_to_sqlite_settings:
+  ferc60_dbf:
     years: []
-  ferc60_xbrl_to_sqlite_settings:
+  ferc60_xbrl:
     years: []
-  ferc714_xbrl_to_sqlite_settings:
+  ferc714_xbrl:
     years: [2021, 2024]
 
 ###########################################################################
@@ -33,7 +33,7 @@ description: >
   For this we typically process only a couple years per dataset,
   except where the dataset already executes fast and/or is necessary in all cases.
 version: 0.1.0
-datasets:
+pudl:
   ferc1:
     years: [2020, 2021, 2024]
   ferc714:
