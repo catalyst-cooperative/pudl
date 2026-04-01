@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Development Setup &#8212; PUDL 2026.3.1.dev42 documentation</title>
+    <title>Development Setup &#8212; PUDL 2026.3.1.dev43 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=bcc85d08"></script>
+    <script src="../_static/documentation_options.js?v=1588296e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -137,8 +137,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev42 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev42 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev43 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev43 documentation - Home"/>
   
   
 </a></div>
@@ -887,15 +887,19 @@ issues before the code gets checked in.  This gives you the opportunity to fix t
 issues before publishing them.</p>
 <p>To make sure they are run before you commit any code, you need to enable the
 <a class="reference external" href="https://pre-commit.com/">pre-commit hooks scripts</a> with this command:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pre-commit-install
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>prek-install
 </pre></div>
 </div>
-<p>The scripts that run are configured in the <code class="docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code> file.</p>
+<p>The scripts that run are configured in the <code class="docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code> file. We use
+<a class="reference external" href="https://prek.j178.dev">prek</a>, a fast, parallelized drop-in replacement for
+pre-commit written in Rust.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
 <li><p>The <a class="reference external" href="https://pre-commit.com/">pre-commit project</a>: A framework for
 managing and maintaining multi-language pre-commit hooks.</p></li>
+<li><p><a class="reference external" href="https://prek.j178.dev">prek</a>: A fast Rust-based replacement for
+pre-commit with parallel hook execution.</p></li>
 <li><p><a class="reference external" href="https://realpython.com/python-code-quality/">Real Python Code Quality Tools and Best Practices</a>
 gives a good overview of available linters and static code analysis tools.</p></li>
 </ul>
