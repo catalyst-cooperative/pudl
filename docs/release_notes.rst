@@ -13,7 +13,7 @@ Enhancements
 * Added a new standalone data deployment workflow, ``deploy-pudl.yml``. This is
   still in testing, but will allow us to separate deployment from builds, enabling
   deployment from an existing build and creating more modular and reusable
-  infrastructure. See issue :issue`5003` and PR :pr:`5016`.
+  infrastructure. See issue :issue:`5003` and PR :pr:`5016`.
 
 New Data
 ^^^^^^^^
@@ -68,6 +68,16 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a :class:`TypeError` in MCOE asset checks where ``sum(exc.null_rows)`` iterated
+  over a DataFrame's column names as strings instead of counting rows. Replaced with
+  ``len(exc.null_rows)``. See PR :pr:`5124`.
+* Fixed a data integrity bug in the FERC SQLite IO manager where SQLite silently
+  auto-incremented ``NULL`` values in single-column ``INTEGER PRIMARY KEY`` columns
+  (ROWID aliases) rather than raising an ``IntegrityError``. An explicit null check now
+  catches this case before writing. The bug affected 11 production entity and
+  association tables (e.g. ``core_eia__entity_plants``,
+  ``core_pudl__entity_utilities_pudl``); composite PKs and non-INTEGER single PKs are
+  enforced normally by SQLite and were unaffected. See PR :pr:`5124`.
 * Fixed a bug in :mod:`pudl.analysis.allocate_gen_fuel` that caused
   :ref:`out_eia923__monthly_generation_fuel_by_generator_energy_source` to incorrectly
   allocate generation and fuel consumption to retired generators. The previous logic
@@ -114,6 +124,22 @@ Quality of Life Improvements
 * Added a ``docs-linkcheck`` Pixi task and a separate manually triggered GitHub
   Actions workflow for experimenting with automated documentation link checking.
   See PR :pr:`5128`.
+* **Reorganized the test suite from** ``test/`` **to** ``tests/`` with a three-tier
+  layout that matches the existing Pixi tasks: ``unit/`` (fast, no data),
+  ``integration/`` (software correctness against ETL outputs), and ``validate/``
+  (data quality on prebuilt outputs). The old ``integration/etl_test.py`` was
+  dissolved into per-extractor files and a ``dagster/pipeline_test.py``. New unit tests
+  were added for MCOE asset checks, ``no_null_rows``, ``weighted_quantile``, and IO
+  manager null-PK behavior. See PR :pr:`5124`.
+* **Separated dbt row count checks into a distinct**
+  ``pytest-validate-row-counts-nightly`` *Pixi stage.**
+  ``check_row_counts_per_partition`` is the most frequently failing dbt test; running it
+  in its own stage produces a clearly labelled line in nightly Slack reports instead of
+  failing the broader data validation stage, making failures easier to triage. The stage
+  is automatically skipped outside of full ETL builds. See PR :pr:`5124`.
+* **Renamed the** ``docker/`` **directory to** ``builds/`` to better reflect that it
+  contains all production build scripts and infrastructure, not just Docker-related
+  files. See PR :pr:`5124`.
 
 Major Dagster Project Refactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -123,7 +149,7 @@ framework's current best-practice recommendations, and also to experiment with t
 new ``dg`` CLI and `Dagster agent skills <https://github.com/dagster-io/skills>`__.
 
 See issue :issue:`5066` for an overview of the issues involved, including issues
-:issue:`5120,5123` and PRs :pr:`5071,5124`. This refactor includes the following
+:issue:`5120,5123` and PRs :pr:`5071,5124,5153`. This refactor includes the following
 changes:
 
 * **Replaced the custom ``pudl_etl`` and ``ferc_to_sqlite`` CLI entry points** with
@@ -189,11 +215,38 @@ changes:
   ``--temp-pudl-input``, ``--etl-settings`` → ``--dg-config``.
 * Made :mod:`pudl.dagster` the canonical Dagster orchestration package while keeping
   :mod:`pudl.definitions` as the stable ``dg`` code location entrypoint. As part of
-  this boundary cleanup, Dagster-specific resources, (including the FERC EQR deployment
+  this boundary cleanup, Dagster-specific resources (including the FERC EQR deployment
   sensor and the FERC EQR partition definition) were consolidated under
   :mod:`pudl.dagster`, older top-level Dagster compatibility exposure was removed, and
   internal imports and documentation were updated to use :mod:`pudl.dagster`. See issue
   :issue:`5123` and PR :pr:`5124`.
+* **Cleaned up several legacy package boundaries** that had accumulated over time.
+  The ``pudl.etl`` package was removed after the Dagster refactor had already moved
+  its substantive content elsewhere — what remained was foreign key validation and a
+  continuity check helper that now live with the validation and asset-check code that
+  actually uses them. The ``pudl.convert`` subpackage was an arbitrary grouping of two
+  unrelated utilities; each was moved to the package that reflects what it actually
+  does (extraction vs. documentation generation). The ``pudl.validate`` module grew
+  into a subpackage to keep dbt orchestration, database integrity checks, and data
+  quality utilities from being lumped together in a single file.  See :issue:`5123`
+  and PR :pr:`5124`.
+* **Consolidated all CLI entry points under** ``src/pudl/scripts/``. Previously,
+  ``pudl_datastore`` lived inside the datastore module and ``pudl_service_territories``
+  lived inside the analysis module — logical homes for the underlying logic, but
+  inconvenient for anyone trying to find all the command-line tools in one place.
+  All scripts are now thin wrappers in ``src/pudl/scripts/``, with heavy imports
+  deferred so ``--help`` is fast (or... will be, once we thin out the monstrous
+  top-level PUDL imports). ``pudl_datastore`` also gained a new ``--all`` flag
+  to download every known dataset without having to enumerate them explicitly. A unit
+  test enforces many of these CLI conventions going forward.  See :issue:`5123` and PR
+  :pr:`5124`.
+* **Renamed the ``eia_bulk_elec`` module to ``eiaapi_electricity``** to match the
+  naming of the underlying source.  See :issue:`5123` and PR :pr:`5124`.
+* **Standardized acronym capitalization in compound class names.** Classes that
+  combined two acronyms (e.g. ``FERC`` + ``SQLite``) were inconsistently named.
+  They now follow the Python convention of treating each acronym as a single
+  title-cased word, so ``SQLite`` becomes ``Sqlite`` when it appears mid-name
+  (e.g. ``FercDbfSqliteConfigurableIOManager``).  See :issue:`5123` and PR :pr:`5124`.
 
 .. _release-v2026.3.0:
 
