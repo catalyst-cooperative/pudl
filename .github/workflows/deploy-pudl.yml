@@ -61,7 +61,6 @@ jobs:
         id: container-image
         run: |
           echo "image=docker.io/catalystcoop/pudl-etl@${{ steps.docker_build.outputs.digest }}" >> "$GITHUB_OUTPUT"
-
       - id: "auth"
         uses: "google-github-actions/auth@v3"
         with:
