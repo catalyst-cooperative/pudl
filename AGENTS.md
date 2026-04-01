@@ -471,6 +471,7 @@ Before marking a PR as ready for review:
       added to `docs/release_notes.rst` with the issue number and PR number
 - [ ] The PR description includes a summary of the change, the motivation, and any
       relevant context to direct reviewer attention
+- [ ] PR is marked as closing the appropriate issue on GitHub, if applicable
 - [ ] No generated files, credentials, or unrelated changes included in the diff
 
 ## Sandbox safe execution
