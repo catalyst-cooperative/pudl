@@ -344,21 +344,21 @@ def test_identify_retiring_generators():
     gena_retiring = (
         pd.read_csv(
             StringIO(
-                """plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,fuel_consumed_mmbtu_gf_tbl
-50937,GENA,2021-12-01,existing,,,0.0
-50937,GENA,2022-01-01,retired,2022-09-01,,85.0
-50937,GENA,2022-02-01,retired,2022-09-01,,91.0
-50937,GENA,2022-03-01,retired,2022-09-01,,278.0
-50937,GENA,2022-04-01,retired,2022-09-01,,127.0
-50937,GENA,2022-05-01,retired,2022-09-01,,79.0
-50937,GENA,2022-06-01,retired,2022-09-01,,85.0
-50937,GENA,2022-07-01,retired,2022-09-01,,91.0
-50937,GENA,2022-08-01,retired,2022-09-01,,85.0
-50937,GENA,2022-09-01,retired,2022-09-01,,48.0
-50937,GENA,2022-10-01,retired,2022-09-01,,67.0
-50937,GENA,2022-11-01,retired,2022-09-01,,67.0
-50937,GENA,2022-12-01,retired,2022-09-01,,
-50937,GENA,2023-01-01,retired,2022-09-01,,
+                """plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,fuel_consumed_mmbtu_gf_tbl,net_generation_mwh_gf_tbl,gf_unique_to_gen
+50937,GENA,2021-12-01,existing,,,0.0,,TRUE
+50937,GENA,2022-01-01,retired,2022-09-01,,85.0,,TRUE
+50937,GENA,2022-02-01,retired,2022-09-01,,91.0,,TRUE
+50937,GENA,2022-03-01,retired,2022-09-01,,278.0,,TRUE
+50937,GENA,2022-04-01,retired,2022-09-01,,127.0,,TRUE
+50937,GENA,2022-05-01,retired,2022-09-01,,79.0,,TRUE
+50937,GENA,2022-06-01,retired,2022-09-01,,85.0,,TRUE
+50937,GENA,2022-07-01,retired,2022-09-01,,91.0,,TRUE
+50937,GENA,2022-08-01,retired,2022-09-01,,85.0,,TRUE
+50937,GENA,2022-09-01,retired,2022-09-01,,48.0,,TRUE
+50937,GENA,2022-10-01,retired,2022-09-01,,67.0,,TRUE
+50937,GENA,2022-11-01,retired,2022-09-01,,67.0,,TRUE
+50937,GENA,2022-12-01,retired,2022-09-01,,,,TRUE
+50937,GENA,2023-01-01,retired,2022-09-01,,,,TRUE
 """
             )
         )
@@ -367,23 +367,131 @@ def test_identify_retiring_generators():
     )
     expected_retiring = (
         pd.read_csv(
-            StringIO("""plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,fuel_consumed_mmbtu_gf_tbl
-50937,GENA,2022-01-01,retired,2022-09-01,,85.0
-50937,GENA,2022-02-01,retired,2022-09-01,,91.0
-50937,GENA,2022-03-01,retired,2022-09-01,,278.0
-50937,GENA,2022-04-01,retired,2022-09-01,,127.0
-50937,GENA,2022-05-01,retired,2022-09-01,,79.0
-50937,GENA,2022-06-01,retired,2022-09-01,,85.0
-50937,GENA,2022-07-01,retired,2022-09-01,,91.0
-50937,GENA,2022-08-01,retired,2022-09-01,,85.0
-50937,GENA,2022-09-01,retired,2022-09-01,,48.0
-50937,GENA,2022-10-01,retired,2022-09-01,,67.0
-50937,GENA,2022-11-01,retired,2022-09-01,,67.0
-50937,GENA,2022-12-01,retired,2022-09-01,,
+            StringIO("""plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,fuel_consumed_mmbtu_gf_tbl,net_generation_mwh_gf_tbl,gf_unique_to_gen
+50937,GENA,2022-01-01,retired,2022-09-01,,85.0,,TRUE
+50937,GENA,2022-02-01,retired,2022-09-01,,91.0,,TRUE
+50937,GENA,2022-03-01,retired,2022-09-01,,278.0,,TRUE
+50937,GENA,2022-04-01,retired,2022-09-01,,127.0,,TRUE
+50937,GENA,2022-05-01,retired,2022-09-01,,79.0,,TRUE
+50937,GENA,2022-06-01,retired,2022-09-01,,85.0,,TRUE
+50937,GENA,2022-07-01,retired,2022-09-01,,91.0,,TRUE
+50937,GENA,2022-08-01,retired,2022-09-01,,85.0,,TRUE
+50937,GENA,2022-09-01,retired,2022-09-01,,48.0,,TRUE
+50937,GENA,2022-10-01,retired,2022-09-01,,67.0,,TRUE
+50937,GENA,2022-11-01,retired,2022-09-01,,67.0,,TRUE
+50937,GENA,2022-12-01,retired,2022-09-01,,,,TRUE
 """)
         )
         .convert_dtypes()
         .assign(report_date=lambda x: pd.to_datetime(x.report_date))
     )
+
     out = allocate_gen_fuel.identify_retiring_generators(gena_retiring)
     pd.testing.assert_frame_equal(expected_retiring, out, check_exact=False)
+
+
+def _make_tiny_plant_example(
+    report_date,
+    retirement_date,
+    existing_pm,
+    retiring_pm,
+    retiring_net_generation_mwh_g_tbl="",
+    retiring_net_generation_mwh_gf_tbl="",
+):
+    """Make a tiny two generator plant with a retiring and existing generator."""
+    tiny_plant = (
+        pd.read_csv(
+            StringIO(
+                f"""plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,generator_retirement_date,net_generation_mwh_g_tbl,fuel_consumed_mmbtu_gf_tbl,net_generation_mwh_gf_tbl
+1,A,{report_date},existing,NG,{existing_pm},,,,85
+1,B,{report_date},retired,NG,{retiring_pm},{retirement_date},{retiring_net_generation_mwh_g_tbl},,{retiring_net_generation_mwh_gf_tbl}
+"""
+            )
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+    # add the uniqueness label
+    out_labeled = allocate_gen_fuel._label_gf_unique_to_gen(tiny_plant)
+    pd.testing.assert_frame_equal(
+        out_labeled,
+        tiny_plant.assign(gf_unique_to_gen=existing_pm != retiring_pm),
+    )
+    return out_labeled
+
+
+def test_identify_retiring_generators_mixed_pm_esc_some_gen():
+    plant1_mixed_some_gen = _make_tiny_plant_example(
+        report_date="2022-10-01",
+        existing_pm="GT",
+        retiring_pm="IC",
+        retirement_date="2022-09-01",
+        retiring_net_generation_mwh_g_tbl=1,
+    )
+    # since its unique and there is some generation, the retiring gen should be ID-ed as retiring
+    assert allocate_gen_fuel.identify_retiring_generators(
+        plant1_mixed_some_gen
+    ).generator_id.to_numpy() == ["B"]
+
+    # Let's try that again but with gen being reported in the less granular gf table
+    plant1_mixed_some_gen = _make_tiny_plant_example(
+        report_date="2022-10-01",
+        existing_pm="GT",
+        retiring_pm="IC",
+        retirement_date="2022-09-01",
+        retiring_net_generation_mwh_gf_tbl=1,
+    )
+    # since its unique and there is some generation - even from the less granular gf table,
+    # the retiring gen should be ID-ed as retiring
+    assert allocate_gen_fuel.identify_retiring_generators(
+        plant1_mixed_some_gen
+    ).generator_id.to_numpy() == ["B"]
+
+
+def test_identify_retiring_generators_mixed_pm_esc_no_gen():
+    plant1_mixed_no_gen = _make_tiny_plant_example(
+        report_date="2022-10-01",
+        existing_pm="GT",
+        retiring_pm="IC",
+        retirement_date="2022-09-01",
+        retiring_net_generation_mwh_g_tbl="",
+    )
+    # since there is nothing to allocate, this will not be ID-ed as retiring
+    assert allocate_gen_fuel.identify_retiring_generators(plant1_mixed_no_gen).empty
+
+
+def test_identify_retiring_generators_same_pm_esc():
+    plant1_same = _make_tiny_plant_example(
+        report_date="2022-10-01",
+        existing_pm="GT",
+        retiring_pm="GT",
+        retirement_date="2022-09-01",
+        retiring_net_generation_mwh_gf_tbl=1,
+    )
+    # when a retiring pm/esc combo is the same as another, even if it has some generation
+    # in the gf table it will **not** be flagged as retiring. bc all the generation from that
+    # pm/esc combo should be allocated to its non-retiring brethren
+    assert allocate_gen_fuel.identify_retiring_generators(plant1_same).empty
+
+    # we can extra try same situation with no generation - still should not show up
+    plant1_same_nada = _make_tiny_plant_example(
+        report_date="2022-10-01",
+        existing_pm="GT",
+        retiring_pm="GT",
+        retirement_date="2022-09-01",
+    )
+    assert allocate_gen_fuel.identify_retiring_generators(plant1_same_nada).empty
+
+    plant1_same_g = _make_tiny_plant_example(
+        report_date="2022-10-01",
+        existing_pm="GT",
+        retiring_pm="GT",
+        retirement_date="2022-09-01",
+        retiring_net_generation_mwh_g_tbl=1,
+    )
+    # when a retiring pm/esc combo is the same as another, even if it has some generation
+    # in the **g** table it will be flagged as retiring. bc the g table is generator
+    # specific and rlly that gen should go to that gen then... even if retiring.
+    assert allocate_gen_fuel.identify_retiring_generators(
+        plant1_same_g
+    ).generator_id.to_numpy() == ["B"]

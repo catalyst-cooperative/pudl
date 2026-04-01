@@ -1082,3 +1082,79 @@ TRANSMISSION_DISTRIBUTION_TYPES_RUS7 = [
     "transmission_line",
     "total",
 ]
+
+UTILITY_PLANT_GROUP_RUS7 = ["utility_plant_in_service", "total_utility_plant"]
+UTILITY_PLANT_ITEM_RUS7 = [
+    "construction_work_in_progress",
+    "total",
+    "all_other",
+    "distribution",
+    "general",
+    "headquarters",
+    "intangibles",
+    "transmission",
+    "regional_transmission_and_market_operation",
+]
+
+UTILITY_PLANT_GROUP_RUS12 = [
+    "intangible_plant",
+    "production_plant",
+    "transmission_plant",
+    "distribution_plant",
+    "electric_plant_in_service",  # total = all the plants above totals + 2 sub-components
+    "utility_plant_in_service",  # total = electric_plant_in_service + 7 sub-components
+    "total_utility_plant",  # total = utility_plant_in_service + 1 sub-components
+]
+UTILITY_PLANT_ITEM_RUS12 = [
+    "land_and_land_rights",
+    "other",
+    "station_equipment",
+    "structures_and_improvements",
+    "total",
+    "general_plant",
+    "hydro",
+    "nuclear",
+    "steam",
+    "construction_work_in_progress",
+    "acquisition_adjustments",
+    "completed_construction",
+    "electric_plant_held_for_future_use",
+    "electric_plant_leased_to_others",
+    "electric_plant_purchased_or_sold",
+    "nuclear_fuel_assemblies",
+    "rto_iso_plant",
+]
+DEPRECIATION_CHANGES_GROUP_RUS12 = [
+    "electric_plant_in_service",
+    "provision_for_depreciation_and_amortization",
+]
+
+DEPRECIATION_CHANGES_ITEMS_RUS12 = [
+    "depreciation_distribution_plant",
+    "depreciation_general_plant",
+    "depreciation_hydraulic_production_plant",
+    "depreciation_nuclear_production_plant",
+    "depreciation_other_production_plant",
+    "depreciation_steam_production_plant",
+    "depreciation_transmission_plant",
+    "retirement_work_in_progress",
+    "total_depreciation",
+    "amortization_acquisition_adj",
+    "amortization_electric_plant_in_service",
+    "amortization_leased_plant",
+    "amortization_nuclear_fuel",
+    "amortization_plant_held_for_future_use",
+    "depreciation_and_amortization_other_plant",
+    "depreciation_plant_held_for_future_use",
+    "depreciation_plant_leased_to_others",
+    "total",
+]
+
+DEPRECIATION_ITEMS_MISC_RUS12 = [
+    "annual_accrual_charged_to_expense",
+    "annual_accrual_charged_to_other_accounts",
+    "book_cost_property_retired",
+    "removal_cost_property_retired",
+    "salvage_material_from_property_retired",
+    "renewal_and_replacement_cost",
+]
