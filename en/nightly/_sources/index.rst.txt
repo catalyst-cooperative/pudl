@@ -9,6 +9,8 @@ journalists, and policy makers that might not have the technical expertise to ac
 in its raw form, the time to clean and prepare the data for bulk analysis, or the means
 to purchase it from  existing commercial providers.
 
+For more information on how to use PUDL data, see :doc:`data_access`.
+
 ---------------------------------------------------------------------------------------
 Available Data
 ---------------------------------------------------------------------------------------
@@ -165,7 +167,9 @@ incorrectly reported latitude in one year.
 Assets in the Core layer attempt to eliminate this kind of inconsistent and duplicate
 information when normalizing the tables by choosing only the most consistently reported
 value for inclusion in the final database. If a value which should be static is not
-consistently reported, it may also be set to N/A.
+consistently reported, it may also be set to N/A. For details on how this works for
+EIA entities (plants, utilities, boilers, and generators), see
+:doc:`/methodology/entity_resolution`.
 
 Output Layer
 ^^^^^^^^^^^^
@@ -175,7 +179,7 @@ data integrity issues, but you may want to combine information from more than on
 the tables to make the data more readable and readily interpretable. For example, PUDL
 stores the name that EIA uses to refer to a power plant in the
 :ref:`core_eia__entity_plants` table in association with the plant's unique numeric ID.
-If you are working with data from the :ref:`core_eia923__monthly_fuel_receipts_costs`
+If you are working with data from the :ref:`core_eia923__fuel_receipts_costs`
 table, which records monthly per-plant fuel deliveries, you may want to have the name
 of the plant alongside the fuel delivery information since it's more recognizable than
 the plant ID.
@@ -302,16 +306,7 @@ Enable Open Source Ecosystems (POSE) program
   :hidden:
   :maxdepth: 2
 
-  About PUDL <self>
-  data_access
   PUDL Data Viewer <https://data.catalyst.coop>
-  data_sources/index
-  data_dictionaries/index
-  methodology/index
-  Contributing <CONTRIBUTING>
-  dev/index
-  Licensing <LICENSE>
-  Code of Conduct <code_of_conduct>
+  Data Documentation <data>
+  Development <code>
   Release Notes <release_notes>
-  autoapi/index
-  bibliography

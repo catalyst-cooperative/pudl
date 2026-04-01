@@ -37,28 +37,28 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`i_core_phmsagas__yearly_distribution_by_install_decade`
-     - https://data.catalyst.coop/search?q=name:_core_phmsagas__yearly_distribution_by_install_decade
+     - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_install_decade
    
    * - :ref:`i_core_phmsagas__yearly_distribution_by_material`
-     - https://data.catalyst.coop/search?q=name:_core_phmsagas__yearly_distribution_by_material
+     - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_material
    
    * - :ref:`i_core_phmsagas__yearly_distribution_by_material_and_size`
-     - https://data.catalyst.coop/search?q=name:_core_phmsagas__yearly_distribution_by_material_and_size
+     - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_by_material_and_size
    
    * - :ref:`i_core_phmsagas__yearly_distribution_excavation_damages`
-     - https://data.catalyst.coop/search?q=name:_core_phmsagas__yearly_distribution_excavation_damages
+     - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_excavation_damages
    
    * - :ref:`i_core_phmsagas__yearly_distribution_filings`
-     - https://data.catalyst.coop/search?q=name:_core_phmsagas__yearly_distribution_filings
+     - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_filings
    
    * - :ref:`i_core_phmsagas__yearly_distribution_leaks`
-     - https://data.catalyst.coop/search?q=name:_core_phmsagas__yearly_distribution_leaks
+     - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_leaks
    
    * - :ref:`i_core_phmsagas__yearly_distribution_misc`
-     - https://data.catalyst.coop/search?q=name:_core_phmsagas__yearly_distribution_misc
+     - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_misc
    
    * - :ref:`core_phmsagas__yearly_distribution_operators`
-     - https://data.catalyst.coop/search?q=name:core_phmsagas__yearly_distribution_operators
+     - https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_operators
    
 
 

@@ -39,16 +39,16 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_nrelatb__yearly_projected_cost_performance`
-     - https://data.catalyst.coop/search?q=name:core_nrelatb__yearly_projected_cost_performance
+     - https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_cost_performance
    
    * - :ref:`core_nrelatb__yearly_projected_financial_cases`
-     - https://data.catalyst.coop/search?q=name:core_nrelatb__yearly_projected_financial_cases
+     - https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases
    
    * - :ref:`core_nrelatb__yearly_projected_financial_cases_by_scenario`
-     - https://data.catalyst.coop/search?q=name:core_nrelatb__yearly_projected_financial_cases_by_scenario
+     - https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases_by_scenario
    
    * - :ref:`core_nrelatb__yearly_technology_status`
-     - https://data.catalyst.coop/search?q=name:core_nrelatb__yearly_technology_status
+     - https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_technology_status
    
 
 

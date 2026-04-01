@@ -45,12 +45,16 @@ Functions
    pudl.transform.eia923._core_eia923__fuel_receipts_costs
    pudl.transform.eia923._core_eia923__monthly_cooling_system_information
    pudl.transform.eia923.cooling_system_information_continuity
+   pudl.transform.eia923._build_emissions_control_dates
+   pudl.transform.eia923._parse_emissions_control_date_subset
+   pudl.transform.eia923._clean_emissions_control_dates
    pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance
    pudl.transform.eia923.fgd_continuity_check
    pudl.transform.eia923._core_eia923__energy_storage
    pudl.transform.eia923._core_eia923__yearly_byproduct_disposition
    pudl.transform.eia923.disposition_continuity_check
    pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues
+   pudl.transform.eia923._core_eia923__yearly_emissions_control
 
 
 Module Contents
@@ -186,7 +190,7 @@ Module Contents
 
    This function does most of the core_eia923__entity_coalmine table transformation. It
    is separate from the coalmine() transform function because of the peculiar way that
-   we are normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
+   we are normalizing the :ref:`core_eia923__fuel_receipts_costs` table.
 
    All of the coalmine information is originally coming from the EIA
    fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -374,7 +378,7 @@ Module Contents
    * Drop duplicates with MSHA ID.
 
    :param raw_eia923__fuel_receipts_costs: raw precursor to the
-                                           :ref:`core_eia923__monthly_fuel_receipts_costs` table.
+                                           :ref:`core_eia923__fuel_receipts_costs` table.
 
    :returns: Cleaned ``_core_eia923__coalmine`` dataframe ready for harvesting.
 
@@ -423,6 +427,77 @@ Module Contents
    Check to see if columns vary as slowly as expected.
 
 
+.. py:function:: _build_emissions_control_dates(raw_value: pandas.Series, year: pandas.Series, month: pandas.Series, day: pandas.Series, min_valid_year: int, max_valid_year: int) -> pandas.Series
+
+   Validate date parts and build parsed timestamps.
+
+   This helper centralizes range checks and date construction so all recognized input
+   formats (full date, month/year, compact monthyear, year-only) use the same
+   validation rules:
+
+   * month ``00`` is coerced to January
+   * years must be in ``[min_valid_year, max_valid_year]``
+   * invalid calendar dates (e.g. day 32) raise
+
+   :param raw_value: Original raw date strings, used to report readable error messages.
+   :param year: Parsed year components.
+   :param month: Parsed month components.
+   :param day: Parsed day components.
+   :param min_valid_year: Lower accepted year bound.
+   :param max_valid_year: Upper accepted year bound.
+
+   :returns: Parsed timestamps for valid date parts.
+
+   :raises ValueError: If year/month/day parts violate expected constraints.
+
+
+.. py:function:: _parse_emissions_control_date_subset(raw_subset: pandas.Series, pattern: str, min_valid_year: int, max_valid_year: int, month_group: str | None, day_group: str | None, default_month: int = 1, default_day: int = 1) -> pandas.Series
+
+   Parse one recognized emissions-control date format for a subset of rows.
+
+   :param raw_subset: Raw date strings for rows matching one known format.
+   :param pattern: Regex pattern with a required ``year`` capture group and optional
+                   ``month`` / ``day`` groups.
+   :param min_valid_year: Lower accepted year bound.
+   :param max_valid_year: Upper accepted year bound.
+   :param month_group: Name of the extracted month group or ``None`` to use
+                       ``default_month``.
+   :param day_group: Name of the extracted day group or ``None`` to use ``default_day``.
+   :param default_month: Month value used when ``month_group`` is omitted.
+   :param default_day: Day value used when ``day_group`` is omitted.
+
+   :returns: Parsed datetime series for the input subset, with ``0000`` year fragments
+             converted to ``NaT`` before year normalization.
+
+
+.. py:function:: _clean_emissions_control_dates(col: pandas.Series, min_valid_year: int, max_valid_year: int, spot_fixes: dict[str, pandas.Timestamp] | None = None) -> pandas.Series
+
+   Parse raw EIA-923 emissions-control date strings into datetimes.
+
+   Supported formats include:
+
+   * compact month-year: ``012024``
+   * delimited month-year: ``01-2024``, ``1/20``
+   * full dates: ``1/11/07``
+   * year-only values: ``1990`` (treated as January 1st)
+
+   Known non-date sentinel tokens (e.g. ``na``, ``CEM``) are converted to ``NaT``.
+
+   Parsing is intentionally strict. Any value that is not explicitly recognized and
+   validated will raise ``ValueError`` so future upstream format changes surface
+   during ETL/testing rather than silently becoming bad timestamps.
+
+   :param col: Raw date-like values to clean.
+   :param spot_fixes: Optional table-specific mapping of raw string values to corrected
+                      timestamps. If provided, these mappings are applied before pattern parsing.
+
+   :returns: A ``datetime64[ns]`` Series containing parsed timestamps and ``NaT`` for known
+             missing/sentinel values.
+
+   :raises ValueError: If characters, structure, or date parts violate parsing
+       assumptions.
+
+
 .. py:function:: _core_eia923__yearly_fgd_operation_maintenance(raw_eia923__fgd_operation_maintenance: pandas.DataFrame) -> pandas.DataFrame
 
    Transforms the _core_eia923__yearly_fgd_operation_maintenance table.
@@ -435,9 +510,11 @@ Module Contents
    * Fix datetimes for SO2 test dates.
    * Ensure a unique primary key and drop some duplicated rows.
 
-   :param raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
+   :param raw_eia923__fgd_operation_maintenance: The raw
+                                                 ``raw_eia923__fgd_operation_maintenance`` dataframe.
 
-   :returns: Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for harvesting.
+   :returns: Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for
+             harvesting.
 
 
 .. py:function:: fgd_continuity_check(fgd)
@@ -472,7 +549,7 @@ Module Contents
 
    * Replace . values with NA
    * Drop rows with NA byproduct_description. This also removes all duplicates based on
-       report_year, plant_id_eia, and byproduct_description
+       report_date, plant_id_eia, and byproduct_description
    * Convert 1000 tons to tons (avoiding steam sales, which are reported in MMBtu)
    * Create a byproducts_unit column based on the byproduct_disposition
 
@@ -492,12 +569,32 @@ Module Contents
    Transforms the eia923__byproduct_expenses_and_revenues table.
 
    Transformations include:
+
    * Standardize NA values
+   * Convert integer year to datetime
    * Convert 1000 dollars (opex and revenue columns) to dollars
 
-   :param raw_eia923__byproduct_expenses_and_revenues: The raw ``raw_eia923__byproduct_expenses_and_revenues``
+   :param raw_eia923__byproduct_expenses_and_revenues: The raw
+                                                       ``raw_eia923__byproduct_expenses_and_revenues`` dataframe.
+
+   :returns: Cleaned ``_core_eia923__yearly_byproduct_expenses_and_revenues`` dataframe ready
+             for harvesting.
+
+
+.. py:function:: _core_eia923__yearly_emissions_control(raw_eia923__emissions_control: pandas.DataFrame) -> pandas.DataFrame
+
+   Transforms the eia923__emissions_control table.
+
+   Transformations include:
+
+   * Standardize NA values
+   * Convert units from thousands of tons to tons
+   * Clean and standardize format of month-year date string columns
+
+   :param raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
    :param dataframe.:
 
-   :returns: Cleaned ``_core_eia923__yearly_byproduct_expenses_and_revenues`` dataframe ready for harvesting.
+   :returns: Cleaned ``_core_eia923__yearly_emissions_control`` dataframe ready for
+             harvesting.
 
 

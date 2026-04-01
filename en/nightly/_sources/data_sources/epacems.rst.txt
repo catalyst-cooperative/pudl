@@ -44,7 +44,7 @@ it as part of our SQLite database, but it is available through all of our other
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_epacems__hourly_emissions`
-     - https://data.catalyst.coop/search?q=name:core_epacems__hourly_emissions
+     - https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions
    
 
 

@@ -43,58 +43,58 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`i_core_eia860__cooling_equipment`
-     - https://data.catalyst.coop/search?q=name:_core_eia860__cooling_equipment
+     - https://data.catalyst.coop/preview/pudl/_core_eia860__cooling_equipment
    
    * - :ref:`i_core_eia860__fgd_equipment`
-     - https://data.catalyst.coop/search?q=name:_core_eia860__fgd_equipment
+     - https://data.catalyst.coop/preview/pudl/_core_eia860__fgd_equipment
    
    * - :ref:`core_eia860__assn_boiler_cooling`
-     - https://data.catalyst.coop/search?q=name:core_eia860__assn_boiler_cooling
+     - https://data.catalyst.coop/preview/pudl/core_eia860__assn_boiler_cooling
    
    * - :ref:`core_eia860__assn_boiler_generator`
-     - https://data.catalyst.coop/search?q=name:core_eia860__assn_boiler_generator
+     - https://data.catalyst.coop/preview/pudl/core_eia860__assn_boiler_generator
    
    * - :ref:`core_eia860__assn_boiler_stack_flue`
-     - https://data.catalyst.coop/search?q=name:core_eia860__assn_boiler_stack_flue
+     - https://data.catalyst.coop/preview/pudl/core_eia860__assn_boiler_stack_flue
    
    * - :ref:`core_eia860__assn_yearly_boiler_emissions_control_equipment`
-     - https://data.catalyst.coop/search?q=name:core_eia860__assn_yearly_boiler_emissions_control_equipment
+     - https://data.catalyst.coop/preview/pudl/core_eia860__assn_yearly_boiler_emissions_control_equipment
    
    * - :ref:`core_eia860__scd_boilers`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_boilers
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_boilers
    
    * - :ref:`core_eia860__scd_emissions_control_equipment`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_emissions_control_equipment
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_emissions_control_equipment
    
    * - :ref:`core_eia860__scd_generators`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_generators
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_generators
    
    * - :ref:`core_eia860__scd_generators_energy_storage`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_generators_energy_storage
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_generators_energy_storage
    
    * - :ref:`core_eia860__scd_generators_multifuel`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_generators_multifuel
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_generators_multifuel
    
    * - :ref:`core_eia860__scd_generators_solar`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_generators_solar
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_generators_solar
    
    * - :ref:`core_eia860__scd_generators_wind`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_generators_wind
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_generators_wind
    
    * - :ref:`core_eia860__scd_ownership`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_ownership
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_ownership
    
    * - :ref:`core_eia860__scd_plants`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_plants
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_plants
    
    * - :ref:`core_eia860__scd_utilities`
-     - https://data.catalyst.coop/search?q=name:core_eia860__scd_utilities
+     - https://data.catalyst.coop/preview/pudl/core_eia860__scd_utilities
    
    * - :ref:`core_eia860m__changelog_generators`
-     - https://data.catalyst.coop/search?q=name:core_eia860m__changelog_generators
+     - https://data.catalyst.coop/preview/pudl/core_eia860m__changelog_generators
    
    * - :ref:`out_eia860__yearly_emissions_control_equipment`
-     - https://data.catalyst.coop/search?q=name:out_eia860__yearly_emissions_control_equipment
+     - https://data.catalyst.coop/preview/pudl/out_eia860__yearly_emissions_control_equipment
    
 
 We’ve also created the following entity tables modeled after EIA data collected from
@@ -108,16 +108,16 @@ multiple tables.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_eia__entity_boilers`
-     - https://data.catalyst.coop/search?q=name:core_eia__entity_boilers
+     - https://data.catalyst.coop/preview/pudl/core_eia__entity_boilers
    
    * - :ref:`core_eia__entity_generators`
-     - https://data.catalyst.coop/search?q=name:core_eia__entity_generators
+     - https://data.catalyst.coop/preview/pudl/core_eia__entity_generators
    
    * - :ref:`core_eia__entity_plants`
-     - https://data.catalyst.coop/search?q=name:core_eia__entity_plants
+     - https://data.catalyst.coop/preview/pudl/core_eia__entity_plants
    
    * - :ref:`core_eia__entity_utilities`
-     - https://data.catalyst.coop/search?q=name:core_eia__entity_utilities
+     - https://data.catalyst.coop/preview/pudl/core_eia__entity_utilities
    
 
 Background

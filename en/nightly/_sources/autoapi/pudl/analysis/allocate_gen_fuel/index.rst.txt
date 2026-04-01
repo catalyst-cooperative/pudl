@@ -171,6 +171,7 @@ Functions
    pudl.analysis.allocate_gen_fuel.agg_by_generator
    pudl.analysis.allocate_gen_fuel.stack_generators
    pudl.analysis.allocate_gen_fuel.associate_generator_tables
+   pudl.analysis.allocate_gen_fuel._label_gf_unique_to_gen
    pudl.analysis.allocate_gen_fuel.remove_inactive_generators
    pudl.analysis.allocate_gen_fuel.identify_retiring_generators
    pudl.analysis.allocate_gen_fuel.identify_retired_plants
@@ -371,7 +372,7 @@ Module Contents
    :rtype: pandas.DataFrame
 
 
-.. py:function:: associate_generator_tables(gens: pandas.DataFrame, gf: pandas.DataFrame, gen: pandas.DataFrame, bf: pandas.DataFrame, bga: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: associate_generator_tables(gens_at_freq: pandas.DataFrame, gf: pandas.DataFrame, gen: pandas.DataFrame, bf: pandas.DataFrame, bga: pandas.DataFrame) -> pandas.DataFrame
 
    Associate the three tables needed to assign net gen and fuel to generators.
 
@@ -423,6 +424,8 @@ Module Contents
              :func:`allocate_fuel_by_gen_esc`.
 
 
+.. py:function:: _label_gf_unique_to_gen(gen_assoc: pandas.DataFrame)
+
 .. py:function:: remove_inactive_generators(gen_assoc: pandas.DataFrame) -> pandas.DataFrame
 
    Remove the retired generators.
@@ -433,7 +436,8 @@ Module Contents
    statuses other than ``existing`` but which report non-zero data despite being
    ``retired`` or ``proposed``. This includes several categories of generators/plants:
 
-       * ``retiring_generators``: generators that retire mid-year
+       * ``retiring_generators``: generators that retire mid-year or report data after
+         retiring.
        * ``retired_plants``: entire plants that supposedly retired prior to
          the current year but which report data. If a plant has a mix of gens
          which are existing and retired, they are not included in this category.
@@ -450,7 +454,9 @@ Module Contents
    is possible that the reported generation from the gf table belongs to one
    of the other existing generators. Thus, we want to only keep proposed/retired
    generators where the entire plant is proposed/retired (in which case the gf-
-   reported generation could only come from one of the new/retired generators).
+   reported generation could only come from one of the new/retired generators). If the
+   reported gf data is for a prime_mover / energy_source_code combo that is unique
+   to the retiring/proposed generator, we can identify it at the generator level.
 
    We also want to keep unassociated plants that have no ``generator_id`` which will
    be associated via :func:`_allocate_unassociated_records`.
@@ -464,10 +470,14 @@ Module Contents
 
    Identify any generators that retire mid-year.
 
-   We want to include all of the generator records within any given year that
-   retired mid-year or any generators that reported any fuel use or generation.
-   These are generators with a mid-year retirement date or which report
-   generator-specific generation or fuel use after they are labeled as retired.
+   These are "retired" generators that either:
+
+   A) have a mid-year retirement date, OR
+   B) report generator-specific generation data in the g table for a month after the
+      retirement date, OR
+   C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
+      is unique to that generator at the plant, for a month after the retirement date.
+
 
 
 .. py:function:: identify_retired_plants(gen_assoc: pandas.DataFrame) -> pandas.DataFrame
@@ -479,8 +489,12 @@ Module Contents
 
    Identify generators that are coming online mid-year.
 
-   These are defined as generators that have a proposed status but which report
-   generator-specific generation data in the g table
+   These are defined as "proposed" generators that either:
+
+   A) report generator-specific generation data in the g table, OR
+   B) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
+      is unique to that generator at the plant.
+
 
 
 .. py:function:: identify_proposed_plants(gen_assoc: pandas.DataFrame) -> pandas.DataFrame

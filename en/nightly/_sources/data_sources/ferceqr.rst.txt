@@ -37,16 +37,16 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_ferceqr__contracts`
-     - https://data.catalyst.coop/search?q=name:core_ferceqr__contracts
+     - https://data.catalyst.coop/preview/pudl/core_ferceqr__contracts
    
    * - :ref:`core_ferceqr__quarterly_identity`
-     - https://data.catalyst.coop/search?q=name:core_ferceqr__quarterly_identity
+     - https://data.catalyst.coop/preview/pudl/core_ferceqr__quarterly_identity
    
    * - :ref:`core_ferceqr__quarterly_index_pub`
-     - https://data.catalyst.coop/search?q=name:core_ferceqr__quarterly_index_pub
+     - https://data.catalyst.coop/preview/pudl/core_ferceqr__quarterly_index_pub
    
    * - :ref:`core_ferceqr__transactions`
-     - https://data.catalyst.coop/search?q=name:core_ferceqr__transactions
+     - https://data.catalyst.coop/preview/pudl/core_ferceqr__transactions
    
 
 

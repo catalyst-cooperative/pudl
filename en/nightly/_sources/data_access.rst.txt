@@ -361,9 +361,9 @@ use tools that are designed to work with large data efficiently like `DuckDB
 <https://duckdb.org/docs/stable/>`__ or `Polars <https://docs.pola.rs/>`__. Some brief
 examples:
 
-.. tabs::
+.. tab-set::
 
-   .. tab:: SQL (DuckDB)
+   .. tab-item:: SQL (DuckDB)
 
       .. code:: sql
 
@@ -371,35 +371,35 @@ examples:
          WHERE seller_company_name LIKE '%Bonneville%'
          LIMIT 10;
 
-  .. tab:: Python (DuckDB/Pandas)
+   .. tab-item:: Python (DuckDB/Pandas)
 
-     .. code:: python
+      .. code:: python
 
-        import duckdb
-        import pandas as pd
-        # Query S3 with DuckDB and convert the result to pandas
-        df = duckdb.query("""
+         import duckdb
+         import pandas as pd
+         # Query S3 with DuckDB and convert the result to pandas
+         df = duckdb.query("""
             SELECT *
             FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'
             WHERE seller_company_name LIKE '%Bonneville%'
             LIMIT 10
-        """).to_df()
+         """).to_df()
 
-  .. tab:: Python (Polars)
+   .. tab-item:: Python (Polars)
 
-     .. code:: python
+      .. code:: python
 
-        import polars as pl
-        # Use scan_parquet (lazy evaluation) and filter
-        df = (
+         import polars as pl
+         # Use scan_parquet (lazy evaluation) and filter
+         df = (
             pl.scan_parquet(
-                "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet",
-                storage_options={"aws_region": "us-west-2"},
+                  "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet",
+                  storage_options={"aws_region": "us-west-2"},
             )
             .filter(pl.col("seller_company_name").str.contains("Bonneville"))
             .head(10)
             .collect()
-        )
+         )
 
 .. _access-zenodo:
 

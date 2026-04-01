@@ -33,7 +33,6 @@ Functions
    pudl.transform.vcerare._check_for_valid_counties
    pudl.transform.vcerare._standardize_census_names
    pudl.transform.vcerare._clip_unexpected_2016_pv_capacity
-   pudl.transform.vcerare._get_parquet_path
    pudl.transform.vcerare._spot_fix_great_lakes_values
    pudl.transform.vcerare._spot_fix_great_lakes_columns
    pudl.transform.vcerare.one_year_hourly_available_capacity_factor
@@ -141,8 +140,6 @@ Module Contents
    This function narrowly zeroes out these nulls, expecting that the rest of the
    data should conform to the expectation of no-null values.
 
-
-.. py:function:: _get_parquet_path()
 
 .. py:function:: _spot_fix_great_lakes_values(sr: pandas.Series) -> pandas.Series
 

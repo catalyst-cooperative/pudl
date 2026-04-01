@@ -17,6 +17,14 @@ Attributes
    pudl.transform.rus.logger
 
 
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.transform.rus.RusEntity
+
+
 Functions
 ---------
 
@@ -26,6 +34,7 @@ Functions
    pudl.transform.rus.early_transform
    pudl.transform.rus.multi_index_stack
    pudl.transform.rus.convert_units
+   pudl.transform.rus.finished_rus_asset_factory
 
 
 Module Contents
@@ -40,12 +49,12 @@ Module Contents
    By default the expected primary key is ["report_date", "borrower_id_rus"].
 
 
-.. py:function:: early_transform(raw_df: pandas.DataFrame, boolean_columns_to_fix=[]) -> pandas.DataFrame
+.. py:function:: early_transform(raw_df: pandas.DataFrame, boolean_columns_to_fix=[], string_cols_to_simplify=[]) -> pandas.DataFrame
 
    Standard transforms for raw RUS data.
 
 
-.. py:function:: multi_index_stack(df: pandas.DataFrame, idx_ish: list[str], pattern, data_cols: list[str], match_names: list[str], unstack_level: list[str], drop_zero_rows: bool = False) -> pandas.DataFrame
+.. py:function:: multi_index_stack(df: pandas.DataFrame, idx_ish: list[str], pattern, data_cols: list[str], match_names: list[str], unstack_level: list[str], drop_zero_rows: bool = False, expected_dropped_cols: int = 0) -> pandas.DataFrame
 
    Stack multiple data columns - create categorical columns and data columns.
 
@@ -88,6 +97,8 @@ Module Contents
                          table. Presumably this will be all of the match_names except 'data_cols'.
    :param drop_zero_rows: if True, drop rows where all data_cols are 0. Function
                           already drops rows where data_cols are all NaN.
+   :param expected_dropped_cols: The number of cols we expect to be dropping during the
+                                 stack. Defaults to zero.
 
 
 .. py:function:: convert_units(df: pandas.DataFrame, old_unit: str, new_unit: str | None, converter: float | int) -> pandas.DataFrame
@@ -109,5 +120,27 @@ Module Contents
                     empty string ()"").
    :param converter: the float or integer you need to multiply the old values by to
                      convert the units.
+
+
+.. py:class:: RusEntity
+
+   Bases: :py:obj:`enum.StrEnum`
+
+
+   Enum for the different types of RUS entities.
+
+
+   .. py:attribute:: BORROWERS
+
+
+.. py:function:: finished_rus_asset_factory(table_name: str, _core_table_name: str, io_manager_key: str | None = None) -> dagster.AssetsDefinition
+
+   An asset factory for finished RUS tables.
+
+   :param table_name: the name of the core table.
+   :param _core_table_name: the name of the unharvested input table
+   :param io_manager_key: the name of the IO Manager of the final asset.
+
+   :returns: A RUS asset.
 
 

@@ -9,61 +9,83 @@ pudl.transform.rus7
 
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.rus7.logger
+   pudl.transform.rus7._CORE_RUS7_TABLES
+   pudl.transform.rus7.finished_rus_assets
+
+
 Functions
 ---------
 
 .. autoapisummary::
 
-   pudl.transform.rus7.core_rus7__yearly_meeting_and_board
-   pudl.transform.rus7.core_rus7__yearly_balance_sheet_assets
-   pudl.transform.rus7.core_rus7__yearly_balance_sheet_liabilities
-   pudl.transform.rus7.core_rus7__scd_borrowers
-   pudl.transform.rus7.core_rus7__yearly_employee_statistics
-   pudl.transform.rus7.core_rus7__yearly_energy_efficiency
+   pudl.transform.rus7._core_rus7__yearly_meeting_and_board
+   pudl.transform.rus7._core_rus7__yearly_balance_sheet_assets
+   pudl.transform.rus7._core_rus7__yearly_balance_sheet_liabilities
+   pudl.transform.rus7._core_rus7__scd_borrowers
+   pudl.transform.rus7._core_rus7__yearly_employee_statistics
+   pudl.transform.rus7._core_rus7__yearly_energy_efficiency
+   pudl.transform.rus7._core_rus7__power_requirements
+   pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_sales
+   pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_customers
    pudl.transform.rus7._core_rus7__yearly_power_requirements
-   pudl.transform.rus7.core_rus7__yearly_power_requirements_electric_sales
-   pudl.transform.rus7.core_rus7__yearly_power_requirements_electric_customers
-   pudl.transform.rus7.core_rus7__yearly_power_requirements
-   pudl.transform.rus7.core_rus7__yearly_investments
-   pudl.transform.rus7.core_rus7__yearly_long_term_debt
-   pudl.transform.rus7.core_rus7__yearly_patronage_capital
-   pudl.transform.rus7.core_rus7__yearly_statement_of_operations
+   pudl.transform.rus7._core_rus7__yearly_investments
+   pudl.transform.rus7._core_rus7__yearly_long_term_debt
+   pudl.transform.rus7._core_rus7__yearly_patronage_capital
+   pudl.transform.rus7._core_rus7__yearly_statement_of_operations
+   pudl.transform.rus7._core_rus7__consumer_debt
+   pudl.transform.rus7._core_rus7__yearly_service_interruptions
+   pudl.transform.rus7._core_rus7__transmission_and_distribution
+   pudl.transform.rus7._core_rus7__yearly_long_term_leases
+   pudl.transform.rus7._core_rus7__yearly_loans
+   pudl.transform.rus7._core_rus7__yearly_external_financial_risk_ratio
+   pudl.transform.rus7._core_rus7__yearly_energy_purchased
+   pudl.transform.rus7._core_rus7__yearly_materials_and_supplies
+   pudl.transform.rus7._core_rus7__yearly_utility_plant_changes
+   pudl.transform.rus7.core_rus7__entity_borrowers
 
 
 Module Contents
 ---------------
 
-.. py:function:: core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board)
+.. py:data:: logger
+
+.. py:function:: _core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board)
 
    Transform the meeting and board (aka governance) table.
 
 
-.. py:function:: core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet)
+.. py:function:: _core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet)
 
    Transform the balance sheet assets table.
 
 
-.. py:function:: core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet)
+.. py:function:: _core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet)
 
    Transform the balance sheet liabilities table.
 
 
-.. py:function:: core_rus7__scd_borrowers(raw_rus7__borrowers)
+.. py:function:: _core_rus7__scd_borrowers(raw_rus7__borrowers)
 
    Transform the borrowers table.
 
 
-.. py:function:: core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics)
+.. py:function:: _core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics)
 
    Transform the employee statistics table.
 
 
-.. py:function:: core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency)
+.. py:function:: _core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency)
 
    Transform the energy efficiency table.
 
 
-.. py:function:: _core_rus7__yearly_power_requirements(raw_rus7__power_requirements)
+.. py:function:: _core_rus7__power_requirements(raw_rus7__power_requirements)
 
    Early transform an internal power_requirements table.
 
@@ -72,7 +94,7 @@ Module Contents
    cleaning and dropping of duplicate records so we do it once.
 
 
-.. py:function:: core_rus7__yearly_power_requirements_electric_sales(_core_rus7__yearly_power_requirements: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _core_rus7__yearly_power_requirements_electric_sales(_core_rus7__power_requirements: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the power requirements of electric sales table.
 
@@ -80,7 +102,7 @@ Module Contents
    pertains to the sales and revenue of electricity.
 
 
-.. py:function:: core_rus7__yearly_power_requirements_electric_customers(_core_rus7__yearly_power_requirements: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _core_rus7__yearly_power_requirements_electric_customers(_core_rus7__power_requirements: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the power requirements of electric customers table.
 
@@ -88,7 +110,7 @@ Module Contents
    pertains to the number of customers in different customer classes.
 
 
-.. py:function:: core_rus7__yearly_power_requirements(_core_rus7__yearly_power_requirements: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _core_rus7__yearly_power_requirements(_core_rus7__power_requirements: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the power requirements table.
 
@@ -97,23 +119,81 @@ Module Contents
    as several types of electricity generated, purchased or used.
 
 
-.. py:function:: core_rus7__yearly_investments(raw_rus7__investments: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _core_rus7__yearly_investments(raw_rus7__investments: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the investments table.
 
 
-.. py:function:: core_rus7__yearly_long_term_debt(raw_rus7__long_term_debt: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _core_rus7__yearly_long_term_debt(raw_rus7__long_term_debt: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the core_rus7__yearly_investments table.
 
 
-.. py:function:: core_rus7__yearly_patronage_capital(raw_rus7__patronage_capital: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _core_rus7__yearly_patronage_capital(raw_rus7__patronage_capital: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the patronage capital table.
 
 
-.. py:function:: core_rus7__yearly_statement_of_operations(raw_rus7__statement_of_operations: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _core_rus7__yearly_statement_of_operations(raw_rus7__statement_of_operations: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the statement of operations table.
 
+
+.. py:function:: _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pandas.DataFrame)
+
+   Transform the owed by consumer table.
+
+   This transform splits the owed_by_consumers table into one table describing general
+   consumer debts and one table describing the status of energy efficiency and
+   conservation loan program debts.
+
+
+.. py:function:: _core_rus7__yearly_service_interruptions(raw_rus7__service_interruptions: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the service_interruptions table.
+
+
+.. py:function:: _core_rus7__transmission_and_distribution(raw_rus7__transmission_and_distribution: pandas.DataFrame)
+
+   Transform the transmission_and_distribution table.
+
+
+.. py:function:: _core_rus7__yearly_long_term_leases(raw_rus7__long_term_leases: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the long term leases table.
+
+
+.. py:function:: _core_rus7__yearly_loans(raw_rus7__loan_guarantees: pandas.DataFrame, raw_rus7__loans: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the raw_rus7__loans and raw_rus7__loan_guarantees tables.
+
+
+.. py:function:: _core_rus7__yearly_external_financial_risk_ratio(raw_rus7__external_financial_risk_ratio: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the raw_rus7__external_financial_risk_ratio table.
+
+
+.. py:function:: _core_rus7__yearly_energy_purchased(raw_rus7__energy_purchased: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the raw_rus7__energy_purchased table.
+
+
+.. py:function:: _core_rus7__yearly_materials_and_supplies(raw_rus7__materials_and_supplies: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the materials and supplies table.
+
+
+.. py:function:: _core_rus7__yearly_utility_plant_changes(raw_rus7__utility_plant_changes: pandas.DataFrame)
+
+   Transform the utility plant changes table.
+
+
+.. py:data:: _CORE_RUS7_TABLES
+
+.. py:function:: core_rus7__entity_borrowers(context, **clean_dfs)
+
+   Harvesting IDs & consistent static attributes for RUS7 entity.
+
+
+.. py:data:: finished_rus_assets
 

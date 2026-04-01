@@ -95,7 +95,7 @@ Module Contents
 
 .. py:data:: raw_phmsagas__all_dfs
 
-.. py:function:: extract_phmsagas(raw_phmsagas__all_dfs)
+.. py:function:: extract_phmsagas(context, raw_phmsagas__all_dfs)
 
    Extract raw PHMSA gas data from excel sheets into dataframes.
 

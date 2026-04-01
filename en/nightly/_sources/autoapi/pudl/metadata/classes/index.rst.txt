@@ -243,7 +243,7 @@ Module Contents
 
 
 
-   .. py:method:: to_pandera_checks() -> list[pandera.pandas.Check]
+   .. py:method:: to_pandera_checks(use_pandas_backend: bool) -> list[pandera.polars.Check]
 
       Convert these constraints to pandera Column checks.
 
@@ -592,7 +592,7 @@ Module Contents
 
 
 
-   .. py:method:: to_pandera_column() -> pandera.pandas.Column
+   .. py:method:: to_pandera_column(use_pandas_backend: bool) -> pandera.polars.Column
 
       Encode this field def as a Pandera column.
 
@@ -711,7 +711,7 @@ Module Contents
 
 
 
-   .. py:method:: to_pandera() -> pandera.pandas.DataFrameSchema
+   .. py:method:: to_pandera() -> pandera.polars.DataFrameSchema
 
       Turn PUDL Schema into Pandera schema, so dagster can understand it.
 

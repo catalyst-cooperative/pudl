@@ -19,7 +19,6 @@ Submodules
    /autoapi/pudl/etl/check_foreign_keys/index
    /autoapi/pudl/etl/cli/index
    /autoapi/pudl/etl/eia_bulk_elec_assets/index
-   /autoapi/pudl/etl/ferceqr_deployment/index
    /autoapi/pudl/etl/glue_assets/index
    /autoapi/pudl/etl/static_assets/index
 
@@ -39,6 +38,8 @@ Attributes
    pudl.etl.default_assets
    pudl.etl.default_asset_checks
    pudl.etl._asset_keys
+   pudl.etl.duckdb_assets
+   pudl.etl.high_memory_assets
    pudl.etl.default_resources
    pudl.etl.default_tag_concurrency_limits
    pudl.etl.default_config
@@ -75,9 +76,19 @@ Functions
 Package Contents
 ----------------
 
-.. py:function:: asset_check_from_schema(asset_key: dagster.AssetKey, package: pudl.metadata.classes.Package) -> dagster.AssetChecksDefinition | None
+.. py:function:: asset_check_from_schema(asset_key: dagster.AssetKey, package: pudl.metadata.classes.Package, duckdb_asset: bool, high_memory_asset: bool) -> dagster.AssetChecksDefinition | None
 
    Create a dagster asset check based on the resource schema, if defined.
+
+   The vast majority of assets will be loaded as Polars LazyFrames directly using
+   the ``PudlParquetIOManager`` and validated with Pandera's Polars backend, but
+   there are two exceptions to this. The first exception are assets which contain
+   a geometry data type. These assets will all be loaded as geopandas GeoDataFrames
+   and use Pandera's Pandas backend as Polars does not support geometry data types.
+   The second exception are assets produced entirely using DuckDB. These assets
+   return ``ParquetData`` objects, which are handled by the default io-manager. In
+   this case, the resulting parquet file(s) will be scanned with Polars to produce
+   a LazyFrame, then handled exactly the same as a typical asset.
 
 
 .. py:function:: ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager
@@ -245,6 +256,14 @@ Package Contents
 
 
 .. py:data:: _asset_keys
+
+.. py:data:: duckdb_assets
+   :value: ['core_ferceqr__quarterly_identity', 'core_ferceqr__contracts',...
+
+
+.. py:data:: high_memory_assets
+   :value: ['out_vcerare__hourly_available_capacity_factor', 'core_epacems__hourly_emissions']
+
 
 .. py:data:: default_resources
 

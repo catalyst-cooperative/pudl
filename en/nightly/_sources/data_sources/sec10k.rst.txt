@@ -37,37 +37,37 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities`
-     - https://data.catalyst.coop/search?q=name:core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities
+     - https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities
    
    * - :ref:`core_sec10k__assn_exhibit_21_subsidiaries_and_filers`
-     - https://data.catalyst.coop/search?q=name:core_sec10k__assn_exhibit_21_subsidiaries_and_filers
+     - https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_filers
    
    * - :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`
-     - https://data.catalyst.coop/search?q=name:core_sec10k__assn_sec10k_filers_and_eia_utilities
+     - https://data.catalyst.coop/preview/pudl/core_sec10k__assn_sec10k_filers_and_eia_utilities
    
    * - :ref:`core_sec10k__changelog_company_name`
-     - https://data.catalyst.coop/search?q=name:core_sec10k__changelog_company_name
+     - https://data.catalyst.coop/preview/pudl/core_sec10k__changelog_company_name
    
    * - :ref:`core_sec10k__quarterly_company_information`
-     - https://data.catalyst.coop/search?q=name:core_sec10k__quarterly_company_information
+     - https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_company_information
    
    * - :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
-     - https://data.catalyst.coop/search?q=name:core_sec10k__quarterly_exhibit_21_company_ownership
+     - https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_exhibit_21_company_ownership
    
    * - :ref:`core_sec10k__quarterly_filings`
-     - https://data.catalyst.coop/search?q=name:core_sec10k__quarterly_filings
+     - https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_filings
    
    * - :ref:`out_sec10k__changelog_company_name`
-     - https://data.catalyst.coop/search?q=name:out_sec10k__changelog_company_name
+     - https://data.catalyst.coop/preview/pudl/out_sec10k__changelog_company_name
    
    * - :ref:`out_sec10k__parents_and_subsidiaries`
-     - https://data.catalyst.coop/search?q=name:out_sec10k__parents_and_subsidiaries
+     - https://data.catalyst.coop/preview/pudl/out_sec10k__parents_and_subsidiaries
    
    * - :ref:`out_sec10k__quarterly_company_information`
-     - https://data.catalyst.coop/search?q=name:out_sec10k__quarterly_company_information
+     - https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_company_information
    
    * - :ref:`out_sec10k__quarterly_filings`
-     - https://data.catalyst.coop/search?q=name:out_sec10k__quarterly_filings
+     - https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_filings
    
 
 

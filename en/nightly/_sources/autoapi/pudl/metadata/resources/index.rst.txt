@@ -37,6 +37,7 @@ Submodules
    /autoapi/pudl/metadata/resources/nrelatb/index
    /autoapi/pudl/metadata/resources/phmsagas/index
    /autoapi/pudl/metadata/resources/pudl/index
+   /autoapi/pudl/metadata/resources/rus/index
    /autoapi/pudl/metadata/resources/rus12/index
    /autoapi/pudl/metadata/resources/rus7/index
    /autoapi/pudl/metadata/resources/sec10k/index

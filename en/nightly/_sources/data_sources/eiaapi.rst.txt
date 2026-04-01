@@ -39,7 +39,7 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_eia__yearly_fuel_receipts_costs_aggs`
-     - https://data.catalyst.coop/search?q=name:core_eia__yearly_fuel_receipts_costs_aggs
+     - https://data.catalyst.coop/preview/pudl/core_eia__yearly_fuel_receipts_costs_aggs
    
 
 
@@ -173,5 +173,4 @@ linked to all the coal-related energy_source_code values: BIT, SUB, LIG, and WC.
 relationships are defined for aggregates over fuel, sector, geography, and time.
 
 Within other EIA tables, we use the monthly state-level fuel costs to fill the gaps in
-missing fuel cost originating from the :ref:`core_eia923__monthly_fuel_receipts_costs`
-table.
+missing fuel cost originating from the :ref:`core_eia923__fuel_receipts_costs` table.

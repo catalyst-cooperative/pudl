@@ -37,94 +37,94 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_eia861__assn_balancing_authority`
-     - https://data.catalyst.coop/search?q=name:core_eia861__assn_balancing_authority
+     - https://data.catalyst.coop/preview/pudl/core_eia861__assn_balancing_authority
    
    * - :ref:`core_eia861__assn_utility`
-     - https://data.catalyst.coop/search?q=name:core_eia861__assn_utility
+     - https://data.catalyst.coop/preview/pudl/core_eia861__assn_utility
    
    * - :ref:`core_eia861__yearly_advanced_metering_infrastructure`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_advanced_metering_infrastructure
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_advanced_metering_infrastructure
    
    * - :ref:`core_eia861__yearly_balancing_authority`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_balancing_authority
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_balancing_authority
    
    * - :ref:`core_eia861__yearly_demand_response`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_response
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_demand_response
    
    * - :ref:`core_eia861__yearly_demand_response_water_heater`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_response_water_heater
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_demand_response_water_heater
    
    * - :ref:`core_eia861__yearly_demand_side_management_ee_dr`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_side_management_ee_dr
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_demand_side_management_ee_dr
    
    * - :ref:`core_eia861__yearly_demand_side_management_misc`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_side_management_misc
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_demand_side_management_misc
    
    * - :ref:`core_eia861__yearly_demand_side_management_sales`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_side_management_sales
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_demand_side_management_sales
    
    * - :ref:`core_eia861__yearly_distributed_generation_fuel`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_distributed_generation_fuel
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_distributed_generation_fuel
    
    * - :ref:`core_eia861__yearly_distributed_generation_misc`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_distributed_generation_misc
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_distributed_generation_misc
    
    * - :ref:`core_eia861__yearly_distributed_generation_tech`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_distributed_generation_tech
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_distributed_generation_tech
    
    * - :ref:`core_eia861__yearly_distribution_systems`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_distribution_systems
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_distribution_systems
    
    * - :ref:`core_eia861__yearly_dynamic_pricing`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_dynamic_pricing
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_dynamic_pricing
    
    * - :ref:`core_eia861__yearly_energy_efficiency`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_energy_efficiency
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_energy_efficiency
    
    * - :ref:`core_eia861__yearly_green_pricing`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_green_pricing
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_green_pricing
    
    * - :ref:`core_eia861__yearly_mergers`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_mergers
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_mergers
    
    * - :ref:`core_eia861__yearly_net_metering_customer_fuel_class`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_net_metering_customer_fuel_class
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_net_metering_customer_fuel_class
    
    * - :ref:`core_eia861__yearly_net_metering_misc`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_net_metering_misc
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_net_metering_misc
    
    * - :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_non_net_metering_customer_fuel_class
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_non_net_metering_customer_fuel_class
    
    * - :ref:`core_eia861__yearly_non_net_metering_misc`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_non_net_metering_misc
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_non_net_metering_misc
    
    * - :ref:`core_eia861__yearly_operational_data_misc`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_operational_data_misc
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_operational_data_misc
    
    * - :ref:`core_eia861__yearly_operational_data_revenue`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_operational_data_revenue
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_operational_data_revenue
    
    * - :ref:`core_eia861__yearly_reliability`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_reliability
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_reliability
    
    * - :ref:`core_eia861__yearly_sales`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_sales
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_sales
    
    * - :ref:`core_eia861__yearly_service_territory`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_service_territory
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_service_territory
    
    * - :ref:`core_eia861__yearly_short_form`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_short_form
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_short_form
    
    * - :ref:`core_eia861__yearly_utility_data_misc`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_utility_data_misc
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_utility_data_misc
    
    * - :ref:`core_eia861__yearly_utility_data_nerc`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_utility_data_nerc
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_utility_data_nerc
    
    * - :ref:`core_eia861__yearly_utility_data_rto`
-     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_utility_data_rto
+     - https://data.catalyst.coop/preview/pudl/core_eia861__yearly_utility_data_rto
    
 
 

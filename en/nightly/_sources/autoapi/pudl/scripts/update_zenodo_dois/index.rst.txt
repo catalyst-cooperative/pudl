@@ -1,0 +1,56 @@
+pudl.scripts.update_zenodo_dois
+===============================
+
+.. py:module:: pudl.scripts.update_zenodo_dois
+
+.. autoapi-nested-parse::
+
+   Script to check each DOI in zenodo_dois.yml against Zenodo's /versions/latest endpoint.
+
+   If there is a more current DOI, update to the latest one. This can be used to avoid
+   having to hand-update DOI values, and eventually to auto-update records that don't
+   require hand mapping to extract in PUDL.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.update_zenodo_dois.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.update_zenodo_dois.get_latest_record_id
+   pudl.scripts.update_zenodo_dois.update_yaml_dois
+   pudl.scripts.update_zenodo_dois.main
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: get_latest_record_id(record_id: str) -> tuple[str | None, str | None]
+
+   Get ID of the latest version of any Zenodo record.
+
+   Given the ID of any Zenodo record, this will return the record ID and DOI of the
+   latest version associated with the same concept DOI.
+
+
+.. py:function:: update_yaml_dois(yaml_file: pathlib.Path, datasets: tuple[str, Ellipsis]) -> dict[str, dict]
+
+   Check all DOIs and update to latest record versions.
+
+
+.. py:function:: main(datasets: tuple[str, Ellipsis])
+
+   Auto-update Zenodo DOIs to the latest value.
+
+

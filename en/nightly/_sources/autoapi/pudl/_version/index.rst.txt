@@ -27,14 +27,14 @@ Module Contents
    :type:  str
 
 .. py:data:: __version_tuple__
-   :type:  VERSION_TUPLE
+   :type:  tuple[int | str, Ellipsis]
 
 .. py:data:: version_tuple
-   :type:  VERSION_TUPLE
+   :type:  tuple[int | str, Ellipsis]
 
 .. py:data:: commit_id
-   :type:  COMMIT_ID
+   :type:  str | None
 
 .. py:data:: __commit_id__
-   :type:  COMMIT_ID
+   :type:  str | None
 

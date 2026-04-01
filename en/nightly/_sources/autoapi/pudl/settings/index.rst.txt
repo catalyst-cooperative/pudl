@@ -735,12 +735,6 @@ Module Contents
 
 
 
-   .. py:attribute:: parts
-      :type:  list[str]
-      :value: []
-
-
-
    .. py:method:: deduplicate_list(v)
       :classmethod:
 
@@ -765,12 +759,11 @@ Module Contents
 
 
 
-   .. py:method:: compile_parts(parts: list[str], info: pydantic.ValidationInfo) -> list[str]
-      :classmethod:
+   .. py:property:: parts
+      :type: list[str]
 
 
-      Based on technology types and processing levels, compile a list of parts.
-
+      Construct parts from selected technologies, processing levels, and daily weather.
 
 
 .. py:class:: EiaSettings(/, **data: Any)
