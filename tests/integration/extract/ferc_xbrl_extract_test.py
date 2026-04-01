@@ -10,7 +10,7 @@ import pytest
 import sqlalchemy as sa
 
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-from pudl.settings import FercToSqliteSettings
+from pudl.settings import FercToSqliteDataConfig
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
 from pudl.workspace.setup import PudlPaths
 
@@ -37,13 +37,11 @@ def _find_empty_tables(db_conn, tables: set[str]) -> set[str]:
 
 def test_sqlite_duckdb_equivalence(
     prebuilt_outputs,
-    ferc_to_sqlite_settings: FercToSqliteSettings,
+    ferc_to_sqlite_data_config: FercToSqliteDataConfig,
 ):
     """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
     for form in FERC_FORMS:
-        if not ferc_to_sqlite_settings.__getattribute__(
-            f"ferc{form}_xbrl_to_sqlite_settings"
-        ).years:
+        if not ferc_to_sqlite_data_config.__getattribute__(f"ferc{form}_xbrl").years:
             logger.info(
                 f"Skipping FERC Form {form} sqlite vs duckdb equivalence test: no years configured."
             )

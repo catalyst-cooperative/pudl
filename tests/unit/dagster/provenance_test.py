@@ -11,16 +11,16 @@ from pudl.dagster.provenance import (
     build_ferc_sqlite_provenance_metadata,
     get_ferc_sqlite_provenance,
 )
-from pudl.settings import EtlSettings, FercToSqliteSettings
+from pudl.settings import FercToSqliteDataConfig, GlobalDataConfig
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 # pytestmark: MarkDecorator = pytest.mark.ferc1_sqlite_provenance
 
 
 @pytest.fixture()
-def etl_settings() -> EtlSettings:
+def global_data_config() -> GlobalDataConfig:
     """Minimal ETL settings with FERC-to-SQLite config for provenance tests."""
-    return EtlSettings(ferc_to_sqlite_settings=FercToSqliteSettings())
+    return GlobalDataConfig(ferc_to_sqlite=FercToSqliteDataConfig())
 
 
 @pytest.fixture()
@@ -42,13 +42,13 @@ def test_get_ferc_sqlite_provenance_dataset_and_format(
     db_name: str,
     expected_dataset: str,
     expected_format: str,
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """Provenance fingerprint extracts dataset and format from the db_name."""
     provenance: FercSqliteProvenance = get_ferc_sqlite_provenance(
         db_name=db_name,
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
     assert isinstance(provenance, FercSqliteProvenance)
@@ -58,13 +58,13 @@ def test_get_ferc_sqlite_provenance_dataset_and_format(
 
 
 def test_get_ferc_sqlite_provenance_years_are_non_empty(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """The provenance fingerprint must include a non-empty, sorted list of years."""
     provenance = get_ferc_sqlite_provenance(
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
     assert isinstance(provenance.years, list)
@@ -73,13 +73,13 @@ def test_get_ferc_sqlite_provenance_years_are_non_empty(
 
 
 def test_build_ferc_sqlite_provenance_metadata_keys(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """Metadata dict should contain all required provenance keys."""
     metadata = build_ferc_sqlite_provenance_metadata(
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
         status="complete",
@@ -88,7 +88,7 @@ def test_build_ferc_sqlite_provenance_metadata_keys(
         "pudl_ferc_sqlite_dataset",
         "pudl_ferc_sqlite_status",
         "pudl_ferc_sqlite_zenodo_doi",
-        "pudl_ferc_sqlite_etl_settings",
+        "pudl_ferc_sqlite_global_data_config",
         "pudl_ferc_sqlite_years",
         "pudl_ferc_sqlite_path",
     }
@@ -96,7 +96,7 @@ def test_build_ferc_sqlite_provenance_metadata_keys(
 
 
 def test_assert_ferc_sqlite_compatible_skips_without_instance(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """Provenance check should be a no-op when no Dagster instance is available."""
@@ -104,20 +104,20 @@ def test_assert_ferc_sqlite_compatible_skips_without_instance(
     assert_ferc_sqlite_compatible(
         instance=None,
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
 
 
 def test_assert_ferc_sqlite_compatible_passes_matching_provenance(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
     """Compatible provenance should not raise."""
     metadata = build_ferc_sqlite_provenance_metadata(
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         sqlite_path=None,
         status="complete",
@@ -130,13 +130,13 @@ def test_assert_ferc_sqlite_compatible_passes_matching_provenance(
     assert_ferc_sqlite_compatible(
         instance=instance,
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
 
 
 def test_assert_ferc_sqlite_compatible_passes_superset_years(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -144,7 +144,7 @@ def test_assert_ferc_sqlite_compatible_passes_superset_years(
     # Build metadata as if the DB was built with the full settings (all years).
     stored_metadata = build_ferc_sqlite_provenance_metadata(
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         sqlite_path=None,
         status="complete",
@@ -157,33 +157,29 @@ def test_assert_ferc_sqlite_compatible_passes_superset_years(
     # Downstream run requests only a single year — a strict subset of what is stored.
     stored_years: list[int] = get_ferc_sqlite_provenance(
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     ).years
     one_year: int = stored_years[len(stored_years) // 2]  # pick a year from the middle
 
-    from pudl.settings import Ferc1DbfToSqliteSettings
+    from pudl.settings import Ferc1DbfToSqliteDataConfig
 
-    fast_settings = EtlSettings(
-        ferc_to_sqlite_settings=etl_settings.ferc_to_sqlite.model_copy(
-            update={
-                "ferc1_dbf_to_sqlite_settings": Ferc1DbfToSqliteSettings(
-                    years=[one_year]
-                )
-            }
+    fast_data_config = GlobalDataConfig(
+        ferc_to_sqlite=global_data_config.ferc_to_sqlite.model_copy(
+            update={"ferc1_dbf": Ferc1DbfToSqliteDataConfig(years=[one_year])}
         )
     )
     # Should not raise: stored years ⊇ required years.
     assert_ferc_sqlite_compatible(
         instance=instance,
         db_name="ferc1_dbf",
-        etl_settings=fast_settings,
+        global_data_config=fast_data_config,
         zenodo_dois=zenodo_dois,
     )
 
 
 def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -191,7 +187,7 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
     stale_dois = ZenodoDoiSettings(ferc1="10.5281/zenodo.9999999")
     metadata = build_ferc_sqlite_provenance_metadata(
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=stale_dois,
         sqlite_path=None,
         status="complete",
@@ -204,30 +200,28 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
         assert_ferc_sqlite_compatible(
             instance=instance,
             db_name="ferc1_dbf",
-            etl_settings=etl_settings,
+            global_data_config=global_data_config,
             zenodo_dois=zenodo_dois,
         )
 
 
 def test_assert_ferc_sqlite_compatible_rejects_missing_years(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
     """Stored DB that lacks required years should raise a descriptive RuntimeError."""
-    from pudl.settings import Ferc1DbfToSqliteSettings
+    from pudl.settings import Ferc1DbfToSqliteDataConfig
 
     # DB was built with only year 2021.
-    narrow_settings = EtlSettings(
-        ferc_to_sqlite_settings=etl_settings.ferc_to_sqlite.model_copy(
-            update={
-                "ferc1_dbf_to_sqlite_settings": Ferc1DbfToSqliteSettings(years=[2021])
-            }
+    narrow_data_config = GlobalDataConfig(
+        ferc_to_sqlite=global_data_config.ferc_to_sqlite.model_copy(
+            update={"ferc1_dbf": Ferc1DbfToSqliteDataConfig(years=[2021])}
         )
     )
     stored_metadata = build_ferc_sqlite_provenance_metadata(
         db_name="ferc1_dbf",
-        etl_settings=narrow_settings,
+        global_data_config=narrow_data_config,
         zenodo_dois=zenodo_dois,
         sqlite_path=None,
         status="complete",
@@ -241,13 +235,13 @@ def test_assert_ferc_sqlite_compatible_rejects_missing_years(
         assert_ferc_sqlite_compatible(
             instance=instance,
             db_name="ferc1_dbf",
-            etl_settings=etl_settings,  # full years
+            global_data_config=global_data_config,  # full years
             zenodo_dois=zenodo_dois,
         )
 
 
 def test_assert_ferc_sqlite_compatible_rejects_missing_materialization(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -258,13 +252,13 @@ def test_assert_ferc_sqlite_compatible_rejects_missing_materialization(
         assert_ferc_sqlite_compatible(
             instance=instance,
             db_name="ferc1_dbf",
-            etl_settings=etl_settings,
+            global_data_config=global_data_config,
             zenodo_dois=zenodo_dois,
         )
 
 
 def test_assert_ferc_sqlite_compatible_rejects_incomplete_status(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -275,7 +269,7 @@ def test_assert_ferc_sqlite_compatible_rejects_incomplete_status(
     """
     metadata = build_ferc_sqlite_provenance_metadata(
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         sqlite_path=None,
         status="skipped",
@@ -288,7 +282,7 @@ def test_assert_ferc_sqlite_compatible_rejects_incomplete_status(
         assert_ferc_sqlite_compatible(
             instance=instance,
             db_name="ferc1_dbf",
-            etl_settings=etl_settings,
+            global_data_config=global_data_config,
             zenodo_dois=zenodo_dois,
         )
 
@@ -302,13 +296,13 @@ def test_assert_ferc_sqlite_compatible_rejects_incomplete_status(
 )
 def test_get_ferc_sqlite_provenance_rejects_bad_db_name(
     db_name: str,
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """Malformed db_names should raise ValueError."""
     with pytest.raises(ValueError):
         get_ferc_sqlite_provenance(
             db_name=db_name,
-            etl_settings=etl_settings,
+            global_data_config=global_data_config,
             zenodo_dois=zenodo_dois,
         )

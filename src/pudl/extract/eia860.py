@@ -104,7 +104,7 @@ raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
         for table_name in sorted(RAW_EIA860_TABLE_NAMES)
     },
     can_subset=True,
-    required_resource_keys={"datastore", "etl_settings"},
+    required_resource_keys={"datastore", "global_data_config"},
 )
 def extract_eia860(context, raw_eia860__all_dfs):
     """Extract raw EIA data from excel sheets into dataframes.
@@ -115,7 +115,7 @@ def extract_eia860(context, raw_eia860__all_dfs):
     Returns:
         A tuple of extracted EIA dataframes.
     """
-    eia_settings = context.resources.etl_settings.dataset_settings.eia
+    eia_data_config = context.resources.global_data_config.pudl.eia
     ds = context.resources.datastore
     selected_outputs = set(context.selected_output_names)
 
@@ -131,9 +131,9 @@ def extract_eia860(context, raw_eia860__all_dfs):
     # EIA-860M only augments the generator tabs that overlap with annual EIA-860.
     # When subsetting this multi-asset, only extract and append 860M data if the user
     # requested at least one of those appendable raw outputs and 860M is enabled.
-    if eia_settings.eia860.eia860m and selected_eia860m_appendable_tables:
+    if eia_data_config.eia860.eia860m and selected_eia860m_appendable_tables:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            year_month=eia_settings.eia860.eia860m_year_months
+            year_month=eia_data_config.eia860.eia860m_year_months
         )
         raw_eia860__all_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=raw_eia860__all_dfs, eia860m_raw_dfs=eia860m_raw_dfs

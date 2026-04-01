@@ -26,12 +26,13 @@ logger = logging.getLogger(__name__)
 
 
 def plants_ferc1_raw(
-    etl_settings_path: Path, dagster_instance: DagsterInstance
+    global_data_config_path: Path, dagster_instance: DagsterInstance
 ) -> pd.DataFrame:
     """Execute the partial ETL of FERC plant tables.
 
     Args:
-        etl_settings_path: ETL settings file used for the given pytest run.
+        global_data_config_path: Path to the global data configuration file
+            used for the given pytest run.
 
     Returns:
         plants_ferc1_raw: all plants in the FERC Form 1 DBF and XBRL DB for given years.
@@ -39,9 +40,9 @@ def plants_ferc1_raw(
     result = get_plants_ferc1_raw_job().execute_in_process(
         run_config={
             "resources": {
-                "etl_settings": {
+                "global_data_config": {
                     "config": {
-                        "etl_settings_path": str(etl_settings_path),
+                        "global_data_config_path": str(global_data_config_path),
                     },
                 },
             }
@@ -56,14 +57,14 @@ def glue_test_dfs(
     prebuilt_outputs,
     ferc1_engine_xbrl: sa.Engine,
     ferc1_engine_dbf: sa.Engine,
-    etl_settings_path: Path,
+    global_data_config_path: Path,
     dagster_instance: DagsterInstance,
 ) -> dict[str, pd.DataFrame]:
     """Build the dataframes required for glue integration tests."""
     glue_test_dfs = {
         "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
         "util_ids_ferc1_raw_dbf": get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf),
-        "plants_ferc1_raw": plants_ferc1_raw(etl_settings_path, dagster_instance),
+        "plants_ferc1_raw": plants_ferc1_raw(global_data_config_path, dagster_instance),
         "plants_eia_pudl_db": get_parquet_table("out_eia__yearly_plants"),
         "plants_eia_labeled": label_plants_eia(
             get_parquet_table("out_eia__yearly_plants"),

@@ -18,13 +18,13 @@ from typing import Any
 
 import dagster as dg
 
-from pudl.settings import EtlSettings
+from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 PROVENANCE_METADATA_DATASET = "pudl_ferc_sqlite_dataset"
 PROVENANCE_METADATA_STATUS = "pudl_ferc_sqlite_status"
 PROVENANCE_METADATA_ZENODO_DOI = "pudl_ferc_sqlite_zenodo_doi"
-PROVENANCE_METADATA_SETTINGS = "pudl_ferc_sqlite_etl_settings"
+PROVENANCE_METADATA_DATA_CONFIG = "pudl_ferc_sqlite_global_data_config"
 PROVENANCE_METADATA_YEARS = "pudl_ferc_sqlite_years"
 PROVENANCE_METADATA_SQLITE_PATH = "pudl_ferc_sqlite_path"
 
@@ -59,13 +59,13 @@ def _get_dataset_and_format(db_name: str) -> tuple[str, str]:
 def get_ferc_sqlite_provenance(
     *,
     db_name: str,
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> "FercSqliteProvenance":
     """Build the expected provenance fingerprint for a FERC SQLite database."""
     dataset, data_format = _get_dataset_and_format(db_name)
-    settings_attr = f"{dataset}_{data_format}_to_sqlite_settings"
-    settings = getattr(etl_settings.ferc_to_sqlite, settings_attr)
+    settings_attr = f"{dataset}_{data_format}"
+    settings = getattr(global_data_config.ferc_to_sqlite, settings_attr)
     if settings is None:
         raise ValueError(f"Missing {settings_attr} in ETL settings.")
 
@@ -81,7 +81,7 @@ def get_ferc_sqlite_provenance(
 def build_ferc_sqlite_provenance_metadata(
     *,
     db_name: str,
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     sqlite_path: Path | None,
     status: str,
@@ -89,23 +89,23 @@ def build_ferc_sqlite_provenance_metadata(
     """Build materialization metadata for a FERC SQLite prerequisite asset."""
     provenance: FercSqliteProvenance = get_ferc_sqlite_provenance(
         db_name=db_name,
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
 
     # Serialize the full settings for debugging / audit; not used in compatibility checks.
     dataset, data_format = _get_dataset_and_format(db_name)
-    settings_attr = f"{dataset}_{data_format}_to_sqlite_settings"
-    settings_obj = getattr(etl_settings.ferc_to_sqlite, settings_attr)
-    settings_json = json.loads(
-        json.dumps(settings_obj.model_dump(mode="json"), sort_keys=True)
+    data_config_attr = f"{dataset}_{data_format}"
+    data_config_obj = getattr(global_data_config.ferc_to_sqlite, data_config_attr)
+    data_config_json = json.loads(
+        json.dumps(data_config_obj.model_dump(mode="json"), sort_keys=True)
     )
 
     metadata: dict[str, Any] = {
         PROVENANCE_METADATA_DATASET: dg.MetadataValue.text(provenance.dataset),
         PROVENANCE_METADATA_STATUS: dg.MetadataValue.text(status),
         PROVENANCE_METADATA_ZENODO_DOI: dg.MetadataValue.text(provenance.zenodo_doi),
-        PROVENANCE_METADATA_SETTINGS: dg.MetadataValue.json(settings_json),
+        PROVENANCE_METADATA_DATA_CONFIG: dg.MetadataValue.json(data_config_json),
         PROVENANCE_METADATA_YEARS: dg.MetadataValue.json(provenance.years),
     }
     if sqlite_path is not None:
@@ -124,7 +124,7 @@ def assert_ferc_sqlite_compatible(
     *,
     instance: Any | None,
     db_name: str,
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """Ensure a persisted FERC SQLite prerequisite is compatible with this run.
@@ -144,7 +144,7 @@ def assert_ferc_sqlite_compatible(
 
     provenance: FercSqliteProvenance = get_ferc_sqlite_provenance(
         db_name=db_name,
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
     event = instance.get_latest_materialization_event(provenance.asset_key)

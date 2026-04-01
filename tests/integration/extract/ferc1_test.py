@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 import pudl
-from pudl.settings import DatasetsSettings, Ferc1Settings
+from pudl.settings import Ferc1DataConfig, PudlDataConfig
 
 
 class TestFerc1ExtractDebugFunctions:
@@ -16,7 +16,7 @@ class TestFerc1ExtractDebugFunctions:
     def test_extract_dbf(self):
         """Test extract_dbf."""
         ferc1_dbf_raw_dfs: dict[str, pd.DataFrame] = pudl.extract.ferc1.extract_dbf(
-            dataset_settings=DatasetsSettings(ferc1=Ferc1Settings(years=[2020, 2021]))
+            pudl_data_config=PudlDataConfig(ferc1=Ferc1DataConfig(years=[2020, 2021]))
         )
 
         for table_name, df in ferc1_dbf_raw_dfs.items():
@@ -30,7 +30,7 @@ class TestFerc1ExtractDebugFunctions:
         ferc1_xbrl_raw_dfs: dict[
             str, dict[Literal["duration", "instant"], pd.DataFrame]
         ] = pudl.extract.ferc1.extract_xbrl(
-            dataset_settings=DatasetsSettings(ferc1=Ferc1Settings(years=[2021]))
+            pudl_data_config=PudlDataConfig(ferc1=Ferc1DataConfig(years=[2021]))
         )
 
         for table_name, xbrl_tables in ferc1_xbrl_raw_dfs.items():

@@ -2,8 +2,8 @@
 ###########################################################################
 # Settings for FERC-to-SQLite extraction
 ###########################################################################
-ferc_to_sqlite_settings:
-  ferc1_dbf_to_sqlite_settings:
+ferc_to_sqlite:
+  ferc1_dbf:
     # What years of original FERC data should be cloned into the SQLite DB?
     years:
       [
@@ -35,9 +35,9 @@ ferc_to_sqlite_settings:
         2019,
         2020,
       ]
-  ferc1_xbrl_to_sqlite_settings:
+  ferc1_xbrl:
     years: [2021, 2022, 2023, 2024]
-  ferc2_dbf_to_sqlite_settings:
+  ferc2_dbf:
     years:
       [
         1996,
@@ -66,9 +66,9 @@ ferc_to_sqlite_settings:
         2019,
         2020,
       ]
-  ferc2_xbrl_to_sqlite_settings:
+  ferc2_xbrl:
     years: [2021, 2022, 2023, 2024]
-  ferc6_dbf_to_sqlite_settings:
+  ferc6_dbf:
     years:
       [
         2000,
@@ -93,9 +93,9 @@ ferc_to_sqlite_settings:
         2019,
         2020,
       ]
-  ferc6_xbrl_to_sqlite_settings:
+  ferc6_xbrl:
     years: [2021, 2022, 2023, 2024]
-  ferc60_dbf_to_sqlite_settings:
+  ferc60_dbf:
     years:
       [
         2006,
@@ -114,9 +114,9 @@ ferc_to_sqlite_settings:
         2019,
         2020,
       ]
-  ferc60_xbrl_to_sqlite_settings:
+  ferc60_xbrl:
     years: [2021, 2022, 2023, 2024]
-  ferc714_xbrl_to_sqlite_settings:
+  ferc714_xbrl:
     years: [2021, 2022, 2023, 2024]
 
 ###########################################################################
@@ -128,7 +128,7 @@ description: >
   All available data for FERC 1 and EIA 860/923 (output to SQLite) plus all
   years of EPA CEMS hourly emissions data (output to Parquet).
 version: 0.1.0
-datasets:
+pudl:
   ferc1:
     years:
       [

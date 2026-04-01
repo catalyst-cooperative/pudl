@@ -15,9 +15,9 @@ resources:
     config:
       cloud_cache_path: s3://pudl.catalyst.coop/zenodo
       use_local_cache: true
-  etl_settings:
+  global_data_config:
     config:
-      etl_settings_path: src/pudl/package_data/settings/etl_fast.yml
+      global_data_config_path: src/pudl/package_data/settings/etl_fast.yml
   runtime_settings:
     config:
       xbrl_num_workers: null

@@ -33,9 +33,9 @@ from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
 from pudl.metadata import PUDL_PACKAGE
 from pudl.settings import (
-    DatasetsSettings,
-    EtlSettings,
-    FercToSqliteSettings,
+    FercToSqliteDataConfig,
+    GlobalDataConfig,
+    PudlDataConfig,
 )
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
@@ -267,13 +267,13 @@ def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
 
 def _engine_from_io_manager(
     io_manager_factory,
-    dataset_settings_config: DatasetsSettings | None = None,
+    pudl_data_config: PudlDataConfig | None = None,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine exposed by a Dagster IO manager resource."""
     io_manager = io_manager_factory
-    if dataset_settings_config is not None:
+    if pudl_data_config is not None:
         io_manager = io_manager_factory.model_copy(
-            update={"etl_settings": EtlSettings(datasets=dataset_settings_config)}
+            update={"global_data_config": GlobalDataConfig(pudl=pudl_data_config)}
         )
     if isinstance(io_manager, PudlMixedFormatIOManager):
         return io_manager._sqlite_io_manager.engine
@@ -329,7 +329,7 @@ def dagster_instance(dagster_home: Path) -> DagsterInstance:
 @pytest.fixture(scope="session")
 def asset_value_loader(
     prebuilt_outputs,
-    etl_settings_path: Path,
+    global_data_config_path: Path,
     dagster_instance: DagsterInstance,
 ) -> Generator[AssetValueLoader]:
     """Fixture that initializes an asset value loader.
@@ -340,8 +340,8 @@ def asset_value_loader(
     """
     configured_defs = build_defs(
         resource_overrides={
-            "etl_settings": resources.PudlEtlSettingsResource(
-                etl_settings_path=str(etl_settings_path)
+            "global_data_config": resources.GlobalDataConfigResource(
+                global_data_config_path=str(global_data_config_path)
             )
         }
     )
@@ -356,65 +356,71 @@ def save_unmapped_ids(request) -> bool:
 
 
 @pytest.fixture(scope="session")
-def etl_settings(etl_settings_path: Path) -> EtlSettings:
+def global_data_config(global_data_config_path: Path) -> GlobalDataConfig:
     """Read ETL settings referenced by Dagster integration config."""
-    return EtlSettings.from_yaml(str(etl_settings_path))
+    return GlobalDataConfig.from_yaml(str(global_data_config_path))
 
 
 @pytest.fixture(scope="session")
-def etl_settings_path(dg_config_path: Path, test_dir: Path) -> Path:
-    """Resolve the ETL settings file referenced by Dagster integration config."""
+def global_data_config_path(dg_config_path: Path, test_dir: Path) -> Path:
+    """Resolve the global data config file referenced by Dagster integration config."""
     with dg_config_path.open() as f:
         dg_config = yaml.safe_load(f)
 
     try:
-        etl_settings_ref = dg_config["resources"]["etl_settings"]["config"][
-            "etl_settings_path"
+        global_data_config_ref = dg_config["resources"]["global_data_config"]["config"][
+            "global_data_config_path"
         ]
     except KeyError as err:
         raise ValueError(
-            "Dagster config must define resources.etl_settings.config.etl_settings_path"
+            "Dagster config must define resources.global_data_config.config.global_data_config_path"
         ) from err
 
-    etl_settings_yml = Path(etl_settings_ref)
-    if not etl_settings_yml.is_absolute():
-        etl_settings_yml = (test_dir.parent / etl_settings_yml).resolve()
+    global_data_config_yml = Path(global_data_config_ref)
+    if not global_data_config_yml.is_absolute():
+        global_data_config_yml = (test_dir.parent / global_data_config_yml).resolve()
 
-    if not etl_settings_yml.exists():
-        raise FileNotFoundError(f"Missing ETL settings file: {etl_settings_yml}")
+    if not global_data_config_yml.exists():
+        raise FileNotFoundError(
+            f"Missing global data config file: {global_data_config_yml}"
+        )
 
-    return etl_settings_yml
+    return global_data_config_yml
 
 
 @pytest.fixture(scope="session")
-def dbt_target(etl_settings_path: Path) -> str:
+def dbt_target(global_data_config_path: Path) -> str:
     """Infer the dbt target name from the ETL settings used for the test run."""
-    if etl_settings_path.name == "etl_full.yml":
+    if global_data_config_path.name == "etl_full.yml":
         return "etl-full"
-    if etl_settings_path.name == "etl_fast.yml":
+    if global_data_config_path.name == "etl_fast.yml":
         return "etl-fast"
 
-    raise ValueError(f"Unexpected ETL settings file: {etl_settings_path}")
+    raise ValueError(f"Unexpected ETL settings file: {global_data_config_path}")
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite_settings(etl_settings: EtlSettings) -> FercToSqliteSettings:
+def ferc_to_sqlite_data_config(
+    global_data_config: GlobalDataConfig,
+) -> FercToSqliteDataConfig:
     """Read ferc_to_sqlite parameters out of test settings dictionary."""
-    return etl_settings.ferc_to_sqlite
+    return global_data_config.ferc_to_sqlite
 
 
 @pytest.fixture(scope="session")
-def pudl_etl_settings(etl_settings: EtlSettings) -> DatasetsSettings:
+def pudl_data_config(global_data_config: GlobalDataConfig) -> PudlDataConfig:
     """Read PUDL ETL parameters out of test settings dictionary."""
-    return etl_settings.dataset_settings
+    if global_data_config.pudl is None:
+        raise ValueError("Missing PUDL data config in global data config.")
+    return global_data_config.pudl
 
 
 @pytest.fixture(scope="session")
-def ferc1_engine_dbf(prebuilt_outputs, dataset_settings_config) -> sa.Engine:
+def ferc1_engine_dbf(prebuilt_outputs, pudl_data_config: PudlDataConfig) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database."""
     return _engine_from_io_manager(
         ferc1_dbf_sqlite_io_manager,
-        dataset_settings_config,
+        pudl_data_config,
     )
 
 
@@ -449,11 +455,11 @@ def prebuilt_outputs(
 
 
 @pytest.fixture(scope="session")
-def ferc1_engine_xbrl(prebuilt_outputs, dataset_settings_config) -> sa.Engine:
+def ferc1_engine_xbrl(prebuilt_outputs, pudl_data_config: PudlDataConfig) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database."""
     return _engine_from_io_manager(
         ferc1_xbrl_sqlite_io_manager,
-        dataset_settings_config,
+        pudl_data_config,
     )
 
 
@@ -471,11 +477,13 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
 
 
 @pytest.fixture(scope="session")
-def ferc714_engine_xbrl(prebuilt_outputs, dataset_settings_config) -> sa.Engine:
+def ferc714_engine_xbrl(
+    prebuilt_outputs, pudl_data_config: PudlDataConfig
+) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database."""
     return _engine_from_io_manager(
         ferc714_xbrl_sqlite_io_manager,
-        dataset_settings_config,
+        pudl_data_config,
     )
 
 
@@ -494,9 +502,9 @@ def ferc714_xbrl_taxonomy_metadata(ferc714_engine_xbrl: sa.Engine):
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(prebuilt_outputs) -> sa.Engine:
+def pudl_engine(prebuilt_outputs, pudl_data_config: PudlDataConfig) -> sa.Engine:
     """Return the SQLAlchemy engine for the prepared PUDL integration database."""
-    return _engine_from_io_manager(pudl_mixed_format_io_manager)
+    return _engine_from_io_manager(pudl_mixed_format_io_manager, pudl_data_config)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -568,14 +576,6 @@ def pudl_test_paths(tmp_path_factory, request, dagster_home: Path):
         )
 
 
-@pytest.fixture(scope="session")
-def dataset_settings_config(request, etl_settings: EtlSettings):
-    """Create dataset settings for test helpers and IO managers."""
-    if etl_settings.datasets is None:
-        raise ValueError("Missing datasets settings in ETL settings.")
-    return etl_settings.datasets
-
-
 @pytest.fixture(scope="session", autouse=True)
 def logger_config():
     """Configure root logger to filter out excessive logs from certain dependencies."""
@@ -598,8 +598,8 @@ def logger_config():
 
 
 @pytest.fixture(scope="session")
-def pudl_datastore_fixture(request) -> Generator[Datastore]:
-    """Create pudl Datastore resource."""
+def zenodo_datastore(request) -> Generator[Datastore]:
+    """Create a Zenodo Datastore resource."""
     with resources.ZenodoDoiSettingsResource.from_resource_context_cm(
         build_init_resource_context()
     ) as zenodo_dois:

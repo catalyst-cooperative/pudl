@@ -40,7 +40,7 @@ from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
-from pudl.settings import EiaSettings
+from pudl.settings import EiaDataConfig
 
 logger = pudl.logging_helpers.get_logger(__name__)
 HARVESTABLE_ASSETS = (
@@ -691,7 +691,7 @@ def harvest_entity_tables(  # noqa: C901
             ),
         ),
     },
-    required_resource_keys={"etl_settings"},
+    required_resource_keys={"global_data_config"},
     io_manager_key="pudl_io_manager",
 )
 def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
@@ -729,13 +729,13 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         AssertionError: If all generators do not end up with the same unit_id each year.
     """
     debug = context.op_config["debug"]
-    eia_settings = context.resources.etl_settings.dataset_settings.eia
+    eia_data_config: EiaDataConfig = context.resources.global_data_config.pudl.eia
 
     # Do some final data formatting and assign appropriate types:
     clean_dfs = {
         table_name: (
             convert_cols_dtypes(df, data_source="eia")
-            .pipe(_restrict_years, eia_settings)
+            .pipe(_restrict_years, eia_data_config)
             .pipe(PUDL_PACKAGE.encode)
         )
         for table_name, df in clean_dfs.items()
@@ -1062,13 +1062,13 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
 
 def _restrict_years(
     df: pd.DataFrame,
-    eia_settings: EiaSettings | None = None,
+    eia_data_config: EiaDataConfig | None = None,
 ) -> pd.DataFrame:
     """Restricts eia years for boiler generator association."""
-    if eia_settings is None:
-        eia_settings = EiaSettings()
+    if eia_data_config is None:
+        eia_data_config = EiaDataConfig()
 
-    bga_years = set(eia_settings.eia860.years) & set(eia_settings.eia923.years)
+    bga_years = set(eia_data_config.eia860.years) & set(eia_data_config.eia923.years)
     df = df[df.report_date.dt.year.isin(bga_years)]
     return df
 
@@ -1245,7 +1245,7 @@ def harvested_entity_asset_factory(
                 ),
             ),
         },
-        required_resource_keys={"etl_settings"},
+        required_resource_keys={"global_data_config"},
         name=f"harvested_{entity.value}_eia",
     )
     def harvested_entity(context, **clean_dfs):
@@ -1276,11 +1276,11 @@ def harvested_entity_asset_factory(
         # the longitude column is very different in the ytd 860M data (it appears
         # to have an additional decimal point) bc it shows up in the generator
         # table but it is a plant level data point, it mucks up the consistency
-        eia_settings = context.resources.etl_settings.dataset_settings.eia
+        eia_data_config: EiaDataConfig = context.resources.global_data_config.pudl.eia
         special_case_strictness = {
             "plant_name_eia": 0,
             "utility_name_eia": 0,
-            "longitude": 0 if eia_settings.eia860.eia860m else 0.7,
+            "longitude": 0 if eia_data_config.eia860.eia860m else 0.7,
             "prime_mover_code": 0,
         }
 

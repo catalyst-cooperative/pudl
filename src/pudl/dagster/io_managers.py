@@ -32,9 +32,9 @@ from sqlalchemy.exc import IntegrityError
 import pudl
 from pudl.dagster.provenance import assert_ferc_sqlite_compatible
 from pudl.dagster.resources import (
-    PudlEtlSettingsResource,
+    GlobalDataConfigResource,
     ZenodoDoiSettingsResource,
-    pudl_etl_settings_resource,
+    global_data_config_resource,
     zenodo_doi_settings_resource,
 )
 from pudl.helpers import (
@@ -702,7 +702,7 @@ class FercDbfSqliteIOManager(FercSqliteIOManager):
 
     The form name is inferred from ``self.db_name`` via :func:`_get_ferc_form_name`, so
     a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as
-    the corresponding settings object exposes a ``dbf_years`` attribute.
+    the corresponding data config object exposes a ``dbf_years`` attribute.
     """
 
     def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
@@ -737,36 +737,36 @@ class FercDbfSqliteIOManager(FercSqliteIOManager):
                 name.
         """
         self._ensure_database_ready()
-        ferc_settings = getattr(
-            context.resources.etl_settings.dataset_settings,
+        ferc_data_config = getattr(
+            context.resources.global_data_config.pudl,
             _get_ferc_form_name(self.db_name),
         )
         table_name = get_table_name_from_context(context).replace(
             f"raw_{self.db_name}__", ""
         )
-        return self._query(table_name, ferc_settings.dbf_years)
+        return self._query(table_name, ferc_data_config.dbf_years)
 
 
 class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
     """Base class for Dagster-native FERC SQLite IO manager wrappers.
 
-    Holds the shared resource dependencies (``etl_settings``, ``zenodo_dois``,
+    Holds the shared resource dependencies (``global_data_config``, ``zenodo_dois``,
     ``db_name``) and provides default delegation for ``engine`` and
     ``handle_output``. Subclasses must implement the ``_manager`` cached property
     and ``load_input``.
 
     Note:
-        This wrapper pattern is a temporary workaround for nested ``etl_settings``
+        This wrapper pattern is a temporary workaround for nested ``global_data_config``
         resource dependencies inside the FERC IO managers. Because Dagster wires
         resource dependencies at instantiation time, overriding the top-level
-        ``etl_settings`` resource alone (e.g. in tests) is not enough — the IO managers
+        ``global_data_config`` resource alone (e.g. in tests) is not enough — the IO managers
         must be rebuilt against the new resource instance.
         :func:`pudl.dagster.build.build_defs` handles that rebuilding explicitly. A
         follow-up PR will remove the nested dependency, at which point this base class
         can be simplified or eliminated. See issue #5118
     """
 
-    etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
+    global_data_config: dg.ResourceDependency[GlobalDataConfigResource]
     zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
     db_name: str
 
@@ -785,7 +785,7 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
         assert_ferc_sqlite_compatible(
             instance=_get_dagster_instance_if_available(context),
             db_name=self.db_name,
-            etl_settings=self.etl_settings,
+            global_data_config=self.global_data_config,
             zenodo_dois=self.zenodo_dois,
         )
 
@@ -809,14 +809,14 @@ class FercDbfSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
     def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from a FERC DBF SQLite database."""
         self._prepare(context)
-        ferc_settings = getattr(
-            self.etl_settings.dataset_settings,
+        ferc_data_config = getattr(
+            self.global_data_config.pudl,
             _get_ferc_form_name(self.db_name),
         )
         table_name = get_table_name_from_context(context).replace(
             f"raw_{self.db_name}__", ""
         )
-        return self._manager._query(table_name, ferc_settings.dbf_years)
+        return self._manager._query(table_name, ferc_data_config.dbf_years)
 
 
 class FercXbrlSqliteIOManager(FercSqliteIOManager):
@@ -906,14 +906,14 @@ class FercXbrlSqliteIOManager(FercSqliteIOManager):
                 name.
         """
         self._ensure_database_ready()
-        ferc_settings = getattr(
-            context.resources.etl_settings.dataset_settings,
+        ferc_data_config = getattr(
+            context.resources.global_data_config.pudl,
             _get_ferc_form_name(self.db_name),
         )
         table_name = get_table_name_from_context(context).replace(
             f"raw_{self.db_name}__", ""
         )
-        return self._query(table_name, ferc_settings.xbrl_years)
+        return self._query(table_name, ferc_data_config.xbrl_years)
 
 
 class FercXbrlSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
@@ -930,28 +930,28 @@ class FercXbrlSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
     def load_input(self, context: dg.InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC XBRL SQLite database."""
         self._prepare(context)
-        ferc_settings = getattr(
-            self.etl_settings.dataset_settings,
+        ferc_data_config = getattr(
+            self.global_data_config.pudl,
             _get_ferc_form_name(self.db_name),
         )
         table_name = get_table_name_from_context(context).replace(
             f"raw_{self.db_name}__", ""
         )
-        return self._manager._query(table_name, ferc_settings.xbrl_years)
+        return self._manager._query(table_name, ferc_data_config.xbrl_years)
 
 
 ferc1_dbf_sqlite_io_manager = FercDbfSqliteConfigurableIOManager(
-    etl_settings=pudl_etl_settings_resource,
+    global_data_config=global_data_config_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc1_dbf",
 )
 ferc1_xbrl_sqlite_io_manager = FercXbrlSqliteConfigurableIOManager(
-    etl_settings=pudl_etl_settings_resource,
+    global_data_config=global_data_config_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc1_xbrl",
 )
 ferc714_xbrl_sqlite_io_manager = FercXbrlSqliteConfigurableIOManager(
-    etl_settings=pudl_etl_settings_resource,
+    global_data_config=global_data_config_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     db_name="ferc714_xbrl",
 )
