@@ -97,7 +97,7 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.94.1
+    rev: v3.94.2
     hooks:
       - id: trufflehog
         name: TruffleHog
@@ -112,6 +112,8 @@ repos:
         args:
           - "--baseline"
           - ".secrets.baseline"
+          - "--exclude-lines"
+          - "workload_identity_provider:"
           - "--exclude-files"
           - "(?x)(dbt/package-lock\\.yml|.*\\.ipynb|docs/.*\\.html|migrations/.*|skills-lock\\.json)"
 
