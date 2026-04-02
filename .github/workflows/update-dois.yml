@@ -73,4 +73,4 @@ jobs:
           branch: update-zenodo-dois-${{ github.run_number }}-${{ github.run_id }}
           base: main
           labels: >
-            date-update${{ steps.format-datasets.outputs.dataset_labels && format(', {0}', steps.format-datasets.outputs.dataset_labels) || '' }}
+            data-update${{ steps.format-datasets.outputs.dataset_labels && format(', {0}', steps.format-datasets.outputs.dataset_labels) || '' }}
