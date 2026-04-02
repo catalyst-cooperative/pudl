@@ -11,6 +11,7 @@ from pudl.extract.ferc2 import Ferc2DbfExtractor
 from pudl.extract.ferc6 import Ferc6DbfExtractor
 from pudl.extract.ferc60 import Ferc60DbfExtractor
 from pudl.logging_helpers import get_logger
+from pudl.settings import GlobalDataConfig
 
 logger = get_logger(__name__)
 
@@ -31,7 +32,9 @@ def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
     ],
 )
 @pytest.mark.order(1)
-def test_ferc_schema(ferc_to_sqlite_data_config, zenodo_datastore, extractor_class):
+def test_ferc_schema(
+    global_data_config: GlobalDataConfig, zenodo_datastore, extractor_class
+):
     """Check to make sure we aren't missing any old FERC Form N tables or fields.
 
     Exhaustively enumerate all historical sets of FERC Form N database tables and their
@@ -45,7 +48,7 @@ def test_ferc_schema(ferc_to_sqlite_data_config, zenodo_datastore, extractor_cla
         )
 
     dataset = extractor_class.DATASET
-    dbf_data_config = getattr(ferc_to_sqlite_data_config, f"{dataset}_dbf")
+    dbf_data_config = getattr(global_data_config.ferc_to_sqlite, f"{dataset}_dbf")
     refyear = dbf_data_config.refyear
     dbf_reader = FercDbfReader(zenodo_datastore, dataset=dataset)
     ref_archive = dbf_reader.get_archive(year=refyear, data_format="dbf")
