@@ -39,7 +39,7 @@ jobs:
           set -o pipefail
           pixi update --json | pixi exec pixi-diff-to-markdown >> diff.md
           pixi install --locked
-          pixi run pre-commit-autoupdate
+          pixi run prek-autoupdate
           PUDL_OUTPUT="/home/runner/pudl-work/output/" pixi run dbt-deps-upgrade
       - name: Make a PR to merge updated lockfiles
         # If we are relocking dependencies on a schedule or workflow_dispatch, we need

@@ -23,8 +23,8 @@ RUS 7 & RUS 12
 
 * Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
   :pr:`5040`. See :pr:`5077`.
-* Added additional core and output tables from RUS Form 7 and 12.
-  See :pr:`5087` and :pr:`5091`.
+* Added last rounds of core and output tables from RUS Form 7 and 12.
+  See :pr:`5087`, :pr:`5091` and :pr:`5145`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -102,7 +102,7 @@ Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
-  PR :pr:`5023`.
+  PR :pr:`5023`. Thanks to :user:`andbusch` for getting this in!
 * Added environment variable controls for Sphinx docs builds:
   ``PUDL_DOCS_KEEP_GENERATED_FILES`` now preserves generated docs artifacts for
   debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups

@@ -27,8 +27,8 @@
 - Pixi environments and tasks are defined in `pyproject.toml` under `[tool.pixi]`
   sections.
 - PUDL uses ruff to lint and automatically format python code. Before staging files for
-  a commit, always run `pixi run pre-commit run ruff-check --all-files` and
-  `pixi run pre-commit run ruff-format --all-files`
+  a commit, always run `pixi run prek run ruff-check --all-files` and
+  `pixi run prek run ruff-format --all-files`
 - A number of pre-commit hooks are defined in .pre-commit-config.yaml.
 - We try to use appropriate type annotations in function, class, and method definitions,
   but they are not yet checked or enforced. They are primarily to improve readability
