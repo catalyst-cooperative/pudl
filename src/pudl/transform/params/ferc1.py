@@ -1954,7 +1954,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "core_ferc1__yearly_depreciation_changes_sched336": {
+    "core_ferc1__yearly_depreciation_factors_sched336": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -1966,8 +1966,8 @@ TRANSFORM_PARAMS = {
                     "row_prvlg": "row_prvlg",
                     "depr_plnt_base": "depreciable_plant_base",  # $1000s
                     "est_avg_srvce_lf": "service_life_avg",  # est
-                    "net_salvage": "net_salvage",  # pct
-                    "apply_depr_rate": "depreciation_rate",  # pct
+                    "net_salvage": "net_salvage_pct",
+                    "apply_depr_rate": "depreciation_rate",
                     "mrtlty_crv_typ": "mortality_curve_type",
                     "avg_remaining_lf": "remaining_life_avg",
                     "acct_num": "account_num",
@@ -1986,7 +1986,7 @@ TRANSFORM_PARAMS = {
                     "mortality_curve_type": "mortality_curve_type",
                     "account_number_factors_used_in_estimating_depreciation_charges": "account_num",
                     "depreciable_plant_base": "depreciable_plant_base",
-                    "utility_plant_net_salvage_value_percentage": "net_salvage",
+                    "utility_plant_net_salvage_value_percentage": "net_salvage_pct",
                 }
             },
         },

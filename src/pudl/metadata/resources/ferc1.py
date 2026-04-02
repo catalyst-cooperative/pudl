@@ -54,12 +54,18 @@ TABLE_DESCRIPTIONS = {
             "amortization changes."
         ),
     },
-    "yearly_depreciation_changes_sched336": {
+    "yearly_depreciation_factors_sched336": {
         "additional_summary_text": "factors used in estimating depreciation charges.",
         "additional_source_text": "(Schedule 336 - Section C)",
-        "usage_warnings": ["aggregation_hazard"],
+        "usage_warnings": [
+            "aggregation_hazard",
+            {
+                "type": "custom",
+                "description": "Many of the rate and percentage (pct) columns are reported either as values between 0-1 or 0-100.",
+            },
+        ],
         "additional_details_text": (
-            "This table contains details at a variety of levels of granularity  "
+            "This table contains details at a variety of levels of granularity."
             "the "
             "This table only "
             "contains information from Section C:  Factors Used in Estimating Depreciation Charges."
@@ -447,16 +453,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "core_ferc1__yearly_depreciation_changes_sched336": {
-        "description": TABLE_DESCRIPTIONS["yearly_depreciation_changes_sched336"],
+    "core_ferc1__yearly_depreciation_factors_sched336": {
+        "description": TABLE_DESCRIPTIONS["yearly_depreciation_factors_sched336"],
         "schema": {
             "fields": [
                 "record_id",
                 "report_year",
                 "utility_id_ferc1",
-                # belowww
                 "depreciable_plant_base",
-                "net_salvage",
+                "net_salvage_pct",
                 "depreciation_rate",
                 "mortality_curve_type",
                 "depreciation_charges",
@@ -465,12 +470,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "service_life_avg",
                 "remaining_life_avg",
             ],
-            # "primary_key": [
-            #     "utility_id_ferc1",
-            #     "report_year",
-            #     "plant_function",
-            #     "ferc_account_label",
-            # ],
         },
         "sources": ["ferc1"],
         "etl_group": "ferc1",

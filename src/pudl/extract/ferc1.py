@@ -171,7 +171,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
     },
-    "core_ferc1__yearly_depreciation_changes_sched336": {
+    "core_ferc1__yearly_depreciation_factors_sched336": {
         "dbf": "f1_edcfu_epda",
         "xbrl": "factors_used_in_estimating_depreciation_charges_section_c_336",
     },

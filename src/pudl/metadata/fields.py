@@ -10010,10 +10010,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Depreciable plant balance (depreciable base) to which rates are applied.",
     },
-    "net_salvage": {"type": "number", "description": "TODO"},
-    "depreciation_rate": {"type": "string", "description": "TODO"},
-    "mortality_curve_type": {"type": "string", "description": "TODO"},
-    "depreciation_charges": {"type": "string", "description": "TODO"},
+    "net_salvage_pct": {
+        "type": "number",
+        "description": (
+            "Percentage representing the estimated value of utility plant at the end of its service life. "
+            "Be aware that the formatting of this column is not expected to be standard - expect some "
+            "values between 0-1 and some between 0-100."
+        ),
+    },
+    "depreciation_rate": {
+        "type": "string",
+        "description": "Depreciation rate applied to utility plant balance.",
+    },
+    "mortality_curve_type": {
+        "type": "string",
+        "description": "Description of the type of mortality curve selected in plant mortality studies prepared to assist in estimating average service lives.",
+    },
+    "depreciation_charges": {
+        "type": "string",
+        "description": "Estimated depreciation charges.",
+    },
     "order_num": {
         "type": "number",
         "description": (
@@ -10038,7 +10054,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Estimated average service life of utility plant, in 'PnYnMnDTnHnMnS' format, for example 'P4Y7M12D' represents a fact of four years, seven months, and 12 days."
         ),
     },
-    "remaining_life_avg": {"type": "string", "description": "TODO"},
+    "remaining_life_avg": {
+        "type": "string",
+        "description": "Estimated weighted average of remaining life of utility plant assets.",
+    },
     "utility_plant_group": {
         "type": "string",
         "description": "High-level category of utility plant asset type.",
