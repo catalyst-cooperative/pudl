@@ -193,6 +193,10 @@ def add_new_matches_to_dataframe(
         final_updates.append(match)
 
     updates_df = pd.DataFrame(final_updates)
+
+    if updates_df.empty:  # If no updates, do nothing
+        return existing_glue_df
+
     updates_df = updates_df.drop(
         columns=["utility_id_pudl_ferc1", "utility_id_pudl_eia"]
     )
