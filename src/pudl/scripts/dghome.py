@@ -127,21 +127,24 @@ def dghome() -> None:
     """Manage UUID-named directories in Dagster storage."""
 
 
-@dghome.command()
+_DATE_FORMATS_EPILOG = (
+    "\n"
+    "DATE formats:\n"
+    "  YYYY-MM-DD HH:MM  exact datetime, e.g. '2026-01-15 14:30'\n"
+    "  YYYY-MM-DD        end of that day, e.g. 2026-01-15\n"
+    "  <N>d              N days ago,  e.g. 10d\n"
+    "  <N>w              N weeks ago, e.g. 4w\n"
+    "  <N>m              N months ago, e.g. 1m"
+)
+
+
+@dghome.command(epilog=_DATE_FORMATS_EPILOG)
 @click.argument("date", required=False, default=None)
-def ls(date: str | None) -> None:  # noqa: D301
+def ls(date: str | None) -> None:
     """List UUID directories, optionally filtered by modification date.
 
     Without DATE, lists all directories. With DATE, lists only those
     last modified on or before DATE.
-
-    
-    DATE formats:
-      YYYY-MM-DD HH:MM  exact datetime, e.g. '2026-01-15 14:30'
-      YYYY-MM-DD        end of that day, e.g. 2026-01-15
-      <N>d              N days ago,  e.g. 10d
-      <N>w              N weeks ago, e.g. 4w
-      <N>m              N months ago, e.g. 1m
     """
     cutoff_ts = _parse_date(date).timestamp() if date else None
     entries = _collect(cutoff_ts)
@@ -167,20 +170,12 @@ def ls(date: str | None) -> None:  # noqa: D301
         click.echo(click.style(line, fg=_row_color(e["size_kb"])))
 
 
-@dghome.command()
+@dghome.command(epilog=_DATE_FORMATS_EPILOG)
 @click.argument("date", required=False, default=None)
-def rm(date: str | None) -> None:  # noqa: D301
+def rm(date: str | None) -> None:
     """Remove UUID directories last modified on or before DATE.
 
     Without DATE, reports what would be removed but does nothing.
-
-    
-    DATE formats:
-      YYYY-MM-DD HH:MM  exact datetime, e.g. '2026-01-15 14:30'
-      YYYY-MM-DD        end of that day, e.g. 2026-01-15
-      <N>d              N days ago,  e.g. 10d
-      <N>w              N weeks ago, e.g. 4w
-      <N>m              N months ago, e.g. 1m
     """
     cutoff_ts = _parse_date(date).timestamp() if date else None
     entries = _collect(cutoff_ts)
