@@ -59,16 +59,22 @@ TABLE_DESCRIPTIONS = {
         "additional_source_text": "(Schedule 336 - Section C)",
         "usage_warnings": [
             "aggregation_hazard",
+            "free_text",
             {
                 "type": "custom",
-                "description": "Many of the rate and percentage (pct) columns are reported either as values between 0-1 or 0-100.",
+                "description": "The rate and percentage (pct) columns are reported either as values between 0-1 or 0-100.",
             },
         ],
+        "additional_primary_key_text": "This table is too unstructured to have a primary key.",
         "additional_details_text": (
             "This table contains details at a variety of levels of granularity."
-            "the "
+            "There are many free-form text fields in this table which results in respondents "
+            "filling out this table very differently from each other or from year to year. "
+            "We recommend using this table carefully with one utility-year at a time - not "
+            "attempting to perform analysis across long time-series or across utilities without "
+            "much caution and cleaning. "
             "This table only "
-            "contains information from Section C:  Factors Used in Estimating Depreciation Charges."
+            "contains information from Section C: Factors Used in Estimating Depreciation Charges."
         ),
     },
     "yearly_energy_sources_sched401": {
@@ -460,11 +466,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "record_id",
                 "report_year",
                 "utility_id_ferc1",
+                "depreciation_factors",
                 "depreciable_plant_base",
                 "net_salvage_pct",
                 "depreciation_rate",
                 "mortality_curve_type",
-                "depreciation_charges",
                 "order_num",
                 "account_num",
                 "service_life_avg",

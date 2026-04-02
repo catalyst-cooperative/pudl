@@ -1978,7 +1978,7 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "estimated_depreciation_charges_factors_axis": "depreciation_charges",
+                    "estimated_depreciation_charges_factors_axis": "depreciation_factors",
                     "utility_plant_applied_depreciation_rate": "depreciation_rate",
                     "utility_plant_estimated_average_service_life": "service_life_avg",
                     "utility_plant_weighted_average_remaining_life": "remaining_life_avg",
