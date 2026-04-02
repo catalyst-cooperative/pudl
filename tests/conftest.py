@@ -32,11 +32,7 @@ from pudl.dagster.io_managers import (
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
 from pudl.metadata import PUDL_PACKAGE
-from pudl.settings import (
-    FercToSqliteDataConfig,
-    GlobalDataConfig,
-    PudlDataConfig,
-)
+from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
 
@@ -267,13 +263,13 @@ def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
 
 def _engine_from_io_manager(
     io_manager_factory,
-    pudl_data_config: PudlDataConfig | None = None,
+    global_data_config: GlobalDataConfig | None = None,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine exposed by a Dagster IO manager resource."""
     io_manager = io_manager_factory
-    if pudl_data_config is not None:
+    if global_data_config is not None:
         io_manager = io_manager_factory.model_copy(
-            update={"global_data_config": GlobalDataConfig(pudl=pudl_data_config)}
+            update={"global_data_config": global_data_config}
         )
     if isinstance(io_manager, PudlMixedFormatIOManager):
         return io_manager._sqlite_io_manager.engine
@@ -400,27 +396,13 @@ def dbt_target(global_data_config_path: Path) -> str:
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite_data_config(
-    global_data_config: GlobalDataConfig,
-) -> FercToSqliteDataConfig:
-    """Read ferc_to_sqlite parameters out of test settings dictionary."""
-    return global_data_config.ferc_to_sqlite
-
-
-@pytest.fixture(scope="session")
-def pudl_data_config(global_data_config: GlobalDataConfig) -> PudlDataConfig:
-    """Read PUDL ETL parameters out of test settings dictionary."""
-    if global_data_config.pudl is None:
-        raise ValueError("Missing PUDL data config in global data config.")
-    return global_data_config.pudl
-
-
-@pytest.fixture(scope="session")
-def ferc1_engine_dbf(prebuilt_outputs, pudl_data_config: PudlDataConfig) -> sa.Engine:
+def ferc1_engine_dbf(
+    prebuilt_outputs, global_data_config: GlobalDataConfig
+) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database."""
     return _engine_from_io_manager(
         ferc1_dbf_sqlite_io_manager,
-        pudl_data_config,
+        global_data_config,
     )
 
 
@@ -455,11 +437,13 @@ def prebuilt_outputs(
 
 
 @pytest.fixture(scope="session")
-def ferc1_engine_xbrl(prebuilt_outputs, pudl_data_config: PudlDataConfig) -> sa.Engine:
+def ferc1_engine_xbrl(
+    prebuilt_outputs, global_data_config: GlobalDataConfig
+) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database."""
     return _engine_from_io_manager(
         ferc1_xbrl_sqlite_io_manager,
-        pudl_data_config,
+        global_data_config,
     )
 
 
@@ -478,12 +462,12 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
 
 @pytest.fixture(scope="session")
 def ferc714_engine_xbrl(
-    prebuilt_outputs, pudl_data_config: PudlDataConfig
+    prebuilt_outputs, global_data_config: GlobalDataConfig
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database."""
     return _engine_from_io_manager(
         ferc714_xbrl_sqlite_io_manager,
-        pudl_data_config,
+        global_data_config,
     )
 
 
@@ -502,9 +486,9 @@ def ferc714_xbrl_taxonomy_metadata(ferc714_engine_xbrl: sa.Engine):
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(prebuilt_outputs, pudl_data_config: PudlDataConfig) -> sa.Engine:
+def pudl_engine(prebuilt_outputs, global_data_config: GlobalDataConfig) -> sa.Engine:
     """Return the SQLAlchemy engine for the prepared PUDL integration database."""
-    return _engine_from_io_manager(pudl_mixed_format_io_manager, pudl_data_config)
+    return _engine_from_io_manager(pudl_mixed_format_io_manager, global_data_config)
 
 
 @pytest.fixture(scope="session", autouse=True)

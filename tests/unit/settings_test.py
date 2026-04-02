@@ -438,9 +438,9 @@ def test_all_data_config_model_dump_round_trip(instance: BaseModel) -> None:
     type(instance)(**dumped)
 
 
-def test_partitions_with_json_normalize(pudl_data_config):
+def test_partitions_with_json_normalize(global_data_config: GlobalDataConfig):
     """Ensure the FERC1 and CEMS partitions normalize."""
-    datasets = pudl_data_config.get_datasets()
+    datasets = global_data_config.pudl.get_datasets()
     ferc_parts: pd.DataFrame = json_normalize(datasets["ferc1"].partitions)
     if list(ferc_parts.columns) != ["year"]:
         raise AssertionError(
@@ -456,11 +456,11 @@ def test_partitions_with_json_normalize(pudl_data_config):
 
 
 @pytest.mark.slow
-def test_partitions_for_datasource_table(pudl_data_config):
+def test_partitions_for_datasource_table(global_data_config: GlobalDataConfig):
     """Test whether or not we can make the datasource table."""
     ds = Datastore(local_cache_path=PudlPaths().data_dir)
-    datasource = pudl_data_config.make_datasources_table(ds)
-    datasets = pudl_data_config.get_datasets().keys()
+    datasource = global_data_config.pudl.make_datasources_table(ds)
+    datasets = global_data_config.pudl.get_datasets().keys()
     if datasource.empty and datasets != 0:
         raise AssertionError(
             "Datasource table is empty with the following datasets in the settings: "
