@@ -247,6 +247,15 @@ changes:
   They now follow the Python convention of treating each acronym as a single
   title-cased word, so ``SQLite`` becomes ``Sqlite`` when it appears mid-name
   (e.g. ``FercDbfSqliteConfigurableIOManager``).  See :issue:`5123` and PR :pr:`5124`.
+* **Renamed Pydantic settings classes from** ``*Settings`` **to** ``*DataConfig``
+  **and tightened container field names.** The old names were too vague — these
+  classes define *which data gets processed*, not general application settings.
+  The new names make that explicit and align with Dagster's own ``Config``
+  naming convention. The top-level ``EtlSettings`` is now ``GlobalDataConfig``;
+  ``DatasetsSettings`` (the PUDL job) is now ``PudlDataConfig``; and field names
+  on the container classes drop redundant suffixes (e.g. ``ferc_to_sqlite_settings``
+  → ``ferc_to_sqlite``, ``datasets`` → ``pudl``). The data config and Dagster
+  config YAML files are updated to match. See PR :pr:`5153`.
 
 .. _release-v2026.3.0:
 

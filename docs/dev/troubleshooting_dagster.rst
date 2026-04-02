@@ -83,23 +83,23 @@ Dagster resources are python objects that any assets can access.
 Resources can be configured using the Dagster UI or via a YAML config
 file to change the behavior of a given resource. PUDL's default resource
 set is assembled in :mod:`pudl.dagster.resources` and includes datastore
-access, ETL settings, runtime settings, and several IO managers. The
+access, data config, runtime settings, and several IO managers. The
 resources contributors most often need to adjust are:
 
-:class:`pudl.dagster.resources.PudlEtlSettingsResource`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``etl_settings`` resource loads a validated
-:class:`pudl.settings.EtlSettings` object from an ETL settings YAML
+:class:`pudl.dagster.resources.GlobalDataConfigResource`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The ``global_data_config`` resource loads a validated
+:class:`pudl.settings.GlobalDataConfig` object from a data config YAML
 file. It controls which datasets and years are processed by both
 the ``ferc_to_sqlite`` and ``pudl`` jobs. The path to the settings
-file is configured via the ``etl_settings_path`` field, and the
+file is configured via the ``global_data_config_path`` field, and the
 standard packaged settings files are under
 ``src/pudl/package_data/settings/``.
 
 To override the settings for a single run from the Dagster UI, hold
 shift while clicking "Materialize All" to open the run configuration
-panel and set ``etl_settings.config.etl_settings_path`` to point at
-a custom settings YAML file.
+panel and set ``global_data_config.config.global_data_config_path`` to
+point at a custom data config YAML file.
 
 .. note::
 
