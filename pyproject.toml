@@ -590,7 +590,11 @@ doctest_optionflags = [
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
-omit = ["src/pudl/*/ferceqr*.py", "src/pudl/_version.py"]
+omit = [
+    "src/pudl/*/ferceqr*.py",
+    "src/pudl/_version.py",
+    "src/pudl/scripts/dghome.py",
+]
 relative_files = true
 
 [tool.coverage.report]
