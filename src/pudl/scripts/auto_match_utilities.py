@@ -195,7 +195,8 @@ def add_new_matches_to_dataframe(
     updates_df = pd.DataFrame(final_updates)
 
     if updates_df.empty:  # If no updates, do nothing
-        return existing_glue_df
+        logger.info("No new matches found.")
+        return None
 
     updates_df = updates_df.drop(
         columns=["utility_id_pudl_ferc1", "utility_id_pudl_eia"]
@@ -329,7 +330,9 @@ def main(test_run: bool):
     updated_spreadsheet = add_new_matches_to_dataframe(
         matches_new=matched_utilities, existing_glue_df=existing_glue_df
     )
-    write_updated_matches(test_run=test_run, dataframe=updated_spreadsheet)
+
+    if updated_spreadsheet:
+        write_updated_matches(test_run=test_run, dataframe=updated_spreadsheet)
 
 
 if __name__ == "__main__":
