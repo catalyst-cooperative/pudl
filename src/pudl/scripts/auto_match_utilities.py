@@ -331,7 +331,7 @@ def main(test_run: bool):
         matches_new=matched_utilities, existing_glue_df=existing_glue_df
     )
 
-    if updated_spreadsheet:
+    if not updated_spreadsheet.empty:
         write_updated_matches(test_run=test_run, dataframe=updated_spreadsheet)
 
 
