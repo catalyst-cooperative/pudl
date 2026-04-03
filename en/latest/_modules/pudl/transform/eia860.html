@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia860 &#8212; PUDL 2026.3.1.dev44 documentation</title>
+    <title>pudl.transform.eia860 &#8212; PUDL 2026.3.1.dev45 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=fdab68de"></script>
+    <script src="../../../_static/documentation_options.js?v=54eb1cb8"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -570,8 +570,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev44 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev44 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev45 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev45 documentation - Home"/>
   
   
 </a></div>
@@ -1166,27 +1166,26 @@ window.runMermaid = runMermaid;</script>
     <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;PACE&quot;</span>
     <span class="n">gens_df</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">gens_df</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="c1"># spot fix one or two assumed to be bad technology description. It&#39;s assumed to be wrong</span>
+    <span class="c1"># spot fix one proposed fusion plant&#39;s technology description. It&#39;s assumed to be wrong</span>
     <span class="c1"># because we learned via pudl.output.eia.fill_generator_technology_description</span>
     <span class="c1"># that all other combos of PM code and ESC have a different technology. See #4788</span>
-    <span class="c1"># we have to do this after encoding bc we are dealing with codes</span>
+    <span class="c1"># and #5049. we have to do this after encoding bc we are dealing with codes</span>
     <span class="n">bad_tech_mask</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="n">gens_df</span><span class="o">.</span><span class="n">technology_description</span> <span class="o">==</span> <span class="s2">&quot;All Other&quot;</span><span class="p">)</span>
         <span class="o">&amp;</span> <span class="p">(</span><span class="n">gens_df</span><span class="o">.</span><span class="n">prime_mover_code</span> <span class="o">==</span> <span class="s2">&quot;OT&quot;</span><span class="p">)</span>
         <span class="o">&amp;</span> <span class="p">(</span><span class="n">gens_df</span><span class="o">.</span><span class="n">energy_source_code_1</span> <span class="o">==</span> <span class="s2">&quot;OG&quot;</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">expected_bad_tech_len_min</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="mi">2025</span> <span class="ow">in</span> <span class="n">gens_df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span>
-    <span class="n">expected_bad_tech_len_max</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">expected_bad_tech_len_min</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">4</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
-        <span class="n">expected_bad_tech_len_min</span>
-        <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gens_df</span><span class="p">[</span><span class="n">bad_tech_mask</span><span class="p">])</span>
-        <span class="o">&lt;=</span> <span class="n">expected_bad_tech_len_max</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">bad_tech_mask</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>  <span class="c1"># If bad records found</span>
+    <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">gens_df</span><span class="p">[</span><span class="n">bad_tech_mask</span><span class="p">]</span><span class="o">.</span><span class="n">plant_id_eia</span> <span class="o">==</span> <span class="mi">69099</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>  <span class="c1"># And bad records found belonging to a different plant ID</span>
     <span class="p">):</span>
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Spot fixing: We expect to find between </span><span class="si">{</span><span class="n">expected_bad_tech_len_min</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;and </span><span class="si">{</span><span class="n">expected_bad_tech_len_max</span><span class="si">}</span><span class="s2"> records &quot;</span>
-            <span class="s2">&quot;which has what we assume is an incorrect technology description, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;but we found: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gens_df</span><span class="p">[</span><span class="n">bad_tech_mask</span><span class="p">])</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Spot fixing: We expect to find that only plant ID 69099 records &quot;</span>
+            <span class="s2">&quot;what we assume is an incorrect technology description, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;but we found:&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">gens_df</span><span class="p">[</span><span class="n">bad_tech_mask</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
     <span class="n">gens_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">bad_tech_mask</span><span class="p">,</span> <span class="s2">&quot;technology_description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Other Gases&quot;</span>

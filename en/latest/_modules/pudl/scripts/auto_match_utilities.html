@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.auto_match_utilities &#8212; PUDL 2026.3.1.dev44 documentation</title>
+    <title>pudl.scripts.auto_match_utilities &#8212; PUDL 2026.3.1.dev45 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=fdab68de"></script>
+    <script src="../../../_static/documentation_options.js?v=54eb1cb8"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -570,8 +570,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev44 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev44 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev45 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev45 documentation - Home"/>
   
   
 </a></div>
@@ -1062,6 +1062,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">final_updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
 
     <span class="n">updates_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">final_updates</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">updates_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>  <span class="c1"># If no updates, do nothing</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No new matches found.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
     <span class="n">updates_df</span> <span class="o">=</span> <span class="n">updates_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_pudl_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl_eia&quot;</span><span class="p">]</span>
     <span class="p">)</span>
@@ -1200,7 +1205,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">updated_spreadsheet</span> <span class="o">=</span> <span class="n">add_new_matches_to_dataframe</span><span class="p">(</span>
         <span class="n">matches_new</span><span class="o">=</span><span class="n">matched_utilities</span><span class="p">,</span> <span class="n">existing_glue_df</span><span class="o">=</span><span class="n">existing_glue_df</span>
     <span class="p">)</span>
-    <span class="n">write_updated_matches</span><span class="p">(</span><span class="n">test_run</span><span class="o">=</span><span class="n">test_run</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="n">updated_spreadsheet</span><span class="p">)</span></div>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">updated_spreadsheet</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">write_updated_matches</span><span class="p">(</span><span class="n">test_run</span><span class="o">=</span><span class="n">test_run</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="n">updated_spreadsheet</span><span class="p">)</span></div>
 
 
 
