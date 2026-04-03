@@ -17,7 +17,6 @@ from pudl.settings import (
     FercToSqliteSettings,
     XbrlFormNumber,
 )
-from pudl.workspace.setup import PudlPaths
 
 
 def test_ferc_xbrl_datastore_get_taxonomy(mocker):
@@ -88,12 +87,25 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
     ],
 )
 def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
+    """Mock out the actual work of convert_form, then run the XBRL ops and see
+    if convert_form was called in the right way.
+
+    We *DO* have to mock out PudlPaths, since underlying code accesses
+    PudlPaths. But we *DON'T* have to set env vars - this all executes in the
+    same process, so the mock persists through task execution boundary.
+    """
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
     # Mock datastore object to allow comparison
     mock_datastore = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
+
+    mock_paths = mocker.Mock()
+    mock_paths.output_dir = tmp_path
+    mock_paths.sqlite_db_path.side_effect = lambda name: tmp_path / f"{name}.sqlite"
+    mock_paths.duckdb_db_path.side_effect = lambda name: tmp_path / f"{name}.duckdb"
+    mocker.patch("pudl.extract.xbrl.PudlPaths", return_value=mock_paths)
 
     # Only select operations that are tagged with data_format=xbrl.
     op_selection = [
@@ -121,15 +133,15 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
             settings.get_xbrl_dataset_settings(form),
             form,
             mock_datastore,
-            output_path=PudlPaths().output_dir,
-            sqlite_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.sqlite",
-            duckdb_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.duckdb",
+            output_path=tmp_path,
+            sqlite_path=tmp_path / f"ferc{form.value}_xbrl.sqlite",
+            duckdb_path=tmp_path / f"ferc{form.value}_xbrl.duckdb",
             batch_size=20,
             workers=10,
         )
 
 
-def test_convert_form(mocker):
+def test_convert_form(mocker, tmp_path):
     """Test convert_form method is properly calling extractor."""
     extractor_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.run_main", new=extractor_mock)
@@ -146,7 +158,7 @@ def test_convert_form(mocker):
         years=[2020, 2021],
     )
 
-    output_path = PudlPaths().pudl_output
+    output_path = tmp_path
 
     # Test convert_form for every form number
     for form in XbrlFormNumber:

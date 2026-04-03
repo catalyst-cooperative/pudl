@@ -1,8 +1,5 @@
 """Test Dagster IO Managers."""
 
-from pathlib import Path
-
-import alembic.config
 import pandas as pd
 import pytest
 import sqlalchemy as sa
@@ -19,7 +16,6 @@ from pudl.io_managers import (
     PudlSQLiteIOManager,
     SQLiteIOManager,
 )
-from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
 
 
@@ -259,31 +255,6 @@ def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture)
     input_context = build_input_context(asset_key=AssetKey(asset_key))
     returned_df = manager.load_input(input_context)
     assert len(returned_df) == 1
-
-
-@pytest.mark.slow
-def test_migrations_match_metadata(tmp_path, monkeypatch):
-    """If you create a `PudlSQLiteIOManager` that points at a non-existing
-    `pudl.sqlite` - it will initialize the DB based on the `package`.
-
-    If you create a `PudlSQLiteIOManager` that points at an existing
-    `pudl.sqlite`, like one initialized via `alembic upgrade head`, it
-    will compare the existing db schema with the db schema in `package`.
-
-    We want to make sure that the schema defined in `package` is the same as
-    the one we arrive at by applying all the migrations.
-    """
-    # alembic wants current directory to be the one with `alembic.ini` in it
-    monkeypatch.chdir(Path(__file__).parent.parent.parent)
-    # alembic knows to use PudlPaths().pudl_db - so we need to set PUDL_OUTPUT env var
-    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path))
-    # run all the migrations on a fresh DB at tmp_path/pudl.sqlite
-    alembic.config.main(["upgrade", "head"])
-
-    PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=PUDL_PACKAGE)
-
-    # all we care about is that it didn't raise an error
-    assert True
 
 
 def test_error_when_handling_view_without_metadata(fake_pudl_sqlite_io_manager_fixture):

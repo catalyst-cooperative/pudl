@@ -336,8 +336,9 @@ def get_data_source(table_name: str) -> str:
 UpdateResult = namedtuple("UpdateResult", ["success", "message"])
 
 
-def _get_local_table_path(table_name):
-    return str(PudlPaths().parquet_path(table_name))
+def _get_local_table_path(table_name: str) -> Path:
+    """Return the local parquet file path for a PUDL table."""
+    return PudlPaths().parquet_path(table_name)
 
 
 def _get_model_path(table_name: str, data_source: str) -> Path:
@@ -357,10 +358,9 @@ def _get_existing_row_counts() -> pd.DataFrame:
 
 def _calculate_row_counts(
     table_name: str,
+    table_path: Path,
     partition_expr: str | None = None,
 ) -> pd.DataFrame:
-    table_path = _get_local_table_path(table_name)
-
     if partition_expr is None:
         partition_expr_sql = "''"
         group_by_clause = ""
@@ -403,8 +403,19 @@ def update_row_counts(
     table_name: str,
     data_source: str,
     clobber: bool = False,
+    local_table_path: Path | None = None,
 ) -> UpdateResult:
-    """Generate updated row counts per partition and write to csv file within dbt project."""
+    """Update dbt row counts for a table using data from a local parquet file.
+
+    Args:
+        table_name: Name of the PUDL table whose row counts should be refreshed.
+        data_source: dbt source directory containing the table's schema.
+        clobber: Whether existing row counts may be overwritten or removed.
+        local_table_path: Explicit parquet path for the table. Callers normally
+            omit this and let the helper resolve the standard PUDL output path.
+            Tests may supply it directly to avoid depending on ambient path
+            configuration.
+    """
     model_path = _get_model_path(table_name, data_source)
     schema_path = model_path / "schema.yml"
     schema = DbtSchema.from_yaml(schema_path)
@@ -457,7 +468,8 @@ def update_row_counts(
         )
 
     partition_expr = partition_expressions[0]  # TODO: support multiple partitions
-    new = _calculate_row_counts(table_name, partition_expr)
+    table_path = local_table_path or _get_local_table_path(table_name)
+    new = _calculate_row_counts(table_name, table_path, partition_expr)
 
     # Make old and new row counts comparable so we can detect changes
     row_count_idx = ["table_name", "partition"]

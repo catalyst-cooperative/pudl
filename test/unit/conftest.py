@@ -1,53 +1,47 @@
-import logging
-from pathlib import Path
-
-import pydantic
 import pytest
 
 from pudl.workspace.setup import PudlPaths
 
-logger = logging.getLogger(__name__)
-
 
 @pytest.fixture(scope="session", autouse=True)
-def configure_paths_for_tests(tmp_path_factory, request):
-    """Configures PudlPaths for tests.
+def configure_paths_for_tests():
+    """Disable the root session path bootstrap for the unit-test subtree.
 
-    Default behavior:
+    ``test/conftest.py`` installs a session-scoped autouse fixture with this
+    name that configures ``PudlPaths`` for the full test suite.
 
-    PUDL_INPUT is read from the environment.
-    PUDL_OUTPUT is set to a tmp path, to avoid clobbering existing databases.
+    This means that if you make a session-scoped fixture, it *could* depend on
+    the env setup from the root ``configure_paths_for_tests``.
 
-    Set ``--tmp-data`` to force PUDL_INPUT to a temporary directory, causing
-    re-downloads of all raw inputs.
+    Shadowing that fixture here lets us catch that while running unit tests, so
+    we don't accidentally introduce environment-aware tests to our unit test suite.
 
-    Ignores the ``--live-dbs`` flag; always forces PUDL_OUTPUT to a temp dir so
-    unit test can never mess with the outputs.
-
-    See pudl/test/conftest.py for the non-unit test counterpart.
+    NOTE (2026-04-03): In *mixed* runs, i.e. integration + unit in one process,
+    the root fixture will still run and its side effects will still occur. This
+    means that the env *will* be tweaked! But in theory the unit-only runs that
+    happen every time you commit will catch any tests that are sneakily relying on
+    the environment.
     """
-    pudl_tmpdir = tmp_path_factory.mktemp("pudl")
+    yield
 
-    # We only use a temporary input directory when explicitly requested.
-    # This will force a re-download of raw inputs from Zenodo or the S3 cache.
-    if request.config.getoption("--tmp-data"):
-        in_tmp = pudl_tmpdir / "input"
-        in_tmp.mkdir()
-        PudlPaths.set_path_overrides(
-            input_dir=str(Path(in_tmp).resolve()),
-        )
-        logger.info(f"Using temporary PUDL_INPUT: {in_tmp}")
 
-    out_tmp = pudl_tmpdir / "output"
-    out_tmp.mkdir()
-    PudlPaths.set_path_overrides(
-        output_dir=str(Path(out_tmp).resolve()),
-    )
-    logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
+@pytest.fixture(autouse=True)
+def disable_ambient_pudlpaths_config(monkeypatch):
+    """Make unit tests fail if they rely on ambient PUDL path configuration.
 
-    try:
-        return PudlPaths()
-    except pydantic.ValidationError as err:
-        pytest.exit(
-            f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --tmp-path, --live-dbs flags. Error: {err}."
-        )
+    Unit tests should not pick up `PUDL_INPUT` / `PUDL_OUTPUT` from process
+    environment variables or a local `.env` file. Tests that need explicit path
+    configuration should inject it directly or set environment variables locally
+    within the test.
+    """
+    monkeypatch.delenv("PUDL_INPUT", raising=False)
+    monkeypatch.delenv("PUDL_OUTPUT", raising=False)
+
+    original_init = PudlPaths.__init__
+
+    def patched_init(self, *args, **kwargs):
+        """Disable `.env` loading unless a test opts back into it explicitly."""
+        kwargs.setdefault("_env_file", None)
+        original_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(PudlPaths, "__init__", patched_init)

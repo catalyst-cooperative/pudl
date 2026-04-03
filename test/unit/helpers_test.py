@@ -239,8 +239,15 @@ def test_monthly_attribute_merge():
         ({"year": 2022, "state": "ca"}, "2022_ca.parquet"),
     ],
 )
-def test_parquet_data_paths(partitions: dict[str, object], expected_filename: str):
+def test_parquet_data_paths(
+    partitions: dict[str, object], expected_filename: str, tmp_path, mocker
+):
     """ParquetData builds expected paths and ensures target directory exists."""
+    parquet_data_root = tmp_path / "parquet"
+    mock_paths = mocker.Mock()
+    mock_paths.parquet_path.return_value = parquet_data_root
+    mocker.patch("pudl.helpers.PudlPaths", return_value=mock_paths)
+
     parquet_data = ParquetData(table_name="core_eia__plants", partitions=partitions)
 
     # Accessing parquet_directory should create the table-specific directory.

@@ -2,6 +2,7 @@ import unittest
 from collections import namedtuple
 from dataclasses import dataclass
 from io import StringIO
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -26,7 +27,6 @@ from pudl.scripts.dbt_helper import (
     update_table_schema,
     update_tables,
 )
-from pudl.workspace.setup import PudlPaths
 
 GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
 
@@ -310,6 +310,7 @@ def test_update_row_counts(case, schema_factory, mocker):
         table_name=given["table_name"],
         data_source="pudl",
         clobber=given["clobber"],
+        local_table_path=Path("unused.parquet"),
     )
 
     # Assert the expected result object
@@ -1414,7 +1415,7 @@ def test_update_table_row_counts_clobber(
     tmp_path,
     mocker,
 ):
-    # make test data
+    # Build a minimal schema.yml with a row-count test for the table under test.
     test_schema = f"""
 sources:
   - name: pudl_test
@@ -1430,29 +1431,33 @@ sources:
           - name: state
           - name: fake_data
 """
-    # set up test paths (patch dbt_dir to a tmp path, add schema and rowcounts directories)
-    # don't need to make temporary PUDL_OUT because we do that already in conftest.py
+    # Create a temporary dbt project and a parquet file for the CLI to read.
     dbt_dir = tmp_path / "dbt"
     schema_path = (
         dbt_dir / "models" / "source" / "test_source__table_name" / "schema.yml"
     )
     row_count_csv_path = dbt_dir / "seeds" / "etl_full_row_counts.csv"
-    parquet_path = PudlPaths().parquet_path("test_source__table_name")
+    parquet_path = (
+        tmp_path / "pudl-output" / "parquet" / "test_source__table_name.parquet"
+    )
 
     schema_path.parent.mkdir(parents=True, exist_ok=True)
     row_count_csv_path.parent.mkdir(parents=True, exist_ok=True)
     parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # write out test data to disk
+    # Seed the temporary dbt project with the schema, row counts, and parquet data.
     test_data.to_parquet(parquet_path)
     old_row_counts.to_csv(row_count_csv_path, index=False)
     with schema_path.open("w") as f:
         f.write(test_schema)
 
-    # patch out DBT_DIR so we use our lovely test schema + rowcounts
+    # Point the CLI at the temporary dbt project and allow the test table through
+    # input validation.
     mocker.patch("pudl.scripts.dbt_helper.DBT_DIR", new=dbt_dir)
-    # patch out ALL_TABLES so that we're allowed to run tests
     mocker.patch("pudl.scripts.dbt_helper.ALL_TABLES", new=["test_source__table_name"])
+    mock_paths = mocker.Mock()
+    mock_paths.parquet_path.return_value = parquet_path
+    mocker.patch("pudl.scripts.dbt_helper.PudlPaths", return_value=mock_paths)
     runner = CliRunner()
 
     logger_mock = mocker.patch("pudl.scripts.dbt_helper.logger.info")
