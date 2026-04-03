@@ -312,27 +312,26 @@ def _core_eia860__generators(
     ] = "PACE"
     gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
 
-    # spot fix one or two assumed to be bad technology description. It's assumed to be wrong
+    # spot fix one proposed fusion plant's technology description. It's assumed to be wrong
     # because we learned via pudl.output.eia.fill_generator_technology_description
     # that all other combos of PM code and ESC have a different technology. See #4788
-    # we have to do this after encoding bc we are dealing with codes
+    # and #5049. we have to do this after encoding bc we are dealing with codes
     bad_tech_mask = (
         (gens_df.technology_description == "All Other")
         & (gens_df.prime_mover_code == "OT")
         & (gens_df.energy_source_code_1 == "OG")
     )
-    expected_bad_tech_len_min = 1 if 2025 in gens_df.report_date.dt.year.unique() else 0
-    expected_bad_tech_len_max = 0 if expected_bad_tech_len_min == 0 else 4
-    if not (
-        expected_bad_tech_len_min
-        <= len(gens_df[bad_tech_mask])
-        <= expected_bad_tech_len_max
+    if (
+        bad_tech_mask.any()  # If bad records found
+    ) & (
+        not (
+            gens_df[bad_tech_mask].plant_id_eia == 69099
+        ).all()  # And bad records found belonging to a different plant ID
     ):
         raise AssertionError(
-            f"Spot fixing: We expect to find between {expected_bad_tech_len_min} "
-            f"and {expected_bad_tech_len_max} records "
-            "which has what we assume is an incorrect technology description, "
-            f"but we found: {len(gens_df[bad_tech_mask])}."
+            f"Spot fixing: We expect to find that only plant ID 69099 records "
+            "what we assume is an incorrect technology description, "
+            f"but we found:"
             f"\n\n{gens_df[bad_tech_mask].dropna(axis=1, how='all')}"
         )
     gens_df.loc[bad_tech_mask, "technology_description"] = "Other Gases"
