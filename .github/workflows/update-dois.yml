@@ -34,14 +34,14 @@ jobs:
       - name: Run Zenodo DOI updater
         id: update
         run: |
-          pixi run update_zenodo_dois ${{ github.event.inputs.datasets }}
+          pixi run update_zenodo_dois "${{ github.event.inputs.datasets }}"
 
           # Check if any changes were made
           if git diff --quiet; then
-            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "changes=false" >> "$GITHUB_OUTPUT"
             echo "No changes detected"
           else
-            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "changes=true" >> "$GITHUB_OUTPUT"
             echo "Changes detected!"
           fi
 
@@ -49,7 +49,8 @@ jobs:
         id: format-datasets
         run: |
           DATASETS="${{ github.event.inputs.datasets }}"
-          LABELS=$(echo "$DATASETS" | sed 's/ \+/, /g')
+          # shellcheck disable=SC2001
+          LABELS=$(echo "$DATASETS" | sed -E 's/[[:space:]]+/, /g')
           echo "dataset_labels=$LABELS" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
@@ -73,4 +74,4 @@ jobs:
           branch: update-zenodo-dois-${{ github.run_number }}-${{ github.run_id }}
           base: main
           labels: >
-            date-update${{ steps.format-datasets.outputs.dataset_labels && format(', {0}', steps.format-datasets.outputs.dataset_labels) || '' }}
+            data-update${{ steps.format-datasets.outputs.dataset_labels && format(', {0}', steps.format-datasets.outputs.dataset_labels) || '' }}
