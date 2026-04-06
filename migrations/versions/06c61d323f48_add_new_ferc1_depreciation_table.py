@@ -1,8 +1,8 @@
 """add new ferc1 depreciation table
 
-Revision ID: ffc32058db00
+Revision ID: 06c61d323f48
 Revises: 18771235c92f
-Create Date: 2026-04-06 14:05:49.285331
+Create Date: 2026-04-06 16:10:02.852740
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ffc32058db00'
+revision = '06c61d323f48'
 down_revision = '18771235c92f'
 branch_labels = None
 depends_on = None
@@ -25,7 +25,7 @@ def upgrade() -> None:
     sa.Column('depreciation_factors', sa.Text(), nullable=True, comment='Label of the factor of depreciation factors. This field contains is an unstructured, free-form strings. It often includes FERC account IDs, sometimes it includes plant names and sometimes includes headers. Indicating the beginning of a new section - such as a plant or asset type header which is followed by sub-components like FERC account IDs or plant names depending on the section.'),
     sa.Column('depreciable_plant_base', sa.Float(), nullable=True, comment='Depreciable plant balance (depreciable base) to which rates are applied.'),
     sa.Column('net_salvage_pct', sa.Float(), nullable=True, comment='Percentage representing the estimated value of utility plant at the end of its service life. Be aware that the formatting of this column is not expected to be standard - expect some values between 0-1 and some between 0-100.'),
-    sa.Column('depreciation_rate', sa.Text(), nullable=True, comment='Depreciation rate applied to utility plant balance.'),
+    sa.Column('depreciation_rate', sa.Text(), nullable=True, comment='Depreciation rate applied to utility plant balance.Be aware that the formatting of this column is not expected to be standard - expect some values between 0-1 and some between 0-100.'),
     sa.Column('mortality_curve_type', sa.Text(), nullable=True, comment='Description of the type of mortality curve selected in plant mortality studies prepared to assist in estimating average service lives.'),
     sa.Column('order_num', sa.Float(), nullable=True, comment="This field is defined in FERC-XBRL documentation as a field that is used or sequence a table.FERC-XBRL documentation notes: 'This field is added to a table to control ordering of the items on the table.'FERC's documentation also notes that this field should always be an integer - although there are many instances of floating point values which seem to increment by decimal points. Nonetheless, this field can be used to help understand the original order of the table. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."),
     sa.Column('account_num', sa.Text(), nullable=True, comment='Account number(s) in connection with factors used in estimating depreciation charges.'),

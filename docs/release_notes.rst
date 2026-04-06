@@ -26,6 +26,13 @@ RUS 7 & RUS 12
 * Added last rounds of core and output tables from RUS Form 7 and 12.
   See :pr:`5087`, :pr:`5091` and :pr:`5145`.
 
+
+FERC 1
+~~~~~~
+
+* Added new :ref:`core_ferc1__yearly_depreciation_factors_sched336` table. See
+  issue :issue:`5103` and PR :pr:`5112`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 

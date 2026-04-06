@@ -10020,7 +10020,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "depreciation_rate": {
         "type": "string",
-        "description": "Depreciation rate applied to utility plant balance.",
+        "description": (
+            "Depreciation rate applied to utility plant balance."
+            "Be aware that the formatting of this column is not expected to be standard - expect some "
+            "values between 0-1 and some between 0-100."
+        ),
     },
     "mortality_curve_type": {
         "type": "string",
