@@ -1,8 +1,8 @@
 """add new ferc1 depreciation table
 
-Revision ID: 8c456b39d789
+Revision ID: ffc32058db00
 Revises: 18771235c92f
-Create Date: 2026-04-02 12:42:30.413608
+Create Date: 2026-04-06 14:05:49.285331
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '8c456b39d789'
+revision = 'ffc32058db00'
 down_revision = '18771235c92f'
 branch_labels = None
 depends_on = None
@@ -29,8 +29,8 @@ def upgrade() -> None:
     sa.Column('mortality_curve_type', sa.Text(), nullable=True, comment='Description of the type of mortality curve selected in plant mortality studies prepared to assist in estimating average service lives.'),
     sa.Column('order_num', sa.Float(), nullable=True, comment="This field is defined in FERC-XBRL documentation as a field that is used or sequence a table.FERC-XBRL documentation notes: 'This field is added to a table to control ordering of the items on the table.'FERC's documentation also notes that this field should always be an integer - although there are many instances of floating point values which seem to increment by decimal points. Nonetheless, this field can be used to help understand the original order of the table. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."),
     sa.Column('account_num', sa.Text(), nullable=True, comment='Account number(s) in connection with factors used in estimating depreciation charges.'),
-    sa.Column('service_life_avg', sa.Text(), nullable=True, comment="Estimated average service life of utility plant. This field is typed as a string because it contains a mix of year-like numbers and strings `PnYnMnDTnHnMnS`.FERC1's Taxonomy documents this field as:\n\nEstimated average service life of utility plant, in 'PnYnMnDTnHnMnS' format, for example 'P4Y7M12D' represents a fact of four years, seven months, and 12 days."),
-    sa.Column('remaining_life_avg', sa.Text(), nullable=True, comment='Estimated weighted average of remaining life of utility plant assets.'),
+    sa.Column('service_life_avg', sa.Float(), nullable=True, comment="Estimated average service life of utility plant. The original DBF data was reported as years while the XBRL data was reported as strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these string time duration's into years."),
+    sa.Column('remaining_life_avg', sa.Float(), nullable=True, comment="Estimated weighted average of remaining life of utility plant assets.The original DBF data was reported as years while the XBRL data was reported as strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these string time duration's into years."),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_depreciation_factors_sched336_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities'))
     )
     # ### end Alembic commands ###

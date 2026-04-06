@@ -10051,17 +10051,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Account number(s) in connection with factors used in estimating depreciation charges.",
     },
     "service_life_avg": {
-        "type": "string",
+        "type": "number",
         "description": (
-            "Estimated average service life of utility plant. This field is typed as a string because it contains "
-            "a mix of year-like numbers and strings `PnYnMnDTnHnMnS`."
-            "FERC1's Taxonomy documents this field as:\n\n"
-            "Estimated average service life of utility plant, in 'PnYnMnDTnHnMnS' format, for example 'P4Y7M12D' represents a fact of four years, seven months, and 12 days."
+            "Estimated average service life of utility plant. "
+            "The original DBF data was reported as years while the XBRL data was reported as "
+            "strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these "
+            "string time duration's into years."
         ),
     },
     "remaining_life_avg": {
-        "type": "string",
-        "description": "Estimated weighted average of remaining life of utility plant assets.",
+        "type": "number",
+        "description": (
+            "Estimated weighted average of remaining life of utility plant assets."
+            "The original DBF data was reported as years while the XBRL data was reported as "
+            "strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these "
+            "string time duration's into years."
+        ),
     },
     "utility_plant_group": {
         "type": "string",
