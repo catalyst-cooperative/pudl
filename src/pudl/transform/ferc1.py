@@ -3108,11 +3108,28 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
 
     @cache_df(key="dbf")
     def drop_unused_original_columns_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Remove residual DBF specific column."""
-        return df
+        """Remove one residual DBF specific column."""
+        unused_cols = [
+            "report_prd",
+        ]
+        logger.debug(
+            f"{self.table_id.value}: Dropping unused DBF structural columns: "
+            f"{unused_cols}"
+        )
+        missing_cols = set(unused_cols).difference(df.columns)
+        if missing_cols:
+            raise ValueError(
+                f"{self.table_id.value}: Trying to drop missing original DBF columns:"
+                f"{missing_cols}"
+            )
+        return df.drop(columns=unused_cols)
 
     def transform_main(self, df):
-        """Standard transform_main plus.... ???!?!."""
+        """Standard transform_main plus address normalization and string cleaning.
+
+        Transformations include phone number normalization, address parsing using
+        usaddress, null normalization, and converting names and titles to title case.
+        """
         df = (
             super()
             .transform_main(df)
@@ -3154,13 +3171,13 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
             pattern, pd.NA, regex=True
         )
 
-        df[
-            ["office_street_address", "office_city", "office_state", "office_zip_code"]
-        ] = pd.DataFrame(
-            df["office_street_address"].apply(parse_address).tolist(),
-            index=df.index,
+        df[["office_street_address", "office_city", "office_state", "office_zip"]] = (
+            pd.DataFrame(
+                df["office_street_address"].apply(parse_address).tolist(),
+                index=df.index,
+            )
         )
-        df[["contact_address", "contact_city", "contact_state", "contact_zip_code"]] = (
+        df[["contact_address", "contact_city", "contact_state", "contact_zip"]] = (
             pd.DataFrame(
                 df["contact_address"].apply(parse_address).tolist(),
                 index=df.index,
@@ -3182,26 +3199,20 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
                 df[col].isin(state_map.values()), df[col], df[col].map(state_map)
             )
 
-        return df
+        # Drop three duplicated records where one row is entirely NA.
+        mask = df[
+            (
+                df.set_index(
+                    ["utility_id_ferc1", "report_year", "report_filing_type"]
+                ).index.duplicated(keep=False)
+            )
+            & (df.office_street_address.isnull())
+        ].index
+        assert len(mask) == 3, (
+            f"Expected to drop 3 duplicate records, instead dropping: {df.loc[mask]}"
+        )
+        df = df.drop(mask)
 
-    # Transforms to add
-    # report_filing_type --> enum O/R
-
-    @cache_df(key="end")
-    def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Standardized final cleanup after the transformations are done.
-
-        Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
-        null columns.
-        """
-        # df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
-        # if df.empty:
-        #     raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
-        # for col in df:
-        #     if df[col].isna().all():
-        #         raise ValueError(
-        #             f"{self.table_id.value}: Column {col} is entirely NULL!"
-        #         )
         return df
 
 
@@ -6294,7 +6305,7 @@ def ferc1_transform_asset_factory(
 
     table_id = TableIdFerc1(table_name)
 
-    @asset(name=table_name, ins=ins)  # io_manager_key=io_manager_key)
+    @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
     def ferc1_transform_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Transform a FERC Form 1 table.
 

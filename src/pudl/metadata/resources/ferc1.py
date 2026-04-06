@@ -336,6 +336,17 @@ columns."""
             "will be NULL."
         ),
     },
+    "yearly_identification_certification": {
+        "additional_summary_text": "respondent identification and corporate officer certification information.",
+        "additional_source_text": "(Part I and II)",
+        "usage_warnings": ["free_text"],
+        "additional_details_text": (
+            "This table contains information identifying a utility's contact information, "
+            "addresses and individuals responsible for accounting and certification. Note that "
+            "the entity_id_gleif field does not conform to the expected format and largely includes "
+            "the names of respondents."
+        ),
+    },
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -1048,6 +1059,48 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "revenue_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "core_ferc1__yearly_identification_certification": {
+        "description": TABLE_DESCRIPTIONS["yearly_identification_certification"],
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "record_id",
+                "utility_name_ferc1",
+                "prior_utility_name_ferc1",
+                "name_change_date",
+                "company_id_ferc",
+                "entity_id_gleif",
+                "contact_name",
+                "contact_title",
+                "contact_email",
+                "contact_address",
+                "contact_phone",
+                "contact_city",
+                "contact_state",
+                "contact_zip",
+                "office_street_address",
+                "office_city",
+                "office_state",
+                "office_zip",
+                "attestation_name",
+                "attestation_title",
+                "attestation_date",
+                "attestation_signature",
+                "filing_software_vendor_name",
+                "report_filing_type",
+                "filing_date",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "report_filing_type",
             ],
         },
         "sources": ["ferc1"],

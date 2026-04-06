@@ -3294,11 +3294,10 @@ TRANSFORM_PARAMS = {
             "dbf": {
                 "columns": {
                     "respondent_id": "utility_id_ferc1_dbf",
-                    # "filing_name": "filing_name",
                     "cntc_phone": "contact_phone",
                     "respondent_name": "utility_name_ferc1",
                     "cntc_name": "contact_name",
-                    "chg_dt_prev_name": "prior_utility_name_ferc1",  # or "company_name_old"?
+                    "chg_dt_prev_name": "prior_utility_name_ferc1",
                     "rpt_date": "filing_date",
                     "date_name_changed": "name_change_date",
                     "submission_type": "report_filing_type",
