@@ -611,7 +611,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "demand and energy delivered to distribution utilities."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section E)",
         },
         "schema": {
@@ -635,7 +634,6 @@ RESOURCE_METADATA_BASE = {
     "core_rus12__monthly_demand_and_energy_at_power_sources": {
         "description": {
             "additional_summary_text": ("demand and energy at point of generation."),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section D)",
             "additional_details_text": (
                 "There are some peak demand dates that have an hour component and others that don't. "
@@ -667,7 +665,6 @@ RESOURCE_METADATA_BASE = {
             "additional_summary_text": (
                 "plant factors and maximum demand for plants owned by RUS borrowers."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Parts D, E, F IC, F CC, G - Section C)",
             "additional_primary_key_text": (
                 "The primary key for this table would be report_date, borrower_id_rus, plant_name_rus, and plant_type "
@@ -696,6 +693,122 @@ RESOURCE_METADATA_BASE = {
                 "peak_gross_demand_mw",
                 "peak_gross_demand_nameplate_mw",
             ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_utility_plant_changes": {
+        "description": {
+            "additional_summary_text": ("changes in utility plant"),
+            "additional_source_text": "(Part H - Section A)",
+            "usage_warnings": ["aggregation_hazard"],
+            "additional_details_text": (
+                "There are a few layers of nesting in this table, which can be distinguished by "
+                "the categories in the `utility_plant_group` column:\n\n"
+                " * intangible_plant: only has one total utility_plant_item\n"
+                " * production_plant: has several sub-component utility_plant_item and a standard total\n"
+                " * transmission_plant: has several sub-component utility_plant_item and a standard total\n"
+                " * distribution_plant: has several sub-component utility_plant_item and a standard total\n"
+                " * electric_plant_in_service: has two sub-components and a total which includes those sub-components and the totals of the above categories\n"
+                " * utility_plant_in_service: has several sub-components and the total is the sum of those sub-components as well as the total of electric_plant_in_service\n"
+                " * total_utility_plant: has one sub-component and the total is the sum of the sub-component and utility_plant_in_service\n\n"
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",
+                "utility_plant_item",
+                "retirements",
+                "additions",
+                "adjustments_and_transfers",
+                "ending_balance",
+                "is_total",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",
+                "utility_plant_item",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_depreciation_changes": {
+        "description": {
+            "additional_summary_text": ("changes in accumulated depreciation."),
+            "additional_source_text": "(Part H - Section B)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "depreciation_and_amortization_group",
+                "depreciation_and_amortization_item",
+                "composite_depreciation_rate",
+                "accruals",
+                "retirements_less_net_salvage",
+                "adjustments_and_transfers",
+                "ending_balance",
+                "is_total",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "depreciation_and_amortization_group",
+                "depreciation_and_amortization_item",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_depreciation_misc": {
+        "description": {
+            "additional_summary_text": ("accumulated depreciation."),
+            "additional_source_text": "(Part H - 2nd part of Section B)",
+            "additional_details_text": (
+                "This is the second half of the depreciation table. "
+                "It includes ending balances of six depreciation and amortization values."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "depreciation_and_amortization_item",
+                "ending_balance",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "depreciation_and_amortization_item",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_non_utility_plant_changes": {
+        "description": {
+            "additional_summary_text": ("changes in non-utility plant."),
+            "additional_source_text": "(Part H - Section C)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "non_utility_plant_item",
+                "additions",
+                "retirements",
+                "adjustments_and_transfers",
+                "ending_balance",
+            ],
+            "primary_key": ["report_date", "borrower_id_rus", "non_utility_plant_item"],
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
