@@ -3049,6 +3049,53 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
+    "core_ferc1__yearly_other_assets_sched232": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "dsc_purp_asset": "description_and_purpose",
+                    "debits": "debits",
+                    "acct_chrg_cr": "credits_written_off_charged",
+                    "amount_cr": "credits_written_off_recovered",
+                    "yr_end_bal": "ending_balance",
+                    "beg_yr_bal": "starting_balance",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "other_regulatory_assets_axis": "description_and_purpose",
+                    "description_and_purpose_of_other_regulatory_assets": "description_and_purpose_addt",
+                    "order_number": "order_number",
+                    "other_regulatory_assets_written_off_recovered": "credits_written_off_recovered",
+                    "other_regulatory_assets_written_off_account_charged": "credits_written_off_charged",
+                    "increase_decrease_in_other_regulatory_assets": "debits",
+                    "other_regulatory_assets": "ending_balance",
+                }
+            },
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "description_and_purpose",
+                    "ending_balance",
+                    "debits",
+                    "starting_balance",
+                    "credits_written_off_recovered",
+                    "credits_written_off_charged",
+                ],
+            },
+        ],
+    },
     "core_ferc1__yearly_sales_by_rate_schedules_sched304": {
         "rename_columns_ferc1": {
             "dbf": {

@@ -9163,7 +9163,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "F - Firm: For transmission sales, a service or product that always has priority over"
             " non-firm service. For power sales, a service or product that is not"
-            " interruptible for economic reasons."
+            " interruptible for economic reasons.\n"
             " NF - Non-firm: For transmission sales, a service that is reserved and/or scheduled on an"
             " as-available basis and is subject to curtailment or interruption at a lesser"
             " priority compared to Firm service. For an energy sale, a service or"

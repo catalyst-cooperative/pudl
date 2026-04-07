@@ -158,6 +158,7 @@ class TableIdFerc1(enum.Enum):
     OTHER_REGULATORY_LIABILITIES = (
         "core_ferc1__yearly_other_regulatory_liabilities_sched278"
     )
+    OTHER_REGULATORY_ASSETS = "core_ferc1__yearly_other_assets_sched232"
 
 
 ################################################################################
@@ -6088,6 +6089,29 @@ class OtherRegulatoryLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_LIABILITIES
     has_unique_record_ids = False
+
+
+class OtherRegulatoryAssetsTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`core_ferc1__yearly_other_assets_sched232` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_ASSETS
+    has_unique_record_ids = False
+
+    def process_xbrl(
+        self: Self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    ) -> pd.DataFrame:
+        """First add values to the axis columns from the totals tables, then standard."""
+        raw_xbrl_instant.loc[
+            raw_xbrl_instant.sched_table_name
+            == "other_regulatory_assets_account_182_3_totals_232",
+            "other_regulatory_assets_axis",
+        ] = "totals"
+        raw_xbrl_duration.loc[
+            raw_xbrl_duration.sched_table_name
+            == "other_regulatory_assets_account_182_3_totals_232",
+            "other_regulatory_assets_axis",
+        ] = "totals"
+        return super().process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
 
 
 FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
