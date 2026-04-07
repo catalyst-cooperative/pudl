@@ -198,6 +198,17 @@ any cleaning mechanisms in place to account for this."""
             }
         ],
     },
+    "yearly_other_regulatory_assets_sched232": {
+        "additional_summary_text": "utilities' other regulatory assets, including rate order docket number.",
+        "additional_source_text": "(Schedule 232)",
+        "additional_primary_key_text": "Respondents are able to enter any number of assets across many rows. There are no IDs or set fields enforced in the original table.",
+        "usage_warnings": [
+            {
+                "type": "custom",
+                "description": "The ``description`` column is a free-form string.",
+            }
+        ],
+    },
     "yearly_plant_in_service_sched204": {
         "additional_summary_text": "utilities' balances and changes to FERC Electric Plant in Service accounts.",
         "additional_source_text": "(Schedule 204)",
@@ -641,11 +652,31 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "description",
+                "additional_description",
                 "ending_balance",
                 "starting_balance",
                 "increase_in_other_regulatory_liabilities",
                 "account_detail",
                 "decrease_in_other_regulatory_liabilities",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "core_ferc1__yearly_other_regulatory_assets_sched232": {
+        "description": TABLE_DESCRIPTIONS["yearly_other_regulatory_assets_sched232"],
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "description",
+                "additional_description",
+                "ending_balance",
+                "starting_balance",
+                "debits",
+                "credits_written_off_recovered",
+                "account_detail",
             ],
         },
         "sources": ["ferc1"],

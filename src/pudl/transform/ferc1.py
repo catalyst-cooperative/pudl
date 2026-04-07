@@ -158,7 +158,7 @@ class TableIdFerc1(enum.Enum):
     OTHER_REGULATORY_LIABILITIES = (
         "core_ferc1__yearly_other_regulatory_liabilities_sched278"
     )
-    OTHER_REGULATORY_ASSETS = "core_ferc1__yearly_other_assets_sched232"
+    OTHER_REGULATORY_ASSETS = "core_ferc1__yearly_other_regulatory_assets_sched232"
 
 
 ################################################################################
@@ -6092,7 +6092,7 @@ class OtherRegulatoryLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
 
 
 class OtherRegulatoryAssetsTableTransformer(Ferc1AbstractTableTransformer):
-    """Transformer class for :ref:`core_ferc1__yearly_other_assets_sched232` table."""
+    """Transformer class for :ref:`core_ferc1__yearly_other_regulatory_assets_sched232` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_ASSETS
     has_unique_record_ids = False
@@ -6138,6 +6138,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_cash_flows_sched120": CashFlowsTableTransformer,
     "core_ferc1__yearly_sales_by_rate_schedules_sched304": SalesByRateSchedulesTableTransformer,
     "core_ferc1__yearly_other_regulatory_liabilities_sched278": OtherRegulatoryLiabilitiesTableTransformer,
+    "core_ferc1__yearly_other_regulatory_assets_sched232": OtherRegulatoryAssetsTableTransformer,
 }
 
 
