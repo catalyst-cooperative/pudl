@@ -394,7 +394,7 @@ examples:
          df = (
             pl.scan_parquet(
                   "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet",
-                  storage_options={"aws_region": "us-west-2"},
+                  storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
             )
             .filter(pl.col("seller_company_name").str.contains("Bonneville"))
             .head(10)
