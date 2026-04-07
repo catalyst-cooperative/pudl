@@ -3095,7 +3095,7 @@ TRANSFORM_PARAMS = {
                     "debits",
                     "starting_balance",
                     "credits_written_off_recovered",
-                    "credits_written_off_charged",
+                    "account_detail",
                 ],
             },
         ],
