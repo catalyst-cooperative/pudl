@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Data Access &#8212; PUDL 2026.3.1.dev48 documentation</title>
+    <title>Data Access &#8212; PUDL 2026.3.1.dev49 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="_static/documentation_options.js?v=7f6d0372"></script>
+    <script src="_static/documentation_options.js?v=d62d7714"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev48 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev48 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev49 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev49 documentation - Home"/>
   
   
 </a></div>
@@ -815,7 +815,7 @@ Python (Polars)</label><div class="sd-tab-content docutils">
 <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
    <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span>
          <span class="s2">&quot;s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet&quot;</span><span class="p">,</span>
-         <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;aws_region&quot;</span><span class="p">:</span> <span class="s2">&quot;us-west-2&quot;</span><span class="p">},</span>
+         <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;aws_region&quot;</span><span class="p">:</span> <span class="s2">&quot;us-west-2&quot;</span><span class="p">,</span> <span class="s2">&quot;aws_skip_signature&quot;</span><span class="p">:</span> <span class="s2">&quot;True&quot;</span><span class="p">},</span>
    <span class="p">)</span>
    <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;seller_company_name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;Bonneville&quot;</span><span class="p">))</span>
    <span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
