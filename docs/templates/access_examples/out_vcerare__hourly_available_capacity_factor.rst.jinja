@@ -19,7 +19,7 @@
              # Use scan_parquet (lazy evaluation) to plan the query before execution
              pl.scan_parquet(
                  "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
-                 storage_options={"aws_region": "us-west-2"},
+                 storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
              )
              # Select only a subset of columns to reduce network and memory usage
              .select(
