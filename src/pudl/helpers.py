@@ -2616,3 +2616,8 @@ def parse_address(addr: str):
     except usaddress.RepeatedLabelError:
         logger.warning(f"Could not parse {addr}")
         return (addr, None, None, None)
+
+
+def listify(x: Any) -> list[Any]:
+    """Listify an input that is sometimes a list and sometimes not."""
+    return x if isinstance(x, list) else [x]  # noqa: E731

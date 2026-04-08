@@ -16,6 +16,7 @@ import re
 from abc import abstractmethod
 from collections import namedtuple
 from collections.abc import Mapping
+from functools import reduce
 from typing import Annotated, Any, Literal, Self
 
 import numpy as np
@@ -30,6 +31,7 @@ from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import (
     assert_cols_areclose,
     convert_cols_dtypes,
+    listify,
     parse_address,
     standardize_phone_column,
 )
@@ -1972,13 +1974,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     @cache_df(key="start")
     def transform_start(
         self,
-        raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
+        raw_dbf_dfs: dict[str, pd.DataFrame],
+        raw_xbrl_dfs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
         """Process the raw data until the XBRL and DBF inputs have been unified."""
-        processed_dbf = self.process_dbf(raw_dbf)
-        processed_xbrl = self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        preprocessed_dbf = self.preprocess_dbf(raw_dbf_dfs)
+        preprocessed_xbrl_instant, preprocessed_xbrl_duration = self.preprocess_xbrl(
+            raw_xbrl_dfs
+        )
+        processed_dbf = self.process_dbf(preprocessed_dbf)
+        processed_xbrl = self.process_xbrl(
+            preprocessed_xbrl_instant, preprocessed_xbrl_duration
+        )
         processed_dbf = self.select_dbf_rows_by_category(processed_dbf, processed_xbrl)
         logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
@@ -2593,6 +2600,42 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
+    # TODO: Ok not to use cache decorator??
+    def preprocess_dbf(self, raw_dbf_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        """Pre-process DBF inputs into one dataframe. Concats by default."""
+        return pd.concat(list(raw_dbf_dfs.values()))
+
+    # TODO: Ok not to use cache decorator??
+    def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        raw_xbrls = {
+            table_name: filter_for_freshest_data_xbrl(
+                df,
+                get_primary_key_raw_xbrl(
+                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                ),
+            )
+            for table_name, df in raw_xbrl_dfs.items()
+        }
+        for raw_xbrl_table_name in listify(
+            TABLE_NAME_MAP_FERC1[self.table_id.value]["xbrl"]
+        ):
+            if (
+                raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
+                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_duration"].empty
+            ):
+                raise AssertionError(
+                    f"{raw_xbrl_table_name} has neither instant nor duration tables. "
+                    "Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1"
+                )
+        raw_xbrl_instant = pd.concat(
+            [df for key, df in raw_xbrls.items() if key.endswith("_instant")]
+        )
+        raw_xbrl_duration = pd.concat(
+            [df for key, df in raw_xbrls.items() if key.endswith("_duration")]
+        )
+        return raw_xbrl_instant, raw_xbrl_duration
+
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """DBF-specific transformations that take place before concatenation."""
@@ -3082,6 +3125,66 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
     """Transformer class for the :ref:`core_ferc1__yearly_identification_certification` table."""
 
     table_id: TableIdFerc1 = TableIdFerc1.IDENTIFICATION_CERTIFICATION
+
+    def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        raw_xbrls = {
+            table_name: filter_for_freshest_data_xbrl(
+                df,
+                get_primary_key_raw_xbrl(
+                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                ),
+            )
+            for table_name, df in raw_xbrl_dfs.items()
+        }
+        for raw_xbrl_table_name in listify(
+            TABLE_NAME_MAP_FERC1[self.table_id.value]["xbrl"]
+        ):
+            if (
+                raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
+                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_duration"].empty
+            ):
+                raise AssertionError(
+                    f"{raw_xbrl_table_name} has neither instant nor duration tables. "
+                    "Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1"
+                )
+        raw_xbrl_instant = pd.concat(
+            [df for key, df in raw_xbrls.items() if key.endswith("_instant")]
+        )
+        # Rather than concatenating, we merge these tables on their primary key.
+        # This is because we want to join these two tables into one horizontally
+        # rather than vertically.
+        # We sort to consistently assign the table name to identification.
+        duration_df_list = [
+            df
+            for key, df in sorted(raw_xbrls.items(), reverse=True)
+            if key.endswith("_duration")
+        ]
+        raw_xbrl_duration = reduce(
+            lambda x, y: x.merge(
+                y,
+                how="outer",
+                validate="1:1",
+                on=[
+                    "entity_id",
+                    "report_year",
+                    "filing_name",
+                    "start_date",
+                    "end_date",
+                ],
+                suffixes=["", "_x"],
+            ),
+            duration_df_list,
+        )
+        raw_xbrl_duration = raw_xbrl_duration.drop(
+            columns=[
+                col
+                for col in raw_xbrl_duration.columns
+                if col.startswith("sched_table_name_x")
+            ]
+        )  # Drop extra schedule name column
+
+        return raw_xbrl_instant, raw_xbrl_duration
 
     def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
         """Look up the pre-renaming source table primary key columns.
@@ -6288,7 +6391,6 @@ def ferc1_transform_asset_factory(
     """
     ins: Mapping[str, AssetIn] = {}
 
-    listify = lambda x: x if isinstance(x, list) else [x]  # noqa: E731
     dbf_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["dbf"])
     xbrl_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"])
 
@@ -6330,36 +6432,17 @@ def ferc1_transform_asset_factory(
                 xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name]
             )
 
-        raw_dbf = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_ferc1_dbf__")]
-        )
-        raw_xbrls = {
-            tn: filter_for_freshest_data_xbrl(
-                df,
-                get_primary_key_raw_xbrl(tn.removeprefix("raw_ferc1_xbrl__"), "ferc1"),
-            )
-            for tn, df in kwargs.items()
-            if tn.startswith("raw_ferc1_xbrl__")
+        # Split the DBF and XBRL dfs into input dictionaries for transformation
+        raw_dbf_dfs = {
+            key: df for key, df in kwargs.items() if key.startswith("raw_ferc1_dbf__")
         }
-        for raw_xbrl_table_name in listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"]):
-            if (
-                raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
-                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_duration"].empty
-            ):
-                raise AssertionError(
-                    f"{raw_xbrl_table_name} has neither instant nor duration tables. "
-                    "Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1"
-                )
-        raw_xbrl_instant = pd.concat(
-            [df for key, df in raw_xbrls.items() if key.endswith("_instant")]
-        )
-        raw_xbrl_duration = pd.concat(
-            [df for key, df in raw_xbrls.items() if key.endswith("_duration")]
-        )
+        raw_xbrl_dfs = {
+            key: df for key, df in kwargs.items() if key.startswith("raw_ferc1_xbrl__")
+        }
+
         df = transformer.transform(
-            raw_dbf=raw_dbf,
-            raw_xbrl_instant=raw_xbrl_instant,
-            raw_xbrl_duration=raw_xbrl_duration,
+            raw_dbf_dfs=raw_dbf_dfs,
+            raw_xbrl_dfs=raw_xbrl_dfs,
         )
         if convert_dtypes:
             df = convert_cols_dtypes(df, data_source="ferc1")
