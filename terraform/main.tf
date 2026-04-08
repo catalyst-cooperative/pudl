@@ -210,6 +210,7 @@ resource "google_storage_bucket_iam_member" "usage_metrics_archiver_gcs_iam" {
 resource "google_service_account" "usage_metrics_etl" {
   account_id   = "pudl-usage-metrics-etl"
   display_name = "PUDL usage metrics ETL github action service account"
+  description  = "This service account contains all of the permissions for a machine to run the pudl-usage-metrics ETL."
 }
 
 resource "google_storage_bucket_iam_member" "usage_metrics_etl_archive_gcs_iam" {
