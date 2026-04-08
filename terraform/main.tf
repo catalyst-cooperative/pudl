@@ -204,7 +204,7 @@ resource "google_storage_bucket_iam_member" "usage_metrics_archiver_gcs_iam" {
 
   bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
   role   = each.key
-  member = "serviceAccount:${google_service_account.usage_metrics_archiver.email}"
+  member = "${google_service_account.usage_metrics_archiver.member}"
 }
 
 resource "google_service_account" "usage_metrics_etl" {
@@ -217,7 +217,7 @@ resource "google_storage_bucket_iam_member" "usage_metrics_etl_archive_gcs_iam" 
 
   bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
   role   = each.key
-  member = "serviceAccount:${google_service_account.usage_metrics_etl.email}"
+  member = "${google_service_account.usage_metrics_etl.member}"
 }
 
 resource "google_storage_bucket_iam_member" "usage_metrics_etl_s3_logs_gcs_iam" {
@@ -225,7 +225,7 @@ resource "google_storage_bucket_iam_member" "usage_metrics_etl_s3_logs_gcs_iam" 
 
   bucket = "pudl-s3-logs.catalyst.coop"
   role   = each.key
-  member = "serviceAccount:${google_service_account.usage_metrics_etl.email}"
+  member = "${google_service_account.usage_metrics_etl.member}"
 }
 
 resource "google_storage_bucket_iam_member" "usage_metrics_etl_output_gcs_iam" {
@@ -237,7 +237,7 @@ resource "google_storage_bucket_iam_member" "usage_metrics_etl_output_gcs_iam" {
 
   bucket = google_storage_bucket.pudl_usage_metrics_output_bucket.name
   role   = each.key
-  member = "serviceAccount:${google_service_account.usage_metrics_etl.email}"
+  member = "${google_service_account.usage_metrics_etl.member}"
 }
 
 resource "google_storage_bucket" "pudl_archive_bucket" {
@@ -268,7 +268,7 @@ resource "google_storage_bucket_iam_member" "nrel_finito_inputs_archiver_gcs_iam
 
   bucket = google_storage_bucket.pudl_archive_bucket.name
   role   = each.key
-  member = "serviceAccount:${google_service_account.nrel_finito_inputs_gha.email}"
+  member = "${google_service_account.nrel_finito_inputs_gha.member}"
 }
 
 resource "google_service_account" "pudl_archiver_gha" {
@@ -284,5 +284,5 @@ resource "google_storage_bucket_iam_member" "pudl_archiver_gcs_iam" {
 
   bucket = google_storage_bucket.pudl_archive_bucket.name
   role   = each.key
-  member = "serviceAccount:${google_service_account.pudl_archiver_gha.email}"
+  member = "${google_service_account.pudl_archiver_gha.member}"
 }
