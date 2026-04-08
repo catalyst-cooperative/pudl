@@ -20,7 +20,7 @@
          import polars as pl
          df = pl.read_parquet(
                "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
-               storage_options={"aws_region": "us-west-2"},
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
          )
 
    .. tab-item:: SQL (DuckDB)

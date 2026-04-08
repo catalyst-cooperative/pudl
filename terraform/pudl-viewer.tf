@@ -127,6 +127,10 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
       "run.googleapis.com/client-name" = "terraform"
     }
 
+    labels = {
+      component = "pudl-viewer"
+    }
+
     service_account = google_service_account.pudl_viewer_sa.email
     volumes {
       name = "cloudsql"
