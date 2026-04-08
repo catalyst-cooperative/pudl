@@ -211,7 +211,6 @@ html_icon = "_static/favicon.ico"
 html_theme_options = {
     "navigation_with_keys": True,
     "header_links_before_dropdown": 5,
-    "announcement": '<b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b>',
     "icon_links": [
         {
             "name": "GitHub",
