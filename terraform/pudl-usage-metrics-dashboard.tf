@@ -94,7 +94,7 @@ resource "google_cloud_run_v2_service" "pudl_usage_metrics_dashboard" {
   # TODO 2025-07-22: latest GCP provider (6.45.0) doesn't let us configure more than just 'enabled' and 'disabled'
   # I added catalyst-cooperative-pudl-admins@catalyst.coop to the IAP policy here.
   # I also had to click a button in the console to give a service account `run.invoke` on this service, but that policy doesn't show up in IAM anywhere.
-  launch_stage         = "BETA"
+  launch_stage         = "GA"
   iap_enabled          = true
   invoker_iam_disabled = true
 

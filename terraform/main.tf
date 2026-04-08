@@ -57,8 +57,8 @@ module "gh_oidc" {
       sa_name   = "projects/${var.project_id}/serviceAccounts/zenodo-cache-manager@catalyst-cooperative-pudl.iam.gserviceaccount.com"
       attribute = "attribute.repository/catalyst-cooperative/pudl"
     }
-    "pudl-usage-metrics-pudl-usage-metrics-etl" = {
-      sa_name   = "projects/${var.project_id}/serviceAccounts/pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+    (google_service_account.usage_metrics_etl.account_id) = {
+      sa_name   = google_service_account.usage_metrics_etl.id
       attribute = "attribute.repository/catalyst-cooperative/pudl-usage-metrics"
     }
     "pudl-catalog-tox-pytest-github-action" = {
@@ -184,6 +184,16 @@ resource "google_storage_bucket" "pudl_usage_metrics_archive_bucket" {
   }
 }
 
+resource "google_storage_bucket" "pudl_usage_metrics_output_bucket" {
+  name                        = "metrics.catalyst.coop"
+  location                    = "US"
+  storage_class               = "STANDARD"
+  uniform_bucket_level_access = true
+  labels = {
+    component = "usage-metrics"
+  }
+}
+
 resource "google_service_account" "usage_metrics_archiver" {
   account_id   = "usage-metrics-archiver"
   display_name = "PUDL usage metrics archiver github action service account"
@@ -194,15 +204,21 @@ resource "google_storage_bucket_iam_member" "usage_metrics_archiver_gcs_iam" {
 
   bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
   role   = each.key
-  member = "serviceAccount:${google_service_account.usage_metrics_archiver.email}"
+  member = "${google_service_account.usage_metrics_archiver.member}"
 }
 
-resource "google_storage_bucket_iam_member" "usage_metrics_etl_gcs_iam" {
+resource "google_service_account" "usage_metrics_etl" {
+  account_id   = "pudl-usage-metrics-etl"
+  display_name = "PUDL usage metrics ETL github action service account"
+  description  = "This service account contains all of the permissions for a machine to run the pudl-usage-metrics ETL."
+}
+
+resource "google_storage_bucket_iam_member" "usage_metrics_etl_archive_gcs_iam" {
   for_each = toset(["roles/storage.legacyBucketReader", "roles/storage.objectViewer"])
 
   bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
   role   = each.key
-  member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+  member = "${google_service_account.usage_metrics_etl.member}"
 }
 
 resource "google_storage_bucket_iam_member" "usage_metrics_etl_s3_logs_gcs_iam" {
@@ -210,7 +226,19 @@ resource "google_storage_bucket_iam_member" "usage_metrics_etl_s3_logs_gcs_iam" 
 
   bucket = "pudl-s3-logs.catalyst.coop"
   role   = each.key
-  member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+  member = "${google_service_account.usage_metrics_etl.member}"
+}
+
+resource "google_storage_bucket_iam_member" "usage_metrics_etl_output_gcs_iam" {
+  for_each = toset([
+    "roles/storage.legacyBucketReader",
+    "roles/storage.objectViewer",
+    "roles/storage.objectCreator",
+  ])
+
+  bucket = google_storage_bucket.pudl_usage_metrics_output_bucket.name
+  role   = each.key
+  member = "${google_service_account.usage_metrics_etl.member}"
 }
 
 resource "google_storage_bucket" "pudl_archive_bucket" {
@@ -241,12 +269,12 @@ resource "google_storage_bucket_iam_member" "nrel_finito_inputs_archiver_gcs_iam
 
   bucket = google_storage_bucket.pudl_archive_bucket.name
   role   = each.key
-  member = "serviceAccount:${google_service_account.nrel_finito_inputs_gha.email}"
+  member = "${google_service_account.nrel_finito_inputs_gha.member}"
 }
 
 resource "google_service_account" "pudl_archiver_gha" {
   account_id   = "pudl-archiver-gha"
-  display_name = "PUDL usage metrics archiver github action service account"
+  display_name = "PUDL archiver github action service account"
 }
 
 resource "google_storage_bucket_iam_member" "pudl_archiver_gcs_iam" {
@@ -257,5 +285,5 @@ resource "google_storage_bucket_iam_member" "pudl_archiver_gcs_iam" {
 
   bucket = google_storage_bucket.pudl_archive_bucket.name
   role   = each.key
-  member = "serviceAccount:${google_service_account.pudl_archiver_gha.email}"
+  member = "${google_service_account.pudl_archiver_gha.member}"
 }
