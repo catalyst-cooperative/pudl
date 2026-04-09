@@ -2600,12 +2600,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
-    # TODO: Ok not to use cache decorator??
+    # Note: no cache decorator to mirror preprocess_xbrl, which returns a tuple
+    # and cannot be cached.
     def preprocess_dbf(self, raw_dbf_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Pre-process DBF inputs into one dataframe. Concats by default."""
         return pd.concat(list(raw_dbf_dfs.values()))
 
-    # TODO: Ok not to use cache decorator??
+    # TODO (04-2026): Would be nice to refactor to take raw_xbrl_instant_dfs and
+    # raw_xbrl_duration_dfs rather than a dictionary.
     def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
         raw_xbrls = {
