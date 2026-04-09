@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.nrelatb &#8212; PUDL 2026.3.1.dev51 documentation</title>
+    <title>pudl.transform.nrelatb &#8212; PUDL 2026.3.1.dev52 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../../_static/documentation_options.js?v=380143fa"></script>
+    <script src="../../../../_static/documentation_options.js?v=18b0d911"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev51 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev51 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev52 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev52 documentation - Home"/>
   
   
 </a></div>
@@ -840,7 +840,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.transform.nrelatb.TableNormalizer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.transform.nrelatb.</span></span><span class="sig-name descname"><span class="pre">TableNormalizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/nrelatb.html#TableNormalizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.nrelatb.TableNormalizer" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel" title="(in Pydantic Validation v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel" title="(in Pydantic v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
 <p>Info needed to convert a selection of the raw NREL table into a normalized table.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.transform.nrelatb.TableNormalizer.idx">
@@ -870,7 +870,7 @@ unique based on the primary keys.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.transform.nrelatb.Normalizer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.transform.nrelatb.</span></span><span class="sig-name descname"><span class="pre">Normalizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/nrelatb.html#Normalizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.nrelatb.Normalizer" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel" title="(in Pydantic Validation v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel" title="(in Pydantic v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
 <p>Class that defines how to normalize all of the NREL tables that get the <a class="reference internal" href="#pudl.transform.nrelatb.transform_normalize" title="pudl.transform.nrelatb.transform_normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">transform_normalize()</span></code></a> treatment.</p>
 <p>There are several columns in the raw ATB data that are not a part of the primary keys
 for the tables that get the <a class="reference internal" href="#pudl.transform.nrelatb.transform_unstack" title="pudl.transform.nrelatb.transform_unstack"><code class="xref py py-func docutils literal notranslate"><span class="pre">transform_unstack()</span></code></a> treatment. This class helps us
@@ -890,7 +890,7 @@ build these smaller tables which have a smaller subset of primary key columns.</
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.transform.nrelatb.TableUnstacker">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.transform.nrelatb.</span></span><span class="sig-name descname"><span class="pre">TableUnstacker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/nrelatb.html#TableUnstacker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.nrelatb.TableUnstacker" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel" title="(in Pydantic Validation v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel" title="(in Pydantic v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
 <p>Info needed to unstack a portion of the NREL ATB table.</p>
 <p>This class defines a portion of the raw ATB table to get the <a class="reference internal" href="#pudl.transform.nrelatb.transform_unstack" title="pudl.transform.nrelatb.transform_unstack"><code class="xref py py-func docutils literal notranslate"><span class="pre">transform_unstack()</span></code></a>
 treatment. The set of tables which get this treatment are defined in <a class="reference internal" href="#pudl.transform.nrelatb.Unstacker" title="pudl.transform.nrelatb.Unstacker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unstacker</span></code></a>.</p>
@@ -934,7 +934,7 @@ with different primary keys (via <a class="reference internal" href="#pudl.trans
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.transform.nrelatb.Unstacker">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.transform.nrelatb.</span></span><span class="sig-name descname"><span class="pre">Unstacker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/nrelatb.html#Unstacker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.nrelatb.Unstacker" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel" title="(in Pydantic Validation v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel" title="(in Pydantic v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
 <p>Class that defines how to unstack the raw ATB table into all of the tidy core tables.</p>
 <p>The ATB data is reported in a very skinny format that enables the raw data to have the
 same schema over time. The <code class="docutils literal notranslate"><span class="pre">core_metric_parameter</span></code> column contains a string which

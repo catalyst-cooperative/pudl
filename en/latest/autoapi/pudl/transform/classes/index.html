@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.classes &#8212; PUDL 2026.3.1.dev51 documentation</title>
+    <title>pudl.transform.classes &#8212; PUDL 2026.3.1.dev52 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../../_static/documentation_options.js?v=380143fa"></script>
+    <script src="../../../../_static/documentation_options.js?v=18b0d911"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev51 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev51 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev52 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev52 documentation - Home"/>
   
   
 </a></div>
@@ -959,7 +959,7 @@ defined in the per-dataset modules under <a class="reference internal" href="../
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.transform.classes.TransformParams">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.transform.classes.</span></span><span class="sig-name descname"><span class="pre">TransformParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/classes.html#TransformParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.classes.TransformParams" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel" title="(in Pydantic Validation v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel" title="(in Pydantic v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
 <p>An immutable base model for transformation parameters.</p>
 <p><code class="docutils literal notranslate"><span class="pre">TransformParams</span></code> instances created without any arguments should have no effect
 when applied by their associated function.</p>
@@ -990,7 +990,7 @@ a Pydantic model. When Pydantic v2 is available, it will be easy, and we’ll do
 <a class="reference external" href="https://pydantic-docs.helpmanual.io/blog/pydantic-v2/#validation-without-a-model">https://pydantic-docs.helpmanual.io/blog/pydantic-v2/#validation-without-a-model</a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.transform.classes.MultiColumnTransformParams.single_param_type">
-<span class="sig-name descname"><span class="pre">single_param_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pydantic.dev/latest/api/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo" title="(in Pydantic Validation v0.0.0)"><span class="pre">pydantic.ValidationInfo</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/classes.html#MultiColumnTransformParams.single_param_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.classes.MultiColumnTransformParams.single_param_type" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">single_param_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo" title="(in Pydantic v0.0.0)"><span class="pre">pydantic.ValidationInfo</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/classes.html#MultiColumnTransformParams.single_param_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.classes.MultiColumnTransformParams.single_param_type" title="Link to this definition">#</a></dt>
 <dd><p>Check that all TransformParams in the dictionary are of the same type.</p>
 </dd></dl>
 
@@ -1418,7 +1418,7 @@ validating the combination of <code class="xref py py-class docutils literal not
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.transform.classes.ValidRange.upper_bound_gte_lower_bound">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">upper_bound_gte_lower_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">upper_bound</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pydantic.dev/latest/api/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo" title="(in Pydantic Validation v0.0.0)"><span class="pre">pydantic.ValidationInfo</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/classes.html#ValidRange.upper_bound_gte_lower_bound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.classes.ValidRange.upper_bound_gte_lower_bound" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">upper_bound_gte_lower_bound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">upper_bound</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo" title="(in Pydantic v0.0.0)"><span class="pre">pydantic.ValidationInfo</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/classes.html#ValidRange.upper_bound_gte_lower_bound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.classes.ValidRange.upper_bound_gte_lower_bound" title="Link to this definition">#</a></dt>
 <dd><p>Require upper bound to be greater than or equal to lower bound.</p>
 </dd></dl>
 
