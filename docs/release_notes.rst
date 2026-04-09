@@ -2,6 +2,40 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2026.5.0:
+
+---------------------------------------------------------------------------------------
+v2026.5.0 (unreleased)
+---------------------------------------------------------------------------------------
+New Data
+^^^^^^^^
+
+FERC Form 1
+~~~~~~~~~~~
+
+* Added FERC Form 1 respondents' identification and certification information as
+  :ref:`core_ferc1__yearly_identification_certification`. See :issue:`5150` and
+  :pr:`5008`.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 .. _release-v2026.4.0:
 
 ---------------------------------------------------------------------------------------
