@@ -5,15 +5,23 @@ PUDL Release Notes
 .. _release-v2026.4.0:
 
 ---------------------------------------------------------------------------------------
-v2026.4.0 (unreleased)
+v2026.4.0 (2026-04-09)
 ---------------------------------------------------------------------------------------
 
-Enhancements
-^^^^^^^^^^^^
-* Added a new standalone data deployment workflow, ``deploy-pudl.yml``. This is
-  still in testing, but will allow us to separate deployment from builds, enabling
-  deployment from an existing build and creating more modular and reusable
-  infrastructure. See issue :issue`5003` and PR :pr:`5016`.
+This is a monthly PUDL data release, primarily motivated by updating the EIA-860M
+monthly data through February 2026. As usual, it also includes all of the other changes
+that have accumulated on ``main`` since our last release.
+
+This month, that means a substantial expansion of our USDA Rural Utilities Service (RUS)
+Forms 7 and 12 coverage, and additional validations and metadata cleanup as those tables
+stabilized. We addressed a few data quality issues, including fixes for FERC EQR,
+EIA-757A extraction, EIA-861 column naming, and duplicate utility ID mappings.
+
+On the tooling and documentation side, PUDL now has a refreshed PyData-based docs theme,
+a new entity-resolution methodology page that gave us an excuse to start using Mermaid
+diagrams, an experimental standalone data deployment workflow, and several improvements
+to developer tooling and automation, including automated Zenodo DOI updates, more
+resilient docs checks, and new secret-scanning hooks. See below for all the details.
 
 New Data
 ^^^^^^^^
@@ -56,7 +64,9 @@ Documentation
   boiler, and generator attributes into normalized entity and yearly SCD
   tables. The docs now also support
   `Mermaid diagrams <https://sphinxcontrib-mermaid-demo.readthedocs.io>`__
-  for illustrating pipeline behavior. See :pr:`5071`.
+  for illustrating pipeline behavior. See :pr:`5108`.
+* Fixed the data dictionary's Polars examples for public AWS-hosted Parquet
+  access so they work without AWS credentials. See :pr:`5171`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -68,6 +78,9 @@ New Data Tests & Validations
   :ref:`core_rus7__yearly_statement_of_operations` and
   :ref:`core_rus12__yearly_statement_of_operations` and their corresponding output
   tables sum to their reported totals. See :issue:`5039` and :pr:`5073`.
+* Expanded validation coverage for newly added RUS Form 7 and 12 tables as the
+  tables and their metadata stabilized. See :pr:`5125`, :pr:`5131`, and
+  :pr:`5138`.
 * Modified schema checks so they can be applied to the largest tables, which have
   typically been excluded from these checks. See Issue :issue:`5022` and PR :pr:`5043`.
 
@@ -94,6 +107,8 @@ Bug Fixes & Data Cleaning
   :download:`v3.5 of the FERC EQR data dictionary
   <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
   See :pr:`5085`.
+* Fixed EIA-757A extraction so raw columns are renamed correctly into PUDL's
+  standard naming conventions. See :issue:`4722` and :pr:`5107`.
 * Removed approximately 200 duplicate PUDL utility IDs from
   ``src/pudl/package_data/glue/utility_id_pudl.csv``, where a FERC or EIA utility was
   mapped to more than one PUDL ID. See :issue:`4988` and :pr:`5117`.
@@ -101,14 +116,17 @@ Bug Fixes & Data Cleaning
   ``core_eia861__yearly_demand_side_management_ee_dr`` table. See issue :issue:`5132`
   and PR :pr:`5135`.
 
-Performance Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^
-
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added a new standalone data deployment workflow, ``deploy-pudl.yml``. This is
+  still in testing, but will allow us to separate deployment from builds, enabling
+  deployment from an existing build and creating more modular and reusable
+  infrastructure. See issue :issue`5003` and PR :pr:`5016`.
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
   PR :pr:`5023`. Thanks to :user:`andbusch` for getting this in!
+* Added a script and GitHub Actions workflow to automatically update Zenodo DOIs
+  in package data for straightforward data-source refreshes. See :pr:`5051`.
 * Added environment variable controls for Sphinx docs builds:
   ``PUDL_DOCS_KEEP_GENERATED_FILES`` now preserves generated docs artifacts for
   debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
@@ -120,6 +138,9 @@ Quality of Life Improvements
 * Added a ``docs-linkcheck`` Pixi task and a separate manually triggered GitHub
   Actions workflow for experimenting with automated documentation link checking.
   See PR :pr:`5128`.
+* Switched repository tooling from ``pre-commit`` to ``prek`` and added
+  ``trufflehog`` and ``detect-secrets`` hooks to help prevent secrets from being
+  committed to the repository. See :pr:`5141`.
 
 .. _release-v2026.3.0:
 
