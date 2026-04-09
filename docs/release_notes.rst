@@ -18,7 +18,7 @@ stabilized. We addressed a few data quality issues, including fixes for FERC EQR
 EIA-757A extraction, EIA-861 column naming, and duplicate utility ID mappings.
 
 On the tooling and documentation side, PUDL now has a refreshed PyData-based docs theme,
-a new entity-resolution methodology page that gave us an excuse to start using Mermaid
+a new entity-resolution methodology page with Mermaid
 diagrams, an experimental standalone data deployment workflow, and several improvements
 to developer tooling and automation, including automated Zenodo DOI updates, more
 resilient docs checks, and new secret-scanning hooks. See below for all the details.
@@ -122,7 +122,7 @@ Quality of Life Improvements
 * Added a new standalone data deployment workflow, ``deploy-pudl.yml``. This is
   still in testing, but will allow us to separate deployment from builds, enabling
   deployment from an existing build and creating more modular and reusable
-  infrastructure. See issue :issue`5003` and PR :pr:`5016`.
+  infrastructure. See issue :issue:`5003` and PR :pr:`5016`.
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
   PR :pr:`5023`. Thanks to :user:`andbusch` for getting this in!
 * Added a script and GitHub Actions workflow to automatically update Zenodo DOIs
