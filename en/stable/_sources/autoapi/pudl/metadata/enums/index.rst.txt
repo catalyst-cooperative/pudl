@@ -59,6 +59,22 @@ Attributes
    pudl.metadata.enums.LIABILITY_TYPES_RUS12
    pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12
    pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12
+   pudl.metadata.enums.PLANT_TYPE_RUS12
+   pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12
+   pudl.metadata.enums.PLANT_COST_TYPES_RUS12
+   pudl.metadata.enums.LOAN_STATUS_TYPES_RUS7
+   pudl.metadata.enums.LOAN_UNIT_TYPES_RUS7
+   pudl.metadata.enums.SERVICE_INTERRUPTION_TYPES_RUS7
+   pudl.metadata.enums.SERVICE_INTERRUPTION_PERIODS_RUS7
+   pudl.metadata.enums.SERVICE_STATUS_RUS7
+   pudl.metadata.enums.TRANSMISSION_DISTRIBUTION_TYPES_RUS7
+   pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS7
+   pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS7
+   pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS12
+   pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS12
+   pudl.metadata.enums.DEPRECIATION_CHANGES_GROUP_RUS12
+   pudl.metadata.enums.DEPRECIATION_CHANGES_ITEMS_RUS12
+   pudl.metadata.enums.DEPRECIATION_ITEMS_MISC_RUS12
 
 
 Module Contents
@@ -177,7 +193,7 @@ Module Contents
 
 .. py:data:: EPACEMS_MEASUREMENT_CODES
    :type:  list[str]
-   :value: ['Calculated', 'LME', 'Measured', 'Measured and Substitute', 'Other', 'Substitute',...
+   :value: ['Calculated', 'LME', 'Measured', 'Measured and Substitute', 'Other', 'Substitute']
 
 
    Valid emissions measurement codes for the EPA CEMS hourly data.
@@ -337,5 +353,72 @@ Module Contents
 .. py:data:: RENEWABLE_FUEL_TYPES_RUS12
    :type:  set[str]
    :value: ['Hydro', 'Methane - landfill gas', 'Wind', 'Biomass - wood', 'Methane - waste', 'Hybrid',...
+
+
+.. py:data:: PLANT_TYPE_RUS12
+   :type:  set[str]
+   :value: ['combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam']
+
+
+.. py:data:: SOURCE_OF_ENERGY_RUS12
+   :type:  set[str]
+   :value: ['energy_available_for_sale', 'energy_used_by_borrower', 'purchased_power',...
+
+
+.. py:data:: PLANT_COST_TYPES_RUS12
+   :type:  set[str]
+   :value: ['allowances', 'coal_fuel', 'coolants_and_water', 'depreciation', 'electric',...
+
+
+.. py:data:: LOAN_STATUS_TYPES_RUS7
+   :value: ['loan_default', 'loan_delinquency']
+
+
+.. py:data:: LOAN_UNIT_TYPES_RUS7
+   :value: ['actual_pct', 'anticipated_pct', 'ytd_dollars']
+
+
+.. py:data:: SERVICE_INTERRUPTION_TYPES_RUS7
+   :value: ['major_event', 'other', 'planned', 'power_supplier', 'total']
+
+
+.. py:data:: SERVICE_INTERRUPTION_PERIODS_RUS7
+   :value: ['five_year_average', 'annual']
+
+
+.. py:data:: SERVICE_STATUS_RUS7
+   :value: ['connected', 'idle', 'retired', 'total']
+
+
+.. py:data:: TRANSMISSION_DISTRIBUTION_TYPES_RUS7
+   :value: ['distribution_overhead', 'distribution_underground', 'transmission_line', 'total']
+
+
+.. py:data:: UTILITY_PLANT_GROUP_RUS7
+   :value: ['utility_plant_in_service', 'total_utility_plant']
+
+
+.. py:data:: UTILITY_PLANT_ITEM_RUS7
+   :value: ['construction_work_in_progress', 'total', 'all_other', 'distribution', 'general',...
+
+
+.. py:data:: UTILITY_PLANT_GROUP_RUS12
+   :value: ['intangible_plant', 'production_plant', 'transmission_plant', 'distribution_plant',...
+
+
+.. py:data:: UTILITY_PLANT_ITEM_RUS12
+   :value: ['land_and_land_rights', 'other', 'station_equipment', 'structures_and_improvements', 'total',...
+
+
+.. py:data:: DEPRECIATION_CHANGES_GROUP_RUS12
+   :value: ['electric_plant_in_service', 'provision_for_depreciation_and_amortization']
+
+
+.. py:data:: DEPRECIATION_CHANGES_ITEMS_RUS12
+   :value: ['depreciation_distribution_plant', 'depreciation_general_plant',...
+
+
+.. py:data:: DEPRECIATION_ITEMS_MISC_RUS12
+   :value: ['annual_accrual_charged_to_expense', 'annual_accrual_charged_to_other_accounts',...
 
 

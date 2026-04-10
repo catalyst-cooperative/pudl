@@ -100,7 +100,7 @@ Module Contents
 
 .. py:data:: raw_rus12__all_dfs
 
-.. py:function:: raw_rus12_asset_factory(in_page: str, out_page: str | None = None)
+.. py:function:: raw_rus12_asset_factory(table_name: str)
 
    Create raw RUS 12 asset for a specific page.
 

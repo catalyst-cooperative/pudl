@@ -37,16 +37,16 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_ferc714__hourly_planning_area_demand`
-     - https://data.catalyst.coop/search?q=name:core_ferc714__hourly_planning_area_demand
+     - https://data.catalyst.coop/preview/pudl/core_ferc714__hourly_planning_area_demand
    
    * - :ref:`core_ferc714__respondent_id`
-     - https://data.catalyst.coop/search?q=name:core_ferc714__respondent_id
+     - https://data.catalyst.coop/preview/pudl/core_ferc714__respondent_id
    
    * - :ref:`core_ferc714__yearly_planning_area_demand_forecast`
-     - https://data.catalyst.coop/search?q=name:core_ferc714__yearly_planning_area_demand_forecast
+     - https://data.catalyst.coop/preview/pudl/core_ferc714__yearly_planning_area_demand_forecast
    
    * - :ref:`out_ferc714__hourly_planning_area_demand`
-     - https://data.catalyst.coop/search?q=name:out_ferc714__hourly_planning_area_demand
+     - https://data.catalyst.coop/preview/pudl/out_ferc714__hourly_planning_area_demand
    
 
 

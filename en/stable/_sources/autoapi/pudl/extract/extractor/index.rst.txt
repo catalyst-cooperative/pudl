@@ -68,8 +68,6 @@ Module Contents
 
 
    .. py:attribute:: _pkg
-      :value: 'pudl.package_data.Uninferable'
-
 
 
    .. py:attribute:: _column_map

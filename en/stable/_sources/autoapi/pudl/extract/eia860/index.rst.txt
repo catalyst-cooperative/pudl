@@ -19,7 +19,7 @@ Attributes
 .. autoapisummary::
 
    pudl.extract.eia860.logger
-   pudl.extract.eia860.raw_table_names
+   pudl.extract.eia860.RAW_EIA860_TABLE_NAMES
    pudl.extract.eia860.raw_eia860__all_dfs
 
 
@@ -81,9 +81,7 @@ Module Contents
 
 
 
-.. py:data:: raw_table_names
-   :value: ('raw_eia860__boiler_cooling', 'raw_eia860__boiler_generator_assn', 'raw_eia860__boiler_info',...
-
+.. py:data:: RAW_EIA860_TABLE_NAMES
 
 .. py:data:: raw_eia860__all_dfs
 

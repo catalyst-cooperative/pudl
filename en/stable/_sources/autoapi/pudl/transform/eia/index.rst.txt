@@ -30,6 +30,7 @@ Attributes
 .. autoapisummary::
 
    pudl.transform.eia.logger
+   pudl.transform.eia.HARVESTABLE_ASSETS
    pudl.transform.eia.harvested_entities
    pudl.transform.eia.finished_eia_assets
 
@@ -69,6 +70,10 @@ Module Contents
 ---------------
 
 .. py:data:: logger
+
+.. py:data:: HARVESTABLE_ASSETS
+   :value: ('_core_eia860__boiler_cooling', '_core_eia860__boiler_emissions_control_equipment_assn',...
+
 
 .. py:class:: EiaEntity
 

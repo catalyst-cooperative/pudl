@@ -109,9 +109,9 @@ Module Contents
    required later to calculate average heat content per unit of fuel.
 
 
-.. py:function:: out_eia923__fuel_receipts_costs(context, core_eia923__monthly_fuel_receipts_costs: pandas.DataFrame, core_eia923__entity_coalmine: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame, _out_eia__monthly_state_fuel_prices: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: out_eia923__fuel_receipts_costs(context, core_eia923__fuel_receipts_costs: pandas.DataFrame, core_eia923__entity_coalmine: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame, _out_eia__monthly_state_fuel_prices: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame) -> pandas.DataFrame
 
-   Denormalize the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
+   Denormalize the :ref:`core_eia923__fuel_receipts_costs` table.
 
 
 .. py:function:: time_aggregated_eia923_asset_factory(freq: Literal['YS', 'MS'], io_manager_key: str | None = None) -> list[dagster.AssetsDefinition]

@@ -20,6 +20,9 @@ Submodules
    /autoapi/pudl/analysis/index
    /autoapi/pudl/convert/index
    /autoapi/pudl/dbt_wrapper/index
+   /autoapi/pudl/definitions/index
+   /autoapi/pudl/defs/index
+   /autoapi/pudl/deploy/index
    /autoapi/pudl/etl/index
    /autoapi/pudl/extract/index
    /autoapi/pudl/ferc_to_sqlite/index

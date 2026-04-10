@@ -39,19 +39,19 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`core_eiaaeo__yearly_projected_electric_sales`
-     - https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_electric_sales
+     - https://data.catalyst.coop/preview/pudl/core_eiaaeo__yearly_projected_electric_sales
    
    * - :ref:`core_eiaaeo__yearly_projected_energy_use_by_sector_and_type`
-     - https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_energy_use_by_sector_and_type
+     - https://data.catalyst.coop/preview/pudl/core_eiaaeo__yearly_projected_energy_use_by_sector_and_type
    
    * - :ref:`core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type`
-     - https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type
+     - https://data.catalyst.coop/preview/pudl/core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type
    
    * - :ref:`core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology`
-     - https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology
+     - https://data.catalyst.coop/preview/pudl/core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology
    
    * - :ref:`core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type`
-     - https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type
+     - https://data.catalyst.coop/preview/pudl/core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type
    
 
 

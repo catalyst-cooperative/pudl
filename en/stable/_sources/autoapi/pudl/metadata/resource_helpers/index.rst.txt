@@ -18,7 +18,10 @@ Attributes
 
 .. autoapisummary::
 
-   pudl.metadata.resource_helpers.HARVESTING_DETAIL_TEXT
+   pudl.metadata.resource_helpers.HARVESTED_CORE_TABLES_RUS12
+   pudl.metadata.resource_helpers.HARVESTED_CORE_TABLES_RUS7
+   pudl.metadata.resource_helpers.HARVESTING_DETAIL_TEXT_EIA
+   pudl.metadata.resource_helpers.HARVESTING_DETAIL_TEXT_RUS
 
 
 Functions
@@ -29,12 +32,21 @@ Functions
    pudl.metadata.resource_helpers.canonical_harvested_details
    pudl.metadata.resource_helpers.inherits_harvested_values_details
    pudl.metadata.resource_helpers.merge_descriptions
+   pudl.metadata.resource_helpers.core_to_out_harvested_resources
 
 
 Module Contents
 ---------------
 
-.. py:data:: HARVESTING_DETAIL_TEXT
+.. py:data:: HARVESTED_CORE_TABLES_RUS12
+   :value: ['core_rus12__yearly_meeting_and_board', 'core_rus12__yearly_balance_sheet_assets',...
+
+
+.. py:data:: HARVESTED_CORE_TABLES_RUS7
+   :value: ['core_rus7__yearly_meeting_and_board', 'core_rus7__yearly_balance_sheet_assets',...
+
+
+.. py:data:: HARVESTING_DETAIL_TEXT_EIA
    :value: Multiline-String
 
    .. raw:: html
@@ -49,7 +61,34 @@ Module Contents
       PUDL chooses the most consistently reported value of a given attribute as long as it
       is at least 70% of the given instances reported. If an attribute was reported
       inconsistently across the original EIA tables, then it will show up as a
-      null value."""
+      null value. See :doc:`/methodology/entity_resolution` for a conceptual overview of
+      this process."""
+
+   .. raw:: html
+
+      </details>
+
+
+
+.. py:data:: HARVESTING_DETAIL_TEXT_RUS
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """RUS reports many attributes in many different tables
+      across throughout RUS-7 and RUS-12. In order to compile tidy, well-normalized database
+      tables, PUDL collects all instances of these values and and chooses a canonical value.
+      By default, PUDL chooses the most consistently reported value of a given attribute as
+      long as it is at least 70% of the given instances reported. For the ``borrower_name_rus``
+      PUDL chooses the most consistently reported value regardless of if it meets this 70%
+      threshold so that all borrowers will have a name. We chose this because most name
+      changes were insignificant (eg. "and" changed to "&" or "coop" changed to "cooperative").
+      All tables downstream of this one inherit the canonical values established
+      here."""
 
    .. raw:: html
 
@@ -98,5 +137,10 @@ Module Contents
 .. py:function:: merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]
 
    Merge two description dictionaries.
+
+
+.. py:function:: core_to_out_harvested_resources(core_table_names: list[str], core_table_metadata: dict, out_cols_to_add: list[str]) -> dict
+
+   Make out tables from core resource metadata when extra columns are standard.
 
 

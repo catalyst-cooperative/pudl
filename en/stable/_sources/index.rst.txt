@@ -9,6 +9,8 @@ journalists, and policy makers that might not have the technical expertise to ac
 in its raw form, the time to clean and prepare the data for bulk analysis, or the means
 to purchase it from  existing commercial providers.
 
+For more information on how to use PUDL data, see :doc:`data_access`.
+
 ---------------------------------------------------------------------------------------
 Available Data
 ---------------------------------------------------------------------------------------
@@ -165,7 +167,9 @@ incorrectly reported latitude in one year.
 Assets in the Core layer attempt to eliminate this kind of inconsistent and duplicate
 information when normalizing the tables by choosing only the most consistently reported
 value for inclusion in the final database. If a value which should be static is not
-consistently reported, it may also be set to N/A.
+consistently reported, it may also be set to N/A. For details on how this works for
+EIA entities (plants, utilities, boilers, and generators), see
+:doc:`/methodology/entity_resolution`.
 
 Output Layer
 ^^^^^^^^^^^^
@@ -302,16 +306,7 @@ Enable Open Source Ecosystems (POSE) program
   :hidden:
   :maxdepth: 2
 
-  About PUDL <self>
-  data_access
   PUDL Data Viewer <https://data.catalyst.coop>
-  data_sources/index
-  data_dictionaries/index
-  methodology/index
-  Contributing <CONTRIBUTING>
-  dev/index
-  Licensing <LICENSE>
-  Code of Conduct <code_of_conduct>
+  Data Documentation <data>
+  Development <code>
   Release Notes <release_notes>
-  autoapi/index
-  bibliography

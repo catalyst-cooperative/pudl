@@ -15,6 +15,7 @@ Attributes
 .. autoapisummary::
 
    pudl.metadata.resources.censusdp1tract.CENSUS_DP1_DEMOGRAPHIC_COLUMNS
+   pudl.metadata.resources.censusdp1tract.CENSUS_CAVEAT
    pudl.metadata.resources.censusdp1tract.RESOURCE_METADATA
 
 
@@ -23,6 +24,10 @@ Module Contents
 
 .. py:data:: CENSUS_DP1_DEMOGRAPHIC_COLUMNS
    :value: ['dp0010001', 'dp0010002', 'dp0010003', 'dp0010004', 'dp0010005', 'dp0010006', 'dp0010007',...
+
+
+.. py:data:: CENSUS_CAVEAT
+   :value: 'Based on the 2010 Census. Used as a convenient source of geospatial information within PUDL,...
 
 
 .. py:data:: RESOURCE_METADATA

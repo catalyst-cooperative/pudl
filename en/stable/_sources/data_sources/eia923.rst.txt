@@ -43,37 +43,40 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`i_core_eia923__monthly_cooling_system_information`
-     - https://data.catalyst.coop/search?q=name:_core_eia923__monthly_cooling_system_information
+     - https://data.catalyst.coop/preview/pudl/_core_eia923__monthly_cooling_system_information
    
    * - :ref:`i_core_eia923__yearly_byproduct_disposition`
-     - https://data.catalyst.coop/search?q=name:_core_eia923__yearly_byproduct_disposition
+     - https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_byproduct_disposition
    
    * - :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`
-     - https://data.catalyst.coop/search?q=name:_core_eia923__yearly_byproduct_expenses_and_revenues
+     - https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_byproduct_expenses_and_revenues
+   
+   * - :ref:`i_core_eia923__yearly_emissions_control`
+     - https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_emissions_control
    
    * - :ref:`i_core_eia923__yearly_fgd_operation_maintenance`
-     - https://data.catalyst.coop/search?q=name:_core_eia923__yearly_fgd_operation_maintenance
+     - https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fgd_operation_maintenance
    
    * - :ref:`core_eia923__entity_coalmine`
-     - https://data.catalyst.coop/search?q=name:core_eia923__entity_coalmine
+     - https://data.catalyst.coop/preview/pudl/core_eia923__entity_coalmine
+   
+   * - :ref:`core_eia923__fuel_receipts_costs`
+     - https://data.catalyst.coop/preview/pudl/core_eia923__fuel_receipts_costs
    
    * - :ref:`core_eia923__monthly_boiler_fuel`
-     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_boiler_fuel
+     - https://data.catalyst.coop/preview/pudl/core_eia923__monthly_boiler_fuel
    
    * - :ref:`core_eia923__monthly_energy_storage`
-     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_energy_storage
-   
-   * - :ref:`core_eia923__monthly_fuel_receipts_costs`
-     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_fuel_receipts_costs
+     - https://data.catalyst.coop/preview/pudl/core_eia923__monthly_energy_storage
    
    * - :ref:`core_eia923__monthly_generation`
-     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_generation
+     - https://data.catalyst.coop/preview/pudl/core_eia923__monthly_generation
    
    * - :ref:`core_eia923__monthly_generation_fuel`
-     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_generation_fuel
+     - https://data.catalyst.coop/preview/pudl/core_eia923__monthly_generation_fuel
    
    * - :ref:`core_eia923__monthly_generation_fuel_nuclear`
-     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_generation_fuel_nuclear
+     - https://data.catalyst.coop/preview/pudl/core_eia923__monthly_generation_fuel_nuclear
    
 
 

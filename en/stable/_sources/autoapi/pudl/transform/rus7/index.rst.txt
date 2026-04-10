@@ -38,9 +38,15 @@ Functions
    pudl.transform.rus7._core_rus7__yearly_long_term_debt
    pudl.transform.rus7._core_rus7__yearly_patronage_capital
    pudl.transform.rus7._core_rus7__yearly_statement_of_operations
+   pudl.transform.rus7._core_rus7__consumer_debt
+   pudl.transform.rus7._core_rus7__yearly_service_interruptions
+   pudl.transform.rus7._core_rus7__transmission_and_distribution
    pudl.transform.rus7._core_rus7__yearly_long_term_leases
    pudl.transform.rus7._core_rus7__yearly_loans
    pudl.transform.rus7._core_rus7__yearly_external_financial_risk_ratio
+   pudl.transform.rus7._core_rus7__yearly_energy_purchased
+   pudl.transform.rus7._core_rus7__yearly_materials_and_supplies
+   pudl.transform.rus7._core_rus7__yearly_utility_plant_changes
    pudl.transform.rus7.core_rus7__entity_borrowers
 
 
@@ -133,6 +139,25 @@ Module Contents
    Transform the statement of operations table.
 
 
+.. py:function:: _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pandas.DataFrame)
+
+   Transform the owed by consumer table.
+
+   This transform splits the owed_by_consumers table into one table describing general
+   consumer debts and one table describing the status of energy efficiency and
+   conservation loan program debts.
+
+
+.. py:function:: _core_rus7__yearly_service_interruptions(raw_rus7__service_interruptions: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the service_interruptions table.
+
+
+.. py:function:: _core_rus7__transmission_and_distribution(raw_rus7__transmission_and_distribution: pandas.DataFrame)
+
+   Transform the transmission_and_distribution table.
+
+
 .. py:function:: _core_rus7__yearly_long_term_leases(raw_rus7__long_term_leases: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the long term leases table.
@@ -148,9 +173,22 @@ Module Contents
    Transform the raw_rus7__external_financial_risk_ratio table.
 
 
-.. py:data:: _CORE_RUS7_TABLES
-   :value: ['_core_rus7__scd_borrowers', '_core_rus7__yearly_balance_sheet_assets',...
+.. py:function:: _core_rus7__yearly_energy_purchased(raw_rus7__energy_purchased: pandas.DataFrame) -> pandas.DataFrame
 
+   Transform the raw_rus7__energy_purchased table.
+
+
+.. py:function:: _core_rus7__yearly_materials_and_supplies(raw_rus7__materials_and_supplies: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the materials and supplies table.
+
+
+.. py:function:: _core_rus7__yearly_utility_plant_changes(raw_rus7__utility_plant_changes: pandas.DataFrame)
+
+   Transform the utility plant changes table.
+
+
+.. py:data:: _CORE_RUS7_TABLES
 
 .. py:function:: core_rus7__entity_borrowers(context, **clean_dfs)
 

@@ -929,16 +929,31 @@ Code table containing descriptions of categorical codes for maturity levels of d
 
 
 
-.. _core_rus7__codes_investment_types_:
+.. _core_rus__codes_fuel_types_:
 
 ---------------------------------------------------------------
-core_rus7__codes_investment_types
+core_rus__codes_fuel_types
+---------------------------------------------------------------
+
+Code table containing descriptions of categorical codes for fuel types in RUS.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_rus__codes_fuel_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_rus__codes_investment_types_:
+
+---------------------------------------------------------------
+core_rus__codes_investment_types
 ---------------------------------------------------------------
 
 Code table containing descriptions of categorical codes for investment types.
 
 .. csv-table:: Code Mappings
-  :file: /data_dictionaries/code_csvs/core_rus7__codes_investment_types.csv
+  :file: /data_dictionaries/code_csvs/core_rus__codes_investment_types.csv
   :header-rows: 1
   :widths: auto
 

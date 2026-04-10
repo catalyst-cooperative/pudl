@@ -37,13 +37,13 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    * - :ref:`out_censusdp1tract__counties`
-     - https://data.catalyst.coop/search?q=name:out_censusdp1tract__counties
+     - https://data.catalyst.coop/preview/pudl/out_censusdp1tract__counties
    
    * - :ref:`out_censusdp1tract__states`
-     - https://data.catalyst.coop/search?q=name:out_censusdp1tract__states
+     - https://data.catalyst.coop/preview/pudl/out_censusdp1tract__states
    
    * - :ref:`out_censusdp1tract__tracts`
-     - https://data.catalyst.coop/search?q=name:out_censusdp1tract__tracts
+     - https://data.catalyst.coop/preview/pudl/out_censusdp1tract__tracts
    
 
 
