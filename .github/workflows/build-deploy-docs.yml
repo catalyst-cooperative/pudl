@@ -36,14 +36,14 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
+      - name: Compute version for switcher and destination directory
+        run: |
+          PUDL_VERSION_MATCH=${{ case(github.ref == 'refs/heads/main', 'latest', github.ref) }}
+          echo PUDL_VERSION_MATCH=${DEST_DIR#refs/heads/} > "$GITHUB_ENV"
+
       - name: Lint and build PUDL documentation with Sphinx
         run: |
           pixi run docs-build
-
-      - name: Compute destination dir
-        run: |
-          DEST_DIR=${{ case(github.ref == 'refs/heads/main', 'latest', github.ref) }}
-          echo DEST_DIR=${DEST_DIR#refs/heads/} > "$GITHUB_ENV"
 
       - name: Deploy to GitHub Pages at the appropriate version path
         uses: peaceiris/actions-gh-pages@v4
@@ -51,6 +51,6 @@ jobs:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html
-          destination_dir: en/${{ env.DEST_DIR }}
+          destination_dir: en/${{ env.PUDL_VERSION_MATCH }}
           user_name: "pudlbot"
           user_email: "pudl@catalyst.coop"
