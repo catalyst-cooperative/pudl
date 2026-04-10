@@ -62,7 +62,11 @@ TABLE_DESCRIPTIONS = {
             "free_text",
             {
                 "type": "custom",
-                "description": "The rate and percentage (pct) columns are reported either as values between 0-1 or 0-100.",
+                "description": (
+                    "The rate and percentage (pct) columns are reported either as values between 0-1 or 0-100. "
+                    "It is often consistent within a given utility-year but use caution when comparing value across "
+                    "different utilities and even the same utility filing in a different year."
+                ),
             },
         ],
         "additional_primary_key_text": "This table is too unstructured to have a primary key.",
@@ -1206,6 +1210,32 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_function",
                 "ferc_account_label",
             ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "outputs",
+        "field_namespace": "ferc1",
+    },
+    "out_ferc1__yearly_depreciation_factors_sched336": {
+        "description": TABLE_DESCRIPTIONS["yearly_depreciation_factors_sched336"],
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
+                "utility_id_pudl",
+                "utility_name_ferc1",
+                "depreciation_factors",
+                "depreciable_plant_base",
+                "net_salvage_pct",
+                "depreciation_rate",
+                "mortality_curve_type",
+                "order_num",
+                "account_num",
+                "service_life_avg",
+                "remaining_life_avg",
+            ]
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",

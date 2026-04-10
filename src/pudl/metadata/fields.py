@@ -10009,6 +10009,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "depreciable_plant_base": {
         "type": "number",
         "description": "Depreciable plant balance (depreciable base) to which rates are applied.",
+        "unit": "USD",
     },
     "net_salvage_pct": {
         "type": "number",
@@ -10034,15 +10035,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Label of the factor of depreciation factors. This field contains is an unstructured, free-form strings. "
-            "It often includes FERC account IDs, sometimes includes plant names and sometimes includes headers. "
-            "Indicating the beginning of a new section - such as a plant or asset type header which is followed "
+            "It often includes FERC account IDs, sometimes includes plant names and sometimes includes headers "
+            "indicating the beginning of a new section - such as a plant or asset type header which is followed "
             "by sub-components like FERC account IDs or plant names depending on the section."
         ),
     },
     "order_num": {
         "type": "number",
         "description": (
-            "This field is defined in FERC-XBRL documentation as a field that is used or sequence a table."
+            "This field is defined in FERC-XBRL documentation as a field that is used to sequence a table."
             "FERC-XBRL documentation notes: 'This field is added to a table to control ordering of the items on the table.'"
             "FERC's documentation also notes that this field should always be an integer - although "
             "there are many instances of floating point values which seem to increment by decimal points. "

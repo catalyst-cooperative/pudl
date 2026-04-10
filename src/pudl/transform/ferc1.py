@@ -5603,7 +5603,7 @@ def convert_pnynmndtnhnmns_to_years(dep_factors: pd.DataFrame, life_col: str):
     ].empty
 
     dep_factors[life_col] = dep_factors[f"{life_col}_new"].fillna(
-        dep_factors.loc[~duration_format_mask, life_col].astype(float)
+        dep_factors.loc[~duration_format_mask, life_col].astype(pd.Float64Dtype())
     )
     return dep_factors.drop(columns=[f"{life_col}_new"] + temp_date_cols)
 
