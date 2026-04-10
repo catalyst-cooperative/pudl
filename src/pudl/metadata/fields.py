@@ -10060,7 +10060,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Estimated average service life of utility plant. "
             "The original DBF data was reported as years while the XBRL data was reported as "
             "strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these "
-            "string time duration's into years."
+            "string time durations into years."
         ),
     },
     "remaining_life_avg": {
