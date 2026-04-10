@@ -54,3 +54,4 @@ jobs:
           destination_dir: en/${{ env.PUDL_VERSION_MATCH }}
           user_name: "pudlbot"
           user_email: "pudl@catalyst.coop"
+          exclude_assets: ".github,.doctrees,.buildinfo"
