@@ -10034,7 +10034,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Label of the factor of depreciation factors. This field contains is an unstructured, free-form strings. "
-            "It often includes FERC account IDs, sometimes it includes plant names and sometimes includes headers. "
+            "It often includes FERC account IDs, sometimes includes plant names and sometimes includes headers. "
             "Indicating the beginning of a new section - such as a plant or asset type header which is followed "
             "by sub-components like FERC account IDs or plant names depending on the section."
         ),
