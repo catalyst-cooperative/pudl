@@ -9,6 +9,7 @@ all of our publications and the input data for PUDL in the
 `Catalyst Cooperative Zenodo Community <https://zenodo.org/communities/catalyst-cooperative/>`__.
 
 .. bibliography:: catalyst_pubs.bib
+    :list: enumerated
     :all:
 
 Work Citing PUDL and other Catalyst Analyses
@@ -17,6 +18,7 @@ Academic, policy, and industry publications that reference PUDL and analyses don
 Catalyst Cooperative.
 
 .. bibliography:: catalyst_cites.bib
+    :list: enumerated
     :all:
 
 Work Citing Catalyst Cooperative
@@ -25,6 +27,7 @@ Academic, policy, and industry publications referencing Catalyst's role as a
 worker-owned software cooperative.
 
 .. bibliography:: cooperative_cites.bib
+    :list: enumerated
     :all:
 
 Further Reading
@@ -32,4 +35,5 @@ Further Reading
 Other research and publications relevant to the work we do.
 
 .. bibliography:: further_reading.bib
+    :list: enumerated
     :all:

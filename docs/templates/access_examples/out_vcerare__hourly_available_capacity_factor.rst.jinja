@@ -8,9 +8,9 @@
    This is easier in ``polars`` and ``duckdb`` than in ``pandas``,
    so we only provide examples for these.
 
-.. tabs::
+.. tab-set::
 
-   .. tab:: polars
+   .. tab-item:: polars
 
       .. code-block:: python
 
@@ -19,7 +19,7 @@
              # Use scan_parquet (lazy evaluation) to plan the query before execution
              pl.scan_parquet(
                  "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
-                 storage_options={"aws_region": "us-west-2"},
+                 storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
              )
              # Select only a subset of columns to reduce network and memory usage
              .select(
@@ -41,7 +41,7 @@
              .collect()
          )
 
-   .. tab:: SQL (DuckDB)
+   .. tab-item:: SQL (DuckDB)
 
       .. code-block:: sql
 

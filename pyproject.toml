@@ -94,9 +94,9 @@ geopandas = ">=1.1"
 google-cloud-sdk = ">=535"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
-grpcio = "==1.78.0"
-grpcio-health-checking = "==1.78.0"
-grpcio-status = "==1.78.0"
+grpcio = "==1.78.1"
+grpcio-health-checking = "==1.78.1"
+grpcio-status = "==1.78.1"
 hypothesis = ">=6.123"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
@@ -121,13 +121,14 @@ pandoc = ">=3.7"
 pandera-polars = ">=0.30"
 parallel = ">=20250822"
 polars = ">=1.39"
-pre-commit = ">=4.5"
+prek = ">=0.3.8"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.7,<4"
 # pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
 pyarrow = ">=23"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
+pydata-sphinx-theme = ">=0.16.1"
 pygraphviz = ">=1"
 pytest = ">=9"
 pytest-console-scripts = ">=1.4"
@@ -152,6 +153,7 @@ shapely = ">=2.1.1"
 slack-sdk = ">=3.39.0"
 sphinx = ">=9"
 sphinx-autoapi = ">=3.8"
+sphinx-design = ">=0.7.0"
 sphinx-issues = ">=5"
 sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
@@ -175,9 +177,7 @@ zip = ">=3.0"
 # above in [tools.pixi.dependenccies] (for conda packages) or in this section, if they
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
-# Furo is pure python and the conda package is like a year out of date.
-furo = ">=2025"
-sphinx-tabs = ">=3.4.7"
+detect-secrets = ">=1.5"
 
 [tool.pixi.package]
 version = "v0.0.0"
@@ -223,9 +223,9 @@ geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
-grpcio = "==1.78.0"
-grpcio-health-checking = "==1.78.0"
-grpcio-status = "==1.78.0"
+grpcio = "==1.78.1"
+grpcio-health-checking = "==1.78.1"
+grpcio-status = "==1.78.1"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
 matplotlib-base = ">=3.10"
@@ -290,7 +290,7 @@ description = "Remove all generated documentation files"
 [tool.pixi.tasks.docs-build]
 cmd = """
 doc8 docs/ README.rst && \
-coverage run --append -m sphinx --jobs auto -W docs docs/_build/html
+python -m sphinx --jobs auto -W -b html docs docs/_build/html
 """
 depends-on = ["docs-clean"]
 description = "Build PUDL docs using Sphinx"
@@ -306,6 +306,21 @@ description = "Check TOML formatting with Taplo"
 [tool.pixi.tasks.toml-check]
 cmd = "taplo check"
 description = "Validate TOML files with Taplo"
+
+[tool.pixi.tasks.docs-check]
+cmd = """
+doc8 docs/ README.rst && \
+PUDL_DOCS_DISABLE_INTERSPHINX=1 coverage run --append -m sphinx --jobs auto -W -b dummy docs docs/_build/dummy
+"""
+depends-on = ["docs-clean"]
+description = "Run a fast validation-only Sphinx docs check"
+
+[tool.pixi.tasks.docs-linkcheck]
+cmd = """
+sphinx-build --jobs auto -W -b linkcheck docs docs/_build/linkcheck
+"""
+depends-on = ["docs-clean"]
+description = "Check external links in the PUDL docs using Sphinx linkcheck"
 
 # Testing tasks
 [tool.pixi.tasks.coverage-erase]
@@ -324,7 +339,7 @@ description = "Run integration tests with fast ETL settings"
 cmd = "coverage report"
 depends-on = [
     "coverage-erase",
-    "docs-build",
+    "docs-check",
     "pytest-unit",
     "pytest-integration",
 ]
@@ -372,17 +387,17 @@ coverage run --append pudl_etl $ETL_FULL_YML
 description = "Run full PUDL ETL pipeline"
 
 # Code quality tasks
-[tool.pixi.tasks.pre-commit-run]
-cmd = "pre-commit run --all-files"
+[tool.pixi.tasks.prek-run]
+cmd = "prek run --all-files"
 description = "Run all pre-commit hooks"
 
-[tool.pixi.tasks.pre-commit-install]
-cmd = "pre-commit install"
+[tool.pixi.tasks.prek-install]
+cmd = "prek install"
 description = "Install pre-commit hooks"
 
 # Dependency Update tasks
-[tool.pixi.tasks.pre-commit-autoupdate]
-cmd = "pre-commit autoupdate"
+[tool.pixi.tasks.prek-autoupdate]
+cmd = "prek autoupdate"
 description = "Update pre-commit hook versions"
 
 [tool.pixi.tasks.dbt-deps-upgrade]

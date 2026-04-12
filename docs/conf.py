@@ -14,6 +14,10 @@ import os
 import shutil
 from pathlib import Path
 
+from pybtex.plugin import register_plugin
+from pybtex.style.formatting.plain import Style as PlainStyle
+from pybtex.style.sorting import BaseSortingStyle
+
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import CodeMetadata, DataSource, Package, Resource
 from pudl.metadata.codes import CODE_METADATA
@@ -59,7 +63,7 @@ extensions = [
     "autoapi.extension",
     "sphinx_issues",
     "sphinx_reredirects",
-    "sphinx_tabs.tabs",
+    "sphinx_design",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
     "sphinxcontrib.mermaid",
@@ -75,6 +79,53 @@ bibtex_bibfiles = [
     "catalyst_cites.bib",
     "further_reading.bib",
 ]
+
+# Handle bibtex formatting to produce a numbered list
+# without labels and sorted by descending date in document
+# we can't use any default style because there are multiple bibs on one page
+
+
+class YearDescendingSortingStyle(BaseSortingStyle):
+    """Create style that sorts by descending year."""
+
+    def sorting_key(self, entry):
+        """Return sorting key that descends by year."""
+        year_str = entry.fields.get("year", "0")
+        try:
+            year = int(year_str)
+        except ValueError:
+            year = 0
+
+        author = entry.persons.get("author", [])
+        author_key = str(author[0]) if author else ""
+        title = entry.fields.get("title", "")
+
+        return (-year, author_key, title)
+
+
+class NoLabelStyle(PlainStyle):
+    """Create citation style without label and sorting on descending year."""
+
+    default_sorting_style = "year_desc"
+
+    def format_label(self, entry):
+        """Override default label."""
+        return ""
+
+
+register_plugin(
+    "pybtex.style.sorting",
+    "year_desc",
+    YearDescendingSortingStyle,
+)
+
+register_plugin(
+    "pybtex.style.formatting",
+    "nolabel",
+    NoLabelStyle,
+)
+
+bibtex_default_style = "nolabel"
 
 # If PUDL_DOCS_KEEP_GENERATED_FILES is defined, don't clean up generated files after the
 # docs build. Useful for debugging formatting of generated RST files, but be sure to
@@ -96,6 +147,7 @@ autoapi_dirs = [
 autoapi_ignore = [
     "*_test.py",
 ]
+autoapi_add_toctree_entry = False
 
 # GitHub repo
 issues_github_path = "catalyst-cooperative/pudl"
@@ -105,7 +157,7 @@ issues_github_path = "catalyst-cooperative/pudl"
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
     "dagster": ("https://docs.dagster.io/", None),
-    "duckdb": ("https://duckdb.org/docs/stable/clients/python/reference/", None),
+    "duckdb": ("https://duckdb.org/docs/lts/clients/python/reference/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
@@ -142,11 +194,14 @@ suppress_warnings = [
     "ref.python",  # Suppress ambiguous Python reference warnings
 ]
 
+if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
+    suppress_warnings.append("intersphinx.external")
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.
 master_doc = "index"
-html_theme = "furo"
+html_theme = "pydata_sphinx_theme"
 html_logo = "_static/catalyst_logo-200x200.png"
 html_icon = "_static/favicon.ico"
 
@@ -155,15 +210,29 @@ html_icon = "_static/favicon.ico"
 # documentation.
 html_theme_options = {
     "navigation_with_keys": True,
-    "light_css_variables": {
-        "color-announcement-background": "yellow",
-        "color-announcement-text": "red",
+    "header_links_before_dropdown": 5,
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/catalyst-cooperative/pudl",
+            "icon": "fa-brands fa-square-github",
+            "type": "fontawesome",
+        }
+    ],
+    "switcher": {
+        "json_url": "https://docs.catalyst.coop/pudl/available_versions.json",
+        "version_match": "latest",
     },
-    "dark_css_variables": {
-        "color-announcement-background": "yellow",
-        "color-announcement-text": "red",
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "secondary_sidebar_items": {
+        "**": ["page-toc", "sourcelink"],
     },
-    "announcement": '<b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b>',
+    "show_nav_level": {
+        "**": 2,
+    },
+}
+html_sidebars = {
+    "release_notes": [],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

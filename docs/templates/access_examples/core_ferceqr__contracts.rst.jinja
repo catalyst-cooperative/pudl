@@ -5,9 +5,9 @@
    This table is partitioned into multiple Parquet files which can be treated
    as a single Parquet dataset.
 
-.. tabs::
+.. tab-set::
 
-   .. tab:: pandas
+   .. tab-item:: pandas
 
       .. code-block:: python
 
@@ -18,7 +18,7 @@
              dtype_backend="pyarrow",
          )
 
-   .. tab:: polars
+   .. tab-item:: polars
 
       .. code-block:: python
 
@@ -26,17 +26,17 @@
          # Select all Parquet files under this bucket prefix.
          df = pl.read_parquet(
              "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
-             storage_options={"aws_region": "us-west-2"},
+             storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
          )
 
-   .. tab:: SQL (DuckDB)
+   .. tab-item:: SQL (DuckDB)
 
       .. code-block:: sql
 
          -- Use a wildcard to select all parquet files with this bucket prefix.
          SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/*.parquet';
 
-   .. tab:: R
+   .. tab-item:: R
 
       .. code-block:: r
 

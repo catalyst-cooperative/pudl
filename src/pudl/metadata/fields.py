@@ -20,6 +20,9 @@ from pudl.metadata.enums import (
     CUSTOMER_CLASSES_EIA176,
     DAMAGE_SUB_TYPES_PHMSAGAS,
     DAMAGE_TYPES_PHMSAGAS,
+    DEPRECIATION_CHANGES_GROUP_RUS12,
+    DEPRECIATION_CHANGES_ITEMS_RUS12,
+    DEPRECIATION_ITEMS_MISC_RUS12,
     DIVISION_CODES_US_CENSUS,
     EIA191_STORAGE_REGIONS,
     ELECTRICITY_MARKET_MODULE_REGIONS,
@@ -65,6 +68,10 @@ from pudl.metadata.enums import (
     TRANSMISSION_DISTRIBUTION_TYPES_RUS7,
     US_TIMEZONES,
     UTILITY_PLANT_ASSET_TYPES_FERC1,
+    UTILITY_PLANT_GROUP_RUS7,
+    UTILITY_PLANT_GROUP_RUS12,
+    UTILITY_PLANT_ITEM_RUS7,
+    UTILITY_PLANT_ITEM_RUS12,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
@@ -2790,11 +2797,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "energy_efficiency_annual_cost": {
+    "energy_efficiency_annual_direct_cost": {
         "type": "number",
         "description": (
-            "The sum of actual direct costs, incentive payments, and indirect costs "
-            "incurred in a given reporting year from energy efficiency programs."
+            "The sum of actual direct costs (excluding incentive payments) incurred "
+            "from energy efficiency programs in a given reporting year."
         ),
         "unit": "USD",
     },
@@ -2806,7 +2813,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    "energy_efficiency_annual_incentive_payment": {
+    "energy_efficiency_annual_incentive_cost": {
         "type": "number",
         "description": (
             "The cost of incentive payments incurred in a given reporting year "
@@ -4396,11 +4403,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "load_management_annual_cost": {
+    "load_management_annual_direct_cost": {
         "type": "number",
         "description": (
-            "The sum of actual direct costs, incentive payments, and indirect costs "
-            "incurred in a given reporting year from load management programs."
+            "The sum of actual direct costs (excluding incentive payments) incurred "
+            "from load management programs in a given reporting year."
         ),
         "unit": "USD",
     },
@@ -4412,7 +4419,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    "load_management_annual_incentive_payment": {
+    "load_management_annual_incentive_cost": {
         "type": "number",
         "description": (
             "The cost of incentive payments incurred in a given reporting year "
@@ -10080,6 +10087,55 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The cost of materials and supplies used.",
         "unit": "USD",
     },
+    "utility_plant_group": {
+        "type": "string",
+        "description": "High-level category of utility plant asset type.",
+        # constrains are by table in FIELD_METADATA_BY_RESOURCE
+    },
+    "utility_plant_item": {
+        "type": "string",
+        "description": "Sub-category of utility_plant_group describing utility plant asset item.",
+        # constrains are by table in FIELD_METADATA_BY_RESOURCE
+    },
+    "non_utility_plant_item": {
+        "type": "string",
+        "description": "Category describing non-utility plant asset items.",
+        "constraints": {
+            "enum": ["property", "provision_for_depreciation_and_amortization"]
+        },
+    },
+    "adjustments_and_transfers": {
+        "type": "number",
+        "description": "Amount of adjustments and transfers within a class of assets.",
+        "unit": "USD",
+    },
+    "depreciation_and_amortization_group": {
+        "type": "string",
+        "description": "High-level category of depreciation and amortization items.",
+        "constraints": {"enum": DEPRECIATION_CHANGES_GROUP_RUS12},
+    },
+    "depreciation_and_amortization_item": {
+        "type": "string",
+        "description": "Category of depreciation and amortization items.",
+        # constrains are by table in FIELD_METADATA_BY_RESOURCE
+    },
+    "composite_depreciation_rate": {
+        "type": "number",
+        "description": (
+            "The composite depreciation rate within a given category. "
+            "This is typically expressed as a number between 0 and 100."
+        ),
+    },
+    "accruals": {
+        "type": "number",
+        "description": "Value of additions into an asset class a.k.a accruals.",
+        "unit": "USD",
+    },
+    "retirements_less_net_salvage": {
+        "type": "number",
+        "description": "Cost of retirements minus any net salvage value.",
+        "unit": "USD",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -11265,6 +11321,24 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "description": "Operational status of the underground natural gas storage reservoir.",
             "constraints": {"enum": ["active", "inactive"]},
         },
+    },
+    "core_rus12__yearly_depreciation_changes": {
+        "depreciation_and_amortization_item": {
+            "constraints": {"enum": DEPRECIATION_CHANGES_ITEMS_RUS12}
+        },
+    },
+    "core_rus12__yearly_depreciation_misc": {
+        "depreciation_and_amortization_item": {
+            "constraints": {"enum": DEPRECIATION_ITEMS_MISC_RUS12}
+        },
+    },
+    "core_rus7__yearly_utility_plant_changes": {
+        "utility_plant_group": {"constraints": {"enum": UTILITY_PLANT_GROUP_RUS7}},
+        "utility_plant_item": {"constraints": {"enum": UTILITY_PLANT_ITEM_RUS7}},
+    },
+    "core_rus12__yearly_utility_plant_changes": {
+        "utility_plant_group": {"constraints": {"enum": UTILITY_PLANT_GROUP_RUS12}},
+        "utility_plant_item": {"constraints": {"enum": UTILITY_PLANT_ITEM_RUS12}},
     },
 }
 

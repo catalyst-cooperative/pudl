@@ -1,13 +1,15 @@
 // secrets
 locals {
   pudl_viewer_secret_versions = {
-    pudl_viewer_secret_key          = 1
-    pudl_viewer_db_username         = 1
-    pudl_viewer_db_password         = 1
-    pudl_viewer_db_name             = 1
-    pudl_viewer_auth0_domain        = 1
-    pudl_viewer_auth0_client_id     = 1
-    pudl_viewer_auth0_client_secret = 1
+    pudl_viewer_secret_key                   = 1
+    pudl_viewer_db_username                  = 1
+    pudl_viewer_db_password                  = 1
+    pudl_viewer_db_name                      = 1
+    pudl_viewer_auth0_domain                 = 1
+    pudl_viewer_auth0_client_id              = 1
+    pudl_viewer_auth0_client_secret          = 1
+    pudl_viewer_auth0_user_api_client_id     = 1
+    pudl_viewer_auth0_user_api_client_secret = 1
   }
 }
 
@@ -123,6 +125,10 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
     annotations = {
       "client.knative.dev/user-image"  = "us-east1-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.pudl_viewer.name}/pudl-viewer:latest"
       "run.googleapis.com/client-name" = "terraform"
+    }
+
+    labels = {
+      component = "pudl-viewer"
     }
 
     service_account = google_service_account.pudl_viewer_sa.email

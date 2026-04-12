@@ -603,12 +603,16 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_energy_purchased": {
         "description": {
             "additional_summary_text": "energy purchased by RUS borrowers.",
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part K)",
             "additional_primary_key_text": (
                 "The primary key would probably be report_date, borrower_id_rus, fuel_type_code, "
                 "supplier_code_rus, renewable_energy_program if not for certain EIA utilities "
                 "represented as Miscellaneous (supplier code 700000)."
+            ),
+            "additional_details_text": (
+                "A number of records report purchases from an unspecified entity. "
+                "These fields all have reported utility names beginning with an \\*, including \\*Miscellaneous, "
+                "\\*Adjustments, and \\*Residential Renewable Supplier."
             ),
         },
         "schema": {
@@ -638,7 +642,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
                 "cost of electric vs. other materials that were purchased, salvaged, "
                 "used, or sold."
             ),
-            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part F)",
         },
         "schema": {
@@ -663,8 +666,36 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+    "core_rus7__yearly_utility_plant_changes": {
+        "description": {
+            "additional_summary_text": ("changes in utility plant"),
+            "additional_source_text": "(Part E)",
+            "usage_warnings": ["aggregation_hazard"],
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",
+                "utility_plant_item",
+                "retirements",
+                "additions",
+                "adjustments_and_transfers",
+                "ending_balance",
+                "is_total",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "utility_plant_group",
+                "utility_plant_item",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
 }
-
 
 RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
     HARVESTED_CORE_TABLES_RUS7,
