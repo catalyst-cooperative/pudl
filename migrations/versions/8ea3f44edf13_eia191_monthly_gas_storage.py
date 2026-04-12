@@ -1,7 +1,7 @@
 """eia191 monthly gas storage
 
 Revision ID: 8ea3f44edf13
-Revises: 4c3808642f32
+Revises: 18771235c92f
 Create Date: 2026-03-24 15:01:02.919488
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '8ea3f44edf13'
-down_revision = '4c3808642f32'
+down_revision = '18771235c92f'
 branch_labels = None
 depends_on = None
 
