@@ -26,6 +26,14 @@ RUS 7 & RUS 12
 * Added additional core and output tables from RUS Form 7 and 12.
   See :pr:`5087` and :pr:`5091`.
 
+EIA-191
+~~~~~~~
+
+* Added :ref:`core_eia191__monthly_gas_storage`, a new table containing monthly
+  underground natural gas storage activity reported by operators to EIA on Form 191.
+  Data covers 2014–present and includes working gas, base gas, and total capacity
+  by storage field. See :pr:`5058`. Thanks to :user:`irubey` for this contribution!
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
