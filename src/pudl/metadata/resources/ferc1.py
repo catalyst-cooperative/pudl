@@ -191,23 +191,13 @@ any cleaning mechanisms in place to account for this."""
         "additional_summary_text": "utilities' other regulatory liabilities, including rate order docket number.",
         "additional_source_text": "(Schedule 278)",
         "additional_primary_key_text": "Respondents are able to enter any number of liabilities across many rows. There are no IDs or set fields enforced in the original table.",
-        "usage_warnings": [
-            {
-                "type": "custom",
-                "description": "The ``description`` column is a free-form string.",
-            }
-        ],
+        "usage_warnings": ["free_text", "aggregation_hazard"],
     },
     "yearly_other_regulatory_assets_sched232": {
         "additional_summary_text": "utilities' other regulatory assets, including rate order docket number.",
         "additional_source_text": "(Schedule 232)",
         "additional_primary_key_text": "Respondents are able to enter any number of assets across many rows. There are no IDs or set fields enforced in the original table.",
-        "usage_warnings": [
-            {
-                "type": "custom",
-                "description": "The ``description`` column is a free-form string.",
-            }
-        ],
+        "usage_warnings": ["free_text", "aggregation_hazard"],
     },
     "yearly_plant_in_service_sched204": {
         "additional_summary_text": "utilities' balances and changes to FERC Electric Plant in Service accounts.",

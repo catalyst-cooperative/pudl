@@ -10147,7 +10147,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "additional_description": {
         "type": "string",
         "description": (
-            "Additional free-form description column. Most instances the values in this column are exactly the same as the "
+            "Additional free-form description column. In most instances, the values in this column are exactly the same as the "
             "description column,but it differs from the standard description enough that we kept both columns."
         ),
     },
@@ -10895,13 +10895,13 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_ferc1__yearly_other_regulatory_assets_sched232": {
         "description": {
             "type": "string",
-            "description": "Free-form description and purpose of other regulatory assets",
+            "description": "Free-form description and purpose of other regulatory assets.",
         }
     },
     "core_ferc1__yearly_other_liabilities_sched278": {
         "description": {
             "type": "string",
-            "description": "Free-form description and purpose of other regulatory liabilities",
+            "description": "Free-form description and purpose of other regulatory liabilities.",
         }
     },
     "plant_parts_eia": {

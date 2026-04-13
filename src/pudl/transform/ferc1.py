@@ -6100,7 +6100,15 @@ class OtherRegulatoryAssetsTableTransformer(Ferc1AbstractTableTransformer):
     def process_xbrl(
         self: Self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
     ) -> pd.DataFrame:
-        """First add values to the axis columns from the totals tables, then standard."""
+        """Add values to the axis columns from the totals tables, then standard.
+
+        The raw XBRL data for this table comes from two tables - one of which has
+        an "axis" column - which is generally designated as a unique identifying field -
+        that is a free-text field containing details about what type of asset the record
+        pertains to. The second table is a "totals" table which based on the XBRL
+        documentation is the total of the other regulatory assets. So we assign the value
+        for the `other_regulatory_assets_axis` column as `totals`.
+        """
         raw_xbrl_instant.loc[
             raw_xbrl_instant.sched_table_name
             == "other_regulatory_assets_account_182_3_totals_232",
