@@ -1,7 +1,7 @@
 """Add identification and certification ferc table
 
 Revision ID: c163afae97db
-Revises: 18771235c92f
+Revises: 8ea3f44edf13
 Create Date: 2026-04-06 16:31:39.890240
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'c163afae97db'
-down_revision = '18771235c92f'
+down_revision = '8ea3f44edf13'
 branch_labels = None
 depends_on = None
 
