@@ -3313,9 +3313,10 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
             )
             & (df.office_street_address.isnull())
         ].index
-        assert len(mask) == 3, (
-            f"Expected to drop 3 duplicate records, instead dropping: {df.loc[mask]}"
-        )
+        if not mask.empty:
+            assert len(mask) == 3, (
+                f"Expected to drop 3 duplicate records, instead dropping: {df.loc[mask]}"
+            )
         df = df.drop(mask)
 
         return df
