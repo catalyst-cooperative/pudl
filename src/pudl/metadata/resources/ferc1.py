@@ -54,6 +54,33 @@ TABLE_DESCRIPTIONS = {
             "amortization changes."
         ),
     },
+    "yearly_depreciation_factors_sched336": {
+        "additional_summary_text": "factors used in estimating depreciation charges.",
+        "additional_source_text": "(Schedule 336 - Section C)",
+        "usage_warnings": [
+            "aggregation_hazard",
+            "free_text",
+            {
+                "type": "custom",
+                "description": (
+                    "The rate and percentage (pct) columns are reported either as values between 0-1 or 0-100. "
+                    "It is often consistent within a given utility-year but use caution when comparing value across "
+                    "different utilities and even the same utility filing in a different year."
+                ),
+            },
+        ],
+        "additional_primary_key_text": "This table is too unstructured to have a primary key.",
+        "additional_details_text": (
+            "This table contains details at a variety of levels of granularity."
+            "There are many free-form text fields in this table which results in respondents "
+            "filling out this table very differently from each other or from year to year. "
+            "We recommend using this table carefully with one utility-year at a time - not "
+            "attempting to perform analysis across long time-series or across utilities without "
+            "much caution and cleaning. "
+            "This table only "
+            "contains information from Section C: Factors Used in Estimating Depreciation Charges."
+        ),
+    },
     "yearly_energy_sources_sched401": {
         "additional_summary_text": "sources of electric energy generated or purchased, exchanged and wheeled.",
         "additional_source_text": "(Schedule 401a)",
@@ -430,6 +457,28 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_year",
                 "plant_function",
                 "ferc_account_label",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "core_ferc1__yearly_depreciation_factors_sched336": {
+        "description": TABLE_DESCRIPTIONS["yearly_depreciation_factors_sched336"],
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "depreciation_factors",
+                "depreciable_plant_base",
+                "net_salvage_pct",
+                "depreciation_rate",
+                "mortality_curve_type",
+                "order_num",
+                "account_num",
+                "service_life_avg",
+                "remaining_life_avg",
             ],
         },
         "sources": ["ferc1"],
@@ -1161,6 +1210,32 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_function",
                 "ferc_account_label",
             ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "outputs",
+        "field_namespace": "ferc1",
+    },
+    "out_ferc1__yearly_depreciation_factors_sched336": {
+        "description": TABLE_DESCRIPTIONS["yearly_depreciation_factors_sched336"],
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
+                "utility_id_pudl",
+                "utility_name_ferc1",
+                "depreciation_factors",
+                "depreciable_plant_base",
+                "net_salvage_pct",
+                "depreciation_rate",
+                "mortality_curve_type",
+                "order_num",
+                "account_num",
+                "service_life_avg",
+                "remaining_life_avg",
+            ]
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",
