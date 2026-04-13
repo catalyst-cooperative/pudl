@@ -720,7 +720,7 @@ def validate(
     }
 
     if dry_run:
-        logger.info(
+        click.echo(
             f"Dry run - would build with these params: {json.dumps(build_params)}"
         )
         return

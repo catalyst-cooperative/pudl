@@ -1,7 +1,7 @@
 """add new ferc1 depreciation table
 
 Revision ID: 06c61d323f48
-Revises: 18771235c92f
+Revises: 8ea3f44edf13
 Create Date: 2026-04-06 16:10:02.852740
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '06c61d323f48'
-down_revision = '18771235c92f'
+down_revision = '8ea3f44edf13'
 branch_labels = None
 depends_on = None
 
