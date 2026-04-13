@@ -88,7 +88,7 @@ fsspec = ">=2026"
 gcsfs = ">=2026"
 # The Python geospatial stack is notoriously finnicky and full of compiled # extensions
 # that have to be kept in sync. If this isn't pinned things will probably break.
-gdal = "==3.12.3"
+gdal = ">=3.12.3"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 google-cloud-sdk = ">=535"
@@ -218,7 +218,7 @@ fsspec = ">=2026"
 gcsfs = ">=2026"
 # The Python geospatial stack is notoriously finnicky and full of compiled # extensions
 # that have to be kept in sync. If this isn't pinned things will probably break.
-gdal = "==3.12.3"
+gdal = ">=3.12.3"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 # grpcio packages all need to have same version to avoid conflicts.
