@@ -75,6 +75,7 @@ Classes
    pudl.transform.ferc1.IncomeStatementsTableTransformer
    pudl.transform.ferc1.RetainedEarningsTableTransformer
    pudl.transform.ferc1.DepreciationSummaryTableTransformer
+   pudl.transform.ferc1.DepreciationFactorsTransformer
    pudl.transform.ferc1.DepreciationChangesTableTransformer
    pudl.transform.ferc1.DepreciationByFunctionTableTransformer
    pudl.transform.ferc1.OperatingExpensesTableTransformer
@@ -115,6 +116,7 @@ Functions
    pudl.transform.ferc1.fill_dbf_to_xbrl_map
    pudl.transform.ferc1.get_data_cols_raw_xbrl
    pudl.transform.ferc1.read_xbrl_calculation_fixes
+   pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years
    pudl.transform.ferc1.ferc1_transform_asset_factory
    pudl.transform.ferc1.create_ferc1_transform_assets
    pudl.transform.ferc1.other_dimensions
@@ -253,6 +255,11 @@ Module Contents
 
    .. py:attribute:: DEPRECIATION_SUMMARY
       :value: 'core_ferc1__yearly_depreciation_summary_sched336'
+
+
+
+   .. py:attribute:: DEPRECIATION_FACTORS
+      :value: 'core_ferc1__yearly_depreciation_factors_sched336'
 
 
 
@@ -3482,6 +3489,55 @@ Module Contents
 
       Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
       processing, add FERC account values for a few known values.
+
+
+
+.. py:function:: convert_pnynmndtnhnmns_to_years(dep_factors: pandas.DataFrame, life_col: str)
+
+   Convert the XBRL-based PnYnMnDTnHnMnS time period into years.
+
+   FERC1's Taxonomy documents these fields as: Estimated average service life of
+   utility plant, in 'PnYnMnDTnHnMnS' format, for example 'P4Y7M12D' represents a
+   fact of four years, seven months, and 12 days.
+
+   As a format, its a fine standard despite not being a widely used format for
+   duration of time. not super standard but is acceptable. but the DBF data is all reported - seemingly - in years.
+
+
+.. py:class:: DepreciationFactorsTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_depreciation_factors_sched336` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: transform_main(df)
+
+      Convert $1000s to $s & standardize life cols after standard transform_main.
 
 
 

@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.4.1.dev3 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.4.1.dev6 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../../_static/documentation_options.js?v=5c3d8e8d"></script>
+    <script src="../../../../_static/documentation_options.js?v=3def21b0"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev3 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev3 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev6 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -901,25 +901,28 @@ transformations.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.DepreciationSummaryTableTransformer" title="pudl.transform.ferc1.DepreciationSummaryTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DepreciationSummaryTableTransformer</span></code></a></p></td>
 <td><p>Transformer class for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-depreciation-summary-sched336"><span class="std std-ref">core_ferc1__yearly_depreciation_summary_sched336</span></a> table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.DepreciationChangesTableTransformer" title="pudl.transform.ferc1.DepreciationChangesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DepreciationChangesTableTransformer</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.DepreciationFactorsTransformer" title="pudl.transform.ferc1.DepreciationFactorsTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DepreciationFactorsTransformer</span></code></a></p></td>
+<td><p>Transformer class for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-depreciation-factors-sched336"><span class="std std-ref">core_ferc1__yearly_depreciation_factors_sched336</span></a> table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.DepreciationChangesTableTransformer" title="pudl.transform.ferc1.DepreciationChangesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DepreciationChangesTableTransformer</span></code></a></p></td>
 <td><p>Transformer class for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-depreciation-changes-sched219"><span class="std std-ref">core_ferc1__yearly_depreciation_changes_sched219</span></a> table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.DepreciationByFunctionTableTransformer" title="pudl.transform.ferc1.DepreciationByFunctionTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DepreciationByFunctionTableTransformer</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.DepreciationByFunctionTableTransformer" title="pudl.transform.ferc1.DepreciationByFunctionTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DepreciationByFunctionTableTransformer</span></code></a></p></td>
 <td><p>Transformer for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-depreciation-by-function-sched219"><span class="std std-ref">core_ferc1__yearly_depreciation_by_function_sched219</span></a> table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.OperatingExpensesTableTransformer" title="pudl.transform.ferc1.OperatingExpensesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OperatingExpensesTableTransformer</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.OperatingExpensesTableTransformer" title="pudl.transform.ferc1.OperatingExpensesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OperatingExpensesTableTransformer</span></code></a></p></td>
 <td><p>Transformer class for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-operating-expenses-sched320"><span class="std std-ref">core_ferc1__yearly_operating_expenses_sched320</span></a> table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.OperatingRevenuesTableTransformer" title="pudl.transform.ferc1.OperatingRevenuesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OperatingRevenuesTableTransformer</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.OperatingRevenuesTableTransformer" title="pudl.transform.ferc1.OperatingRevenuesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OperatingRevenuesTableTransformer</span></code></a></p></td>
 <td><p>Transformer class for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-operating-revenues-sched300"><span class="std std-ref">core_ferc1__yearly_operating_revenues_sched300</span></a> table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.CashFlowsTableTransformer" title="pudl.transform.ferc1.CashFlowsTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CashFlowsTableTransformer</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.CashFlowsTableTransformer" title="pudl.transform.ferc1.CashFlowsTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CashFlowsTableTransformer</span></code></a></p></td>
 <td><p>Transform class for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-cash-flows-sched120"><span class="std std-ref">core_ferc1__yearly_cash_flows_sched120</span></a> table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.SalesByRateSchedulesTableTransformer" title="pudl.transform.ferc1.SalesByRateSchedulesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SalesByRateSchedulesTableTransformer</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.SalesByRateSchedulesTableTransformer" title="pudl.transform.ferc1.SalesByRateSchedulesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SalesByRateSchedulesTableTransformer</span></code></a></p></td>
 <td><p>Transform class for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-sales-by-rate-schedules-sched304"><span class="std std-ref">core_ferc1__yearly_sales_by_rate_schedules_sched304</span></a> table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer" title="pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OtherRegulatoryLiabilitiesTableTransformer</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer" title="pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OtherRegulatoryLiabilitiesTableTransformer</span></code></a></p></td>
 <td><p>Transformer class for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-other-regulatory-liabilities-sched278"><span class="std std-ref">core_ferc1__yearly_other_regulatory_liabilities_sched278</span></a> table.</p></td>
 </tr>
 </tbody>
@@ -1008,52 +1011,55 @@ transformations.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.read_xbrl_calculation_fixes" title="pudl.transform.ferc1.read_xbrl_calculation_fixes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_xbrl_calculation_fixes</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Read in the table of calculation fixes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.ferc1_transform_asset_factory" title="pudl.transform.ferc1.ferc1_transform_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_transform_asset_factory</span></code></a>(→ dagster.AssetsDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years" title="pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_pnynmndtnhnmns_to_years</span></code></a>(dep_factors, life_col)</p></td>
+<td><p>Convert the XBRL-based PnYnMnDTnHnMnS time period into years.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.ferc1_transform_asset_factory" title="pudl.transform.ferc1.ferc1_transform_asset_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_transform_asset_factory</span></code></a>(→ dagster.AssetsDefinition)</p></td>
 <td><p>Create an asset that pulls in raw ferc Form 1 assets and applies transformations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.create_ferc1_transform_assets" title="pudl.transform.ferc1.create_ferc1_transform_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_ferc1_transform_assets</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.create_ferc1_transform_assets" title="pudl.transform.ferc1.create_ferc1_transform_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_ferc1_transform_assets</span></code></a>(...)</p></td>
 <td><p>Create a list of transformed FERC Form 1 assets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.other_dimensions" title="pudl.transform.ferc1.other_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">other_dimensions</span></code></a>(→ list[str])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.other_dimensions" title="pudl.transform.ferc1.other_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">other_dimensions</span></code></a>(→ list[str])</p></td>
 <td><p>Get a list of the other dimension columns across all of the transformers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.table_to_xbrl_factoid_name" title="pudl.transform.ferc1.table_to_xbrl_factoid_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_to_xbrl_factoid_name</span></code></a>(→ dict[str, str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.table_to_xbrl_factoid_name" title="pudl.transform.ferc1.table_to_xbrl_factoid_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_to_xbrl_factoid_name</span></code></a>(→ dict[str, str])</p></td>
 <td><p>Build a dictionary of table name (keys) to <code class="docutils literal notranslate"><span class="pre">xbrl_factoid</span></code> column name.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.table_to_column_to_check" title="pudl.transform.ferc1.table_to_column_to_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_to_column_to_check</span></code></a>(→ dict[str, list[str]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.table_to_column_to_check" title="pudl.transform.ferc1.table_to_column_to_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_to_column_to_check</span></code></a>(→ dict[str, list[str]])</p></td>
 <td><p>Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows" title="pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_rare_utility_type_subdimensions_rows</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows" title="pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_rare_utility_type_subdimensions_rows</span></code></a>(...)</p></td>
 <td><p>Remove the rare, non-total utility types when all values are duplicated.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1__table_dimensions" title="pudl.transform.ferc1._core_ferc1__table_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1__table_dimensions</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1__table_dimensions" title="pudl.transform.ferc1._core_ferc1__table_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1__table_dimensions</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Build a table of values of dimensions observed in the transformed data tables.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__metadata" title="pudl.transform.ferc1._core_ferc1_xbrl__metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__metadata</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__metadata" title="pudl.transform.ferc1._core_ferc1_xbrl__metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__metadata</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Build a table of all of the tables' XBRL metadata.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__calculation_components" title="pudl.transform.ferc1._core_ferc1_xbrl__calculation_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__calculation_components</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1_xbrl__calculation_components" title="pudl.transform.ferc1._core_ferc1_xbrl__calculation_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1_xbrl__calculation_components</span></code></a>(...)</p></td>
 <td><p>Create calculation-component table from table-level metadata.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.unexpected_total_components" title="pudl.transform.ferc1.unexpected_total_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unexpected_total_components</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.unexpected_total_components" title="pudl.transform.ferc1.unexpected_total_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unexpected_total_components</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Find unexpected components in within-fact total calculations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.check_for_calc_components_duplicates" title="pudl.transform.ferc1.check_for_calc_components_duplicates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_for_calc_components_duplicates</span></code></a>(→ None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.check_for_calc_components_duplicates" title="pudl.transform.ferc1.check_for_calc_components_duplicates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_for_calc_components_duplicates</span></code></a>(→ None)</p></td>
 <td><p>Check for duplicates calculation records.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit" title="pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_xbrl_factoid_dimensions_explicit</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit" title="pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_xbrl_factoid_dimensions_explicit</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Fill in null dimensions w/ the values observed in <a class="reference internal" href="#pudl.transform.ferc1._core_ferc1__table_dimensions" title="pudl.transform.ferc1._core_ferc1__table_dimensions"><code class="xref py py-func docutils literal notranslate"><span class="pre">_core_ferc1__table_dimensions()</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.assign_parent_dimensions" title="pudl.transform.ferc1.assign_parent_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_parent_dimensions</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.assign_parent_dimensions" title="pudl.transform.ferc1.assign_parent_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_parent_dimensions</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Add dimensions to calculation parents.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.infer_intra_factoid_totals" title="pudl.transform.ferc1.infer_intra_factoid_totals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_intra_factoid_totals</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.infer_intra_factoid_totals" title="pudl.transform.ferc1.infer_intra_factoid_totals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">infer_intra_factoid_totals</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Define dimension total calculations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_calculation_component_corrections" title="pudl.transform.ferc1.add_calculation_component_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_calculation_component_corrections</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1.add_calculation_component_corrections" title="pudl.transform.ferc1.add_calculation_component_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_calculation_component_corrections</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Add records into the calculation components table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1__calculation_metric_checks" title="pudl.transform.ferc1._core_ferc1__calculation_metric_checks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1__calculation_metric_checks</span></code></a>(**kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.ferc1._core_ferc1__calculation_metric_checks" title="pudl.transform.ferc1._core_ferc1__calculation_metric_checks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_ferc1__calculation_metric_checks</span></code></a>(**kwargs)</p></td>
 <td><p>Check calculation metrics for all transformed tables which have reconciled calcs.</p></td>
 </tr>
 </tbody>
@@ -1178,6 +1184,11 @@ Package. But this works for now.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.transform.ferc1.TableIdFerc1.DEPRECIATION_SUMMARY">
 <span class="sig-name descname"><span class="pre">DEPRECIATION_SUMMARY</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'core_ferc1__yearly_depreciation_summary_sched336'</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#TableIdFerc1.DEPRECIATION_SUMMARY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.TableIdFerc1.DEPRECIATION_SUMMARY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.transform.ferc1.TableIdFerc1.DEPRECIATION_FACTORS">
+<span class="sig-name descname"><span class="pre">DEPRECIATION_FACTORS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'core_ferc1__yearly_depreciation_factors_sched336'</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#TableIdFerc1.DEPRECIATION_FACTORS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.TableIdFerc1.DEPRECIATION_FACTORS" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -4539,6 +4550,49 @@ processing, add FERC account values for a few known values.</p>
 
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.ferc1.</span></span><span class="sig-name descname"><span class="pre">convert_pnynmndtnhnmns_to_years</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dep_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">life_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#convert_pnynmndtnhnmns_to_years"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years" title="Link to this definition">#</a></dt>
+<dd><p>Convert the XBRL-based PnYnMnDTnHnMnS time period into years.</p>
+<p>FERC1’s Taxonomy documents these fields as: Estimated average service life of
+utility plant, in ‘PnYnMnDTnHnMnS’ format, for example ‘P4Y7M12D’ represents a
+fact of four years, seven months, and 12 days.</p>
+<p>As a format, its a fine standard despite not being a widely used format for
+duration of time. not super standard but is acceptable. but the DBF data is all reported - seemingly - in years.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.transform.ferc1.DepreciationFactorsTransformer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.transform.ferc1.</span></span><span class="sig-name descname"><span class="pre">DepreciationFactorsTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xbrl_metadata_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'instant'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'duration'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../classes/index.html#pudl.transform.classes.TableTransformParams" title="pudl.transform.classes.TableTransformParams"><span class="pre">pudl.transform.classes.TableTransformParams</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clear_cached_dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#DepreciationFactorsTransformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.DepreciationFactorsTransformer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.transform.ferc1.Ferc1AbstractTableTransformer" title="pudl.transform.ferc1.Ferc1AbstractTableTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ferc1AbstractTableTransformer</span></code></a></p>
+<p>Transformer class for <a class="reference internal" href="../../../../data_dictionaries/pudl_db.html#core-ferc1-yearly-depreciation-factors-sched336"><span class="std std-ref">core_ferc1__yearly_depreciation_factors_sched336</span></a> table.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.transform.ferc1.DepreciationFactorsTransformer.table_id">
+<span class="sig-name descname"><span class="pre">table_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.transform.ferc1.TableIdFerc1" title="pudl.transform.ferc1.TableIdFerc1"><span class="pre">TableIdFerc1</span></a></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#DepreciationFactorsTransformer.table_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.DepreciationFactorsTransformer.table_id" title="Link to this definition">#</a></dt>
+<dd><p>Name of the PUDL database table that this table transformer produces.</p>
+<p>Must be defined in the database schema / metadata. This ID is used to instantiate
+the appropriate <code class="xref py py-class docutils literal notranslate"><span class="pre">TableTransformParams</span></code> object.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.transform.ferc1.DepreciationFactorsTransformer.has_unique_record_ids">
+<span class="sig-name descname"><span class="pre">has_unique_record_ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#DepreciationFactorsTransformer.has_unique_record_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.DepreciationFactorsTransformer.has_unique_record_ids" title="Link to this definition">#</a></dt>
+<dd><p>True if each record in the transformed table corresponds to one input record.</p>
+<p>For tables that have been transformed from wide-to-tidy format, or undergone other
+kinds of reshaping, there is not a simple one-to-one relationship between input and
+output records, and so we should not expect record IDs to be unique. In those cases
+they serve only a forensic purpose, telling us where to find the original source of
+the transformed data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.transform.ferc1.DepreciationFactorsTransformer.transform_main">
+<span class="sig-name descname"><span class="pre">transform_main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#DepreciationFactorsTransformer.transform_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.DepreciationFactorsTransformer.transform_main" title="Link to this definition">#</a></dt>
+<dd><p>Convert $1000s to $s &amp; standardize life cols after standard transform_main.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.transform.ferc1.DepreciationChangesTableTransformer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.transform.ferc1.</span></span><span class="sig-name descname"><span class="pre">DepreciationChangesTableTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xbrl_metadata_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'instant'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'duration'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../classes/index.html#pudl.transform.classes.TableTransformParams" title="pudl.transform.classes.TableTransformParams"><span class="pre">pudl.transform.classes.TableTransformParams</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clear_cached_dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc1.html#DepreciationChangesTableTransformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc1.DepreciationChangesTableTransformer" title="Link to this definition">#</a></dt>
@@ -5313,6 +5367,7 @@ whether or not there is ever a correction record in the data.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.TableIdFerc1.OPERATING_EXPENSES"><code class="docutils literal notranslate"><span class="pre">TableIdFerc1.OPERATING_EXPENSES</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.TableIdFerc1.BALANCE_SHEET_LIABILITIES"><code class="docutils literal notranslate"><span class="pre">TableIdFerc1.BALANCE_SHEET_LIABILITIES</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.TableIdFerc1.DEPRECIATION_SUMMARY"><code class="docutils literal notranslate"><span class="pre">TableIdFerc1.DEPRECIATION_SUMMARY</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.TableIdFerc1.DEPRECIATION_FACTORS"><code class="docutils literal notranslate"><span class="pre">TableIdFerc1.DEPRECIATION_FACTORS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.TableIdFerc1.BALANCE_SHEET_ASSETS"><code class="docutils literal notranslate"><span class="pre">TableIdFerc1.BALANCE_SHEET_ASSETS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.TableIdFerc1.RETAINED_EARNINGS"><code class="docutils literal notranslate"><span class="pre">TableIdFerc1.RETAINED_EARNINGS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.TableIdFerc1.INCOME_STATEMENTS"><code class="docutils literal notranslate"><span class="pre">TableIdFerc1.INCOME_STATEMENTS</span></code></a></li>
@@ -5688,6 +5743,13 @@ whether or not there is ever a correction record in the data.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.DepreciationSummaryTableTransformer.table_id"><code class="docutils literal notranslate"><span class="pre">DepreciationSummaryTableTransformer.table_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.DepreciationSummaryTableTransformer.has_unique_record_ids"><code class="docutils literal notranslate"><span class="pre">DepreciationSummaryTableTransformer.has_unique_record_ids</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.DepreciationSummaryTableTransformer.process_xbrl_metadata"><code class="docutils literal notranslate"><span class="pre">DepreciationSummaryTableTransformer.process_xbrl_metadata()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years"><code class="docutils literal notranslate"><span class="pre">convert_pnynmndtnhnmns_to_years()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.DepreciationFactorsTransformer"><code class="docutils literal notranslate"><span class="pre">DepreciationFactorsTransformer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.DepreciationFactorsTransformer.table_id"><code class="docutils literal notranslate"><span class="pre">DepreciationFactorsTransformer.table_id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.DepreciationFactorsTransformer.has_unique_record_ids"><code class="docutils literal notranslate"><span class="pre">DepreciationFactorsTransformer.has_unique_record_ids</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.DepreciationFactorsTransformer.transform_main"><code class="docutils literal notranslate"><span class="pre">DepreciationFactorsTransformer.transform_main()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.ferc1.DepreciationChangesTableTransformer"><code class="docutils literal notranslate"><span class="pre">DepreciationChangesTableTransformer</span></code></a><ul class="nav section-nav flex-column">

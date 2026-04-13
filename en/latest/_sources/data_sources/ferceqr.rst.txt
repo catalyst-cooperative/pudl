@@ -14,7 +14,7 @@ FERC Form 920 -- Electric Quarterly Report (EQR)
    * - Download Size
      - 109416 MB
    * - Temporal Coverage
-     - 2013q3-2025q4
+     - 2013q3-2026q1
    * - PUDL Code
      - ``ferceqr``
    * - Unprocessed Source Data Archive
