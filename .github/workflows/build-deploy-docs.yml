@@ -39,13 +39,14 @@ jobs:
       - name: Compute version for switcher and destination directory
         run: |
           PUDL_VERSION_MATCH=${{ case(github.ref == 'refs/heads/main', 'latest', github.ref) }}
-          echo PUDL_VERSION_MATCH=${DEST_DIR#refs/heads/} > "$GITHUB_ENV"
+          echo PUDL_VERSION_MATCH=${PUDL_VERSION_MATCH##*/} > "$GITHUB_ENV"
 
       - name: Lint and build PUDL documentation with Sphinx
         run: |
           pixi run docs-build
 
       - name: Deploy to GitHub Pages at the appropriate version path
+        if: ${{ env.PUDL_VERSION_MATCH != '' }}
         uses: peaceiris/actions-gh-pages@v4
         with:
           publish_branch: gh-pages
