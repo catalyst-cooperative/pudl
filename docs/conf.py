@@ -40,6 +40,7 @@ if os.environ.get("READTHEDOCS"):
 
 # The full version, including alpha/beta/rc tags
 release = importlib.metadata.version("catalystcoop.pudl")
+version_match = os.environ.get("PUDL_VERSION_MATCH", release)
 
 # -- Project information -----------------------------------------------------
 
@@ -221,7 +222,7 @@ html_theme_options = {
     ],
     "switcher": {
         "json_url": "https://docs.catalyst.coop/pudl/available_versions.json",
-        "version_match": "latest",
+        "version_match": version_match,
     },
     "navbar_start": ["navbar-logo", "version-switcher"],
     "secondary_sidebar_items": {

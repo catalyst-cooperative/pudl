@@ -28,6 +28,16 @@ timezones in pytz.common_timezones Canada:
 https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
 """
 
+EIA191_STORAGE_REGIONS: list[str] = [
+    "alaska",
+    "east region",
+    "midwest region",
+    "mountain region",
+    "pacific region",
+    "south central region",
+]
+"""EIA storage regions for underground natural gas storage fields (Form 191)."""
+
 NERC_REGIONS: list[str] = [
     "BASN",  # ASSESSMENT AREA Basin (WECC)
     "CALN",  # ASSESSMENT AREA California (WECC)
