@@ -1,5 +1,4 @@
 import json
-import logging
 import re
 from pathlib import Path
 
@@ -9,8 +8,6 @@ from click.testing import CliRunner
 from pudl.dbt_wrapper import build_with_context
 from pudl.io_managers import PudlMixedFormatIOManager
 from pudl.scripts.dbt_helper import dbt_helper
-
-logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
@@ -93,14 +90,13 @@ def test_update_tables(
 
 # Has to run after test_dbt above otherwise dbt dependencies aren't installed
 @pytest.mark.order(5)
-def test_validate_asset_selection(caplog):
-    caplog.set_level(logging.INFO)
+def test_validate_asset_selection():
     runner = CliRunner()
-    runner.invoke(
+    result = runner.invoke(
         dbt_helper,
         ["validate", "--dry-run", "--asset-select", '+key:"core_eia860_*"'],
     )
-    output = caplog.text
+    output = result.output
     if "node_selection" not in output:
         raise AssertionError(f"Unexpected output: {output}")
     out_params = json.loads(re.search(r"({.+})", output).group(0))
