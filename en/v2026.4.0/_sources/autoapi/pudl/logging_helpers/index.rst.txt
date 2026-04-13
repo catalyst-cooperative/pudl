@@ -1,0 +1,40 @@
+pudl.logging_helpers
+====================
+
+.. py:module:: pudl.logging_helpers
+
+.. autoapi-nested-parse::
+
+   Configure logging for the PUDL package.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.logging_helpers.get_logger
+   pudl.logging_helpers.configure_root_logger
+
+
+Module Contents
+---------------
+
+.. py:function:: get_logger(name: str)
+
+   Helper function to append 'catalystcoop' to logger name and return logger.
+
+
+.. py:function:: configure_root_logger(logfile: str | None = None, loglevel: str = 'INFO', dependency_loglevels: dict[str, int] | None = None, propagate: bool = False) -> None
+
+   Configure the root catalystcoop logger.
+
+   :param logfile: Path to logfile or None.
+   :param loglevel: Level of detail at which to log, by default INFO.
+   :param dependency_loglevels: Dictionary mapping dependency name to desired loglevel.
+                                This allows us to filter excessive logs from dependencies.
+   :param propagate: Whether to propagate logs to ancestor loggers. Useful for ensuring
+                     that pytest has access to PUDL logs during testing.
+
+

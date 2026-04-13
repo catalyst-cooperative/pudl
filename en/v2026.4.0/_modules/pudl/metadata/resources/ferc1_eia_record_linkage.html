@@ -1,0 +1,1280 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.metadata.resources.ferc1_eia_record_linkage &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/resources/ferc1_eia_record_linkage';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../../_static/searchtools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script src="../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../../pudl.html" class="nav-link">pudl</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../resources.html" class="nav-link">pudl.metadata.resources</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.metadata.resources.ferc1_eia_record_linkage</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.metadata.resources.ferc1_eia_record_linkage</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Definitions for the connection between FERC1 and EIA.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resource_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">inherits_harvested_values_details</span>
+
+<div class="viewcode-block" id="RESOURCE_METADATA">
+<a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html#pudl.metadata.resources.ferc1_eia_record_linkage.RESOURCE_METADATA">[docs]</a>
+<span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;out_eia__yearly_plant_parts&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;all EIA plant parts, for use in matching to FERC 1.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">,</span> <span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Practically speaking, a plant is a collection of generator(s). There</span>
+<span class="s2">are many attributes of generators (i.e. prime mover, primary fuel source, technology</span>
+<span class="s2">type). We can use these generator attributes to group generator records into larger</span>
+<span class="s2">aggregate records which we call &quot;plant parts&quot;. A plant part is a record which</span>
+<span class="s2">corresponds to a particular collection of generators that all share an identical</span>
+<span class="s2">attribute and utility owner. E.g. all of the generators with unit_id=2, or all of the</span>
+<span class="s2">generators with coal as their primary fuel source.</span>
+
+<span class="s2">The EIA data about power plants (from EIA 923 and 860) is reported in tables</span>
+<span class="s2">with records that correspond to mostly generators and plants. Other datasets</span>
+<span class="s2">(cough cough FERC1) are less well organized and include plants, generators and</span>
+<span class="s2">other plant parts all in the same table without any clear labels. This plant part table</span>
+<span class="s2">is an attempt to create records corresponding to many different plant parts in order to</span>
+<span class="s2">connect specific slices of EIA plants to other datasets.</span>
+
+<span class="s2">Because generators are often owned by multiple utilities, another dimension of</span>
+<span class="s2">this plant part table involves generating two records for each owner: one for the</span>
+<span class="s2">portion of the plant part they own and one for the plant part as a whole. The</span>
+<span class="s2">portion records are labeled in the ``ownership_record_type`` column as ``owned``</span>
+<span class="s2">and the total records are labeled as ``total``.</span>
+
+<span class="s2">This table includes A LOT of duplicative information about EIA plants. It is primarily</span>
+<span class="s2">meant for use as an input into the record linkage between FERC1 plants and EIA.</span>
+
+<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">&quot;generators, plants, and utilities&quot;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_part&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_acct_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;true_gran&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;appro_part_label&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;appro_record_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc1_generator_agg_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_eoy_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_factor&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;construction_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_cost_per_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_retirement_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;installation_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_operating_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ownership_dupe&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_generator_retirement_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_ppe&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_part_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;record_count&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_mmbtu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_report_year&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;record_id_eia_plant_gen&quot;</span><span class="p">]],</span>
+                <span class="c1"># TODO: track down 10 missing record_id_eia&#39;s in this table #3818</span>
+                <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;out_pudl__yearly_assn_eia_ferc1_plant_parts&quot;</span><span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_eia__yearly_generators_by_ownership&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;all EIA generators with ownership integrated.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Generators that report to EIA can have</span>
+<span class="s2">multiple utility owners. EIA reports the ownership fraction for each of the owners</span>
+<span class="s2">of generators (see :ref:`core_eia860__scd_ownership`). This table includes two records</span>
+<span class="s2">for each generator&#39;s owner: one record represents a total ownership stake and the</span>
+<span class="s2">other record represents a proportional ownership stake (the ``ownership_record_type``</span>
+<span class="s2">column labeled as &quot;total&quot; and &quot;owned&quot; respectively). All of the values reported for</span>
+<span class="s2">these generator-owner records are scaled to the ownership stake (represented by</span>
+<span class="s2">``fraction_owned``).</span>
+
+<span class="s2">This table was created to represent every possible version of ownership slices of the</span>
+<span class="s2">EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_parts`.</span>
+
+<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">&quot;generators, plants, and utilities&quot;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">,</span> <span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;This table would have a primary key of the &quot;</span>
+                <span class="s2">&quot;following columns, except there are ~200 records without utility IDs: &quot;</span>
+                <span class="s2">&quot;[&#39;plant_id_eia&#39;, &#39;generator_id&#39;, &#39;report_date&#39;, &#39;utility_id_eia&#39;, &quot;</span>
+                <span class="s2">&quot;&#39;ownership_record_type&#39;].&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_retirement_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_generator_retirement_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_factor&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_cost_per_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_mmbtu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_acct_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_operating_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_eoy_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_eia__yearly_assn_plant_parts_plant_gen&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;plant parts (identified as ``record_id_eia``) and  &#39;plant_gen&#39; records (identified as ``record_id_eia_plant_gen``) from the :ref:`out_eia__yearly_plant_parts` table.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;layer_code&quot;</span><span class="p">:</span> <span class="s2">&quot;out_narrow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">The purpose of this table is to help determine what generator records are associated</span>
+<span class="s2">with every plant part record. The plant part records have a one to many relationship</span>
+<span class="s2">to the associated &#39;plant_gen&#39; records. The &#39;plant_gen&#39; records are also included in</span>
+<span class="s2">the plant part records, so for these records there is a one to one relationship and</span>
+<span class="s2">the ``record_id_eia`` and the ``record_id_eia_plant_gen`` are the same.</span>
+
+<span class="s2">All of the columns in this table that have a suffix of &#39;_plant_gen&#39; are attributes of</span>
+<span class="s2">the ``record_id_eia_plant_gen`` record.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;record_id_eia_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_1_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prime_mover_code_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_id_pudl_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;technology_description_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_acct_name_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc1_generator_agg_id_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_operating_year_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status_pudl_plant_gen&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generators_number&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_eia_plant_gen&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_pudl__yearly_assn_eia_ferc1_plant_parts&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;power plant data reported in FERC Form 1 and any available EIA data related to the plant parts covered by each FERC Form 1 record.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;This table</span>
+<span class="s2">answers the question &quot;What EIA data reported about plants or generators should be</span>
+<span class="s2">associated with a given plant record found in the FERC Form 1?&quot;</span>
+
+<span class="s2">Each record in this table corresponds to a single FERC Form 1 record reported in one of</span>
+<span class="s2">several tables describing power plants (large steam, hydro, small, etc.). These FERC</span>
+<span class="s2">records can correspond to an entire plant, individual generators within a plant, all</span>
+<span class="s2">generators in a plant with the same prime mover type, or just the respondent&#39;s ownership</span>
+<span class="s2">share of any of those categories (or other categories). Furthermore, the same utility</span>
+<span class="s2">may report the same plant in different ways in different years.</span>
+
+<span class="s2">The EIA data associated with each FERC plant record comes from our Plant Parts EIA</span>
+<span class="s2">table, :ref:`out_eia__yearly_plant_parts`.</span>
+<span class="s2">The EIA data in each record represents an aggregation of several slices of an EIA</span>
+<span class="s2">plant, across both physical characteristics and utility ownership.</span>
+
+<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">&quot;generators and plants&quot;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;match_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_ppe&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_part&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_acct_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_operating_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;true_gran&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;appro_part_label&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;appro_record_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;record_count&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ownership_dupe&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_fuel_cost_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_cost_per_mmbtu_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_generation_mwh_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_mw_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_factor_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_mmbtu_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_type_code_pudl_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;installation_year_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_part_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;asset_retirement_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;avg_num_employees&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_factor_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_mw_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_annual_addition&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_annual_addition_rolling&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_annual_per_kw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_annual_per_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_annual_per_mw_rolling&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_annual_per_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_annual_per_mwh_rolling&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_equipment&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_land&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_per_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_structures&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_total&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_wo_retirement_total&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;construction_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;construction_year_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;construction_year_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;installation_year_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_generation_mwh_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;not_water_limited_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_allowances&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_boiler&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_coolants&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_electric&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_engineering&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_fuel&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_cost_per_mwh_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_cost_per_mwh_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_misc_power&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_misc_steam&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_nonfuel_per_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_operations&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_per_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_plant&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_production_total&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_rents&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_steam&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_steam_other&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_structures&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_total_nonfuel&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_transfer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;peak_demand_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_capability_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_hours_connected_while_generating&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;water_limited_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_cost_per_mmbtu_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;license_id_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_maintenance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_total&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_facilities&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_roads&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_capacity_adverse_conditions_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_capacity_favorable_conditions_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_dams&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_generation_misc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_hydraulic&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_misc_plant&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_water_for_power&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_license_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_equipment_electric&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_equipment_misc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capex_wheels_turbines_generators&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_used_for_pumping_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_load_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_production_before_pumping&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_pumped_storage&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opex_pumping&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_fuel_cost_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_mmbtu_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_type_code_pudl_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh_ferc1&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Resources definition for granular connection between FERC1 and EIA.&quot;&quot;&quot;</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

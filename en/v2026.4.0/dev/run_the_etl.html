@@ -1,0 +1,1397 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>Running the ETL Pipeline &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'dev/run_the_etl';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Developing with Dagster" href="dev_dagster.html" />
+    <link rel="prev" title="Development Setup" href="dev_setup.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Topic Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Topic Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/pudl/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/_version/index.html">pudl._version</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/index.html">pudl.analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/convert/index.html">pudl.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/definitions/index.html">pudl.definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/defs/index.html">pudl.defs</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/ferceqr/index.html">pudl.deploy.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/pudl/index.html">pudl.deploy.pudl</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/etl/index.html">pudl.etl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/glue/index.html">pudl.glue</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/metadata/index.html">pudl.metadata</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/metadata/resources/index.html">pudl.metadata.resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/rus/index.html">pudl.metadata.resources.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/output/index.html">pudl.output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/rus/index.html">pudl.output.rus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/output/sql/index.html">pudl.output.sql</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/index.html">pudl.package_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/censuspep/index.html">pudl.package_data.censuspep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia176/index.html">pudl.package_data.eia176</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia191/index.html">pudl.package_data.eia191</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia757a/index.html">pudl.package_data.eia757a</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia860/index.html">pudl.package_data.eia860</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia860m/index.html">pudl.package_data.eia860m</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia861/index.html">pudl.package_data.eia861</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia923/index.html">pudl.package_data.eia923</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia930/index.html">pudl.package_data.eia930</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/eiaaeo/index.html">pudl.package_data.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/ferc1/index.html">pudl.package_data.ferc1</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/rus12/index.html">pudl.package_data.rus12</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/test/index.html">pudl.package_data.test</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/resources/index.html">pudl.resources</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/deploy/index.html">pudl.scripts.deploy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/update_zenodo_dois/index.html">pudl.scripts.update_zenodo_dois</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/settings/index.html">pudl.settings</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/transform/index.html">pudl.transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/censusdp1tract/index.html">pudl.transform.censusdp1tract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/transform/params/index.html">pudl.transform.params</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/validate/index.html">pudl.validate</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/workspace/index.html">pudl.workspace</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Developer Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../code.html" class="nav-link">Development Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Developer Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Running the ETL Pipeline</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="running-the-etl-pipeline">
+<span id="run-the-etl"></span><h1>Running the ETL Pipeline<a class="headerlink" href="#running-the-etl-pipeline" title="Link to this heading">#</a></h1>
+<p>So you want to run the PUDL data processing pipeline? This is the most involved way
+to get access to PUDL data. It’s only recommended if you want to edit the ETL process
+or contribute to the code base. Check out the <a class="reference internal" href="../data_access.html"><span class="doc">Data Access</span></a> documentation if you
+just want to use already processed data.</p>
+<p>These instructions assume you have already gone through the <a class="reference internal" href="dev_setup.html#dev-setup"><span class="std std-ref">Development Setup</span></a>.</p>
+<section id="database-initialization">
+<h2>Database initialization<a class="headerlink" href="#database-initialization" title="Link to this heading">#</a></h2>
+<p>Before we run anything, we’ll need to make sure that the schema in the database
+actually matches the schema in the code - run <code class="docutils literal notranslate"><span class="pre">alembic</span> <span class="pre">upgrade</span> <span class="pre">head</span></code> to create
+the database with the right schema. If you already have a <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> you’ll
+need to delete it first.</p>
+</section>
+<section id="database-schema-migration">
+<h2>Database schema migration<a class="headerlink" href="#database-schema-migration" title="Link to this heading">#</a></h2>
+<p>If you’ve changed the database schema, you’ll need to make a migration for that
+change and apply that migration to the database to keep the database schema up-
+to-date:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>alembic<span class="w"> </span>revision<span class="w"> </span>--autogenerate<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add my cool table&quot;</span>
+$<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+$<span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>migrations
+$<span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Migration: added my cool table&quot;</span>
+</pre></div>
+</div>
+<p>When switching branches, Alembic may refer to a migration version that is not
+on your current branch. This will manifest as an error like this when running an
+Alembic command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FAILED</span><span class="p">:</span> <span class="n">Can</span><span class="s1">&#39;t locate revision identified by &#39;</span><span class="mi">29</span><span class="n">d443aadf25</span><span class="s1">&#39;</span>
+</pre></div>
+</div>
+<p>If you encounter that, you will want to check out the git branch that <em>does</em>
+include that migration in the <code class="docutils literal notranslate"><span class="pre">migrations</span></code> directory. Then you should run
+<code class="docutils literal notranslate"><span class="pre">alembic</span> <span class="pre">downgrade</span> <span class="pre">head-1</span></code> to revert the database to the prior version. Then
+you can go back to the branch that doesn’t have your migration, and use Alembic
+in peace.</p>
+<p>If the migrations have diverged for more than one revision, you can specify the
+specific version you would like to downgrade to with its hash. You may also
+want to keep a copy of the old SQLite database around, so you can easily switch
+between branches without having to regenerate data.</p>
+<p>More information can be found in the <a class="reference external" href="https://alembic.sqlalchemy.org/en/latest/tutorial.html">Alembic docs</a>.</p>
+</section>
+<section id="dagster">
+<h2>Dagster<a class="headerlink" href="#dagster" title="Link to this heading">#</a></h2>
+<p>PUDL uses <a class="reference external" href="https://dagster.io/">Dagster</a> to orchestrate its data pipelines. Dagster
+makes it easy to manage data dependences, parallelize processes, cache results
+and handle IO. If you are planning on contributing to PUDL, it is recommended you
+read through the <a class="reference external" href="https://docs.dagster.io/getting-started">Dagster Docs</a> to
+familiarize yourself with the tool’s main concepts.</p>
+<section id="dg-quickstart">
+<h3><code class="docutils literal notranslate"><span class="pre">dg</span></code> quickstart<a class="headerlink" href="#dg-quickstart" title="Link to this heading">#</a></h3>
+<p>PUDL is configured as a <code class="docutils literal notranslate"><span class="pre">dg</span></code> project. <code class="docutils literal notranslate"><span class="pre">dg</span></code> is Dagster’s official CLI. It can run
+most if not all of the tasks managed through the UI.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Start<span class="w"> </span>up<span class="w"> </span>the<span class="w"> </span>Dagster<span class="w"> </span>UI<span class="w"> </span>webserver<span class="w"> </span>and<span class="w"> </span>daemons
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>dev
+<span class="gp"># </span>Launch<span class="w"> </span>a<span class="w"> </span>full<span class="w"> </span>job<span class="w"> </span>with<span class="w"> </span>its<span class="w"> </span>default<span class="w"> </span>config
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>etl_fast
+<span class="gp"># </span>Select<span class="w"> </span>a<span class="w"> </span>subset<span class="w"> </span>of<span class="w"> </span>assets<span class="w"> </span>to<span class="w"> </span>materialize
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span><span class="s2">&quot;group:raw_eia861&quot;</span>
+<span class="gp"># </span>List<span class="w"> </span>all<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>Dagster<span class="w"> </span>definitions
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>list<span class="w"> </span>defs
+</pre></div>
+</div>
+<p>For full <code class="docutils literal notranslate"><span class="pre">dg</span></code> CLI documentation and options, see the Dagster docs:
+<a class="reference external" href="https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference">dg CLI reference</a>.</p>
+<p>There are a handful of Dagster concepts worth understanding prior
+to interacting with the PUDL data processing pipeline:</p>
+<section id="dagster-ui">
+<h4>Dagster UI<a class="headerlink" href="#dagster-ui" title="Link to this heading">#</a></h4>
+<p><a class="reference external" href="https://docs.dagster.io/concepts/webserver/ui">The Dagster UI</a>
+is used for monitoring and executing ETL runs.</p>
+</section>
+<section id="software-defined-assets-sdas">
+<h4>Software Defined Assets (SDAs)<a class="headerlink" href="#software-defined-assets-sdas" title="Link to this heading">#</a></h4>
+<blockquote>
+<div><p><em>An asset is an object in persistent storage, such as a table, file, or
+persisted machine learning model. A software-defined asset is a Dagster object that
+couples an asset to the function and upstream assets that are used to produce
+its contents.</em></p>
+</div></blockquote>
+<p><a class="reference external" href="https://docs.dagster.io/concepts/assets/software-defined-assets">SDAs</a>
+or “assets”, are the computation building blocks in a Dagster project.
+Assets are linked together to form a direct acyclic graph (DAG) which can
+be executed to persist the data created by the assets. In PUDL, each asset
+is a dataframe written to SQLite or parquet files. Assets in PUDL can be
+raw extracted dataframes, partially cleaned tables or fully normalized
+tables.</p>
+<p>SDAs are created by applying the <code class="docutils literal notranslate"><span class="pre">&#64;asset</span></code> decorator to a function.</p>
+<p>The main PUDL ETL is composed of assets. Assets can be “materialized”, which
+means running the associated functions and writing the output to disk
+somewhere. When you are running the main PUDL ETL, you are <strong>materializing
+assets</strong>.</p>
+</section>
+<section id="operations-ops">
+<h4>Operations (Ops):<a class="headerlink" href="#operations-ops" title="Link to this heading">#</a></h4>
+<p><a class="reference external" href="https://docs.dagster.io/concepts/ops-jobs-graphs/ops">Ops</a> are functions
+that are run in a graph. They are not linked to assets, and are a lower-level
+building block for orchestrating data processing pipelines.</p>
+<p>Due to some limitations of the asset model, we need to use bare ops for the
+FERC-to-SQLite workflow. When you are running that phase, you are <strong>launching a
+job run</strong>.</p>
+</section>
+<section id="io-managers">
+<h4>IO Managers:<a class="headerlink" href="#io-managers" title="Link to this heading">#</a></h4>
+<blockquote>
+<div><p><em>IO Managers are user-provided objects that store asset outputs
+and load them as inputs to downstream assets.</em></p>
+</div></blockquote>
+<p>Each asset has an <a class="reference external" href="https://docs.dagster.io/concepts/io-management/io-managers">IO Manager</a> that tells
+Dagster how to handle the objects returned by the software defined asset’s
+underlying function. The IO Managers in PUDL read and write dataframes to and
+from sqlite, pickle and parquet files. For example, the
+<code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.io_managers.pudl_sqlite_io_manager()</span></code> allows assets to read and write
+dataframes and execute SQL statements.</p>
+</section>
+<section id="resources">
+<h4>Resources:<a class="headerlink" href="#resources" title="Link to this heading">#</a></h4>
+<p><a class="reference external" href="https://docs.dagster.io/concepts/resources">Resources</a> are objects
+that can be shared across multiple software-defined assets.
+For example, multiple PUDL assets use the <a class="reference internal" href="../autoapi/pudl/resources/index.html#pudl.resources.datastore" title="pudl.resources.datastore"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.resources.datastore()</span></code></a>
+resource to pull data from PUDL’s raw data archives on Zenodo.</p>
+<p>Generally, inputs to assets should either be other assets or
+python objects in Resources.</p>
+</section>
+<section id="jobs">
+<h4>Jobs<a class="headerlink" href="#jobs" title="Link to this heading">#</a></h4>
+<p><a class="reference external" href="https://docs.dagster.io/concepts/ops-jobs-graphs/jobs">Jobs</a>
+are preconfigured collections of assets, resources and IO Managers.
+Jobs are the main unit of execution in Dagster. For example,
+the <code class="docutils literal notranslate"><span class="pre">etl_fast</span></code> job defined in <a class="reference internal" href="../autoapi/pudl/etl/index.html#module-pudl.etl" title="pudl.etl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.etl</span></code></a> executes the
+FERC, EIA and EPA CEMS pipelines for the most recent year.</p>
+</section>
+<section id="definitions">
+<h4>Definitions<a class="headerlink" href="#definitions" title="Link to this heading">#</a></h4>
+<p><a class="reference external" href="https://docs.dagster.io/concepts/code-locations">Definitions</a>
+are collections of assets, resources, IO managers and jobs that can
+be loaded into the dagster UI and executed. Definitions can have multiple
+preconfigured jobs. For example, the <code class="docutils literal notranslate"><span class="pre">pudl.ferc_to_sqlite</span></code> definition
+contains <code class="docutils literal notranslate"><span class="pre">etl_fast</span></code> and <code class="docutils literal notranslate"><span class="pre">etl_full</span></code> jobs.</p>
+<p>There are two main Definitions in the PUDL processing pipeline:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.defs" title="pudl.ferc_to_sqlite.defs"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.ferc_to_sqlite.defs()</span></code></a> <a class="reference internal" href="clone_ferc1.html"><span class="doc">converts the FERC Form 1, 2, 6, 60 and
+714 DBF/XBRL files</span></a> into <a class="reference external" href="https://sqlite.org">SQLite</a>
+databases so that the data are easier to extract, and so all of the raw FERC
+data is available in a modern format. You must run a job in this definition
+before you can execute a job in <a class="reference internal" href="../autoapi/pudl/etl/index.html#pudl.etl.defs" title="pudl.etl.defs"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.etl.defs()</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="../autoapi/pudl/etl/index.html#pudl.etl.defs" title="pudl.etl.defs"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.etl.defs()</span></code></a> coordinates the “Extract, Transform, Load” process that
+processes 20+ years worth of data from the FERC Form 1 database, dozens of EIA
+spreadsheets, and the thousands of CSV files that make up the EPA CEMS hourly
+emissions data into a clean, well normalized SQLite database (for the FERC and
+EIA data), and an <a class="reference external" href="https://parquet.apache.org/">Apache Parquet</a> dataset that
+is partitioned by state and year (for the EPA CEMS).</p></li>
+</ol>
+<dl class="simple">
+<dt>Both definitions have two preconfigured jobs:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">etl_fast</span></code> processes one year of data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">etl_full</span></code> processes all years of data</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+<section id="running-the-etl-via-the-dagster-ui">
+<span id="run-dagster-ui"></span><h2>Running the ETL via the Dagster UI<a class="headerlink" href="#running-the-etl-via-the-dagster-ui" title="Link to this heading">#</a></h2>
+<p>Dagster needs a directory to store run logs and some interim assets. We don’t
+distribute these outputs, so we want to store them separately from
+<code class="docutils literal notranslate"><span class="pre">PUDL_OUTPUT</span></code>. Create a new directory outside of the pudl repository
+directory called <code class="docutils literal notranslate"><span class="pre">dagster_home/</span></code>. Then set the <code class="docutils literal notranslate"><span class="pre">DAGSTER_HOME</span></code> environment
+variable to the path of the new directory:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;export DAGSTER_HOME=/path/to/dagster_home&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc<span class="w"> </span><span class="c1"># zsh</span>
+<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;export DAGSTER_HOME=/path/to/dagster_home&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc<span class="w"> </span><span class="c1"># bash</span>
+<span class="gp">$ </span><span class="nb">set</span><span class="w"> </span>-Ux<span class="w"> </span>DAGSTER_HOME<span class="w"> </span>/path/to/dagster_home<span class="w"> </span><span class="c1"># fish</span>
+</pre></div>
+</div>
+<p>Add <code class="docutils literal notranslate"><span class="pre">DAGSTER_HOME</span></code> to the current session with</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">DAGSTER_HOME</span><span class="o">=</span>/path/to/dagster_home
+</pre></div>
+</div>
+<p>Once <code class="docutils literal notranslate"><span class="pre">DAGSTER_HOME</span></code> is set, launch the dagster UI by running:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>dev
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">DAGSTER_HOME</span></code> is not set, you will still be able to execute jobs but dagster
+logs and outputs of assets that use the default <a class="reference external" href="https://docs.dagster.io/_apidocs/io-managers#dagster.fs_io_manager">fs_io_manager</a> will be
+saved to a temporary directory that is deleted when the <code class="docutils literal notranslate"><span class="pre">dagster</span></code> process exits.</p>
+</div>
+<p>This will launch the dagster UI at <a class="reference external" href="http://localhost:3000/">http://localhost:3000/</a>. You should see
+a window that looks like this:</p>
+<a class="reference internal image-reference" href="../_images/dagster_ui_home.png"><img alt="Dagster UI home" src="../_images/dagster_ui_home.png" style="width: 800px;" />
+</a>
+<p>Click the hamburger button in the upper left to view the definitions,
+assets and jobs.</p>
+<section id="cloning-the-ferc-databases">
+<h3>Cloning the FERC databases<a class="headerlink" href="#cloning-the-ferc-databases" title="Link to this heading">#</a></h3>
+<p>To run the data pipelines, you’ll first need to create the raw FERC databases by
+clicking on one of the <code class="docutils literal notranslate"><span class="pre">pudl.ferc_to_sqlite</span></code> jobs. Then select “Launchpad”
+where you can adjust the years to extract for each dataset. Then click
+“Launch Run” in the lower right hand corner of the window. The UI will
+take you to a new window that provides information about the status of
+the job. The bottom part of the window contains dagster logs. You can
+view logs from the <code class="docutils literal notranslate"><span class="pre">pudl</span></code> package in the CLI window where <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">dev</span></code>
+is running.</p>
+<p>You can adjust the years to process for each dataset using the Launchpad tab:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">resources</span><span class="p">:</span>
+  <span class="n">ferc_to_sqlite_settings</span><span class="p">:</span>
+    <span class="n">config</span><span class="p">:</span>
+      <span class="n">ferc1_dbf_to_sqlite_settings</span><span class="p">:</span>
+        <span class="n">years</span><span class="p">:</span>
+        <span class="o">-</span> <span class="mi">2020</span>
+        <span class="o">-</span> <span class="mi">2019</span>
+        <span class="o">-</span> <span class="mi">2018</span>
+      <span class="n">ferc1_xbrl_to_sqlite_settings</span><span class="p">:</span>
+        <span class="n">years</span><span class="p">:</span>
+        <span class="o">-</span> <span class="mi">2021</span>
+      <span class="n">ferc2_xbrl_to_sqlite_settings</span><span class="p">:</span>
+        <span class="n">years</span><span class="p">:</span>
+        <span class="o">-</span> <span class="mi">2021</span>
+      <span class="n">ferc60_xbrl_to_sqlite_settings</span><span class="p">:</span>
+        <span class="n">years</span><span class="p">:</span>
+        <span class="o">-</span> <span class="mi">2021</span>
+      <span class="n">ferc6_xbrl_to_sqlite_settings</span><span class="p">:</span>
+        <span class="n">years</span><span class="p">:</span>
+        <span class="o">-</span> <span class="mi">2021</span>
+      <span class="n">ferc714_xbrl_to_sqlite_settings</span><span class="p">:</span>
+        <span class="n">years</span><span class="p">:</span>
+        <span class="o">-</span> <span class="mi">2021</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We are experimenting with producing DuckDB outputs from the XBRL (and possibly DBF)
+data that FERC publishes. For the time being, <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> will produce both SQLite
+and DuckDB outputs by default.</p>
+</div>
+</section>
+<section id="running-the-pudl-etl">
+<h3>Running the PUDL ETL<a class="headerlink" href="#running-the-pudl-etl" title="Link to this heading">#</a></h3>
+<p>Once the raw FERC databases are created by a <code class="docutils literal notranslate"><span class="pre">pudl.ferc_to_sqlite</span></code> job,
+you can execute the main PUDL ETL.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure you’ve extracted the raw FERC years you are planning to process
+with the main PUDL ETL. Jobs in the <code class="docutils literal notranslate"><span class="pre">pudl.etl</span></code> definition will fail if
+the raw FERC databases are missing requested years. For example, if you want
+to process all years available in the <code class="docutils literal notranslate"><span class="pre">pudl.etl</span></code> definition make sure
+you’ve extracted all years of the raw FERC data.</p>
+</div>
+<p>Select one of the <code class="docutils literal notranslate"><span class="pre">pudl.etl</span></code> jobs.
+This will bring you to a window that displays all of the asset dependencies
+in the <code class="docutils literal notranslate"><span class="pre">pudl.etl</span></code> definition. Subsets of the <code class="docutils literal notranslate"><span class="pre">pudl.etl</span></code> asset graph
+are organized by asset groups. These groups are helfpul for visualizing and
+executing subsets of the asset graph.</p>
+<p>To execute the job, select <code class="docutils literal notranslate"><span class="pre">etl_fast</span></code> or <code class="docutils literal notranslate"><span class="pre">etl_full</span></code> and click “Materialize all”.
+You can configure which years to process by shift+clicking “Materialize all”.
+Read the <a class="reference internal" href="dev_dagster.html#resource-config"><span class="std std-ref">Configuring resources</span></a> section to learn more.
+To view the status of the run, click the date next to “Latest run:”.</p>
+<a class="reference internal image-reference" href="../_images/dagster_ui_pudl_etl.png"><img alt="Dagster UI pudl_etl" src="../_images/dagster_ui_pudl_etl.png" style="width: 800px;" />
+</a>
+<p>You can also re-execute specific assets by selecting one or
+multiple assets in the “Overview” tab and clicking “Materialize selected”.
+This is helpful if you are updating the logic of a specific asset and don’t
+want to rerun the entire ETL.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Dagster does not allow you to select asset groups for a specific job.  For example, if
+you click on the <code class="docutils literal notranslate"><span class="pre">raw_eia860</span></code> asset group in the Dagster UI click “Materialize All”,
+the default configuration values will be used so all available years of the data will
+be extracted.</p>
+<p>To process a subset of years for a specific asset group, select the asset group,
+shift+click “Materialize all” and configure the <code class="docutils literal notranslate"><span class="pre">dataset_settings</span></code> resource with the
+desired years.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Dagster will throw an <code class="docutils literal notranslate"><span class="pre">DagsterInvalidSubsetError</span></code> if you try to
+re-execute a subset of assets produced by a single function. This can
+be resolved by re-materializing the asset group of the desired asset.</p>
+</div>
+<p>Read the <a class="reference internal" href="dev_dagster.html#dev-dagster"><span class="std std-ref">Developing with Dagster</span></a> documentation page to learn more about working
+with dagster.</p>
+</section>
+<section id="running-the-ferc-eqr-etl">
+<h3>Running the FERC EQR ETL<a class="headerlink" href="#running-the-ferc-eqr-etl" title="Link to this heading">#</a></h3>
+<p>All processing for FERC EQR data is contained in a separate ETL from the
+rest of PUDL. This is because the dataset is too large to archive the raw
+data on Zenodo. This means the ETL can only be run by developers with credentials
+to access private cloud storage containing the raw data. Any external
+contributors interested in working on this ETL should contact the Catalyst team
+to set up access to the raw data.</p>
+<p>The FERC EQR ETL is contained in a Dagster job called <code class="docutils literal notranslate"><span class="pre">ferceqr_etl</span></code>.
+Executing this job from the Dagster UI is slightly different from the main
+PUDL ETL jobs because the EQR job uses Dagster partitions. After selecting
+“Materialize All” (or “Materialize selected” for a selection of assets),
+a screen will popup allowing you to select the partitions to execute.
+From here you can select a set of year-quarter combinations. This will
+trigger a <code class="docutils literal notranslate"><span class="pre">backfill</span></code>, which will execute each partition in its own <code class="docutils literal notranslate"><span class="pre">run</span></code>.
+To properly handle a <code class="docutils literal notranslate"><span class="pre">backfill</span></code>, you will need to configure dagster to use a
+<code class="docutils literal notranslate"><span class="pre">QueuedRunCoordinator</span></code>. This can be done using a <code class="docutils literal notranslate"><span class="pre">dagster.yaml</span></code> file in your
+<code class="docutils literal notranslate"><span class="pre">DAGSTER_HOME</span></code> directory with the following content:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">run_coordinator</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dagster.core.run_coordinator</span>
+<span class="w">  </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">QueuedRunCoordinator</span>
+<span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tag_concurrency_limits</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;dagster/backfill&quot;</span>
+<span class="w">        </span><span class="nt">limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">config</span></code> section shown above is not strictly necessary, but will limit the
+number of concurrent <code class="docutils literal notranslate"><span class="pre">runs</span></code> Dagster will start, which can be helpful to avoid
+out-of-memory issues while running many quarters in one <code class="docutils literal notranslate"><span class="pre">backfill</span></code>.</p>
+</section>
+</section>
+<section id="running-the-etl-with-cli-commands">
+<span id="run-cli"></span><h2>Running the ETL with CLI Commands<a class="headerlink" href="#running-the-etl-with-cli-commands" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">dg</span></code> command line interface is Dagster’s official tool and has a ton of built-in
+functionality. For full documentation see the Dagster docs:
+<a class="reference external" href="https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference">dg CLI reference</a>.</p>
+<p>These commands are a quick way to confirm your local Dagster setup is healthy before
+launching runs:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>check<span class="w"> </span>toml
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>check<span class="w"> </span>defs<span class="w"> </span>--verbose
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>list<span class="w"> </span>defs
+</pre></div>
+</div>
+<p>You can also kick off full jobs with their default configuration using <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code>.
+The Dagster UI does not need to be running for this to work, but if it is running,
+you’ll see the run appear in it.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>ferc_to_sqlite
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>etl_fast
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>etl_full
+</pre></div>
+</div>
+<p>You can also target specific assets rather than an entire job, and use Dagster’s rich
+<a class="reference external" href="https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference">asset selection syntax</a>
+to pick and choose:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Materialize<span class="w"> </span>all<span class="w"> </span>assets<span class="w"> </span><span class="k">in</span><span class="w"> </span>the<span class="w"> </span>raw_eia861<span class="w"> </span>group
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span><span class="s2">&quot;group:raw_eia861&quot;</span>
+<span class="gp"># </span>Materialize<span class="w"> </span>all<span class="w"> </span>assets<span class="w"> </span>upstream<span class="w"> </span>and<span class="w"> </span>downstream<span class="w"> </span>of<span class="w"> </span>a<span class="w"> </span>table
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span><span class="s2">&quot;+key:core_eia923__fuel_receipts_costs+&quot;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We recommend using the Dagster UI to execute the ETL as it provides additional
+functionality for re-execution and viewing asset dependences.</p>
+</div>
+<p>PUDL also has a couple of custom job launching scripts, which automatically use one of
+our preset YAML files to configure the execution graph, including data sources, years,
+etc.</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> executes the <code class="docutils literal notranslate"><span class="pre">pudl.ferc_to_sqlite</span></code> dagster graph.
+You must run this script before you can run <code class="docutils literal notranslate"><span class="pre">pudl_etl</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pudl_etl</span></code> executes the <code class="docutils literal notranslate"><span class="pre">pudl.etl</span></code> asset graph.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We plan to deprecate these custom scripts in 2026Q2, and move to using Dagster’s
+built-in file-based configuration system.</p>
+</div>
+<p>We also have <code class="docutils literal notranslate"><span class="pre">pixi</span></code> tasks defined in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> that correspond to running the
+above scripts with default configurations, to process all data (these can take hours):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>ferc
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pudl
+</pre></div>
+</div>
+</section>
+<section id="settings-files">
+<h2>Settings Files<a class="headerlink" href="#settings-files" title="Link to this heading">#</a></h2>
+<p>These CLI commands use YAML settings files in place of command line arguments.  This
+avoids undue complexity and preserves a record of how the script was run.  The YAML file
+dictates which years or states get run through the the processing pipeline. There are
+two standard settings files that we use to run the integration tests and the nightly
+builds included in the repository:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/pudl/package_data/settings/etl_fast.yml</span></code> processes 1-2 years of data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/pudl/package_data/settings/etl_full.yml</span></code> processes all available data.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In previous versions of PUDL, you could specify which datasources to process
+using the settings file. With the migration to dagster, all datasources are
+processed no matter what datasources are included in the settings file.
+If you want to process a single datasource, materialize the appropriate assets
+in the dagster UI. (see <a class="reference internal" href="#run-dagster-ui"><span class="std std-ref">Running the ETL via the Dagster UI</span></a>).</p>
+</div>
+<p>Each file contains instructions for how to process the data under “full” or “fast”
+conditions respectively. You can copy, rename, and modify these files to suit your
+needs. The layout of these files is depicted below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># FERC1 to SQLite settings
+ferc_to_sqlite_settings:
+  ├── ferc1_dbf_to_sqlite_settings
+  |   └── years
+  ├── ferc1_xbrl_to_sqlite_settings
+  |   └── years
+  └── ferc2_xbrl_to_sqlite_settings
+      └── years
+
+# PUDL ETL settings
+name : unique name identifying the etl outputs
+title : short human readable title for the etl outputs
+description : a longer description of the etl outputs
+datasets:
+  ├── dataset name
+  │    └── dataset etl parameter (e.g. years) : editable list of years
+  └── dataset name
+       └── dataset etl parameter (e.g. years) : editable list of years
+</pre></div>
+</div>
+<p>Both scripts enable you to choose which <strong>years</strong> you want to include:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">years</span></code></p></td>
+<td><p>A list of years to be included in the FERC Form 1 Raw DB or the PUDL DB. You
+should only use a continuous range of years. Check the <a class="reference internal" href="../data_sources/index.html"><span class="doc">Data Sources</span></a>
+pages for the earliest available years.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">pudl_etl</span></code> script CEMS data allows you to select <strong>years</strong> and <strong>states</strong>.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">years</span></code></p></td>
+<td><p>A list of the years you’d like to process CEMS data for. You should
+only use a continuous range of years. Check the <a class="reference internal" href="../data_sources/epacems.html"><span class="doc">EPA Hourly Continuous Emission Monitoring System (CEMS)</span></a> page
+for the earliest available years.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">states</span></code></p></td>
+<td><p>A list of the state codes you’d like to process CEMS data for. You can specify
+<code class="docutils literal notranslate"><span class="pre">all</span></code> if you want to process data for all states. This may take a while!</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>For an exhaustive listing of the available parameters, see the <code class="docutils literal notranslate"><span class="pre">etl_full.yml</span></code>
+file.</p>
+</div>
+<p>There are a few notable dependencies to be wary of when fiddling with these
+settings:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> job must be executed prior to running <code class="docutils literal notranslate"><span class="pre">pudl_etl</span></code>
+job.</p></li>
+<li><p>EPA CEMS cannot be loaded without EIA data unless you have existing PUDL database.</p></li>
+</ul>
+<p>Now that your settings are configured, you’re ready to run the scripts.</p>
+</section>
+<section id="the-fast-etl">
+<h2>The Fast ETL<a class="headerlink" href="#the-fast-etl" title="Link to this heading">#</a></h2>
+<p>Running the Fast ETL processes one year of data for each dataset. This is what
+we do in our <a class="reference internal" href="testing.html"><span class="doc">software integration tests</span></a>. Depending on your computer,
+it should take around 15 minutes total.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ferc_to_sqlite<span class="w"> </span>settings/etl_fast.yml
+<span class="gp">$ </span>pudl_etl<span class="w"> </span>settings/etl_fast.yml
+</pre></div>
+</div>
+</section>
+<section id="the-full-etl">
+<h2>The Full ETL<a class="headerlink" href="#the-full-etl" title="Link to this heading">#</a></h2>
+<p>The Full ETL settings includes all all available data that PUDL can process. All
+the years, all the states, and all the tables, including the ~1 billion record
+EPA CEMS dataset. Assuming you already have the data downloaded, on a computer
+with at least 16 GB of RAM, and a solid-state disk, the Full ETL including EPA
+CEMS should take around 2 hours.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ferc_to_sqlite<span class="w"> </span>src/pudl/package_data/settings/etl_full.yml
+<span class="gp">$ </span>pudl_etl<span class="w"> </span>src/pudl/package_data/settings/etl_full.yml
+</pre></div>
+</div>
+</section>
+<section id="custom-etl">
+<h2>Custom ETL<a class="headerlink" href="#custom-etl" title="Link to this heading">#</a></h2>
+<p>You’ve changed the settings and renamed the file to CUSTOM_ETL.yml</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ferc_to_sqlite<span class="w"> </span>the/path/to/your/custom_etl.yml
+<span class="gp">$ </span>pudl_etl<span class="w"> </span>the/path/to/your/custom_etl.yml
+</pre></div>
+</div>
+</section>
+<section id="additional-notes">
+<h2>Additional Notes<a class="headerlink" href="#additional-notes" title="Link to this heading">#</a></h2>
+<p>The commands above should result in a bunch of Python <code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code> output describing
+what the script is doing, and file outputs the directory you specified via the
+<code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT</span></code> environment variable. When the ETL is complete, you should see new
+files at e.g. <code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT/ferc1_dbf.sqlite</span></code>, <code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT/pudl.sqlite</span></code> and
+<code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT/core_epacems__hourly_emissions.parquet</span></code>.</p>
+<p>All of the PUDL scripts also have help messages if you want additional information (run
+<code class="docutils literal notranslate"><span class="pre">script_name</span> <span class="pre">--help</span></code>).</p>
+</section>
+<section id="foreign-keys">
+<h2>Foreign Keys<a class="headerlink" href="#foreign-keys" title="Link to this heading">#</a></h2>
+<p>The order assets are loaded into <code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code> is non deterministic because the
+assets are executed in parallel so foreign key constraints can not be evaluated in
+real time. However, foreign key constraints can be evaluated after all of the data
+has been loaded into the database. To check the constraints, run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pudl_check_fks
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dev_setup.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Development Setup</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dev_dagster.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Developing with Dagster</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#database-initialization">Database initialization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#database-schema-migration">Database schema migration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dagster">Dagster</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dg-quickstart"><code class="docutils literal notranslate"><span class="pre">dg</span></code> quickstart</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dagster-ui">Dagster UI</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#software-defined-assets-sdas">Software Defined Assets (SDAs)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#operations-ops">Operations (Ops):</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#io-managers">IO Managers:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jobs">Jobs</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-etl-via-the-dagster-ui">Running the ETL via the Dagster UI</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cloning-the-ferc-databases">Cloning the FERC databases</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-pudl-etl">Running the PUDL ETL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-ferc-eqr-etl">Running the FERC EQR ETL</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-etl-with-cli-commands">Running the ETL with CLI Commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#settings-files">Settings Files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-fast-etl">The Fast ETL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-full-etl">The Full ETL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-etl">Custom ETL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-notes">Additional Notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#foreign-keys">Foreign Keys</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/dev/run_the_etl.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

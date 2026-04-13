@@ -1,0 +1,778 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>The Public Utility Data Liberation Project &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Resources" href="data.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="the-public-utility-data-liberation-project">
+<h1>The Public Utility Data Liberation Project<a class="headerlink" href="#the-public-utility-data-liberation-project" title="Link to this heading">#</a></h1>
+<p>PUDL (pronounced puddle) is a data processing pipeline created by <a class="reference external" href="https://catalyst.coop/">Catalyst Cooperative</a> that cleans, integrates, and standardizes some of the most
+widely used public energy datasets in the US. The data serve researchers, activists,
+journalists, and policy makers that might not have the technical expertise to access it
+in its raw form, the time to clean and prepare the data for bulk analysis, or the means
+to purchase it from  existing commercial providers.</p>
+<p>For more information on how to use PUDL data, see <a class="reference internal" href="data_access.html"><span class="doc">Data Access</span></a>.</p>
+<section id="available-data">
+<h2>Available Data<a class="headerlink" href="#available-data" title="Link to this heading">#</a></h2>
+<p>We focus primarily on poorly curated data published by the US government in
+semi-structured but machine readable formats. For details on exactly what data is
+available from these data sources and what state it is in, see the individual
+pages for each source:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="data_sources/censusdp1tract.html"><span class="doc">Census DP1 – Profile of General Demographic Characteristics</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/censuspep.html"><span class="doc">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/eia176.html"><span class="doc">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/eia860.html"><span class="doc">EIA Form 860 – Annual Electric Generator Report</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/eia861.html"><span class="doc">EIA Form 861 – Annual Electric Power Industry Report</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/eia923.html"><span class="doc">EIA Form 923 – Power Plant Operations Report</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/eia930.html"><span class="doc">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/eiaapi.html"><span class="doc">EIA Bulk API Data</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/eiaaeo.html"><span class="doc">EIA Annual Energy Outlook (AEO)</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/epacamd_eia.html"><span class="doc">EPA CAMD to EIA Power Sector Data Crosswalk</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/epacems.html"><span class="doc">EPA Hourly Continuous Emission Monitoring System (CEMS)</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/ferc1.html"><span class="doc">FERC Form 1 – Annual Report of Major Electric Utilities</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/ferc714.html"><span class="doc">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/ferceqr.html"><span class="doc">FERC Form 920 – Electric Quarterly Report (EQR)</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/gridpathratoolkit.html"><span class="doc">GridPath Resource Adequacy Toolkit Data</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/nrelatb.html"><span class="doc">NREL Annual Technology Baseline (ATB) for Electricity</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/phmsagas.html"><span class="doc">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/rus12.html"><span class="doc">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/rus7.html"><span class="doc">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/sec10k.html"><span class="doc">U.S. Securities and Exchange Commission (SEC) Form 10-K</span></a></p></li>
+<li><p><a class="reference internal" href="data_sources/vcerare.html"><span class="doc">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</span></a></p></li>
+</ul>
+<p>PUDL’s processed versions of these data sources are distributed primarily as Parquet
+files. To get started using PUDL data, visit our <a class="reference internal" href="data_access.html"><span class="doc">Data Access</span></a> page, or continue
+reading to learn more about the PUDL data processing pipeline.</p>
+<p>We also publish SQLite databases containing relatively pristine versions of our more
+difficult to parse inputs, especially the old Visual FoxPro (DBF, pre-2021) and new XBRL
+data (2021+) published by FERC:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.zip">FERC Form 1 (DBF)</a></p></li>
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.zip">FERC Form 1 (XBRL)</a></p></li>
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_dbf.sqlite.zip">FERC Form 2 (DBF)</a></p></li>
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl.sqlite.zip">FERC Form 2 (XBRL)</a></p></li>
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_dbf.sqlite.zip">FERC Form 6 (DBF)</a></p></li>
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl.sqlite.zip">FERC Form 6 (XBRL)</a></p></li>
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_dbf.sqlite.zip">FERC Form 60 (DBF)</a></p></li>
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.sqlite.zip">FERC Form 60 (XBRL)</a></p></li>
+<li><p><a class="reference external" href="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.sqlite.zip">FERC Form 714 (XBRL)</a></p></li>
+</ul>
+</section>
+<section id="raw-data-archives">
+<span id="raw-data-archive"></span><h2>Raw Data Archives<a class="headerlink" href="#raw-data-archives" title="Link to this heading">#</a></h2>
+<p>PUDL depends on “raw” data inputs from sources that are known to occasionally update
+their data or alter the published format. These changes may be incompatible with the way
+the data are read and interpreted by PUDL, so, to ensure the integrity of our data
+processing, we periodically create archives of <a class="reference external" href="https://zenodo.org/communities/catalyst-cooperative">the raw inputs on Zenodo</a>. Each of the data inputs may
+have several different versions archived, and all are assigned a unique DOI and made
+available through the REST API.  Each release of the PUDL Python package is embedded
+with a set of DOIs to indicate which version of the raw inputs it is meant to
+process. This process helps ensure that our outputs are replicable.</p>
+<p>To enable programmatic access to individual partitions of the data (by year, state,
+etc.), we archive the raw inputs as <a class="reference external" href="https://specs.frictionlessdata.io/data-package/">Frictionless Data Packages</a>. The data packages contain both the
+raw data in their originally published format (CSVs, Excel spreadsheets, and Visual
+FoxPro database (DBF) files) and metadata that describes how each dataset is
+partitioned.</p>
+<p>The PUDL software will download a copy of the appropriate raw inputs automatically as
+needed and organize them in a local <a class="reference internal" href="dev/datastore.html"><span class="doc">datastore</span></a>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>The software that creates and archives the raw inputs can be found in our
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl-archiver">PUDL Archiver</a>
+repository on GitHub.</p>
+</div>
+</section>
+<section id="the-etl-process">
+<span id="etl-process"></span><h2>The ETL Process<a class="headerlink" href="#the-etl-process" title="Link to this heading">#</a></h2>
+<p>PUDL’s ETL produces a data warehouse that can be used for analytics.
+The processing happens within Dagster assets that are persisted to storage,
+typically pickle, parquet or SQLite files. The raw data moves through three
+layers of processing.</p>
+<section id="raw-layer">
+<h3>Raw Layer<a class="headerlink" href="#raw-layer" title="Link to this heading">#</a></h3>
+<p>Assets in the Raw layer read the raw data from the original heterogeneous formats into
+a collection of <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> with uniform column names across all years so
+that it can be easily processed in bulk. Data distributed as binary database files, such
+as the DBF files from FERC Form 1, may be converted into a unified SQLite database
+before individual dataframes are created. Raw data assets are not written to
+<code class="docutils literal notranslate"><span class="pre">pudl.sqlite</span></code>. Instead they are persisted to pickle files and not distributed
+to users.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>Module documentation within the <a class="reference internal" href="autoapi/pudl/extract/index.html#module-pudl.extract" title="pudl.extract"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.extract</span></code></a> subpackage.</p>
+</div>
+</section>
+<section id="core-layer">
+<h3>Core Layer<a class="headerlink" href="#core-layer" title="Link to this heading">#</a></h3>
+<p>The Core layer contains well-modeled assets that serve as building blocks for
+downstream wide tables and analyses. Well-modeled means tables in the database
+have logical primary keys, foreign keys, datatypes and generally follow
+<a class="reference internal" href="dev/data_guidelines.html#tidy-data"><span class="std std-ref">Tidy Data standards</span></a>. The assets are loaded into a SQLite
+database or Parquet file.</p>
+<p>These outputs can be accessed via Python, R, and many other tools. See the
+<a class="reference internal" href="data_dictionaries/pudl_db.html"><span class="doc">PUDL Data Dictionary</span></a> page for a list of the normalized database tables and
+their contents.</p>
+<p>Data processing in the Core layer is generally broken down into two phases. Phase one
+focuses on cleaning and organizing data within individual tables, while phase two
+focuses on the integration and deduplication of data between tables. These tasks can be
+tedious <a class="reference external" href="https://sre.google/sre-book/eliminating-toil/">data wrangling toil</a> that
+impose a huge amount of overhead on anyone trying to do analysis based on the publicly
+available data. PUDL implements common data cleaning operations in the hopes that we
+can all work on more interesting problems most of the time. These operations include:</p>
+<ul class="simple">
+<li><p>Standardization of units (e.g. dollars, not thousands of dollars)</p></li>
+<li><p>Standardization of N/A values</p></li>
+<li><p>Standardization of freeform names and IDs</p></li>
+<li><p>Use of controlled vocabularies for categorical values like fuel type</p></li>
+<li><p>Use of more readable codes and column names</p></li>
+<li><p>Imposition of well-defined, rich data types for each column</p></li>
+<li><p>Converting local timestamps to UTC</p></li>
+<li><p>Reshaping of data into well normalized tables which minimize data duplication</p></li>
+<li><p>Inferring Plant IDs which link records across many years of FERC Form 1 data</p></li>
+<li><p>Inferring linkages between FERC and EIA Plants and Utilities.</p></li>
+<li><p>Inferring more complete associations between EIA boilers and generators</p></li>
+</ul>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>The module and per-table transform functions in the <a class="reference internal" href="autoapi/pudl/transform/index.html#module-pudl.transform" title="pudl.transform"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.transform</span></code></a>
+sub-package have more details on the specific transformations applied to each
+table.</p>
+</div>
+<p>Many of the original datasets contain large amounts of duplicated data. For instance,
+the EIA reports the name of each power plant in every table that refers to otherwise
+unique plant-related data. Similarly, many attributes, like plant latitude and
+longitude, are reported separately every year. Often, these reported values are not
+self-consistent. There may be several different spellings of a plant’s name, or an
+incorrectly reported latitude in one year.</p>
+<p>Assets in the Core layer attempt to eliminate this kind of inconsistent and duplicate
+information when normalizing the tables by choosing only the most consistently reported
+value for inclusion in the final database. If a value which should be static is not
+consistently reported, it may also be set to N/A. For details on how this works for
+EIA entities (plants, utilities, boilers, and generators), see
+<a class="reference internal" href="methodology/entity_resolution.html"><span class="doc">Entity Resolution</span></a>.</p>
+</section>
+<section id="output-layer">
+<h3>Output Layer<a class="headerlink" href="#output-layer" title="Link to this heading">#</a></h3>
+<p>Assets in the Core layer normalize the data to make storage more efficient and avoid
+data integrity issues, but you may want to combine information from more than one of
+the tables to make the data more readable and readily interpretable. For example, PUDL
+stores the name that EIA uses to refer to a power plant in the
+<a class="reference internal" href="data_dictionaries/pudl_db.html#core-eia-entity-plants"><span class="std std-ref">core_eia__entity_plants</span></a> table in association with the plant’s unique numeric ID.
+If you are working with data from the <a class="reference internal" href="data_dictionaries/pudl_db.html#core-eia923-fuel-receipts-costs"><span class="std std-ref">core_eia923__fuel_receipts_costs</span></a>
+table, which records monthly per-plant fuel deliveries, you may want to have the name
+of the plant alongside the fuel delivery information since it’s more recognizable than
+the plant ID.</p>
+<p>Rather than requiring everyone to write their own SQL <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> and <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> statements
+or do a bunch of <code class="xref py py-func docutils literal notranslate"><span class="pre">pandas.merge()</span></code> operations to bring together data, PUDL provides a
+variety of output tables that contain all of the useful information in one place. In
+some cases, like with EIA, the output tables are composed to closely resemble the raw
+spreadsheet tables you’re familiar with.</p>
+<p>The Output layer also contains tables produced by analytical routines for calculating
+derived values like the heat rate by generation unit, the capacity factor by
+generator, or hourly electricity demand with missing and outlying values imputed.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/catalyst-cooperative/pudl-examples">The PUDL Examples repository</a>
+provides examples of working with PUDL data using Python in Jupyter notebooks.</p></li>
+<li><p>For larger tables, including those with hourly resolution, you may want to use
+tools designed for data that’s larger than your computer’s available memory.
+<cite>Polars dataframes &lt;https://docs.pola.rs/user-guide/getting-started/&gt;</cite> and
+<cite>DuckDB &lt;https://duckdb.org/docs/&gt;</cite> are great options.</p></li>
+</ul>
+</div>
+</section>
+</section>
+<section id="data-validation">
+<span id="test-and-validate"></span><h2>Data Validation<a class="headerlink" href="#data-validation" title="Link to this heading">#</a></h2>
+<p>We have a growing collection of data validation test cases that we run before
+publishing a data release to try and avoid publishing data with known issues. Most of
+these validations are described in the <a class="reference internal" href="autoapi/pudl/validate/index.html#module-pudl.validate" title="pudl.validate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.validate</span></code></a> module. They check things
+like:</p>
+<ul class="simple">
+<li><p>The heat content of various fuel types is within expected bounds.</p></li>
+<li><p>Coal ash, moisture, mercury, sulfur, etc. content are within expected bounds</p></li>
+<li><p>Generator heat rates and capacity factors are realistic for the type of prime mover
+being reported.</p></li>
+</ul>
+<p>Some data validations are currently only specified within our test suite, including:</p>
+<ul class="simple">
+<li><p>The expected number of records within each table</p></li>
+<li><p>The fact that there are no entirely N/A columns</p></li>
+</ul>
+<p>A variety of database integrity checks are also run either during the data processing
+or when the data is loaded into SQLite.</p>
+<p>See our <a class="reference internal" href="dev/testing.html"><span class="doc">Testing PUDL</span></a> documentation for more information.</p>
+</section>
+<section id="organizations-using-pudl">
+<h2>Organizations using PUDL<a class="headerlink" href="#organizations-using-pudl" title="Link to this heading">#</a></h2>
+<p>This is a partial list of organizations that have used PUDL in their work.
+If your organization uses PUDL we’d love to list you here! Please open a
+pull request or email us at <a class="reference external" href="mailto:hello&#37;&#52;&#48;catalyst&#46;coop">hello<span>&#64;</span>catalyst<span>&#46;</span>coop</a>!</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://rmi.org">RMI</a> via both their <a class="reference external" href="https://utilitytransitionhub.rmi.org/">Utility Transition Hub</a> and <a class="reference external" href="https://utilitytransitionhub.rmi.org/optimus/">Optimus financial modeling tool</a></p></li>
+<li><p><a class="reference external" href="https://zero.lab.princeton.edu">The ZERO Lab at Princeton University</a></p></li>
+<li><p><a class="reference external" href="https://github.com/PyPSA/pypsa-usa">PyPSA-USA</a> an open source power systems model.</p></li>
+<li><p><a class="reference external" href="https://energyinnovation.org">Energy Innovation</a></p></li>
+<li><p><a class="reference external" href="https://github.com/PowerGenome/PowerGenome">The PowerGenome Project</a></p></li>
+<li><p><a class="reference external" href="https://singularity.energy">Singularity Energy</a></p></li>
+<li><p><a class="reference external" href="https://singularity.energy/open-grid-emissions">The Open Grid Emissions Initiative</a></p></li>
+<li><p><a class="reference external" href="https://climate.win">Win Climate</a></p></li>
+<li><p><a class="reference external" href="https://www.deploymentgap.fund/">The Deployment Gap Model Education Fund</a></p></li>
+</ul>
+</section>
+<section id="pudl-sustainers">
+<h2>PUDL Sustainers<a class="headerlink" href="#pudl-sustainers" title="Link to this heading">#</a></h2>
+<p>The PUDL Sustainers provide ongoing financial support to ensure the open data keeps
+flowing, and the project is sustainable long term. They’re also involved in our
+quarterly planning process. To learn more see <a class="reference external" href="https://opencollective.com/pudl">the PUDL Project page on Open Collective</a>.</p>
+<section id="gigawatt-tier-25-000-year">
+<h3>Gigawatt Tier (≥$25,000/year)<a class="headerlink" href="#gigawatt-tier-25-000-year" title="Link to this heading">#</a></h3>
+<a class="reference external image-reference" href="https://rmi.org"><img alt="RMI" class="align-center" src="_images/RMI.png" style="width: 600px;" />
+</a>
+<a class="reference external image-reference" href="https://gridlab.org"><img alt="GridLab" class="align-center" src="_images/GridLab.png" style="width: 600px;" />
+</a>
+</section>
+<section id="megawatt-tier-16-000-year">
+<h3>Megawatt Tier (≥$16,000/year)<a class="headerlink" href="#megawatt-tier-16-000-year" title="Link to this heading">#</a></h3>
+<p>Become our first <a class="reference external" href="https://opencollective.com/pudl">Megawatt tier sustainer</a>!</p>
+</section>
+<section id="kilowatt-tier-8-000-year">
+<h3>Kilowatt Tier (≥$8,000/year)<a class="headerlink" href="#kilowatt-tier-8-000-year" title="Link to this heading">#</a></h3>
+<p>Become our first <a class="reference external" href="https://opencollective.com/pudl">kilowatt tier sustainer</a>!</p>
+</section>
+</section>
+<section id="major-grant-funders">
+<h2>Major Grant Funders<a class="headerlink" href="#major-grant-funders" title="Link to this heading">#</a></h2>
+<section id="alfred-p-sloan-foundation">
+<h3>Alfred P. Sloan Foundation<a class="headerlink" href="#alfred-p-sloan-foundation" title="Link to this heading">#</a></h3>
+<a class="reference external image-reference" href="https://sloan.org/programs/research/energy-and-environment/"><img alt="Alfred P. Sloan Foundation Energy and Environment Program" class="align-center" src="_images/Sloan.png" style="width: 400px;" />
+</a>
+<p>The PUDL Project has been supported by three grants from the <a class="reference external" href="https://sloan.org/programs/research/energy-and-environment">Alfred P. Sloan
+Foundation’s Energy and Environment Program</a>, in 2019, 2021, and
+2024.</p>
+</section>
+<section id="national-science-foundation">
+<h3>National Science Foundation<a class="headerlink" href="#national-science-foundation" title="Link to this heading">#</a></h3>
+<a class="reference external image-reference" href="https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose"><img alt="National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)" class="align-center" src="_images/NSF.png" style="width: 400px;" />
+</a>
+<p>The PUDL Project was awarded a grant from the National Science Foundation’s <a class="reference external" href="https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose">Pathways to
+Enable Open Source Ecosystems (POSE) program</a>
+(<a class="reference external" href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139">award 2346139</a>) in 2024.</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="right-next"
+       href="data.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Data Resources</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-data">Available Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#raw-data-archives">Raw Data Archives</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-etl-process">The ETL Process</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#raw-layer">Raw Layer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#core-layer">Core Layer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#output-layer">Output Layer</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-validation">Data Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#organizations-using-pudl">Organizations using PUDL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-sustainers">PUDL Sustainers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gigawatt-tier-25-000-year">Gigawatt Tier (≥$25,000/year)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#megawatt-tier-16-000-year">Megawatt Tier (≥$16,000/year)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kilowatt-tier-8-000-year">Kilowatt Tier (≥$8,000/year)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#major-grant-funders">Major Grant Funders</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alfred-p-sloan-foundation">Alfred P. Sloan Foundation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#national-science-foundation">National Science Foundation</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/index.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

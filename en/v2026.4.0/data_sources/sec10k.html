@@ -1,0 +1,1181 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>U.S. Securities and Exchange Commission (SEC) Form 10-K &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'data_sources/sec10k';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset" href="vcerare.html" />
+    <link rel="prev" title="USDA RUS Form 7 – Financial and Operating Report: Electric Distribution" href="rus7.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Topic Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Topic Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../data_dictionaries/index.html">Data Dictionaries</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Data Sources</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_access.html">Data Access</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../methodology/index.html">Methodology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/entity_resolution.html">Entity Resolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../data.html" class="nav-link">Data Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Data Sources</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">U.S. Securities and Exchange Commission (SEC) Form 10-K</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="u-s-securities-and-exchange-commission-sec-form-10-k">
+<h1>U.S. Securities and Exchange Commission (SEC) Form 10-K<a class="headerlink" href="#u-s-securities-and-exchange-commission-sec-form-10-k" title="Link to this heading">#</a></h1>
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><th class="stub"><p>Source URL</p></th>
+<td><p><a class="reference external" href="https://www.sec.gov/search-filings/edgar-application-programming-interfaces">https://www.sec.gov/search-filings/edgar-application-programming-interfaces</a></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Source Description</p></th>
+<td><p>The SEC Form 10-K is an annual report required by the U.S. Securities and Exchange Commission (SEC), that gives a comprehensive summary of a company's financial performance.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Download Size</p></th>
+<td><p>178 MB</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Temporal Coverage</p></th>
+<td><p>1993-2023</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>PUDL Code</p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">sec10k</span></code></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Unprocessed Source Data Archive</p></th>
+<td><p><a class="reference external" href="https://doi.org/10.5281/zenodo.15161693">10.5281/zenodo.15161693</a></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Issues</p></th>
+<td><p><a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aopen+label%3Asec10k">Open U.S. Securities and Exchange Commission (SEC) Form 10-K issues</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="pudl-database-tables">
+<h2>PUDL Database Tables<a class="headerlink" href="#pudl-database-tables" title="Link to this heading">#</a></h2>
+<p>We’ve segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Data Dictionary</p></th>
+<th class="head"><p>Browse Online</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-assn-exhibit-21-subsidiaries-and-eia-utilities"><span class="std std-ref">core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities">https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-assn-exhibit-21-subsidiaries-and-filers"><span class="std std-ref">core_sec10k__assn_exhibit_21_subsidiaries_and_filers</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_filers">https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_filers</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-assn-sec10k-filers-and-eia-utilities"><span class="std std-ref">core_sec10k__assn_sec10k_filers_and_eia_utilities</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/core_sec10k__assn_sec10k_filers_and_eia_utilities">https://data.catalyst.coop/preview/pudl/core_sec10k__assn_sec10k_filers_and_eia_utilities</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-changelog-company-name"><span class="std std-ref">core_sec10k__changelog_company_name</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/core_sec10k__changelog_company_name">https://data.catalyst.coop/preview/pudl/core_sec10k__changelog_company_name</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-quarterly-company-information"><span class="std std-ref">core_sec10k__quarterly_company_information</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_company_information">https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_company_information</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-quarterly-exhibit-21-company-ownership"><span class="std std-ref">core_sec10k__quarterly_exhibit_21_company_ownership</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_exhibit_21_company_ownership">https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_exhibit_21_company_ownership</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-quarterly-filings"><span class="std std-ref">core_sec10k__quarterly_filings</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_filings">https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_filings</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-changelog-company-name"><span class="std std-ref">out_sec10k__changelog_company_name</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/out_sec10k__changelog_company_name">https://data.catalyst.coop/preview/pudl/out_sec10k__changelog_company_name</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-parents-and-subsidiaries"><span class="std std-ref">out_sec10k__parents_and_subsidiaries</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/out_sec10k__parents_and_subsidiaries">https://data.catalyst.coop/preview/pudl/out_sec10k__parents_and_subsidiaries</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-quarterly-company-information"><span class="std std-ref">out_sec10k__quarterly_company_information</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_company_information">https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_company_information</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-quarterly-filings"><span class="std std-ref">out_sec10k__quarterly_filings</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_filings">https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_filings</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Form_10-K">SEC Form 10-K</a> includes detailed
+financial statements for publicly listed US companies. Most of this data is available
+in the structured, machine-readable <a class="reference external" href="https://en.wikipedia.org/wiki/XBRL">XBRL (eXtensible Business Reporting Language)</a> format. However, some common attachments to
+the 10-K have not been integrated into the XBRL reporting and are available only as
+unstructured PDFs or HTML.</p>
+<p>Our main interest in the SEC Form 10-K is providing better access to some of that
+unstructured data, primarily an attachment called Exhibit 21 which reports “Subsidiaries
+of the Registrant” as described in <a class="reference external" href="https://www.law.cornell.edu/cfr/text/17/229.601">17 CFR § 229.601</a>:</p>
+<blockquote>
+<div><p>List all subsidiaries of the registrant, the state or other jurisdiction of
+incorporation or organization of each, and the names under which such subsidiaries
+do business. This list may be incorporated by reference from a document which
+includes a complete and accurate list.</p>
+</div></blockquote>
+<p>This data is relevant to the US energy system and the transition away from fossil fuels
+because electricity and natural gas utility holding companies often have complex
+ownership relationships that tie together the economic and political interests of many
+nested parent and subsidiary companies. Without understanding that network of
+relationships, it is hard to understand the incentives driving the behavior of
+individual utilities.</p>
+<p>In order to link this subsidiary company information to other datasets we also need
+contextual information about the SEC 10-K filings they are part of and the companies
+submitting those filings.</p>
+<p>In 2024 we captured a snapshot of the raw HTML of the SEC 10-K filings from the SEC’s
+EDGAR database, including the Exhibit 21 attachments. We extract two kinds of data from
+this raw data source: metadata about the filing companies and
+filing itself, and ownership data about the company’s subsidiaries.</p>
+<p>First, metadata related to each filing and the companies associated with the filing was
+parsed out of the plaintext headers of the HTML documents. While the headers are not necessarily intended to be machine readable, they are highly structured. From them, we compile a database of
+all SEC 10-K filings and the companies involved.</p>
+<p>Each filing has a single
+company that is the primary filer, and the filing is associated with their <a class="reference external" href="https://www.sec.gov/search-filings/cik-lookup">Central
+Index Key</a> (CIK) – a persistent
+company identifier assigned by the SEC that is more durable and standardized than the
+company name. The <code class="docutils literal notranslate"><span class="pre">core_sec10k</span></code> tables derived from the headers provide the
+context that’s necessary to link the subsidiary company information extracted from
+Exhibit 21 to other sets of companies, including the SEC 10-K filers themselves, as well
+as companies that file the EIA Form 860.</p>
+<p>Second, we wrote <a class="reference external" href="https://github.com/catalyst-cooperative/mozilla-sec-eia">a machine learning pipeline</a> to extract structured
+tabular data from the unstructured Exhibit 21 attachments. This includes an ID
+indicating what filing the attachment was part of, the subsidiary company name and
+location, and in some cases, the fraction of the subsidiary that is owned by the parent
+company making the filing.</p>
+<section id="three-types-of-companies-and-three-record-linkages">
+<h3>Three Types of Companies and Three Record Linkages<a class="headerlink" href="#three-types-of-companies-and-three-record-linkages" title="Link to this heading">#</a></h3>
+<p>There are three sets of companies referenced in the SEC 10-K tables in PUDL. These
+categories are not exclusive.</p>
+<ul class="simple">
+<li><p><strong>SEC 10-K Filers:</strong> any company associated with a <code class="docutils literal notranslate"><span class="pre">central_index_key</span></code>. These
+companies appear both as the primary filers of a filing, and in the list of
+additional filers found in the filing headers.</p></li>
+<li><p><strong>Exhibit 21 Subsidiaries:</strong> identified by name and location in the Exhibit 21
+attachment.</p></li>
+<li><p><strong>EIA Utiliites:</strong> Companies that report the <a class="reference internal" href="eia860.html"><span class="doc">EIA Form 860</span></a> and which are identified by <code class="docutils literal notranslate"><span class="pre">utility_id_eia</span></code> in the PUDL
+database.</p></li>
+</ul>
+<p>The same company can file its own SEC 10-K, appear as a subsidiary company in another
+company’s SEC 10-K Exhibit 21, and be a utility that reports its generation to EIA. The
+challenge of integrating the SEC 10-K into PUDL is linking these three types of entities
+to each other when they refer to the same company. We attempt to make all three possible
+linkages among these entities, prioritizing precision over recall: we only include
+high-confidence links.</p>
+<ul class="simple">
+<li><p>Based on company names, addresses, and other information we use
+<a class="reference external" href="https://github.com/moj-analytical-services/splink">Splink</a> to predict a
+record linkage between the universe of SEC 10-K Filers and EIA Utilities. Both the SEC 10-K and EIA datasets are relatively rich in the details they include about each company, which increases the options we have for making high-coverage, high-accuracy links.</p></li>
+<li><p>Based on standardized company names and incorporation locations, we try to link
+each Exhibit 21 Subsidiary to a corresponding SEC 10-K Filer. This linkage is sparse
+because we have so little information about the subsidiary. It is likely that additional
+links exist, but we do not have enough evidence to confirm them.</p></li>
+<li><p>Similarly, we try to link any remaining Exhibit 21 Subsidiaries (those without an SEC 10-K link) to corresponding EIA Utilities, based on company name. This linkage is also sparse.</p></li>
+</ul>
+<p>For more details on how these record linkages are done and how the Exhibit 21 data is
+extracted, see <a class="reference internal" href="../methodology/sec10k_modeling.html"><span class="doc">SEC 10-K Ownership Data Extraction Modeling</span></a>.</p>
+</section>
+<section id="what-can-this-data-be-used-for">
+<h3>What can this data be used for?<a class="headerlink" href="#what-can-this-data-be-used-for" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Linking companies that file SEC 10-K to EIA Utilities. 50-60% of SEC 10-K filers
+that identify primarily as providing electric services are matched to an EIA
+Utility ID. This is especially useful for making transitive links for subsidiary
+companies that couldn’t be matched to an EIA Utility based on the company name in the
+subsidiary record, but <em>were</em> matched to an SEC 10-K filer with a Central
+Index Key (CIK), and the additional information associated with the CIK made it
+possible to link to an EIA Utility.</p></li>
+<li><p>Tracking changes in SEC 10-K company name, address, and other attributes such as
+taxpayer ID and industrial classification over time. This is especially useful in
+entity matching to other datasets where finding historical matches, and not just
+matches to a company’s current name and associated information, is needed.</p></li>
+<li><p>Case studies of a particular owner company, where subsidiaries are tracked over time.</p></li>
+<li><p>Case studies of a particular subsidiary company <em>with a well-behaved name</em>, where
+ownership is tracked over time. We don’t have a way to link subsidiary records across
+name changes or variations in spelling between filings, so this is dependent solely on
+successful name lookups.</p></li>
+</ul>
+</section>
+<section id="what-can-t-this-data-be-used-for">
+<h3>What can’t this data be used for?<a class="headerlink" href="#what-can-t-this-data-be-used-for" title="Link to this heading">#</a></h3>
+<p>We encountered substantial challenges in working with this dataset, and many use cases
+we had hoped to support are not possible or severely limited. See the Irregularities
+section below for a full listing, but notably, this dataset is not appropriate for:</p>
+<ul class="simple">
+<li><p>Programmatic or bulk tracking of subsidiary ownership over time. Because subsidiary
+company IDs are specific to each parent company filing, it is not possible to link
+subsidiary records across name changes or variations in spelling between filings,
+in aggregate.</p></li>
+<li><p>Tracking ownership percentages over time. An explicit percentage is only rarely
+reported, and our extraction pipeline did not track unstructured statements like
+“all subsidiaries are wholly owned.”</p></li>
+<li><p>Confidently linking subsidiary companies to EIA Utilities. This linkage requires
+either a decent name match between the subsidiary and the EIA Utility, or two layers
+of matching, first between the subsidiary name/location and the database of SEC 10-K
+filers, and second between the SEC 10-K filers and the EIA Utilities.</p></li>
+</ul>
+</section>
+<section id="data-available-through-pudl">
+<h3>Data available through PUDL<a class="headerlink" href="#data-available-through-pudl" title="Link to this heading">#</a></h3>
+<p>PUDL includes data extracted from a 2024 snapshot of quarterly SEC 10-K filings going
+back to 1995. Exhibit 21 attachments reporting subsidiary relationships are included for
+most filings, with the exception of Q1 filings from 2018-2022 (see Irregularities
+below).</p>
+<p>If you are interested in PUDL integrating updates to this data on an ongoing basis,
+get in touch with us!</p>
+</section>
+<section id="who-submits-this-data">
+<h3>Who submits this data?<a class="headerlink" href="#who-submits-this-data" title="Link to this heading">#</a></h3>
+<p>Any US company with more than $10,000,000 in assets and more than 2000 shareholders must
+file the SEC 10-K. This means the vast majority of respondents are not related to the
+energy sector at all, and many smaller wholly owned subsidiary companies may not be
+required to file their own SEC 10-K.</p>
+</section>
+<section id="what-does-the-original-data-look-like">
+<h3>What does the original data look like?<a class="headerlink" href="#what-does-the-original-data-look-like" title="Link to this heading">#</a></h3>
+<p>The SEC filing database is called EDGAR. The agency provides an <a class="reference external" href="https://www.sec.gov/search-filings">online search interface</a> for all filings back to 2001 as well as <a class="reference external" href="https://www.sec.gov/search-filings/edgar-application-programming-interfaces">a REST
+API</a> and
+<a class="reference external" href="https://www.sec.gov/about/rss-feeds">several RSS feeds</a> that can go back a bit
+farther. EDGAR is the original source of all of the SEC 10-K data in PUDL.</p>
+<p>The original data is a collection of HTML documents with custom plaintext SEC headers.
+The PUDL output tables contain a field <code class="docutils literal notranslate"><span class="pre">source_url</span></code> which points to these original
+documents as plain text on the SEC website. <a class="reference external" href="https://www.sec.gov/Archives/edgar/data/1058624/0001104659-09-021814.txt">See this filing as an example</a>.</p>
+</section>
+</section>
+<section id="notable-irregularities">
+<h2>Notable Irregularities<a class="headerlink" href="#notable-irregularities" title="Link to this heading">#</a></h2>
+<p>This dataset is a work in progress, and has several known issues, some of which can
+be easily addressed if we are able to secure additional resources. Other issues are more
+inherent in the dataset.</p>
+<section id="our-sec-10-k-dataset-is-not-currently-being-updated">
+<h3>Our SEC 10-K dataset is not currently being updated<a class="headerlink" href="#our-sec-10-k-dataset-is-not-currently-being-updated" title="Link to this heading">#</a></h3>
+<p>Unlike almost all of the the other datasets that feed into PUDL, we are not currently
+updating the underlying SEC 10-K data and generating new outputs on a regular basis. We
+do not currently have dedicated funding to run this pipeline or for its ongoing
+maintenance.</p>
+</section>
+<section id="exhibit-21-subsidiaries-for-2018-2022-are-missing">
+<h3>Exhibit 21 subsidiaries for 2018-2022 are missing<a class="headerlink" href="#exhibit-21-subsidiaries-for-2018-2022-are-missing" title="Link to this heading">#</a></h3>
+<p>Due to an error while running the Exhibit 21 extraction pipeline, no subsidiaries were
+captured from the Q1 filings for 2018-2022. Approximately 80% of companies make their
+annual SEC 10-K filings in Q1, so this results in a substantial data gap in those years
+which may also affect the quality of the record linkage. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4165">#4165</a> and PR
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4134">#4134</a>. We should be able to fill in these gaps by re-running the extraction
+pipeline.</p>
+</section>
+<section id="we-don-t-attempt-to-capture-nested-subsidiary-relationships">
+<h3>We don’t attempt to capture nested subsidiary relationships<a class="headerlink" href="#we-don-t-attempt-to-capture-nested-subsidiary-relationships" title="Link to this heading">#</a></h3>
+<p>Exhibit 21 attachments often present subsidiary relationships in a nested format,
+using indentation to indicate ownership hierarchies. Our dataset does not attempt to
+capture this nested structure directly. Instead, if an Exhibit 21 lists multiple
+layers of subsidiaries, we extract all subsidiaries as direct children of the parent
+company that filed the Exhibit 21. In practice, many of the intermediate subsidiaries
+also file their own 10-K reports, where they list their own subsidiaries, and which
+can be used to infer the full ownership hierarchy.</p>
+</section>
+<section id="about-5-of-company-addresses-are-being-lost">
+<h3>About 5% of company addresses are being lost<a class="headerlink" href="#about-5-of-company-addresses-are-being-lost" title="Link to this heading">#</a></h3>
+<p>A bug in our extraction of company information from the plaintext headers of the SEC
+10-K filings meant that we were unable to associate about 5% of the reported company
+mailing addresses with the other reported company information, which may have slightly
+impacted the quality of the record linkage to EIA Utilities and leads to more null
+values in those fields than would be observed in the source data. See issue
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4165">#4165</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4134">#4134</a>. This bug has been fixed, and the lost addresses can
+be recovered by re-running the upstream extraction.</p>
+</section>
+<section id="industry-classifications-applied-to-companies-have-poor-coverage">
+<h3>Industry classifications applied to companies have poor coverage<a class="headerlink" href="#industry-classifications-applied-to-companies-have-poor-coverage" title="Link to this heading">#</a></h3>
+<p>A couple of the most useful fields in the SEC 10-K company information are
+<code class="docutils literal notranslate"><span class="pre">industry_id_sic</span></code> and <code class="docutils literal notranslate"><span class="pre">industry_name_sic</span></code> which indicate what sector the company
+is part of. However, both columns contain significant numbers of null values.</p>
+</section>
+<section id="there-are-a-variety-of-issues-with-record-linkage">
+<h3>There are a variety of issues with record linkage<a class="headerlink" href="#there-are-a-variety-of-issues-with-record-linkage" title="Link to this heading">#</a></h3>
+<section id="the-sec-10-k-filer-to-eia-utility-linkage-is-based-only-on-2023-data">
+<h4>The SEC 10-K filer to EIA utility linkage is based only on 2023 data<a class="headerlink" href="#the-sec-10-k-filer-to-eia-utility-linkage-is-based-only-on-2023-data" title="Link to this heading">#</a></h4>
+<p>Due to memory constraints, the statistical record linkage used to associate the SEC’s
+<code class="docutils literal notranslate"><span class="pre">central_index_key</span></code> with the EIA’s <code class="docutils literal notranslate"><span class="pre">utility_id_eia</span></code> was only run on 2023 data. This
+means companies that do not appear in the 2023 data have not been linked. With
+additional funding, we should be able to revise the pipeline to run the linkage across
+all years of data.</p>
+</section>
+<section id="matches-between-eia-utility-ids-and-sec-10-k-energy-companies-are-sparse">
+<h4>Matches between EIA utility ids and SEC 10-K energy companies are sparse<a class="headerlink" href="#matches-between-eia-utility-ids-and-sec-10-k-energy-companies-are-sparse" title="Link to this heading">#</a></h4>
+<section id="only-14-of-eia-utilities-are-linked-to-an-sec-10-k-filer-or-subsidiary">
+<h5>Only 14% of EIA utilities are linked to an SEC 10-K filer or subsidiary<a class="headerlink" href="#only-14-of-eia-utilities-are-linked-to-an-sec-10-k-filer-or-subsidiary" title="Link to this heading">#</a></h5>
+<p>Ideally, the link from EIA to SEC would have high coverage: most companies with EIA ids
+would have a link to either a parent or a subsidiary company listed in the SEC 10-K.</p>
+<p>As of PUDL release v2025.9.1, only 2,308 out of 16,636 utilities with EIA ids have been
+identified in the SEC data; just under 14%. While these are all high-confidence matches,
+this connection between SEC and EIA may not have high enough coverage to support many
+desired use cases.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>EIA utility IDs</p></th>
+<th class="head"><p>Count</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>All</p></td>
+<td><p>16,636</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mapped to an SEC 10-K filer (with Central Index Key)</p></td>
+<td><p>529</p></td>
+</tr>
+<tr class="row-even"><td><p>Mapped to an SEC 10-K subsidiary (without Central Index Key)</p></td>
+<td><p>1,779</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Maps to an SEC 10-K filer central index key are more trustworthy, since the data we have
+about filers is significantly richer than the data we have about subsidiaries who don’t
+themselves file.</p>
+</section>
+<section id="only-half-of-sec-filers-providing-electric-services-are-linked-to-eia-utilities">
+<h5>Only half of SEC filers providing electric services are linked to EIA utilities<a class="headerlink" href="#only-half-of-sec-filers-providing-electric-services-are-linked-to-eia-utilities" title="Link to this heading">#</a></h5>
+<p>Ideally, we would also like the inverse link to have high coverage: most SEC companies
+that are clearly utilities would have a link to their associated EIA utility id.</p>
+<p>This is a little trickier to evaluate. SEC filers use a four-digit Standard Industrial
+Classification (SIC) code to identify the company’s primary industry. The SICs for
+electric services (4911 and 4931) have a very high proportion of utility companies, but
+there are a large number of smaller utility companies that file under SICs outside the
+electric services group. We see SICs as unexpected as computer storage devices, nursing
+facilities, and real estate among our – high-confidence! – matches to EIA utilities.</p>
+<p>If we want to know how many utility-like SEC companies have a match, we can approach it from
+two angles:</p>
+<ul class="simple">
+<li><p>Do most matches occur in utility-like industries? –&gt; What are the most common SIC codes among matches?</p></li>
+<li><p>Do most utility-like industries have good match coverage? –&gt; What SIC codes have the highest match rates?</p></li>
+</ul>
+<section id="what-are-the-most-common-sic-codes-among-sec-filers-with-an-eia-match">
+<h6>What are the most common SIC codes among SEC filers with an EIA match?<a class="headerlink" href="#what-are-the-most-common-sic-codes-among-sec-filers-with-an-eia-match" title="Link to this heading">#</a></h6>
+<p>As of PUDL release v2025.9.1, the two most common SIC codes among SEC filers matched to
+EIA utility ids are for electric services (4911 or 4931). These two codes cover just
+under 60% of all SEC filers, from any industry, having an EIA match. A very long tail of
+low-incidence SIC codes covers the remaining 40% of the matches; see some of the more
+common ones in the table below.</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id1">
+<caption><span class="caption-text">Top 10 SICs by frequency within EIA-matched SEC filers</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Standard Industrial Code (SIC)</p></th>
+<th class="head"><p>All filings reporting this SIC</p></th>
+<th class="head"><p>Matches reporting this SIC</p></th>
+<th class="head"><p>Percent of all filings using this SIC</p></th>
+<th class="head"><p>Percent of all matches</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>4911 electric services</p></td>
+<td><p>11788</p></td>
+<td><p>6889</p></td>
+<td><p>58%</p></td>
+<td><p>46%</p></td>
+</tr>
+<tr class="row-odd"><td><p>4931 electric &amp; other services combined</p></td>
+<td><p>4057</p></td>
+<td><p>2104</p></td>
+<td><p>52%</p></td>
+<td><p>14%</p></td>
+</tr>
+<tr class="row-even"><td><p>6798 real estate investment trusts</p></td>
+<td><p>10344</p></td>
+<td><p>413</p></td>
+<td><p>4%</p></td>
+<td><p>2.7%</p></td>
+</tr>
+<tr class="row-odd"><td><p>6189 asset-backed securities</p></td>
+<td><p>29750</p></td>
+<td><p>374</p></td>
+<td><p>1.3%</p></td>
+<td><p>2.5%</p></td>
+</tr>
+<tr class="row-even"><td><p>1311 crude petroleum &amp; natural gas</p></td>
+<td><p>8888</p></td>
+<td><p>227</p></td>
+<td><p>2.6%</p></td>
+<td><p>1.5%</p></td>
+</tr>
+<tr class="row-odd"><td><p>2621 paper mills</p></td>
+<td><p>453</p></td>
+<td><p>184</p></td>
+<td><p>41%</p></td>
+<td><p>1.2%</p></td>
+</tr>
+<tr class="row-even"><td><p>2834 pharmaceutical preparations</p></td>
+<td><p>10418</p></td>
+<td><p>177</p></td>
+<td><p>1.7%</p></td>
+<td><p>1.2%</p></td>
+</tr>
+<tr class="row-odd"><td><p>4991 cogeneration services &amp; small power producers</p></td>
+<td><p>238</p></td>
+<td><p>129</p></td>
+<td><p>54%</p></td>
+<td><p>0.86%</p></td>
+</tr>
+<tr class="row-even"><td><p>4922 natural gas transmission</p></td>
+<td><p>1222</p></td>
+<td><p>123</p></td>
+<td><p>10%</p></td>
+<td><p>0.82%</p></td>
+</tr>
+<tr class="row-odd"><td><p>4961 steam &amp; air conditioning supply</p></td>
+<td><p>1548</p></td>
+<td><p>123</p></td>
+<td><p>7.9%</p></td>
+<td><p>0.82%</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="what-sic-codes-have-the-highest-match-rates">
+<h6>What SIC codes have the highest match rates?<a class="headerlink" href="#what-sic-codes-have-the-highest-match-rates" title="Link to this heading">#</a></h6>
+<p>As of PUDL release v2025.9.1, the SIC codes where the majority of companies have a match
+to EIA utilities are for electric services (4911, 4991, 4931) and paperboard mills
+(2631).</p>
+<p>We currently match 57% of companies reporting an SIC code for electric services to an
+EIA Utility id. However, inspection of the unmatched SEC 10-K filers reporting these SIC
+codes suggests that nearly all of them ought to be EIA 860/923 respondents. With further
+refinement the match rate in these SIC codes can likely be improved, given the richeness
+of both the EIA and SEC filer datasets.</p>
+<p>Other SIC categories where we have relatively high match rates are in the table below.</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id2">
+<caption><span class="caption-text">Top 10 SICs by match rate</span><a class="headerlink" href="#id2" title="Link to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Standard Industrial Code (SIC)</p></th>
+<th class="head"><p>All filings reporting this SIC</p></th>
+<th class="head"><p>Matches reporting this SIC</p></th>
+<th class="head"><p>Percent of all filings reporting this SIC</p></th>
+<th class="head"><p>Percent of all matches</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>4911 electric services</p></td>
+<td><p>11788</p></td>
+<td><p>6889</p></td>
+<td><p>58%</p></td>
+<td><p>46%</p></td>
+</tr>
+<tr class="row-odd"><td><p>2631 paperboard mills</p></td>
+<td><p>223</p></td>
+<td><p>121</p></td>
+<td><p>54%</p></td>
+<td><p>0.8%</p></td>
+</tr>
+<tr class="row-even"><td><p>4991 cogeneration services &amp; small power producers</p></td>
+<td><p>238</p></td>
+<td><p>129</p></td>
+<td><p>54%</p></td>
+<td><p>0.86%</p></td>
+</tr>
+<tr class="row-odd"><td><p>4931 electric &amp; other services combined</p></td>
+<td><p>4057</p></td>
+<td><p>2104</p></td>
+<td><p>52%</p></td>
+<td><p>14%</p></td>
+</tr>
+<tr class="row-even"><td><p>2621 paper mills</p></td>
+<td><p>453</p></td>
+<td><p>184</p></td>
+<td><p>41%</p></td>
+<td><p>1.2%</p></td>
+</tr>
+<tr class="row-odd"><td><p>2600 papers &amp; allied products</p></td>
+<td><p>40</p></td>
+<td><p>16</p></td>
+<td><p>40%</p></td>
+<td><p>0.11%</p></td>
+</tr>
+<tr class="row-even"><td><p>2650 paperboard containers &amp; boxes</p></td>
+<td><p>288</p></td>
+<td><p>99</p></td>
+<td><p>34%</p></td>
+<td><p>0.66%</p></td>
+</tr>
+<tr class="row-odd"><td><p>3011 tires and inner tubes</p></td>
+<td><p>115</p></td>
+<td><p>31</p></td>
+<td><p>27%</p></td>
+<td><p>0.21%</p></td>
+</tr>
+<tr class="row-even"><td><p>3760 guided missiles &amp; space vehicles &amp; parts</p></td>
+<td><p>157</p></td>
+<td><p>42</p></td>
+<td><p>27%</p></td>
+<td><p>0.28%</p></td>
+</tr>
+<tr class="row-odd"><td><p>2511 wood household furniture, (no upholstered)</p></td>
+<td><p>150</p></td>
+<td><p>35</p></td>
+<td><p>23%</p></td>
+<td><p>0.23%</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+</section>
+<section id="identification-of-subsidiary-companies-is-extremely-sparse">
+<h4>Identification of subsidiary companies is extremely sparse<a class="headerlink" href="#identification-of-subsidiary-companies-is-extremely-sparse" title="Link to this heading">#</a></h4>
+<p>As of PUDL release v2025.9.1, less than 2% of all subsidiary records have a match to an
+SEC 10-K filer. The percentage of subsidiary records that have matches varies by year.
+From 1994 to 2011, this percentage ranged from 1.2% to 4.3%. From 2012 on, this
+percentage was much more stable, ranging only from 1.0% to 1.3%. This is not necessarily
+bad – many subsidiary companies may not be large enough to be required to file a 10-K
+– but spot checks have shown many instances where a match we missed can easily be found
+by hand. Again, we retain only high-confidence matches, so minor variations in the
+spelling of the company name can cause a match to be excluded from the results. This is
+particularly visible in cases where a match is missing from one or more years in an
+otherwise-contiguous span; see “Subsidiary company IDs lack continuity between filings”
+below.</p>
+<p>The match rate is significantly better, but still low, within the electricity services
+Standard Industrial Classification (SIC) codes 4911 and 4931: 12% overall, and steadily
+increasing from under 4% in 1994 to nearly 20% in 2023.</p>
+</section>
+<section id="subsidiary-company-ids-lack-continuity-between-filings">
+<h4>Subsidiary company IDs lack continuity between filings<a class="headerlink" href="#subsidiary-company-ids-lack-continuity-between-filings" title="Link to this heading">#</a></h4>
+<p>No meaningful company ID is reported for subsidiaries that appear in the Exhibit 21
+attachments. We construct an ad-hoc ID for each subsidiary record by concatenating the Central Index Key (CIK) of
+the main filer (the parent company) with the name and location of the subsidiary company as observed in the
+Exhibit 21 attachment. However:</p>
+<ul class="simple">
+<li><p>the same subsidiary company can appear in the filings from multiple parent companies,</p></li>
+<li><p>locations are reported in a variety of formats, and</p></li>
+<li><p>subsidiary company names do not always use the same spelling or abbreviations.</p></li>
+</ul>
+<p>This means that if a subsidiary company is reported under more than one parent company, it is
+guaranteed to be assigned a different ID in each of them. Unless a subsidiary has also
+been associated with its own SEC CIK or EIA utility ID, we cannot programmatically determine how the same
+company is connected to multiple parents. Given how little information we have about
+each subsidiary, it will be difficult to generate authoritiative IDs that can be applied
+across filings from different parent companies.</p>
+<p>Because subsidiary names and locations may be reported differently from year to year
+even within the same parent company’s filings, we can’t authoritatively track changes in
+those parent-subsidiary relationships through time. It is likely however that we can
+better standardize names and improve the temporal continuity of these IDs by analyzing
+the set of subsidiaries that appear under a given filer each year.</p>
+</section>
+<section id="the-fraction-of-a-subsidiary-owned-by-its-parent-is-rarely-reported">
+<h4>The fraction of a subsidiary owned by its parent is rarely reported<a class="headerlink" href="#the-fraction-of-a-subsidiary-owned-by-its-parent-is-rarely-reported" title="Link to this heading">#</a></h4>
+<p>In most cases, no ownership fraction is reported in the structured portions of Exhibit
+21, so we cannot state confidently how much of each subsidiary the parent company owns.
+When ownership fractions are not included, it’s very common for an Exhibit 21 to include language that all subsidiaries are wholly owned by the parent, but our existing model does not detect when this information is present.</p>
+</section>
+</section>
+</section>
+<section id="pudl-data-transformations">
+<h2>PUDL Data Transformations<a class="headerlink" href="#pudl-data-transformations" title="Link to this heading">#</a></h2>
+<p>To see the transformations applied to the data in each table, you can read the
+docstrings for <a class="reference internal" href="../autoapi/pudl/transform/sec10k/index.html#module-pudl.transform.sec10k" title="pudl.transform.sec10k"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.transform.sec10k</span></code></a> created for each table’s
+respective transform function.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="rus7.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="vcerare.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-database-tables">PUDL Database Tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#three-types-of-companies-and-three-record-linkages">Three Types of Companies and Three Record Linkages</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-can-this-data-be-used-for">What can this data be used for?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-can-t-this-data-be-used-for">What can’t this data be used for?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-available-through-pudl">Data available through PUDL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#who-submits-this-data">Who submits this data?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-does-the-original-data-look-like">What does the original data look like?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notable-irregularities">Notable Irregularities</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#our-sec-10-k-dataset-is-not-currently-being-updated">Our SEC 10-K dataset is not currently being updated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exhibit-21-subsidiaries-for-2018-2022-are-missing">Exhibit 21 subsidiaries for 2018-2022 are missing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#we-don-t-attempt-to-capture-nested-subsidiary-relationships">We don’t attempt to capture nested subsidiary relationships</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#about-5-of-company-addresses-are-being-lost">About 5% of company addresses are being lost</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#industry-classifications-applied-to-companies-have-poor-coverage">Industry classifications applied to companies have poor coverage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#there-are-a-variety-of-issues-with-record-linkage">There are a variety of issues with record linkage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#the-sec-10-k-filer-to-eia-utility-linkage-is-based-only-on-2023-data">The SEC 10-K filer to EIA utility linkage is based only on 2023 data</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#matches-between-eia-utility-ids-and-sec-10-k-energy-companies-are-sparse">Matches between EIA utility ids and SEC 10-K energy companies are sparse</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#only-14-of-eia-utilities-are-linked-to-an-sec-10-k-filer-or-subsidiary">Only 14% of EIA utilities are linked to an SEC 10-K filer or subsidiary</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#only-half-of-sec-filers-providing-electric-services-are-linked-to-eia-utilities">Only half of SEC filers providing electric services are linked to EIA utilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#what-are-the-most-common-sic-codes-among-sec-filers-with-an-eia-match">What are the most common SIC codes among SEC filers with an EIA match?</a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#what-sic-codes-have-the-highest-match-rates">What SIC codes have the highest match rates?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#identification-of-subsidiary-companies-is-extremely-sparse">Identification of subsidiary companies is extremely sparse</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#subsidiary-company-ids-lack-continuity-between-filings">Subsidiary company IDs lack continuity between filings</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#the-fraction-of-a-subsidiary-owned-by-its-parent-is-rarely-reported">The fraction of a subsidiary owned by its parent is rarely reported</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-data-transformations">PUDL Data Transformations</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/data_sources/sec10k.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

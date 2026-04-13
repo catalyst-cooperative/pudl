@@ -1,0 +1,35 @@
+pudl.analysis
+=============
+
+.. py:module:: pudl.analysis
+
+.. autoapi-nested-parse::
+
+   Modules providing programmatic analyses that make use of PUDL data.
+
+   The :mod:`pudl.analysis` subpackage is a collection of modules which implement various
+   systematic analyses using the data compiled by PUDL. Over time this should grow into a
+   rich library of tools that show how the data can be put to use. We may also generate
+   post-ETL derived database tables for distribution at some point.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/analysis/allocate_gen_fuel/index
+   /autoapi/pudl/analysis/fuel_by_plant/index
+   /autoapi/pudl/analysis/mcoe/index
+   /autoapi/pudl/analysis/ml_tools/index
+   /autoapi/pudl/analysis/plant_parts_eia/index
+   /autoapi/pudl/analysis/record_linkage/index
+   /autoapi/pudl/analysis/service_territory/index
+   /autoapi/pudl/analysis/spatial/index
+   /autoapi/pudl/analysis/state_demand/index
+   /autoapi/pudl/analysis/timeseries_cleaning/index
+   /autoapi/pudl/analysis/timeseries_evaluation/index
+
+

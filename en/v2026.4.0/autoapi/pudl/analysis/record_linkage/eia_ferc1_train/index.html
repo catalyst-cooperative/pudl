@@ -1,0 +1,1236 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.analysis.record_linkage.eia_ferc1_train &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../../../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link rel="next" title="pudl.analysis.record_linkage.embed_dataframe" href="../embed_dataframe/index.html" />
+    <link rel="prev" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage" href="../eia_ferc1_record_linkage/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../../../_static/searchtools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script src="../../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Topic Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Topic Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../../__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../_version/index.html">pudl._version</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../index.html">pudl.analysis</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../ml_tools/index.html">pudl.analysis.ml_tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="../index.html">pudl.analysis.record_linkage</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../convert/index.html">pudl.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../definitions/index.html">pudl.definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../defs/index.html">pudl.defs</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../deploy/ferceqr/index.html">pudl.deploy.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../deploy/pudl/index.html">pudl.deploy.pudl</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../etl/index.html">pudl.etl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../glue/index.html">pudl.glue</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../metadata/index.html">pudl.metadata</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../metadata/resources/index.html">pudl.metadata.resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/rus/index.html">pudl.metadata.resources.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../output/index.html">pudl.output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/rus/index.html">pudl.output.rus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../output/sql/index.html">pudl.output.sql</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../package_data/index.html">pudl.package_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/censuspep/index.html">pudl.package_data.censuspep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia176/index.html">pudl.package_data.eia176</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia191/index.html">pudl.package_data.eia191</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia757a/index.html">pudl.package_data.eia757a</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia860/index.html">pudl.package_data.eia860</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia860m/index.html">pudl.package_data.eia860m</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia861/index.html">pudl.package_data.eia861</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia923/index.html">pudl.package_data.eia923</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia930/index.html">pudl.package_data.eia930</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/eiaaeo/index.html">pudl.package_data.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/ferc1/index.html">pudl.package_data.ferc1</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/rus12/index.html">pudl.package_data.rus12</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/test/index.html">pudl.package_data.test</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../resources/index.html">pudl.resources</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/deploy/index.html">pudl.scripts.deploy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/update_zenodo_dois/index.html">pudl.scripts.update_zenodo_dois</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../settings/index.html">pudl.settings</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../transform/index.html">pudl.transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/censusdp1tract/index.html">pudl.transform.censusdp1tract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../transform/params/index.html">pudl.transform.params</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../validate/index.html">pudl.validate</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../workspace/index.html">pudl.workspace</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../dev/index.html">Developer Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../../code.html" class="nav-link">Development Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">pudl</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">pudl.analysis</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">pudl.analysis.record_linkage</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.analysis.record_linkage.eia_ferc1_train</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-pudl.analysis.record_linkage.eia_ferc1_train">
+<span id="pudl-analysis-record-linkage-eia-ferc1-train"></span><h1>pudl.analysis.record_linkage.eia_ferc1_train<a class="headerlink" href="#module-pudl.analysis.record_linkage.eia_ferc1_train" title="Link to this heading">#</a></h1>
+<p>Create spreadsheets for manually mapping FERC-EIA records and validate matches.</p>
+<p><a class="reference internal" href="../eia_ferc1_record_linkage/index.html#module-pudl.analysis.record_linkage.eia_ferc1_record_linkage" title="pudl.analysis.record_linkage.eia_ferc1_record_linkage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_record_linkage</span></code></a> uses machine learning to link records from FERC Form 1
+with records from EIA. While this process is way more efficient and logical
+than a human, it requires a set of hand-compiled training data in order to do it’s job.</p>
+<p>The training data also serve as overrides for otherwise bad AI matches. There are
+several examples of plants that require human intuition to make sense of. For instance,
+sometimes FERC capacities lag behind by several years or are comprised of two or more
+EIA records.</p>
+<p>This module creates an output spreadsheet, based on a certain utility, that makes the
+matching and machine-matched human validation process much easier. It also contains
+functions that will read those new/updated/validated matches from the spreadsheet,
+validate them, and incorporate them into the existing training data.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.logger" title="pudl.analysis.record_linkage.eia_ferc1_train.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.RENAME_COLS_FERC1_EIA" title="pudl.analysis.record_linkage.eia_ferc1_train.RENAME_COLS_FERC1_EIA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RENAME_COLS_FERC1_EIA</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.RELEVANT_COLS_PPE" title="pudl.analysis.record_linkage.eia_ferc1_train.RELEVANT_COLS_PPE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RELEVANT_COLS_PPE</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._pct_diff" title="pudl.analysis.record_linkage.eia_ferc1_train._pct_diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pct_diff</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Calculate percent difference between EIA and FERC versions of a column.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._is_best_match" title="pudl.analysis.record_linkage.eia_ferc1_train._is_best_match"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_best_match</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Fill the best_match column with strings to show cap, net_gen, inst_year match.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1" title="pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_eia_ferc1</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Prep FERC-EIA for use in override output sheet pre-utility subgroups.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish" title="pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_prep_deprish</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Prep depreciation data for use in override output sheet pre-utility subgroups.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets" title="pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_util_year_subsets</span></code></a>(→ dict)</p></td>
+<td><p>Get utility and year subsets for each of the input dfs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet" title="pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_output_override_spreadsheet</span></code></a>(→ None)</p></td>
+<td><p>Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets" title="pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_all_override_spreadsheets</span></code></a>(→ None)</p></td>
+<td><p>Output override spreadsheets for all specified utilities and years.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency" title="pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_id_consistency</span></code></a>(→ None)</p></td>
+<td><p>Check for rogue FERC or EIA ids that don't exist.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training" title="pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_if_already_in_training</span></code></a>(training_data, ...)</p></td>
+<td><p>Check whether any manually mapped records aren't yet in the training data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes" title="pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_override_fixes</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Process the verified and/or fixed matches and look for human error.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df" title="pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_multi_match_df</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Process the verified and/or fixed matches and generate a list of 1:m matches.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_training" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_to_training</span></code></a>(→ None)</p></td>
+<td><p>Add the new overrides to the old override sheet.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_to_null_overrides</span></code></a>(→ None)</p></td>
+<td><p>Take record_id_ferc1 values verified to have no EIA match and add them to csv.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_to_one_to_many_overrides</span></code></a>(→ None)</p></td>
+<td><p>Add record_id_ferc1 values verified to have multiple EIA matches to csv.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training" title="pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_and_add_to_training</span></code></a>(→ None)</p></td>
+<td><p>Validate, combine, and add overrides to the training data.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train.logger">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train.logger" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train.RENAME_COLS_FERC1_EIA">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">RENAME_COLS_FERC1_EIA</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#RENAME_COLS_FERC1_EIA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train.RENAME_COLS_FERC1_EIA" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train.RELEVANT_COLS_PPE">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">RELEVANT_COLS_PPE</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['record_id_eia',</span> <span class="pre">'report_year',</span> <span class="pre">'utility_id_pudl',</span> <span class="pre">'utility_id_eia',</span> <span class="pre">'utility_name_eia',...</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#RELEVANT_COLS_PPE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train.RELEVANT_COLS_PPE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._pct_diff">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_pct_diff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_pct_diff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._pct_diff" title="Link to this definition">#</a></dt>
+<dd><p>Calculate percent difference between EIA and FERC versions of a column.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._is_best_match">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_is_best_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap_pct_diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">net_gen_pct_diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inst_year_diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_is_best_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._is_best_match" title="Link to this definition">#</a></dt>
+<dd><p>Fill the best_match column with strings to show cap, net_gen, inst_year match.</p>
+<p>The process of manually checking all of the FERC-EIA matches made by the machine
+learning algorithm is tedius. This function makes it easier to speed through the
+obviously good matches and pay more attention to those that are more questionable.</p>
+<p>By default, a “best match” is comprised of a FERC-EIA match with a capacity percent
+difference of less than 6%, a net generation percent difference of less than 6%, and
+an installation year difference of less than 3 years.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_prep_eia_ferc1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eia_ferc1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utils_eia860</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_prep_eia_ferc1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1" title="Link to this definition">#</a></dt>
+<dd><p>Prep FERC-EIA for use in override output sheet pre-utility subgroups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eia_ferc1</strong> – The <a class="reference internal" href="../../../../../data_dictionaries/pudl_db.html#out-pudl-yearly-assn-eia-ferc1-plant-parts"><span class="std std-ref">out_pudl__yearly_assn_eia_ferc1_plant_parts</span></a> table,
+associating EIA and FERC Form 1 plant records.</p></li>
+<li><p><strong>utils_eia860</strong> – The <a class="reference internal" href="../../../../../data_dictionaries/pudl_db.html#out-eia-yearly-utilities"><span class="std std-ref">out_eia__yearly_utilities</span></a> table.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A version of the EIA-FERC1 plant association table that’s been modified for the
+purposes of creating an manual mapping spreadsheet.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_prep_deprish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deprish</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utils_eia860</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_prep_deprish"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish" title="Link to this definition">#</a></dt>
+<dd><p>Prep depreciation data for use in override output sheet pre-utility subgroups.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_get_util_year_subsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">util_id_eia_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">years</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_get_util_year_subsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets" title="Link to this definition">#</a></dt>
+<dd><p>Get utility and year subsets for each of the input dfs.</p>
+<p>After generating the dictionary with all of the inputs tables loaded, we’ll want to
+create subsets of each of those tables based on the utility and year inputs we’re
+given. This function takes the input dict generated in _generate_input_dfs() and
+outputs an updated version with df values pertaining to the utilities in
+util_id_eia_list and years in years.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs_dict</strong> (<em>dict</em>) – The output of running _generation_input_dfs()</p></li>
+<li><p><strong>util_id_eia_list</strong> (<em>list</em>) – A list of the utility_id_eia values you want to
+include in a single spreadsheet output. Generally this is a list of the
+subsidiaries that pertain to a single parent company.</p></li>
+<li><p><strong>years</strong> (<em>list</em>) – A list of the years you’d like to add to the override sheets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A subset of the inputs_dict that contains versions of the value dfs that</dt><dd><p>pertain only to the utilities and years specified in util_id_eia_list and
+years.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_output_override_spreadsheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">util_year_subset_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">util_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_output_override_spreadsheet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet" title="Link to this definition">#</a></dt>
+<dd><p>Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>util_year_subset_dict</strong> (<em>dict</em>) – The output from _get_util_year_subsets()</p></li>
+<li><p><strong>util_name</strong> (<em>str</em>) – A string indicating the name of the utility that you are
+creating an override sheet for. The string will be used as the suffix for
+the name of the excel file. Ex: for util_name = “BHE”, the file name will be
+BHE_fix_FERC-EIA_overrides.xlsx.</p></li>
+<li><p><strong>output_dir_path</strong> (<em>str</em>) – The relative path to the folder where you’d like to
+output the override spreadsheets that this function creates.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">generate_all_override_spreadsheets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eia_ferc1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utils_eia860</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">util_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">years</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#generate_all_override_spreadsheets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets" title="Link to this definition">#</a></dt>
+<dd><p>Output override spreadsheets for all specified utilities and years.</p>
+<p>These manual override files will be output to a folder called “overrides” in the
+output directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eia_ferc1</strong> – The <a class="reference internal" href="../../../../../data_dictionaries/pudl_db.html#out-pudl-yearly-assn-eia-ferc1-plant-parts"><span class="std std-ref">out_pudl__yearly_assn_eia_ferc1_plant_parts</span></a> table as a
+dataframe, associating EIA and FERC Form 1 plant records.</p></li>
+<li><p><strong>ppe</strong> – The <a class="reference internal" href="../../../../../data_dictionaries/pudl_db.html#out-eia-yearly-plant-parts"><span class="std std-ref">out_eia__yearly_plant_parts</span></a> table as a dataframe.</p></li>
+<li><p><strong>utils_eia860</strong> – The <a class="reference internal" href="../../../../../data_dictionaries/pudl_db.html#out-eia-yearly-utilities"><span class="std std-ref">out_eia__yearly_utilities</span></a> table as a dataframe.</p></li>
+<li><p><strong>util_dict</strong> – A dictionary with keys that are the names of utility
+parent companies and values that are lists of subsidiary utility_id_eia
+values. EIA values are used instead of PUDL in this case because PUDL values
+are subject to change.</p></li>
+<li><p><strong>years</strong> – A list of the years you’d like to add to the override sheets.</p></li>
+<li><p><strong>output_dir_path</strong> – The relative path to the folder where you’d like to output the
+override spreadsheets that this function creates.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_check_id_consistency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'record_id_eia_override_1'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'record_id_ferc1'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actual_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_message</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_check_id_consistency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency" title="Link to this definition">#</a></dt>
+<dd><p>Check for rogue FERC or EIA ids that don’t exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id_col</strong> (<em>str</em>) – The name of either the ferc record id column: record_id_ferc1 or
+the eia record override column: record_id_eia_override_1.</p></li>
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A dataframe of intended overrides.</p></li>
+<li><p><strong>actual_ids</strong> (<em>list</em>) – A list of the ferc or eia ids that are valid and come from
+either the ppe or official ferc-eia record linkage.</p></li>
+<li><p><strong>error_message</strong> (<em>str</em>) – A short string to indicate the type of error you’re
+checking for. This could be looking for values that aren’t in the official
+list or values that are already in the training data.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">check_if_already_in_training</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validated_connections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#check_if_already_in_training"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training" title="Link to this definition">#</a></dt>
+<dd><p>Check whether any manually mapped records aren’t yet in the training data.</p>
+<p>This function is useful for instances where you’ve started the manual mapping
+process, taken an extended break, and need to check whether the data you’ve mapped
+has been integrated into the training data or not.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">validate_override_fixes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validated_connections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eia_ferc1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expect_override_overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_mismatched_utilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#validate_override_fixes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes" title="Link to this definition">#</a></dt>
+<dd><p>Process the verified and/or fixed matches and look for human error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>validated_connections</strong> – A dataframe in the add_to_training directory that is
+ready to be added to be validated and subsumed into the training data.</p></li>
+<li><p><strong>ppe</strong> – The <a class="reference internal" href="../../../../../data_dictionaries/pudl_db.html#out-eia-yearly-plant-parts"><span class="std std-ref">out_eia__yearly_plant_parts</span></a> table as a dataframe.</p></li>
+<li><p><strong>eia_ferc1</strong> – The <a class="reference internal" href="../../../../../data_dictionaries/pudl_db.html#out-pudl-yearly-assn-eia-ferc1-plant-parts"><span class="std std-ref">out_pudl__yearly_assn_eia_ferc1_plant_parts</span></a> table as a
+dataframe, associating EIA and FERC Form 1 plant records.</p></li>
+<li><p><strong>training_data</strong> – The current FERC-EIA training data</p></li>
+<li><p><strong>expect_override_overrides</strong> – Whether you expect the tables to have
+overridden matches already in the training data.</p></li>
+<li><p><strong>allow_mismatched_utilities</strong> – Whether you want to allow FERC and EIA
+record ids to come from different utilities.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>AssertionError</strong> – If there are EIA override id records that aren’t in the original
+FERC-EIA connection.</p></li>
+<li><p><strong>AssertionError</strong> – If there are FERC record ids that aren’t in the original
+FERC-EIA connection.</p></li>
+<li><p><strong>AssertionError</strong> – If there are EIA override ids that are duplicated throughout the
+override document.</p></li>
+<li><p><strong>AssertionError</strong> – If the utility id in the EIA override id doesn’t match the pudl
+id corresponding with the FERC record.</p></li>
+<li><p><strong>AssertionError</strong> – If there are EIA override id records that don’t correspond to
+the correct report year.</p></li>
+<li><p><strong>AssertionError</strong> – If you didn’t expect to override overrides but the new training
+data implies an override to the existing training data.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The validated FERC-EIA dataframe you’re trying to add to the training data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">get_multi_match_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#get_multi_match_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df" title="Link to this definition">#</a></dt>
+<dd><p>Process the verified and/or fixed matches and generate a list of 1:m matches.</p>
+<p>Filter the dataframe to only include FERC records with more than one EIA match.
+Melt this dataframe to report all matched EIA records in the
+<code class="docutils literal notranslate"><span class="pre">record_id_eia_override_1</span></code> column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>training_data</strong> – A dataframe in the add_to_training directory that is ready to be
+validated and subsumed into the training data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dataframe of one_to_many matches formatted to fit into the existing validation
+framework.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._add_to_training">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_add_to_training</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_overrides</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_current_training</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_add_to_training"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_training" title="Link to this definition">#</a></dt>
+<dd><p>Add the new overrides to the old override sheet.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_add_to_null_overrides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">null_matches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_null_overrides_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_add_to_null_overrides"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides" title="Link to this definition">#</a></dt>
+<dd><p>Take record_id_ferc1 values verified to have no EIA match and add them to csv.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">_add_to_one_to_many_overrides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_to_many</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_one_to_many_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#_add_to_one_to_many_overrides"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides" title="Link to this definition">#</a></dt>
+<dd><p>Add record_id_ferc1 values verified to have multiple EIA matches to csv.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.eia_ferc1_train.</span></span><span class="sig-name descname"><span class="pre">validate_and_add_to_training</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ppe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eia_ferc1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expect_override_overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_mismatched_utilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_to_many</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/eia_ferc1_train.html#validate_and_add_to_training"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training" title="Link to this definition">#</a></dt>
+<dd><p>Validate, combine, and add overrides to the training data.</p>
+<p>Validating and combining the records so you only have to loop through the files
+once. Runs <a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes" title="pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes"><code class="xref py py-func docutils literal notranslate"><span class="pre">validate_override_fixes()</span></code></a> and <a class="reference internal" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_training" title="pudl.analysis.record_linkage.eia_ferc1_train._add_to_training"><code class="xref py py-func docutils literal notranslate"><span class="pre">_add_to_training()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dir_path</strong> – The path to the place where the matched files that you want to
+validate or integrate are.</p></li>
+<li><p><strong>expect_override_overrides</strong> – This value is explicitly assigned at the top of the
+notebook.</p></li>
+<li><p><strong>allow_mismatched_utilities</strong> – Whether you are allowed to have FERC-EIA matches
+from different utilities.</p></li>
+<li><p><strong>one_to_many</strong> – If True, will also validate and save a CSV of one_to_many matches.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../eia_ferc1_record_linkage/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">pudl.analysis.record_linkage.eia_ferc1_record_linkage</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../embed_dataframe/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pudl.analysis.record_linkage.embed_dataframe</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train.RENAME_COLS_FERC1_EIA"><code class="docutils literal notranslate"><span class="pre">RENAME_COLS_FERC1_EIA</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train.RELEVANT_COLS_PPE"><code class="docutils literal notranslate"><span class="pre">RELEVANT_COLS_PPE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._pct_diff"><code class="docutils literal notranslate"><span class="pre">_pct_diff()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._is_best_match"><code class="docutils literal notranslate"><span class="pre">_is_best_match()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1"><code class="docutils literal notranslate"><span class="pre">_prep_eia_ferc1()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish"><code class="docutils literal notranslate"><span class="pre">_prep_deprish()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets"><code class="docutils literal notranslate"><span class="pre">_get_util_year_subsets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet"><code class="docutils literal notranslate"><span class="pre">_output_override_spreadsheet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets"><code class="docutils literal notranslate"><span class="pre">generate_all_override_spreadsheets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency"><code class="docutils literal notranslate"><span class="pre">_check_id_consistency()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training"><code class="docutils literal notranslate"><span class="pre">check_if_already_in_training()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes"><code class="docutils literal notranslate"><span class="pre">validate_override_fixes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df"><code class="docutils literal notranslate"><span class="pre">get_multi_match_df()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_training"><code class="docutils literal notranslate"><span class="pre">_add_to_training()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides"><code class="docutils literal notranslate"><span class="pre">_add_to_null_overrides()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides"><code class="docutils literal notranslate"><span class="pre">_add_to_one_to_many_overrides()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training"><code class="docutils literal notranslate"><span class="pre">validate_and_add_to_training()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../../../_sources/autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+pudl.metadata.resources.ferc1
+=============================
+
+.. py:module:: pudl.metadata.resources.ferc1
+
+.. autoapi-nested-parse::
+
+   Table definitions for the FERC Form 1 data group.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.ferc1.PLANT_AGGREGATION_HAZARD
+   pudl.metadata.resources.ferc1.PLANT_PRIMARY_KEY_TEXT
+   pudl.metadata.resources.ferc1.DETAILED_ACCOUNTING_TABLES_WARNING
+   pudl.metadata.resources.ferc1.TABLE_DESCRIPTIONS
+   pudl.metadata.resources.ferc1.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: PLANT_AGGREGATION_HAZARD
+
+.. py:data:: PLANT_PRIMARY_KEY_TEXT
+   :value: 'The best approximation for primary keys for this table would be: ``report_year``,...
+
+
+.. py:data:: DETAILED_ACCOUNTING_TABLES_WARNING
+
+.. py:data:: TABLE_DESCRIPTIONS
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
+
+   Keys are in alphabetical order.
+
+   See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of
+   ``foreign_key_rules``.
+

@@ -1,0 +1,1466 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.analysis.record_linkage.embed_dataframe &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../../../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/pudl/analysis/record_linkage/embed_dataframe/index';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link rel="next" title="pudl.analysis.record_linkage.link_cross_year" href="../link_cross_year/index.html" />
+    <link rel="prev" title="pudl.analysis.record_linkage.eia_ferc1_train" href="../eia_ferc1_train/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../../../_static/searchtools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script src="../../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Topic Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Topic Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../../__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../_version/index.html">pudl._version</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../index.html">pudl.analysis</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../ml_tools/index.html">pudl.analysis.ml_tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="../index.html">pudl.analysis.record_linkage</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../convert/index.html">pudl.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../definitions/index.html">pudl.definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../defs/index.html">pudl.defs</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../deploy/ferceqr/index.html">pudl.deploy.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../deploy/pudl/index.html">pudl.deploy.pudl</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../etl/index.html">pudl.etl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../glue/index.html">pudl.glue</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../metadata/index.html">pudl.metadata</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../metadata/resources/index.html">pudl.metadata.resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/rus/index.html">pudl.metadata.resources.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../output/index.html">pudl.output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/rus/index.html">pudl.output.rus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../output/sql/index.html">pudl.output.sql</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../package_data/index.html">pudl.package_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/censuspep/index.html">pudl.package_data.censuspep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia176/index.html">pudl.package_data.eia176</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia191/index.html">pudl.package_data.eia191</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia757a/index.html">pudl.package_data.eia757a</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia860/index.html">pudl.package_data.eia860</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia860m/index.html">pudl.package_data.eia860m</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia861/index.html">pudl.package_data.eia861</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia923/index.html">pudl.package_data.eia923</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/eia930/index.html">pudl.package_data.eia930</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/eiaaeo/index.html">pudl.package_data.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/ferc1/index.html">pudl.package_data.ferc1</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/rus12/index.html">pudl.package_data.rus12</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../package_data/test/index.html">pudl.package_data.test</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../resources/index.html">pudl.resources</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/deploy/index.html">pudl.scripts.deploy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/update_zenodo_dois/index.html">pudl.scripts.update_zenodo_dois</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../settings/index.html">pudl.settings</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../transform/index.html">pudl.transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/censusdp1tract/index.html">pudl.transform.censusdp1tract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../transform/params/index.html">pudl.transform.params</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../validate/index.html">pudl.validate</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../workspace/index.html">pudl.workspace</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../dev/index.html">Developer Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../../code.html" class="nav-link">Development Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">pudl</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">pudl.analysis</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">pudl.analysis.record_linkage</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.analysis.record_linkage.embed_dataframe</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-pudl.analysis.record_linkage.embed_dataframe">
+<span id="pudl-analysis-record-linkage-embed-dataframe"></span><h1>pudl.analysis.record_linkage.embed_dataframe<a class="headerlink" href="#module-pudl.analysis.record_linkage.embed_dataframe" title="Link to this heading">#</a></h1>
+<p>Tools for embedding a DataFrame to create feature matrix for models.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.logger" title="pudl.analysis.record_linkage.embed_dataframe.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix" title="pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureMatrix</span></code></a></p></td>
+<td><p>Class to wrap a feature matrix returned from dataframe embedding.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p></td>
+<td><p>TransformStep's can be combined to vectorize one or more columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer" title="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnVectorizer</span></code></a></p></td>
+<td><p>Define a set of transformations to apply to one or more columns.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TextVectorizer" title="pudl.analysis.record_linkage.embed_dataframe.TextVectorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TextVectorizer</span></code></a></p></td>
+<td><p>Implement TransformStep for <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.feature_extraction.text.TfidfVectorizer</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer" title="pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CategoricalVectorizer</span></code></a></p></td>
+<td><p>Implement TransformStep for <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer" title="pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumericalVectorizer</span></code></a></p></td>
+<td><p>Implement ColumnTransformation for MinMaxScaler.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer" title="pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumericalNormalizer</span></code></a></p></td>
+<td><p>Implement ColumnTransformation for Normalizer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner" title="pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnCleaner</span></code></a></p></td>
+<td><p>Implement ColumnTransformation for cleaning functions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner" title="pudl.analysis.record_linkage.embed_dataframe.NameCleaner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NameCleaner</span></code></a></p></td>
+<td><p>Implement ColumnTransformation for CompanyNameCleaner.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller" title="pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FuelTypeFiller</span></code></a></p></td>
+<td><p>Fill missing fuel types from another column.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer" title="pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StringSimilarityScorer</span></code></a></p></td>
+<td><p>Vectorize two string columns with Jaro Winkler similarity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer" title="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumericSimilarityScorer</span></code></a></p></td>
+<td><p>Vectorize two numeric columns with a similarity score.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config" title="pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_dataframe_embedder_config</span></code></a>(embedder_name, ...)</p></td>
+<td><p>Log embedder config to mlflow experiment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory" title="pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataframe_embedder_factory</span></code></a>(name_prefix, vectorizers)</p></td>
+<td><p>Return a configured op graph to embed an input dataframe.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory" title="pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataframe_cleaner_factory</span></code></a>(name_prefix, vectorizers)</p></td>
+<td><p>Return a configured op graph to clean an input dataframe.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func" title="pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_cleaning_func</span></code></a>(df[, function_key])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe._extract_keyword_from_column" title="pudl.analysis.record_linkage.embed_dataframe._extract_keyword_from_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_keyword_from_column</span></code></a>(→ pandas.Series)</p></td>
+<td><p>Extract keywords contained in a Pandas series with a regular expression.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe._fill_fuel_type_from_name" title="pudl.analysis.record_linkage.embed_dataframe._fill_fuel_type_from_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_fill_fuel_type_from_name</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Impute missing fuel type data from a name column.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe._apply_string_similarity_func" title="pudl.analysis.record_linkage.embed_dataframe._apply_string_similarity_func"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_string_similarity_func</span></code></a>(df, function_key, col1, col2)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe._apply_numeric_similarity_func" title="pudl.analysis.record_linkage.embed_dataframe._apply_numeric_similarity_func"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_numeric_similarity_func</span></code></a>(df, function_key, col1, ...)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.logger">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.logger" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">FeatureMatrix</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#FeatureMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix" title="Link to this definition">#</a></dt>
+<dd><p>Class to wrap a feature matrix returned from dataframe embedding.</p>
+<p>Depending on the transformations applied, a feature matrix may be sparse or dense
+matrix. Using this wrapper enables Dagsters type checking while allowing both dense
+and sparse matrices underneath.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix.matrix">
+<span class="sig-name descname"><span class="pre">matrix</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">scipy.sparse.csr_matrix</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#FeatureMatrix.matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix.matrix" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandas.Index</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#FeatureMatrix.index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix.index" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.TransformStep">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">TransformStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#TransformStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>TransformStep’s can be combined to vectorize one or more columns.</p>
+<p>This class defines a very simple interface for TransformStep’s, which essentially
+says that a TransformStep should take configuration and implement the method as_transformer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.TransformStep.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#TransformStep.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.TransformStep.as_transformer">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sklearn.base.BaseEstimator</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#TransformStep.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>This method should use configuration to produce a <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">ColumnVectorizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnVectorizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p>
+<p>Define a set of transformations to apply to one or more columns.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.transform_steps">
+<span class="sig-name descname"><span class="pre">transform_steps</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><span class="pre">TransformStep</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnVectorizer.transform_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.transform_steps" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.weight">
+<span class="sig-name descname"><span class="pre">weight</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnVectorizer.weight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.weight" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnVectorizer.columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.columns" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.as_pipeline">
+<span class="sig-name descname"><span class="pre">as_pipeline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnVectorizer.as_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.as_pipeline" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code> with configuration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.as_config_dict">
+<span class="sig-name descname"><span class="pre">as_config_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnVectorizer.as_config_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.as_config_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return config dict formatted for logging to mlflow.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">log_dataframe_embedder_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedder_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectorizers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer" title="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer"><span class="pre">ColumnVectorizer</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_tracker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker" title="pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker"><span class="pre">pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#log_dataframe_embedder_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config" title="Link to this definition">#</a></dt>
+<dd><p>Log embedder config to mlflow experiment.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">dataframe_embedder_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectorizers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer" title="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer"><span class="pre">ColumnVectorizer</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#dataframe_embedder_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory" title="Link to this definition">#</a></dt>
+<dd><p>Return a configured op graph to embed an input dataframe.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">dataframe_cleaner_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectorizers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer" title="pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer"><span class="pre">ColumnVectorizer</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#dataframe_cleaner_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory" title="Link to this definition">#</a></dt>
+<dd><p>Return a configured op graph to clean an input dataframe.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.TextVectorizer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">TextVectorizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#TextVectorizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.TextVectorizer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p>
+<p>Implement TransformStep for <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.feature_extraction.text.TfidfVectorizer</span></code>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.TextVectorizer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tfidf_vectorizer'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#TextVectorizer.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.TextVectorizer.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.TextVectorizer.options">
+<span class="sig-name descname"><span class="pre">options</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#TextVectorizer.options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.TextVectorizer.options" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.TextVectorizer.as_transformer">
+<span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#TextVectorizer.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.TextVectorizer.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>Return configured TfidfVectorizer.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">CategoricalVectorizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#CategoricalVectorizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p>
+<p>Implement TransformStep for <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'one_hot_encoder_vectorizer'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#CategoricalVectorizer.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer.options">
+<span class="sig-name descname"><span class="pre">options</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#CategoricalVectorizer.options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer.options" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer.as_transformer">
+<span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#CategoricalVectorizer.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>Return configured OneHotEncoder.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">NumericalVectorizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericalVectorizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p>
+<p>Implement ColumnTransformation for MinMaxScaler.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'numerical_vectorizer'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericalVectorizer.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer.options">
+<span class="sig-name descname"><span class="pre">options</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericalVectorizer.options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer.options" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer.as_transformer">
+<span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericalVectorizer.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>Return configured MinMaxScalerConfig.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">NumericalNormalizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericalNormalizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p>
+<p>Implement ColumnTransformation for Normalizer.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'numerical_normalizer'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericalNormalizer.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer.options">
+<span class="sig-name descname"><span class="pre">options</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericalNormalizer.options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer.options" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer.as_transformer">
+<span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericalNormalizer.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>Return configured NormalizerConfig.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">_apply_cleaning_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#_apply_cleaning_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">ColumnCleaner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnCleaner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p>
+<p>Implement ColumnTransformation for cleaning functions.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'column_cleaner'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnCleaner.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner.cleaning_function">
+<span class="sig-name descname"><span class="pre">cleaning_function</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnCleaner.cleaning_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner.cleaning_function" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner.as_transformer">
+<span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#ColumnCleaner.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>Return configured NormalizerConfig.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NameCleaner">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">NameCleaner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NameCleaner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p>
+<p>Implement ColumnTransformation for CompanyNameCleaner.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NameCleaner.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'name_cleaner'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NameCleaner.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NameCleaner.company_cleaner">
+<span class="sig-name descname"><span class="pre">company_cleaner</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner" title="pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner"><span class="pre">pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner</span></a></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NameCleaner.company_cleaner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.company_cleaner" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NameCleaner.return_as_dframe">
+<span class="sig-name descname"><span class="pre">return_as_dframe</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NameCleaner.return_as_dframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.return_as_dframe" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NameCleaner.as_transformer">
+<span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NameCleaner.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>Return configured CompanyNameCleaner.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">FuelTypeFiller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#FuelTypeFiller"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p>
+<p>Fill missing fuel types from another column.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fuel_type_filler'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#FuelTypeFiller.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.fuel_type_col">
+<span class="sig-name descname"><span class="pre">fuel_type_col</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fuel_type_code_pudl'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#FuelTypeFiller.fuel_type_col"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.fuel_type_col" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.name_col">
+<span class="sig-name descname"><span class="pre">name_col</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'plant_name'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#FuelTypeFiller.name_col"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.name_col" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.as_transformer">
+<span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#FuelTypeFiller.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>Return configured FuelTypeFiller.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe._extract_keyword_from_column">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">_extract_keyword_from_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyword_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#_extract_keyword_from_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe._extract_keyword_from_column" title="Link to this definition">#</a></dt>
+<dd><p>Extract keywords contained in a Pandas series with a regular expression.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe._fill_fuel_type_from_name">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">_fill_fuel_type_from_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel_type_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#_fill_fuel_type_from_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe._fill_fuel_type_from_name" title="Link to this definition">#</a></dt>
+<dd><p>Impute missing fuel type data from a name column.</p>
+<p>If a missing fuel type code is contained in the plant name,
+fill in the fuel type code PUDL for that record. E.g. “Washington Hydro”</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe._apply_string_similarity_func">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">_apply_string_similarity_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#_apply_string_similarity_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe._apply_string_similarity_func" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">StringSimilarityScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#StringSimilarityScorer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p>
+<p>Vectorize two string columns with Jaro Winkler similarity.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'string_sim'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#StringSimilarityScorer.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.metric">
+<span class="sig-name descname"><span class="pre">metric</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#StringSimilarityScorer.metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.metric" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.col1">
+<span class="sig-name descname"><span class="pre">col1</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#StringSimilarityScorer.col1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.col1" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.col2">
+<span class="sig-name descname"><span class="pre">col2</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#StringSimilarityScorer.col2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.col2" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.as_transformer">
+<span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#StringSimilarityScorer.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>Return configured Jaro Winkler similarity function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe._apply_numeric_similarity_func">
+<span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">_apply_numeric_similarity_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#_apply_numeric_similarity_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe._apply_numeric_similarity_func" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.analysis.record_linkage.embed_dataframe.</span></span><span class="sig-name descname"><span class="pre">NumericSimilarityScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep" title="pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransformStep</span></code></a></p>
+<p>Vectorize two numeric columns with a similarity score.</p>
+<p>If two values are the same the similarity is 1 and in case of complete
+disagreement it is 0. The implementation is adapted from the recordlinkage
+Python package Numeric comparison library and is similar with numeric
+comparing in ElasticSearch, a full-text search tool.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The name of the transformation step. Default is numeric_sim.</p></li>
+<li><p><strong>col1</strong> – The name of the first column to compare. Must be a numeric column.</p></li>
+<li><p><strong>col2</strong> – The name of the second column to compare. Must be a numeric column.</p></li>
+<li><p><strong>output_name</strong> – The name of the output Series of compared values.</p></li>
+<li><p><strong>method</strong> – The metric used. Options are “exponential”, “linear”, “exact”.</p></li>
+<li><p><strong>scale</strong> – The rate of decay, how quickly the score should drop the further
+from the origin that a value lies. Default is 1.0.</p></li>
+<li><p><strong>offset</strong> – Setting a nonzero offset expands the central point to cover a
+range of values instead of just the single point specified by the
+origin. Default is 0.</p></li>
+<li><p><strong>origin</strong> – The central point, or the best possible value for the difference
+between records. Differences that fall at the origin will get a
+similarity score of 1.0. The default is 0.</p></li>
+<li><p><strong>missing_value</strong> – The value if one or both records have a missing value on the
+compared field. Default 0.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'numeric_sim'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.col1">
+<span class="sig-name descname"><span class="pre">col1</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.col1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.col1" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.col2">
+<span class="sig-name descname"><span class="pre">col2</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.col2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.col2" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.output_name">
+<span class="sig-name descname"><span class="pre">output_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.output_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.output_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.method">
+<span class="sig-name descname"><span class="pre">method</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'linear'</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.method"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.method" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.scale" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.offset" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.origin">
+<span class="sig-name descname"><span class="pre">origin</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.origin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.origin" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.missing_value">
+<span class="sig-name descname"><span class="pre">missing_value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.missing_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.missing_value" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.as_transformer">
+<span class="sig-name descname"><span class="pre">as_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/pudl/analysis/record_linkage/embed_dataframe.html#NumericSimilarityScorer.as_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.as_transformer" title="Link to this definition">#</a></dt>
+<dd><p>Return configured exponential similarity function.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../eia_ferc1_train/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">pudl.analysis.record_linkage.eia_ferc1_train</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../link_cross_year/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pudl.analysis.record_linkage.link_cross_year</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix"><code class="docutils literal notranslate"><span class="pre">FeatureMatrix</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix.matrix"><code class="docutils literal notranslate"><span class="pre">FeatureMatrix.matrix</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix.index"><code class="docutils literal notranslate"><span class="pre">FeatureMatrix.index</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep"><code class="docutils literal notranslate"><span class="pre">TransformStep</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep.name"><code class="docutils literal notranslate"><span class="pre">TransformStep.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.TransformStep.as_transformer"><code class="docutils literal notranslate"><span class="pre">TransformStep.as_transformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer"><code class="docutils literal notranslate"><span class="pre">ColumnVectorizer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.transform_steps"><code class="docutils literal notranslate"><span class="pre">ColumnVectorizer.transform_steps</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.weight"><code class="docutils literal notranslate"><span class="pre">ColumnVectorizer.weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.columns"><code class="docutils literal notranslate"><span class="pre">ColumnVectorizer.columns</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.as_pipeline"><code class="docutils literal notranslate"><span class="pre">ColumnVectorizer.as_pipeline()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer.as_config_dict"><code class="docutils literal notranslate"><span class="pre">ColumnVectorizer.as_config_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config"><code class="docutils literal notranslate"><span class="pre">log_dataframe_embedder_config()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory"><code class="docutils literal notranslate"><span class="pre">dataframe_embedder_factory()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory"><code class="docutils literal notranslate"><span class="pre">dataframe_cleaner_factory()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.TextVectorizer"><code class="docutils literal notranslate"><span class="pre">TextVectorizer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.TextVectorizer.name"><code class="docutils literal notranslate"><span class="pre">TextVectorizer.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.TextVectorizer.options"><code class="docutils literal notranslate"><span class="pre">TextVectorizer.options</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.TextVectorizer.as_transformer"><code class="docutils literal notranslate"><span class="pre">TextVectorizer.as_transformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer"><code class="docutils literal notranslate"><span class="pre">CategoricalVectorizer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer.name"><code class="docutils literal notranslate"><span class="pre">CategoricalVectorizer.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer.options"><code class="docutils literal notranslate"><span class="pre">CategoricalVectorizer.options</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer.as_transformer"><code class="docutils literal notranslate"><span class="pre">CategoricalVectorizer.as_transformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer"><code class="docutils literal notranslate"><span class="pre">NumericalVectorizer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer.name"><code class="docutils literal notranslate"><span class="pre">NumericalVectorizer.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer.options"><code class="docutils literal notranslate"><span class="pre">NumericalVectorizer.options</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer.as_transformer"><code class="docutils literal notranslate"><span class="pre">NumericalVectorizer.as_transformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer"><code class="docutils literal notranslate"><span class="pre">NumericalNormalizer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer.name"><code class="docutils literal notranslate"><span class="pre">NumericalNormalizer.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer.options"><code class="docutils literal notranslate"><span class="pre">NumericalNormalizer.options</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer.as_transformer"><code class="docutils literal notranslate"><span class="pre">NumericalNormalizer.as_transformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func"><code class="docutils literal notranslate"><span class="pre">_apply_cleaning_func()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner"><code class="docutils literal notranslate"><span class="pre">ColumnCleaner</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner.name"><code class="docutils literal notranslate"><span class="pre">ColumnCleaner.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner.cleaning_function"><code class="docutils literal notranslate"><span class="pre">ColumnCleaner.cleaning_function</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner.as_transformer"><code class="docutils literal notranslate"><span class="pre">ColumnCleaner.as_transformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner"><code class="docutils literal notranslate"><span class="pre">NameCleaner</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.name"><code class="docutils literal notranslate"><span class="pre">NameCleaner.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.company_cleaner"><code class="docutils literal notranslate"><span class="pre">NameCleaner.company_cleaner</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.return_as_dframe"><code class="docutils literal notranslate"><span class="pre">NameCleaner.return_as_dframe</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NameCleaner.as_transformer"><code class="docutils literal notranslate"><span class="pre">NameCleaner.as_transformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller"><code class="docutils literal notranslate"><span class="pre">FuelTypeFiller</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.name"><code class="docutils literal notranslate"><span class="pre">FuelTypeFiller.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.fuel_type_col"><code class="docutils literal notranslate"><span class="pre">FuelTypeFiller.fuel_type_col</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.name_col"><code class="docutils literal notranslate"><span class="pre">FuelTypeFiller.name_col</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller.as_transformer"><code class="docutils literal notranslate"><span class="pre">FuelTypeFiller.as_transformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe._extract_keyword_from_column"><code class="docutils literal notranslate"><span class="pre">_extract_keyword_from_column()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe._fill_fuel_type_from_name"><code class="docutils literal notranslate"><span class="pre">_fill_fuel_type_from_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe._apply_string_similarity_func"><code class="docutils literal notranslate"><span class="pre">_apply_string_similarity_func()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer"><code class="docutils literal notranslate"><span class="pre">StringSimilarityScorer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.name"><code class="docutils literal notranslate"><span class="pre">StringSimilarityScorer.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.metric"><code class="docutils literal notranslate"><span class="pre">StringSimilarityScorer.metric</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.col1"><code class="docutils literal notranslate"><span class="pre">StringSimilarityScorer.col1</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.col2"><code class="docutils literal notranslate"><span class="pre">StringSimilarityScorer.col2</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer.as_transformer"><code class="docutils literal notranslate"><span class="pre">StringSimilarityScorer.as_transformer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe._apply_numeric_similarity_func"><code class="docutils literal notranslate"><span class="pre">_apply_numeric_similarity_func()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.name"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.col1"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.col1</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.col2"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.col2</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.output_name"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.output_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.method"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.method</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.scale"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.scale</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.offset"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.offset</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.origin"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.origin</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.missing_value"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.missing_value</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer.as_transformer"><code class="docutils literal notranslate"><span class="pre">NumericSimilarityScorer.as_transformer()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../../../_sources/autoapi/pudl/analysis/record_linkage/embed_dataframe/index.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

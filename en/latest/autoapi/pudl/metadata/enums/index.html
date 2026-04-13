@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.enums &#8212; PUDL 2026.3.1.dev52 documentation</title>
+    <title>pudl.metadata.enums &#8212; PUDL 2026.4.1.dev3 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../../_static/documentation_options.js?v=18b0d911"></script>
+    <script src="../../../../_static/documentation_options.js?v=5c3d8e8d"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -58,7 +58,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.3.1.dev52 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.3.1.dev52 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev3 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev3 documentation - Home"/>
   
   
 </a></div>
@@ -486,6 +486,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../resources/eia/index.html">pudl.metadata.resources.eia</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../resources/eia191/index.html">pudl.metadata.resources.eia191</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
@@ -610,6 +611,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../transform/classes/index.html">pudl.transform.classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../transform/eia/index.html">pudl.transform.eia</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eia191/index.html">pudl.transform.eia191</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../transform/eia860/index.html">pudl.transform.eia860</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../transform/eia860m/index.html">pudl.transform.eia860m</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../transform/eia861/index.html">pudl.transform.eia861</a></li>
@@ -763,169 +765,172 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.APPROXIMATE_TIMEZONES" title="pudl.metadata.enums.APPROXIMATE_TIMEZONES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">APPROXIMATE_TIMEZONES</span></code></a></p></td>
 <td><p>Mapping of political subdivision code to the most common timezone in that area.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.NERC_REGIONS" title="pudl.metadata.enums.NERC_REGIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NERC_REGIONS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.EIA191_STORAGE_REGIONS" title="pudl.metadata.enums.EIA191_STORAGE_REGIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EIA191_STORAGE_REGIONS</span></code></a></p></td>
+<td><p>EIA storage regions for underground natural gas storage fields (Form 191).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.NERC_REGIONS" title="pudl.metadata.enums.NERC_REGIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NERC_REGIONS</span></code></a></p></td>
 <td><p>North American Reliability Corporation (NERC) regions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.US_TIMEZONES" title="pudl.metadata.enums.US_TIMEZONES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">US_TIMEZONES</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.US_TIMEZONES" title="pudl.metadata.enums.US_TIMEZONES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">US_TIMEZONES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930" title="pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GENERATION_ENERGY_SOURCES_EIA930</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930" title="pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GENERATION_ENERGY_SOURCES_EIA930</span></code></a></p></td>
 <td><p>Energy sources used to categorize generation in the EIA 930 data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS" title="pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ELECTRICITY_MARKET_MODULE_REGIONS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS" title="pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ELECTRICITY_MARKET_MODULE_REGIONS</span></code></a></p></td>
 <td><p>Regions that the EIA uses in their Electricity Market Module analysis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.CUSTOMER_CLASSES" title="pudl.metadata.enums.CUSTOMER_CLASSES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUSTOMER_CLASSES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.CUSTOMER_CLASSES" title="pudl.metadata.enums.CUSTOMER_CLASSES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUSTOMER_CLASSES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.CUSTOMER_CLASSES_EIA176" title="pudl.metadata.enums.CUSTOMER_CLASSES_EIA176"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUSTOMER_CLASSES_EIA176</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.CUSTOMER_CLASSES_EIA176" title="pudl.metadata.enums.CUSTOMER_CLASSES_EIA176"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUSTOMER_CLASSES_EIA176</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.TECH_CLASSES" title="pudl.metadata.enums.TECH_CLASSES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TECH_CLASSES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.TECH_CLASSES" title="pudl.metadata.enums.TECH_CLASSES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TECH_CLASSES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.REVENUE_CLASSES_EIA861" title="pudl.metadata.enums.REVENUE_CLASSES_EIA861"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REVENUE_CLASSES_EIA861</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.REVENUE_CLASSES_EIA861" title="pudl.metadata.enums.REVENUE_CLASSES_EIA861"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REVENUE_CLASSES_EIA861</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.REVENUE_CLASSES_EIA176" title="pudl.metadata.enums.REVENUE_CLASSES_EIA176"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REVENUE_CLASSES_EIA176</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.REVENUE_CLASSES_EIA176" title="pudl.metadata.enums.REVENUE_CLASSES_EIA176"><code class="xref py py-obj docutils literal notranslate"><span class="pre">REVENUE_CLASSES_EIA176</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.RELIABILITY_STANDARDS" title="pudl.metadata.enums.RELIABILITY_STANDARDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RELIABILITY_STANDARDS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.RELIABILITY_STANDARDS" title="pudl.metadata.enums.RELIABILITY_STANDARDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RELIABILITY_STANDARDS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.FUEL_CLASSES" title="pudl.metadata.enums.FUEL_CLASSES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FUEL_CLASSES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.FUEL_CLASSES" title="pudl.metadata.enums.FUEL_CLASSES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FUEL_CLASSES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.RTO_CLASSES" title="pudl.metadata.enums.RTO_CLASSES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RTO_CLASSES</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.RTO_CLASSES" title="pudl.metadata.enums.RTO_CLASSES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RTO_CLASSES</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES" title="pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EPACEMS_MEASUREMENT_CODES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES" title="pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EPACEMS_MEASUREMENT_CODES</span></code></a></p></td>
 <td><p>Valid emissions measurement codes for the EPA CEMS hourly data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.TECH_DESCRIPTIONS" title="pudl.metadata.enums.TECH_DESCRIPTIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TECH_DESCRIPTIONS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.TECH_DESCRIPTIONS" title="pudl.metadata.enums.TECH_DESCRIPTIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TECH_DESCRIPTIONS</span></code></a></p></td>
 <td><p>Valid technology descriptions from the EIA plant parts list.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.PLANT_PARTS" title="pudl.metadata.enums.PLANT_PARTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLANT_PARTS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.PLANT_PARTS" title="pudl.metadata.enums.PLANT_PARTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLANT_PARTS</span></code></a></p></td>
 <td><p>The plant parts in the EIA plant parts list.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB" title="pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TECH_DESCRIPTIONS_NRELATB</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB" title="pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TECH_DESCRIPTIONS_NRELATB</span></code></a></p></td>
 <td><p>NREL ATB technology descriptions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO" title="pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TECH_DESCRIPTIONS_EIAAEO</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO" title="pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TECH_DESCRIPTIONS_EIAAEO</span></code></a></p></td>
 <td><p>Types of generation technology reported in EIA AEO.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.FUEL_TYPES_EIAAEO" title="pudl.metadata.enums.FUEL_TYPES_EIAAEO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FUEL_TYPES_EIAAEO</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.FUEL_TYPES_EIAAEO" title="pudl.metadata.enums.FUEL_TYPES_EIAAEO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FUEL_TYPES_EIAAEO</span></code></a></p></td>
 <td><p>Type of fuel used for generation reported in EIA AEO.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.MODEL_CASES_EIAAEO" title="pudl.metadata.enums.MODEL_CASES_EIAAEO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MODEL_CASES_EIAAEO</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.MODEL_CASES_EIAAEO" title="pudl.metadata.enums.MODEL_CASES_EIAAEO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MODEL_CASES_EIAAEO</span></code></a></p></td>
 <td><p>Modeling cases for EIA AEO 2023.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO" title="pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENERGY_USE_TYPES_EIAAEO</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO" title="pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENERGY_USE_TYPES_EIAAEO</span></code></a></p></td>
 <td><p>Energy use types from Table 2 of EIA AEO 2023-2025.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1" title="pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENERGY_SOURCE_TYPES_FERC1</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1" title="pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENERGY_SOURCE_TYPES_FERC1</span></code></a></p></td>
 <td><p>Energy source types for FERC Form 1 data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1" title="pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENERGY_DISPOSITION_TYPES_FERC1</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1" title="pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ENERGY_DISPOSITION_TYPES_FERC1</span></code></a></p></td>
 <td><p>Energy disposition types for FERC Form 1 data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1" title="pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_ASSET_TYPES_FERC1</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1" title="pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_ASSET_TYPES_FERC1</span></code></a></p></td>
 <td><p>Utility plant asset types for FERC Form 1 data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.LIABILITY_TYPES_FERC1" title="pudl.metadata.enums.LIABILITY_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LIABILITY_TYPES_FERC1</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.LIABILITY_TYPES_FERC1" title="pudl.metadata.enums.LIABILITY_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LIABILITY_TYPES_FERC1</span></code></a></p></td>
 <td><p>Liability types for FERC Form 1 data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.ASSET_TYPES_FERC1" title="pudl.metadata.enums.ASSET_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ASSET_TYPES_FERC1</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.ASSET_TYPES_FERC1" title="pudl.metadata.enums.ASSET_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ASSET_TYPES_FERC1</span></code></a></p></td>
 <td><p>Asset types for FERC Form 1 data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.INCOME_TYPES_FERC1" title="pudl.metadata.enums.INCOME_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INCOME_TYPES_FERC1</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.INCOME_TYPES_FERC1" title="pudl.metadata.enums.INCOME_TYPES_FERC1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INCOME_TYPES_FERC1</span></code></a></p></td>
 <td><p>Income types for FERC Form 1 data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS" title="pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FUNCTIONAL_STATUS_CODES_CENSUS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS" title="pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FUNCTIONAL_STATUS_CODES_CENSUS</span></code></a></p></td>
 <td><p>Functional status codes for Census geographic entities.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS" title="pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MATERIAL_TYPES_PHMSAGAS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS" title="pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MATERIAL_TYPES_PHMSAGAS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS" title="pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAIN_PIPE_SIZES_PHMSAGAS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS" title="pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAIN_PIPE_SIZES_PHMSAGAS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS" title="pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LEAK_SOURCE_PHMSAGAS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS" title="pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LEAK_SOURCE_PHMSAGAS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.DAMAGE_TYPES_PHMSAGAS" title="pudl.metadata.enums.DAMAGE_TYPES_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAMAGE_TYPES_PHMSAGAS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.DAMAGE_TYPES_PHMSAGAS" title="pudl.metadata.enums.DAMAGE_TYPES_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAMAGE_TYPES_PHMSAGAS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS" title="pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAMAGE_SUB_TYPES_PHMSAGAS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS" title="pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAMAGE_SUB_TYPES_PHMSAGAS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.INSTALL_DECADE_PATTERN_PHMSAGAS" title="pudl.metadata.enums.INSTALL_DECADE_PATTERN_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INSTALL_DECADE_PATTERN_PHMSAGAS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.INSTALL_DECADE_PATTERN_PHMSAGAS" title="pudl.metadata.enums.INSTALL_DECADE_PATTERN_PHMSAGAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INSTALL_DECADE_PATTERN_PHMSAGAS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.ASSET_TYPES_RUS7" title="pudl.metadata.enums.ASSET_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ASSET_TYPES_RUS7</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.ASSET_TYPES_RUS7" title="pudl.metadata.enums.ASSET_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ASSET_TYPES_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.LIABILITY_TYPES_RUS7" title="pudl.metadata.enums.LIABILITY_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LIABILITY_TYPES_RUS7</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.LIABILITY_TYPES_RUS7" title="pudl.metadata.enums.LIABILITY_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LIABILITY_TYPES_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.ASSET_TYPES_RUS12" title="pudl.metadata.enums.ASSET_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ASSET_TYPES_RUS12</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.ASSET_TYPES_RUS12" title="pudl.metadata.enums.ASSET_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ASSET_TYPES_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.LIABILITY_TYPES_RUS12" title="pudl.metadata.enums.LIABILITY_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LIABILITY_TYPES_RUS12</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.LIABILITY_TYPES_RUS12" title="pudl.metadata.enums.LIABILITY_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LIABILITY_TYPES_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12" title="pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRIME_MOVER_TYPES_RUS12</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12" title="pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRIME_MOVER_TYPES_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12" title="pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RENEWABLE_FUEL_TYPES_RUS12</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12" title="pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RENEWABLE_FUEL_TYPES_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.PLANT_TYPE_RUS12" title="pudl.metadata.enums.PLANT_TYPE_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLANT_TYPE_RUS12</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.PLANT_TYPE_RUS12" title="pudl.metadata.enums.PLANT_TYPE_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLANT_TYPE_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12" title="pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOURCE_OF_ENERGY_RUS12</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12" title="pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOURCE_OF_ENERGY_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.PLANT_COST_TYPES_RUS12" title="pudl.metadata.enums.PLANT_COST_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLANT_COST_TYPES_RUS12</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.PLANT_COST_TYPES_RUS12" title="pudl.metadata.enums.PLANT_COST_TYPES_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PLANT_COST_TYPES_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.LOAN_STATUS_TYPES_RUS7" title="pudl.metadata.enums.LOAN_STATUS_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOAN_STATUS_TYPES_RUS7</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.LOAN_STATUS_TYPES_RUS7" title="pudl.metadata.enums.LOAN_STATUS_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOAN_STATUS_TYPES_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.LOAN_UNIT_TYPES_RUS7" title="pudl.metadata.enums.LOAN_UNIT_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOAN_UNIT_TYPES_RUS7</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.LOAN_UNIT_TYPES_RUS7" title="pudl.metadata.enums.LOAN_UNIT_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOAN_UNIT_TYPES_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.SERVICE_INTERRUPTION_TYPES_RUS7" title="pudl.metadata.enums.SERVICE_INTERRUPTION_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SERVICE_INTERRUPTION_TYPES_RUS7</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.SERVICE_INTERRUPTION_TYPES_RUS7" title="pudl.metadata.enums.SERVICE_INTERRUPTION_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SERVICE_INTERRUPTION_TYPES_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.SERVICE_INTERRUPTION_PERIODS_RUS7" title="pudl.metadata.enums.SERVICE_INTERRUPTION_PERIODS_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SERVICE_INTERRUPTION_PERIODS_RUS7</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.SERVICE_INTERRUPTION_PERIODS_RUS7" title="pudl.metadata.enums.SERVICE_INTERRUPTION_PERIODS_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SERVICE_INTERRUPTION_PERIODS_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.SERVICE_STATUS_RUS7" title="pudl.metadata.enums.SERVICE_STATUS_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SERVICE_STATUS_RUS7</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.SERVICE_STATUS_RUS7" title="pudl.metadata.enums.SERVICE_STATUS_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SERVICE_STATUS_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.TRANSMISSION_DISTRIBUTION_TYPES_RUS7" title="pudl.metadata.enums.TRANSMISSION_DISTRIBUTION_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TRANSMISSION_DISTRIBUTION_TYPES_RUS7</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.TRANSMISSION_DISTRIBUTION_TYPES_RUS7" title="pudl.metadata.enums.TRANSMISSION_DISTRIBUTION_TYPES_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TRANSMISSION_DISTRIBUTION_TYPES_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS7" title="pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_GROUP_RUS7</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS7" title="pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_GROUP_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS7" title="pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_ITEM_RUS7</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS7" title="pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS7"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_ITEM_RUS7</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS12" title="pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_GROUP_RUS12</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS12" title="pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_GROUP_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS12" title="pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_ITEM_RUS12</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS12" title="pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITY_PLANT_ITEM_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.DEPRECIATION_CHANGES_GROUP_RUS12" title="pudl.metadata.enums.DEPRECIATION_CHANGES_GROUP_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPRECIATION_CHANGES_GROUP_RUS12</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.DEPRECIATION_CHANGES_GROUP_RUS12" title="pudl.metadata.enums.DEPRECIATION_CHANGES_GROUP_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPRECIATION_CHANGES_GROUP_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.DEPRECIATION_CHANGES_ITEMS_RUS12" title="pudl.metadata.enums.DEPRECIATION_CHANGES_ITEMS_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPRECIATION_CHANGES_ITEMS_RUS12</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.DEPRECIATION_CHANGES_ITEMS_RUS12" title="pudl.metadata.enums.DEPRECIATION_CHANGES_ITEMS_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPRECIATION_CHANGES_ITEMS_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.enums.DEPRECIATION_ITEMS_MISC_RUS12" title="pudl.metadata.enums.DEPRECIATION_ITEMS_MISC_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPRECIATION_ITEMS_MISC_RUS12</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.enums.DEPRECIATION_ITEMS_MISC_RUS12" title="pudl.metadata.enums.DEPRECIATION_ITEMS_MISC_RUS12"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPRECIATION_ITEMS_MISC_RUS12</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -968,6 +973,12 @@
 <p>For states that are split, we chose the timezone with a larger population. List of
 timezones in pytz.common_timezones Canada:
 <a class="reference external" href="https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database">https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database</a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.metadata.enums.EIA191_STORAGE_REGIONS">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.enums.</span></span><span class="sig-name descname"><span class="pre">EIA191_STORAGE_REGIONS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['alaska',</span> <span class="pre">'east</span> <span class="pre">region',</span> <span class="pre">'midwest</span> <span class="pre">region',</span> <span class="pre">'mountain</span> <span class="pre">region',</span> <span class="pre">'pacific</span> <span class="pre">region',</span> <span class="pre">'south</span> <span class="pre">central</span> <span class="pre">region']</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/enums.html#EIA191_STORAGE_REGIONS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.enums.EIA191_STORAGE_REGIONS" title="Link to this definition">#</a></dt>
+<dd><p>EIA storage regions for underground natural gas storage fields (Form 191).</p>
 </dd></dl>
 
 <dl class="py data">
@@ -1342,6 +1353,7 @@ which may show different text.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.enums.EPACEMS_STATES"><code class="docutils literal notranslate"><span class="pre">EPACEMS_STATES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.enums.DIVISION_CODES_US_CENSUS"><code class="docutils literal notranslate"><span class="pre">DIVISION_CODES_US_CENSUS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.enums.APPROXIMATE_TIMEZONES"><code class="docutils literal notranslate"><span class="pre">APPROXIMATE_TIMEZONES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.enums.EIA191_STORAGE_REGIONS"><code class="docutils literal notranslate"><span class="pre">EIA191_STORAGE_REGIONS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.enums.NERC_REGIONS"><code class="docutils literal notranslate"><span class="pre">NERC_REGIONS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.enums.US_TIMEZONES"><code class="docutils literal notranslate"><span class="pre">US_TIMEZONES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930"><code class="docutils literal notranslate"><span class="pre">GENERATION_ENERGY_SOURCES_EIA930</span></code></a></li>

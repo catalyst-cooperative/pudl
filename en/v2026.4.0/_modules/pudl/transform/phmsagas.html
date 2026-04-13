@@ -1,0 +1,1639 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.transform.phmsagas &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/transform/phmsagas';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.transform.phmsagas</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.transform.phmsagas</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Classes &amp; functions to process PHMSA natural gas data before loading into the PUDL DB.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset</span><span class="p">,</span> <span class="n">asset_check</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">standardize_na_values</span><span class="p">,</span>
+    <span class="n">standardize_phone_column</span><span class="p">,</span>
+    <span class="n">zero_pad_numeric_string</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dfs</span><span class="w"> </span><span class="kn">import</span> <span class="n">POLITICAL_SUBDIVISIONS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.enums</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DAMAGE_SUB_TYPES_PHMSAGAS</span><span class="p">,</span>
+    <span class="n">DAMAGE_TYPES_PHMSAGAS</span><span class="p">,</span>
+    <span class="n">INSTALL_DECADE_PATTERN_PHMSAGAS</span><span class="p">,</span>
+    <span class="n">LEAK_SOURCE_PHMSAGAS</span><span class="p">,</span>
+    <span class="n">MAIN_PIPE_SIZES_PHMSAGAS</span><span class="p">,</span>
+    <span class="n">MATERIAL_TYPES_PHMSAGAS</span><span class="p">,</span>
+<span class="p">)</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<span class="c1">##############################################################################</span>
+<span class="c1"># Constants required for transforming PHMSAGAS</span>
+<span class="c1">##############################################################################</span>
+<div class="viewcode-block" id="YEARLY_DISTRIBUTION_FILING_COLUMNS">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_FILING_COLUMNS">[docs]</a>
+<span class="n">YEARLY_DISTRIBUTION_FILING_COLUMNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log_number&quot;</span><span class="p">,</span>  <span class="c1"># we drop this after a check</span>
+    <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;initial_filing_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filing_correction_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;report_filing_type&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;data_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_original_filing&quot;</span><span class="p">,</span>  <span class="c1"># we drop this after condensing into report_filing_type</span>
+    <span class="s2">&quot;is_correction_filing&quot;</span><span class="p">,</span>  <span class="c1"># we drop this after condensing into report_filing_type</span>
+    <span class="s2">&quot;form_revision_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;preparer_name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;preparer_title&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;preparer_phone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;preparer_fax&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;preparer_email&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="YEARLY_DISTRIBUTION_OPERATORS_COLUMNS">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_OPERATORS_COLUMNS">[docs]</a>
+<span class="n">YEARLY_DISTRIBUTION_OPERATORS_COLUMNS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;columns_to_keep&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;supplemental_report_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operator_name_phmsa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operator_type&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;office_street_address&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;office_city&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;office_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;office_zip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;office_county&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;office_city_fips&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;office_county_fips&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;office_state_fips&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operating_state_fips&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;headquarters_street_address&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;headquarters_city&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;headquarters_county&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;headquarters_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;headquarters_zip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;additional_information&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;columns_to_convert_to_ints&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;capitalization_exclusion&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;headquarters_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;office_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;preparer_email&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;additional_information&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="YEARLY_DISTRIBUTION_MISC_COLUMNS">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_MISC_COLUMNS">[docs]</a>
+<span class="n">YEARLY_DISTRIBUTION_MISC_COLUMNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># These are numeric columns that didn&#39;t fit into the melted</span>
+    <span class="c1"># numeric tables.</span>
+    <span class="s2">&quot;all_known_leaks_scheduled_for_repair_main&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;all_known_leaks_scheduled_for_repair&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hazardous_leaks_mechanical_joint_failure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;federal_land_leaks_repaired_or_scheduled&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;average_service_length_feet&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;excavation_tickets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;services_efv_in_system&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;services_efv_installed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;services_shutoff_valve_in_system&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;services_shutoff_valve_installed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unaccounted_for_gas_percent&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="YEARLY_DISTRIBUTION_IDX_ISH">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_IDX_ISH">[docs]</a>
+<span class="n">YEARLY_DISTRIBUTION_IDX_ISH</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MELT_PATTERNS">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.MELT_PATTERNS">[docs]</a>
+<span class="n">MELT_PATTERNS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;_core_phmsagas__yearly_distribution_by_material&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;main_pattern&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;^main_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MATERIAL_TYPES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)_miles$&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;services_pattern&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;^services_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MATERIAL_TYPES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;_core_phmsagas__yearly_distribution_by_install_decade&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;main_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;main_&quot;</span> <span class="o">+</span> <span class="n">INSTALL_DECADE_PATTERN_PHMSAGAS</span> <span class="o">+</span> <span class="s2">&quot;_miles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;services_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;services_&quot;</span> <span class="o">+</span> <span class="n">INSTALL_DECADE_PATTERN_PHMSAGAS</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;_core_phmsagas__yearly_distribution_leaks&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;main_pattern&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;^(all_leaks|hazardous_leaks)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LEAK_SOURCE_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)_mains$&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;services_pattern&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;^(all_leaks|hazardous_leaks)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LEAK_SOURCE_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)_services$&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;_core_phmsagas__yearly_distribution_by_material_and_size&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;main_pattern&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;^main_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MATERIAL_TYPES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MAIN_PIPE_SIZES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)_miles$&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;services_pattern&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;^services_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MATERIAL_TYPES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(.*)$&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;_core_phmsagas__yearly_distribution_excavation_damages&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;damage_pattern&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;^excavation_damage_(?:</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DAMAGE_TYPES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DAMAGE_SUB_TYPES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
+
+
+
+<span class="nd">@asset_check</span><span class="p">(</span><span class="n">asset</span><span class="o">=</span><span class="s2">&quot;raw_phmsagas__yearly_distribution&quot;</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="_check_all_raw_columns_being_transformed">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._check_all_raw_columns_being_transformed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_all_raw_columns_being_transformed</span><span class="p">(</span><span class="n">raw_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check to ensure that we are transforming all of the raw columns.</span>
+
+<span class="sd">    Because we are using a lot of regex patterns to identify the columns</span>
+<span class="sd">    to transform into various tables, we run this check to make sure the</span>
+<span class="sd">    we are actually finding all of the raw columns. If a column is flagged</span>
+<span class="sd">    here, check the column mapping and the patterns in MELT_PATTERNS.1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pattern_cols</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">patterns</span> <span class="ow">in</span> <span class="n">MELT_PATTERNS</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">pattern_cols</span> <span class="o">=</span> <span class="n">pattern_cols</span> <span class="o">+</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">raw_df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">pattern</span><span class="p">)))</span>
+    <span class="n">transformed_cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="n">YEARLY_DISTRIBUTION_OPERATORS_COLUMNS</span><span class="p">[</span><span class="s2">&quot;columns_to_keep&quot;</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">YEARLY_DISTRIBUTION_MISC_COLUMNS</span>
+        <span class="o">+</span> <span class="n">YEARLY_DISTRIBUTION_FILING_COLUMNS</span>
+        <span class="o">+</span> <span class="n">pattern_cols</span>
+        <span class="o">+</span> <span class="p">[</span>  <span class="c1"># This one gets pulled in into _core_phmsagas__yearly_distribution_by_material_and_size</span>
+            <span class="s2">&quot;main_other_material_detail&quot;</span><span class="p">,</span>
+            <span class="c1"># we convert report_year into report_date immediately in _core_phmsagas__yearly_distribution</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">untransformed_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">raw_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">transformed_cols</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">untransformed_columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">untransformed_columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns that are not incorporated into the transform, but expected none: </span><span class="si">{</span><span class="n">untransformed_columns</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="c1">##############################################################################</span>
+<span class="c1"># PHMSAGAS transformation logic</span>
+<span class="c1">##############################################################################</span>
+
+
+<div class="viewcode-block" id="_dedupe_year_distribution_idx">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._dedupe_year_distribution_idx">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_dedupe_year_distribution_idx</span><span class="p">(</span>
+    <span class="n">raw_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove the rare duplicates in the expected primary key.</span>
+
+<span class="sd">    There are 51 found records which have duplicate values for the expected</span>
+<span class="sd">    primary key of this table. Many manipulations are much easier when we have a</span>
+<span class="sd">    unique primary key - merges for instance! So we want to remove these duplicates.</span>
+
+<span class="sd">    On visual inspection, these duplicates either look mostly the same or have one</span>
+<span class="sd">    record with most or all of the non-null or non-zero values. Therefore, we sort</span>
+<span class="sd">    the total columns and then drop duplicates so we kept the records which have the</span>
+<span class="sd">    most information. This is not the most robust method of de-duplicating but there</span>
+<span class="sd">    are so few records compared to the &gt;90k total records.</span>
+
+<span class="sd">    Then there are a few extra fun records that are still duplicated. These all have</span>
+<span class="sd">    the know null-like operator_id_phmsa of 0 so we are going to drop them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tot_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">raw_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">like</span><span class="o">=</span><span class="s2">&quot;_total&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">raw_phmsagas__yearly_distribution</span> <span class="o">=</span> <span class="n">raw_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+        <span class="n">by</span><span class="o">=</span><span class="n">tot_cols</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">dupe_mask</span> <span class="o">=</span> <span class="n">raw_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span>
+        <span class="n">subset</span><span class="o">=</span><span class="n">YEARLY_DISTRIBUTION_IDX_ISH</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_phmsagas__yearly_distribution</span><span class="p">[</span><span class="n">dupe_mask</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">51</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_phmsagas__yearly_distribution</span><span class="p">[</span><span class="n">dupe_mask</span><span class="p">])</span><span class="si">}</span><span class="s2"> duplicates &quot;</span>
+        <span class="s2">&quot;on the expected core PKs, but expected 51 or less&quot;</span>
+    <span class="p">)</span>
+    <span class="n">cleaned_raw</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">raw_phmsagas__yearly_distribution</span><span class="p">[</span><span class="o">~</span><span class="n">dupe_mask</span><span class="p">],</span>
+            <span class="n">raw_phmsagas__yearly_distribution</span><span class="p">[</span><span class="n">dupe_mask</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+                <span class="n">subset</span><span class="o">=</span><span class="n">YEARLY_DISTRIBUTION_IDX_ISH</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="c1"># Identify non-unique groups based on our core PK. These all have a 0 for</span>
+    <span class="c1"># the operator_id_phmsa. We check that those are the only ones and</span>
+    <span class="c1"># then drop them</span>
+    <span class="n">non_unique_groups</span> <span class="o">=</span> <span class="n">cleaned_raw</span><span class="p">[</span>
+        <span class="n">cleaned_raw</span><span class="o">.</span><span class="n">duplicated</span><span class="p">([</span><span class="s2">&quot;report_id&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="c1"># There are 6 values that we expect to be duplicated.</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_unique_groups</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">non_unique_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"> records with duplicates, expected 6 or less.&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">non_unique_groups</span><span class="o">.</span><span class="n">operator_id_phmsa</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span>
+        <span class="s2">&quot;We expect all of the non-unique rows to have the operator_id_phmsa of 0, but found &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">non_unique_groups</span><span class="o">.</span><span class="n">operator_id_phmsa</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># drop the duplicates.</span>
+    <span class="n">cleaned_raw</span> <span class="o">=</span> <span class="n">cleaned_raw</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">non_unique_groups</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cleaned_raw</span></div>
+
+
+
+<div class="viewcode-block" id="_assign_cols_from_patterns">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._assign_cols_from_patterns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_assign_cols_from_patterns</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">col_patterns</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">pattern_col</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add new columns based on regex patterns within an existing column.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: the dataframe with ``pattern_col``</span>
+<span class="sd">        col_patterns: dictionary with new column name (keys) and the regex</span>
+<span class="sd">            pattern found within ``pattern_col`` to extract into the new</span>
+<span class="sd">            column (values)</span>
+<span class="sd">        pattern_col: name of column to extract the patterns from.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">col_patterns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">pattern_col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="backfill_zero_operator_id_phmsa">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.backfill_zero_operator_id_phmsa">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">backfill_zero_operator_id_phmsa</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Backfill some of the 0&#39;s in the operator_id_phmsa.</span>
+
+<span class="sd">    We are trying to backfill PHMSA&#39;s version of null operator_id_phmsa&#39;s which is 0.</span>
+<span class="sd">    These 0&#39;s show up particularly in the pre-1990&#39;s years of data. It would be ideal</span>
+<span class="sd">    to figure out ways to confidently replace all of the 0&#39;s, but for now we are only</span>
+<span class="sd">    replacing 0&#39;s when the operator_name_phmsa is exactly the same.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">og_zeros</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">operator_id_phmsa</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">filled_in</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;report_date&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">operator_id_phmsa_old</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">operator_id_phmsa</span><span class="p">,</span>  <span class="c1"># just for debugging</span>
+            <span class="n">operator_name_phmsa</span><span class="o">=</span><span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span><span class="o">.</span><span class="n">operator_name_phmsa</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">}})</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">operator_id_phmsa</span><span class="o">=</span><span class="k">lambda</span> <span class="n">z</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">operator_id_phmsa</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+                <span class="n">z</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;operator_name_phmsa&quot;</span><span class="p">],</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span>
+                    <span class="s2">&quot;operator_id_phmsa&quot;</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">bfill</span><span class="p">()</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># this is just for our eyeballs - it sorts back to how it was before the sorting by date</span>
+        <span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">still_zeros</span> <span class="o">=</span> <span class="p">(</span><span class="n">filled_in</span><span class="o">.</span><span class="n">operator_id_phmsa</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Backfilled </span><span class="si">{</span><span class="p">(</span><span class="n">og_zeros</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">still_zeros</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">og_zeros</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> of zero&#39;s in operator_id_phmsa&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">filled_in</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_phmsagas__yearly_distribution">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._core_phmsagas__yearly_distribution">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_phmsagas__yearly_distribution</span><span class="p">(</span>
+    <span class="n">raw_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean up the raw yearly distribution table for future transforms.</span>
+
+<span class="sd">    This function mostly deduplicates the records on the core primary key.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># there are a small number of records in the older years with a null operator id...</span>
+    <span class="c1"># sigh. there are already a bunch of records with a placeholder id of 0. so we</span>
+    <span class="c1"># are setting these null ones to zero.</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span>
+            <span class="n">baddies</span> <span class="o">:=</span> <span class="n">raw_phmsagas__yearly_distribution</span><span class="p">[</span>
+                <span class="n">raw_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">operator_id_phmsa</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">&lt;=</span> <span class="mi">20</span>
+    <span class="p">),</span> <span class="n">baddies</span>
+    <span class="n">raw_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">operator_id_phmsa</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">raw_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">operator_id_phmsa</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">cleaned_raw</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">raw_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">report_date</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">standardize_na_values</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">backfill_zero_operator_id_phmsa</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_dedupe_year_distribution_idx</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cleaned_raw</span></div>
+
+
+
+<div class="viewcode-block" id="_melt_col_pattern">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._melt_col_pattern">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_melt_col_pattern</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filter_pattern</span><span class="p">,</span> <span class="n">value_name</span><span class="p">,</span> <span class="n">col_patterns</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Melt a dataframe based on a filter regex pattern and assign pattern columns.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">YEARLY_DISTRIBUTION_IDX_ISH</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">filter_pattern</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;melt_col&quot;</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="n">value_name</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_assign_cols_from_patterns</span><span class="p">,</span> <span class="n">col_patterns</span><span class="p">,</span> <span class="s2">&quot;melt_col&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;melt_col&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">col_patterns</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_melt_merge_main_services">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._melt_merge_main_services">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_melt_merge_main_services</span><span class="p">(</span>
+    <span class="n">cleaned_raw</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">main_pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">services_pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">col_patterns</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter, melt, add columns then merge miles of main and service.&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Melting main&quot;</span><span class="p">)</span>
+    <span class="n">main</span> <span class="o">=</span> <span class="n">_melt_col_pattern</span><span class="p">(</span>
+        <span class="n">cleaned_raw</span><span class="p">,</span> <span class="n">main_pattern</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;mains_miles&quot;</span><span class="p">,</span> <span class="n">col_patterns</span><span class="o">=</span><span class="n">col_patterns</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Melting service&quot;</span><span class="p">)</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="n">_melt_col_pattern</span><span class="p">(</span>
+        <span class="n">cleaned_raw</span><span class="p">,</span> <span class="n">services_pattern</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;services&quot;</span><span class="p">,</span> <span class="n">col_patterns</span><span class="o">=</span><span class="n">col_patterns</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">main</span><span class="p">,</span>
+            <span class="n">services</span><span class="p">,</span>
+            <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">,</span>
+            <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_check_and_drop_log_if_always_in_report_id">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._check_and_drop_log_if_always_in_report_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_and_drop_log_if_always_in_report_id</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check to ensure we can drop the log column w/o losing information.</span>
+
+<span class="sd">    The log column is only reported for a few years and we assume its</span>
+<span class="sd">    duplicative because its just the suffix of report_id. This function</span>
+<span class="sd">    checks that assumption and then deletes the log column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">test_log</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">log_number</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="p">[</span><span class="s2">&quot;report_id&quot;</span><span class="p">,</span> <span class="s2">&quot;log_number&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># there was only one that didn&#39;t meet this expectation.</span>
+    <span class="c1"># the log # was 1064 but the report number ended in 1063</span>
+    <span class="c1"># CG checked and there is another seemingly fully different</span>
+    <span class="c1"># report_id ended in 1064 so this one seems like the log is wrong</span>
+    <span class="c1"># so its seems chill to delete this column</span>
+    <span class="n">log_not_report_suffix</span> <span class="o">=</span> <span class="n">test_log</span><span class="p">[</span>
+        <span class="p">(</span><span class="o">~</span><span class="n">test_log</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">report_id</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">log_number</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">test_log</span><span class="o">.</span><span class="n">report_id</span> <span class="o">!=</span> <span class="s2">&quot;19951063&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">log_not_report_suffix</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;We expect the log_number is almost always the suffix of the report_id but we found:</span><span class="se">\n</span><span class="si">{</span><span class="n">log_not_report_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;log_number&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="_core_phmsagas__yearly_distribution_filings">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_filings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_phmsagas__yearly_distribution_filings</span><span class="p">(</span>
+    <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform information about filings (with PK report_id).&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_core_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">YEARLY_DISTRIBUTION_FILING_COLUMNS</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">standardize_na_values</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">convert_cols_dtypes</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_check_and_drop_log_if_always_in_report_id</span><span class="p">)</span>
+        <span class="c1"># Streamline the initial and supplementary report columns</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">report_filing_type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">z</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">z</span><span class="p">[</span><span class="s2">&quot;report_filing_type&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">is_original_filing</span> <span class="o">==</span> <span class="s2">&quot;Y&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">z</span><span class="o">.</span><span class="n">report_filing_type</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span>
+                    <span class="s2">&quot;Initial&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">is_correction_filing</span> <span class="o">==</span> <span class="s2">&quot;N&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">z</span><span class="o">.</span><span class="n">report_filing_type</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span>
+                    <span class="s2">&quot;Supplemental&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;is_original_filing&quot;</span><span class="p">,</span> <span class="s2">&quot;is_correction_filing&quot;</span><span class="p">])</span>
+        <span class="c1"># Standardize telephone and fax number format and drop (000)-000-0000</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">standardize_phone_column</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;preparer_phone&quot;</span><span class="p">,</span> <span class="s2">&quot;preparer_fax&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_phmsagas__yearly_distribution_operators">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_operators">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_phmsagas__yearly_distribution_operators</span><span class="p">(</span>
+    <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pull and transform the yearly distribution PHMSA data into operator-level data.</span>
+
+<span class="sd">    Transformations include:</span>
+
+<span class="sd">    * Standardize NAs.</span>
+<span class="sd">    * Strip blank spaces around string values.</span>
+<span class="sd">    * Convert specific columns to integers.</span>
+<span class="sd">    * Standardize address columns.</span>
+<span class="sd">    * Standardize phone and fax numbers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        raw_phmsagas__yearly_distribution: The raw ``raw_phmsagas__yearly_distribution`` dataframe.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Transformed ``core_phmsagas__yearly_distribution_operators`` dataframe.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_core_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">:,</span> <span class="n">YEARLY_DISTRIBUTION_OPERATORS_COLUMNS</span><span class="p">[</span><span class="s2">&quot;columns_to_keep&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">standardize_na_values</span><span class="p">)</span>
+
+    <span class="c1"># Convert date columns to datetime</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">like</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+
+    <span class="c1"># Initial string cleaning</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="c1"># Specify the columns to convert to integer type</span>
+    <span class="n">cols_to_convert</span> <span class="o">=</span> <span class="n">YEARLY_DISTRIBUTION_OPERATORS_COLUMNS</span><span class="p">[</span>
+        <span class="s2">&quot;columns_to_convert_to_ints&quot;</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Use convert_dtypes() to convert columns to the most appropriate nullable types</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">cols_to_convert</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols_to_convert</span><span class="p">]</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
+
+    <span class="c1"># Standardize case for city, county, operator name, etc.</span>
+    <span class="c1"># Capitalize the first letter of each word in a list of columns</span>
+    <span class="n">cap_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
+        <span class="n">YEARLY_DISTRIBUTION_OPERATORS_COLUMNS</span><span class="p">[</span><span class="s2">&quot;capitalization_exclusion&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cap_cols</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+    <span class="c1"># Standardize state abbreviations</span>
+    <span class="n">state_to_abbr</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">subdivision_name</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">subdivision_code</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">country_code</span> <span class="o">==</span> <span class="s2">&quot;USA&quot;</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">subdivision_type</span> <span class="o">==</span> <span class="s2">&quot;state&quot;</span>
+    <span class="p">}</span>
+    <span class="n">state_to_abbr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">subdivision_code</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">subdivision_code</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">country_code</span> <span class="o">==</span> <span class="s2">&quot;USA&quot;</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">subdivision_type</span> <span class="o">==</span> <span class="s2">&quot;state&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">state_col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;headquarters_state&quot;</span><span class="p">,</span> <span class="s2">&quot;office_state&quot;</span><span class="p">]:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">state_col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">state_col</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">state_to_abbr</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">state_col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">state_to_abbr</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Standardize zip codes</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;office_zip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">zero_pad_numeric_string</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;office_zip&quot;</span><span class="p">],</span> <span class="n">n_digits</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;headquarters_zip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">zero_pad_numeric_string</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;headquarters_zip&quot;</span><span class="p">],</span> <span class="n">n_digits</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="_core_phmsagas__yearly_distribution_by_material">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_phmsagas__yearly_distribution_by_material</span><span class="p">(</span>
+    <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the _core table of the miles of main and services by material.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_melt_merge_main_services</span><span class="p">(</span>
+        <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">,</span>
+        <span class="n">MELT_PATTERNS</span><span class="p">[</span><span class="s2">&quot;_core_phmsagas__yearly_distribution_by_material&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;main_pattern&quot;</span>
+        <span class="p">],</span>
+        <span class="n">MELT_PATTERNS</span><span class="p">[</span><span class="s2">&quot;_core_phmsagas__yearly_distribution_by_material&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;services_pattern&quot;</span>
+        <span class="p">],</span>
+        <span class="p">{</span><span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MATERIAL_TYPES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="_core_phmsagas__yearly_distribution_by_install_decade">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_install_decade">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_phmsagas__yearly_distribution_by_install_decade</span><span class="p">(</span>
+    <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the _core table of the miles of main and services by decade.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_melt_merge_main_services</span><span class="p">(</span>
+        <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">,</span>
+        <span class="n">MELT_PATTERNS</span><span class="p">[</span><span class="s2">&quot;_core_phmsagas__yearly_distribution_by_install_decade&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;main_pattern&quot;</span>
+        <span class="p">],</span>
+        <span class="n">MELT_PATTERNS</span><span class="p">[</span><span class="s2">&quot;_core_phmsagas__yearly_distribution_by_install_decade&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;services_pattern&quot;</span>
+        <span class="p">],</span>
+        <span class="p">{</span><span class="s2">&quot;install_decade&quot;</span><span class="p">:</span> <span class="n">INSTALL_DECADE_PATTERN_PHMSAGAS</span><span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="_core_phmsagas__yearly_distribution_by_material_and_size">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_by_material_and_size">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_phmsagas__yearly_distribution_by_material_and_size</span><span class="p">(</span>
+    <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the _core table of the miles of main and services by material type and size.</span>
+
+<span class="sd">    This table represents the bulk of the wide raw columns, which means it ends up being</span>
+<span class="sd">    nearly 8 million records. This transform includes the standard</span>
+<span class="sd">    ``_melt_merge_main_services`` as well as adding in a column describing the &quot;other&quot;</span>
+<span class="sd">    material type (``main_other_material_detail``).</span>
+
+<span class="sd">    This table takes by far the longest to generate because of how large it is.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_melt_merge_main_services</span><span class="p">(</span>
+        <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">,</span>
+        <span class="n">MELT_PATTERNS</span><span class="p">[</span><span class="s2">&quot;_core_phmsagas__yearly_distribution_by_material_and_size&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;main_pattern&quot;</span>
+        <span class="p">],</span>
+        <span class="n">MELT_PATTERNS</span><span class="p">[</span><span class="s2">&quot;_core_phmsagas__yearly_distribution_by_material_and_size&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;services_pattern&quot;</span>
+        <span class="p">],</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;main_size&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MAIN_PIPE_SIZES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MATERIAL_TYPES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="c1"># Add in the other_material_detail column</span>
+    <span class="n">other_material_detail</span> <span class="o">=</span> <span class="n">_core_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">material</span><span class="o">=</span><span class="s2">&quot;other&quot;</span>
+    <span class="p">)[</span><span class="n">YEARLY_DISTRIBUTION_IDX_ISH</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;material&quot;</span><span class="p">,</span> <span class="s2">&quot;main_other_material_detail&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;main_other_material_detail&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">other_material_detail</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="n">YEARLY_DISTRIBUTION_IDX_ISH</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;material&quot;</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># okay so an annoying number of stringy info about the material type ended up in the</span>
+    <span class="c1"># services column across a handful of years. luckily they are easy to ID and move</span>
+    <span class="c1"># into the right detail description column</span>
+    <span class="n">not_float_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;services&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isnull</span><span class="p">()][</span>
+        <span class="s2">&quot;services&quot;</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">material_detail_wrong_place_mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">not_float_values</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">df</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="c1"># we are about to move these strings into the right place so we wanna make sure we</span>
+    <span class="c1"># are not replacing info</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">material_detail_wrong_place_mask</span><span class="p">]</span><span class="o">.</span><span class="n">main_other_material_detail</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">material_detail_wrong_place_mask</span><span class="p">,</span> <span class="s2">&quot;main_other_material_detail&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">material_detail_wrong_place_mask</span><span class="p">,</span> <span class="s2">&quot;services&quot;</span>
+    <span class="p">]</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">material_detail_wrong_place_mask</span><span class="p">,</span> <span class="s2">&quot;services&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Float64Dtype</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="_core_phmsagas__yearly_distribution_leaks">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_phmsagas__yearly_distribution_leaks</span><span class="p">(</span>
+    <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform table of leaks - broken out by source and leak severity.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_melt_merge_main_services</span><span class="p">(</span>
+        <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">,</span>
+        <span class="n">MELT_PATTERNS</span><span class="p">[</span><span class="s2">&quot;_core_phmsagas__yearly_distribution_leaks&quot;</span><span class="p">][</span><span class="s2">&quot;main_pattern&quot;</span><span class="p">],</span>
+        <span class="n">MELT_PATTERNS</span><span class="p">[</span><span class="s2">&quot;_core_phmsagas__yearly_distribution_leaks&quot;</span><span class="p">][</span><span class="s2">&quot;services_pattern&quot;</span><span class="p">],</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;leak_severity&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^(all_leaks|hazardous_leaks)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;leak_source&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^(?:all_leaks|hazardous_leaks)_(.*)_(?:mains|services)&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="c1"># All of the other tables with mains in it have the miles of main except for</span>
+        <span class="c1"># this one. We could totally edit _melt_merge_main_services to enable different</span>
+        <span class="c1"># column names instead of doing this rename</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mains_miles&quot;</span><span class="p">:</span> <span class="s2">&quot;mains&quot;</span><span class="p">})</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="_core_phmsagas__yearly_distribution_excavation_damages">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_phmsagas__yearly_distribution_excavation_damages</span><span class="p">(</span>
+    <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform table of damages - broken out by type and sub-type.&quot;&quot;&quot;</span>
+    <span class="n">damage_pattern</span> <span class="o">=</span> <span class="n">MELT_PATTERNS</span><span class="p">[</span>
+        <span class="s2">&quot;_core_phmsagas__yearly_distribution_excavation_damages&quot;</span>
+    <span class="p">][</span><span class="s2">&quot;damage_pattern&quot;</span><span class="p">]</span>
+    <span class="n">col_patterns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;damage_type&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;excavation_damage_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DAMAGE_TYPES_PHMSAGAS</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;damage_sub_type&quot;</span><span class="p">:</span> <span class="n">damage_pattern</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">_core_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">_melt_col_pattern</span><span class="p">,</span>
+        <span class="n">damage_pattern</span><span class="p">,</span>
+        <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;damages&quot;</span><span class="p">,</span>
+        <span class="n">col_patterns</span><span class="o">=</span><span class="n">col_patterns</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="_core_phmsagas__yearly_distribution_misc">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_misc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_phmsagas__yearly_distribution_misc</span><span class="p">(</span>
+    <span class="n">_core_phmsagas__yearly_distribution</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform this distribution table of miscellaneous numeric values.&quot;&quot;&quot;</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;report_id&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_core_phmsagas__yearly_distribution</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="p">:,</span> <span class="n">idx</span> <span class="o">+</span> <span class="n">YEARLY_DISTRIBUTION_MISC_COLUMNS</span>
+        <span class="p">]</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">YEARLY_DISTRIBUTION_MISC_COLUMNS</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Convert percent unaccounted for gas to a fraction</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">unaccounted_for_gas_fraction</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">unaccounted_for_gas_percent</span> <span class="o">/</span> <span class="mi">100</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;unaccounted_for_gas_percent&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

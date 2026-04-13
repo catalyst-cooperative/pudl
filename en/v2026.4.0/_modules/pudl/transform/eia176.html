@@ -1,0 +1,1503 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.transform.eia176 &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/transform/eia176';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.transform.eia176</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.transform.eia176</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module to perform data cleaning functions on EIA176 data tables.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AssetCheckResult</span><span class="p">,</span>
+    <span class="n">AssetIn</span><span class="p">,</span>
+    <span class="n">AssetOut</span><span class="p">,</span>
+    <span class="n">Output</span><span class="p">,</span>
+    <span class="n">asset</span><span class="p">,</span>
+    <span class="n">asset_check</span><span class="p">,</span>
+    <span class="n">multi_asset</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">simplify_columns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DROP_OPERATING_STATES">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.DROP_OPERATING_STATES">[docs]</a>
+<span class="n">DROP_OPERATING_STATES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;fed. gulf of mexico&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mexico&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+<span class="p">)</span></div>
+
+
+
+<span class="nd">@multi_asset</span><span class="p">(</span>
+    <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;_core_eia176__yearly_company_data&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(),</span>
+        <span class="s2">&quot;_core_eia176__yearly_aggregate_data&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(),</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="_core_eia176__numeric_data">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176._core_eia176__numeric_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_eia176__numeric_data</span><span class="p">(</span>
+    <span class="n">raw_eia176__numeric_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Output</span><span class="p">,</span> <span class="n">Output</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process EIA 176 custom report data into company and aggregate outputs.</span>
+
+<span class="sd">    Take raw dataframe produced by querying all forms from the EIA 176 custom report</span>
+<span class="sd">    and return two wide tables with primary keys and one column per variable.</span>
+
+<span class="sd">    One table with data for each year and company, one with state- and US-level</span>
+<span class="sd">    aggregates per year.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">raw_eia176__numeric_data</span> <span class="o">=</span> <span class="n">raw_eia176__numeric_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">aggregate_primary_key</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">]</span>
+    <span class="n">company_primary_key</span> <span class="o">=</span> <span class="n">aggregate_primary_key</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_name&quot;</span><span class="p">]</span>
+    <span class="n">company_drop_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;form_line_numbers&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_type&quot;</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">]</span>
+    <span class="c1"># We must drop &#39;id&#39; here and cannot use it as primary key because its</span>
+    <span class="c1"># arbitrary/duplicate in aggregate records. &#39;id&#39; is a reliable ID only in the context</span>
+    <span class="c1"># of granular company data</span>
+    <span class="n">aggregate_drop_columns</span> <span class="o">=</span> <span class="n">company_drop_columns</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_name&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Clean up text columns to ensure string matching is precise</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;operator_name&quot;</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">]:</span>
+        <span class="n">raw_eia176__numeric_data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">raw_eia176__numeric_data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="n">long_company</span> <span class="o">=</span> <span class="n">raw_eia176__numeric_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">raw_eia176__numeric_data</span><span class="o">.</span><span class="n">operator_name</span> <span class="o">!=</span> <span class="s2">&quot;total of all companies&quot;</span>
+    <span class="p">]</span>
+    <span class="n">wide_company</span> <span class="o">=</span> <span class="n">get_wide_table</span><span class="p">(</span>
+        <span class="n">long_table</span><span class="o">=</span><span class="n">long_company</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">company_drop_columns</span><span class="p">),</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="n">company_primary_key</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">long_aggregate</span> <span class="o">=</span> <span class="n">raw_eia176__numeric_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">raw_eia176__numeric_data</span><span class="o">.</span><span class="n">operator_name</span> <span class="o">==</span> <span class="s2">&quot;total of all companies&quot;</span>
+    <span class="p">]</span>
+    <span class="n">wide_aggregate</span> <span class="o">=</span> <span class="n">get_wide_table</span><span class="p">(</span>
+        <span class="n">long_table</span><span class="o">=</span><span class="n">long_aggregate</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">aggregate_drop_columns</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="n">aggregate_primary_key</span>
+        <span class="p">),</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="n">aggregate_primary_key</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">Output</span><span class="p">(</span><span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;_core_eia176__yearly_company_data&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">wide_company</span><span class="p">),</span>
+        <span class="n">Output</span><span class="p">(</span><span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;_core_eia176__yearly_aggregate_data&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">wide_aggregate</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_wide_table">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.get_wide_table">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_wide_table</span><span class="p">(</span><span class="n">long_table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">primary_key</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Take a &#39;long&#39; or entity-attribute-value table and return a wide table with one column per attribute/variable.&quot;&quot;&quot;</span>
+    <span class="n">unstacked</span> <span class="o">=</span> <span class="n">long_table</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">primary_key</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;variable_name&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="s2">&quot;variable_name&quot;</span>
+    <span class="p">)</span>
+    <span class="n">unstacked</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">unstacked</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">unstacked</span> <span class="o">=</span> <span class="n">simplify_columns</span><span class="p">(</span><span class="n">unstacked</span><span class="p">)</span>  <span class="c1"># Clean up column names</span>
+    <span class="n">unstacked</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># gets rid of &quot;item&quot; name of columns index</span>
+    <span class="k">return</span> <span class="n">unstacked</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span></div>
+
+
+
+<span class="nd">@asset_check</span><span class="p">(</span>
+    <span class="n">asset</span><span class="o">=</span><span class="s2">&quot;_core_eia176__yearly_company_data&quot;</span><span class="p">,</span>
+    <span class="n">additional_ins</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;_core_eia176__yearly_aggregate_data&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">()},</span>
+    <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="validate_totals">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.validate_totals">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_totals</span><span class="p">(</span>
+    <span class="n">_core_eia176__yearly_company_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_core_eia176__yearly_aggregate_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetCheckResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare reported and calculated totals for different geographical aggregates.</span>
+
+<span class="sd">    EIA reports an adjustment company at the area-level, so these values are expected to</span>
+<span class="sd">    be identical.  Once we validate this, we can preserve the detailed data and discard</span>
+<span class="sd">    the aggregate data to remove duplicate information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># First make it so we can directly compare reported aggregates to groupings of</span>
+    <span class="c1"># granular data</span>
+    <span class="n">comparable_aggregates</span> <span class="o">=</span> <span class="n">_core_eia176__yearly_aggregate_data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Group company data into state-level data and compare to reported totals</span>
+    <span class="n">state_data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_core_eia176__yearly_company_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_name&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">aggregate_state</span> <span class="o">=</span> <span class="n">comparable_aggregates</span><span class="p">[</span>
+        <span class="n">comparable_aggregates</span><span class="o">.</span><span class="n">operating_state</span> <span class="o">!=</span> <span class="s2">&quot;u.s. total&quot;</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Compare using the same columns</span>
+    <span class="n">state_diff</span> <span class="o">=</span> <span class="n">aggregate_state</span><span class="p">[</span><span class="n">state_data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">state_data</span><span class="p">)</span>
+
+    <span class="c1"># Group calculated state-level data into US-level data and compare to reported totals</span>
+    <span class="n">us_data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">state_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;operating_state&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;report_year&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;report_year&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">aggregate_us</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">comparable_aggregates</span><span class="p">[</span><span class="n">comparable_aggregates</span><span class="o">.</span><span class="n">operating_state</span> <span class="o">==</span> <span class="s2">&quot;u.s. total&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;operating_state&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;report_year&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># Compare using the same columns</span>
+    <span class="n">us_diff</span> <span class="o">=</span> <span class="n">aggregate_us</span><span class="p">[</span><span class="n">us_data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">us_data</span><span class="p">)</span>
+
+    <span class="c1"># 2024-11-28: &quot;alternative_fuel_fleet_1_yes_0_no&quot; is reported as 1 in aggregate data from 2005</span>
+    <span class="c1"># through 2015. If we run into cases where the totals don&#39;t add up, check</span>
+    <span class="c1"># to see that they are all this specific case and then ignore them.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">state_diff</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">state_diff</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;alternative_fuel_fleet_1_yes_0_no&quot;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">state_diff</span><span class="p">[</span><span class="s2">&quot;alternative_fuel_fleet_1_yes_0_no&quot;</span><span class="p">][</span><span class="s2">&quot;self&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">aggregate_us</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">us_diff</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="o">==</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2005</span><span class="p">,</span> <span class="mi">2016</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">us_diff</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">us_diff</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;alternative_fuel_fleet_1_yes_0_no&quot;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">us_diff</span><span class="p">[</span><span class="s2">&quot;alternative_fuel_fleet_1_yes_0_no&quot;</span><span class="p">][</span><span class="s2">&quot;self&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">aggregate_us</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">us_diff</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="o">==</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2005</span><span class="p">,</span> <span class="mi">2016</span><span class="p">))</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">AssetCheckResult</span><span class="p">(</span><span class="n">passed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eia176__yearly_gas_disposition_by_consumer">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eia176__yearly_gas_disposition_by_consumer</span><span class="p">(</span>
+    <span class="n">_core_eia176__yearly_company_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produce annual company-level gas disposition by consumer class (EIA-176).</span>
+
+<span class="sd">    Transforms company-level EIA-176 data into a normalized table with one row per</span>
+<span class="sd">    (&quot;report_year&quot;, &quot;operator_id_eia&quot;, &quot;operating_state&quot;, &quot;customer_class&quot;, &quot;revenue_class&quot;)</span>
+<span class="sd">    and three value columns: &quot;consumers&quot;, &quot;revenue&quot;, and &quot;volume_mcf&quot;.</span>
+
+<span class="sd">    Processing:</span>
+
+<span class="sd">    * Select sales and transport metrics for residential, commercial, industrial,</span>
+<span class="sd">      electric_power, vehicle_fuel, and other.</span>
+<span class="sd">    * Validate that ``sales_volume + transport_volume == total volume`` per customer</span>
+<span class="sd">      class.</span>
+<span class="sd">    * Normalize ``operating_state`` to two-letter subdivision codes via</span>
+<span class="sd">      ``core_pudl__codes_subdivisions``; drop rows with unknown states (these rows must</span>
+<span class="sd">      contain zeros across value columns).</span>
+<span class="sd">    * Drop rows where all of ``consumers``/``revenue``/``volume_mcf`` are NULL.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        _core_eia176__yearly_company_data: Wide company-level EIA-176 data with</span>
+<span class="sd">            per-metric columns.</span>
+<span class="sd">        core_pudl__codes_subdivisions: Mapping from ``subdivision_name`` to</span>
+<span class="sd">            ``subdivision_code`` used to normalize ``operating_state``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        AssertionError: If component volumes don’t sum to totals, or if rows with</span>
+<span class="sd">            unknown ``operating_state`` contain non-zero values.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - ``volume_mcf`` is thousand cubic feet (MCF).</span>
+<span class="sd">        - ``consumers`` is a count; ``revenue`` is nominal USD as reported.</span>
+<span class="sd">        - ``customer_class`` and ``revenue_class`` are returned as categoricals.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">]</span>
+
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># 1 ==========================================</span>
+        <span class="c1"># 10.1</span>
+        <span class="s2">&quot;residential_sales_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;residential_sales_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;residential_sales_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 11.1</span>
+        <span class="s2">&quot;residential_transport_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;residential_transport_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;residential_transport_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 10.1+11.1</span>
+        <span class="c1"># &quot;residential_volume&quot;,</span>
+        <span class="c1"># 2 ==========================================</span>
+        <span class="c1"># 10.2</span>
+        <span class="s2">&quot;commercial_sales_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;commercial_sales_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;commercial_sales_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 11.2</span>
+        <span class="s2">&quot;commercial_transport_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;commercial_transport_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;commercial_transport_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 10.2 + 11.2</span>
+        <span class="c1"># &quot;commercial_volume&quot;,</span>
+        <span class="c1"># 3 ==========================================</span>
+        <span class="c1"># 10.3</span>
+        <span class="s2">&quot;industrial_sales_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;industrial_sales_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;industrial_sales_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 11.3</span>
+        <span class="s2">&quot;industrial_transport_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;industrial_transport_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;industrial_transport_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 10.3 + 11.3</span>
+        <span class="c1"># &quot;industrial_volume&quot;,</span>
+        <span class="c1"># 4 ==========================================</span>
+        <span class="c1"># 10.4</span>
+        <span class="s2">&quot;electric_power_sales_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electric_power_sales_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electric_power_sales_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 11.4</span>
+        <span class="s2">&quot;electric_power_transport_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electric_power_transport_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electric_power_transport_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 10.4 + 11.4</span>
+        <span class="c1"># &quot;electric_power_volume&quot;,</span>
+        <span class="c1"># 5 ==========================================</span>
+        <span class="c1"># 10.5</span>
+        <span class="s2">&quot;vehicle_fuel_sales_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vehicle_fuel_sales_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vehicle_fuel_sales_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 11.5</span>
+        <span class="s2">&quot;vehicle_fuel_transport_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vehicle_fuel_transport_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vehicle_fuel_transport_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 10.5 + 11.5</span>
+        <span class="c1"># &quot;vehicle_fuel_volume&quot;,</span>
+        <span class="c1"># 6 ==========================================</span>
+        <span class="c1"># 10.6</span>
+        <span class="s2">&quot;other_sales_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;other_sales_revenue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;other_sales_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 11.6</span>
+        <span class="s2">&quot;other_transport_consumers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;other_transport_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 10.6 + 11.6</span>
+        <span class="c1"># &quot;other_volume&quot;,</span>
+    <span class="p">]</span>
+
+    <span class="n">customer_classes</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;residential&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;commercial&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;industrial&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electric_power&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vehicle_fuel&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Assert that volume sums match, ignoring NA cases</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_core_eia176__yearly_company_data</span>
+    <span class="n">mismatched</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="nb">sum</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">customer_class</span><span class="si">}</span><span class="s2">_transport_volume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+            <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">customer_class</span><span class="si">}</span><span class="s2">_sales_volume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+            <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">customer_class</span><span class="si">}</span><span class="s2">_volume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+            <span class="o">&amp;</span> <span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">customer_class</span><span class="si">}</span><span class="s2">_transport_volume&quot;</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">customer_class</span><span class="si">}</span><span class="s2">_sales_volume&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">!=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">customer_class</span><span class="si">}</span><span class="s2">_volume&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">customer_class</span> <span class="ow">in</span> <span class="n">customer_classes</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">mismatched</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;found </span><span class="si">{</span><span class="n">mismatched</span><span class="si">}</span><span class="s2"> mismatched total volumes&quot;</span>
+
+    <span class="c1"># Assert that there is an expected number of mismatched volume totals where one of the columns is null</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_core_eia176__yearly_company_data</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">mismatched</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">customer_class</span><span class="si">}</span><span class="s2">_transport_volume&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">customer_class</span><span class="si">}</span><span class="s2">_sales_volume&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="o">!=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">customer_class</span><span class="si">}</span><span class="s2">_volume&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">customer_class</span> <span class="ow">in</span> <span class="n">customer_classes</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">mismatched</span> <span class="o">&lt;=</span> <span class="mi">28</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mismatched</span><span class="si">}</span><span class="s2"> mismatched volume totals found, expected no more than 28.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_core_eia176__yearly_company_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">primary_key</span> <span class="o">+</span> <span class="n">keep</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_normalize_operating_states</span><span class="p">(</span><span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">id_vars</span><span class="o">=</span><span class="n">primary_key</span><span class="p">,</span> <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;metric&quot;</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;value&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;customer_class&quot;</span><span class="p">,</span> <span class="s2">&quot;revenue_class&quot;</span><span class="p">,</span> <span class="s2">&quot;metric_type&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span>
+        <span class="sa">rf</span><span class="s2">&quot;(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">customer_classes</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(sales|transport)_(.+)$&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;metric&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">primary_key</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;customer_class&quot;</span><span class="p">,</span> <span class="s2">&quot;revenue_class&quot;</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">primary_key</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;metric_type&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;value&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Rename columns as needed</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;volume&quot;</span><span class="p">:</span> <span class="s2">&quot;volume_mcf&quot;</span><span class="p">})</span>
+
+    <span class="c1"># Ensure all values in rows with null operating state are zeroes, and drop them</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()][[</span><span class="s2">&quot;consumers&quot;</span><span class="p">,</span> <span class="s2">&quot;revenue&quot;</span><span class="p">,</span> <span class="s2">&quot;volume_mcf&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="o">==</span> <span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;consumers&quot;</span><span class="p">,</span> <span class="s2">&quot;revenue&quot;</span><span class="p">,</span> <span class="s2">&quot;volume_mcf&quot;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eia176__yearly_gas_disposition">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_gas_disposition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eia176__yearly_gas_disposition</span><span class="p">(</span>
+    <span class="n">_core_eia176__yearly_company_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_eia176__continuation_text_lines</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).&quot;&quot;&quot;</span>
+    <span class="n">extras</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span>
+
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># 9.0</span>
+        <span class="s2">&quot;heat_content_of_delivered_gas_btu_cf&quot;</span><span class="p">,</span>
+        <span class="c1"># 12</span>
+        <span class="s2">&quot;facility_space_heat&quot;</span><span class="p">,</span>  <span class="c1"># 1</span>
+        <span class="s2">&quot;new_pipeline_fill_volume&quot;</span><span class="p">,</span>  <span class="c1"># 2</span>
+        <span class="s2">&quot;pipeline_dist_storage_compressor_use&quot;</span><span class="p">,</span>  <span class="c1"># 3</span>
+        <span class="s2">&quot;vaporization_liquefaction_lng_fuel&quot;</span><span class="p">,</span>  <span class="c1"># 4</span>
+        <span class="s2">&quot;vehicle_fuel_used_in_company_fleet&quot;</span><span class="p">,</span>  <span class="c1"># 5</span>
+        <span class="s2">&quot;other&quot;</span><span class="p">,</span>  <span class="c1"># 6</span>
+        <span class="c1"># 13</span>
+        <span class="s2">&quot;underground_storage_injections_volume&quot;</span><span class="p">,</span>  <span class="c1"># 1</span>
+        <span class="s2">&quot;lng_storage_injections_volume&quot;</span><span class="p">,</span>  <span class="c1"># 1</span>
+        <span class="c1"># 14</span>
+        <span class="s2">&quot;deliveries_out_of_state_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 15</span>
+        <span class="s2">&quot;lease_use_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 16</span>
+        <span class="s2">&quot;returns_for_repress_reinjection_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 17</span>
+        <span class="s2">&quot;losses_from_leaks_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 18</span>
+        <span class="s2">&quot;disposition_to_distribution_companies_volume&quot;</span><span class="p">,</span>  <span class="c1"># 1</span>
+        <span class="s2">&quot;disposition_to_other_pipelines_volume&quot;</span><span class="p">,</span>  <span class="c1"># 2</span>
+        <span class="s2">&quot;disposition_to_storage_operators_volume&quot;</span><span class="p">,</span>  <span class="c1"># 3</span>
+        <span class="s2">&quot;disposition_to_other_volume&quot;</span><span class="p">,</span>  <span class="c1"># 4</span>
+        <span class="c1"># 19</span>
+        <span class="s2">&quot;total_disposition_volume&quot;</span><span class="p">,</span>
+        <span class="c1"># 20</span>
+        <span class="s2">&quot;unaccounted_for&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Keep only the columns we need</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_core_eia176__yearly_company_data</span><span class="o">.</span><span class="n">filter</span><span class="p">([</span><span class="o">*</span><span class="n">primary_key</span><span class="p">,</span> <span class="o">*</span><span class="n">extras</span><span class="p">,</span> <span class="o">*</span><span class="n">keep</span><span class="p">])</span>
+
+    <span class="c1"># Add freeform textual data</span>
+    <span class="n">tl_text</span> <span class="o">=</span> <span class="n">raw_eia176__continuation_text_lines</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="p">[</span><span class="o">*</span><span class="n">primary_key</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">tl_text</span> <span class="o">=</span> <span class="n">tl_text</span><span class="p">[</span><span class="n">tl_text</span><span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1260</span><span class="p">]</span>
+    <span class="n">tl_text</span> <span class="o">=</span> <span class="n">tl_text</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">tl_text</span> <span class="o">=</span> <span class="n">tl_text</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;operational_consumption_other_detail&quot;</span>
+            <span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">tl_text</span><span class="p">[</span><span class="n">primary_key</span><span class="p">]</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(),</span> <span class="p">(</span>
+        <span class="s1">&#39;Found multiple values in &quot;gas consumed in company</span><span class="se">\&#39;</span><span class="s1">s operations&quot; &quot;other&quot; field (12.6)&#39;</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">tl_text</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Additionally, add granular data available for &quot;Deliveries out of state&quot; and &quot;Disposition to other&quot;</span>
+    <span class="c1"># These are getting grouped and summed by operator/state/year</span>
+    <span class="c1"># TODO (12/3/25): Breakout these unaggregated values into separate tables.</span>
+    <span class="n">tl</span> <span class="o">=</span> <span class="n">raw_eia176__continuation_text_lines</span>
+    <span class="n">tl</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="o">*</span><span class="n">primary_key</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="s2">&quot;sum&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">tl</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">primary_key</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;volume_mcf&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">tl</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">filter</span><span class="p">([</span><span class="o">*</span><span class="n">primary_key</span><span class="p">,</span> <span class="mi">1400</span><span class="p">,</span> <span class="mi">1840</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">tl</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Ensure that the summed granular data generally matches relevant values in _core_eia176__yearly_company_data</span>
+    <span class="n">deliveries_out_of_state_mismatch</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;deliveries_out_of_state_volume&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">df</span><span class="p">[</span><span class="mi">1400</span><span class="p">])</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;deliveries_out_of_state_volume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span> <span class="o">|</span> <span class="n">df</span><span class="p">[</span><span class="mi">1400</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">())</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">deliveries_out_of_state_mismatch</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;More than 4 out of state deliveries total mismatches&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 2001: 2</span>
+    <span class="c1"># 2024: 3</span>
+    <span class="c1"># [km feb 2026] - keep an eye on this. Two of these mismatches (1 2001, 1 2024) happen</span>
+    <span class="c1"># bc disposition_to_other_volume is NA while line 1840 has valid data, which suggests</span>
+    <span class="c1"># we should continue to prefer line 1840. But for the other three mismatches (1 2001,</span>
+    <span class="c1"># 2 2024) disposition_to_other_volume always exceeds the value from 1840. If this pattern</span>
+    <span class="c1"># continues, we may want to switch to only using 1840 when disposition_to_other_volume</span>
+    <span class="c1"># is not available.</span>
+    <span class="n">max_disposition_mismatch</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">disposition_to_other_mismatch</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;disposition_to_other_volume&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">df</span><span class="p">[</span><span class="mi">1840</span><span class="p">])</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;disposition_to_other_volume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span> <span class="o">|</span> <span class="n">df</span><span class="p">[</span><span class="mi">1840</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">())</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">disposition_to_other_mismatch</span> <span class="o">&lt;=</span> <span class="n">max_disposition_mismatch</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;More than </span><span class="si">{</span><span class="n">max_disposition_mismatch</span><span class="si">}</span><span class="s2"> disposition-to-other mismatches&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># We assume that the granular data is more accurate, so we&#39;ll use that</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;deliveries_out_of_state_volume&quot;</span><span class="p">,</span> <span class="s2">&quot;disposition_to_other_volume&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="mi">1400</span><span class="p">:</span> <span class="s2">&quot;deliveries_out_of_state_volume&quot;</span><span class="p">,</span>
+            <span class="mi">1840</span><span class="p">:</span> <span class="s2">&quot;disposition_to_other_volume&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Normalize operating states, drop data from outside of 50 states and NA records</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_normalize_operating_states</span><span class="p">(</span><span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">keep</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Replace 9999 and 0 values with nulls</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;heat_content_of_delivered_gas_btu_cf&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">9999</span><span class="p">)</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;heat_content_of_delivered_gas_btu_cf&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s2">&quot;heat_content_of_delivered_gas_btu_cf&quot;</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+
+    <span class="c1"># Convert heat content of delivered gas to mmtbu/mcf</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;heat_content_of_delivered_gas_btu_cf&quot;</span><span class="p">]</span> <span class="o">/=</span> <span class="mi">1000</span>
+
+    <span class="c1"># Renaming and reordering columns</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;heat_content_of_delivered_gas_btu_cf&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;delivered_gas_heat_content_mmbtu_per_mcf&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;facility_space_heat&quot;</span><span class="p">:</span> <span class="s2">&quot;operational_consumption_facility_space_heat_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;new_pipeline_fill_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;operational_consumption_new_pipeline_fill_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pipeline_dist_storage_compressor_use&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;operational_consumption_compressors_mcf&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;vaporization_liquefaction_lng_fuel&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;operational_consumption_lng_vaporization_liquefaction_mcf&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;vehicle_fuel_used_in_company_fleet&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;operational_consumption_vehicle_fuel_mcf&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;other&quot;</span><span class="p">:</span> <span class="s2">&quot;operational_consumption_other_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;underground_storage_injections_volume&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;operational_storage_underground_mcf&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;lng_storage_injections_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;operational_lng_storage_injections_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lease_use_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;producer_lease_use_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;returns_for_repress_reinjection_volume&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;producer_returned_for_repressuring_reinjection_mcf&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;losses_from_leaks_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;losses_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;disposition_to_distribution_companies_volume&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;disposition_distribution_companies_mcf&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;disposition_to_other_pipelines_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;disposition_other_pipelines_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;disposition_to_storage_operators_volume&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;disposition_storage_operators_mcf&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;unaccounted_for&quot;</span><span class="p">:</span> <span class="s2">&quot;unaccounted_for_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;deliveries_out_of_state_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;disposition_out_of_state_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;disposition_to_other_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;other_disposition_all_other_mcf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;total_disposition_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;total_disposition_mcf&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># There is one instance where `losses_mcf` value is inverted</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">operator_id_eia</span> <span class="o">==</span> <span class="s2">&quot;17617106KS&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">report_year</span> <span class="o">==</span> <span class="mi">2008</span><span class="p">),</span> <span class="s2">&quot;losses_mcf&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">operator_id_eia</span> <span class="o">==</span> <span class="s2">&quot;17617106KS&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">report_year</span> <span class="o">==</span> <span class="mi">2008</span><span class="p">),</span> <span class="s2">&quot;losses_mcf&quot;</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="_normalize_operating_states">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176._normalize_operating_states">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_operating_states</span><span class="p">(</span><span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map full state names to their postal abbreviations.</span>
+
+<span class="sd">    This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">codes</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">core_pudl__codes_subdivisions</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;subdivision_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)[</span><span class="s2">&quot;subdivision_code&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+    <span class="n">mask_valid</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">codes</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">mask_safe_drop</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">DROP_OPERATING_STATES</span><span class="p">)</span>
+
+    <span class="n">invalid</span> <span class="o">=</span> <span class="n">norm</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">mask_valid</span> <span class="o">|</span> <span class="n">mask_safe_drop</span><span class="p">)]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">invalid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown operating_state values: </span><span class="si">{</span><span class="n">invalid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

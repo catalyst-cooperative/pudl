@@ -1,0 +1,1990 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.metadata.resources.eia860 &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/resources/eia860';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../../_static/searchtools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script src="../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../../pudl.html" class="nav-link">pudl</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../resources.html" class="nav-link">pudl.metadata.resources</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.metadata.resources.eia860</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.metadata.resources.eia860</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Definitions of data tables primarily coming from EIA-860.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resource_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">canonical_harvested_details</span><span class="p">,</span>
+    <span class="n">inherits_harvested_values_details</span><span class="p">,</span>
+<span class="p">)</span>
+
+<div class="viewcode-block" id="RESOURCE_METADATA">
+<a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/eia860/index.html#pudl.metadata.resources.eia860.RESOURCE_METADATA">[docs]</a>
+<span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;core_eia860__scd_boilers&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;boilers which may vary from year to year. Compiled from across all &quot;</span>
+                <span class="s2">&quot;EIA-860 data.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">canonical_harvested_details</span><span class="p">(</span><span class="s2">&quot;boilers&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_status&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_retirement_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;firing_type_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;firing_type_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;firing_type_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;firing_rate_using_coal_tons_per_hour&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;firing_rate_using_oil_bbls_per_hour&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;firing_rate_using_gas_mcf_per_hour&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;firing_rate_using_other_fuels&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_fuel_code_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_fuel_code_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_fuel_code_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_fuel_code_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;waste_heat_input_mmbtu_per_hour&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;wet_dry_bottom&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fly_ash_reinjection&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;hrsg&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;max_steam_flow_lbs_per_hour&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;turndown_ratio&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;efficiency_100pct_load&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;efficiency_50pct_load&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;air_flow_100pct_load_cubic_feet_per_minute&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;new_source_review&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;new_source_review_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;new_source_review_permit&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;regulation_particulate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;regulation_so2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;regulation_nox&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;standard_particulate_rate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;standard_so2_rate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;standard_nox_rate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_particulate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_so2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_nox&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;compliance_year_particulate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;compliance_year_nox&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;compliance_year_so2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;particulate_control_out_of_compliance_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;particulate_control_out_of_compliance_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;particulate_control_out_of_compliance_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_out_of_compliance_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_out_of_compliance_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_out_of_compliance_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_existing_caaa_compliance_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_existing_caaa_compliance_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_existing_caaa_compliance_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_planned_caaa_compliance_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_planned_caaa_compliance_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_planned_caaa_compliance_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_out_of_compliance_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_out_of_compliance_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_out_of_compliance_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_existing_caaa_compliance_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_existing_caaa_compliance_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_existing_caaa_compliance_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_planned_caaa_compliance_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_planned_caaa_compliance_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_planned_caaa_compliance_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;compliance_year_mercury&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_existing_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_existing_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_existing_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_existing_strategy_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_existing_strategy_5&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_existing_strategy_6&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_proposed_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_proposed_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_proposed_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_existing_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_existing_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_existing_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_manufacturer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_manufacturer_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_proposed_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_proposed_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_proposed_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_status_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;regulation_mercury&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_existing_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_existing_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_existing_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_proposed_strategy_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_proposed_strategy_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_proposed_strategy_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;standard_so2_percent_scrubbed&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">]],</span>
+                <span class="c1"># TODO: Excluding monthly data tables since their report_date</span>
+                <span class="c1"># values don&#39;t match up with core_eia860__scd_generators, which is annual,</span>
+                <span class="c1"># so non-january records violate the constraint.</span>
+                <span class="c1"># See: https://github.com/catalyst-cooperative/pudl/issues/1196</span>
+                <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;core_eia923__monthly_boiler_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__boiler_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_boiler_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__monthly_energy_storage&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__assn_boiler_generator&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;boilers and generators.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 6, Part A)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Augmented with various heuristics within PUDL.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_generator_assn_type_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;steam_plant_type_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;bga_source&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__scd_generators&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;generators which may vary from year to year. Compiled from across &quot;</span>
+                <span class="s2">&quot;EIA-860 and EIA-923 data.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">canonical_harvested_details</span><span class="p">(</span><span class="s2">&quot;generators&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ownership_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;summer_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;summer_capacity_estimate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;winter_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;winter_capacity_estimate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_capacity_mwdc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_storage_capacity_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_5&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_6&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_1_transport_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_1_transport_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_1_transport_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_2_transport_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_2_transport_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_2_transport_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_burn_multiple_fuels&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;deliver_power_transgrid&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;distributed_generation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;synchronized_transmission_grid&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;turbines_num&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_modifications&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_net_summer_capacity_uprate_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_net_winter_capacity_uprate_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_uprate_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_net_summer_capacity_derate_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_net_winter_capacity_derate_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_derate_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_new_prime_mover_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_energy_source_code_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_repower_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;other_planned_modifications&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;other_modifications_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_generator_retirement_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;carbon_capture&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;startup_source_code_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;startup_source_code_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;startup_source_code_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;startup_source_code_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;turbines_inverters_hydrokinetics&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;time_cold_shutdown_full_load_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_new_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_cofire_fuels&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_switch_oil_gas&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nameplate_power_factor&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;minimum_load_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uprate_derate_during_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uprate_derate_completed_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;current_planned_generator_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;summer_estimated_capability_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;winter_estimated_capability_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_retirement_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owned_by_non_utility&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reactive_power_output_mvar&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_qualifying_facility&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">]],</span>
+                <span class="c1"># TODO: Excluding monthly data tables since their report_date</span>
+                <span class="c1"># values don&#39;t match up with core_eia860__scd_generators, which is annual,</span>
+                <span class="c1"># so non-january records violate the constraint.</span>
+                <span class="c1"># See: https://github.com/catalyst-cooperative/pudl/issues/1196</span>
+                <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;core_eia923__monthly_boiler_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_fuel_receipts_costs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__monthly_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation_fuel_by_generator_energy_source&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation_fuel_by_generator&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__monthly_generation_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia__monthly_generators&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia860m__changelog_generators&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__monthly_energy_storage&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__scd_ownership&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;generator ownership. Includes only jointly or third-party owned generators.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 4)&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operator_utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_city&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_country&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_street_address&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_zip_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_utility_id_eia&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_eia860__yearly_ownership&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;generator ownership. Includes only jointly or third-party owned generators.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 4)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Denormalized to include plant and utility names and other associated IDs.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operator_utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_city&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_country&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_street_address&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_zip_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;owner_utility_id_eia&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__scd_plants&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;plants which may vary from year to year. Compiled from across all &quot;</span>
+                <span class="s2">&quot;EIA-860 and EIA-923 data.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">canonical_harvested_details</span><span class="p">(</span><span class="s2">&quot;plants&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ash_impoundment&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ash_impoundment_lined&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ash_impoundment_status&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;datum&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_storage&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_cogen_docket_no&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_cogen_status&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_exempt_wholesale_generator_docket_no&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_exempt_wholesale_generator&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_small_power_producer_docket_no&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_small_power_producer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ferc_qualifying_facility_docket_no&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;grid_voltage_1_kv&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;grid_voltage_2_kv&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;grid_voltage_3_kv&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;iso_rto_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;liquefied_natural_gas_storage&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;natural_gas_local_distribution_company&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;natural_gas_storage&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;natural_gas_pipeline_name_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;natural_gas_pipeline_name_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;natural_gas_pipeline_name_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;has_net_metering&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pipeline_notes&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;primary_purpose_id_naics&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;regulatory_status_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reporting_frequency_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sector_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sector_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;service_area&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;transmission_distribution_owner_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;transmission_distribution_owner_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;transmission_distribution_owner_state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;water_source&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">]],</span>
+                <span class="c1"># TODO: Excluding monthly data tables since their report_date</span>
+                <span class="c1"># values don&#39;t match up with core_eia860__scd_plants, which is annual,</span>
+                <span class="c1"># so non-january records fail.</span>
+                <span class="c1"># See: https://github.com/catalyst-cooperative/pudl/issues/1196</span>
+                <span class="c1"># Also all the _core tables have not yet been harvested, so if they</span>
+                <span class="c1"># contain unique plant_id_eia and report_date combinations, those would</span>
+                <span class="c1"># be expected to fail.</span>
+                <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;_core_eia923__monthly_cooling_system_information&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;_core_eia923__yearly_fgd_operation_maintenance&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;_core_eia923__yearly_byproduct_disposition&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;_core_eia923__yearly_byproduct_expenses_and_revenues&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;_core_eia923__yearly_emissions_control&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__monthly_boiler_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__boiler_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_boiler_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_fuel_receipts_costs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__generation_fuel_combined&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation_fuel_combined&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation_fuel_by_generator_energy_source&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation_fuel_by_generator&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__monthly_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__monthly_generation_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__monthly_generation_fuel_nuclear&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia__monthly_generators&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia860m__changelog_generators&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__monthly_energy_storage&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__scd_utilities&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;utilities which may vary from year to year. Compiled from all EIA data.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">canonical_harvested_details</span><span class="p">(</span><span class="s2">&quot;utilities&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;street_address&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;city&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;zip_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plants_reported_owner&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plants_reported_operator&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plants_reported_asset_manager&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plants_reported_other_relationship&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;attention_line&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;address_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;zip_code_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_firstname&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_lastname&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_title&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phone_number&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phone_extension&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_firstname_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_lastname_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_title_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phone_number_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;phone_extension_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">&quot;owner_utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+                <span class="p">],</span>
+                <span class="c1"># TODO: Excluding monthly data tables since their report_date</span>
+                <span class="c1"># values don&#39;t match up with core_eia860__scd_plants, which is annual, so</span>
+                <span class="c1"># non-january records fail.</span>
+                <span class="c1"># See: https://github.com/catalyst-cooperative/pudl/issues/1196</span>
+                <span class="c1"># NOTE: EIA-861 has not gone through harvesting / normalization yet.</span>
+                <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;core_eia861__yearly_advanced_metering_infrastructure&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__assn_balancing_authority&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia861__yearly_utility_service_territory&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_demand_response&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_demand_response_water_heater&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_demand_side_management_ee_dr&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_demand_side_management_misc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_demand_side_management_sales&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__boiler_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_boiler_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__fuel_receipts_costs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_fuel_receipts_costs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__generation_fuel_combined&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation_fuel_combined&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation_fuel_by_generator_energy_source&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia923__monthly_generation_fuel_by_generator&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia860m__changelog_generators&quot;</span><span class="p">,</span>
+                    <span class="c1"># Utility IDs in this table are owners, not operators, and we are</span>
+                    <span class="c1"># not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.</span>
+                    <span class="c1"># See https://github.com/catalyst-cooperative/pudl/issues/1393</span>
+                    <span class="s2">&quot;out_eia923__yearly_generation_fuel_by_generator_energy_source_owner&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_distributed_generation_fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_distributed_generation_misc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_distributed_generation_tech&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_distribution_systems&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_dynamic_pricing&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_energy_efficiency&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_ferc714__respondents_with_fips&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_green_pricing&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_eia__monthly_generators&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_mergers&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_net_metering_customer_fuel_class&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_net_metering_misc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_non_net_metering_customer_fuel_class&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_non_net_metering_misc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_operational_data_misc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_operational_data_revenue&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_reliability&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_sales&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_short_form&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_service_territory&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_ferc714__summarized_demand&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__assn_utility&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_utility_data_misc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_utility_data_nerc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;core_eia861__yearly_utility_data_rto&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;out_sec10k__quarterly_company_information&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__scd_emissions_control_equipment&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;emissions control equipment reported to EIA, including cost, type, &quot;</span>
+                <span class="s2">&quot;operating status, retirement date, and install year.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Includes control ids for sulfur dioxide</span>
+<span class="s2">(SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas</span>
+<span class="s2">monitoring.</span>
+
+<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">&quot;plants and utilities&quot;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_equipment_type_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;particulate_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;acid_gas_control&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_equipment_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_retirement_date&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;emission_control_id_pudl&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_eia860__yearly_emissions_control_equipment&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the cost, type, operating status, retirement date, and install year of emissions control equipment reported to EIA.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;Includes control ids for sulfur dioxide</span>
+<span class="s2">(SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas monitoring.</span>
+
+<span class="s2">This denormalized version includes plant name, utility id, pudl id, and utility name</span>
+<span class="s2">columns.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_equipment_type_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mercury_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;nox_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;particulate_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;acid_gas_control&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_equipment_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_retirement_date&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;emission_control_id_pudl&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__assn_yearly_boiler_emissions_control_equipment&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;EIA boiler IDs and emissions control IDs for NOx, SO2, &quot;</span>
+                <span class="s2">&quot;mercury, and particulate monitoring.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The relationship between the IDs is sometimes many to many.&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_id_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_id_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emission_control_id_eia&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__assn_boiler_cooling&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;EIA boiler IDs and EIA cooling system IDs.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_id_eia&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__assn_boiler_stack_flue&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;EIA boiler IDs and EIA stack and/or flue system IDs.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;stack_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;flue_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;stack_flue_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;stack_flue_id_pudl&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;stack_flue_id_pudl&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;_core_eia860__cooling_equipment&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Information about cooling equipment at generation facilities.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 6D)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;unharvested&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">&quot;This table has not been harvested with other &quot;</span>
+                        <span class="s2">&quot;EIA 923 or 860 data. The same variables present in this table &quot;</span>
+                        <span class="s2">&quot;may show up in other _core tables in other years.&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;A single plant can have</span>
+<span class="s2">several collections of cooling equipment, so each line in this table represents one</span>
+<span class="s2">cooling system at a given plant. You can determine how to link each set of cooling</span>
+<span class="s2">equipment to specific boilers in a plant via :ref:`core_eia860__assn_boiler_cooling`.</span>
+
+<span class="s2">EIA-860 respondents are required to submit information about cooling equipment for</span>
+<span class="s2">plants over 100 MW - including steam, combined cycle, nuclear or solar thermal</span>
+<span class="s2">generators.</span>
+
+<span class="s2">This table has been cleaned, but not tidied/normalized with other EIA 923 or 860</span>
+<span class="s2">data. The same variables present in this table may show up in other</span>
+<span class="s2">tables and/or in other years. Once this table has been harvested, it will be converted</span>
+<span class="s2">into a``core`` table.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;chlorine_equipment_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;chlorine_equipment_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_equipment_total_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_status_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_system_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_type_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_type_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_type_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_type_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_water_discharge&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_water_source&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;intake_distance_shore_feet&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;intake_distance_surface_feet&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;intake_rate_100pct_gallons_per_minute&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;outlet_distance_shore_feet&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;outlet_distance_surface_feet&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;percent_dry_cooling&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_summer_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pond_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pond_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pond_surface_area_acres&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pond_volume_acre_feet&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;power_requirement_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;steam_plant_type_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tower_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tower_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tower_type_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tower_type_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tower_type_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tower_type_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tower_water_rate_100pct_gallons_per_minute&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;water_source_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;water_source&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;water_type_code&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cooling_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;_core_eia860__fgd_equipment&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Information about flue gas desulfurization equipment at generation facilities.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 6E)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;unharvested&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">&quot;This table has not been harvested with other &quot;</span>
+                        <span class="s2">&quot;EIA 923 or 860 data. The same variables present in this table &quot;</span>
+                        <span class="s2">&quot;may show up in other _core tables in other years.&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fgd_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fgd_operational_status_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;flue_gas_bypass_fgd&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;byproduct_recovery&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sludge_pond&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sludge_pond_lined&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pond_landfill_requirements_acre_foot_per_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fgd_structure_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fgd_other_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sludge_disposal_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;total_fgd_equipment_cost&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fgd_trains_100pct&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fgd_trains_total&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;flue_gas_entering_fgd_pct_of_total&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;flue_gas_exit_rate_cubic_feet_per_minute&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;flue_gas_exit_temperature_fahrenheit&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_emission_rate_lbs_per_hour&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_equipment_type_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_equipment_type_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_equipment_type_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_equipment_type_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_removal_efficiency_design&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;specifications_of_coal_ash&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;specifications_of_coal_sulfur&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sorbent_type_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sorbent_type_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sorbent_type_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sorbent_type_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fgd_manufacturer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fgd_manufacturer_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;steam_plant_type_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_summer_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;water_source&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;so2_control_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__scd_generators_wind&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;wind generators that may vary from year to year.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 3.2)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;This table includes only those values that are unique to wind generators. &quot;</span>
+                <span class="s2">&quot;The rest of the columns that are reported in the EIA-860 Wind tabs are &quot;</span>
+                <span class="s2">&quot;included in :ref:`core_eia860__scd_generators` and :ref:`core_eia__entity_generators`.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;design_wind_speed_mph&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;obstacle_id_faa&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;predominant_turbine_manufacturer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;predominant_turbine_model&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;turbine_hub_height_feet&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;wind_quality_class&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__scd_generators_solar&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;solar generators that may vary from year to year.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 3.3)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;This table includes only those values that are unique to solar generators. &quot;</span>
+                <span class="s2">&quot;The rest of the columns that are reported in the EIA-860 Solar tabs are &quot;</span>
+                <span class="s2">&quot;included in :ref:`core_eia860__scd_generators` and :ref:`core_eia__entity_generators`.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;standard_testing_conditions_capacity_mwdc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_metering_capacity_mwdc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_net_metering_agreement&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_virtual_net_metering_agreement&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;virtual_net_metering_capacity_mwdc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;azimuth_angle_deg&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tilt_angle_deg&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_lenses_mirrors&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_single_axis_tracking&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_dual_axis_tracking&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_fixed_tilt&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_east_west_fixed_tilt&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_parabolic_trough&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_linear_fresnel&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_power_tower&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_dish_engine&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_technology_other&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_material_crystalline_silicon&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_material_thin_film_a_si&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_material_thin_film_cdte&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_material_thin_film_cigs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_material_thin_film_other&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_material_other&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;uses_bifacial_panels&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__scd_generators_energy_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;energy storage which may vary from year to year.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 3)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;This table includes only those values that are unique to energy storage. &quot;</span>
+                <span class="s2">&quot;The rest of the columns that are reported in the EIA-860 Energy Storage tabs are &quot;</span>
+                <span class="s2">&quot;included in :ref:`core_eia860__scd_generators` and :ref:`core_eia__entity_generators`.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;max_charge_rate_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;max_discharge_rate_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;storage_enclosure_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;storage_technology_code_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;storage_technology_code_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;storage_technology_code_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;storage_technology_code_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_arbitrage&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_backup_power&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_co_located_renewable_firming&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_frequency_regulation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_load_following&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_load_management&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_ramping_spinning_reserve&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_system_peak_shaving&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_transmission_and_distribution_deferral&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;served_voltage_or_reactive_power_support&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;stored_excess_wind_and_solar_generation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_ac_coupled&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_dc_coupled&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_dc_coupled_tightly&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_independent&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_transmission_and_distribution_asset_support&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_direct_support&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia_direct_support_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id_direct_support_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia_direct_support_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id_direct_support_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia_direct_support_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id_direct_support_3&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia860__scd_generators_multifuel&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;generators that may vary from year to year, pertaining to fuel-switching and the use of multiple fuels.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 3)&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operational_status_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sector_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sector_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;summer_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;winter_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;current_planned_generator_operating_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;energy_source_code_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_burn_multiple_fuels&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_cofire_fuels&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cofire_energy_source_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cofire_energy_source_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cofire_energy_source_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cofire_energy_source_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cofire_energy_source_5&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cofire_energy_source_6&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_switch_oil_gas&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;time_to_switch_oil_to_gas&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;time_to_switch_gas_to_oil&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_switch_when_operating&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_summer_capacity_natural_gas_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_summer_capacity_oil_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_winter_capacity_natural_gas_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_winter_capacity_oil_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;has_factors_that_limit_switching&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;has_storage_limits&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;has_air_permit_limits&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;has_other_factors_that_limit_switching&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_cofire_oil_and_gas&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_cofire_100_oil&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;max_oil_heat_input&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;max_oil_output_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;can_fuel_switch&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;has_regulatory_limits&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_switch_energy_source_1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_switch_energy_source_2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_switch_energy_source_3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_switch_energy_source_4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_switch_energy_source_5&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fuel_switch_energy_source_6&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;EIA-860 resource attributes organized by PUDL identifier (``resource.name``).</span>
+
+<span class="sd">Keys are in alphabetical order.</span>
+
+<span class="sd">See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of</span>
+<span class="sd">``foreign_key_rules``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

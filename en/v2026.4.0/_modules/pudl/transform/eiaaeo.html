@@ -1,0 +1,1738 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.transform.eiaaeo &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/transform/eiaaeo';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.transform.eiaaeo</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.transform.eiaaeo</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Transform raw AEO tables into normalized assets.</span>
+
+<span class="sd">Raw AEO tables often contain many different types of data which are split out</span>
+<span class="sd">along different dimensions. For example, one table may contain generation</span>
+<span class="sd">split out by fuel type as well as prices split out by service category.</span>
+
+<span class="sd">As a result, we need to split these large tables into smaller tables that have</span>
+<span class="sd">more uniform data, which we do by filtering the large table to its relevant</span>
+<span class="sd">subsets, and then transforming some human-readable string fields into useful</span>
+<span class="sd">metadata fields.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetCheckResult</span><span class="p">,</span> <span class="n">AssetChecksDefinition</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">asset_check</span>
+
+
+<div class="viewcode-block" id="__sanitize_string">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.__sanitize_string">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">__sanitize_string</span><span class="p">(</span><span class="n">series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">series</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\W+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;_+$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>  <span class="c1"># This is for () that get turned into _ at the end.</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_series_info">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.get_series_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_series_info</span><span class="p">(</span><span class="n">series_name</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Break human-readable series name into machine-readable fields.</span>
+
+<span class="sd">    The series name contains several comma-separated fields: the variable,</span>
+<span class="sd">    the region, the case, and the report year.</span>
+
+<span class="sd">    The variable then contains its own colon-separated fields: a general topic,</span>
+<span class="sd">    a less general subtopic, and specific variable name. It may also contain a</span>
+<span class="sd">    fourth field for a specific dimension such as fuel type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">series_name</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;variable_fields&quot;</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;region_series&quot;</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;case_series&quot;</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;report_year_series&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">variable_fields</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">variable_fields</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; : &quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;topic&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;subtopic&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;variable_name&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;dimension&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">fields</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">variable_fields</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_category_info">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.get_category_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_category_info</span><span class="p">(</span><span class="n">category_name</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Break human-readable category name into machine-readable fields.</span>
+
+<span class="sd">    Fortunately the only field we&#39;re pulling out of the category so far is the</span>
+<span class="sd">    region, which is the last of two comma-separated fields.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">category_name</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;region_category&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fields</span></div>
+
+
+
+<div class="viewcode-block" id="subtotals_match_reported_totals_ratio">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">subtotals_match_reported_totals_ratio</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pk</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">fact_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">dimension_column</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;When subtotals and totals are reported in the same column, check their sums.</span>
+
+<span class="sd">    Group by some key, then check that within each group the non-``&quot;total&quot;``</span>
+<span class="sd">    values sum up to the corresponding ``&quot;total&quot;`` value.</span>
+
+<span class="sd">    Checks the list of fact columns to in aggregate, but if you want to check</span>
+<span class="sd">    that *each* column sums up correctly, individually, you can call this</span>
+<span class="sd">    function once per column.</span>
+
+<span class="sd">    TODO 2024-05-06: it may make sense to pass the threshold into this</span>
+<span class="sd">    function, which would clean up the call sites.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: the dataframe to investigate</span>
+<span class="sd">        pk: the key to group facts by</span>
+<span class="sd">        fact_columns: the columns containing facts you&#39;d like to sum</span>
+<span class="sd">        dimension_column: the column which tells you if a fact is a sub-total</span>
+<span class="sd">            or a total.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ratio of reported totals that are np.isclose() to the sum of their</span>
+<span class="sd">        component parts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reported_totals</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">dimension_column</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;total&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">dimension_column</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">fact_columns</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">calculated_totals</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">dimension_column</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;total&quot;</span><span class="p">,</span> <span class="n">pk</span> <span class="o">+</span> <span class="n">fact_columns</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">joined</span> <span class="o">=</span> <span class="n">calculated_totals</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">reported_totals</span><span class="p">,</span> <span class="n">lsuffix</span><span class="o">=</span><span class="s2">&quot;_calc&quot;</span><span class="p">,</span> <span class="n">rsuffix</span><span class="o">=</span><span class="s2">&quot;_reported&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span>
+    <span class="p">)</span>
+    <span class="n">close</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+        <span class="n">joined</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">_calc&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">fact_columns</span><span class="p">]],</span>
+        <span class="n">joined</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">_reported&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">fact_columns</span><span class="p">]],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">close</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">reported_totals</span><span class="o">.</span><span class="n">size</span></div>
+
+
+
+<div class="viewcode-block" id="series_sum_ratio">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.series_sum_ratio">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">series_sum_ratio</span><span class="p">(</span><span class="n">summands</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find how well multiple columns sum to another column.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        summands: the columns that should sum to total</span>
+<span class="sd">        total: the target total column</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        the ratio of values in ``total`` that are np.isclose() to the sum of</span>
+<span class="sd">        ``summands``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+            <span class="n">summands</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">),</span>
+            <span class="n">total</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="o">/</span> <span class="n">total</span><span class="o">.</span><span class="n">size</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="filter_enrich_sanitize">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.filter_enrich_sanitize">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_enrich_sanitize</span><span class="p">(</span>
+    <span class="n">raw_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">relevant_series_names</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Basic cleaning steps common to all AEO tables.</span>
+
+<span class="sd">    1. Filter the AEO rows based on the series name</span>
+<span class="sd">    2. Break the series name and category names into useful fields</span>
+<span class="sd">    3. Sanitize strings &amp; turn data values into a numeric field</span>
+<span class="sd">    4. Make some defensive checks about data from multiple sources that</span>
+<span class="sd">       *should* agree.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="n">raw_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">raw_df</span><span class="o">.</span><span class="n">series_name</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">relevant_series_names</span><span class="p">)]</span>
+
+    <span class="n">enriched</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">filtered</span><span class="p">,</span>
+            <span class="n">get_series_info</span><span class="p">(</span><span class="n">filtered</span><span class="o">.</span><span class="n">series_name</span><span class="p">),</span>
+            <span class="n">get_category_info</span><span class="p">(</span><span class="n">filtered</span><span class="o">.</span><span class="n">category_name</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;series_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;category_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;variable_fields&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">sanitized</span> <span class="o">=</span> <span class="n">enriched</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">colname</span><span class="p">:</span> <span class="n">__sanitize_string</span><span class="p">(</span><span class="n">enriched</span><span class="p">[</span><span class="n">colname</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">enriched</span><span class="o">.</span><span class="n">columns</span>
+            <span class="k">if</span> <span class="n">colname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;projection_year&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">}</span>
+        <span class="p">},</span>
+        <span class="n">value</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">assert</span> <span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">region_series</span> <span class="o">==</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">region_category</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="p">(</span>
+        <span class="s2">&quot;Series and category must agree on region!&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">case_series</span> <span class="o">==</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">model_case_eiaaeo</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="p">(</span>
+        <span class="s2">&quot;Series and taxonomy must agree on case!&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Dropping report_year_series here because we don&#39;t need it but we MIGHT want it later</span>
+    <span class="c1"># So not fully removing it from get_series_info()</span>
+    <span class="k">return</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;region_series&quot;</span><span class="p">,</span> <span class="s2">&quot;case_series&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year_series&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;region_category&quot;</span><span class="p">:</span> <span class="s2">&quot;region&quot;</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="_collect_totals">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo._collect_totals">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_totals</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">total_colname</span><span class="o">=</span><span class="s2">&quot;dimension&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Various columns have different names for their &quot;total&quot; fact.</span>
+
+<span class="sd">    This combines them into one &quot;total&quot; dimension.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">dimension</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">dimension</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^total.*$&quot;</span><span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+            <span class="s2">&quot;total&quot;</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="unstack">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.unstack">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">unstack</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">eventual_pk</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unstack the values by the various variable names provided.&quot;&quot;&quot;</span>
+    <span class="n">unstacked</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">eventual_pk</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;variable_name&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;variable_name&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">unstacked</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">unstacked</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">droplevel</span><span class="p">()</span>
+    <span class="n">unstacked</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">unstacked</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology</span><span class="p">(</span>
+    <span class="n">raw_eiaaeo__electric_power_projections_regional</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Projected net summer generation capacity and additions/retirements.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_drop_aggregated_generation_data</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;These &quot;aggregate&quot; data series aren&#39;t split out by technology.</span>
+
+<span class="sd">        We&#39;ll report them elsewhere - but for this resource we filter them out.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">generation_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">==</span> <span class="s2">&quot;generation&quot;</span>
+        <span class="n">is_aggregated_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dimension</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;total_generation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sales_to_customers&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generation_for_own_use&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">generation_mask</span> <span class="o">&amp;</span> <span class="n">is_aggregated_mask</span><span class="p">)]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_decumulate</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">decumulate_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;De-accumulate the cumulative columns so we get yearly values.</span>
+
+<span class="sd">        Cumulative values are less useful because they require the user to know</span>
+<span class="sd">        what year the accumulation starts.</span>
+
+
+<span class="sd">        Raises:</span>
+<span class="sd">        AssertionError: It&#39;s important that ``projection_year`` is the last</span>
+<span class="sd">            level of index, so that when we diff() we are actually subtracting</span>
+<span class="sd">            year over year. The index is set when passing ``eventual_pk`` to</span>
+<span class="sd">            ``unstack()``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;projection_year&quot;</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;Projection year must be last level of index!&quot;</span>
+        <span class="p">)</span>
+        <span class="n">new_columns</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">decumulate_column</span> <span class="ow">in</span> <span class="n">decumulate_columns</span><span class="p">:</span>
+            <span class="n">cumulative_colname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;cumulative_</span><span class="si">{</span><span class="n">decumulate_column</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cumulative_colname</span><span class="p">]</span>
+            <span class="n">new_columns</span><span class="p">[</span><span class="n">decumulate_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="n">new_columns</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;cumulative_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">decumulate_columns</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_totals_add_up</span><span class="p">(</span><span class="n">unstacked</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that reported totals match with calculated totals.</span>
+
+<span class="sd">        We want to check that:</span>
+
+<span class="sd">        * the &quot;total&quot; value is equal to the sum of the non-total values for</span>
+<span class="sd">          &quot;cumulative planned/unplanned additions/retirements.&quot;</span>
+<span class="sd">        * cumulative planned + unplanned additions == cumulative total additions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ratio_close_reported_calculated</span> <span class="o">=</span> <span class="n">subtotals_match_reported_totals_ratio</span><span class="p">(</span>
+            <span class="n">unstacked</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
+            <span class="n">pk</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;projection_year&quot;</span><span class="p">],</span>
+            <span class="n">fact_columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;cumulative_planned_additions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cumulative_unplanned_additions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cumulative_retirements&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">dimension_column</span><span class="o">=</span><span class="s2">&quot;dimension&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="mf">0.998</span> <span class="o">&lt;</span> <span class="n">ratio_close_reported_calculated</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;reported vs. calculated totals: </span><span class="si">{</span><span class="n">ratio_close_reported_calculated</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">totals</span> <span class="o">=</span> <span class="n">unstacked</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;dimension&quot;</span><span class="p">)</span>
+        <span class="n">ratio_close_additions_to_total</span> <span class="o">=</span> <span class="n">series_sum_ratio</span><span class="p">(</span>
+            <span class="n">summands</span><span class="o">=</span><span class="n">totals</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;cumulative_planned_additions&quot;</span><span class="p">,</span> <span class="s2">&quot;cumulative_unplanned_additions&quot;</span><span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">totals</span><span class="o">.</span><span class="n">cumulative_total_additions</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="mf">0.999</span> <span class="o">&lt;</span> <span class="n">ratio_close_additions_to_total</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;planned + unplanned vs. total: </span><span class="si">{</span><span class="n">ratio_close_additions_to_total</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">sanitized</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">filter_enrich_sanitize</span><span class="p">(</span>
+            <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_eiaaeo__electric_power_projections_regional</span><span class="p">,</span>
+            <span class="n">relevant_series_names</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Electricity : Electric Power Sector : Capacity&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Electricity : Electric Power Sector : Generation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Electricity : Electric Power Sector : Cumulative Retirements&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Electricity : Electric Power Sector : Cumulative Planned Additions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Electricity : Electric Power Sector : Cumulative Unplanned Additions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Electricity : Electric Power Sector : Cumulative Total Additions&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_drop_aggregated_generation_data</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_collect_totals</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># 1 BKWh = 1e12 Wh = 1e6 MWh</span>
+    <span class="n">sanitized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;bkwh&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1e6</span>
+    <span class="c1"># 1 GW = 1e9 W = 1e3 MW</span>
+    <span class="n">sanitized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;gw&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1e3</span>
+
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;electricity&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">subtopic</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;electric_power_sector&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;bkwh&quot;</span><span class="p">,</span> <span class="s2">&quot;gw&quot;</span><span class="p">}</span>
+
+    <span class="n">trimmed</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;topic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;subtopic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;series_id&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">unstacked</span> <span class="o">=</span> <span class="n">unstack</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">trimmed</span><span class="p">,</span>
+        <span class="n">eventual_pk</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dimension&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;projection_year&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># check that the totals all add up *before* decumulating, because</span>
+    <span class="c1"># decumulating introduces some small amount more floating point error.</span>
+    <span class="n">_check_totals_add_up</span><span class="p">(</span><span class="n">unstacked</span><span class="p">)</span>
+    <span class="c1"># Now that the totals add up, we can drop the total_additions col</span>
+    <span class="n">unstacked</span> <span class="o">=</span> <span class="n">unstacked</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;cumulative_total_additions&quot;</span><span class="p">)</span>
+
+    <span class="n">decumulate_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;planned_additions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unplanned_additions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;retirements&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">decumulated</span> <span class="o">=</span> <span class="n">_decumulate</span><span class="p">(</span><span class="n">unstacked</span><span class="p">,</span> <span class="n">decumulate_columns</span><span class="o">=</span><span class="n">decumulate_columns</span><span class="p">)</span>
+
+    <span class="n">renamed_for_pudl</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">decumulated</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">dimension</span> <span class="o">!=</span> <span class="s2">&quot;total&quot;</span><span class="p">)])</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="s2">&quot;summer_capacity_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;unplanned_additions&quot;</span><span class="p">:</span> <span class="s2">&quot;summer_capacity_unplanned_additions_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;planned_additions&quot;</span><span class="p">:</span> <span class="s2">&quot;summer_capacity_planned_additions_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;retirements&quot;</span><span class="p">:</span> <span class="s2">&quot;summer_capacity_retirements_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="s2">&quot;gross_generation_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity_market_module_region_eiaaeo&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;technology_description_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">renamed_for_pudl</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eiaaeo__yearly_projected_electric_sales">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_electric_sales">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eiaaeo__yearly_projected_electric_sales</span><span class="p">(</span>
+    <span class="n">raw_eiaaeo__electric_power_projections_regional</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Projected electricity sales by customer class.&quot;&quot;&quot;</span>
+    <span class="c1"># Our series names here only have 3 fields:</span>
+    <span class="c1"># 1. &quot;Electricity&quot;: broad topic</span>
+    <span class="c1"># 2. &quot;Electricity Demand&quot;: the variable name</span>
+    <span class="c1"># 3. &quot;Commercial&quot;, &quot;Industrial&quot;: etc. the actual dimension</span>
+    <span class="c1"># So we rename some of the extracted columns.</span>
+    <span class="c1">#</span>
+    <span class="c1"># TODO 2024-05-06 (daz): consider parametrizing the field assignments -</span>
+    <span class="c1"># though for tables which have a mix of 3/4 field series, we will always</span>
+    <span class="c1"># have to do some munging at the end.</span>
+    <span class="n">sanitized</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">filter_enrich_sanitize</span><span class="p">(</span>
+            <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_eiaaeo__electric_power_projections_regional</span><span class="p">,</span>
+            <span class="n">relevant_series_names</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Electricity : Electricity Demand&quot;</span><span class="p">,),</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;variable_name&quot;</span><span class="p">:</span> <span class="s2">&quot;dimension&quot;</span><span class="p">,</span> <span class="s2">&quot;subtopic&quot;</span><span class="p">:</span> <span class="s2">&quot;variable_name&quot;</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_collect_totals</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># 1 BKWh = 1e12 Wh = 1e6 MWh</span>
+    <span class="n">sanitized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;bkwh&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1e6</span>
+
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;electricity&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;electricity_demand&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;bkwh&quot;</span><span class="p">}</span>
+
+    <span class="n">trimmed</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;topic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;series_id&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">subtotals_totals_match_ratio</span> <span class="o">=</span> <span class="n">subtotals_match_reported_totals_ratio</span><span class="p">(</span>
+        <span class="n">trimmed</span><span class="p">,</span>
+        <span class="n">pk</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;projection_year&quot;</span><span class="p">],</span>
+        <span class="n">fact_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+        <span class="n">dimension_column</span><span class="o">=</span><span class="s2">&quot;dimension&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">subtotals_totals_match_ratio</span> <span class="o">==</span> <span class="mf">1.0</span>
+    <span class="n">unstacked</span> <span class="o">=</span> <span class="n">unstack</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">trimmed</span><span class="p">,</span>
+        <span class="n">eventual_pk</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dimension&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;projection_year&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">renamed_for_pudl</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">unstacked</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">dimension</span> <span class="o">!=</span> <span class="s2">&quot;total&quot;</span><span class="p">)])</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity_market_module_region_eiaaeo&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;electricity_demand&quot;</span><span class="p">:</span> <span class="s2">&quot;sales_mwh&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">renamed_for_pudl</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type</span><span class="p">(</span>
+    <span class="n">raw_eiaaeo__electric_power_projections_regional</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Projected generation capacity + gross generation in end-use sectors.</span>
+
+<span class="sd">    This includes data that&#39;s reported by fuel type and ignores data that&#39;s</span>
+<span class="sd">    only reported at the system-wide level, such as total generation, sales to</span>
+<span class="sd">    grid, and generation for own use. Those three facts are reported in</span>
+<span class="sd">    core_eiaaeo__yearly_projected_generation_in_end_use_sectors instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sanitized</span> <span class="o">=</span> <span class="n">filter_enrich_sanitize</span><span class="p">(</span>
+        <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_eiaaeo__electric_power_projections_regional</span><span class="p">,</span>
+        <span class="n">relevant_series_names</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Electricity : End-Use Sectors : Capacity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Electricity : End-Use Sectors : Generation&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 1 BKWh = 1e12 Wh = 1e6 MWh</span>
+    <span class="n">sanitized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;bkwh&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1e6</span>
+    <span class="c1"># 1 GW = 1e9 W = 1e3 MW</span>
+    <span class="n">sanitized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;gw&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1e3</span>
+
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;electricity&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">subtopic</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;end_use_sectors&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;bkwh&quot;</span><span class="p">,</span> <span class="s2">&quot;gw&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;gw&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">==</span> <span class="s2">&quot;capacity&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">sanitized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;bkwh&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">==</span> <span class="s2">&quot;generation&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="n">trimmed</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;topic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;subtopic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;series_id&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># check that totals add up</span>
+    <span class="n">ratio_totals_add_up</span> <span class="o">=</span> <span class="n">subtotals_match_reported_totals_ratio</span><span class="p">(</span>
+        <span class="n">trimmed</span><span class="p">,</span>
+        <span class="n">pk</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;variable_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;projection_year&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">fact_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+        <span class="n">dimension_column</span><span class="o">=</span><span class="s2">&quot;dimension&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ratio_totals_add_up</span> <span class="o">==</span> <span class="mf">1.0</span>
+
+    <span class="n">trimmed</span> <span class="o">=</span> <span class="n">trimmed</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="o">~</span><span class="n">trimmed</span><span class="o">.</span><span class="n">dimension</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">,</span> <span class="s2">&quot;sales_to_the_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;generation_for_own_use&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">unstacked</span> <span class="o">=</span> <span class="n">unstack</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">trimmed</span><span class="p">,</span>
+        <span class="n">eventual_pk</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dimension&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;projection_year&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">renamed_for_pudl</span> <span class="o">=</span> <span class="n">unstacked</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="s2">&quot;summer_capacity_mw&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="s2">&quot;gross_generation_mwh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity_market_module_region_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_type_eiaaeo&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">renamed_for_pudl</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eiaaeo__yearly_projected_energy_use_by_sector_and_type">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_energy_use_by_sector_and_type">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eiaaeo__yearly_projected_energy_use_by_sector_and_type</span><span class="p">(</span>
+    <span class="n">raw_eiaaeo__energy_consumption_by_sector_and_source</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Projected energy use for commercial, electric power, industrial, residential, and transportation sectors.</span>
+
+<span class="sd">    The &quot;Energy Use&quot; series in Table 2 which track figures by sector do not always</span>
+<span class="sd">    define each type of usage the same way across sectors. There is detailed</span>
+<span class="sd">    information about what is included or excluded in each usage type for each sector</span>
+<span class="sd">    in the footnotes of the EIA&#39;s online AEO data browser:</span>
+
+<span class="sd">      https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023</span>
+
+<span class="sd">    The data browser also gives some visibility into the tricky system of subtotals</span>
+<span class="sd">    within the Energy Use series. To identify and map subtotal usage types, look for</span>
+<span class="sd">    the following features in the data browser display: subtotal series are displayed</span>
+<span class="sd">    indented, and include all lines above them which are one level out, up to the</span>
+<span class="sd">    next indented line. Delivered Energy and Total are special cases which include</span>
+<span class="sd">    those plus all subtotals above. In this way, &quot;Delivered Energy&quot; includes</span>
+<span class="sd">    purchased electricity, renewable energy, and an array of fuels based on sector,</span>
+<span class="sd">    and explicitly excludes electricity-related losses.</span>
+
+<span class="sd">    AEO Energy Use figures are variously referred to as delivered energy, energy</span>
+<span class="sd">    consumption, energy use, and energy demand, depending on which usage types are</span>
+<span class="sd">    being discussed, and which org and which document is describing them. In PUDL we</span>
+<span class="sd">    say energy use or energy consumption.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sanitized</span> <span class="o">=</span> <span class="n">filter_enrich_sanitize</span><span class="p">(</span>
+        <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_eiaaeo__energy_consumption_by_sector_and_source</span><span class="p">,</span>
+        <span class="n">relevant_series_names</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Energy Use : Commercial&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Energy Use : Electric Power&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Energy Use : Industrial&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Energy Use : Residential&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Energy Use : Total&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Energy Use : Transportation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Energy Use : Unspecified&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;subtopic&quot;</span><span class="p">:</span> <span class="s2">&quot;dimension&quot;</span><span class="p">})</span>
+
+    <span class="c1"># Fix error in 2025 data where series name for Byproduct Hydrogen is incorrectly</span>
+    <span class="c1"># labeled as Electricity Imports, causing a duplicate primary key with the actual</span>
+    <span class="c1"># Electricity Imports data. Get the correct series name from the series_id for now.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;series_id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;No more duplicates! Yay! AEO fixed the problem and you can remove this code.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">dupe_mask</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;series_id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">byprdh2_mask</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">series_id</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;byprdh2&quot;</span><span class="p">)</span>
+    <span class="n">sanitized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dupe_mask</span> <span class="o">&amp;</span> <span class="n">byprdh2_mask</span><span class="p">,</span> <span class="s2">&quot;variable_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;byproduct_hydrogen&quot;</span>
+
+    <span class="n">expected_values</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;topic&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;energy_use&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;quads&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;dimension&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;commercial&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;electric_power&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;industrial&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;residential&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transportation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unspecified&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;industrial_hydrogen_production&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">expected_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">actual</span> <span class="o">:=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span> <span class="o">==</span> <span class="n">expected</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unexpected values in </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">: Expected </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s2">; found </span><span class="si">{</span><span class="n">actual</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="c1"># 1 quad = 1 quadrillion btu = 1e9 mmbtu</span>
+    <span class="n">sanitized</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;quads&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1e9</span>
+
+    <span class="n">trimmed</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">sanitized</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;topic&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;units&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;series_id&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;region&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dimension&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;projection_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;variable_name&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">region_type</span><span class="o">=</span><span class="s2">&quot;us_census_division&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">trimmed</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">trimmed</span><span class="o">.</span><span class="n">region</span> <span class="o">==</span> <span class="s2">&quot;united_states&quot;</span><span class="p">,</span> <span class="s2">&quot;region_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;country&quot;</span>
+
+    <span class="n">renamed_for_pudl</span> <span class="o">=</span> <span class="n">trimmed</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;region_name_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;region_type&quot;</span><span class="p">:</span> <span class="s2">&quot;region_type_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;energy_use_sector&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;variable_name&quot;</span><span class="p">:</span> <span class="s2">&quot;energy_use_type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;energy_use_mmbtu&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">renamed_for_pudl</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type</span><span class="p">(</span>
+    <span class="n">raw_eiaaeo__electric_power_projections_regional</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Projected fuel cost for the electric power sector.</span>
+
+<span class="sd">    Includes 2022 US dollars per million BTU and nominal US dollars per million</span>
+<span class="sd">    BTU.</span>
+
+<span class="sd">    In future report years, the base year for the real cost will change, so we</span>
+<span class="sd">    store that base year as well.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sanitized</span> <span class="o">=</span> <span class="n">filter_enrich_sanitize</span><span class="p">(</span>
+        <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_eiaaeo__electric_power_projections_regional</span><span class="p">,</span>
+        <span class="n">relevant_series_names</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Electricity : Fuel Prices&quot;</span><span class="p">,),</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;subtopic&quot;</span><span class="p">:</span> <span class="s2">&quot;variable_name&quot;</span><span class="p">,</span> <span class="s2">&quot;variable_name&quot;</span><span class="p">:</span> <span class="s2">&quot;dimension&quot;</span><span class="p">})</span>
+
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;electricity&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;fuel_prices&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;2024_mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;2022_mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;nom_mmbtu&quot;</span><span class="p">}</span>
+    <span class="c1"># turn variable_name into `nominal_fuel_prices` and `real_fuel_prices` based on unit</span>
+    <span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span>
+
+    <span class="n">trimmed</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;topic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;series_id&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">unstacked</span> <span class="o">=</span> <span class="n">unstack</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">trimmed</span><span class="p">,</span>
+        <span class="n">eventual_pk</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dimension&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;projection_year&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">real_cost_basis_year</span><span class="o">=</span><span class="mi">2022</span><span class="p">)</span>
+
+    <span class="n">renamed_for_pudl</span> <span class="o">=</span> <span class="n">unstacked</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="s2">&quot;summer_capacity_mw&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="s2">&quot;gross_generation_mwh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity_market_module_region_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_type_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;2022_mmbtu_fuel_prices&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_cost_real_per_mmbtu_eiaaeo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nom_mmbtu_fuel_prices&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">renamed_for_pudl</span></div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="AeoCheckSpec">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.AeoCheckSpec">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AeoCheckSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define some simple checks that can run on any AEO asset.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AeoCheckSpec.name">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.AeoCheckSpec.name">[docs]</a>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="AeoCheckSpec.asset">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.AeoCheckSpec.asset">[docs]</a>
+    <span class="n">asset</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="AeoCheckSpec.category_counts">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.AeoCheckSpec.category_counts">[docs]</a>
+    <span class="n">category_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BASE_AEO_CATEGORIES">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.BASE_AEO_CATEGORIES">[docs]</a>
+<span class="n">BASE_AEO_CATEGORIES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s2">&quot;projection_year&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s2">&quot;electricity_market_module_region_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<div class="viewcode-block" id="check_specs">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.check_specs">[docs]</a>
+<span class="n">check_specs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">AeoCheckSpec</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gen_in_electric_sector_by_tech&quot;</span><span class="p">,</span>
+        <span class="n">asset</span><span class="o">=</span><span class="s2">&quot;core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology&quot;</span><span class="p">,</span>
+        <span class="n">category_counts</span><span class="o">=</span><span class="n">BASE_AEO_CATEGORIES</span>
+        <span class="o">|</span> <span class="p">{</span>
+            <span class="s2">&quot;technology_description_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">AeoCheckSpec</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gen_in_electric_sector_by_tech&quot;</span><span class="p">,</span>
+        <span class="n">asset</span><span class="o">=</span><span class="s2">&quot;core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type&quot;</span><span class="p">,</span>
+        <span class="n">category_counts</span><span class="o">=</span><span class="n">BASE_AEO_CATEGORIES</span>
+        <span class="o">|</span> <span class="p">{</span>
+            <span class="s2">&quot;fuel_type_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">AeoCheckSpec</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;electricity_sales&quot;</span><span class="p">,</span>
+        <span class="n">asset</span><span class="o">=</span><span class="s2">&quot;core_eiaaeo__yearly_projected_electric_sales&quot;</span><span class="p">,</span>
+        <span class="n">category_counts</span><span class="o">=</span><span class="n">BASE_AEO_CATEGORIES</span>
+        <span class="o">|</span> <span class="p">{</span>
+            <span class="s2">&quot;customer_class&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">AeoCheckSpec</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;electricity_sales&quot;</span><span class="p">,</span>
+        <span class="n">asset</span><span class="o">=</span><span class="s2">&quot;core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type&quot;</span><span class="p">,</span>
+        <span class="n">category_counts</span><span class="o">=</span><span class="n">BASE_AEO_CATEGORIES</span>
+        <span class="o">|</span> <span class="p">{</span>
+            <span class="s2">&quot;fuel_type_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="make_check">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.make_check">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_check</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">AeoCheckSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetChecksDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Turn the AeoCheckSpec into an actual Dagster asset check.&quot;&quot;&quot;</span>
+
+    <span class="nd">@asset_check</span><span class="p">(</span><span class="n">asset</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">asset</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">category</span><span class="p">,</span> <span class="n">expected_num</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">category_counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">value_counts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">category</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+            <span class="n">non_zero_values</span> <span class="o">=</span> <span class="n">value_counts</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">value_counts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_zero_values</span><span class="p">)</span> <span class="o">!=</span> <span class="n">expected_num</span><span class="p">:</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">expected_num</span><span class="si">}</span><span class="s2"> values for </span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">, &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">non_zero_values</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">non_zero_values</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">AssetCheckResult</span><span class="p">(</span><span class="n">passed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;errors&quot;</span><span class="p">:</span> <span class="n">errors</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">AssetCheckResult</span><span class="p">(</span><span class="n">passed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_check</span></div>
+
+
+
+<div class="viewcode-block" id="_checks">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo._checks">[docs]</a>
+<span class="n">_checks</span> <span class="o">=</span> <span class="p">[</span><span class="n">make_check</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">check_specs</span><span class="p">]</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

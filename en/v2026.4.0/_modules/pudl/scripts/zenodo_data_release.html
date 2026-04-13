@@ -1,0 +1,1909 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.scripts.zenodo_data_release &#8212; PUDL 2026.4.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+    <script src="../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/scripts/zenodo_data_release';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v2026.4.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.scripts.zenodo_data_release</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.scripts.zenodo_data_release</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;Upload a prepared PUDL data release directory to Zenodo.</span>
+
+<span class="sd">The PUDL data release process produces a directory of artifacts (zipped Parquet files,</span>
+<span class="sd">SQLite databases, JSON metadata, logs, etc.) that are uploaded to CERN&#39;s Zenodo data</span>
+<span class="sd">repository for long-term archival access. Each new versioned release of PUDL is</span>
+<span class="sd">associated with the same original PUDL concept DOI.</span>
+
+<span class="sd">This module provides a CLI that handles the process of uploading a new PUDL data release</span>
+<span class="sd">to Zenodo, given a prepared directory of artifacts typically produced by the PUDL builds.</span>
+
+<span class="sd">It uses state objects to ensure that Zenodo API calls happen in a valid order. The files</span>
+<span class="sd">to upload are read using ``fsspec`` and remote files are staged locally one at a time</span>
+<span class="sd">so uploads can be retried, but without using excessive local disk space.</span>
+
+<span class="sd">Retries are implemented for all upload requests to recover from transient network issues</span>
+<span class="sd">and Zenodo server flakiness. Zero-byte uploads are prevented.</span>
+
+<span class="sd">NOTE: PUDL nightly build outputs are NOT suitable for producing a Zenodo data release</span>
+<span class="sd">unless the Parquet outputs are filtered out with an appropriate ignore_regex. Double</span>
+<span class="sd">check what files should actually be distributed before running the script.</span>
+
+<span class="sd">Run ``zenodo_data_release --help`` for CLI usage instructions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">IO</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">coloredlogs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fsspec</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnyHttpUrl</span><span class="p">,</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<div class="viewcode-block" id="SANDBOX">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.SANDBOX">[docs]</a>
+<span class="n">SANDBOX</span> <span class="o">=</span> <span class="s2">&quot;sandbox&quot;</span></div>
+
+<div class="viewcode-block" id="PRODUCTION">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.PRODUCTION">[docs]</a>
+<span class="n">PRODUCTION</span> <span class="o">=</span> <span class="s2">&quot;production&quot;</span></div>
+
+<div class="viewcode-block" id="RETRYABLE_STATUS_CODES">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES">[docs]</a>
+<span class="n">RETRYABLE_STATUS_CODES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">408</span><span class="p">,</span>  <span class="c1"># Request Timeout</span>
+    <span class="mi">500</span><span class="p">,</span>  <span class="c1"># Internal Server Error</span>
+    <span class="mi">502</span><span class="p">,</span>  <span class="c1"># Bad Gateway</span>
+    <span class="mi">503</span><span class="p">,</span>  <span class="c1"># Service Unavailable</span>
+    <span class="mi">504</span><span class="p">,</span>  <span class="c1"># Gateway Timeout</span>
+    <span class="mi">520</span><span class="p">,</span>  <span class="c1"># Web server returned an unknown error (proxy)</span>
+    <span class="mi">522</span><span class="p">,</span>  <span class="c1"># Connection timed out (proxy)</span>
+    <span class="mi">524</span><span class="p">,</span>  <span class="c1"># A timeout occurred (proxy)</span>
+<span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+<span class="n">coloredlogs</span><span class="o">.</span><span class="n">install</span><span class="p">(</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+    <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(name)s</span><span class="s2"> </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="_LegacyLinks">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_LegacyLinks</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="_LegacyLinks.html">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.html">[docs]</a>
+    <span class="n">html</span><span class="p">:</span> <span class="n">AnyHttpUrl</span></div>
+
+<div class="viewcode-block" id="_LegacyLinks.bucket">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.bucket">[docs]</a>
+    <span class="n">bucket</span><span class="p">:</span> <span class="n">AnyHttpUrl</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_LegacyMetadata">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_LegacyMetadata</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="_LegacyMetadata.upload_type">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.upload_type">[docs]</a>
+    <span class="n">upload_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dataset&quot;</span></div>
+
+<div class="viewcode-block" id="_LegacyMetadata.title">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.title">[docs]</a>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="_LegacyMetadata.access_right">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.access_right">[docs]</a>
+    <span class="n">access_right</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="_LegacyMetadata.creators">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.creators">[docs]</a>
+    <span class="n">creators</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="_LegacyMetadata.license">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.license">[docs]</a>
+    <span class="n">license</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cc-by-4.0&quot;</span>  <span class="c1"># noqa: A003</span></div>
+
+<div class="viewcode-block" id="_LegacyMetadata.publication_date">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.publication_date">[docs]</a>
+    <span class="n">publication_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="_LegacyMetadata.description">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.description">[docs]</a>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_LegacyDeposition">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_LegacyDeposition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="_LegacyDeposition.id_">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.id_">[docs]</a>
+    <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="_LegacyDeposition.conceptrecid">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.conceptrecid">[docs]</a>
+    <span class="n">conceptrecid</span><span class="p">:</span> <span class="nb">int</span></div>
+
+<div class="viewcode-block" id="_LegacyDeposition.links">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.links">[docs]</a>
+    <span class="n">links</span><span class="p">:</span> <span class="n">_LegacyLinks</span></div>
+
+<div class="viewcode-block" id="_LegacyDeposition.metadata">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.metadata">[docs]</a>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">_LegacyMetadata</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_NewFile">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_NewFile</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="_NewFile.id_">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.id_">[docs]</a>
+    <span class="n">id_</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_NewRecord">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_NewRecord</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="_NewRecord.id_">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.id_">[docs]</a>
+    <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="_NewRecord.files">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.files">[docs]</a>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_NewFile</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ZenodoClient">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZenodoClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Thin wrapper over Zenodo REST API.</span>
+
+<span class="sd">    Mostly legacy calls (https://developers.zenodo.org/) (archive:</span>
+<span class="sd">    https://web.archive.org/web/20231212025359/https://developers.zenodo.org/)</span>
+<span class="sd">    but due to inconsistent behavior of legacy API on sandbox environment, we</span>
+<span class="sd">    need some of the unreleased new API endpoints too:</span>
+<span class="sd">    https://inveniordm.docs.cern.ch/reference/rest_api_drafts_records/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            env: &quot;sandbox&quot; or &quot;production&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">env</span> <span class="o">==</span> <span class="n">SANDBOX</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;https://sandbox.zenodo.org/api&quot;</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;ZENODO_SANDBOX_TOKEN_PUBLISH&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">env</span> <span class="o">==</span> <span class="n">PRODUCTION</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;https://zenodo.org/api&quot;</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;ZENODO_TOKEN_UPLOAD&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Got unexpected </span><span class="si">{</span><span class="n">env</span><span class="si">=}</span><span class="s2">, expected </span><span class="si">{</span><span class="n">SANDBOX</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">PRODUCTION</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># As of 01/2026, Zenodo rejects all Python requests with no custom user agent.</span>
+        <span class="c1"># We add this to note where our project&#39;s requests are originating from.</span>
+<div class="viewcode-block" id="ZenodoClient.auth_headers">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.auth_headers">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auth_headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;pudl/</span><span class="si">{</span><span class="n">version</span><span class="p">(</span><span class="s1">&#39;catalystcoop.pudl&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> (https://github.com/catalyst-cooperative/pudl)&quot;</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using Zenodo token: </span><span class="si">{</span><span class="n">token</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="si">}</span><span class="s2">...</span><span class="si">{</span><span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ZenodoClient.retry_request">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.retry_request">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">retry_request</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">,</span>
+        <span class="n">url</span><span class="p">,</span>
+        <span class="n">max_tries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="n">request_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">data_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retry calls to ``requests.request`` with exponential backoff.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method: HTTP method to use for the request (e.g. ``GET``).</span>
+<span class="sd">            url: Fully-qualified URL to which the request is sent.</span>
+<span class="sd">            max_tries: Maximum number of attempts before surfacing an error.</span>
+<span class="sd">            request_timeout: Optional per-request timeout in seconds. When ``None`` the</span>
+<span class="sd">                timeout grows exponentially (``2**attempt``).</span>
+<span class="sd">            data_factory: Optional callable that yields a fresh binary stream for each</span>
+<span class="sd">                attempt. Useful for uploads that require reopening a file-like object.</span>
+<span class="sd">            **kwargs: Additional keyword arguments passed through directly to</span>
+<span class="sd">                ``requests.request``.</span>
+
+<span class="sd">        Returns:</span>
+<div class="viewcode-block" id="_NewRecord.__class_vars__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__class_vars__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__class_vars__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__class_vars__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__class_vars__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__class_vars__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__class_vars__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__class_vars__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__class_vars__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__class_vars__">[docs]</a>
+<span class="sd">            The ``requests.Response`` produced by the successful attempt.</span></div>
+</div>
+</div>
+</div>
+</div>
+
+
+<span class="sd">        Raises:</span>
+<div class="viewcode-block" id="_NewRecord.__private_attributes__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__private_attributes__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__private_attributes__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__private_attributes__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__private_attributes__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__private_attributes__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__private_attributes__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__private_attributes__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__private_attributes__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__private_attributes__">[docs]</a>
+<span class="sd">            requests.RequestException: If all attempts fail with a requests error.</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<span class="sd">            OSError: If reading from disk fails when preparing a payload.</span>
+<span class="sd">            RuntimeError: If no response object is produced (should be rare).</span>
+<div class="viewcode-block" id="_NewRecord.__signature__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__signature__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__signature__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__signature__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__signature__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__signature__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__signature__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__signature__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__signature__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__signature__">[docs]</a>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+</div>
+</div>
+</div>
+
+        <span class="n">response</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_tries</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_complete__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_complete__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_complete__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_complete__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_complete__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_complete__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_complete__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_complete__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_complete__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_complete__">[docs]</a>
+            <span class="c1"># Create a fresh set of kwargs for each attempt so that data_factory()</span></div>
+</div>
+</div>
+</div>
+</div>
+
+            <span class="c1"># can produce a fresh payload.</span>
+            <span class="n">attempt_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_core_schema__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_core_schema__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_core_schema__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_core_schema__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_core_schema__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_core_schema__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_core_schema__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_core_schema__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_core_schema__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_core_schema__">[docs]</a>
+            <span class="n">payload</span><span class="p">:</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+</div>
+</div>
+</div>
+</div>
+
+            <span class="n">timeout_value</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">request_timeout</span> <span class="k">if</span> <span class="n">request_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">2</span><span class="o">**</span><span class="n">attempt</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_custom_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_custom_init__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_custom_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_custom_init__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_custom_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_custom_init__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_custom_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_custom_init__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_custom_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_custom_init__">[docs]</a>
+            <span class="p">)</span></div>
+</div>
+</div>
+</div>
+</div>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">data_factory</span><span class="p">:</span>
+                    <span class="n">payload</span> <span class="o">=</span> <span class="n">data_factory</span><span class="p">()</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_decorators__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_decorators__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_decorators__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_decorators__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_decorators__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_decorators__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_decorators__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_decorators__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_decorators__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_decorators__">[docs]</a>
+                    <span class="n">attempt_kwargs</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span></div>
+</div>
+</div>
+</div>
+</div>
+
+                <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
+                    <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                    <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_generic_metadata__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_generic_metadata__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_generic_metadata__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_generic_metadata__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_generic_metadata__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_generic_metadata__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_generic_metadata__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_generic_metadata__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_generic_metadata__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_generic_metadata__">[docs]</a>
+                    <span class="n">timeout</span><span class="o">=</span><span class="n">timeout_value</span><span class="p">,</span></div>
+</div>
+</div>
+</div>
+</div>
+
+                    <span class="o">**</span><span class="n">attempt_kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="n">RETRYABLE_STATUS_CODES</span><span class="p">:</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_parent_namespace__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_parent_namespace__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_parent_namespace__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_parent_namespace__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_parent_namespace__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_parent_namespace__">[docs]</a>
+                    <span class="k">raise</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">(</span></div>
+</div>
+</div>
+</div>
+</div>
+
+                        <span class="sa">f</span><span class="s2">&quot;Retryable status </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_post_init__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_post_init__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_post_init__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_post_init__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_post_init__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_post_init__">[docs]</a>
+                    <span class="p">)</span></div>
+</div>
+</div>
+</div>
+</div>
+
+                <span class="k">return</span> <span class="n">response</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_root_model__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_root_model__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_root_model__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_root_model__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_root_model__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_root_model__">[docs]</a>
+                <span class="k">if</span> <span class="n">attempt</span> <span class="o">==</span> <span class="n">max_tries</span><span class="p">:</span></div>
+</div>
+</div>
+</div>
+</div>
+
+                    <span class="k">raise</span>
+                <span class="n">wait</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="n">attempt</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_serializer__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_serializer__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_serializer__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_serializer__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_serializer__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_serializer__">[docs]</a>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span></div>
+</div>
+</div>
+</div>
+</div>
+
+                    <span class="sa">f</span><span class="s2">&quot;Attempt #</span><span class="si">{</span><span class="n">attempt</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> failed with </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">, retrying in </span><span class="si">{</span><span class="n">wait</span><span class="si">}</span><span class="s2">s&quot;</span>
+                <span class="p">)</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_validator__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_validator__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_validator__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_validator__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_validator__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_validator__">[docs]</a>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span></div>
+</div>
+</div>
+</div>
+</div>
+
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">payload</span><span class="p">:</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_fields__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_fields__">[docs]</a>
+                    <span class="n">payload</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</div>
+</div>
+</div>
+</div>
+
+        <span class="k">if</span> <span class="n">response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to complete request to </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> after </span><span class="si">{</span><span class="n">max_tries</span><span class="si">}</span><span class="s2"> tries&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+
+<div class="viewcode-block" id="ZenodoClient.get_deposition">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.get_deposition">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_deposition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deposition_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LegacyDeposition</span><span class="p">:</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_computed_fields__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_computed_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_computed_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_computed_fields__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_computed_fields__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_computed_fields__">[docs]</a>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;LEGACY API: Get JSON describing a deposition.</span></div>
+</div>
+</div>
+</div>
+</div>
+
+
+<span class="sd">        Depositions can be published *or* unpublished.</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_extra__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_extra__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_extra__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_extra__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_extra__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_extra__">[docs]</a>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+</div>
+</div>
+</div>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_fields_set__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_fields_set__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_fields_set__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_fields_set__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_fields_set__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_fields_set__">[docs]</a>
+            <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/deposit/depositions/</span><span class="si">{</span><span class="n">deposition_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span></div>
+</div>
+</div>
+</div>
+</div>
+
+            <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_headers</span><span class="p">,</span>
+        <span class="p">)</span>
+<div class="viewcode-block" id="_NewRecord.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__pydantic_private__">[docs]</a>
+<div class="viewcode-block" id="_NewFile.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewFile.__pydantic_private__">[docs]</a>
+<div class="viewcode-block" id="_LegacyDeposition.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.__pydantic_private__">[docs]</a>
+<div class="viewcode-block" id="_LegacyMetadata.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyMetadata.__pydantic_private__">[docs]</a>
+<div class="viewcode-block" id="_LegacyLinks.__pydantic_private__">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.__pydantic_private__">[docs]</a>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span></div>
+</div>
+</div>
+</div>
+</div>
+
+            <span class="sa">f</span><span class="s2">&quot;License from JSON for </span><span class="si">{</span><span class="n">deposition_id</span><span class="si">}</span><span class="s2"> is &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;license&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_LegacyDeposition</span><span class="p">(</span><span class="o">**</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ZenodoClient.get_record">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.get_record">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_NewRecord</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;NEW API: Get JSON describing a record.</span>
+
+<span class="sd">        All records are published records.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/records/</span><span class="si">{</span><span class="n">record_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_headers</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_NewRecord</span><span class="p">(</span><span class="o">**</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ZenodoClient.new_record_version">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.new_record_version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">new_record_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_NewRecord</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;NEW API: get or create the draft associated with a record ID.</span>
+
+<span class="sd">        Finds the latest record in the concept that record_id points to, and</span>
+<span class="sd">        makes a new version unless one exists already.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/records/</span><span class="si">{</span><span class="n">record_id</span><span class="si">}</span><span class="s2">/versions&quot;</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_headers</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_NewRecord</span><span class="p">(</span><span class="o">**</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ZenodoClient.update_deposition_metadata">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.update_deposition_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_deposition_metadata</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">deposition_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">_LegacyMetadata</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LegacyDeposition</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;LEGACY API: Update deposition metadata.</span>
+
+<span class="sd">        Replaces the existing metadata completely - so make sure to pass in complete</span>
+<span class="sd">        metadata. You cannot update metadata fields one at a time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/deposit/depositions/</span><span class="si">{</span><span class="n">deposition_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">metadata</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()}</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting metadata for </span><span class="si">{</span><span class="n">deposition_id</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PUT&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_headers</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_LegacyDeposition</span><span class="p">(</span><span class="o">**</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ZenodoClient.delete_deposition_file">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.delete_deposition_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_deposition_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deposition_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">file_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;LEGACY API: Delete file from deposition.</span>
+
+<span class="sd">        Note: file_id is not always the file name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DELETE&quot;</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/deposit/depositions/</span><span class="si">{</span><span class="n">deposition_id</span><span class="si">}</span><span class="s2">/files/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_headers</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ZenodoClient.create_bucket_file">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.create_bucket_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_bucket_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">bucket_url</span><span class="p">:</span> <span class="n">AnyHttpUrl</span><span class="p">,</span>
+        <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">max_tries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;LEGACY API: Upload a file to a deposition&#39;s file bucket.</span>
+
+<span class="sd">        We prefer this API this over the /deposit/depositions/{id}/files endpoint</span>
+<span class="sd">        because it allows for files &gt;100MB.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bucket_url: Upload destination returned by Zenodo for the draft.</span>
+<span class="sd">            file_path: Local path to the artifact being uploaded.</span>
+<span class="sd">            max_tries: Maximum number of upload attempts before failing.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The ``requests.Response`` from the successful upload attempt.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If ``file_path`` is empty.</span>
+<span class="sd">            requests.RequestException: If all upload attempts fail.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">actual_name</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bucket_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">actual_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading file to </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">size</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Upload source for </span><span class="si">{</span><span class="n">actual_name</span><span class="si">}</span><span class="s2"> has zero bytes&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PUT&quot;</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+            <span class="n">max_tries</span><span class="o">=</span><span class="n">max_tries</span><span class="p">,</span>
+            <span class="n">request_timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_headers</span><span class="p">,</span>
+            <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">data_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ZenodoClient.publish_deposition">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.publish_deposition">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">publish_deposition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deposition_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LegacyDeposition</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;LEGACY API: publish deposition.&quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_request</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/deposit/depositions/</span><span class="si">{</span><span class="n">deposition_id</span><span class="si">}</span><span class="s2">/actions/publish&quot;</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_headers</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_LegacyDeposition</span><span class="p">(</span><span class="o">**</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span></div>
+</div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="State">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.State">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">State</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parent class for dataset states.</span>
+
+<span class="sd">    Provides an abstraction layer that hides Zenodo&#39;s data model from the caller.</span>
+
+<span class="sd">    Subclasses + their limited method definitions provide a way to avoid calling the</span>
+<span class="sd">    operations in the wrong order.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="State.record_id">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.State.record_id">[docs]</a>
+    <span class="n">record_id</span><span class="p">:</span> <span class="nb">int</span></div>
+
+<div class="viewcode-block" id="State.zenodo_client">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.State.zenodo_client">[docs]</a>
+    <span class="n">zenodo_client</span><span class="p">:</span> <span class="n">ZenodoClient</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="InitialDataset">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InitialDataset</span><span class="p">(</span><span class="n">State</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent initial dataset state.</span>
+
+<span class="sd">    At this point, we don&#39;t know if there is an existing draft or not - the only thing</span>
+<span class="sd">    we can do is try to get a fresh draft.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="InitialDataset.get_empty_draft">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset.get_empty_draft">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_empty_draft</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EmptyDraft&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an empty draft for this dataset.</span>
+
+<span class="sd">        Use new API to get any draft, then use legacy API to delete any files</span>
+<span class="sd">        in the draft.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Getting new version for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">latest_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">)</span>
+        <span class="n">new_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">new_record_version</span><span class="p">(</span><span class="n">latest_record</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
+        <span class="n">new_rec_id</span> <span class="o">=</span> <span class="n">new_version</span><span class="o">.</span><span class="n">id_</span>
+        <span class="n">existing_files</span> <span class="o">=</span> <span class="n">new_version</span><span class="o">.</span><span class="n">files</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Draft </span><span class="si">{</span><span class="n">new_rec_id</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">existing_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> existing files, deleting...&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">existing_files</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">delete_deposition_file</span><span class="p">(</span><span class="n">new_rec_id</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">EmptyDraft</span><span class="p">(</span><span class="n">record_id</span><span class="o">=</span><span class="n">new_rec_id</span><span class="p">,</span> <span class="n">zenodo_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EmptyDraft">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.EmptyDraft">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmptyDraft</span><span class="p">(</span><span class="n">State</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;We can only sync the directory once we&#39;ve gotten an empty draft.&quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="EmptyDraft._sync_local_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.EmptyDraft._sync_local_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sync_local_path</span><span class="p">(</span>
+        <span class="n">openable_file</span><span class="p">:</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">OpenFile</span><span class="p">,</span> <span class="n">staging_dir</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the given ``fsspec`` file exists on the local filesystem.</span>
+
+<span class="sd">        When ``openable_file`` already resides on the local filesystem we avoid</span>
+<span class="sd">        copying and return its existing path. Remote files are downloaded into</span>
+<span class="sd">        ``staging_dir`` (a shared temporary directory) so the rest of the upload</span>
+<span class="sd">        pipeline can treat every artifact as a simple ``Path`` without caring</span>
+<span class="sd">        where it came from.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            openable_file: ``fsspec`` handle pointing to the source artifact.</span>
+<span class="sd">            staging_dir: Directory used to cache remote files locally.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A ``Path`` pointing to a readable local copy of ``openable_file``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># fsspec supports chained protocols, so this isn&#39;t always just a string</span>
+        <span class="n">protocol</span> <span class="o">=</span> <span class="n">openable_file</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">protocol</span>
+        <span class="n">protocol_parts</span> <span class="o">=</span> <span class="n">protocol</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">protocol</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;local&quot;</span> <span class="ow">in</span> <span class="n">protocol_parts</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">openable_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">staging_dir</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">openable_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># Remove the tmp_path if it already exists to avoid conflicts</span>
+        <span class="n">tmp_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Actually download the remote file to the tmp_path that mirrors the original</span>
+        <span class="n">openable_file</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">openable_file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tmp_path</span></div>
+
+
+<div class="viewcode-block" id="EmptyDraft.sync_directory">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.EmptyDraft.sync_directory">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ignore</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;ContentComplete&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upload every file in ``source_dir`` to the draft bucket.</span>
+
+<span class="sd">        The method enumerates files (not subdirectories) via ``fsspec`` so the source</span>
+<span class="sd">        can live on local disk, GCS, S3, etc. Remote objects are first staged into a</span>
+<span class="sd">        temporary directory to ensure uploads always come from local ``Path`` objects</span>
+<span class="sd">        that can be rewound for retries. Regex patterns provided via ``ignore`` are</span>
+<span class="sd">        applied to the full path of each candidate file, allowing us to drop logs,</span>
+<span class="sd">        intermediate data, or other nightlies-only artifacts before hitting Zenodo.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            source_dir: Directory (local or remote) whose contents will be sent to</span>
+<span class="sd">                Zenodo.</span>
+<span class="sd">            ignore: Tuple of regex patterns; any path matching one is skipped.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A ``ContentComplete`` state ready for metadata updates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Syncing files from </span><span class="si">{</span><span class="n">source_dir</span><span class="si">}</span><span class="s2"> to draft </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">bucket_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_deposition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">)</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">bucket</span>
+        <span class="n">dir_fs</span><span class="p">,</span> <span class="n">dir_path</span> <span class="o">=</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">url_to_fs</span><span class="p">(</span><span class="n">source_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dir_fs</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source_dir</span><span class="si">}</span><span class="s2"> is not a directory!&quot;</span><span class="p">)</span>
+
+        <span class="c1"># fsspec supports chained protocols, so this isn&#39;t always just a string</span>
+        <span class="n">protocol</span> <span class="o">=</span> <span class="n">dir_fs</span><span class="o">.</span><span class="n">protocol</span>
+        <span class="n">protocol_prefix</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">protocol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="n">protocol</span>
+        <span class="p">)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">fsspec</span><span class="o">.</span><span class="n">open_files</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">protocol_prefix</span><span class="si">}</span><span class="s2">://</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">dir_fs</span><span class="o">.</span><span class="n">ls</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="n">all_ignore_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ignore</span><span class="p">))</span> <span class="k">if</span> <span class="n">ignore</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">staging_dir</span><span class="p">:</span>
+            <span class="n">staging_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">staging_dir</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">openable_file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">openable_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="n">all_ignore_regex</span> <span class="ow">and</span> <span class="n">all_ignore_regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">openable_file</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Ignoring </span><span class="si">{</span><span class="n">openable_file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> because it matched </span><span class="si">{</span><span class="n">all_ignore_regex</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="n">local_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sync_local_path</span><span class="p">(</span><span class="n">openable_file</span><span class="p">,</span> <span class="n">staging_path</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">create_bucket_file</span><span class="p">(</span>
+                        <span class="n">bucket_url</span><span class="o">=</span><span class="n">bucket_url</span><span class="p">,</span>
+                        <span class="n">file_path</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading to </span><span class="si">{</span><span class="n">bucket_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> got </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="c1"># Remove the local copy if we put it in the temporary staging area</span>
+                    <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">is_relative_to</span><span class="p">(</span><span class="n">staging_path</span><span class="p">):</span>
+                        <span class="n">local_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ContentComplete</span><span class="p">(</span>
+            <span class="n">record_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">,</span> <span class="n">zenodo_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ContentComplete">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ContentComplete">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ContentComplete</span><span class="p">(</span><span class="n">State</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Now that we&#39;ve uploaded all the data, we need to update metadata.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ContentComplete.update_metadata">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ContentComplete.update_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copy over old metadata and update publication date.</span>
+
+<span class="sd">        We need to make sure there is complete metadata, including a publication date.</span>
+
+<span class="sd">        To do this, we:</span>
+
+<span class="sd">        1. use the *legacy* API to get the concept record ID associated with the draft</span>
+<span class="sd">        2. use the *new* API to get the latest record associated with the concept</span>
+<span class="sd">        3. use the *legacy* API to get the metadata from the latest record</span>
+<span class="sd">        4. use the *legacy* API to update the draft&#39;s metadata</span>
+
+<span class="sd">        Since we are using the legacy API to publish, we need the legacy</span>
+<span class="sd">        metadata format. But the legacy concept DOI -&gt; published record mapping</span>
+<span class="sd">        is broken, so we have to take a detour through the new API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">deposition_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_deposition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">)</span>
+        <span class="n">concept_rec_id</span> <span class="o">=</span> <span class="n">deposition_info</span><span class="o">.</span><span class="n">conceptrecid</span>
+        <span class="n">concept_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_record</span><span class="p">(</span><span class="n">concept_rec_id</span><span class="p">)</span>
+        <span class="n">latest_published_deposition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_deposition</span><span class="p">(</span>
+            <span class="n">concept_info</span><span class="o">.</span><span class="n">id_</span>
+        <span class="p">)</span>
+        <span class="n">base_metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">latest_published_deposition</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;doi&quot;</span><span class="p">,</span> <span class="s2">&quot;prereserve_doi&quot;</span><span class="p">,</span> <span class="s2">&quot;publication_date&quot;</span><span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Using metadata from </span><span class="si">{</span><span class="n">latest_published_deposition</span><span class="o">.</span><span class="n">id_</span><span class="si">}</span><span class="s2"> to publish </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="si">}</span><span class="s2">...&quot;</span>
+        <span class="p">)</span>
+        <span class="n">pub_date</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;publication_date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()}</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">_LegacyMetadata</span><span class="p">(</span><span class="o">**</span><span class="p">(</span><span class="n">base_metadata</span> <span class="o">|</span> <span class="n">pub_date</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">update_deposition_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CompleteDraft</span><span class="p">(</span><span class="n">record_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">,</span> <span class="n">zenodo_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CompleteDraft">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.CompleteDraft">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompleteDraft</span><span class="p">(</span><span class="n">State</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Now that we&#39;ve uploaded all the data, we can publish.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CompleteDraft.publish">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.CompleteDraft.publish">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">publish</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Publish the draft.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">publish_deposition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CompleteDraft.get_html_url">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.CompleteDraft.get_html_url">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_html_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A URL for viewing this draft.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_client</span><span class="o">.</span><span class="n">get_deposition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_id</span><span class="p">)</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">html</span></div>
+</div>
+
+
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
+    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]},</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--env&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="n">SANDBOX</span><span class="p">,</span> <span class="n">PRODUCTION</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">SANDBOX</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Whether to use the Zenodo sandbox server (for testing) or the production server.&quot;</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--source-dir&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to a directory whose contents will be uploaded to Zenodo. &quot;</span>
+    <span class="s2">&quot;Subdirectories are ignored. Accepts GCS or S3 URLs as well. Prefix remote paths &quot;</span>
+    <span class="s2">&quot;with e.g. gs:// or s3://.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--ignore&quot;</span><span class="p">,</span>
+    <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filenames that match these regex patterns will be ignored.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--publish/--no-publish&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Whether to publish the new record without confirmation, or leave it as a &quot;</span>
+    <span class="s2">&quot;draft to be reviewed and approved manually.&quot;</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="pudl_zenodo_data_release">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.pudl_zenodo_data_release">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pudl_zenodo_data_release</span><span class="p">(</span>
+    <span class="n">env</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ignore</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Publish a new PUDL data release to Zenodo.&quot;&quot;&quot;</span>
+    <span class="n">zenodo_client</span> <span class="o">=</span> <span class="n">ZenodoClient</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">env</span> <span class="o">==</span> <span class="n">SANDBOX</span><span class="p">:</span>
+        <span class="n">rec_id</span> <span class="o">=</span> <span class="mi">5563</span>
+    <span class="k">elif</span> <span class="n">env</span> <span class="o">==</span> <span class="n">PRODUCTION</span><span class="p">:</span>
+        <span class="n">rec_id</span> <span class="o">=</span> <span class="mi">3653158</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">env</span><span class="si">=}</span><span class="s2">, expected </span><span class="si">{</span><span class="n">SANDBOX</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">PRODUCTION</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">completed_draft</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">InitialDataset</span><span class="p">(</span><span class="n">zenodo_client</span><span class="o">=</span><span class="n">zenodo_client</span><span class="p">,</span> <span class="n">record_id</span><span class="o">=</span><span class="n">rec_id</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">get_empty_draft</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">sync_directory</span><span class="p">(</span><span class="n">source_dir</span><span class="p">,</span> <span class="n">ignore</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">update_metadata</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">publish</span><span class="p">:</span>
+        <span class="n">completed_draft</span><span class="o">.</span><span class="n">publish</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Published at </span><span class="si">{</span><span class="n">completed_draft</span><span class="o">.</span><span class="n">get_html_url</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Completed draft at </span><span class="si">{</span><span class="n">completed_draft</span><span class="o">.</span><span class="n">get_html_url</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">pudl_zenodo_data_release</span><span class="p">()</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

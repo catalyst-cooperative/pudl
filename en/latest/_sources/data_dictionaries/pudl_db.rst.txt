@@ -19424,7 +19424,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - filename_sec10k
     - string
     - Unique portion of the filename associated with the SEC 10-K filing in the EDGAR database. The full source URL can be reconstructed by prepending https://www.sec.gov/Archives/edgar/data/ and adding the .txt file type extension.
@@ -19600,7 +19600,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - exhibit_21_version
     - string
     - Version of exhibit 21 submitted (if applicable).
@@ -20035,6 +20035,133 @@ Columns
   * - volume_mcf
     - number
     - Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+
+.. _core_eia191__monthly_gas_storage:
+
+-------------------------------------------------------------------------------
+core_eia191__monthly_gas_storage
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia191__monthly_gas_storage>`__
+
+Monthly time series of monthly underground natural gas storage activity reported by operators.
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 191 -- Monthly Underground Natural Gas Storage Report
+
+Primary key:
+  storage_field_id_eia, report_date
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* ``total_field_capacity_mcf`` is not reliably equal to the sum of ``working_gas_capacity_mcf`` and ``base_gas_mcf``: approximately 23% of records differ. This reflects loose EIA definitions and operator self-reporting practices, not data errors. Do not assume additivity among these three fields.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia191__monthly_gas_storage>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - base_gas_mcf
+    - number
+    - Volume of base gas (cushion gas) in the underground storage reservoir. Base gas is the volume of gas intended as permanent inventory in a reservoir to maintain adequate pressure and deliverability rates.
+  * - company_name
+    - string
+    - Name of the reporting company.
+  * - county
+    - string
+    - County name.
+  * - field_name
+    - string
+    - Name of the natural gas storage field.
+  * - field_type
+    - string
+    - Type of underground natural gas storage facility. One of: depleted field (a reservoir previously used for natural gas production), aquifer (a porous rock structure used to store gas), or salt dome (a cavern created within a salt formation).
+  * - gas_field_id_eia
+    - integer
+    - EIA-assigned numeric identifier for a natural gas storage field.
+  * - maximum_daily_delivery_mcf
+    - number
+    - Maximum daily quantity of gas that can be withdrawn from the underground storage reservoir under normal operating conditions.
+  * - operational_status
+    - string
+    - Operational status of the underground natural gas storage reservoir.
+  * - region
+    - string
+    - EIA storage region in which the underground natural gas storage field is located.
+  * - report_date
+    - date
+    - Date reported.
+  * - reservoir_id_eia
+    - integer
+    - EIA-assigned numeric identifier for the individual storage reservoir within a natural gas storage field.
+  * - reservoir_name
+    - string
+    - Name of the individual underground natural gas storage reservoir.
+  * - state
+    - string
+    - Two letter US state abbreviation.
+  * - storage_field_id_eia
+    - string
+    - EIA-assigned identifier for an underground natural gas storage reservoir. IDs are assigned per company and state, so the same physical reservoir may have different IDs if ownership changes.
+  * - total_field_capacity_mcf
+    - number
+    - Total design capacity of the underground natural gas storage field (base gas plus working gas).
+  * - working_gas_capacity_mcf
+    - number
+    - Volume of working gas (the portion of stored gas available for withdrawal) in the underground storage reservoir.
 
 .. _core_eia860__assn_boiler_cooling:
 
@@ -36287,7 +36414,7 @@ Columns
     - The Company Identifier (CID) obtained through FERC's Company Registration system.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - contact_address
     - string
     - Street address for contact identified in contact_name.
@@ -44218,7 +44345,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - company_name_old
     - string
     - Name of company prior to name change.
@@ -44354,7 +44481,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - filename_sec10k
     - string
     - Unique portion of the filename associated with the SEC 10-K filing in the EDGAR database. The full source URL can be reconstructed by prepending https://www.sec.gov/Archives/edgar/data/ and adding the .txt file type extension.
@@ -44620,7 +44747,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - exhibit_21_version
     - string
     - Version of exhibit 21 submitted (if applicable).

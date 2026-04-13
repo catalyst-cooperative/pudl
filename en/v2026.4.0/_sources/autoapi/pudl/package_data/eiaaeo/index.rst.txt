@@ -1,0 +1,11 @@
+pudl.package_data.eiaaeo
+========================
+
+.. py:module:: pudl.package_data.eiaaeo
+
+.. autoapi-nested-parse::
+
+   Fields extracted from each category name for EIA AEO.
+
+
+

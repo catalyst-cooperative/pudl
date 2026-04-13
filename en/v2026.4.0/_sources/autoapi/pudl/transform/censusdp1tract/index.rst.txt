@@ -1,0 +1,29 @@
+pudl.transform.censusdp1tract
+=============================
+
+.. py:module:: pudl.transform.censusdp1tract
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.censusdp1tract.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.censusdp1tract.core_censusdp1tract__counties
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: core_censusdp1tract__counties(out_censusdp1tract__counties: geopandas.GeoDataFrame) -> pandas.DataFrame
+
