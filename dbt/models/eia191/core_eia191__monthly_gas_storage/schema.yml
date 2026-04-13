@@ -9,7 +9,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia191__monthly_gas_storage
-                partition_expr: "report_date"
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
           - expect_sum_close_to_total_column:
               arguments:
                 sum_columns:
