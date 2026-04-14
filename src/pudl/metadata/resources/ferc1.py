@@ -1481,6 +1481,29 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
+    "out_ferc1__yearly_other_regulatory_assets_sched232": {
+        "description": TABLE_DESCRIPTIONS["yearly_other_regulatory_assets_sched232"],
+        "schema": {
+            "fields": [
+                "report_year",
+                "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
+                "utility_id_pudl",
+                "utility_name_ferc1",
+                "description",
+                "additional_description",
+                "ending_balance",
+                "starting_balance",
+                "debits",
+                "credits_written_off_recovered",
+                "account_detail",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "out_ferc1__yearly_other_regulatory_liabilities_sched278": {
         "description": TABLE_DESCRIPTIONS[
             "yearly_other_regulatory_liabilities_sched278"
