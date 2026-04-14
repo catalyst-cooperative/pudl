@@ -11143,10 +11143,15 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "contact_title": {
             "description": "Title of contact person for the respondent.",
         },
-        "contact_zip": {
-            "constraints": {
-                "pattern": r"^\d{5}$",
-            },
+        # TODO 04/26: Would require additional cleaning to validate, some
+        # Canada postal codes in here as well.
+        # "contact_zip": {
+        #     "constraints": {
+        #         "pattern": r"^\d{5}(-\d{4})?$",
+        #     },
+        # },
+        "contact_state": {
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
         },
         "office_street_address": {
             "description": "Street address of principal office at end of period.",
@@ -11162,9 +11167,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "office_zip": {
             "type": "string",
             "description": "Zipcode of principal office at end of period.",
-            "constraints": {
-                "pattern": r"^\d{5}$",
-            },
+            # "constraints": { # TODO 04/26: Would require additional cleaning to validate, some Canada postal codes in here as well.
+            #     "pattern": r"^\d{5}(-\d{4})?$",
+            # },
         },
         "report_filing_type": {
             "description": "Type of report submitted: O (original) or R (revision).",

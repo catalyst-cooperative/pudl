@@ -1,8 +1,8 @@
-"""Add identification and certification ferc table
+"""Add identification and certification table
 
-Revision ID: c163afae97db
+Revision ID: 4f252e9e2ce3
 Revises: cfbb9479cc73
-Create Date: 2026-04-06 16:31:39.890240
+Create Date: 2026-04-14 14:30:23.354100
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c163afae97db'
+revision = '4f252e9e2ce3'
 down_revision = 'cfbb9479cc73'
 branch_labels = None
 depends_on = None
@@ -33,11 +33,11 @@ def upgrade() -> None:
     sa.Column('contact_address', sa.Text(), nullable=True, comment='Street address for contact identified in contact_name.'),
     sa.Column('contact_phone', sa.Text(), nullable=True, comment='Phone number for contact identified in contact_name.'),
     sa.Column('contact_city', sa.Text(), nullable=True, comment='City for contact identified in contact_name.'),
-    sa.Column('contact_state', sa.Text(), nullable=True, comment='State for contact identified in contact_name.'),
+    sa.Column('contact_state', sa.Enum('NJ', 'KY', 'HI', 'MB', 'RI', 'IA', 'NH', 'UT', 'LA', 'GA', 'PR', 'VI', 'NE', 'PA', 'NY', 'NB', 'WV', 'MS', 'ND', 'WY', 'MP', 'GU', 'CT', 'SD', 'TX', 'WA', 'NU', 'AS', 'CO', 'BC', 'MD', 'YT', 'WI', 'IN', 'CA', 'NL', 'PE', 'MT', 'OK', 'MI', 'AR', 'MO', 'OR', 'QC', 'NM', 'VT', 'TN', 'MN', 'ID', 'SC', 'DE', 'KS', 'DC', 'MA', 'NT', 'OH', 'VA', 'AB', 'SK', 'AL', 'NV', 'ME', 'NC', 'AK', 'AZ', 'IL', 'FL', 'NS', 'ON'), nullable=True, comment='State for contact identified in contact_name.'),
     sa.Column('contact_zip', sa.Text(), nullable=True, comment='Zip code for contact identified in contact_name.'),
     sa.Column('office_street_address', sa.Text(), nullable=True, comment='Street address of principal office at end of period.'),
     sa.Column('office_city', sa.Text(), nullable=True, comment='City of principal office at end of period.'),
-    sa.Column('office_state', sa.Enum('VA', 'YT', 'ME', 'NE', 'SD', 'MI', 'NY', 'NJ', 'WV', 'QC', 'AS', 'VI', 'WA', 'SK', 'CA', 'MN', 'OR', 'AK', 'KS', 'MA', 'GA', 'VT', 'NL', 'ID', 'MT', 'NT', 'WY', 'HI', 'AZ', 'RI', 'NH', 'IA', 'NU', 'TX', 'MS', 'MO', 'AL', 'OH', 'OK', 'NS', 'AB', 'ON', 'MP', 'TN', 'GU', 'MD', 'IN', 'IL', 'NC', 'LA', 'FL', 'CT', 'MB', 'BC', 'ND', 'DC', 'NV', 'PA', 'WI', 'UT', 'PR', 'NM', 'DE', 'SC', 'NB', 'PE', 'KY', 'CO', 'AR'), nullable=True, comment='State of principal office at end of period.'),
+    sa.Column('office_state', sa.Enum('NJ', 'KY', 'HI', 'MB', 'RI', 'IA', 'NH', 'UT', 'LA', 'GA', 'PR', 'VI', 'NE', 'PA', 'NY', 'NB', 'WV', 'MS', 'ND', 'WY', 'MP', 'GU', 'CT', 'SD', 'TX', 'WA', 'NU', 'AS', 'CO', 'BC', 'MD', 'YT', 'WI', 'IN', 'CA', 'NL', 'PE', 'MT', 'OK', 'MI', 'AR', 'MO', 'OR', 'QC', 'NM', 'VT', 'TN', 'MN', 'ID', 'SC', 'DE', 'KS', 'DC', 'MA', 'NT', 'OH', 'VA', 'AB', 'SK', 'AL', 'NV', 'ME', 'NC', 'AK', 'AZ', 'IL', 'FL', 'NS', 'ON'), nullable=True, comment='State of principal office at end of period.'),
     sa.Column('office_zip', sa.Text(), nullable=True, comment='Zipcode of principal office at end of period.'),
     sa.Column('attestation_name', sa.Text(), nullable=True, comment="Name of person signing the corporate officer's certification."),
     sa.Column('attestation_title', sa.Text(), nullable=True, comment="Title of person signing the corporate officer's certification."),
