@@ -218,8 +218,8 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     def transform(
         self,
-        raw_dbf_dfs: dict[pd.DataFrame],
-        raw_xbrl_dfs: dict[pd.DataFrame],
+        raw_dbf_dfs: dict[str, pd.DataFrame],
+        raw_xbrl_dfs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
         """Only apply the generic :meth:``transform_start``."""
         return self.transform_start(raw_dbf_dfs, raw_xbrl_dfs).pipe(self.transform_main)
