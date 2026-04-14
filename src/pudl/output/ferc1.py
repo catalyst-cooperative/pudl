@@ -287,6 +287,7 @@ out_ferc1_assets = [
         "yearly_balance_sheet_liabilities_sched110",
         "yearly_cash_flows_sched120",
         "yearly_depreciation_summary_sched336",
+        "yearly_depreciation_factors_sched336",
         "yearly_energy_dispositions_sched401",
         "yearly_energy_sources_sched401",
         "yearly_operating_expenses_sched320",

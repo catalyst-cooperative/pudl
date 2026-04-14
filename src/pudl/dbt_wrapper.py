@@ -2,7 +2,8 @@
 
 import io
 import json
-from contextlib import chdir, redirect_stdout
+import logging
+from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
 
@@ -20,6 +21,23 @@ from pudl.workspace.setup import PUDL_ROOT_PATH, PudlPaths
 logger = get_logger(__name__)
 
 DBT_DIR: Path = PUDL_ROOT_PATH / "dbt"
+
+
+@contextmanager
+def _preserve_logging_propagation():
+    """Restore logging propagation settings after a dbt invocation.
+
+    Invoking dbt via dbtRunner triggers Dagster's logging initialization, which
+    resets ``logging.getLogger("dagster").propagate`` to ``False``. This context
+    manager saves and restores the setting so callers don't experience unexpected
+    side effects on the global logging configuration.
+    """
+    dagster_logger = logging.getLogger("dagster")
+    original_propagate = dagster_logger.propagate
+    try:
+        yield
+    finally:
+        dagster_logger.propagate = original_propagate
 
 
 class NodeContext(NamedTuple):
@@ -145,7 +163,8 @@ def build_with_context(
         cli_args += ["--exclude", node_exclusion]
     dbt = install_dbt_deps()
 
-    with chdir(DBT_DIR):
+    with _preserve_logging_propagation(), chdir(DBT_DIR):
+        dbt.invoke(["deps"])
         dbt.invoke(["seed"])
         build_output: dbtRunnerResult = dbt.invoke(["build"] + cli_args)
         build_results = cast(RunExecutionResult, build_output.result)
@@ -193,7 +212,7 @@ def dagster_to_dbt_selection(
 
     if manifest is None:
         manifest_path = PUDL_ROOT_PATH / "dbt" / "target" / "manifest.json"
-        with chdir(PUDL_ROOT_PATH / "dbt"):
+        with _preserve_logging_propagation(), chdir(PUDL_ROOT_PATH / "dbt"):
             dbt = dbtRunner()
             dbt.invoke(["parse"])
 
