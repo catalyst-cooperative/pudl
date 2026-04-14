@@ -10215,7 +10215,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Additional free-form description column. In most instances, the values in this column are exactly the same as the "
-            "description column,but it differs from the standard description enough that we kept both columns."
+            "description column,but it differs from the standard description enough that we kept both columns. "
+            "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
         ),
     },
 }

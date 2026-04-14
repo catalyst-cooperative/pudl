@@ -1,8 +1,8 @@
 """add new ferc1 other reg assets
 
-Revision ID: 48c767d17665
+Revision ID: 6b25097da735
 Revises: cfbb9479cc73
-Create Date: 2026-04-14 09:52:32.054632
+Create Date: 2026-04-14 15:51:48.811587
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '48c767d17665'
+revision = '6b25097da735'
 down_revision = 'cfbb9479cc73'
 branch_labels = None
 depends_on = None
@@ -22,7 +22,7 @@ def upgrade() -> None:
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=True, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('description', sa.Text(), nullable=True, comment='Free-form description and purpose of other regulatory assets.'),
-    sa.Column('additional_description', sa.Text(), nullable=True, comment='Additional free-form description column. In most instances, the values in this column are exactly the same as the description column,but it differs from the standard description enough that we kept both columns.'),
+    sa.Column('additional_description', sa.Text(), nullable=True, comment='Additional free-form description column. In most instances, the values in this column are exactly the same as the description column,but it differs from the standard description enough that we kept both columns. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
     sa.Column('debits', sa.Float(), nullable=True, comment='The increase (decrease) during the period in the value of other assets resulting from the ratemaking actions of regulatory agencies.'),
@@ -38,7 +38,7 @@ def upgrade() -> None:
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('utility_name_ferc1', sa.Text(), nullable=True, comment='Name of the responding utility, as it is reported in FERC Form 1. For human readability only.'),
     sa.Column('description', sa.Text(), nullable=True, comment='Long human-readable description of the meaning of a code/label.'),
-    sa.Column('additional_description', sa.Text(), nullable=True, comment='Additional free-form description column. In most instances, the values in this column are exactly the same as the description column,but it differs from the standard description enough that we kept both columns.'),
+    sa.Column('additional_description', sa.Text(), nullable=True, comment='Additional free-form description column. In most instances, the values in this column are exactly the same as the description column,but it differs from the standard description enough that we kept both columns. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
     sa.Column('debits', sa.Float(), nullable=True, comment='The increase (decrease) during the period in the value of other assets resulting from the ratemaking actions of regulatory agencies.'),
@@ -48,7 +48,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_other_regulatory_assets_sched232_utility_id_pudl_core_pudl__entity_utilities_pudl'))
     )
     with op.batch_alter_table('core_ferc1__yearly_other_regulatory_liabilities_sched278', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('additional_description', sa.Text(), nullable=True, comment='Additional free-form description column. In most instances, the values in this column are exactly the same as the description column,but it differs from the standard description enough that we kept both columns.'))
+        batch_op.add_column(sa.Column('additional_description', sa.Text(), nullable=True, comment='Additional free-form description column. In most instances, the values in this column are exactly the same as the description column,but it differs from the standard description enough that we kept both columns. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021.'))
 
     # ### end Alembic commands ###
 

@@ -6169,18 +6169,18 @@ class OtherRegulatoryAssetsTableTransformer(Ferc1AbstractTableTransformer):
         that is a free-text field containing details about what type of asset the record
         pertains to. The second table is a "totals" table which based on the XBRL
         documentation is the total of the other regulatory assets. So we assign the value
-        for the `other_regulatory_assets_axis` column as `totals`.
+        for the `other_regulatory_assets_axis` column as `total`.
         """
         raw_xbrl_instant.loc[
             raw_xbrl_instant.sched_table_name
             == "other_regulatory_assets_account_182_3_totals_232",
             "other_regulatory_assets_axis",
-        ] = "totals"
+        ] = "total"
         raw_xbrl_duration.loc[
             raw_xbrl_duration.sched_table_name
             == "other_regulatory_assets_account_182_3_totals_232",
             "other_regulatory_assets_axis",
-        ] = "totals"
+        ] = "total"
         return super().process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
 
 
