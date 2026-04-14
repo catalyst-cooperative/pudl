@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+      - nightly
+      - stable
+    tags:
+      - "v20*"
   workflow_dispatch:
 
 permissions:
@@ -20,7 +24,7 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-    if: contains('refs/heads/main refs/heads/stable refs/heads/nightly', github.ref) || contains(github.ref, 'refs/heads/v20')
+    if: contains('refs/heads/main refs/heads/stable refs/heads/nightly', github.ref) || contains(github.ref, 'refs/tags/v20')
     steps:
       - uses: actions/checkout@v6
         with:

@@ -16,10 +16,5 @@
       "sourceType": "github",
       "computedHash": "a7fafd4fc2d88199c107c89104c448b8b2fc5bb307c849f1866f057244873d8b"
     },
-    "pudl-dev": {
-      "source": "catalyst-cooperative/skills",
-      "sourceType": "github",
-      "computedHash": "4b670efbd1ab41cb10b1164429fddb34a8b5bcfab9a5c1f8c10016ce7d45059e"
-    }
   }
 }
