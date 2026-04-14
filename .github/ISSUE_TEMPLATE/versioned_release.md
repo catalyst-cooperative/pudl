@@ -60,7 +60,7 @@ Quality of Life Improvements
 - [ ] Wait several hours for a successful build to complete ([monitor here](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24))
 - [ ] Verify that the corresponding `zenodo-data-release` GHA completed successfully. If it times out less than halfway through, re-run manually (production, vYYYY.M.x, default regex, no-publish). If Zenodo is extra cranky, ignore the GHA and upload the remaining files manually.
 - [ ] Activate new version on the [RTD admin panel](https://app.readthedocs.org/projects/catalystcoop-pudl/) and verify that it builds successfully.
-- [ ] Check out the `gh-pages` branch and add the new version to `available_versions.json` (automate!)
+- [ ] Use GitHub to [edit `available_versions.json`](https://github.com/catalyst-cooperative/pudl/blob/gh-pages/available_versions.json) and add an entry for the new version (automate!)
 - [ ] Verify that `stable` and the version tag point at same git ref
 - [ ] Verify that [`stable` docs on RTD](https://catalystcoop-pudl.readthedocs.io/en/stable/) have been updated
 - [ ] Verify `gs://pudl.catalyst.coop/vYYYY.M.x` has the new expected data.
