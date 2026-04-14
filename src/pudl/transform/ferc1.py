@@ -155,6 +155,7 @@ class TableIdFerc1(enum.Enum):
     OPERATING_EXPENSES = "core_ferc1__yearly_operating_expenses_sched320"
     BALANCE_SHEET_LIABILITIES = "core_ferc1__yearly_balance_sheet_liabilities_sched110"
     DEPRECIATION_SUMMARY = "core_ferc1__yearly_depreciation_summary_sched336"
+    DEPRECIATION_FACTORS = "core_ferc1__yearly_depreciation_factors_sched336"
     BALANCE_SHEET_ASSETS = "core_ferc1__yearly_balance_sheet_assets_sched110"
     RETAINED_EARNINGS = "core_ferc1__yearly_retained_earnings_sched118"
     INCOME_STATEMENTS = "core_ferc1__yearly_income_statements_sched114"
@@ -5815,6 +5816,67 @@ class DepreciationSummaryTableTransformer(Ferc1AbstractTableTransformer):
         return meta
 
 
+def convert_pnynmndtnhnmns_to_years(dep_factors: pd.DataFrame, life_col: str):
+    """Convert the XBRL-based PnYnMnDTnHnMnS time period into years.
+
+    FERC1's Taxonomy documents these fields as: Estimated average service life of
+    utility plant, in 'PnYnMnDTnHnMnS' format, for example 'P4Y7M12D' represents a
+    fact of four years, seven months, and 12 days.
+
+    As a format, its a fine standard despite not being a widely used format for
+    duration of time. not super standard but is acceptable. but the DBF data is all reported - seemingly - in years.
+    """
+    dep_factors = dep_factors.replace({life_col: {"": pd.NA}})
+    # the new format is only in the xbrl data
+    duration_format_mask = dep_factors.report_year > 2020
+    temp_date_cols = ["year", "month", "day"]
+    dep_factors[temp_date_cols] = (
+        dep_factors.loc[duration_format_mask, life_col]
+        .str.extract(r"p(\d*y|)(\d*m|)(\d*d|)")
+        .replace({"": pd.NA})
+        .dropna(how="all", axis=1)
+        .replace("y$|m$|d$", "", regex=True)
+        .astype(pd.Float64Dtype())
+    )
+
+    dep_factors.loc[duration_format_mask, f"{life_col}_new"] = (
+        dep_factors.year.fillna(0)
+        + (dep_factors.month.fillna(0) / 12)
+        + (dep_factors.day.fillna(0) / 365)
+    )
+
+    # make sure we don't have any null new lives when the old weird format had
+    # something something in there
+    assert dep_factors[
+        duration_format_mask
+        & dep_factors[f"{life_col}_new"].isnull()
+        & dep_factors[life_col].notnull()
+    ].empty
+
+    dep_factors[life_col] = dep_factors[f"{life_col}_new"].fillna(
+        dep_factors.loc[~duration_format_mask, life_col].astype(pd.Float64Dtype())
+    )
+    return dep_factors.drop(columns=[f"{life_col}_new"] + temp_date_cols)
+
+
+class DepreciationFactorsTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`core_ferc1__yearly_depreciation_factors_sched336` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_FACTORS
+    has_unique_record_ids: bool = False
+
+    def transform_main(self, df):
+        """Convert $1000s to $s & standardize life cols after standard transform_main."""
+        df = (
+            super()
+            .transform_main(df)
+            .assign(depreciable_plant_base=lambda x: x.depreciable_plant_base / 1000)
+            .pipe(convert_pnynmndtnhnmns_to_years, "service_life_avg")
+            .pipe(convert_pnynmndtnhnmns_to_years, "remaining_life_avg")
+        )
+        return df
+
+
 class DepreciationChangesTableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`core_ferc1__yearly_depreciation_changes_sched219` table."""
 
@@ -6356,6 +6418,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_operating_expenses_sched320": OperatingExpensesTableTransformer,
     "core_ferc1__yearly_balance_sheet_liabilities_sched110": BalanceSheetLiabilitiesTableTransformer,
     "core_ferc1__yearly_depreciation_summary_sched336": DepreciationSummaryTableTransformer,
+    "core_ferc1__yearly_depreciation_factors_sched336": DepreciationFactorsTransformer,
     "core_ferc1__yearly_balance_sheet_assets_sched110": BalanceSheetAssetsTableTransformer,
     "core_ferc1__yearly_income_statements_sched114": IncomeStatementsTableTransformer,
     "core_ferc1__yearly_depreciation_changes_sched219": DepreciationChangesTableTransformer,

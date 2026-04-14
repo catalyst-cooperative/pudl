@@ -10117,6 +10117,73 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The cost of materials and supplies used.",
         "unit": "USD",
     },
+    "depreciable_plant_base": {
+        "type": "number",
+        "description": "Depreciable plant balance (depreciable base) to which rates are applied.",
+        "unit": "USD",
+    },
+    "net_salvage_pct": {
+        "type": "number",
+        "description": (
+            "Percentage representing the estimated value of utility plant at the end of its service life. "
+            "Be aware that the formatting of this column is not expected to be standard - expect some "
+            "values between 0-1 and some between 0-100."
+        ),
+    },
+    "depreciation_rate": {
+        "type": "string",
+        "description": (
+            "Depreciation rate applied to utility plant balance."
+            "Be aware that the formatting of this column is not expected to be standard - expect some "
+            "values between 0-1 and some between 0-100."
+        ),
+    },
+    "mortality_curve_type": {
+        "type": "string",
+        "description": "Description of the type of mortality curve selected in plant mortality studies prepared to assist in estimating average service lives.",
+    },
+    "depreciation_factors": {
+        "type": "string",
+        "description": (
+            "Label of the factor of depreciation factors. This field contains is an unstructured, free-form strings. "
+            "It often includes FERC account IDs, sometimes includes plant names and sometimes includes headers "
+            "indicating the beginning of a new section - such as a plant or asset type header which is followed "
+            "by sub-components like FERC account IDs or plant names depending on the section."
+        ),
+    },
+    "order_num": {
+        "type": "number",
+        "description": (
+            "This field is defined in FERC-XBRL documentation as a field that is used to sequence a table."
+            "FERC-XBRL documentation notes: 'This field is added to a table to control ordering of the items on the table.'"
+            "FERC's documentation also notes that this field should always be an integer - although "
+            "there are many instances of floating point values which seem to increment by decimal points. "
+            "Nonetheless, this field can be used to help understand the original order of the table. "
+            "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
+        ),
+    },
+    "account_num": {
+        "type": "string",
+        "description": "Account number(s) in connection with factors used in estimating depreciation charges.",
+    },
+    "service_life_avg": {
+        "type": "number",
+        "description": (
+            "Estimated average service life of utility plant. "
+            "The original DBF data was reported as years while the XBRL data was reported as "
+            "strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these "
+            "string time durations into years."
+        ),
+    },
+    "remaining_life_avg": {
+        "type": "number",
+        "description": (
+            "Estimated weighted average of remaining life of utility plant assets."
+            "The original DBF data was reported as years while the XBRL data was reported as "
+            "strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these "
+            "string time durations into years."
+        ),
+    },
     "utility_plant_group": {
         "type": "string",
         "description": "High-level category of utility plant asset type.",

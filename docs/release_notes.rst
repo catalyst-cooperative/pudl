@@ -7,12 +7,18 @@ PUDL Release Notes
 ---------------------------------------------------------------------------------------
 v2026.5.0 (unreleased)
 ---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
 New Data
 ^^^^^^^^
 
-FERC Form 1
-~~~~~~~~~~~
+FERC 1
+~~~~~~
 
+* Added new :ref:`core_ferc1__yearly_depreciation_factors_sched336` table. See
+  issue :issue:`5103` and PR :pr:`5112`.
 * Added FERC Form 1 respondents' identification and certification information as
   :ref:`core_ferc1__yearly_identification_certification`. See :issue:`5150` and
   :pr:`5008`.
@@ -20,20 +26,21 @@ FERC Form 1
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-
 Documentation
 ^^^^^^^^^^^^^
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 
 .. _release-v2026.4.0:
