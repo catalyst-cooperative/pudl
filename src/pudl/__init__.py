@@ -1,6 +1,6 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
-import importlib.metadata
+from pudl.logging_helpers import configure_root_logger
 
 from . import (
     analysis,
@@ -18,14 +18,19 @@ from . import (
     workspace,
 )
 
-logging_helpers.configure_root_logger()
+configure_root_logger()
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"
 __maintainer__ = "Catalyst Cooperative"
 __license__ = "MIT License"
 __maintainer_email__ = "zane.selvans@catalyst.coop"
-__version__ = importlib.metadata.version("catalystcoop.pudl")
+
+try:
+    from pudl._version import __version__
+except ImportError:
+    __version__ = "0.0.0.dev0"
+
 __docformat__ = "restructuredtext en"
 __description__ = "Tools for liberating public US electric utility data."
 __long_description__ = """

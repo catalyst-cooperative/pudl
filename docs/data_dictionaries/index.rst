@@ -9,8 +9,8 @@ The PUDL data dictionary provides detailed metadata for the tables
 in the PUDL database. This includes table descriptions,
 field names, field descriptions, and field datatypes.
 
-**You can find this data at the** `beta PUDL Viewer
-<https://viewer.catalyst.coop>`__ **if you want interactive search, filtering,
+**You can find this data at the** `beta PUDL Data Viewer
+<https://data.catalyst.coop>`__ **if you want interactive search, filtering,
 and CSV export.**
 
 .. toctree::
@@ -34,8 +34,8 @@ raw file names, page numbers, and data reporting frequency.
 
    ferc1_db
 
-Code Descriptions & Metadata
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Code Descriptions
+^^^^^^^^^^^^^^^^^
 This section contains mappings of codes in the raw tables to their
 corresponding labels and descriptions in the processed PUDL database tables.
 For example, the code, NV, represents the full description "Never to exceed"
@@ -46,3 +46,12 @@ in the core_eia_codes_averaging_periods table.
    :titlesonly:
 
    codes_and_labels
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   usage_warnings

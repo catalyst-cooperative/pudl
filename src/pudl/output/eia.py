@@ -185,6 +185,7 @@ def _out_eia__yearly_generators(
             (64246, "99MTB"),
             (64436, "WLB"),
             (64876, "OHAMP"),
+            (64947, "GEN02"),
             (64966, "GEN1"),
             (64996, "ARCPV"),
             (65084, "ELDPV"),
@@ -206,6 +207,7 @@ def _out_eia__yearly_generators(
             (67744, "RS1"),
             (68239, "C234B"),
             (68609, "16501"),
+            (69056, "CBCBA"),
             (69312, "ECHEB"),
         ]
     )
@@ -431,7 +433,7 @@ def _out_eia__plants_utilities(
             "utility_name_eia",
         ],
         axis="columns",
-    ).dropna(subset=["utility_id_eia"])  # Drop unmergable records
+    ).dropna(subset=["utility_id_eia"])  # Drop unmergeable records
 
     # to avoid duplicate columns on the merge...
     out_df = pd.merge(
@@ -441,6 +443,9 @@ def _out_eia__plants_utilities(
         on=["report_date", "utility_id_eia"],
     )
 
+    # This list determines what plant or utility level attributes are available for
+    # inclusion in the denormalized generator tables. If there are additional fields
+    # that get requested, add them here.
     out_df = out_df.loc[
         :,
         [
@@ -451,6 +456,8 @@ def _out_eia__plants_utilities(
             "utility_id_eia",
             "utility_name_eia",
             "utility_id_pudl",
+            "balancing_authority_code_eia",
+            "balancing_authority_name_eia",
             "data_maturity",
         ],
     ].dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])

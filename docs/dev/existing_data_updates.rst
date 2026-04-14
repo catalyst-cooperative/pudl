@@ -31,6 +31,7 @@ at the "Years Liberated" field.
 * :doc:`/data_sources/eia861`
 * :doc:`/data_sources/eia923`
 * :doc:`/data_sources/eia930`
+* :doc:`/data_sources/eiaaeo`
 * :doc:`/data_sources/epacems`
 * :doc:`/data_sources/ferc1`
 * :doc:`/data_sources/ferc714`
@@ -43,18 +44,20 @@ in the
 If the structure of the web pages or the URLs has changed, you may need to update the
 archivers themselves.
 
-**1.2)** Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to
-refer to the new raw input archives.
+**1.2)** Update the `Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__
+DOI to point to the latest dataset by running:
+
+.. code-block:: bash
+
+    pixi run update_zenodo_dois dataset_name
+
+Verify that this updated the record in :mod:`pudl.package_data.settings.zenodo_dois.yml`
+to refer to the new raw input archives as expected.
 
 **1.3)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
 to reflect the years, months, or quarters of data that are available for each dataset
 and the ``records_liberated`` to show how many records are available. Check to make
 sure other fields such as ``source_format`` or ``path`` are still accurate.
-
-.. note::
-
-  If you're updating EIA861, you can skip the rest of the steps in this section and
-  all steps after step two because 861 is not yet included in the ETL.
 
 **1.4)** Update the partitions of data to be processed in
 the ``etl_full.yml`` and ``etl_fast.yml`` settings files stored under
@@ -94,10 +97,14 @@ the years (e.g. ``boiler_fuel``). However ``page_name`` does not necessarily cor
 directly to PUDL database table names because we don't load the data from all pages, and
 some pages result in more than one database table after normalization.
 
-**2.A.1)** If you're adding a new year, add a column for the new year of data to each of
-the aforementioned files. If there are any changes to prior years, make sure to address
-those too. (See note above). If you are updating early release data with final release
-data, replace the values in the appropriate year column.
+**2.A.1)** If you're adding a new year, add a row for the new year of data to
+  each of the aforementioned files. If there are any changes to prior years, make
+  sure to address those too. If you are updating early release data with final
+  release data, replace the values in the appropriate year row. **The easiest way
+  to correct the values for these files is to test extraction in Dagster as
+  described in the next step, then use the error messages to narrow down what should
+  be updated.** Exhaustively examining each file manually to compare it with its
+  predecessor is the most difficult way.
 
 .. note::
 
@@ -121,17 +128,8 @@ pages, or columns) then create new mappings to track that information over time.
 
 B. FERC Form 714
 ^^^^^^^^^^^^^^^^
-FERC Form 714 is distributed as an archive of CSV files, each of which spans
-all available years of data. This means there's much less structure to keep track of.
-The main thing that changes from year to year is the names of the CSV files within the
-ZIP archive.
-
-**2.B.1)** Update the mapping between extracted dataframes and those filenames in the
-:py:const:`pudl.extract.ferc714.TABLE_FNAME` dictionary.
-
-**2.B.2)** The character encodings of these CSV files may vary with some of them using
-``iso-8859-1`` (Latin) rather than ``utf-8`` (Unicode). Note the per-file encoding
-in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over time.
+From 2021 onward, FERC Form 714 is distributed as an archive of XBRL files, and does
+not need to be mapped.
 
 C. NREL ATB
 ^^^^^^^^^^^
@@ -343,6 +341,28 @@ above. Continue to iterate and debug until assets generate successfully.
 create new tables in :mod:`pudl.metadata.resources.nrelatb` for these descriptors,
 following the example of ``core_nrelatb__yearly_technology_status``.
 
+E. FERC Form 714
+^^^^^^^^^^^^^^^^
+**4.E.1)** Materialize everything downstream of the raw FERC-714 assets using Dagster
+query ``key:"raw_ferc714_xbrl*"+``. Investigate any errors that occur, and update the
+constants in :mod:`pudl.transform.ferc714` to add any new fix cases for the new year
+of data. Common updates include:
+
+* :py:const:`pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES` - Update this if you
+  see ``AssertionError: We expect all but XX of the records without a cleaned
+  utc_offset to not have any demand data, but we found YY records``, after
+  investigating the records with missing utc_offset and determining what the correct
+  value should be.
+* :py:const:`pudl.transform.ferc714.DISCONTINUOUS_DATES` - Update this if you see
+  ``AssertionError: We expect there to be fewer than XX gaps in the xbrl time series
+  but we found these YY gaps:``, after investigating the new gaps and confirming
+  they occur on reasonable dates (usually around daylight saving time start or end).
+* :py:const:`pudl.transform.ferc714.DUPLICATED_DATETIMES` - Update this if you see
+  ``AssertionError: Found YY duplicate UTC datetimes, but we expected XX or less``,
+  after investigating the new duplicates and confirming they occur on reasonable
+  dates (usually when a respondent changes their UTC offset, whether due to daylight
+  savings time or otherwise).
+
 5. Update the PUDL DB Schema
 ----------------------------
 If new columns or tables have been added, you must also update the PUDL DB schema,
@@ -367,7 +387,9 @@ appropriate :mod:`pudl.metadata.resources` modules.
 **5.4)** Differentiate between columns which should be harvested from the transformed
 dataframes in the normalization and entity resolution process (and associated with a
 generator, boiler, plant, utility, or balancing authority entity), and those that should
-remain in the table where they are reported.
+remain in the table where they are reported. See
+:doc:`/methodology/entity_resolution` for details on how harvested entity and yearly SCD
+tables are constructed.
 
 **5.5)** Once you've updated the metadata, you'll need to update the alembic version.
 See the instructions for doing so in :doc:`run_the_etl`. You may have already updated
@@ -440,27 +462,49 @@ run all the integration tests against your live PUDL DB with:
 
 .. code-block:: console
 
-    $ make pytest-integration-full
+    $ pixi run pytest-integration-full
 
-**9.2)** When the CI tests are passing against all years of data, sanity check the data
-in the database and the derived outputs by running
+We expect ``test/integration/dbt_test.py::test_dbt`` to fail at this point, but
+everything else should pass. Fix any remaining failures and we'll fix dbt in the next
+step.
+
+**9.2)** When the non-dbt integration tests are passing against all years of data,
+sanity check the data in the database and the derived outputs by running
 
 .. code-block:: console
 
-    $ make pytest-validate
+    $ dbt_helper validate
 
-We expect at least some of the validation tests to fail initially because we haven't
-updated the number of records we expect to see in each table.
+There are two kinds of failures that are common at this stage, summarized below. If
+other tests have failed, see
+:doc:`the validation reference guide </dev/data_validation_reference>` for help
+fixing them.
 
-**9.3)** You may also need to update the expected distribution of fuel prices if they
-were particularly high or low in the new year of data. Other values like expected heat
-content per unit of fuel should be relatively stable. If the required adjustments are
-large, or there are other types of validations failing, they should be investigated.
+**9.2.1)** ``source_expect_quantile_constraints_*``: You may need to update the expected
+distribution of fuel prices if they were particularly high or low in the new year of
+data. Other values like expected heat content per unit of fuel should be relatively
+stable. If the required adjustments are large, they should be investigated.
 
-**9.4)** Update the expected number of rows in the ``dbt`` row count tests. Pay
-attention to how far off of previous expectations the new tables are. E.g. if there
-are already 20 years of data, and you're integrating 1 new year of data, probably the
-number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).
+**9.2.2)** ``source_check_row_counts_per_partition_*``: **Always fix row counts
+last.** That way, if fixes to other problems result in changes to the count, or new
+counts have been added to main since your last update, you won't have to throw away
+work. For most tables, a local run of the full ETL will permit you to use
+``dbt_helper`` to update the row counts file (see :ref:`row-countfailures`), but some
+EIA tables can only be repeatably counted in GHA (see issue :issue:`4574`). If your
+update touches those tables, or if you don't have a full local run available to you,
+run the ``build-deploy-pudl`` GHA against your branch to generate a fresh row counts
+file. When the deployment report appears in Slack, it will read as failed, but the
+build will have left behind a file containing updated row counts for the new data.
+Copy it to your branch using
+:doc:`the nightly build instructions </dev/nightly_data_builds>`.
+
+Once you have a new candidate row counts file, inspect the changes using ``git diff``.
+Pay attention to the partitions affected and the magnitude of each change. For
+example, if data is partitioned by year and you are doing an annual update, most of
+the changes should be for that year's partition. If you are doing a quarterly update,
+the number of rows for that year's partition should be increasing by about 1/4 of the
+previous year's total. If changes to row counts appear for wildly unrelated
+partitions, or are wildly out of proportion to your expectations, investigate.
 
 10. Update the Documentation
 ----------------------------

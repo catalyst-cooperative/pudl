@@ -21,7 +21,7 @@ ferc_to_sqlite_settings:
   ferc60_xbrl_to_sqlite_settings:
     years: [2021, 2024]
   ferc714_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
 
 ###########################################################################
 # Settings for pudl_etl script
@@ -37,12 +37,12 @@ datasets:
   ferc1:
     years: [2020, 2021, 2024]
   ferc714:
-    years: [2020, 2023]
+    years: [2020, 2024]
   eia:
     eia176:
-      years: [2020, 2023]
+      years: [2020, 2024]
     eia191:
-      years: [2020, 2023]
+      years: [2020, 2025]
     eia757a:
       years: [2014, 2017]
     eia923:
@@ -51,7 +51,7 @@ datasets:
       years: [2020, 2024]
       eia860m: true
     eia860m:
-      year_months: ["2025-03", "2025-04"]
+      year_months: ["2025-10", "2025-11"]
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
       # This is a temporary hack to make the tests pass!
@@ -80,20 +80,21 @@ datasets:
           2021,
           2022,
           2023,
+          2024,
         ]
     eia930:
-      half_years: ["2024half2"]
+      half_years: ["2025half2"]
     eiaaeo:
-      years: [2023] # we can only handle 1 year at a time right now.
+      years: [2023, 2025]
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
     # also load the EIA 860 data for that year if possible.
     #
     # We only use q1 for epacems etl_fast even if later quarters are available.
-    year_quarters: ["2023q1"]
+    year_quarters: ["2024q1"]
   phmsagas:
-    years: [2022]
+    years: [2024]
   nrelatb:
     years: [2024]
   gridpathratoolkit:
@@ -114,3 +115,7 @@ datasets:
     fips: True
   censuspep:
     years: [2023, 2015, 2009]
+  rus7:
+    years: [2019, 2020, 2021]
+  rus12:
+    years: [2019, 2020, 2021]

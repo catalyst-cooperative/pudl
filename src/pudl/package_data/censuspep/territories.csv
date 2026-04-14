@@ -1,4 +1,4 @@
-state_id_fips,county_id_fips,area_name,fips_level,report_date
+state_id_fips,county_id_fips,area_name,fips_level,report_year
 60,000,American Samoa,040,2020
 66,000,Guam,040,2020
 69,000,Northern Mariana Islands,040,2020

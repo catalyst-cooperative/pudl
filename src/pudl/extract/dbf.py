@@ -276,7 +276,7 @@ which should result in an error if encountered.
 
 
 class PartitionedDataFrame:
-    """This class bundles pandas.DataFrame with partition information."""
+    """This class bundles :class:`pandas.DataFrame` with partition information."""
 
     def __init__(self, df: pd.DataFrame, partition: dict[str, Any]):
         """Constructs new instance of PartitionedDataFrame."""
@@ -585,7 +585,6 @@ class FercDbfExtractor:
                 continue
             new_df = self.transform_table(table, new_df)
 
-            logger.debug(f"    {table}: N = {len(new_df)}")
             if len(new_df) <= 0:
                 continue
 

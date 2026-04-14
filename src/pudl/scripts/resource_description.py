@@ -20,16 +20,19 @@ from pudl.metadata.resources import RESOURCE_METADATA
 def main(name: str):
     """Compute and display the description components for a resource.
 
-    These components are used to build the full resource description which goes into the data dictionary, datapackage, and other downstream applications.
+    These components are used to build the full resource description which goes into the
+    data dictionary, datapackage, and other downstream applications.
 
-    Useful when adding a new table, if you have the toplevel structure installed in pudl.metadata.resources but don't yet have public documentation written.
+    Useful when adding a new table, if you have the top-level structure installed in
+    :mod:`pudl.metadata.resources` but don't yet have public documentation written.
+
     """
     if name not in RESOURCE_METADATA:
         click.echo(f"No table {name}")
         return
-    builder = ResourceDescriptionBuilder(name, RESOURCE_METADATA[name])
+    resolved = ResourceDescriptionBuilder(name, RESOURCE_METADATA[name]).build()
     click.echo("Table found:")
-    click.echo(builder.summarize())
+    click.echo(resolved.summarize())
 
 
 if __name__ == "__main__":

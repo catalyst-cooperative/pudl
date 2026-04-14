@@ -134,7 +134,7 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
     ),
 }
 
-MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str]] = {
+MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str | int | pandas_NAType]] = {
     "less_noncurrent_portion_of_allowances": {
         "dbf2020_row_number": 53,
         "dbf2020_table_name": "f1_comp_balance_db",
@@ -232,6 +232,12 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
         "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
             "core_pudl__assn_ferc1_pudl_utilities"
         ),
+        "core_pudl__assn_ferc1_dbf_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_dbf_pudl_utilities"
+        ),
+        "core_pudl__assn_ferc1_xbrl_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_xbrl_pudl_utilities"
+        ),
     }
 
     @asset(
@@ -247,13 +253,27 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
 
         Merge in utility IDs from ``core_pudl__assn_ferc1_pudl_utilities``.
         """
-        return_df = kwargs[f"core_ferc1__{table_name}"].merge(
-            kwargs["core_pudl__assn_ferc1_pudl_utilities"],
-            on="utility_id_ferc1",
-            how="left",
-            validate="many_to_one",
+        return (
+            kwargs[f"core_ferc1__{table_name}"]
+            .merge(
+                kwargs["core_pudl__assn_ferc1_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_dbf_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_xbrl_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
         )
-        return return_df
 
     return _create_output_asset
 
@@ -287,12 +307,28 @@ out_ferc1_assets = [
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
+    core_pudl__assn_ferc1_dbf_pudl_utilities: pd.DataFrame,
+    core_pudl__assn_ferc1_xbrl_pudl_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized table containing FERC plant and utility names and IDs."""
-    return pd.merge(
-        core_pudl__assn_ferc1_pudl_plants,
-        core_pudl__assn_ferc1_pudl_utilities,
-        on="utility_id_ferc1",
+    return (
+        pd.merge(
+            core_pudl__assn_ferc1_pudl_plants,
+            core_pudl__assn_ferc1_pudl_utilities,
+            on="utility_id_ferc1",
+        )
+        .merge(
+            core_pudl__assn_ferc1_dbf_pudl_utilities,
+            on="utility_id_ferc1",
+            how="left",
+            validate="many_to_one",
+        )
+        .merge(
+            core_pudl__assn_ferc1_xbrl_pudl_utilities,
+            on="utility_id_ferc1",
+            how="left",
+            validate="many_to_one",
+        )
     )
 
 
@@ -326,8 +362,9 @@ def out_ferc1__yearly_steam_plants_sched402(
         .assign(
             capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
             opex_fuel_per_mwh=lambda x: x.opex_fuel / x.net_generation_mwh,
-            opex_total_nonfuel=lambda x: x.opex_production_total
-            - x.opex_fuel.fillna(0),
+            opex_total_nonfuel=lambda x: (
+                x.opex_production_total - x.opex_fuel.fillna(0)
+            ),
             opex_nonfuel_per_mwh=lambda x: np.where(
                 x.net_generation_mwh > 0,
                 x.opex_total_nonfuel / x.net_generation_mwh,
@@ -369,7 +406,7 @@ def out_ferc1__yearly_small_plants_sched410(
                 .fillna(0)
                 .sum(axis=1)
             ),
-            opex_total_nonfuel=lambda x: (x.opex_total - x.opex_fuel.fillna(0)),
+            opex_total_nonfuel=lambda x: x.opex_total - x.opex_fuel.fillna(0),
         )
         .pipe(
             pudl.helpers.organize_cols,
@@ -401,7 +438,7 @@ def out_ferc1__yearly_hydroelectric_plants_sched406(
             how="left",
         )
         .assign(
-            capacity_factor=lambda x: (x.net_generation_mwh / (8760 * x.capacity_mw)),
+            capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
             opex_total_nonfuel=lambda x: x.opex_total,
         )
         .pipe(
@@ -466,10 +503,12 @@ def out_ferc1__yearly_steam_plants_fuel_sched402(
     """
     fuel_df = (
         core_ferc1__yearly_steam_plants_fuel_sched402.assign(
-            fuel_consumed_mmbtu=lambda x: x["fuel_consumed_units"]
-            * x["fuel_mmbtu_per_unit"],
-            fuel_consumed_total_cost=lambda x: x["fuel_consumed_units"]
-            * x["fuel_cost_per_unit_burned"],
+            fuel_consumed_mmbtu=lambda x: (
+                x["fuel_consumed_units"] * x["fuel_mmbtu_per_unit"]
+            ),
+            fuel_consumed_total_cost=lambda x: (
+                x["fuel_consumed_units"] * x["fuel_cost_per_unit_burned"]
+            ),
         )
         .merge(
             _out_ferc1__yearly_plants_utilities,
@@ -638,11 +677,11 @@ def calc_annual_capital_additions_ferc1(
 ) -> pd.DataFrame:
     """Calculate annual capital additions for FERC1 steam records.
 
-    Convert the capex_total column into annual capital additons the
-    `capex_total` column is the cumulative capital poured into the plant over
+    Convert the ``capex_total`` column into annual capital additions. The
+    ``capex_total`` column is the cumulative capital poured into the plant over
     time. This function takes the annual difference should generate the annual
-    capial additions. It also want generates a rolling average, to smooth out
-    the big annual fluxuations.
+    capital additions. It also want generates a rolling average, to smooth out
+    the big annual fluctuations.
 
     Args:
         steam_df: result of `prep_plants_ferc()`
@@ -659,9 +698,11 @@ def calc_annual_capital_additions_ferc1(
         report_date=lambda x: pd.to_datetime(x.report_year, format="%Y")
     ).sort_values(idx_steam_no_date + ["report_date"])
     steam_df = steam_df.assign(
-        capex_wo_retirement_total=lambda x: x.capex_equipment.fillna(0)
-        + x.capex_land.fillna(0)
-        + x.capex_structures.fillna(0)
+        capex_wo_retirement_total=lambda x: (
+            x.capex_equipment.fillna(0)
+            + x.capex_land.fillna(0)
+            + x.capex_structures.fillna(0)
+        )
     )
     # we group on everything but the year so the groups are multi-year unique
     # plants the shift happens within these multi-year plant groups
@@ -669,8 +710,9 @@ def calc_annual_capital_additions_ferc1(
         ["capex_wo_retirement_total"]
     ].shift()
     steam_df = steam_df.assign(
-        capex_annual_addition=lambda x: x.capex_wo_retirement_total
-        - x.capex_total_shifted
+        capex_annual_addition=lambda x: (
+            x.capex_wo_retirement_total - x.capex_total_shifted
+        )
     )
 
     addts = pudl.helpers.generate_rolling_avg(
@@ -695,10 +737,12 @@ def calc_annual_capital_additions_ferc1(
         capex_annual_per_mwh=lambda x: x.capex_annual_addition / x.net_generation_mwh,
         capex_annual_per_mw=lambda x: x.capex_annual_addition / x.capacity_mw,
         capex_annual_per_kw=lambda x: x.capex_annual_addition / x.capacity_mw / 1000,
-        capex_annual_per_mwh_rolling=lambda x: x.capex_annual_addition_rolling
-        / x.net_generation_mwh,
-        capex_annual_per_mw_rolling=lambda x: x.capex_annual_addition_rolling
-        / x.capacity_mw,
+        capex_annual_per_mwh_rolling=lambda x: (
+            x.capex_annual_addition_rolling / x.net_generation_mwh
+        ),
+        capex_annual_per_mw_rolling=lambda x: (
+            x.capex_annual_addition_rolling / x.capacity_mw
+        ),
     )
 
     steam_df_w_addts = add_mean_cap_additions(steam_df_w_addts)
@@ -756,8 +800,9 @@ def add_mean_cap_additions(steam_df):
             validate="many_to_one",
         )
         .assign(
-            capex_annual_addition_diff_mean=lambda x: x.capex_annual_addition
-            - x.capex_annual_addition_gen_mean,
+            capex_annual_addition_diff_mean=lambda x: (
+                x.capex_annual_addition - x.capex_annual_addition_gen_mean
+            ),
         )
     )
     return df
@@ -939,6 +984,12 @@ def exploded_table_asset_factory(
         "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
             "core_pudl__assn_ferc1_pudl_utilities"
         ),
+        "core_pudl__assn_ferc1_dbf_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_dbf_pudl_utilities"
+        ),
+        "core_pudl__assn_ferc1_xbrl_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_xbrl_pudl_utilities"
+        ),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
@@ -965,6 +1016,8 @@ def exploded_table_asset_factory(
                 "_out_ferc1__detailed_tags",
                 "off_by_facts",
                 "core_pudl__assn_ferc1_pudl_utilities",
+                "core_pudl__assn_ferc1_dbf_pudl_utilities",
+                "core_pudl__assn_ferc1_xbrl_pudl_utilities",
             ]
         }
         return (
@@ -981,6 +1034,18 @@ def exploded_table_asset_factory(
             .boom(tables_to_explode=tables_to_explode)
             .merge(
                 kwargs["core_pudl__assn_ferc1_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_dbf_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_xbrl_pudl_utilities"],
                 on="utility_id_ferc1",
                 how="left",
                 validate="many_to_one",
@@ -1242,10 +1307,12 @@ class Exploder:
             .rename(columns={col: f"{col}_parent" for col in NodeId._fields})
             .assign(
                 xbrl_factoid=(
-                    lambda x: x.xbrl_factoid_parent
-                    + "_off_by_"
-                    + x.xbrl_factoid_off_by
-                    + "_correction"
+                    lambda x: (
+                        x.xbrl_factoid_parent
+                        + "_off_by_"
+                        + x.xbrl_factoid_off_by
+                        + "_correction"
+                    )
                 ),
                 weight=1,
                 is_total_to_subdimensions_calc=False,
@@ -1591,10 +1658,12 @@ class Exploder:
             .assign(
                 **{
                     "xbrl_factoid": (
-                        lambda x: x.xbrl_factoid
-                        + "_off_by_"
-                        + x.xbrl_factoid_off_by
-                        + "_correction"
+                        lambda x: (
+                            x.xbrl_factoid
+                            + "_off_by_"
+                            + x.xbrl_factoid_off_by
+                            + "_correction"
+                        )
                     ),
                     self.value_col: lambda x: x["diff"],
                     "row_type_xbrl": "correction",
@@ -2134,13 +2203,15 @@ class XbrlCalculationForestFerc1(BaseModel):
         forest.remove_nodes_from(almost_pure_stepparents)
 
         forest = self.prune_unrooted(forest)
-        if not nx.is_forest(forest):
+        if not nx.is_directed_acyclic_graph(forest):
             logger.error(
-                "Calculations in Exploded Metadata can not be represented as a forest!"
+                "Calculations in Exploded Metadata cannot be represented as a directed acyclic graph!"
             )
         remaining_stepparents = set(self.stepparents(forest))
+        # "Stepparents" (nodes that have a child with more than 1 parent) are okay in
+        # a DAG, which is what our "Forest" is now.
         if remaining_stepparents:
-            logger.error(f"{remaining_stepparents=}")
+            logger.info(f"{remaining_stepparents=}")
 
         return forest
 
@@ -2339,7 +2410,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         graph_to_plot = self.full_digraph
         nodes_to_remove = set(graph_to_plot.nodes()).difference(nodes)
         # NOTE: this doesn't and can't revise the graph to identify which nodes are
-        # still connecteded to the root we care about after remvoing these nodes.
+        # still connecteded to the root we care about after removing these nodes.
         # We might want to use a more intelligent method of building the graph.
         graph_to_plot.remove_nodes_from(nodes_to_remove)
         self.plot_graph(graph_to_plot)

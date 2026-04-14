@@ -16,7 +16,7 @@ from dagster import (
 import pudl
 from pudl.etl import defs
 from pudl.helpers import get_dagster_execution_config
-from pudl.settings import EpaCemsSettings, EtlSettings
+from pudl.settings import EtlSettings
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -25,7 +25,6 @@ logger = pudl.logging_helpers.get_logger(__name__)
 def pudl_etl_job_factory(
     logfile: str | None = None,
     loglevel: str = "INFO",
-    process_epacems: bool = True,
     base_job: str = "etl_full",
 ) -> Callable[[], JobDefinition]:
     """Factory for parameterizing a reconstructable pudl_etl job.
@@ -33,7 +32,7 @@ def pudl_etl_job_factory(
     Args:
         loglevel: The log level for the job's execution.
         logfile: Path to a log file for the job's execution.
-        process_epacems: Include EPA CEMS assets in the job execution.
+        base_job: Name of the Dagster ETL job to execute.
 
     Returns:
         The job definition to be executed.
@@ -42,9 +41,7 @@ def pudl_etl_job_factory(
     def get_pudl_etl_job():
         """Create an pudl_etl_job wrapped by to be wrapped by reconstructable."""
         pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
-        cems_suffix = "" if process_epacems else "_no_cems"
-        job_name = f"{base_job}{cems_suffix}"
-        return defs.get_job_def(job_name)
+        return defs.get_job_def(base_job)
 
     return get_pudl_etl_job
 
@@ -68,16 +65,14 @@ def pudl_etl_job_factory(
     help="Max number of processes Dagster can launch. Defaults to the number of CPUs.",
 )
 @click.option(
-    "--gcs-cache-path",
+    "--cloud-cache-path",
     type=str,
-    default="",
+    default="s3://pudl.catalyst.coop/zenodo",
     help=(
-        "Load cached inputs from Google Cloud Storage if possible. This is usually "
-        "much faster and more reliable than downloading from Zenodo directly. The "
-        "path should be a URL of the form gs://bucket[/path_prefix]. Internally we use "
-        "gs://internal-zenodo-cache.catalyst.coop. A public cache is available at "
-        "gs://zenodo-cache.catalyst.coop but requires GCS authentication and a billing "
-        "project to pay data egress costs."
+        "Load cached inputs from cloud object storage (S3 or GCS). This is typically "
+        "much faster and more reliable than downloading from Zenodo directly. By "
+        "default we read from the cache in PUDL's free, public AWS Open Data Registry "
+        "bucket."
     ),
 )
 @click.option(
@@ -99,32 +94,36 @@ def pudl_etl_job_factory(
 def pudl_etl(
     etl_settings_yml: pathlib.Path,
     dagster_workers: int,
-    gcs_cache_path: str,
-    logfile: pathlib.Path,
+    cloud_cache_path: str,
+    logfile: pathlib.Path | None,
     loglevel: str,
 ):
     """Use Dagster to run the PUDL ETL, as specified by the file ETL_SETTINGS_YML."""
     # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
-    etl_settings = EtlSettings.from_yaml(etl_settings_yml)
+    logfile_str = str(logfile) if logfile is not None else None
+    pudl.logging_helpers.configure_root_logger(logfile=logfile_str, loglevel=loglevel)
+    etl_settings = EtlSettings.from_yaml(str(etl_settings_yml))
+    if etl_settings.datasets is None:
+        raise click.BadParameter(
+            "No datasets were configured in the ETL settings file.",
+            param_hint="etl_settings_yml",
+        )
+
+    if etl_settings.datasets.epacems is None or etl_settings.datasets.epacems.disabled:
+        raise click.BadParameter(
+            "EPA CEMS is now always included in the ETL. "
+            "Set datasets.epacems with disabled: false in your ETL settings file.",
+            param_hint="etl_settings_yml",
+        )
 
     dataset_settings_config = etl_settings.datasets.model_dump()
-    process_epacems = True
-    if etl_settings.datasets.epacems is None or etl_settings.datasets.epacems.disabled:
-        process_epacems = False
-        # Dagster config expects values for the epacems settings even though
-        # the CEMS assets will not be executed. Fill in the config dictionary
-        # with default cems values. Replace this workaround once dagster pydantic
-        # config classes are available.
-        dataset_settings_config["epacems"] = EpaCemsSettings().model_dump()
 
     pudl_etl_reconstructable_job = build_reconstructable_job(
         "pudl.etl.cli",
         "pudl_etl_job_factory",
         reconstructable_kwargs={
             "loglevel": loglevel,
-            "logfile": logfile,
-            "process_epacems": process_epacems,
+            "logfile": logfile_str,
         },
     )
     run_config = {
@@ -132,7 +131,7 @@ def pudl_etl(
             "dataset_settings": {"config": dataset_settings_config},
             "datastore": {
                 "config": {
-                    "gcs_cache_path": gcs_cache_path,
+                    "cloud_cache_path": cloud_cache_path,
                 },
             },
         },
@@ -164,14 +163,17 @@ def pudl_etl(
     if not result.success:
         for event in result.all_events:
             if event.event_type_value == "STEP_FAILURE":
-                raise Exception(event.event_specific_data.error)
+                event_error = getattr(event.event_specific_data, "error", None)
+                if event_error is not None:
+                    raise Exception(event_error)
+                raise Exception("ETL failed but no step error details were available.")
     else:
         logger.info("ETL job completed successfully, publishing outputs.")
         for output_path in etl_settings.publish_destinations:
             logger.info(f"Publishing outputs to {output_path}")
             fs, _, _ = fsspec.get_fs_token_paths(output_path)
             fs.put(
-                PudlPaths().output_dir,
+                PudlPaths().output_dir,  # type: ignore[call-arg]
                 output_path,
                 recursive=True,
             )

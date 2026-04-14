@@ -1,0 +1,45 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_utility_plant_changes
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_utility_plant_changes
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: utility_plant_group
+                value_column: ending_balance
+                total_label: "total"
+              row_condition: utility_plant_group='utility_plant_in_service'
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: retirements + additions + adjustments_and_transfers <= ending_balance
+              description: "Check that annual changes don't exceed ending balance."
+              config:
+                error_if: ">62"
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: utility_plant_group
+          - name: utility_plant_item
+          - name: retirements
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">11"
+          - name: additions
+          - name: adjustments_and_transfers
+          - name: ending_balance
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: utility_plant_item NOT IN ('construction_work_in_progress', 'all_other')
+          - name: is_total

@@ -1,0 +1,30 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_phmsagas__yearly_distribution_leaks
+        columns:
+          - name: report_date
+          - name: report_id
+          - name: operator_id_phmsa
+          - name: commodity
+          - name: operating_state
+          - name: leak_severity
+          - name: leak_source
+          - name: mains
+          - name: services
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_phmsagas__yearly_distribution_leaks
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - dbt_expectations.expect_compound_columns_to_be_unique:
+              arguments:
+                column_list:
+                  - report_id
+                  - operator_id_phmsa
+                  - operating_state
+                  - leak_severity
+                  - leak_source
+                description: "There are a NULL operating_state values across several years of data, so this cannot be used as a natural primary key."

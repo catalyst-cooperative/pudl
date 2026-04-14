@@ -2,9 +2,24 @@
 
 from typing import Any
 
+DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION = """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
+the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
+and convert capacity reported in DC units to AC units."""
+
+EIA861_88888 = """Respondents are required to report this information to the EIA, but are not required
+to disclose utility-level data to the public. When a respondent chooses to keep its
+utility-level data proprietary, it files using EIA utility id 88888. For more details,
+see :ref:`EIA-861 Notable Irregularities <eia861-notable-irregularities>`."""
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia861__yearly_advanced_metering_infrastructure": {
-        "description": "The data contain number of meters from automated meter readings (AMR) and advanced metering infrastructure (AMI) by state, sector, and balancing authority. The energy served (in megawatthours) for AMI systems is provided. Form EIA-861 respondents also report the number of standard meters (non AMR/AMI) in their system. Historical Changes: We started collecting the number of standard meters in 2013. The monthly survey collected these data from January 2011 to January 2017.",
+        "description": {
+            "additional_summary_text": "advanced metering infrastructure (AMI) and automated meter reading (AMR) by state, sector, and balancing authority.",
+            "additional_details_text": """The energy served (in MWH) for AMI systems is provided. Form EIA-861 respondents also report the number
+of standard meters (non AMR/AMI) in their system. Historical Changes: We started collecting the number of standard meters in 2013. The monthly survey collected
+these data from January 2011 to January 2017.""",
+        },
         "schema": {
             "fields": [
                 "advanced_metering_infrastructure",
@@ -37,7 +52,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__assn_balancing_authority": {
-        "description": "Association table showing which combinations of state, balancing authority, and utilities were observed in the data each year.",
+        "description": {
+            "additional_summary_text": "state, balancing authority, and utility in a given year."
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -57,7 +74,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_balancing_authority": {
-        "description": "Annual entity table for balancing authorities.",
+        "description": {
+            "additional_summary_text": "balancing authorities.",
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -75,18 +94,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_response": {
-        "description": (
-            """Energy demand response programs by state, sector, and balancing
-authority. We collect data for the number of customers enrolled, energy savings,
-potential and actual peak savings, and associated costs.
-
-The EIA861 demand-side management (DSM) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "demand response programs by state, sector, and balancing authority.",
+            "additional_details_text": """The EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "actual_peak_demand_savings_mw",
@@ -117,7 +133,9 @@ representative from EIA."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_response_water_heater": {
-        "description": "The number of grid connected water heaters enrolled in demand response programs.",
+        "description": {
+            "additional_summary_text": "grid-connected water heaters enrolled in demand response programs."
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
@@ -139,36 +157,31 @@ representative from EIA."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_side_management_ee_dr": {
-        "description": (
-            """The impact of energy efficiency and load management programs on total
-energy sold (MWh) and peak demand (MW) by customer class. Includes incremental effects
-(from new programs and new participants) as well as total annual effects (all programs
-and participants in a given year) and potential effects (anticipated peak reduction for
-load management programs). Also includes the cost of DSM programs and the number of
-customers enrolled in price-responsive and time-responsive programs.
-
-The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "The impact of energy efficiency and load management programs on total energy sold (MWh) and peak demand (MW) by customer class.",
+            "usage_warnings": ["discontinued_data"],
+            "additional_details_text": """The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "annual_indirect_program_cost",
                 "annual_total_cost",
                 "customer_class",
                 "energy_efficiency_annual_actual_peak_reduction_mw",
-                "energy_efficiency_annual_cost",
+                "energy_efficiency_annual_direct_cost",
                 "energy_efficiency_annual_effects_mwh",
-                "energy_efficiency_annual_incentive_payment",
+                "energy_efficiency_annual_incentive_cost",
                 "energy_efficiency_incremental_actual_peak_reduction_mw",
                 "energy_efficiency_incremental_effects_mwh",
                 "load_management_annual_actual_peak_reduction_mw",
-                "load_management_annual_cost",
+                "load_management_annual_direct_cost",
                 "load_management_annual_effects_mwh",
-                "load_management_annual_incentive_payment",
+                "load_management_annual_incentive_cost",
                 "load_management_annual_potential_peak_reduction_mw",
                 "load_management_incremental_actual_peak_reduction_mw",
                 "load_management_incremental_effects_mwh",
@@ -187,9 +200,10 @@ representative from EIA."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_side_management_misc": {
-        "description": (
-            """Miscellaneous information from the EIA861 DSM table.
-Includes boolean fields about whether the energy savings estimates/calculations were
+        "description": {
+            "additional_summary_text": "demand-side management (DSM) program information.",
+            "usage_warnings": ["discontinued_data"],
+            "additional_details_text": """Includes boolean fields about whether the energy savings estimates/calculations were
 independently verified and whether the utility runs time and or price responsive
 programs. Also contains information on whether any of the respondent's DSM activities
 are reported under another company, and if so which one.
@@ -199,8 +213,8 @@ PUDL) contain data through 2012. The form changed in 2013 and split the contents
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "energy_savings_estimates_independently_verified",
@@ -224,16 +238,16 @@ representative from EIA."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_side_management_sales": {
-        "description": (
-            """Electricity sales for resale and to ultimate customer.
-
-The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "electricity sales related to demand-side management (DSM).",
+            "usage_warnings": ["discontinued_data"],
+            "additional_details_text": """The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "nerc_region",
@@ -250,15 +264,18 @@ representative from EIA."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_distributed_generation_fuel": {
-        "description": (
-            """Information on the energy sources used for utility or customer-owned
-distributed generation capacity.
+        "description": {
+            "additional_summary_text": "the energy sources used for utility or customer-owned distributed generation capacity.",
+            "usage_warnings": [
+                "discontinued_data",
+            ],
+            "additional_details_text": f"""From 2016 on, there's no great match for the data found in this table.
+You may be able to compute an analog for fuel percents using the capacity and tech class
+figures in :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`, but no
+corresponding consumption or generation information is available in the new format.
 
-The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units."""
-        ),
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
+        },
         "schema": {
             "fields": [
                 "estimated_or_actual_fuel_data",
@@ -276,17 +293,16 @@ and convert capacity reported in DC units to AC units."""
     },
     "core_eia861__yearly_distributed_generation_misc": {
         # TODO: might want to rename this table to be _capacity
-        "description": (
-            """Information on the capacity of utility or customer-owned distributed
-generation. Includes the number of generators, whether the capacity is estimated or
-actual, the amount of backup capacity, and how much capacity is from generators with
-less than 1 MW of nameplate capacity.
+        "description": {
+            "additional_summary_text": "the capacity and quantity of utility or customer-owned distributed generation.",
+            "usage_warnings": [
+                "discontinued_data",
+            ],
+            "additional_details_text": f"""From 2016 on, data similar to that found in this table can be found in
+:ref:`core_eia861__yearly_non_net_metering_misc`.
 
-The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units."""
-        ),
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
+        },
         "schema": {
             "fields": [
                 "backup_capacity_mw",
@@ -307,15 +323,16 @@ and convert capacity reported in DC units to AC units."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_distributed_generation_tech": {
-        "description": (
-            """Information on the technology used for utility or customer-owned
-distributed generation.
+        "description": {
+            "additional_summary_text": "the technology used for utility or customer-owned distributed generation.",
+            "usage_warnings": [
+                "discontinued_data",
+            ],
+            "additional_details_text": f"""From 2016 on, data similar to that found in this table can be found in
+:ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`.
 
-The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units."""
-        ),
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
+        },
         "schema": {
             "fields": [
                 "capacity_mw",
@@ -332,7 +349,9 @@ and convert capacity reported in DC units to AC units."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_distribution_systems": {
-        "description": "The number of distribution circuits and circuits with voltage optimization by state.",
+        "description": {
+            "additional_summary_text": "distribution circuits and circuits with voltage optimization by state."
+        },
         "schema": {
             "fields": [
                 "circuits_with_voltage_optimization",
@@ -350,7 +369,11 @@ and convert capacity reported in DC units to AC units."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_dynamic_pricing": {
-        "description": "The number of customers enrolled in dynamic pricing programs by state, sector, and balancing authority. Respondents check if one or more customers are enrolled in time-of-use pricing, real time pricing, variable peak pricing, critical peak pricing, and critical peak rebates.",
+        "description": {
+            "additional_summary_text": " enrollment in dynamic pricing programs by state, sector, and balancing authority.",
+            "additional_details_text": """Respondents check if one or more customers are enrolled in time-of-use pricing, real
+time pricing, variable peak pricing, critical peak pricing, and critical peak rebates.""",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
@@ -374,18 +397,17 @@ and convert capacity reported in DC units to AC units."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_energy_efficiency": {
-        "description": (
-            """Incremental energy savings, peak demand savings, weighted average life
+        "description": {
+            "additional_summary_text": """incremental energy savings, peak demand savings, weighted average life
 cycle, and associated costs for the reporting year and life cycle of energy efficiency
-programs.
-
-The EIA861 demand-side management (DSM) table (split into three normalized tables in
+programs.""",
+            "additional_details_text": """The EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
@@ -412,7 +434,10 @@ representative from EIA."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_green_pricing": {
-        "description": "Green pricing program revenue, sales, and customer count by sector and state.",
+        "description": {
+            "additional_summary_text": "green pricing program revenue, sales, and customer count by sector and state.",
+            "usage_warnings": ["discontinued_data"],
+        },
         "schema": {
             "fields": [
                 "customer_class",
@@ -433,7 +458,9 @@ representative from EIA."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_mergers": {
-        "description": "Information about utility mergers and acquisitions.",
+        "description": {
+            "additional_summary_text": "utility mergers and acquisitions.",
+        },
         "schema": {
             "fields": [
                 "entity_type",
@@ -457,11 +484,13 @@ representative from EIA."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_net_metering_customer_fuel_class": {
-        "description": (
-            """The amount of energy sold to back to the grid. From 2007 - 2009 the data
+        "description": {
+            "additional_summary_text": "net metering by customer and fuel class.",
+            "usage_warnings": ["irregular_years"],
+            "additional_details_text": """The amount of energy sold to back to the grid. From 2007 - 2009 the data
 are reported as a lump sum of total energy dispatched by sector. After 2009, the data
-are broken down by sector and technology type."""
-        ),
+are broken down by sector and technology type.""",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
@@ -485,7 +514,9 @@ are broken down by sector and technology type."""
     },
     "core_eia861__yearly_net_metering_misc": {
         # TODO: I feel skeptical that the pv_current_flow_type field shouldn't be linked to the other net metering table.
-        "description": "The PV current flow type for net metered capacity.",
+        "description": {
+            "additional_summary_text": "PV current flow type for net metered capacity.",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
@@ -501,15 +532,13 @@ are broken down by sector and technology type."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_non_net_metering_customer_fuel_class": {
-        "description": (
-            """The amount of non-net metered distributed generation by sector and
-technology type.
+        "description": {
+            "additional_summary_text": "non-net metered distributed generation by sector and technology type.",
+            "additional_details_text": f"""This table's data starts in 2016. For 2015 and earlier, data similar to that found in this table can be found in
+:ref:`core_eia861__yearly_distributed_generation_tech`.
 
-The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units."""
-        ),
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
@@ -529,16 +558,13 @@ and convert capacity reported in DC units to AC units."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_non_net_metering_misc": {
-        "description": (
-            """Information on the capacity of utility or customer-owned distributed
-generation. Includes the number of generators, pv current flow type, backup capacity
-and utility owned capacity.
+        "description": {
+            "additional_summary_text": "non-net metered distributed generation generators, pv current flow type, backup capacity and utility owned capacity.",
+            "additional_details_text": f"""This table's data starts in 2016. For 2015 and earlier, data similar to that found in this table can be found in
+:ref:`core_eia861__yearly_distributed_generation_misc`.
 
-The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units."""
-        ),
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
+        },
         "schema": {
             "fields": [
                 "backup_capacity_mw",
@@ -558,13 +584,21 @@ and convert capacity reported in DC units to AC units."""
     },
     "core_eia861__yearly_operational_data_misc": {
         # TODO: misc might be a misleading name
-        "description": (
-            """The annual megawatt hours (MWH) for all a utility's sources of
-electricity and disposition of electricity listed. Sources include: net generation
-purchases from electricity suppliers, exchanges received, exchanges delivered, exchanges
-net, wheeled received, wheeled delivered, wheeled net, transmission by others, and
-losses."""
-        ),
+        "description": {
+            "additional_summary_text": "megawatt hours (MWH) for the sources and disposition of a utility's electricity.",
+            "additional_source_text": "(Schedule 2B)",
+            "additional_details_text": (
+                f"""{EIA861_88888}
+
+Rows where ``data_observed`` is False were labeled as imputed in the raw EIA data.
+The EIA documentation does not specify what imputation applies to operational data,
+only net metering and non net-metering distributed data. Less than 1% of rows are
+labeled as imputed, all of which occur in 2004 or 2005. Imputed rows make up no
+more than 25% of the rows for any utility.
+"""
+            ),
+            "usage_warnings": ["redacted_values", "imputed_values"],
+        },
         "schema": {
             "fields": [
                 "consumed_by_facility_mwh",
@@ -596,19 +630,29 @@ losses."""
                 "winter_peak_demand_mw",
                 "data_maturity",
             ],
+            "primary_key": [
+                "utility_id_eia",
+                "nerc_region",
+                "report_date",
+            ],
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
         "etl_group": "eia861",
     },
     "core_eia861__yearly_operational_data_revenue": {
-        "description": (
-            """A utility's revenue by type of electric operating revenue.
-Includes electric operating revenue From sales to ultimate customers, revenue from
+        "description": {
+            "additional_summary_text": "utility revenue by type of electric operating revenue.",
+            "additional_source_text": "(Schedule 2C)",
+            "additional_details_text": f"""A utility's revenue by type of electric operating revenue.
+Includes electric operating revenue from sales to ultimate customers, revenue from
 unbundled (delivery) customers, revenue from sales for resale, electric credits/other
 adjustments, revenue from transmission, other electric operating revenue, and total
-electric operating revenue."""
-        ),
+electric operating revenue.
+
+{EIA861_88888}""",
+            "usage_warnings": ["redacted_values"],
+        },
         "schema": {
             "fields": [
                 "nerc_region",
@@ -619,19 +663,55 @@ electric operating revenue."""
                 "utility_id_eia",
                 "data_maturity",
             ],
+            "primary_key": [
+                "utility_id_eia",
+                "nerc_region",
+                "report_date",
+                "revenue_class",
+            ],
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
         "etl_group": "eia861",
     },
     "core_eia861__yearly_reliability": {
-        "description": (
-            """Standardized metrics of electricity system reliability and outage
-impacts. Includes the system average interruption duration index (SAIDI), system average
+        "description": {
+            "additional_summary_text": "electricity system reliability and outage impacts.",
+            "additional_source_text": "(Schedules 3B and 3C)",
+            "additional_primary_key_text": "\n\n  Note: ``standard`` is included because while respondents are asked to only fill out one of parts B or C, sometimes they fill out both.",
+            "additional_details_text": """Contains information on non-momentary electrical interruptions.
+Includes the system average interruption duration index (SAIDI), system average
 interruption frequency index (SAIFI), and customer average interruption duration index
 (CAIDI) aka SAIDI/SAIFI with and without major event days and loss of service. Includes
-the standard (IEEE/other) and other relevant information."""
-        ),
+the standard (IEEE/other) and other relevant information.
+
+SAIDI is measured in minutes, and represents the sum over the year of all customers interrupted times
+the number of minutes they experienced an interruption, divided by total number of customers.
+
+SAIFI is measured in customers, and represents the sum over the year of the total number of customers that
+experienced an interruption, divided by the total number of customers.
+
+The IEEE standards which can be used to calculate SAIDI and SAIFI include IEEE 1366-2003 and IEEE 1366-2012.
+These standards define momentary interruptions as having a duration of five minutes or less.
+If one of these IEEE standards is used, respondents fill out part B and are required to specify:
+
+* SAIDI major event days minus loss of supply
+* SAIFI major event days minus loss of supply
+
+SAIDI and SAIFI major event days minus loss of supply excludes events where the reliability event resulted
+from an event on the distribution system, not from the high-voltage system. The voltage that distinguishes
+the distribution system from the supply system is given in ``highest_distribution_voltage_kv``.
+
+If a method other than these IEEE standards is used for calculating SAIDI and SAIFI indexes, respondents
+fill out part C and are required to specify:
+
+* whether inactive accounts are included
+* how they define a momentary interruption (less than 1 minute, less than or equal to 5 minutes, or other)
+
+In this table, column ``standard`` is "ieee_standard" for respondents who have filled out part B, and
+"other_standard" for respondents who have filled out part C.
+""",
+        },
         "schema": {
             "fields": [
                 "caidi_w_major_event_days_minus_loss_of_service_minutes",
@@ -657,13 +737,21 @@ the standard (IEEE/other) and other relevant information."""
                 "utility_name_eia",
                 "data_maturity",
             ],
+            "primary_key": [
+                "utility_id_eia",
+                "state",
+                "report_date",
+                "standard",
+            ],
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
         "etl_group": "eia861",
     },
     "core_eia861__yearly_sales": {
-        "description": "Annual electricity sales to ultimate customers broken down by utility, balancing authority, state, and customer class.",
+        "description": {
+            "additional_summary_text": "electricity sales to ultimate customers by utility, balancing authority, state, and customer class."
+        },
         "schema": {
             "fields": [
                 "utility_id_eia",
@@ -697,9 +785,10 @@ the standard (IEEE/other) and other relevant information."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_short_form": {
-        "description": (
-            """This is data extracted from Form EIA-861S, a shorter version of Form EIA-861.
-The data started being reported in 2012. However, the 2019 data is not available.
+        "description": {
+            "additional_summary_text": "data from the short form (EIA-861S).",
+            "usage_warnings": ["missing_years"],
+            "additional_details_text": """The data started being reported in 2012. However, the 2019 data is not available.
 They are expected to submit the completed Form EIA-861S to EIA by April 30th, following the end of the prior calendar year.
 Utilities report on Form EIA-861S if they:
 
@@ -711,8 +800,8 @@ Utilities report on Form EIA-861S if they:
 
 - Are not part of the aggregate TVA or WPPI.
 
-- Do not report on Form EIA-861M."""
-        ),
+- Do not report on Form EIA-861M.""",
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -742,7 +831,9 @@ Utilities report on Form EIA-861S if they:
         "etl_group": "eia861",
     },
     "core_eia861__yearly_service_territory": {
-        "description": "County FIPS codes for counties composing utility service territories.",
+        "description": {
+            "additional_summary_text": "counties in utility service territories."
+        },
         "schema": {
             "fields": [
                 "county",
@@ -766,7 +857,9 @@ Utilities report on Form EIA-861S if they:
         "etl_group": "eia861",
     },
     "core_eia861__assn_utility": {
-        "description": "Association table indicating which states each utility reported data for by year.",
+        "description": {
+            "additional_summary_text": "utility and state in a given year."
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -784,13 +877,14 @@ Utilities report on Form EIA-861S if they:
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_misc": {
-        "description": (
-            """A table of boolean values indicating what kind of business activities each utility engages in
-
-This includes whether they operate alternative fuel vehicles, whether they provide
+        "description": {
+            "additional_summary_text": "utility business activities.",
+            "additional_primary_key_text": """The primary key would have been: utility_id_eia, state, report_date,
+  and nerc_region, but there are nulls in the state column across several years of reporting.""",
+            "additional_details_text": """This includes whether they operate alternative fuel vehicles, whether they provide
 transmission, distribution, or generation services (bundled or unbundled), and whether
-they engage in wholesale and/or retail markets."""
-        ),
+they engage in wholesale and/or retail markets.""",
+        },
         "schema": {
             "fields": [
                 "alternative_fuel_vehicle_2_activity",
@@ -819,7 +913,11 @@ they engage in wholesale and/or retail markets."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_nerc": {
-        "description": "The NERC regions that a utility operates in.",
+        "description": {
+            "additional_summary_text": "the NERC regions that utilities operate in.",
+            "additional_primary_key_text": """The primary key would have been: utility_id_eia, state, report_date,
+  nerc_region, and nerc_regions_of_operation, but there are nulls in the state column across several years of reporting.""",
+        },
         "schema": {
             "fields": [
                 "nerc_region",
@@ -835,7 +933,11 @@ they engage in wholesale and/or retail markets."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_rto": {
-        "description": "The RTOs that a utility operates in.",
+        "description": {
+            "additional_summary_text": "the RTOs that utilities operate in.",
+            "additional_primary_key_text": """The primary key would have been: utility_id_eia, state, report_date,
+  nerc_region, and rtos_of_operation, but there are nulls in the state column across several years of reporting.""",
+        },
         "schema": {
             "fields": [
                 "nerc_region",
@@ -851,7 +953,11 @@ they engage in wholesale and/or retail markets."""
         "etl_group": "eia861",
     },
     "out_eia861__yearly_utility_service_territory": {
-        "description": "County-level data about EIA-861 utility service territories.",
+        "description": {
+            "additional_summary_text": "counties in utility service territories.",
+            "layer_code": "out_narrow",
+            "additional_details_text": "Contains additional information about counties.",
+        },
         "schema": {
             "fields": [
                 "county_id_fips",
@@ -871,7 +977,10 @@ they engage in wholesale and/or retail markets."""
         "etl_group": "service_territories",
     },
     "out_eia861__yearly_balancing_authority_service_territory": {
-        "description": "County-level data about EIA-861 balancing authority service territories.",
+        "description": {
+            "additional_summary_text": "counties in balancing authority service territories.",
+            "layer_code": "out_narrow",
+        },
         "schema": {
             "fields": [
                 "county_id_fips",

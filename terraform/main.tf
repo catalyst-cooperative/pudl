@@ -6,7 +6,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "6.14.1"
+      version = "6.45.0"
     }
   }
 }
@@ -33,6 +33,9 @@ resource "google_storage_bucket" "tfstate" {
   storage_class = "STANDARD"
   versioning {
     enabled = true
+  }
+  labels = {
+    component = "terraform-state"
   }
 }
 
@@ -71,12 +74,20 @@ module "gh_oidc" {
       attribute = "attribute.repository/catalyst-cooperative/mozilla-sec-eia"
     }
     "nrel-finito-inputs-gha" = {
-      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.nrel_finito_inputs_gha.email}"
+      sa_name   = google_service_account.nrel_finito_inputs_gha.id
       attribute = "attribute.repository/catalyst-cooperative/nrel-fuel-and-industry-inputs"
     }
     "pudl-usage-metrics-dashboard-deploy-gha" = {
-      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.pudl_usage_metrics_dashboard_deploy_gha.email}"
+      sa_name   = google_service_account.pudl_usage_metrics_dashboard_deploy_gha.id
       attribute = "attribute.repository/catalyst-cooperative/pudl-usage-metrics-dashboard"
+    }
+    "pudl-archiver-gha" = {
+      sa_name   = google_service_account.pudl_archiver_gha.id
+      attribute = "attribute.repository/catalyst-cooperative/pudl-archiver"
+    }
+    "pudl-viewer-gha" = {
+      sa_name   = google_service_account.pudl_viewer_gha.id
+      attribute = "attribute.repository/catalyst-cooperative/eel-hole"
     }
   }
 }
@@ -110,7 +121,7 @@ resource "google_sql_database_instance" "mlflow_backend_store" {
   region           = "us-central1"
   database_version = "POSTGRES_14"
   settings {
-    tier = "db-f1-micro"
+    tier              = "db-f1-micro"
     activation_policy = "NEVER"
     password_validation_policy {
       min_length                  = 6
@@ -120,7 +131,9 @@ resource "google_sql_database_instance" "mlflow_backend_store" {
       password_change_interval    = "30s"
       enable_password_policy      = true
     }
-
+    user_labels = {
+      component = "mlflow"
+    }
   }
   # set `deletion_protection` to true, will ensure that one cannot accidentally delete this instance by
   # use of Terraform whereas `deletion_protection_enabled` flag protects this instance at the GCP level.
@@ -131,6 +144,9 @@ resource "google_storage_bucket" "pudl_models_outputs" {
   name          = "model-outputs.catalyst.coop"
   location      = "US"
   storage_class = "STANDARD"
+  labels = {
+    component = "model-outputs"
+  }
 }
 
 resource "google_sql_user" "mlflow_postgresql_user" {
@@ -159,11 +175,13 @@ resource "google_secret_manager_secret" "pudl_usage_metrics_db_connection_string
 }
 
 resource "google_storage_bucket" "pudl_usage_metrics_archive_bucket" {
-  name          = "pudl-usage-metrics-archives.catalyst.coop"
-  location      = "US"
-  storage_class = "STANDARD"
-
+  name                        = "pudl-usage-metrics-archives.catalyst.coop"
+  location                    = "US"
+  storage_class               = "STANDARD"
   uniform_bucket_level_access = true
+  labels = {
+    component = "usage-metrics"
+  }
 }
 
 resource "google_service_account" "usage_metrics_archiver" {
@@ -196,11 +214,17 @@ resource "google_storage_bucket_iam_member" "usage_metrics_etl_s3_logs_gcs_iam" 
 }
 
 resource "google_storage_bucket" "pudl_archive_bucket" {
-  name          = "archives.catalyst.coop"
-  location      = "US-EAST1"
-  storage_class = "STANDARD"
-
+  name                        = "archives.catalyst.coop"
+  location                    = "US-EAST1"
+  storage_class               = "STANDARD"
   uniform_bucket_level_access = true
+  labels = {
+    component = "archives"
+  }
+  autoclass {
+    enabled                = true
+    terminal_storage_class = "ARCHIVE"
+  }
 }
 
 resource "google_service_account" "nrel_finito_inputs_gha" {
@@ -218,4 +242,20 @@ resource "google_storage_bucket_iam_member" "nrel_finito_inputs_archiver_gcs_iam
   bucket = google_storage_bucket.pudl_archive_bucket.name
   role   = each.key
   member = "serviceAccount:${google_service_account.nrel_finito_inputs_gha.email}"
+}
+
+resource "google_service_account" "pudl_archiver_gha" {
+  account_id   = "pudl-archiver-gha"
+  display_name = "PUDL usage metrics archiver github action service account"
+}
+
+resource "google_storage_bucket_iam_member" "pudl_archiver_gcs_iam" {
+  for_each = toset([
+    "roles/storage.legacyBucketReader",
+    "roles/storage.objectUser",
+  ])
+
+  bucket = google_storage_bucket.pudl_archive_bucket.name
+  role   = each.key
+  member = "serviceAccount:${google_service_account.pudl_archiver_gha.email}"
 }

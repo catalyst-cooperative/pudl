@@ -4,6 +4,7 @@ from pudl.metadata.dfs import IMPUTATION_REASON_CODES, POLITICAL_SUBDIVISIONS
 
 IMPUTATION_CODES: set[str] = set(IMPUTATION_REASON_CODES.code)
 COUNTRY_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.country_code)
+
 SUBDIVISION_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.subdivision_code)
 EPACEMS_STATES: set[str] = set(
     POLITICAL_SUBDIVISIONS.loc[
@@ -168,6 +169,15 @@ CUSTOMER_CLASSES: list[str] = [
     "commercial_other",  # commercial *OR* other - used in EIA AEO only.
 ]
 
+CUSTOMER_CLASSES_EIA176: list[str] = [
+    "commercial",
+    "electric_power",
+    "industrial",
+    "other",
+    "residential",
+    "vehicle_fuel",
+]
+
 TECH_CLASSES: list[str] = [
     "backup",  # WHERE Is this used? because removed from DG table b/c not a real component
     "chp_cogen",
@@ -188,7 +198,7 @@ TECH_CLASSES: list[str] = [
     "wind",
 ]
 
-REVENUE_CLASSES: list[str] = [
+REVENUE_CLASSES_EIA861: list[str] = [
     "credits_or_adjustments",
     "delivery_customers",
     "other",
@@ -197,6 +207,11 @@ REVENUE_CLASSES: list[str] = [
     "total",
     "transmission",
     "unbundled",
+]
+
+REVENUE_CLASSES_EIA176: list[str] = [
+    "sales",
+    "transport",
 ]
 
 RELIABILITY_STANDARDS: list[str] = ["ieee_standard", "other_standard"]
@@ -227,10 +242,13 @@ EPACEMS_MEASUREMENT_CODES: list[str] = [
     "LME",
     "Measured",
     "Measured and Substitute",
-    "Other",  # ¿Should be replaced with NA?
+    # Probably "other" methods that comply with Appendix G of Part 75 of 40 CFR
+    # Part 75, but not explicitly listed in the regulation.
+    "Other",
     "Substitute",
-    "Undetermined",  # Should be replaced with NA
-    "Unknown Code",  # Should be replaced with NA
+    # "Undetermined",  # Replaced with NULL
+    # "Unknown Code",  # Replaced with NULL
+    # "Not Applicable",  # Replaced with NULL
 ]
 """Valid emissions measurement codes for the EPA CEMS hourly data."""
 
@@ -311,7 +329,10 @@ TECH_DESCRIPTIONS_EIAAEO: list[str] = [
     "combustion_turbine_diesel",
     "distributed_generation",
     "diurnal_storage",
+    "fossil_steam",  # Added in 2025
     "fuel_cells",
+    "hydrogen",  # Added in 2025
+    "hydrogen_turbine",  # Added in 2025
     "natural_gas",
     "nuclear",
     "oil_and_natural_gas_steam",
@@ -336,6 +357,9 @@ FUEL_TYPES_EIAAEO: list[str] = [
 
 MODEL_CASES_EIAAEO: list[str] = [
     "aeo2022",
+    "aeo2023",  # Added in 2025
+    "alternative_electricity",  # Added in 2025
+    "alternative_transportation",  # Added in 2025
     "fast_builds_plus_high_lng_price",
     "high_economic_growth",
     "high_lng_price",
@@ -367,6 +391,7 @@ descriptions page.
 
 ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "biofuels_heat_and_coproducts",
+    "byproduct_hydrogen",
     "coal",
     "coal_subtotal",
     "coal_to_liquids_heat_and_power",
@@ -376,8 +401,11 @@ ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "electricity",
     "electricity_imports",
     "electricity_related_losses",
+    "ev_charging_commercial",
+    "ev_charging_residential",
     "hydrocarbon_gas_liquids",
     "hydrogen",
+    "hydrogen_related_losses",
     "jet_fuel",
     "kerosene",
     "lease_and_plant_fuel",
@@ -395,16 +423,19 @@ ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "other_industrial_coal",
     "other_petroleum",
     "other_coal",
+    "passenger_rail",
     "petrochemical_feedstocks",
     "pipeline_fuel_natural_gas",
     "pipeline_natural_gas",
     "propane",
+    "purchased_electricity",
     "renewable_energy",
     "residual_fuel_oil",
     "steam_coal",
     "total",
+    "total_energy",  # this could be the same as total?
 ]
-"""Energy use types from Table 2 of EIA AEO 2023.
+"""Energy use types from Table 2 of EIA AEO 2023-2025.
 
 These are from the series titles, not the display titles in the EIA's data browser tool,
 which may show different text."""
@@ -696,3 +727,434 @@ INCOME_TYPES_FERC1: list[str] = [
     "utility_operating_expenses",
 ]
 """Income types for FERC Form 1 data."""
+
+FUNCTIONAL_STATUS_CODES_CENSUS: list[str] = [
+    "A",
+    "B",
+    "C",
+    "E",
+    "F",
+    "G",
+    "I",
+    "L",
+    "M",
+    "N",
+    "S",
+    "T",
+]
+"""Functional status codes for Census geographic entities.
+
+https://www.census.gov/library/reference/code-lists/functional-status-codes.html
+"""
+
+
+MATERIAL_TYPES_PHMSAGAS = [
+    "unprotected_steel_bare",
+    "unprotected_steel_coated",
+    "cathodically_protected_steel_bare",
+    "cathodically_protected_steel_coated",
+    # we have to put steel below *steel* bc the pattern will grab the
+    # bare one first from the longer options if its listed first
+    "steel",
+    "pvc",
+    "pe",
+    "abs",
+    "other_plastic",
+    "plastic",
+    "cast_or_wrought_iron",
+    "wrought_iron",
+    "ductile_iron",
+    "copper",
+    "other_alt",
+    "other_material",
+    "other",
+    "reconditioned_cast_iron",
+    "cast_iron",
+    "all_materials",
+    "total",
+]
+
+MAIN_PIPE_SIZES_PHMSAGAS = [
+    "0.5_in_or_less",
+    "0.5_to_1_in",
+    "1_in_or_less",
+    "1_to_2_in",
+    "2_in_or_less",
+    "2_to_4_in",
+    "4_to_6_in",
+    "4_to_8_in",
+    "8_in",
+    "8_to_12_in",
+    "10_in",
+    "12_in",
+    "over_12_in",
+    "total",
+    "unknown",
+]
+LEAK_SOURCE_PHMSAGAS = [
+    "construction_defect",
+    "corrosion_failure",
+    "equipment_failure",
+    "excavation_damage",
+    "incorrect_operation",
+    "material_defect",
+    "natural_force_damage",
+    "other",
+    "other_outside_force",
+    "outside_force",
+    "pipe_weld_joint_failure",
+    "third_party",
+    "total",
+]
+DAMAGE_TYPES_PHMSAGAS = ["notification", "locating", "excavation", "other", "total"]
+DAMAGE_SUB_TYPES_PHMSAGAS = [
+    "deteriorated_facility",
+    "dug_after_expiry",
+    "failed_clearance",
+    "failed_to_protect_facilities",
+    "improper_backfilling",
+    "inaccurate_mark_abandoned_facility",
+    "inaccurate_mark_incorrect_records",
+    "inaccurate_mark_locator_error",
+    "inaccurate_mark_tracer_wire",
+    "incorrect_information",
+    "issues_total",
+    "marks_faded",
+    "no_one_call_made",
+    "not_marked_abandoned_facility",
+    "not_marked_incomplete_marks",
+    "not_marked_incorrect_records",
+    "not_marked_locator_error",
+    "not_marked_no_response",
+    "not_marked_tracer_wire",
+    "not_marked_unlocatable_facility",
+    "one_call_center_error",
+    "other_issues",
+    "outside_ticket_area",
+    "previous_damage",
+    "prior_to_test_hole_verification",
+    "prior_to_valid_start_time",
+    "root_cause_not_listed",
+    "total",
+]
+INSTALL_DECADE_PATTERN_PHMSAGAS = r"(\d{4}s|unknown_decade|pre_1940|total_decades)"
+
+ASSET_TYPES_RUS7: set[str] = [
+    "utility_plant_in_service",
+    "construction_work_in_progress",
+    "total_utility_plant",
+    "net_utility_plant",
+    "depreciation_and_amortization",
+    "non_utility_property",
+    "investments_subsidiary_companies",
+    "investments_associated_orgs_patronage_capital",
+    "investments_associated_orgs_other_general_funds",
+    "investments_associated_orgs_other_non_general_funds",
+    "investments_economic_development",
+    "investments_other",
+    "special_funds",
+    "total_other_property_and_investments",
+    "cash_general_funds",
+    "cash_construction_funds_trustee",
+    "special_deposits",
+    "investments_temporary",
+    "notes_receivable",
+    "accounts_receivable_sales_of_energy",
+    "accounts_receivable_other",
+    "renewable_energy_credits",
+    "materials_and_supplies",
+    "prepayments",
+    "other_current_and_accrued",
+    "total_current_and_accrued",
+    "regulatory",
+    "other_deferred_debits",
+    "total",
+]
+LIABILITY_TYPES_RUS7: set[str] = [
+    "memberships",
+    "patronage_capital",
+    "operating_margins_prior_years",
+    "operating_margins_current_year",
+    "non_operating_margins",
+    "other_margins_and_equities",
+    "total_margins_and_equities",
+    "long_term_debt_rus",
+    "long_term_debt_ffb_rus_guaranteed",
+    "long_term_debt_other_rus_guaranteed",
+    "long_term_debt_other",
+    "long_term_debt_rus_economic_development",
+    "payments_unapplied",
+    "total_long_term_debt",
+    "noncurrent_obligations_under_capital_leases",
+    "noncurrent_obligations_asset_retirement",
+    "total_noncurrent_obligations",
+    "notes_payable",
+    "accounts_payable",
+    "consumer_deposits",
+    "current_maturities_long_term_debt",
+    "economic_development",
+    "current_maturities_capital_leases",
+    "other_current_and_accrued_liabilities",
+    "total_current_and_accrued_liabilities",
+    "regulatory",
+    "other_deferred_credits",
+    "total_liabilities_and_other_credits",
+]
+
+ASSET_TYPES_RUS12: set[str] = [
+    "utility_plant_in_service",
+    "construction_work_in_progress",
+    "total_utility_plant",
+    "depreciation_and_amortization",
+    "net_utility_plant",
+    "non_utility_property_asset",
+    "investments_subsidiary_companies",
+    "investments_associated_orgs_patronage_capital",
+    "investments_associated_orgs_other_general_funds",
+    "investments_associated_orgs_other_non_general_funds",
+    "investments_economic_development",
+    "investments_other",
+    "special_funds",
+    "total_other_property_and_investments",
+    "cash_general_funds",
+    "cash_construction_funds_trustee",
+    "special_deposits",
+    "investments_temporary",
+    "notes_receivable",
+    "accounts_receivable_sales_of_energy",
+    "accounts_receivable_other",
+    "fuel_stock",
+    "renewable_energy_credits",
+    "materials_and_supplies",
+    "prepayments",
+    "other_current_and_accrued",
+    "total_current_and_accrued",
+    "unamortized_debt_discount_property_losses",
+    "regulatory",
+    "other_deferred_debits",
+    "accumulated_deferred_income_taxes_debits",
+    "total",
+]
+LIABILITY_TYPES_RUS12: set[str] = [
+    "memberships",
+    "assigned_and_assignable_patronage_capital",
+    "retired_this_year_patronage_capital",
+    "retired_prior_years_patronage_capital",
+    "patronage_capital",
+    "operating_margins_prior_years",
+    "operating_margins_current_year",
+    "non_operating_margins",
+    "other_margins_and_equities",
+    "total_margins_and_equities",
+    "long_term_debt_rus",
+    "payments_unapplied",
+    "long_term_debt_rus_economic_development",
+    "long_term_debt_ffb_rus_guaranteed",
+    "long_term_debt_other_rus_guaranteed",
+    "long_term_debt_other",
+    "total_long_term_debt",
+    "noncurrent_obligations_under_capital_leases",
+    "accumulated_operating_provisions",
+    "total_other_noncurrent_liabilities",
+    "notes_payable",
+    "accounts_payable",
+    "current_maturities_long_term_debt",
+    "rural_development",
+    "current_maturities_capital_leases",
+    "taxes_accrued",
+    "interest_accrued",
+    "other_current_and_accrued",
+    "total_current_and_accrued",
+    "deferred_credits",
+    "accumulated_deferred_income_taxes_credits",
+    "total_liabilities_and_other_credits",
+]
+
+PRIME_MOVER_TYPES_RUS12: set[str] = [
+    "Hydro",
+    "Internal Combustion",
+    "Large Wind",
+    "Steam",
+    "Photovoltaic",
+]
+RENEWABLE_FUEL_TYPES_RUS12: set[str] = [
+    "Hydro",
+    "Methane - landfill gas",
+    "Wind",
+    "Biomass - wood",
+    "Methane - waste",
+    "Hybrid",
+    "Solar - photovoltaic",
+    "Solar - thermal generation",
+    "Other",
+]
+
+PLANT_TYPE_RUS12: set[str] = [
+    "combined_cycle",
+    "hydro",
+    "internal_combustion",
+    "nuclear",
+    "other",
+    "steam",
+]
+SOURCE_OF_ENERGY_RUS12: set[str] = [
+    "energy_available_for_sale",
+    "energy_used_by_borrower",
+    "purchased_power",
+    "total_energy_accounted",
+    "total_energy_losses",
+    "total_plant",
+    "total_sales",
+    "delivered_out_of_system_gross",
+    "net_interchange",
+    "received_into_system_gross",
+    "delivered_out_of_system_wheeling",
+    "net_energy_wheeled",
+    "received_into_system_wheeling",
+    "energy_furnished_without_charge",
+]
+
+PLANT_COST_TYPES_RUS12: set[str] = [
+    "allowances",
+    "coal_fuel",
+    "coolants_and_water",
+    "depreciation",
+    "electric",
+    "energy_for_compressed_air",
+    "energy_for_pumped_storage",
+    "fuel",
+    "gas_fuel",
+    "generation",
+    "hydraulic",
+    "interest",
+    "less_fuel_acquisition_adjustment",
+    "maintenance_boiler_plant",
+    "maintenance_electric_plant",
+    "maintenance_generating_and_electric_plant",
+    "maintenance_miscellaneous_plant",
+    "maintenance_other_plant",
+    "maintenance_reactor_plant_equipment",
+    "maintenance_reservoirs_dams_waterways",
+    "maintenance_structures",
+    "maintenance_supervision_and_engineering",
+    "maintenance_total",
+    "miscellaneous_power_generation",
+    "net_fuel",
+    "non_fuels_subtotal",
+    "oil_fuel",
+    "operations_total",
+    "other_fuel",
+    "other_generation",
+    "other_nuclear_power",
+    "plant_acquisition_adjustment",
+    "power",
+    "reactor_credits",
+    "rents",
+    "steam",
+    "steam_other_sources",
+    "steam_power",
+    "supervision_and_engineering",
+    "total",
+    "total_fixed",
+    "total_fuel",
+    "water_for_power",
+]
+
+LOAN_STATUS_TYPES_RUS7 = ["loan_default", "loan_delinquency"]
+
+LOAN_UNIT_TYPES_RUS7 = ["actual_pct", "anticipated_pct", "ytd_dollars"]
+
+SERVICE_INTERRUPTION_TYPES_RUS7 = [
+    "major_event",
+    "other",
+    "planned",
+    "power_supplier",
+    "total",
+]
+
+SERVICE_INTERRUPTION_PERIODS_RUS7 = ["five_year_average", "annual"]
+
+SERVICE_STATUS_RUS7 = ["connected", "idle", "retired", "total"]
+
+TRANSMISSION_DISTRIBUTION_TYPES_RUS7 = [
+    "distribution_overhead",
+    "distribution_underground",
+    "transmission_line",
+    "total",
+]
+
+UTILITY_PLANT_GROUP_RUS7 = ["utility_plant_in_service", "total_utility_plant"]
+UTILITY_PLANT_ITEM_RUS7 = [
+    "construction_work_in_progress",
+    "total",
+    "all_other",
+    "distribution",
+    "general",
+    "headquarters",
+    "intangibles",
+    "transmission",
+    "regional_transmission_and_market_operation",
+]
+
+UTILITY_PLANT_GROUP_RUS12 = [
+    "intangible_plant",
+    "production_plant",
+    "transmission_plant",
+    "distribution_plant",
+    "electric_plant_in_service",  # total = all the plants above totals + 2 sub-components
+    "utility_plant_in_service",  # total = electric_plant_in_service + 7 sub-components
+    "total_utility_plant",  # total = utility_plant_in_service + 1 sub-components
+]
+UTILITY_PLANT_ITEM_RUS12 = [
+    "land_and_land_rights",
+    "other",
+    "station_equipment",
+    "structures_and_improvements",
+    "total",
+    "general_plant",
+    "hydro",
+    "nuclear",
+    "steam",
+    "construction_work_in_progress",
+    "acquisition_adjustments",
+    "completed_construction",
+    "electric_plant_held_for_future_use",
+    "electric_plant_leased_to_others",
+    "electric_plant_purchased_or_sold",
+    "nuclear_fuel_assemblies",
+    "rto_iso_plant",
+]
+DEPRECIATION_CHANGES_GROUP_RUS12 = [
+    "electric_plant_in_service",
+    "provision_for_depreciation_and_amortization",
+]
+
+DEPRECIATION_CHANGES_ITEMS_RUS12 = [
+    "depreciation_distribution_plant",
+    "depreciation_general_plant",
+    "depreciation_hydraulic_production_plant",
+    "depreciation_nuclear_production_plant",
+    "depreciation_other_production_plant",
+    "depreciation_steam_production_plant",
+    "depreciation_transmission_plant",
+    "retirement_work_in_progress",
+    "total_depreciation",
+    "amortization_acquisition_adj",
+    "amortization_electric_plant_in_service",
+    "amortization_leased_plant",
+    "amortization_nuclear_fuel",
+    "amortization_plant_held_for_future_use",
+    "depreciation_and_amortization_other_plant",
+    "depreciation_plant_held_for_future_use",
+    "depreciation_plant_leased_to_others",
+    "total",
+]
+
+DEPRECIATION_ITEMS_MISC_RUS12 = [
+    "annual_accrual_charged_to_expense",
+    "annual_accrual_charged_to_other_accounts",
+    "book_cost_property_retired",
+    "removal_cost_property_retired",
+    "salvage_material_from_property_retired",
+    "renewal_and_replacement_cost",
+]

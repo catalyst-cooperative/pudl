@@ -9,6 +9,8 @@ journalists, and policy makers that might not have the technical expertise to ac
 in its raw form, the time to clean and prepare the data for bulk analysis, or the means
 to purchase it from  existing commercial providers.
 
+For more information on how to use PUDL data, see :doc:`data_access`.
+
 ---------------------------------------------------------------------------------------
 Available Data
 ---------------------------------------------------------------------------------------
@@ -18,19 +20,31 @@ semi-structured but machine readable formats. For details on exactly what data i
 available from these data sources and what state it is in, see the individual
 pages for each source:
 
+* :doc:`data_sources/censusdp1tract`
+* :doc:`data_sources/censuspep`
+* :doc:`data_sources/eia176`
 * :doc:`data_sources/eia860`
 * :doc:`data_sources/eia861`
 * :doc:`data_sources/eia923`
 * :doc:`data_sources/eia930`
+* :doc:`data_sources/eiaapi`
+* :doc:`data_sources/eiaaeo`
+* :doc:`data_sources/epacamd_eia`
 * :doc:`data_sources/epacems`
 * :doc:`data_sources/ferc1`
 * :doc:`data_sources/ferc714`
+* :doc:`data_sources/ferceqr`
+* :doc:`data_sources/gridpathratoolkit`
+* :doc:`data_sources/nrelatb`
 * :doc:`data_sources/phmsagas`
+* :doc:`data_sources/rus12`
+* :doc:`data_sources/rus7`
+* :doc:`data_sources/sec10k`
+* :doc:`data_sources/vcerare`
 
-PUDL's clean and complete versions of these data sources are stored in the
-``pudl.sqlite`` database. Larger datasets, like EPA CEMS, are stored in parquet files.
-To get started using PUDL data, visit our :doc:`data_access` page, or continue reading
-to learn more about the PUDL data processing pipeline.
+PUDL's processed versions of these data sources are distributed primarily as Parquet
+files. To get started using PUDL data, visit our :doc:`data_access` page, or continue
+reading to learn more about the PUDL data processing pipeline.
 
 We also publish SQLite databases containing relatively pristine versions of our more
 difficult to parse inputs, especially the old Visual FoxPro (DBF, pre-2021) and new XBRL
@@ -153,17 +167,19 @@ incorrectly reported latitude in one year.
 Assets in the Core layer attempt to eliminate this kind of inconsistent and duplicate
 information when normalizing the tables by choosing only the most consistently reported
 value for inclusion in the final database. If a value which should be static is not
-consistently reported, it may also be set to N/A.
+consistently reported, it may also be set to N/A. For details on how this works for
+EIA entities (plants, utilities, boilers, and generators), see
+:doc:`/methodology/entity_resolution`.
 
 Output Layer
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^
 
 Assets in the Core layer normalize the data to make storage more efficient and avoid
 data integrity issues, but you may want to combine information from more than one of
 the tables to make the data more readable and readily interpretable. For example, PUDL
 stores the name that EIA uses to refer to a power plant in the
 :ref:`core_eia__entity_plants` table in association with the plant's unique numeric ID.
-If you are working with data from the :ref:`core_eia923__monthly_fuel_receipts_costs`
+If you are working with data from the :ref:`core_eia923__fuel_receipts_costs`
 table, which records monthly per-plant fuel deliveries, you may want to have the name
 of the plant alongside the fuel delivery information since it's more recognizable than
 the plant ID.
@@ -180,12 +196,12 @@ generator, or hourly electricity demand with missing and outlying values imputed
 
 .. seealso::
 
-    * `The PUDL Examples GitHub repo <https://github.com/catalyst-cooperative/pudl-examples>`__
-      to see how to access the PUDL Database directly, use the output functions, or
-      work with the EPA CEMS data using Dask.
-    * `How to Learn Dask in 2021 <https://coiled.io/blog/how-to-learn-dask-in-2021/>`__
-      is a great collection of self-guided resources if you are already familiar with
-      Python, Pandas, and NumPy.
+    * `The PUDL Examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__
+      provides examples of working with PUDL data using Python in Jupyter notebooks.
+    * For larger tables, including those with hourly resolution, you may want to use
+      tools designed for data that's larger than your computer's available memory.
+      `Polars dataframes <https://docs.pola.rs/user-guide/getting-started/>` and
+      `DuckDB <https://duckdb.org/docs/>` are great options.
 
 .. _test-and-validate:
 
@@ -290,16 +306,7 @@ Enable Open Source Ecosystems (POSE) program
   :hidden:
   :maxdepth: 2
 
-  About PUDL <self>
-  data_access
-  PUDL Database Viewer <https://viewer.catalyst.coop>
-  data_sources/index
-  data_dictionaries/index
-  methodology/index
-  Contributing <CONTRIBUTING>
-  dev/index
-  Licensing <LICENSE>
-  Code of Conduct <code_of_conduct>
+  PUDL Data Viewer <https://data.catalyst.coop>
+  Data Documentation <data>
+  Development <code>
   Release Notes <release_notes>
-  autoapi/index
-  bibliography

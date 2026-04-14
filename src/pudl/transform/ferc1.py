@@ -922,8 +922,8 @@ class ReconcileTableCalculations(TransformParams):
     subdimension_merge_validation: Literal["one_to_many", "many_to_many"] = (
         "one_to_many"
     )
-    """For the subdimension calculations, how to merge valiate when merging the data (left)
-    onto the calculation components (right)."""
+    """For the subdimension calculations, how to merge validate when merging the data
+(left) onto the calculation components (right)."""
 
 
 def reconcile_table_calculations(
@@ -1458,8 +1458,9 @@ class ErrorMetric(BaseModel):
             .assign(
                 **{  # totolerance_ is just for reporting so you can know of off you are
                     f"tolerance_{metric_name}": self.metric_tolerance,
-                    f"is_error_{metric_name}": lambda x: x[metric_name]
-                    > self.metric_tolerance,
+                    f"is_error_{metric_name}": lambda x: (
+                        x[metric_name] > self.metric_tolerance
+                    ),
                 }
             )
             .assign(group=self.by)
@@ -1489,7 +1490,7 @@ class RelativeErrorMagnitude(ErrorMetric):
     """Check relative magnitude of errors in XBRL calculations."""
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
-        """Calculate the mangnitude of the errors relative to total reported value."""
+        """Calculate the magnitude of the errors relative to total reported value."""
         gb_value = np.nan
         denom = gb["reported_value"].abs().sum(min_count=1)
         if np.isclose(denom, 0) | np.isnan(denom):
@@ -1505,7 +1506,7 @@ class AbsoluteErrorMagnitude(ErrorMetric):
     """
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
-        """Calculate the absolute mangnitude of XBRL calculation errors."""
+        """Calculate the absolute magnitude of XBRL calculation errors."""
         return gb.abs_diff.abs().sum()
 
 
@@ -2310,8 +2311,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .drop_duplicates()
                 .assign(
                     table_name=lambda t: t.table_name_parent,
-                    xbrl_factoid=lambda x: x.xbrl_factoid_parent
-                    + "_subdimension_correction",
+                    xbrl_factoid=lambda x: (
+                        x.xbrl_factoid_parent + "_subdimension_correction"
+                    ),
                     weight=1,
                 )
             )
@@ -2962,14 +2964,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         report_year, utility_id_ferc1_xbrl, and the primary key columns of the XBRL table
 
         Args:
-            df: table to assign `record_id` to
+            df: table to assign ``record_id`` to
             source_ferc1: data source of raw ferc1 database.
 
         Raises:
             ValueError: If any of the primary key columns are missing from the DataFrame
                 being processed.
             ValueError: If there are any null values in the primary key columns.
-            ValueError: If the resulting `record_id` column is non-unique.
+            ValueError: If the resulting ``record_id`` column is non-unique.
         """
         logger.debug(
             f"{self.table_id.value}: Assigning {source_ferc1.value} source record IDs."
@@ -5236,10 +5238,10 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
 
     @cache_df("main")
     def transform_main(self, df):
-        """Add `_previous_year` factoids after standard transform_main.
+        """Add ``_previous_year`` factoids after standard transform_main.
 
-        Add `_previous_year` factoids for `unappropriated_retained_earnings` and
-        `unappropriated_undistributed_subsidiary_earnings` after standard
+        Add ``_previous_year`` factoids for ``unappropriated_retained_earnings`` and
+        ``unappropriated_undistributed_subsidiary_earnings`` after standard
         transform_main. This should only affect XBRL data, but we do it after merging to
         enable access to DBF data to fill this in as well.
         """
@@ -5328,7 +5330,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         There are instances of utilities that reported multiple values for several
         earnings types for a specific year (utility_id_ferc1 68 in 1998 &
         utility_id_ferc1 296 in 2015). We are taking the largest value reported and
-        dropping the rest. There very well could be a better strategey here, but there
+        dropping the rest. There very well could be a better strategy here, but there
         are only 25 records that have this problem, so we've going with this.
         """
         pks = PUDL_PACKAGE.get_resource(self.table_id.value).schema.primary_key
@@ -5363,7 +5365,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         starting and ending balance for the current year. The ending balance for the
         previous year should be the same as the starting balance for the current year.
 
-        We need to keep both pieces of data in order to calculate `ending_balances`,
+        We need to keep both pieces of data in order to calculate ``ending_balances``,
         so we want to check these assumptions, extract as much information from these
         two years of data, and keep both records for each of these two earnings
         types for each utility.
@@ -5494,7 +5496,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
         factoid's by doing this AND that we have a fully deduped output below. In an
         ideal world, we would have multiple pieces of metadata information (like
-        calucations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+        calculations and ferc account #'s), for every single :meth:`wide_to_tidy` value
         column.
 
         Note: This is **almost** the same as the method for
@@ -5734,17 +5736,19 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Run standard :meth:`Ferc1AbstractTableTransformer.transform_end` plus a data validation step.
 
-        In :func:`infer_intra_factoid_totals`, we restrict the child calculation components to
-        only those without "total" in any of the dimension columns (e.g. `plant_status == "total"`).
-        Because of this, when there is more than one dimension with totals in a table, as in this table,
-        records with two totals (e.g. `plant_status == "total"` and `plant_function == "total"`) only get
-        linked to children with no "totals" in any of their subdimensions. This is fine and good because
-        it avoids possible double counting of mixed total and sub-dimension calculations. But it means
-        that records with totals in one sub-dimension (e.g. `plant_status == "in_service"` and
-        `plant_function == "total"`) aren't linked to double-total parent factoids. To ensure that there
-        aren't many instances of data where most or all of the data is reported in these mixed-total
-        records, we add a validation step to ward against large-scale data loss in
-        :class:`pudl.output.ferc1.Exploder`.
+        In :func:`infer_intra_factoid_totals`, we restrict the child calculation
+        components to only those without "total" in any of the dimension columns (e.g.
+        ``plant_status == "total"``).  Because of this, when there is more than one
+        dimension with totals in a table, as in this table, records with two totals
+        (e.g. ``plant_status == "total"`` and ``plant_function == "total"``) only get
+        linked to children with no "totals" in any of their subdimensions. This is fine
+        and good because it avoids possible double counting of mixed total and
+        sub-dimension calculations. But it means that records with totals in one
+        sub-dimension (e.g. ``plant_status == "in_service"`` and ``plant_function ==
+        "total"``) aren't linked to double-total parent factoids. To ensure that there
+        aren't many instances of data where most or all of the data is reported in these
+        mixed-total records, we add a validation step to ward against large-scale data
+        loss in :class:`pudl.output.ferc1.Exploder`.
         """
         df = super().transform_end(df)
         dimension_cols = ["plant_function", "plant_status"]
@@ -5865,7 +5869,7 @@ class OperatingRevenuesTableTransformer(Ferc1AbstractTableTransformer):
         referencing the dollar columns.
 
         In an ideal world, we would have multiple pieces of metadata information (like
-        calucations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+        calculations and ferc account #'s), for every single :meth:`wide_to_tidy` value
         column. We would probably want to employ that across the board - adding suffixes
         or something like that to stack the metadata in a similar fashion that we stack
         the data.
@@ -5984,19 +5988,19 @@ class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
             ]
             .groupby(["utility_id_ferc1", "report_year"])[["amount"]]
             .sum(min_count=2, numeric_only=True)
-            .add_suffix("_ending_balace")
+            .add_suffix("_ending_balance")
         )
         # grab reported ending balance & squish with the calculated version
         end_bal = df[df.amount_type == "ending_balance"].set_index(
             ["utility_id_ferc1", "report_year"]
         )
         logger.info(end_bal_calc.columns)
-        end_bal.loc[:, "amount_ending_balace"] = end_bal_calc.amount_ending_balace
+        end_bal.loc[:, "amount_ending_balance"] = end_bal_calc.amount_ending_balance
 
         # when both exist, are they close?
         end_bal_off = end_bal[
-            ~np.isclose(end_bal.amount, end_bal.amount_ending_balace)
-            & end_bal[["amount", "amount_ending_balace"]].notnull().all(axis="columns")
+            ~np.isclose(end_bal.amount, end_bal.amount_ending_balance)
+            & end_bal[["amount", "amount_ending_balance"]].notnull().all(axis="columns")
         ]
         if (end_bal_off_ratio := len(end_bal_off) / len(end_bal)) > 0.005:
             raise ValueError(
@@ -6266,6 +6270,111 @@ def table_to_column_to_check() -> dict[str, list[str]]:
     }
 
 
+def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove the rare, non-total utility types when all values are duplicated.
+
+    We remove the records of non-total utility_type's for xbrl_factoid's when almost
+    all instances of that xbrl_factoid show up with just a utility_type of "total". We
+    can only do this confidently because we also check that all of the dollar_value in
+    those records are exactly the same as the corresponding records with utility_type
+    of "total" or the non-total utility_type's have null dollar_value's.
+
+    This data isn't incorrect, it just interferes with how we process the calculations
+    embedded within these tables. This is why we are applying this within
+    :func:`_core_ferc1__table_dimensions` because that is what we use to build the
+    calculation components table.
+    """
+    # made these variables so we could generalize to other tables if we desired that.
+    xbrl_factoid = "xbrl_factoid"
+    dimension_col = "utility_type"
+    money_col = "dollar_value"
+    idx = ["utility_id_ferc1", "report_year", xbrl_factoid]
+
+    # first we need to find the xbrl_factoid's where there are mostly only totals
+    # within the dimension_col. Which is to say there are a few rare non-total
+    # utility_type's.
+    tot_mask = df[dimension_col] == "total"
+    # build a dataframe of xbrl_factoid's with a column for the count of the records
+    # with utility_type total and another column with the count for all the other
+    # utility_type's
+    dimension_value_count = pd.merge(
+        pd.DataFrame(df.loc[tot_mask, xbrl_factoid].value_counts()),
+        pd.DataFrame(df.loc[~tot_mask, xbrl_factoid].value_counts()),
+        on=xbrl_factoid,
+        how="outer",
+        suffixes=("_total", "_other"),
+    )
+    # With that little xbrl_factoid count dataframe we can check to see which
+    # xbrl_factoid's are almost entriely total. In order to id these "rare"
+    # non-totals we use a threshold of 20% here. meaning only 20% of the instances
+    # of the utility_type for a particular xbrl_factoid were non-totals.
+    # that's a little bit arbitrary... This was tested up to 40% but that seems
+    # too aggressive.
+    mostly_total_xbrl_factoids = dimension_value_count[
+        dimension_value_count.count_other.notnull()
+        & (
+            (
+                dimension_value_count.count_other
+                / (
+                    dimension_value_count.count_other
+                    + dimension_value_count.count_total
+                )
+            )
+            < 0.20
+        )
+    ].index
+    logger.info(
+        f"{len(mostly_total_xbrl_factoids) / len(df[xbrl_factoid].unique()):.1%} of the "
+        f"xbrl_factoid's in this table have {dimension_col} values that are mostly total, "
+        "but have some rare instances of non-total values."
+    )
+    # add a utility type count column. Because we only care about this when there
+    # are more than one util type
+    df.loc[:, "util_type_count"] = df.groupby(idx)[[dimension_col]].transform("count")
+    mostly_totals_mask = df[xbrl_factoid].isin(
+        [fact for fact in mostly_total_xbrl_factoids if "correction" not in fact]
+    ) & (df.util_type_count > 1)
+    # Now we've ID-ed what we probably want to drop. But we have to check to see if there
+    # are records in here that contain unique values in these rare non-total columns.
+    mostly_totals_idx = (
+        df.loc[mostly_totals_mask, idx].drop_duplicates().set_index(idx).index
+    )
+    mixed_typed_income = df.set_index(idx).loc[mostly_totals_idx].reset_index()
+    # first remove the records with null non-total records
+    maybe_unique = mixed_typed_income[
+        ~(
+            (mixed_typed_income[dimension_col] != "total")
+            & (mixed_typed_income[money_col].isna())
+        )
+    ]
+
+    if (
+        len(
+            actually_unique := maybe_unique[
+                ~maybe_unique.duplicated(keep=False, subset=idx + [money_col])
+                # bc we removed some of the null non-totals we've gotta leave out the
+                # total's here
+                & (maybe_unique[dimension_col] != "total")
+            ]
+        )
+        > 4
+    ):
+        raise AssertionError(
+            "Ah we found actually unique values within the records with xbrl_factoid's "
+            f"that have rare non-total {dimension_col} when we expected only 4 records"
+            f":\n{actually_unique}\nThis breaks out logic we use to feel confident about "
+            "removing these records in favor of keeping only the utility_type == total records."
+        )
+    # Now that we've affirmed that we feel confident dropping these rare non-total
+    # records... drop them!
+    return pd.concat(
+        [
+            df[~mostly_totals_mask],
+            mixed_typed_income[mixed_typed_income[dimension_col] == "total"],
+        ]
+    )
+
+
 @asset(
     ins={
         table_name: AssetIn(table_name)
@@ -6297,6 +6406,11 @@ def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
         )
         for (name, df) in kwargs.items()
     }
+    tbls["core_ferc1__yearly_income_statements_sched114"] = (
+        remove_rare_utility_type_subdimensions_rows(
+            tbls["core_ferc1__yearly_income_statements_sched114"]
+        )
+    )
     dimensions = (
         pd.concat(tbls.values())[
             ["table_name", "xbrl_factoid"]
@@ -6850,7 +6964,7 @@ def add_calculation_component_corrections(
     calculations should also have correction records. For the core (non-subdimension)
     calculations, all calculation parents require a record with a correction child.
     For the total-to-subdimension calculations, we are assuming we can identify those
-    calculations with the `is_total_to_subdimensions_calc` boolean column. All
+    calculations with the ``is_total_to_subdimensions_calc`` boolean column. All
     total-to-subdimension
 
     All calculaitons will get a correction record in the calculation components table
@@ -6860,11 +6974,13 @@ def add_calculation_component_corrections(
     def assign_child_cols(df, is_subdimension_correction):
         return df.assign(
             table_name=lambda x: x.table_name_parent,
-            xbrl_factoid=lambda x: x.xbrl_factoid_parent
-            + (
-                "_subdimension_correction"
-                if is_subdimension_correction
-                else "_correction"
+            xbrl_factoid=lambda x: (
+                x.xbrl_factoid_parent
+                + (
+                    "_subdimension_correction"
+                    if is_subdimension_correction
+                    else "_correction"
+                )
             ),
             plant_function=lambda x: x.plant_function_parent,
             utility_type=lambda x: x.utility_type_parent,

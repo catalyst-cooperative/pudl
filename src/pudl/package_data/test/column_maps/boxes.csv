@@ -1,3 +1,4 @@
-year_index,2010,2011,2012
-material,composition,composition,composition
-size,size_inches,size_cm,size_cm
+year_index,material,size
+2010,composition,size_inches
+2011,composition,size_cm
+2012,composition,size_cm

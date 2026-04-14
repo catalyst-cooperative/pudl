@@ -37,6 +37,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+import bottleneck as bn
 import numpy as np
 import pandas as pd
 import pandera.pandas as pa
@@ -691,6 +692,10 @@ def impute_latc_tubal(  # noqa: C901
     rng = np.random.default_rng()
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
+    # [2025-08 kmm] Not sure how an empty tensor makes it this far,
+    # but one found a way
+    if np.prod(dim) == 0:
+        return tensor
     dim_time = int(np.prod(dim) / dim[0])
     d = len(lags)
     max_lag = np.max(lags)
@@ -878,7 +883,7 @@ def median_of_rolling_median_offset(
         warnings.filterwarnings(
             "ignore", category=RuntimeWarning, message="All-NaN slice encountered"
         )
-        return np.nanmedian(shifted, axis=0)
+        return bn.nanmedian(shifted, axis=0)
 
 
 def rolling_iqr_of_rolling_median_offset(
@@ -1561,7 +1566,7 @@ def impute_flagged_values(
     .. note::
        The imputation is parallelized internally, and by default will use all available
        CPU cores. If you want to limit the number of cores used, you can set the
-       ``OPM_NUM_THREADS`` environment variable to the desired number of threads.
+       ``OMP_NUM_THREADS`` environment variable to the desired number of threads.
 
     Args:
         df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`

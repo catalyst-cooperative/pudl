@@ -62,14 +62,38 @@ and handle IO. If you are planning on contributing to PUDL, it is recommended yo
 read through the `Dagster Docs <https://docs.dagster.io/getting-started>`__ to
 familiarize yourself with the tool's main concepts.
 
+^^^^^^^^^^^^^^^^^
+``dg`` quickstart
+^^^^^^^^^^^^^^^^^
+
+PUDL is configured as a ``dg`` project. ``dg`` is Dagster's official CLI. It can run
+most if not all of the tasks managed through the UI.
+
+.. code-block:: console
+
+    # Start up the Dagster UI webserver and daemons
+    $ pixi run dg dev
+    # Launch a full job with its default config
+    $ pixi run dg launch --job etl_fast
+    # Select a subset of assets to materialize
+    $ pixi run dg launch --assets "group:raw_eia861"
+    # List all of the Dagster definitions
+    $ pixi run dg list defs
+
+For full ``dg`` CLI documentation and options, see the Dagster docs:
+`dg CLI reference <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
+
 There are a handful of Dagster concepts worth understanding prior
 to interacting with the PUDL data processing pipeline:
 
-**Dagster UI:**
+Dagster UI
+^^^^^^^^^^
+
 `The Dagster UI <https://docs.dagster.io/concepts/webserver/ui>`__
 is used for monitoring and executing ETL runs.
 
-**Software Defined Assets (SDAs):**
+Software Defined Assets (SDAs)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     *An asset is an object in persistent storage, such as a table, file, or
     persisted machine learning model. A software-defined asset is a Dagster object that
@@ -91,7 +115,8 @@ means running the associated functions and writing the output to disk
 somewhere. When you are running the main PUDL ETL, you are **materializing
 assets**.
 
-**Operations (Ops):**
+Operations (Ops):
+^^^^^^^^^^^^^^^^^
 
 `Ops <https://docs.dagster.io/concepts/ops-jobs-graphs/ops>`__ are functions
 that are run in a graph. They are not linked to assets, and are a lower-level
@@ -101,7 +126,8 @@ Due to some limitations of the asset model, we need to use bare ops for the
 FERC-to-SQLite workflow. When you are running that phase, you are **launching a
 job run**.
 
-**IO Managers:**
+IO Managers:
+^^^^^^^^^^^^
 
     *IO Managers are user-provided objects that store asset outputs
     and load them as inputs to downstream assets.*
@@ -114,7 +140,9 @@ from sqlite, pickle and parquet files. For example, the
 :func:`pudl.io_managers.pudl_sqlite_io_manager` allows assets to read and write
 dataframes and execute SQL statements.
 
-**Resources:**
+Resources:
+^^^^^^^^^^
+
 `Resources <https://docs.dagster.io/concepts/resources>`__ are objects
 that can be shared across multiple software-defined assets.
 For example, multiple PUDL assets use the :func:`pudl.resources.datastore`
@@ -123,14 +151,16 @@ resource to pull data from PUDL's raw data archives on Zenodo.
 Generally, inputs to assets should either be other assets or
 python objects in Resources.
 
-**Jobs**:
+Jobs
+^^^^
 `Jobs <https://docs.dagster.io/concepts/ops-jobs-graphs/jobs>`__
 are preconfigured collections of assets, resources and IO Managers.
 Jobs are the main unit of execution in Dagster. For example,
 the ``etl_fast`` job defined in :mod:`pudl.etl` executes the
 FERC, EIA and EPA CEMS pipelines for the most recent year.
 
-**Definitions**:
+Definitions
+^^^^^^^^^^^
 `Definitions  <https://docs.dagster.io/concepts/code-locations>`__
 are collections of assets, resources, IO managers and jobs that can
 be loaded into the dagster UI and executed. Definitions can have multiple
@@ -182,7 +212,7 @@ Once ``DAGSTER_HOME`` is set, launch the dagster UI by running:
 
 .. code-block:: console
 
-    $ dagster dev
+    $ pixi run dg dev
 
 .. note::
 
@@ -211,8 +241,8 @@ where you can adjust the years to extract for each dataset. Then click
 "Launch Run" in the lower right hand corner of the window. The UI will
 take you to a new window that provides information about the status of
 the job. The bottom part of the window contains dagster logs. You can
-view logs from the ``pudl`` package in the CLI window the ``dagster-webserver`` process
-is running in.
+view logs from the ``pudl`` package in the CLI window where ``dg dev``
+is running.
 
 You can adjust the years to process for each dataset using the Launchpad tab::
 
@@ -240,6 +270,11 @@ You can adjust the years to process for each dataset using the Launchpad tab::
           years:
           - 2021
 
+.. note::
+
+    We are experimenting with producing DuckDB outputs from the XBRL (and possibly DBF)
+    data that FERC publishes. For the time being, ``ferc_to_sqlite`` will produce both SQLite
+    and DuckDB outputs by default.
 
 ^^^^^^^^^^^^^^^^^^^^
 Running the PUDL ETL
@@ -296,30 +331,106 @@ want to rerun the entire ETL.
 Read the :ref:`dev_dagster` documentation page to learn more about working
 with dagster.
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Running the FERC EQR ETL
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+All processing for FERC EQR data is contained in a separate ETL from the
+rest of PUDL. This is because the dataset is too large to archive the raw
+data on Zenodo. This means the ETL can only be run by developers with credentials
+to access private cloud storage containing the raw data. Any external
+contributors interested in working on this ETL should contact the Catalyst team
+to set up access to the raw data.
+
+The FERC EQR ETL is contained in a Dagster job called ``ferceqr_etl``.
+Executing this job from the Dagster UI is slightly different from the main
+PUDL ETL jobs because the EQR job uses Dagster partitions. After selecting
+"Materialize All" (or "Materialize selected" for a selection of assets),
+a screen will popup allowing you to select the partitions to execute.
+From here you can select a set of year-quarter combinations. This will
+trigger a ``backfill``, which will execute each partition in its own ``run``.
+To properly handle a ``backfill``, you will need to configure dagster to use a
+``QueuedRunCoordinator``. This can be done using a ``dagster.yaml`` file in your
+``DAGSTER_HOME`` directory with the following content:
+
+.. code-block:: yaml
+
+   run_coordinator:
+     module: dagster.core.run_coordinator
+     class: QueuedRunCoordinator
+     config:
+       tag_concurrency_limits:
+         - key: "dagster/backfill"
+           limit: 2
+
+The ``config`` section shown above is not strictly necessary, but will limit the
+number of concurrent ``runs`` Dagster will start, which can be helpful to avoid
+out-of-memory issues while running many quarters in one ``backfill``.
+
 .. _run-cli:
 
 Running the ETL with CLI Commands
 ---------------------------------
-You can also execute the ETL jobs using CLI commands. These are thin wrappers around
-Dagster's job execution API.
+
+The ``dg`` command line interface is Dagster's official tool and has a ton of built-in
+functionality. For full documentation see the Dagster docs:
+`dg CLI reference <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
+
+These commands are a quick way to confirm your local Dagster setup is healthy before
+launching runs:
+
+.. code-block:: console
+
+    $ pixi run dg check toml
+    $ pixi run dg check defs --verbose
+    $ pixi run dg list defs
+
+You can also kick off full jobs with their default configuration using ``dg launch``.
+The Dagster UI does not need to be running for this to work, but if it is running,
+you'll see the run appear in it.
+
+.. code-block:: console
+
+  $ pixi run dg launch --job ferc_to_sqlite
+  $ pixi run dg launch --job etl_fast
+  $ pixi run dg launch --job etl_full
+
+You can also target specific assets rather than an entire job, and use Dagster's rich
+`asset selection syntax <https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference>`__
+to pick and choose:
+
+.. code-block:: console
+
+  # Materialize all assets in the raw_eia861 group
+  $ pixi run dg launch --assets "group:raw_eia861"
+  # Materialize all assets upstream and downstream of a table
+  $ pixi run dg launch --assets "+key:core_eia923__fuel_receipts_costs+"
+
 
 .. note::
 
   We recommend using the Dagster UI to execute the ETL as it provides additional
   functionality for re-execution and viewing asset dependences.
 
-There are two main CLI commands for executing the PUDL processing pipeline:
+PUDL also has a couple of custom job launching scripts, which automatically use one of
+our preset YAML files to configure the execution graph, including data sources, years,
+etc.
 
 1. ``ferc_to_sqlite`` executes the ``pudl.ferc_to_sqlite`` dagster graph.
    You must run this script before you can run ``pudl_etl``.
 2. ``pudl_etl`` executes the ``pudl.etl`` asset graph.
 
-We also have targets set up in the ``Makefile`` for running these scripts:
+.. note::
+
+   We plan to deprecate these custom scripts in 2026Q2, and move to using Dagster's
+   built-in file-based configuration system.
+
+We also have ``pixi`` tasks defined in ``pyproject.toml`` that correspond to running the
+above scripts with default configurations, to process all data (these can take hours):
 
 .. code-block:: console
 
-    $ make ferc
-    $ make pudl
+    $ pixi run ferc
+    $ pixi run pudl
 
 Settings Files
 --------------

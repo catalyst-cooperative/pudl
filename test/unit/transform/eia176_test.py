@@ -1,18 +1,22 @@
 import pandas as pd
 from pytest import fixture
 
-from pudl.transform.eia176 import _core_eia176__data, get_wide_table, validate_totals
+from pudl.transform.eia176 import (
+    _core_eia176__numeric_data,
+    get_wide_table,
+    validate_totals,
+)
 
 COLUMN_NAMES = [
-    "area",
-    "atype",
-    "company",
-    "id",
+    "operating_state",
+    "unit_type",
+    "operator_name",
+    "operator_id_eia",
     "line",
     "report_year",
     "value",
-    "itemsort",
-    "item",
+    "form_line_numbers",
+    "variable_name",
 ]
 
 ID_1 = "17673850NM"
@@ -113,7 +117,7 @@ COMPANY_4 = [
     "some other volume",
 ]
 
-DROP_COLS = ["itemsort", "item", "atype", "line", "company"]
+DROP_COLS = ["form_line_numbers", "unit_type", "line"]
 
 
 @fixture
@@ -126,62 +130,104 @@ def df():
     df.loc[4] = TX_AGGREGATE
     df.loc[5] = US_AGGREGATE
     df.loc[6] = COMPANY_4
-    df = df.set_index(["area", "company"])
+    df = df.set_index(["operating_state", "operator_name"])
     return df
 
 
-def test_core_eia176__data(df):
+def test_core_eia176__numeric_data(df):
     eav_model = df.loc[
         [
             ("new mexico", "new mexico gas company"),
             ("new mexico", "total of all companies"),
         ]
     ].reset_index()
-
-    wide_company, wide_aggregate = (o.value for o in _core_eia176__data(eav_model))
-    assert wide_company.shape == (1, 4)
+    wide_company, wide_aggregate = (
+        o.value for o in _core_eia176__numeric_data(eav_model)
+    )
+    assert wide_company.shape == (1, 5)
 
     company_row = wide_company.loc[0]
-    assert list(company_row.index) == ["report_year", "area", "id", "1010_vl"]
-    assert list(company_row.values) == [2022, "new mexico", ID_1, VOLUME_1]
+    assert list(company_row.index) == [
+        "report_year",
+        "operating_state",
+        "operator_id_eia",
+        "operator_name",
+        "residential_sales_volume",
+    ]
+    assert list(company_row.values) == [
+        2022,
+        "new mexico",
+        ID_1,
+        "new mexico gas company",
+        VOLUME_1,
+    ]
 
     assert wide_aggregate.shape == (1, 3)
     aggregate_row = wide_aggregate.loc[0]
-    assert list(aggregate_row.index) == ["report_year", "area", "1010_vl"]
+    assert list(aggregate_row.index) == [
+        "report_year",
+        "operating_state",
+        "residential_sales_volume",
+    ]
     assert list(aggregate_row.values) == [2022, "new mexico", NM_VOLUME]
 
 
 def test_get_wide_table(df):
-    long_table = df.loc[
-        [
-            ("new mexico", "new mexico gas company"),
-            ("new mexico", "west texas gas inc"),
-            # Row measuring a different variable to test filling NAs
-            ("alaska", "alaska gas inc"),
+    long_table = (
+        df.loc[
+            [
+                ("new mexico", "new mexico gas company"),
+                ("new mexico", "west texas gas inc"),
+                # Row measuring a different variable to test filling NAs
+                ("alaska", "alaska gas inc"),
+            ]
         ]
-    ].reset_index()
+        .reset_index()
+        .drop(columns=DROP_COLS)
+    )
 
-    long_table["variable_name"] = long_table["line"] + "_" + long_table["atype"]
-    long_table = long_table.drop(columns=DROP_COLS)
-
-    primary_key = ["report_year", "area", "id"]
+    primary_key = ["report_year", "operating_state", "operator_id_eia", "operator_name"]
     wide_table = get_wide_table(long_table, primary_key)
 
-    assert wide_table.shape == (3, 5)
+    assert wide_table.shape == (3, 6)
     assert list(wide_table.loc[0].index) == [
         "report_year",
-        "area",
-        "id",
-        "1010_vl",
-        "1020_vl",
+        "operating_state",
+        "operator_id_eia",
+        "operator_name",
+        "residential_sales_volume",
+        "some_other_volume",
     ]
-    assert list(wide_table.loc[0].values) == ["2022", "alaska", ID_4, 0, VOLUME_4]
-    assert list(wide_table.loc[1].values) == ["2022", "new mexico", ID_2, VOLUME_2, 0]
-    assert list(wide_table.loc[2].values) == ["2022", "new mexico", ID_1, VOLUME_1, 0]
+    # Row 0: only some_other_volume is present; residential_sales_volume is NA
+    row0 = wide_table.loc[0]
+    assert row0["report_year"] == "2022"
+    assert row0["operating_state"] == "alaska"
+    assert row0["operator_id_eia"] == ID_4
+    assert row0["operator_name"] == "alaska gas inc"
+    assert pd.isna(row0["residential_sales_volume"])  # no value for this metric
+    assert row0["some_other_volume"] == VOLUME_4
+
+    # Row 1: residential_sales_volume present; some_other_volume is NA
+    row1 = wide_table.loc[1]
+    assert row1["report_year"] == "2022"
+    assert row1["operating_state"] == "new mexico"
+    assert row1["operator_id_eia"] == ID_2
+    assert row1["operator_name"] == "west texas gas inc"
+    assert row1["residential_sales_volume"] == VOLUME_2
+    assert pd.isna(row1["some_other_volume"])  # no value for this metric
+
+    # Row 2: residential_sales_volume present; some_other_volume is NA
+    row2 = wide_table.loc[2]
+    assert row2["report_year"] == "2022"
+    assert row2["operating_state"] == "new mexico"
+    assert row2["operator_id_eia"] == ID_1
+    assert row2["operator_name"] == "new mexico gas company"
+    assert row2["residential_sales_volume"] == VOLUME_1
+    assert pd.isna(row2["some_other_volume"])  # no value for this metric
 
 
 def test_validate__totals(df):
-    # Our test data will have only measurements for this 1010_vl variable
+    # Our test data will have only measurements for the residential sales volume variable
     company_data = df.loc[
         [
             ("new mexico", "new mexico gas company"),
@@ -190,8 +236,8 @@ def test_validate__totals(df):
         ]
     ].reset_index()
     # Add the value for the 1010_vl variable
-    company_data["1010_vl"] = [VOLUME_1, VOLUME_2, VOLUME_3]
-    company_data = company_data.drop(columns=DROP_COLS + ["value"])
+    company_data["residential_sales_volume"] = [VOLUME_1, VOLUME_2, VOLUME_3]
+    company_data = company_data.drop(columns=DROP_COLS + ["value", "variable_name"])
 
     aggregate_data = df.loc[
         [
@@ -201,7 +247,9 @@ def test_validate__totals(df):
         ]
     ].reset_index()
     # Add the value for the 1010_vl variable
-    aggregate_data["1010_vl"] = [NM_VOLUME, TX_VOLUME, US_VOLUME]
-    aggregate_data = aggregate_data.drop(columns=DROP_COLS + ["id", "value"])
+    aggregate_data["residential_sales_volume"] = [NM_VOLUME, TX_VOLUME, US_VOLUME]
+    aggregate_data = aggregate_data.drop(
+        columns=DROP_COLS + ["operator_id_eia", "value", "variable_name"]
+    )
 
     validate_totals(company_data, aggregate_data)

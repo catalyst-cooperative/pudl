@@ -6,10 +6,11 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: core_sec10k__assn_exhibit_21_subsidiaries_and_filers
-              partition_column: null
+              arguments:
+                table_name: core_sec10k__assn_exhibit_21_subsidiaries_and_filers
+                partition_expr:
         columns:
           - name: subsidiary_company_id_sec10k
-            tests:
+            data_tests:
               - unique
           - name: central_index_key

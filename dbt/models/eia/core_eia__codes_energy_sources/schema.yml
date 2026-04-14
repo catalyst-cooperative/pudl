@@ -1,0 +1,22 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__codes_energy_sources
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia__codes_energy_sources
+                partition_expr:
+        columns:
+          - name: code
+          - name: label
+          - name: fuel_units
+          - name: min_fuel_mmbtu_per_unit
+          - name: max_fuel_mmbtu_per_unit
+          - name: fuel_group_eia
+          - name: fuel_derived_from
+          - name: fuel_phase
+          - name: fuel_type_code_pudl
+          - name: description

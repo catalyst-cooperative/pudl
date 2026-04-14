@@ -32,7 +32,21 @@ class Extractor(excel.ExcelExtractor):
     # oil_stocks, coal_stocks, petcoke_stocks
 
     def process_raw(self, df, page, **partition):
-        """Drops reserved columns."""
+        """Prepare raw table for extraction.
+
+        Check extraction configuration is sensible, drop reserved columns, switch to
+        standardized column names, and perform other broadly-applicable cleanup of
+        data formats, types, and missingness.
+        """
+        # check skiprows first
+        for i, c in enumerate(df.columns):
+            assert isinstance(c, str), (
+                f"Error at page {page} partition {partition}: "
+                f"Expected str column header {i} but found {type(c)}. "
+                f"df.head():\n{df.head()}\n\n"
+                f"Skipped rows from {self.source_filename(page, **partition)}:\n{pd.read_excel(self._file_cache[self.source_filename(page, **partition)], header=None, sheet_name=self._metadata.get_sheet_name(page, **partition), nrows=self._metadata.get_skiprows(page, **partition))}"
+            )
+        # nix reserved columns
         to_drop = [c for c in df.columns if c[:8] == "reserved"]
         df = df.drop(to_drop, axis=1)
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
@@ -94,7 +108,7 @@ raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
 
 @multi_asset(
     outs={
-        table_name: AssetOut()
+        table_name: AssetOut(is_required=False)
         for table_name in sorted(
             (
                 "raw_eia923__boiler_fuel",
@@ -115,8 +129,9 @@ raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
             )
         )
     },
+    can_subset=True,
 )
-def extract_eia923(raw_eia923__all_dfs):
+def extract_eia923(context, raw_eia923__all_dfs):
     """Extract raw EIA-923 data from excel sheets into dataframes."""
     # create descriptive table_names
     raw_eia923__all_dfs = {
@@ -125,8 +140,10 @@ def extract_eia923(raw_eia923__all_dfs):
     }
 
     raw_eia923__all_dfs = dict(sorted(raw_eia923__all_dfs.items()))
+    selected_outputs = set(context.selected_output_names)
 
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in raw_eia923__all_dfs.items()
+        if table_name in selected_outputs
     )

@@ -223,6 +223,7 @@ def allocate_gen_fuel_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         io_manager_key=io_manager_key,
+        op_tags={"memory-use": "high"},
         compute_kind="Python",
         config_schema={
             "debug": Field(
@@ -246,6 +247,7 @@ def allocate_gen_fuel_asset_factory(
         gens: pd.DataFrame,
     ) -> pd.DataFrame:
         """Allocate net gen from gen_fuel to generator/energy_source_code level."""
+        pd.options.mode.copy_on_write = True
         gf, bf, gen, bga, gens = select_input_data(
             gf=gf, bf=bf, gen=gen, bga=bga, gens=gens
         )
@@ -367,7 +369,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     # do the association! --> this step is where a small no. of plants are dropped for
     # an unknown reason. Investigate in issue #2978.
     gen_assoc = associate_generator_tables(
-        gens=gens_at_freq, gf=gf, gen=gen, bf=bf, bga=bga
+        gens_at_freq=gens_at_freq, gf=gf, gen=gen, bf=bf, bga=bga
     )
     # Generate a fraction to use to allocate net generation and fuel consumption by.
     # These two methods create a column called `frac`, which will be a fraction
@@ -658,7 +660,7 @@ def stack_generators(
 
 
 def associate_generator_tables(
-    gens: pd.DataFrame,
+    gens_at_freq: pd.DataFrame,
     gf: pd.DataFrame,
     gen: pd.DataFrame,
     bf: pd.DataFrame,
@@ -716,11 +718,11 @@ def associate_generator_tables(
         :func:`allocate_fuel_by_gen_esc`.
     """
     stack_gens = stack_generators(
-        gens, cat_col="energy_source_code_num", stacked_col="energy_source_code"
+        gens_at_freq, cat_col="energy_source_code_num", stacked_col="energy_source_code"
     ).pipe(apply_pudl_dtypes, group="eia")
     # allocate the boiler fuel data to generators
     bf_by_gens = (
-        allocate_bf_data_to_gens(bf, gens, bga)
+        allocate_bf_data_to_gens(bf, gens_at_freq, bga)
         .set_index(IDX_GENS_PM_ESC)
         .add_suffix("_bf_tbl")
         .reset_index()
@@ -784,6 +786,17 @@ def associate_generator_tables(
     return gen_assoc
 
 
+def _label_gf_unique_to_gen(gen_assoc: pd.DataFrame):
+    # identify whether a PM/ESC combo is unique to the generator_id at the plant
+    gen_assoc["gf_unique_to_gen"] = (
+        gen_assoc.groupby(
+            ["plant_id_eia", "report_date", "prime_mover_code", "energy_source_code"]
+        )["generator_id"].transform("nunique")
+        == 1
+    )
+    return gen_assoc
+
+
 def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Remove the retired generators.
 
@@ -793,7 +806,8 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     statuses other than ``existing`` but which report non-zero data despite being
     ``retired`` or ``proposed``. This includes several categories of generators/plants:
 
-        * ``retiring_generators``: generators that retire mid-year
+        * ``retiring_generators``: generators that retire mid-year or report data after
+          retiring.
         * ``retired_plants``: entire plants that supposedly retired prior to
           the current year but which report data. If a plant has a mix of gens
           which are existing and retired, they are not included in this category.
@@ -810,7 +824,9 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     is possible that the reported generation from the gf table belongs to one
     of the other existing generators. Thus, we want to only keep proposed/retired
     generators where the entire plant is proposed/retired (in which case the gf-
-    reported generation could only come from one of the new/retired generators).
+    reported generation could only come from one of the new/retired generators). If the
+    reported gf data is for a prime_mover / energy_source_code combo that is unique
+    to the retiring/proposed generator, we can identify it at the generator level.
 
     We also want to keep unassociated plants that have no ``generator_id`` which will
     be associated via :func:`_allocate_unassociated_records`.
@@ -820,6 +836,8 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             generation data from the core_eia923__monthly_generation and core_eia923__monthly_generation_fuel
             tables. Output of :func:`associate_generator_tables`.
     """
+    gen_assoc = _label_gf_unique_to_gen(gen_assoc)
+
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
 
     retiring_generators = identify_retiring_generators(gen_assoc)
@@ -849,10 +867,14 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify any generators that retire mid-year.
 
-    We want to include all of the generator records within any given year that
-    retired mid-year or any generators that reported any fuel use or generation.
-    These are generators with a mid-year retirement date or which report
-    generator-specific generation or fuel use after they are labeled as retired.
+    These are "retired" generators that either:
+
+    A) have a mid-year retirement date, OR
+    B) report generator-specific generation data in the g table for a month after the
+       retirement date, OR
+    C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
+       is unique to that generator at the plant, for a month after the retirement date.
+
     """
     gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
     # identify the complete set of generator ids that are retiring mid year
@@ -861,8 +883,19 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
         (gen_assoc.operational_status == "retired")
         & (
             (gen_assoc.report_date <= gen_assoc.generator_retirement_date)
-            | gen_assoc.filter(like="net_generation_mwh").notnull().any(axis=1)
-            | gen_assoc.filter(like="fuel_consumed").notnull().any(axis=1)
+            | (
+                gen_assoc.net_generation_mwh_g_tbl.notnull()
+                | (
+                    gen_assoc["gf_unique_to_gen"]
+                    & (
+                        (
+                            gen_assoc.net_generation_mwh_gf_tbl.notnull()
+                            & (gen_assoc.net_generation_mwh_gf_tbl != 0)
+                        )
+                        | (gen_assoc.filter(like="fuel_consumed_") > 0).any(axis=1)
+                    )
+                )
+            )
         ),
         ["plant_id_eia", "generator_id", "report_year"],
     ].drop_duplicates()
@@ -937,14 +970,30 @@ def identify_retired_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 def identify_generators_coming_online(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify generators that are coming online mid-year.
 
-    These are defined as generators that have a proposed status but which report
-    generator-specific generation data in the g table
+    These are defined as "proposed" generators that either:
+
+    A) report generator-specific generation data in the g table, OR
+    B) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
+       is unique to that generator at the plant.
+
     """
     # sometimes a plant will report generation data before its proposed operating date
     # we want to keep any data that is reported for proposed generators
     proposed_generators = gen_assoc.loc[
         (gen_assoc.operational_status == "proposed")
-        & (gen_assoc.net_generation_mwh_g_tbl.notnull())
+        & (
+            gen_assoc.net_generation_mwh_g_tbl.notnull()
+            | (
+                gen_assoc["gf_unique_to_gen"]
+                & (
+                    (
+                        gen_assoc.net_generation_mwh_gf_tbl.notnull()
+                        & (gen_assoc.net_generation_mwh_gf_tbl != 0)
+                    )
+                    | ((gen_assoc.filter(like="fuel_consumed_") > 0).any(axis=1))
+                )
+            )
+        )
     ]
     return proposed_generators
 
@@ -1185,14 +1234,14 @@ def prep_allocation_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             fuel_consumed_mmbtu_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl.fillna(
                 MISSING_SENTINEL
             ),
-            net_generation_mwh_g_tbl_pm_fuel=lambda x: x.net_generation_mwh_g_tbl_pm_fuel.fillna(
-                MISSING_SENTINEL
+            net_generation_mwh_g_tbl_pm_fuel=lambda x: (
+                x.net_generation_mwh_g_tbl_pm_fuel.fillna(MISSING_SENTINEL)
             ),
-            fuel_consumed_mmbtu_bf_tbl_pm_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl_pm_fuel.fillna(
-                MISSING_SENTINEL
+            fuel_consumed_mmbtu_bf_tbl_pm_fuel=lambda x: (
+                x.fuel_consumed_mmbtu_bf_tbl_pm_fuel.fillna(MISSING_SENTINEL)
             ),
-            fuel_consumed_mmbtu_bf_tbl_unit_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl_unit_fuel.fillna(
-                MISSING_SENTINEL
+            fuel_consumed_mmbtu_bf_tbl_unit_fuel=lambda x: (
+                x.fuel_consumed_mmbtu_bf_tbl_unit_fuel.fillna(MISSING_SENTINEL)
             ),
         )
     )
@@ -1260,8 +1309,9 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     # table, we still allocate, because the generation reported in these two
     # tables don't always match perfectly
     all_gen = all_gen.assign(
-        frac_net_gen=lambda x: x.net_generation_mwh_g_tbl
-        / x.net_generation_mwh_g_tbl_pm_fuel,
+        frac_net_gen=lambda x: (
+            x.net_generation_mwh_g_tbl / x.net_generation_mwh_g_tbl_pm_fuel
+        ),
         frac=lambda x: x.frac_net_gen,
     )
     # _ = _test_frac(all_gen)
@@ -1286,14 +1336,17 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         ),
         # for records within these mix groups that do have net gen in the
         # generation table..
-        frac_net_gen=lambda x: x.net_generation_mwh_g_tbl
-        / x.net_generation_mwh_g_tbl_pm_fuel,  # generator based net gen from gen table
+        frac_net_gen=lambda x: (
+            x.net_generation_mwh_g_tbl / x.net_generation_mwh_g_tbl_pm_fuel
+        ),  # generator based net gen from gen table
         frac_gen=lambda x: x.frac_net_gen * x.frac_from_g_tbl,
         # fraction of generation that does not show up in the generation table
         frac_missing_from_g_tbl=lambda x: 1 - x.frac_from_g_tbl,
         capacity_mw_missing_from_g_tbl=lambda x: np.where(x.in_g_tbl, 0, x.capacity_mw),
-        frac_cap=lambda x: x.frac_missing_from_g_tbl
-        * (x.capacity_mw_missing_from_g_tbl / x.capacity_mw_in_g_tbl_group),
+        frac_cap=lambda x: (
+            x.frac_missing_from_g_tbl
+            * (x.capacity_mw_missing_from_g_tbl / x.capacity_mw_in_g_tbl_group)
+        ),
         # the real deal
         # this could also be `x.frac_gen + x.frac_cap` because the frac_gen
         # should be 0 for any generator that does not have net gen in the g_tbl
@@ -1375,8 +1428,9 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     # table, we still allocate, because the fuel reported in these two
     # tables don't always match perfectly
     all_bf = all_bf.assign(
-        frac_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl
-        / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel,
+        frac_fuel=lambda x: (
+            x.fuel_consumed_mmbtu_bf_tbl / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel
+        ),
         frac=lambda x: x.frac_fuel,
     )
     # _ = _test_frac(all_bf)
@@ -1391,8 +1445,9 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         ),
         # for records within these mix groups that do have fuel consumption in the
         # bf table..
-        frac_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl
-        / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel,  # generator based fuel from bf table
+        frac_fuel=lambda x: (
+            x.fuel_consumed_mmbtu_bf_tbl / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel
+        ),  # generator based fuel from bf table
         frac_bf=lambda x: x.frac_fuel * x.frac_from_bf_tbl,
         # fraction of fuel that does not show up in the bf table
         # set minimum fraction to zero so we don't get negative fuel
@@ -1402,8 +1457,10 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         capacity_mw_missing_from_bf_tbl=lambda x: np.where(
             x.in_bf_tbl, 0, x.capacity_mw
         ),
-        frac_cap=lambda x: x.frac_missing_from_bf_tbl
-        * (x.capacity_mw_missing_from_bf_tbl / x.capacity_mw_fuel_in_bf_tbl_group),
+        frac_cap=lambda x: (
+            x.frac_missing_from_bf_tbl
+            * (x.capacity_mw_missing_from_bf_tbl / x.capacity_mw_fuel_in_bf_tbl_group)
+        ),
         # the real deal
         # this could also be `x.frac_bf + x.frac_cap` because the frac_bf
         # should be 0 for any generator that does not have fuel in the bf_tbl
@@ -1442,8 +1499,9 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
             # we could x.fuel_consumed_mmbtu_bf_tbl.fillna here if we wanted to
             # take the net gen
             fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu_gf_tbl * x.frac,
-            fuel_consumed_for_electricity_mmbtu=lambda x: x.fuel_consumed_for_electricity_mmbtu_gf_tbl
-            * x.frac,
+            fuel_consumed_for_electricity_mmbtu=lambda x: (
+                x.fuel_consumed_for_electricity_mmbtu_gf_tbl * x.frac
+            ),
         )
         .pipe(apply_pudl_dtypes, group="eia")
         .dropna(how="all")
@@ -1510,7 +1568,7 @@ def distribute_annually_reported_data_to_months_if_annual(
     reporting in only one month that is not January or December, the assumption about
     January and December only reporting is almost certainly resulting in some non-annual
     data being allocated across all months, but on average the data will be more
-    accruate.
+    accurate.
 
     Note: We should be able to use the ``reporting_frequency_code`` column for the
     identification of annually reported data. This currently does not work because we
@@ -1538,9 +1596,9 @@ def distribute_annually_reported_data_to_months_if_annual(
 
         def assign_plant_year(df):
             return df.assign(
-                plant_year=lambda x: x.report_date.dt.year.astype(str)
-                + "_"
-                + x.plant_id_eia.astype(str)
+                plant_year=lambda x: (
+                    x.report_date.dt.year.astype(str) + "_" + x.plant_id_eia.astype(str)
+                )
             )
 
         reporters = df.copy().pipe(assign_plant_year)
@@ -1550,8 +1608,10 @@ def distribute_annually_reported_data_to_months_if_annual(
         ]
         reporters["missing_data"] = (
             reporters.assign(
-                missing_data=lambda x: x[data_column_name].isnull()
-                | np.isclose(reporters[data_column_name], 0)
+                missing_data=lambda x: (
+                    x[data_column_name].isnull()
+                    | np.isclose(reporters[data_column_name], 0)
+                )
             )
             .groupby(key_columns_annual, dropna=False)[["missing_data"]]
             .transform("sum")
@@ -1658,19 +1718,13 @@ def adjust_msw_energy_source_codes(
     """
     # Adjust any energy source codes related to municipal solid waste
     # get a list of all of the MSW-related codes used in gf and bf
-    msw_codes_in_gf = set(
-        gf.loc[
-            gf["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
-            "energy_source_code",
-        ].unique()
+    codes_used = set(gf.energy_source_code.unique()) | set(
+        bf_by_gens.energy_source_code.unique()
     )
-    msw_codes_in_bf = set(
-        bf_by_gens.loc[
-            bf_by_gens["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
-            "energy_source_code",
-        ].unique()
+    # NOTE 2025-12-11: we sort this reverse-ly to match the indeterminate order that happens to be in nightly builds right now
+    msw_codes_used = sorted(
+        {"MSN", "MSB", "MSW"}.intersection(codes_used), reverse=True
     )
-    msw_codes_used = list(msw_codes_in_gf | msw_codes_in_bf)
     # join these codes into a string that will be used to replace the MSW code
     replacement_codes = ",".join(msw_codes_used)
 
@@ -1681,9 +1735,7 @@ def adjust_msw_energy_source_codes(
             # create a column of all unique fuels in the order in which they appear (ESC 1-6, startup fuel 1-6)
             # this column will have each fuel code separated by a comma
             gens["unique_esc"] = [
-                ",".join(
-                    fuel for fuel in list(dict.fromkeys(fuels)) if pd.notnull(fuel)
-                )
+                ",".join(fuel for fuel in fuels if pd.notnull(fuel))
                 for fuels in gens.loc[
                     :,
                     [
@@ -1946,8 +1998,9 @@ def _test_gen_pm_fuel_output(
             on=idx,
             how="outer",
         ).assign(
-            net_generation_mwh_diff=lambda x: x.net_generation_mwh_gf_tbl
-            - x.net_generation_mwh_test
+            net_generation_mwh_diff=lambda x: (
+                x.net_generation_mwh_gf_tbl - x.net_generation_mwh_test
+            )
         )
         return gen_pm_fuel_test
 
@@ -2012,8 +2065,9 @@ def test_gen_fuel_allocation(
         on=IDX_GENS,
         suffixes=("_new", "_og"),
     ).assign(
-        net_generation_new_v_og=lambda x: x.net_generation_mwh_new
-        / x.net_generation_mwh_og
+        net_generation_new_v_og=lambda x: (
+            x.net_generation_mwh_new / x.net_generation_mwh_og
+        )
     )
 
     os_ratios = gens_test[
@@ -2045,11 +2099,41 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
         AssertionError: If the difference between the allocated and original data for
             any plant/year is off by more than x10 or x-5.
     """
-    gf_test = pd.merge(
-        gf.assign(year=lambda x: x.report_date.dt.year).groupby(by)[data_columns].sum(),
+    original_gf = (
+        gf.assign(year=lambda x: x.report_date.dt.year).groupby(by)[data_columns].sum()
+    )
+    allocated_gf = (
         gf_allocated.assign(year=lambda x: x.report_date.dt.year)
         .groupby(by)[data_columns]
-        .sum(),
+        .sum()
+    )
+    # Check how well the allocation is working on the aggregate. Is the vast majority of
+    # original generation & fuel from the gf table being allocated?
+    total_allocation_test = pd.merge(
+        pd.DataFrame(allocated_gf.sum(), columns=["allocated_sum"]),
+        pd.DataFrame(original_gf.sum(), columns=["original_sum"]),
+        right_index=True,
+        left_index=True,
+    ).assign(allocated_pct=lambda x: (x.allocated_sum / x.original_sum) * 100)[
+        ["allocated_pct"]
+    ]
+    logger.info(
+        "The % of the original data that has been allocated from the generation fuel "
+        f"table for each column is:\n{total_allocation_test}"
+    )
+    expected_allocation_pct = 95.06
+    # we know that with the fast ETL this coverage is weird bad because the last year
+    # of data is often a ytd year that doesn't get allocated.
+    if len(gf.report_date.dt.year.unique()) <= 2:
+        expected_allocation_pct = expected_allocation_pct / 2
+    if not all(total_allocation_test.allocated_pct > expected_allocation_pct):
+        raise AssertionError(
+            "The total portion of generation or fuel being allocated dipped below "
+            f"the expected {expected_allocation_pct}%."
+        )
+    gf_test = pd.merge(
+        original_gf,
+        allocated_gf,
         right_index=True,
         left_index=True,
         suffixes=("_og", "_allocated"),

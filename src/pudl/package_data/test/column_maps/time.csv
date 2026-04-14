@@ -1,3 +1,4 @@
-year_index,2010,2011,2012
-second_hand,tick,tick,tick
-darkness,woosh,woosh,woosh
+year_index,second_hand,darkness
+2010,tick,woosh
+2011,tick,woosh
+2012,tick,woosh

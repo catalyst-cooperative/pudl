@@ -14,10 +14,16 @@ import os
 import shutil
 from pathlib import Path
 
+from pybtex.plugin import register_plugin
+from pybtex.style.formatting.plain import Style as PlainStyle
+from pybtex.style.sorting import BaseSortingStyle
+
 from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import CodeMetadata, DataSource, Package
+from pudl.metadata.classes import CodeMetadata, DataSource, Package, Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
+from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 DOCS_DIR = Path(__file__).parent.resolve()
 if os.environ.get("READTHEDOCS"):
@@ -57,8 +63,10 @@ extensions = [
     "autoapi.extension",
     "sphinx_issues",
     "sphinx_reredirects",
+    "sphinx_design",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
+    "sphinxcontrib.mermaid",
 ]
 
 googleanalytics_id = "G-EXWBBTVMWK"
@@ -66,10 +74,63 @@ googleanalytics_enabled = True
 
 todo_include_todos = True
 bibtex_bibfiles = [
+    "cooperative_cites.bib",
     "catalyst_pubs.bib",
     "catalyst_cites.bib",
     "further_reading.bib",
 ]
+
+# Handle bibtex formatting to produce a numbered list
+# without labels and sorted by descending date in document
+# we can't use any default style because there are multiple bibs on one page
+
+
+class YearDescendingSortingStyle(BaseSortingStyle):
+    """Create style that sorts by descending year."""
+
+    def sorting_key(self, entry):
+        """Return sorting key that descends by year."""
+        year_str = entry.fields.get("year", "0")
+        try:
+            year = int(year_str)
+        except ValueError:
+            year = 0
+
+        author = entry.persons.get("author", [])
+        author_key = str(author[0]) if author else ""
+        title = entry.fields.get("title", "")
+
+        return (-year, author_key, title)
+
+
+class NoLabelStyle(PlainStyle):
+    """Create citation style without label and sorting on descending year."""
+
+    default_sorting_style = "year_desc"
+
+    def format_label(self, entry):
+        """Override default label."""
+        return ""
+
+
+register_plugin(
+    "pybtex.style.sorting",
+    "year_desc",
+    YearDescendingSortingStyle,
+)
+
+register_plugin(
+    "pybtex.style.formatting",
+    "nolabel",
+    NoLabelStyle,
+)
+
+bibtex_default_style = "nolabel"
+
+# If PUDL_DOCS_KEEP_GENERATED_FILES is defined, don't clean up generated files after the
+# docs build. Useful for debugging formatting of generated RST files, but be sure to
+# clean them up when you're done!
+keep_generated_files = "PUDL_DOCS_KEEP_GENERATED_FILES" in os.environ
 
 # Redirects to keep folks from hitting 404 errors:
 redirects = {
@@ -79,13 +140,14 @@ redirects = {
 
 # Automatically generate API documentation during the doc build:
 autoapi_type = "python"
-autoapi_keep_files = False  # Set to True to debug auto-generated RST files
+autoapi_keep_files = keep_generated_files
 autoapi_dirs = [
     "../src/pudl",
 ]
 autoapi_ignore = [
     "*_test.py",
 ]
+autoapi_add_toctree_entry = False
 
 # GitHub repo
 issues_github_path = "catalyst-cooperative/pudl"
@@ -95,14 +157,14 @@ issues_github_path = "catalyst-cooperative/pudl"
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
     "dagster": ("https://docs.dagster.io/", None),
-    "dask": ("https://docs.dask.org/en/latest/", None),
-    "datasette": ("https://docs.datasette.io/en/stable/", None),
+    "duckdb": ("https://duckdb.org/docs/lts/clients/python/reference/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "pandera": ("https://pandera.readthedocs.io/en/stable/", None),
+    "polars": ("https://docs.pola.rs/api/python/stable", None),
     "pydantic": ("https://docs.pydantic.dev/latest/", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
@@ -110,6 +172,12 @@ intersphinx_mapping = {
     "sklearn": ("https://scikit-learn.org/stable", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org/en/latest/", None),
 }
+
+# If PUDL_DOCS_DISABLE_INTERSPHINX is set, disable intersphinx lookups. This can speed
+# up the build and avoids issues with external sites being down.
+if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
+    print("Disabling intersphinx lookups (PUDL_DOCS_DISABLE_INTERSPHINX is set).")
+    intersphinx_mapping = {}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -119,11 +187,21 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build"]
 
+# This is necessary because Sphinx 9.0+ is getting confused about class
+# attributes named type, and type[SomeClass] annotations in factory functions
+# See this issue: https://github.com/sphinx-doc/sphinx/issues/14223
+suppress_warnings = [
+    "ref.python",  # Suppress ambiguous Python reference warnings
+]
+
+if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
+    suppress_warnings.append("intersphinx.external")
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.
 master_doc = "index"
-html_theme = "furo"
+html_theme = "pydata_sphinx_theme"
 html_logo = "_static/catalyst_logo-200x200.png"
 html_icon = "_static/favicon.ico"
 
@@ -132,14 +210,30 @@ html_icon = "_static/favicon.ico"
 # documentation.
 html_theme_options = {
     "navigation_with_keys": True,
-    "light_css_variables": {
-        "color-announcement-background": "yellow",
-        "color-announcement-text": "red",
+    "header_links_before_dropdown": 5,
+    "announcement": '<b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b>',
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/catalyst-cooperative/pudl",
+            "icon": "fa-brands fa-square-github",
+            "type": "fontawesome",
+        }
+    ],
+    "switcher": {
+        "json_url": "https://docs.catalyst.coop/pudl/available_versions.json",
+        "version_match": "latest",
     },
-    "dark_css_variables": {
-        "color-announcement-background": "yellow",
-        "color-announcement-text": "red",
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "secondary_sidebar_items": {
+        "**": ["page-toc", "sourcelink"],
     },
+    "show_nav_level": {
+        "**": 2,
+    },
+}
+html_sidebars = {
+    "release_notes": [],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -162,27 +256,47 @@ def data_dictionary_metadata_to_rst(app):
     package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
 
 
+# When adding a new data source add it here and ALSO in pyproject.toml in the
+# docs-clean pixi task so generated files are removed.
+INCLUDED_SOURCES = [
+    "censusdp1tract",
+    "censuspep",
+    "eiaapi",
+    "eia176",
+    "eia860",
+    "eia861",
+    "eia923",
+    "eia930",
+    "eiaaeo",
+    "ferc1",
+    "ferc714",
+    "ferceqr",
+    "epacems",
+    "epacamd_eia",
+    "phmsagas",
+    "rus12",
+    "rus7",
+    "sec10k",
+    "gridpathratoolkit",
+    "nrelatb",
+    "vcerare",
+]
+
+
 def data_sources_metadata_to_rst(app):
     """Export data source metadata to RST for inclusion in the documentation."""
     print("Exporting data source metadata to RST.")
-    included_sources = [
-        "eia860",
-        "eia861",
-        "eia923",
-        "eia930",
-        "ferc1",
-        "ferc714",
-        "epacems",
-        "phmsagas",
-        "gridpathratoolkit",
-        "vcerare",
-    ]
     package = PUDL_PACKAGE
-    extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
-    for name in included_sources:
+    extra_etl_groups = {
+        "eia860": ["entity_eia"],
+        "ferc1": ["glue"],
+        "epacamd_eia": ["glue"],
+    }
+    datastore = Datastore(local_cache_path=PudlPaths().data_dir)
+    for name in INCLUDED_SOURCES:
         source = DataSource.from_id(name)
         source_resources = [res for res in package.resources if res.etl_group == name]
-        extra_resources = None
+        extra_resources: list[Resource] = []
         if name in extra_etl_groups:
             # get resources for this source from extra etl groups
             extra_resources = [
@@ -193,9 +307,10 @@ def data_sources_metadata_to_rst(app):
             ]
         source.to_rst(
             docs_dir=DOCS_DIR,
-            output_path=DOCS_DIR / f"data_sources/{name}.rst",
+            output_path=str(DOCS_DIR / f"data_sources/{name}.rst"),
             source_resources=source_resources,
             extra_resources=extra_resources,
+            datastore=datastore,
         )
 
 
@@ -216,18 +331,10 @@ def static_dfs_to_rst(app):
 
 def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
-    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
-    (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
-    (DOCS_DIR / "data_sources/eia860.rst").unlink()
-    (DOCS_DIR / "data_sources/eia861.rst").unlink()
-    (DOCS_DIR / "data_sources/eia923.rst").unlink()
-    (DOCS_DIR / "data_sources/eia930.rst").unlink()
-    (DOCS_DIR / "data_sources/ferc1.rst").unlink()
-    (DOCS_DIR / "data_sources/ferc714.rst").unlink()
-    (DOCS_DIR / "data_sources/epacems.rst").unlink()
-    (DOCS_DIR / "data_sources/phmsagas.rst").unlink()
-    (DOCS_DIR / "data_sources/gridpathratoolkit.rst").unlink()
-    (DOCS_DIR / "data_sources/vcerare.rst").unlink()
+    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink(missing_ok=True)
+    (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink(missing_ok=True)
+    for name in INCLUDED_SOURCES:
+        (DOCS_DIR / f"data_sources/{name}.rst").unlink(missing_ok=True)
 
 
 def cleanup_csv_dir(app, exception):
@@ -243,5 +350,6 @@ def setup(app):
     app.connect("builder-inited", data_dictionary_metadata_to_rst)
     app.connect("builder-inited", data_sources_metadata_to_rst)
     app.connect("builder-inited", static_dfs_to_rst)
-    app.connect("build-finished", cleanup_rsts)
-    app.connect("build-finished", cleanup_csv_dir)
+    if not keep_generated_files:
+        app.connect("build-finished", cleanup_rsts)
+        app.connect("build-finished", cleanup_csv_dir)

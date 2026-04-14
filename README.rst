@@ -16,6 +16,8 @@ The Public Utility Data Liberation Project (PUDL)
 .. |rtd| image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
    :target: https://catalystcoop-pudl.readthedocs.io/en/nightly/
    :alt: Read the Docs Build Status
+.. |oc| image:: https://opencollective.com/pudl/tiers/badge.svg
+   :target: https://opencollective.com/pudl
 .. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
    :target: https://github.com/astral-sh/ruff
 .. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
@@ -44,15 +46,12 @@ The Public Utility Data Liberation Project (PUDL)
 .. |youtube| image:: https://img.shields.io/badge/YouTube-%23FF0000.svg?logo=YouTube&logoColor=white
    :target: https://youtube.com/@CatalystCooperative
    :alt: Catalyst Cooperative on YouTube
-.. |twitter| image:: https://img.shields.io/badge/X-%23000000.svg?logo=X&logoColor=white
-   :target: https://x.com/CatalystCoop
-   :alt: Catalyst Cooperative on Twitter
 .. |aws| image:: https://img.shields.io/badge/Amazon_AWS-FF9900?style=flat&logo=amazonaws&logoColor=white
    :target: https://registry.opendata.aws/catalyst-cooperative-pudl/
    :alt: PUDL in the AWS Open Data Registry
 
-|repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
-|office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |slack| |youtube| |twitter|
+|repo-status| |pytest| |codecov| |rtd| |oc| |ruff| |pre-commit-ci|
+|zenodo-doi| |office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |slack| |youtube|
 |aws|
 
 What is PUDL?
@@ -116,6 +115,9 @@ What data is available?
 
 PUDL currently integrates data from:
 
+* **EIA Form 176** (a few tables -- work in progress):
+  - `Source Docs <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia176.html>`__
 * **EIA Form 860**:
   - `Source Docs <https://www.eia.gov/electricity/data/eia860/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia860.html>`__
@@ -132,6 +134,7 @@ PUDL currently integrates data from:
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia930.html>`__
 * **EIA Annual Energy Outlook (AEO)** (a few tables):
   - `Source Docs <https://www.eia.gov/outlooks/aeo/>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eiaaeo.html>`__
 * **EPA Continuous Emissions Monitoring System (CEMS)**:
   - `Source Docs <https://campd.epa.gov/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/epacems.html>`__
@@ -149,11 +152,13 @@ PUDL currently integrates data from:
   - `Source Docs <https://www.ferc.gov/form-60-annual-report-centralized-service-companies>`__
 * **NREL Annual Technology Baseline (ATB) for Electricity**:
   - `Source Docs <https://atb.nrel.gov/electricity/2024/data>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/nrelatb.html>`__
 * **GridPath Resource Adequacy Toolkit** (partial):
   - `Source Docs <https://gridlab.org/gridpathratoolkit/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/gridpathratoolkit.html>`__
 * **US Census Demographic Profile 1 Geodatabase**:
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/censusdp1tract.html>`__
 
 High Priority Target Datasets
 -----------------------------
@@ -164,9 +169,7 @@ Get in touch!
 * Additional fully processed FERC Form 1 tables, e.g. Transmission & Distribution assets
 * Additional high value EIA AEO tables
 * `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
-* `EIA Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
-  (The Annual Report of Natural Gas Supply and Disposition)
-* `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__
+* `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__ (integration now in progress with support from `GridLab <https://gridlab.org>`__!)
 * `EIA Thermoelectric Water Usage <https://www.eia.gov/electricity/data/water/>`__
 * `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
   (Annual Report of Major Natural Gas Companies)
@@ -179,12 +182,9 @@ For details on how to access PUDL data, see the `data access documentation
 <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html>`__. A quick
 summary:
 
-* `PUDL Viewer <https://viewer.catalyst.coop>`__ provides search, live preview,
+* `PUDL Data Viewer <https://data.catalyst.coop>`__ provides search, live preview,
   and CSV export for our processed data. Currently it doesn't provide access to
-  the *raw* FERC data - you'll still have to go to Datasette for that.
-* `Datasette <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#-access-datasette>`__
-  provides browsable and queryable data from our nightly builds on the web:
-  https://data.catalyst.coop
+  the *raw* FERC data, but we are working on adding the FERC databases ASAP.
 * `Kaggle <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-kaggle>`__
   provides easy Jupyter notebook access to the PUDL data, updated weekly:
   https://www.kaggle.com/datasets/catalystcooperative/pudl-project
@@ -326,7 +326,6 @@ Contact Us
 * Follow us on BlueSky:  `@catalyst.coop <https://bsky.app/profile/catalyst.coop>`__
 * `Follow us on LinkedIn <https://www.linkedin.com/company/catalyst-cooperative/>`__
 * `Follow us on HuggingFace <https://huggingface.co/catalystcooperative>`__
-* Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
 * `Follow us on Kaggle <https://www.kaggle.com/catalystcooperative/>`__
 * `Follow us on YouTube <https://youtube.com/@CatalystCooperative>`__
 * `Join our Slack <https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ>`__

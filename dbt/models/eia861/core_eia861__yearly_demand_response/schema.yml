@@ -6,17 +6,44 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: core_eia861__yearly_demand_response
-              partition_column: report_date
+              arguments:
+                table_name: core_eia861__yearly_demand_response
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: actual_peak_demand_savings_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: balancing_authority_code_eia
           - name: customer_class
           - name: customer_incentives_cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    error_if: ">3"
           - name: customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: energy_savings_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: other_costs
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    error_if: ">2"
           - name: potential_peak_demand_savings_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: report_date
           - name: short_form
           - name: state

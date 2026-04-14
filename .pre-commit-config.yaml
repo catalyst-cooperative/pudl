@@ -11,14 +11,15 @@ repos:
 
   # Other file formatting, plus common Git mistakes & text file standardization:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files # Don't accidentally commit giant files.
+        args: ["--maxkb=800"]
       - id: check-merge-conflict # Watch for lingering merge markers.
       - id: check-yaml # Validate all YAML files.
-      - id: check-toml
       - id: check-case-conflict # Avoid case sensitivity in file names.
       - id: debug-statements # Watch for lingering debugger calls.
+        exclude: "^devtools/check_against_nightly.py$"
       - id: mixed-line-ending # Use Unix line-endings to avoid big no-op CSV diffs.
         args: ["--fix=lf"]
       - id: trailing-whitespace
@@ -30,20 +31,28 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.3
+    rev: v0.15.8
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.6.2
+    rev: v3.8.1
     hooks:
       - id: prettier
         types_or: [yaml]
 
-  - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+  - repo: https://github.com/ComPWA/taplo-pre-commit
+    rev: v0.9.3
+    hooks:
+      - id: taplo-format
+        args: []
+      - id: taplo-lint
+        args: []
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
 
@@ -53,7 +62,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.34.0
+    rev: v1.44.0
     hooks:
       - id: typos
         exclude: |
@@ -63,12 +72,13 @@ repos:
             |.*\.bib
             |.*\.csv
             |.*\.html
+            |src/pudl/package_data/ferc1/.*_categories\.yaml
           )$ | migrations/ | devtools/ | test/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
         args: [] # Make this read, not write
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.12.1b3
+    rev: v2.14.0
     hooks:
       - id: hadolint
 
@@ -81,7 +91,7 @@ repos:
 
   # Check Github Actions
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.7
+    rev: v1.7.12
     hooks:
       - id: actionlint
 
@@ -90,13 +100,23 @@ repos:
   #####################################################################################
   - repo: local
     hooks:
+      - id: sort-zenodo-dois
+        name: sort-zenodo-dois
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        files: "^src/pudl/package_data/settings/zenodo_dois\\.yml$"
+        pass_filenames: true
+        always_run: false
+        entry: bash -c 'for file in "$@"; do LC_ALL=C sort "$file" -o "$file"; done' --
+
       - id: sort-row-counts
         name: sort-row-counts
         stages: [pre-commit]
         language: python
         additional_dependencies: [csvkit]
         verbose: false
-        files: "^dbt/seeds/etl_(full|fast)_row_counts\\.csv$"
+        files: "^dbt/seeds/etl_full_row_counts\\.csv$"
         pass_filenames: true
         always_run: false
         entry: bash -c 'for file in "$@"; do csvsort -c "table_name,partition" "$file" > "$file.tmp" && mv "$file.tmp" "$file"; done' --
@@ -104,30 +124,21 @@ repos:
       - id: nb-output-clear
         name: nb-output-clear
         stages: [pre-commit]
-        language: system
+        language: unsupported
         verbose: false
         files: ".*\\.ipynb"
         pass_filenames: true
         always_run: false
-        entry: jupyter nbconvert --clear-output
+        entry: pixi run jupyter nbconvert --clear-output
 
       - id: unit-tests
         name: unit-tests
         stages: [pre-commit]
-        language: system
+        language: unsupported
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit -m "not slow"
-
-      - id: conda-lock
-        name: conda-lock
-        stages: [pre-commit]
-        language: system
-        verbose: false
-        files: "pyproject.toml"
-        always_run: false
-        entry: make conda-clean conda-lock.yml
+        entry: pixi run pytest --no-cov --doctest-modules src/pudl test/unit -m "not slow"
 
 # Configuration for pre-commit.ci
 ci:
@@ -139,5 +150,5 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, conda-lock, shellcheck]
+  skip: [unit-tests, nb-output-clear, shellcheck]
   submodules: false

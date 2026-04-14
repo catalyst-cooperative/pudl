@@ -1,0 +1,31 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc714__georeferenced_respondents
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_ferc714__georeferenced_respondents
+                partition_expr: EXTRACT(year FROM report_date)
+          - dbt_utils.unique_combination_of_columns:
+              arguments:
+                combination_of_columns:
+                  - report_date
+                  - respondent_id_ferc714
+        columns:
+          - name: report_date
+          - name: respondent_id_ferc714
+          - name: geometry
+          - name: eia_code
+          - name: respondent_type
+          - name: respondent_name_ferc714
+          - name: balancing_authority_id_eia
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_name_eia
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: population
+          - name: area_km2
+          - name: demand_annual_mwh

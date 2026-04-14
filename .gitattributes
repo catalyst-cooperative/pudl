@@ -1,7 +1,7 @@
 *.ipynb linguist-detectable=false
 *.html linguist-detectable=false
 eia861-transform.ipynb merge=ours
-environments/conda-*lock.yml merge=ours linguist-generated=true
+pixi.lock merge=ours linguist-generated=true
 *.csv text
 *.py text
 *.json text

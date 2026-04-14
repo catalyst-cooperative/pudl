@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__yearly_fuel_receipts_costs_aggs
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia__yearly_fuel_receipts_costs_aggs
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+        columns:
+          - name: fuel_agg
+          - name: geo_agg
+          - name: sector_agg
+          - name: temporal_agg
+          - name: report_date
+          - name: fuel_received_mmbtu
+          - name: fuel_cost_per_mmbtu

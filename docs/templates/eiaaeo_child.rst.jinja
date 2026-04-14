@@ -1,0 +1,70 @@
+{% extends "data_source_parent.rst.jinja" %}
+
+{% block background %}
+The Annual Energy Outlook (AEO) is a report published by EIA detailing projections and
+trends of energy consumption and supply in the US stretching out to 2050. The EIA
+generates the data by running a suite of input data through their `National Energy
+Modeling System (NEMS) <https://www.eia.gov/outlooks/aeo/nems/documentation/>`__
+(`github <https://github.com/EIAgov/NEMS/tree/main>`__), actively updating the
+model to accommodate new scenarios and legislation. The resulting data represent
+a wide range of potential outcomes for the US energy sector based on a set of key
+assumptions.
+
+Projections are published annually with even years featuring full documentation
+and extensive supplemental scenarios and odd years offering simpler, more concise
+information. Typical scenarios include:
+
+* Reference case
+* Low and high economic growth
+* Low and high oil and gas supply
+* Low and high oil prices
+* Low and high renewable costs
+
+Alternative scenarios may explore potential policy impacts or other relevant changes.
+However, it's important to note that the energy system and accompanying policy
+landscape are changing rapidly, and neither NEMS or AEO can capture all the
+complexities. For instance, when designing model stipulations for a new year of AEO,
+only laws implemented before that year are taken into consideration.
+
+For more information about scenarios, policy assumptions, and more, visit `EIA's AEO webpage <https://www.eia.gov/outlooks/aeo/>`__.
+{% endblock %}
+
+{% block download_docs %}
+{% for filename in download_paths -%}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block availability %}
+PUDL has incorporated data from a small subset of AEO table based on input from the energy
+modeling community. If there's a table you don't see but would like to, let us know or
+consider contributing! You can `open an issue <https://github.com/catalyst-cooperative/pudl/issues/new?template=new_dataset.md>`__
+or email us at hello@catalyst.coop.
+
+PUDL hosts AEO data from 2023 onward. Each AEO release presents a fresh set of forward
+looking projections so we haven't prioritized integrating the older data. For a look
+back at historic projections, poke around the `AEO Retrospective Review <https://www.eia.gov/outlooks/aeo/retrospective/>`__
+published after each even year.
+{% endblock %}
+
+{% block respondents %}
+AEO data is created by EIA staff using outputs from NEMS. It does not originate from utility or
+plant operator respondents like EIA or FERC form data.
+{% endblock %}
+
+{% block original_data %}
+EIA publishes AEO data in several ways:
+
+* Excel files by case and scenario (`reference case <https://www.eia.gov/outlooks/aeo/tables_ref_xls.php>`__ and `other scenarios <https://www.eia.gov/outlooks/aeo/tables_side_xls.php>`__)
+* An `interactive table viewer <https://www.eia.gov/outlooks/aeo/data/browser/#/?id=1-AEO2025&region=0-0&cases=ref2025~hm2025~lm2025~highprice~lowprice~highogs~lowogs~highZTC~lowZTC~nocaa111~alttrnp~aeo2023ref&start=2023&end=2050&f=A&sourcekey=0>`__
+* As `bulk JSON files <https://www.eia.gov/opendata/bulk/manifest.txt>`__
+  (**this is the data integrated into PUDL**)
+
+{% endblock %}
+
+{% block notable_irregularities %}
+
+There are lots of subtotals embedded within the AEO data! Watch out when aggregating the data.
+We have checks in place to make sure the totals are accurate sums of their stated
+components :func:`pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio`
+{% endblock %}

@@ -6,14 +6,19 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: core_eia861__yearly_dynamic_pricing
-              partition_column: report_date
+              arguments:
+                table_name: core_eia861__yearly_dynamic_pricing
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: balancing_authority_code_eia
           - name: critical_peak_pricing
           - name: critical_peak_rebate
           - name: customer_class
           - name: customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: real_time_pricing
           - name: report_date
           - name: short_form

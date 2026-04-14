@@ -1,3 +1,4 @@
+import contextlib
 import json
 import logging
 import re
@@ -33,33 +34,29 @@ def dbt_target(test_dir: Path, request) -> str:
     return dbt_target
 
 
+@pytest.mark.order(4)
 def test_dbt(
     pudl_io_manager: PudlMixedFormatIOManager,
     test_dir: Path,
-    dbt_target,
+    dbt_target: str,
 ):
     """Run the dbt data validations programmatically.
 
-    Because the dbt read data from our Parquet outputs, and the location of the Parquet
+    Because dbt reads data from our Parquet outputs, and the location of the Parquet
     outputs is determined by the PUDL_OUTPUT environment variable, and that environment
     variable is set during the test setup, we shouldn't need to do any special setup
-    here to point dbt at the outputs.
+    here to point dbt at the correct outputs.
 
     The dependency on pudl_io_manager is necessary because it ensures that the dbt
     tests don't run until after the ETL has completed and the Parquet files are
     available.
+
+    Note that the row count checks will automatically be disabled unless dbt_target is
+    'etl-full'. See the ``check_row_counts_per_partition.sql` generic test.
     """
-    # 2025-06-24 skip rowcount tests for fast ETL, since that seems to behave
-    # differently in CI vs. locally.
-    #
-    # see https://github.com/catalyst-cooperative/pudl/issues/4275
-    node_exclusion = None
-    if dbt_target == "etl-fast":
-        node_exclusion = "*check_row_counts_per_partition*"
     test_result = build_with_context(
         node_selection="*",
         dbt_target=dbt_target,
-        node_exclusion=node_exclusion,
     )
 
     if not test_result.success:
@@ -70,8 +67,8 @@ def test_dbt(
 
 @pytest.mark.script_launch_mode("inprocess")
 def test_update_tables(
-    pudl_io_manager: PudlMixedFormatIOManager,
     dbt_target: str,
+    pudl_io_manager: PudlMixedFormatIOManager,
     script_runner,
 ):
     """Run update-tables. Should detect everything already exists, and do nothing.
@@ -80,30 +77,43 @@ def test_update_tables(
     tests don't run until after the ETL has completed and the Parquet files are
     available.
     """
+    args = [
+        "dbt_helper",
+        "update-tables",
+        # "--schema",  # Uncomment when we have schema-preserving updates
+        "all",
+    ]
+    if dbt_target == "etl-full":
+        args.append("--row-counts")
     ret = script_runner.run(
-        [
-            "dbt_helper",
-            "update-tables",
-            "--target",
-            dbt_target,
-            "--row-counts",
-            # Uncomment once we have schema-preserving updates
-            # "--schema",
-            "all",
-        ],
+        args,
         print_result=True,
     )
     assert ret.success
 
 
-def test_validate_asset_selection():
+# Has to run after test_dbt above otherwise dbt dependencies aren't installed
+@pytest.mark.order(5)
+@pytest.mark.xfail(reason="Logs swallowed by pytest. Revisit when click >=8.3.2")
+def test_validate_asset_selection(caplog):
+    caplog.set_level(logging.INFO)
     runner = CliRunner()
-    result = runner.invoke(
-        dbt_helper,
-        ["validate", "--dry-run", "--asset-select", '+key:"core_eia860_*"'],
-    )
-    output = result.output
-    if "node_selection" not in result.output:
+    # Workaround for https://github.com/pallets/click/issues/3110
+    # Use isolation() directly instead of invoke() to avoid "ValueError: I/O operation on closed file"
+    with runner.isolation(), contextlib.suppress(SystemExit):
+        dbt_helper.main(
+            args=[
+                "validate",
+                "--dry-run",
+                "--asset-select",
+                '+key:"core_eia860_*"',
+            ],
+            prog_name="dbt_helper",
+            standalone_mode=False,
+        )
+
+    output = caplog.text
+    if "node_selection" not in output:
         raise AssertionError(f"Unexpected output: {output}")
     out_params = json.loads(re.search(r"({.+})", output).group(0))
     obs_node_selection = out_params["node_selection"].split(" ")

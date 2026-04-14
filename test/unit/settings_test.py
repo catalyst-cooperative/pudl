@@ -1,13 +1,15 @@
 """Tests for settings validation."""
 
+import inspect
 from typing import Self
 
 import pandas as pd
 import pytest
 from dagster import DagsterInvalidConfigError, Field, build_init_resource_context
 from pandas import json_normalize
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
+import pudl.settings as _settings_module
 from pudl.metadata.classes import DataSource
 from pudl.resources import dataset_settings
 from pudl.settings import (
@@ -23,7 +25,9 @@ from pudl.settings import (
     Ferc1XbrlToSqliteSettings,
     FercToSqliteSettings,
     GenericDatasetSettings,
+    GridPathRAToolkitSettings,
     _convert_settings_to_dagster_config,
+    create_dagster_config,
 )
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
@@ -272,6 +276,59 @@ class TestDatasetsSettings:
         assert isinstance(dct["eia"]["eia923"]["years"], Field)
 
 
+class TestGridPathRAToolkitSettings:
+    """Test GridPath RA Toolkit settings validation and part selection."""
+
+    def test_parts_compiled_from_selected_options(self: Self):
+        """Ensure parts are derived even when ``parts`` is omitted from config."""
+        settings = GridPathRAToolkitSettings(
+            technology_types=["wind"],
+            processing_levels=["extended"],
+            daily_weather=True,
+        )
+
+        assert settings.parts == [
+            "daily_weather",
+            "aggregated_extended_wind_capacity",
+            "wind_capacity_aggregations",
+        ]
+
+    def test_fast_profile_gridpath_parts_not_empty(self: Self):
+        """Ensure packaged fast settings yield GridPath parts used by Dagster assets."""
+        etl_settings = EtlSettings.from_yaml(
+            "src/pudl/package_data/settings/etl_fast.yml"
+        )
+        assert etl_settings.datasets is not None
+
+        gridpath_settings = etl_settings.datasets.gridpathratoolkit
+        assert gridpath_settings.parts
+        assert "aggregated_extended_wind_capacity" in gridpath_settings.parts
+
+    def test_model_dump_round_trip(self: Self):
+        """GridPathRAToolkitSettings must survive a model_dump → reconstruct round-trip.
+
+        Regression: model_dump() includes computed fields by default in Pydantic v2,
+        so ``parts`` appeared in the dump. Passing it back to the constructor then raised
+        a ValidationError because ``parts`` is a computed field and the model uses
+        ``extra="forbid"``.
+        """
+        settings = GridPathRAToolkitSettings()
+        dumped = settings.model_dump()
+        # parts must not be present; if it is, reconstruction will raise ValidationError
+        GridPathRAToolkitSettings(**dumped)
+
+    def test_dagster_config_excludes_computed_parts(self: Self):
+        """The Dagster config schema must not include the computed ``parts`` field.
+
+        Regression: create_dagster_config(DatasetsSettings()) included ``parts`` as a
+        configurable Dagster field, causing DatasetsSettings(**resource_config) to fail
+        with extra="forbid" when Dagster reconstructed the settings from that schema.
+        """
+        config = create_dagster_config(DatasetsSettings())
+        gridpath_config = config.get("gridpathratoolkit", {})
+        assert "parts" not in gridpath_config
+
+
 class TestEtlSettings:
     """Test pydantic model that validates all the full ETL Settings."""
 
@@ -335,6 +392,54 @@ class TestDatasetsSettingsResource:
             dataset_settings.config_schema.default_value["epacems"]["year_quarters"]
             == expected_year_quarters
         )
+
+
+def _all_settings_instances() -> list[BaseModel]:
+    """Return one default instance of every concrete settings class in pudl.settings.
+
+    Abstract base classes that are not meant to be instantiated directly are
+    excluded. Classes that require non-default arguments are constructed
+    explicitly. All remaining classes are constructed with no arguments.
+
+    Any new settings class added to ``pudl.settings`` is automatically included
+    here, so :func:`test_all_settings_model_dump_round_trip` stays comprehensive
+    without manual maintenance.
+    """
+    # True abstract bases: no data_source / no years default — all concrete
+    # subclasses are already covered by their own entries in this list.
+    skip = {
+        _settings_module.FrozenBaseModel,
+        _settings_module.GenericDatasetSettings,
+        _settings_module.FercGenericXbrlToSqliteSettings,
+    }
+    instances: list[BaseModel] = []
+    for _, cls in inspect.getmembers(_settings_module, inspect.isclass):
+        if (
+            not issubclass(cls, BaseModel)
+            or cls.__module__ != _settings_module.__name__
+            or cls in skip
+        ):
+            continue
+        instances.append(cls())
+    return instances
+
+
+@pytest.mark.parametrize(
+    "instance",
+    _all_settings_instances(),
+    ids=lambda i: type(i).__name__,
+)
+def test_all_settings_model_dump_round_trip(instance: BaseModel) -> None:
+    """Every settings class must survive a model_dump → reconstruct round-trip.
+
+    Verifies that ``model_dump()`` produces a dict that can be passed back to
+    the constructor without raising a ``ValidationError``. This catches accidental
+    use of ``@computed_field``, which includes derived values in ``model_dump()``
+    output that cannot be re-supplied to constructors on models with
+    ``extra="forbid"``.
+    """
+    dumped = instance.model_dump()
+    type(instance)(**dumped)
 
 
 def test_partitions_with_json_normalize(pudl_etl_settings):

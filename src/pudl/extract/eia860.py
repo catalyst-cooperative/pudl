@@ -59,7 +59,7 @@ class Extractor(excel.ExcelExtractor):
 
 
 # TODO (bendnorman): Add this information to the metadata
-raw_table_names = (
+RAW_EIA860_TABLE_NAMES = {
     "raw_eia860__boiler_cooling",
     "raw_eia860__boiler_generator_assn",
     "raw_eia860__boiler_info",
@@ -91,7 +91,7 @@ raw_table_names = (
     "raw_eia860__plant",
     "raw_eia860__stack_flue_equipment",
     "raw_eia860__utility",
-)
+}
 
 
 raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
@@ -99,7 +99,11 @@ raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
 
 # TODO (bendnorman): Figure out type hint for context keyword and multi_asset return
 @multi_asset(
-    outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
+    outs={
+        table_name: AssetOut(is_required=False)
+        for table_name in sorted(RAW_EIA860_TABLE_NAMES)
+    },
+    can_subset=True,
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_eia860(context, raw_eia860__all_dfs):
@@ -113,8 +117,21 @@ def extract_eia860(context, raw_eia860__all_dfs):
     """
     eia_settings = context.resources.dataset_settings.eia
     ds = context.resources.datastore
+    selected_outputs = set(context.selected_output_names)
 
-    if eia_settings.eia860.eia860m:
+    # Intersect the requested outputs with the three generator tables that EIA-860M
+    # can supplement (existing, proposed, retired). Strip the "raw_eia860__" prefix
+    # first so the names match the keys used by the 860M append function.
+    selected_eia860m_appendable_tables = {
+        output_name.removeprefix("raw_eia860__")
+        for output_name in selected_outputs
+        if output_name.startswith("raw_eia860__")
+    } & {"generator_existing", "generator_proposed", "generator_retired"}
+
+    # EIA-860M only augments the generator tabs that overlap with annual EIA-860.
+    # When subsetting this multi-asset, only extract and append 860M data if the user
+    # requested at least one of those appendable raw outputs and 860M is enabled.
+    if eia_settings.eia860.eia860m and selected_eia860m_appendable_tables:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
             year_month=eia_settings.eia860.eia860m_year_months
         )
@@ -132,4 +149,5 @@ def extract_eia860(context, raw_eia860__all_dfs):
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in raw_eia860__all_dfs.items()
+        if table_name in selected_outputs
     )

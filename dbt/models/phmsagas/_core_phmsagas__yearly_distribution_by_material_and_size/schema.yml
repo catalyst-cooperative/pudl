@@ -1,0 +1,31 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_phmsagas__yearly_distribution_by_material_and_size
+        columns:
+          - name: report_date
+          - name: report_id
+          - name: operator_id_phmsa
+          - name: commodity
+          - name: operating_state
+          - name: main_size
+          - name: material
+          - name: mains_miles
+          - name: services
+          - name: main_other_material_detail
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_phmsagas__yearly_distribution_by_material_and_size
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - dbt_expectations.expect_compound_columns_to_be_unique:
+              arguments:
+                column_list:
+                  - report_id
+                  - operator_id_phmsa
+                  - operating_state
+                  - main_size
+                  - material
+                description: "There are NULL operating_state values across several years of data in this table, so these columns cannot be used as a natural primary key."

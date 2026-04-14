@@ -94,16 +94,14 @@ def ferc_to_sqlite_job_factory(
     ),
 )
 @click.option(
-    "--gcs-cache-path",
+    "--cloud-cache-path",
     type=str,
-    default="",
+    default="s3://pudl.catalyst.coop/zenodo",
     help=(
-        "Load cached inputs from Google Cloud Storage if possible. This is usually "
-        "much faster and more reliable than downloading from Zenodo directly. The "
-        "path should be a URL of the form gs://bucket[/path_prefix]. Internally we use "
-        "gs://internal-zenodo-cache.catalyst.coop. A public cache is available at "
-        "gs://zenodo-cache.catalyst.coop but requires GCS authentication and a billing "
-        "project to pay data egress costs."
+        "Load cached inputs from cloud object storage (S3 or GCS) . This is typically "
+        "much faster and more reliable than downloading from Zenodo directly. By "
+        "default we read from the cache in PUDL's free, public AWS Open Data Registry "
+        "bucket."
     ),
 )
 @click.option(
@@ -139,7 +137,7 @@ def main(
     batch_size: int,
     workers: int | None,
     dagster_workers: int,
-    gcs_cache_path: str,
+    cloud_cache_path: str,
     logfile: pathlib.Path,
     loglevel: str,
     dataset_only: str,
@@ -172,7 +170,9 @@ def main(
                 "config": etl_settings.ferc_to_sqlite_settings.model_dump()
             },
             "datastore": {
-                "config": {"gcs_cache_path": gcs_cache_path},
+                "config": {
+                    "cloud_cache_path": cloud_cache_path,
+                },
             },
             "runtime_settings": {
                 "config": {

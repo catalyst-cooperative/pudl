@@ -1,0 +1,26 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_epa__assn_eia_epacamd_subplant_ids
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_epa__assn_eia_epacamd_subplant_ids
+                partition_expr:
+          - dbt_expectations.expect_compound_columns_to_be_unique:
+              arguments:
+                column_list:
+                  - plant_id_eia
+                  - generator_id
+                  - subplant_id
+                  - emissions_unit_id_epa
+                description: "Each association should be unique, but some generator_id values are null so this cannot be used as a natural primary key."
+        columns:
+          - name: plant_id_eia
+          - name: plant_id_epa
+          - name: subplant_id
+          - name: unit_id_pudl
+          - name: emissions_unit_id_epa
+          - name: generator_id

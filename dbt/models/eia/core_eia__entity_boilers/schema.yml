@@ -1,0 +1,26 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__entity_boilers
+        data_tests:
+          - expect_columns_not_all_null:
+              description: >
+                The boiler manufacturer and boiler manufacturer code columns are only
+                reported in a single year, but assumed to be static (and thus are
+                included in the entity table). However, if the one year in which they
+                were reported isn't processed, then they end up being entirely null, so
+                they are excluded from the null check.
+              arguments:
+                exclude_columns:
+                  - boiler_manufacturer
+                  - boiler_manufacturer_code
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia__entity_boilers
+                partition_expr:
+        columns:
+          - name: plant_id_eia
+          - name: boiler_id
+          - name: boiler_manufacturer
+          - name: boiler_manufacturer_code

@@ -1,0 +1,132 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__scd_generators
+        data_tests:
+          - expect_columns_not_all_null:
+              arguments:
+                ignore_eia860m_nulls: true
+                row_conditions:
+                  summer_capacity_estimate: EXTRACT(year FROM report_date) <= 2006
+                  winter_capacity_estimate: EXTRACT(year FROM report_date) <= 2006
+                  net_capacity_mwdc: EXTRACT(year FROM report_date) >= 2015
+                  energy_storage_capacity_mwh: EXTRACT(year FROM report_date) >= 2016
+                  energy_source_1_transport_1: EXTRACT(year FROM report_date) <= 2006
+                  energy_source_1_transport_2: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                  energy_source_1_transport_3: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                  energy_source_2_transport_1: EXTRACT(year FROM report_date) <= 2006
+                  energy_source_2_transport_2: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                  energy_source_2_transport_3: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                  can_burn_multiple_fuels: EXTRACT(year FROM report_date) NOT IN (2001, 2002, 2003, 2013, 2014, 2015)
+                  deliver_power_transgrid: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2012
+                  distributed_generation: EXTRACT(year FROM report_date) <= 2006
+                  synchronized_transmission_grid: EXTRACT(year FROM report_date) >= 2004
+                  turbines_num: EXTRACT(year FROM report_date) NOT IN (2013, 2014)
+                  planned_modifications: EXTRACT(year FROM report_date) BETWEEN 2007 AND 2012
+                  planned_net_summer_capacity_uprate_mw: EXTRACT(year FROM report_date) >= 2007
+                  planned_net_winter_capacity_uprate_mw: EXTRACT(year FROM report_date) >= 2007
+                  planned_uprate_date: EXTRACT(year FROM report_date) >= 2007
+                  planned_net_summer_capacity_derate_mw: EXTRACT(year FROM report_date) >= 2007
+                  planned_net_winter_capacity_derate_mw: EXTRACT(year FROM report_date) >= 2007
+                  planned_derate_date: EXTRACT(year FROM report_date) >= 2007
+                  planned_new_prime_mover_code: EXTRACT(year FROM report_date) >= 2007
+                  planned_energy_source_code_1: EXTRACT(year FROM report_date) >= 2007
+                  planned_repower_date: EXTRACT(year FROM report_date) >= 2007
+                  other_planned_modifications: EXTRACT(year FROM report_date) >= 2007
+                  other_modifications_date: EXTRACT(year FROM report_date) >= 2007
+                  planned_generator_retirement_date: EXTRACT(year FROM report_date) >= 2007
+                  carbon_capture: EXTRACT(year FROM report_date) >= 2009
+                  startup_source_code_1: EXTRACT(year FROM report_date) >= 2009
+                  startup_source_code_2: EXTRACT(year FROM report_date) >= 2009
+                  startup_source_code_3: EXTRACT(year FROM report_date) >= 2009
+                  startup_source_code_4: EXTRACT(year FROM report_date) >= 2009
+                  technology_description: EXTRACT(year FROM report_date) >= 2014
+                  turbines_inverters_hydrokinetics: EXTRACT(year FROM report_date) >= 2013
+                  time_cold_shutdown_full_load_code: EXTRACT(year FROM report_date) >= 2013
+                  planned_new_capacity_mw: EXTRACT(year FROM report_date) >= 2013
+                  can_cofire_fuels: EXTRACT(year FROM report_date) >= 2004
+                  can_switch_oil_gas: EXTRACT(year FROM report_date) >= 2004
+                  nameplate_power_factor: EXTRACT(year FROM report_date) >= 2013
+                  minimum_load_mw: EXTRACT(year FROM report_date) >= 2013
+                  uprate_derate_during_year: EXTRACT(year FROM report_date) >= 2013
+                  uprate_derate_completed_date: EXTRACT(year FROM report_date) >= 2013
+                  summer_estimated_capability_mw: EXTRACT(year FROM report_date) <= 2009
+                  winter_estimated_capability_mw: EXTRACT(year FROM report_date) <= 2009
+                  owned_by_non_utility: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                  reactive_power_output_mvar: EXTRACT(year FROM report_date) IN (2004, 2005, 2006) OR EXTRACT(year FROM report_date) >= 2016
+                  ferc_qualifying_facility: EXTRACT(year FROM report_date) <= 2003
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia860__scd_generators
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+        columns:
+          - name: plant_id_eia
+          - name: generator_id
+          - name: utility_id_eia
+          - name: report_date
+          - name: operational_status_code
+          - name: operational_status
+          - name: ownership_code
+          - name: capacity_mw
+          - name: summer_capacity_mw
+          - name: summer_capacity_estimate
+          - name: winter_capacity_mw
+          - name: winter_capacity_estimate
+          - name: net_capacity_mwdc
+          - name: energy_storage_capacity_mwh
+          - name: prime_mover_code
+          - name: energy_source_code_1
+          - name: energy_source_code_2
+          - name: energy_source_code_3
+          - name: energy_source_code_4
+          - name: energy_source_code_5
+          - name: energy_source_code_6
+          - name: energy_source_1_transport_1
+          - name: energy_source_1_transport_2
+          - name: energy_source_1_transport_3
+          - name: energy_source_2_transport_1
+          - name: energy_source_2_transport_2
+          - name: energy_source_2_transport_3
+          - name: fuel_type_code_pudl
+          - name: can_burn_multiple_fuels
+          - name: deliver_power_transgrid
+          - name: distributed_generation
+          - name: synchronized_transmission_grid
+          - name: turbines_num
+          - name: planned_modifications
+          - name: planned_net_summer_capacity_uprate_mw
+          - name: planned_net_winter_capacity_uprate_mw
+          - name: planned_uprate_date
+          - name: planned_net_summer_capacity_derate_mw
+          - name: planned_net_winter_capacity_derate_mw
+          - name: planned_derate_date
+          - name: planned_new_prime_mover_code
+          - name: planned_energy_source_code_1
+          - name: planned_repower_date
+          - name: other_planned_modifications
+          - name: other_modifications_date
+          - name: planned_generator_retirement_date
+          - name: carbon_capture
+          - name: startup_source_code_1
+          - name: startup_source_code_2
+          - name: startup_source_code_3
+          - name: startup_source_code_4
+          - name: technology_description
+          - name: turbines_inverters_hydrokinetics
+          - name: time_cold_shutdown_full_load_code
+          - name: planned_new_capacity_mw
+          - name: can_cofire_fuels
+          - name: can_switch_oil_gas
+          - name: nameplate_power_factor
+          - name: minimum_load_mw
+          - name: uprate_derate_during_year
+          - name: uprate_derate_completed_date
+          - name: current_planned_generator_operating_date
+          - name: summer_estimated_capability_mw
+          - name: winter_estimated_capability_mw
+          - name: generator_retirement_date
+          - name: owned_by_non_utility
+          - name: reactive_power_output_mvar
+          - name: ferc_qualifying_facility
+          - name: data_maturity

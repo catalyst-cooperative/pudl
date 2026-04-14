@@ -11,9 +11,6 @@ coverage:
         # sometimes (e.g. zenodo archive downloading)
         threshold: 0.1%
 
-ignore:
-  - "src/pudl/validate.py"
-
 codecov:
   require_ci_to_pass: true
   notify:

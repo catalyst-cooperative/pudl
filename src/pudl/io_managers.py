@@ -1,12 +1,13 @@
 """Dagster IO Managers."""
 
+import json
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
-from typing import Any
 
-import dask.dataframe as dd
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
+import polars as pl
 import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
@@ -18,14 +19,12 @@ from dagster import (
     InputContext,
     IOManager,
     OutputContext,
-    UPathIOManager,
     io_manager,
 )
 from packaging import version
-from upath import UPath
 
 import pudl
-from pudl.helpers import get_parquet_table
+from pudl.helpers import get_parquet_table, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.workspace.setup import PudlPaths
 
@@ -309,30 +308,118 @@ class SQLiteIOManager(IOManager):
 class PudlParquetIOManager(IOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
 
-    def handle_output(self, context: OutputContext, df: Any) -> None:
+    def handle_output(
+        self, context: OutputContext, obj: pd.DataFrame | pl.LazyFrame
+    ) -> None:
         """Writes pudl dataframe to parquet file."""
-        assert isinstance(df, pd.DataFrame), "Only panda dataframes are supported."
+        table_name = get_table_name_from_context(context)
+        res = Resource.from_id(table_name)
+        parquet_path = PudlPaths().parquet_path(table_name)
+        parquet_path.parent.mkdir(parents=True, exist_ok=True)
+
+        if isinstance(obj, pd.DataFrame):
+            df = res.enforce_schema(obj)
+            pa_schema = res.to_pyarrow()
+            df.to_parquet(
+                path=parquet_path,
+                index=False,
+                schema=pa_schema,
+            )
+        elif isinstance(obj, pl.LazyFrame):
+            logger.warning("PudlParquetIOManager does not do any schema enforcement.")
+            obj.cast(res.to_polars_dtypes()).sink_parquet(
+                parquet_path,
+                engine="streaming",
+                row_group_size=100_000,
+            )
+        else:
+            raise TypeError(
+                "PudlParquetIOManager only supports pandas DataFrames and Polars LazyFrames"
+                f", got {type(obj)}."
+            )
+
+    def load_input(
+        self, context: InputContext
+    ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
+        """Loads pudl table from parquet file."""
+        table_name = get_table_name_from_context(context)
+        if context.dagster_type.typing_type == pl.LazyFrame:
+            df = get_parquet_table_polars(table_name)
+        else:
+            df = get_parquet_table(table_name)
+        return df
+
+
+class PudlGeoParquetIOManager(PudlParquetIOManager):
+    """Do some extra work to output valid GeoParquet files when appropriate."""
+
+    def _create_geoparquet_metadata(self, gdf: gpd.GeoDataFrame, res: Resource) -> str:
+        """Create GeoParquet metadata JSON string."""
+        # Find geometry columns from the resource schema
+        geometry_columns = {}
+        for field in res.schema.fields:
+            if field.type == "geometry" and field.name in gdf.columns:
+                geometry_columns[field.name] = {
+                    "encoding": "WKB",
+                    "geometry_types": [],  # Could be enhanced with actual geometry type detection
+                    "crs": gdf.crs.to_wkt() if gdf.crs else None,
+                    # Calculate bbox from geometry
+                    "bbox": gdf.total_bounds.tolist()
+                    if not gdf.empty and gdf.crs
+                    else None,
+                }
+
+        # Determine primary geometry column
+        primary_column = None
+        if hasattr(gdf, "geometry") and gdf.geometry.name in geometry_columns:
+            primary_column = gdf.geometry.name
+        elif geometry_columns:
+            primary_column = list(geometry_columns.keys())[0]
+
+        geo_metadata = {
+            "version": "1.0.0",
+            "primary_column": primary_column,
+            "columns": geometry_columns,
+        }
+        return json.dumps(geo_metadata)
+
+    def handle_output(self, context: OutputContext, obj: gpd.GeoDataFrame) -> None:
+        """Write a PUDL dataframe to GeoParquet."""
+        if not isinstance(obj, gpd.GeoDataFrame):
+            raise TypeError(
+                f"Only geopandas dataframes are supported, got {type(obj)}."
+            )
         table_name = get_table_name_from_context(context)
         parquet_path = PudlPaths().parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
+
         res = Resource.from_id(table_name)
+        gdf = res.enforce_schema(obj)
 
-        df = res.enforce_schema(df)
-        schema = res.to_pyarrow()
-        with pq.ParquetWriter(
-            where=parquet_path,
-            schema=schema,
-            compression="snappy",
-            version="2.6",
-        ) as writer:
-            writer.write_table(
-                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
-            )
+        # Extract metadata before modifying geometry columns
+        geo_metadata = self._create_geoparquet_metadata(gdf, res)
+        # Convert geometry columns to WKB
+        geometry_fields = [
+            field.name
+            for field in res.schema.fields
+            if field.type == "geometry" and field.name in gdf.columns
+        ]
+        for field_name in geometry_fields:
+            # This conversion is required to get the right data into the Parquet output
+            # but it isn't technically compatible with the GeoDataFrame, so we get a
+            # warning from Geopandas about the geometry column not being a geometry.
+            logger.info(f"Convert geometry column {table_name}.{field_name} to WKB.")
+            gdf[field_name] = gdf[field_name].to_wkb()
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
-        """Loads pudl table from parquet file."""
-        table_name = get_table_name_from_context(context)
-        return get_parquet_table(table_name)
+        # Convert to PyArrow table with explicit schema
+        pa_table = pa.Table.from_pandas(
+            gdf, schema=res.to_pyarrow(), preserve_index=False
+        )
+        # Add GeoParquet metadata
+        metadata = pa_table.schema.metadata or {}
+        metadata["geo"] = geo_metadata
+        pa_table = pa_table.replace_schema_metadata(metadata)
+        pq.write_table(pa_table, parquet_path)
 
 
 class PudlSQLiteIOManager(SQLiteIOManager):
@@ -523,6 +610,12 @@ def pudl_mixed_format_io_manager(init_context: InitResourceContext) -> IOManager
 def parquet_io_manager(init_context: InitResourceContext) -> IOManager:
     """Create a Parquet only IO manager."""
     return PudlParquetIOManager()
+
+
+@io_manager
+def geoparquet_io_manager(init_context: InitResourceContext) -> IOManager:
+    """Create a GeoParquet only IO manager."""
+    return PudlGeoParquetIOManager()
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
@@ -771,37 +864,3 @@ def ferc714_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
         base_dir=PudlPaths().output_dir,
         db_name="ferc714_xbrl",
     )
-
-
-class EpaCemsIOManager(UPathIOManager):
-    """An IO Manager that dumps outputs to a parquet file."""
-
-    extension: str = ".parquet"
-
-    def __init__(self, base_path: UPath, schema: pa.Schema) -> None:
-        """Initialize a EpaCemsIOManager."""
-        super().__init__(base_path=base_path)
-        self.schema = schema
-
-    def dump_to_path(self, context: OutputContext, obj: dd.DataFrame, path: UPath):
-        """Write dataframe to parquet file."""
-        raise NotImplementedError("This IO Manager doesn't support writing data.")
-
-    def load_from_path(self, context: InputContext, path: UPath) -> dd.DataFrame:
-        """Load a directory of parquet files to a dask dataframe."""
-        logger.info(f"Reading parquet file from {path}")
-        return dd.read_parquet(
-            path,
-            engine="pyarrow",
-            index=False,
-            split_row_groups=True,
-        )
-
-
-@io_manager
-def epacems_io_manager(
-    init_context: InitResourceContext,
-) -> EpaCemsIOManager:
-    """IO Manager that writes EPA CEMS partitions to individual parquet files."""
-    schema = Resource.from_id("core_epacems__hourly_emissions").to_pyarrow()
-    return EpaCemsIOManager(base_path=UPath(PudlPaths().parquet_path()), schema=schema)

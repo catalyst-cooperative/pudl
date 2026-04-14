@@ -2,7 +2,6 @@
 
 import copy
 import datetime
-import json
 import re
 import sys
 import warnings
@@ -10,13 +9,18 @@ from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
 from hashlib import sha1
 from pathlib import Path
+from re import Pattern
 from typing import Annotated, Any, Literal, Self, TypeVar
 
+import duckdb
 import frictionless
+import geopandas as gpd  # noqa: ICN002
 import jinja2
 import numpy as np
 import pandas as pd
-import pandera.pandas as pr
+import pandera.pandas as pr_pandas
+import pandera.polars as pr_polars
+import polars as pl
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
@@ -33,6 +37,7 @@ from pydantic import (
     StrictStr,
     StringConstraints,
     ValidationInfo,
+    field_serializer,
     field_validator,
     model_validator,
 )
@@ -43,7 +48,9 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
     CONTRIBUTORS,
+    FIELD_DTYPES_DUCKDB,
     FIELD_DTYPES_PANDAS,
+    FIELD_DTYPES_POLARS,
     FIELD_DTYPES_PYARROW,
     FIELD_DTYPES_SQL,
     LICENSES,
@@ -68,13 +75,13 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-# The BaseModel.schema attribute is deprecated and we are shadowing it to avoid needing
-# to define an inconvenient alias for it.
+# The 'schema' field in Resource shadows BaseModel.schema() (deprecated in Pydantic v2).
+# This is intentional to mirror the Frictionless Data standard and avoid the need to
+# define an inconvenient alias.
 warnings.filterwarnings(
     action="ignore",
-    message='Field name "schema" in "Resource" shadows an attribute in parent "PudlMeta"',
+    message=r'Field name "schema" in "Resource" shadows an attribute in parent',
     category=UserWarning,
-    module="pydantic._internal._fields",
 )
 
 # ---- Helpers ---- #
@@ -105,7 +112,7 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
 
     Args:
         x: Value to format.
-        identifier: Whether `x` represents an identifier
+        identifier: Whether ``x`` represents an identifier
             (e.g. table, column) name.
 
     Examples:
@@ -296,21 +303,22 @@ class FieldConstraints(PudlMeta):
                 raise ValueError("must be greater or equal to minimum")
         return value
 
-    def to_pandera_checks(self) -> list[pr.Check]:
+    def to_pandera_checks(self, use_pandas_backend: bool) -> list[pr_polars.Check]:
         """Convert these constraints to pandera Column checks."""
         checks = []
+        pandera_module = pr_pandas if use_pandas_backend else pr_polars
         if self.min_length is not None:
-            checks.append(pr.Check.str_length(min_value=self.min_length))
+            checks.append(pandera_module.Check.str_length(min_value=self.min_length))
         if self.max_length is not None:
-            checks.append(pr.Check.str_length(max_value=self.max_length))
+            checks.append(pandera_module.Check.str_length(max_value=self.max_length))
         if self.minimum is not None:
-            checks.append(pr.Check.ge(self.minimum))
+            checks.append(pandera_module.Check.ge(self.minimum))
         if self.maximum is not None:
-            checks.append(pr.Check.le(self.maximum))
+            checks.append(pandera_module.Check.le(self.maximum))
         if self.pattern is not None:
-            checks.append(pr.Check.str_matches(self.pattern))
+            checks.append(pandera_module.Check.str_matches(self.pattern))
         if self.enum:
-            checks.append(pr.Check.isin(self.enum))
+            checks.append(pandera_module.Check.isin(self.enum))
 
         return checks
 
@@ -347,10 +355,10 @@ class Encoder(PudlMeta):
     fixable, and ignored codes.
 
     In addition, a :class:`Package` class that has been instantiated using the
-    :meth:`Package.from_resource_ids` method will associate an `Encoder` object with any
+    :meth:`Package.from_resource_ids` method will associate an ``Encoder`` object with any
     column that has a foreign key constraint referring to a coding table (This
     column-level encoder is same as the encoder associated with the referenced table).
-    This `Encoder` can be used to standardize the codes found within the column.
+    This ``Encoder`` can be used to standardize the codes found within the column.
 
     :class:`Field` and :class:`Resource` objects have ``encode()`` methods that will
     use the column-level encoders to recode the original values, either for a single
@@ -455,7 +463,7 @@ class Encoder(PudlMeta):
     @field_validator("code_fixes")
     @classmethod
     def _check_fixed_codes_are_good_codes(cls, code_fixes, info: ValidationInfo):
-        """Check that every every fixed code is also one of the good codes."""
+        """Check that every fixed code is also one of the good codes."""
         if "df" not in info.data:
             return code_fixes
         errors = []
@@ -488,7 +496,9 @@ class Encoder(PudlMeta):
         unknown_codes = set(col.dropna()).difference(self.code_map)
         if unknown_codes:
             raise ValueError(
-                f"Found unknown codes while encoding {col.name}: {unknown_codes=}"
+                f"Found unknown codes while encoding {col.name}: {unknown_codes=}\n"
+                f"Expected: {self.code_map}\n"
+                f"Distribution: {col.value_counts()}"
             )
         col = col.map(self.code_map)
         if dtype:
@@ -503,7 +513,7 @@ class Encoder(PudlMeta):
 
     @classmethod
     def from_id(cls, x: str) -> "Encoder":
-        """Construct an Encoder based on `Resource.name` of a coding table."""
+        """Construct an Encoder based on ``Resource.name`` of a coding table."""
         return cls(**cls.dict_from_id(x))
 
     @classmethod
@@ -524,7 +534,10 @@ class Encoder(PudlMeta):
         )
         rendered = template.render(
             Encoder=self,
-            description=RESOURCE_METADATA[self.name]["description"],
+            # just get the resolved resource summary & drop all the other sections of the description
+            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
+                "\n\n"
+            )[0],
             csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
             is_header=is_header,
         )
@@ -565,7 +578,9 @@ class Field(PudlMeta):
 
     name: SnakeCase
     # Shadows built-in type.
-    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]
+    type: Literal[
+        "string", "number", "integer", "boolean", "date", "datetime", "year", "geometry"
+    ]
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
@@ -625,6 +640,24 @@ class Field(PudlMeta):
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
+    def to_duckdb_dtype(
+        self, conn: duckdb.DuckDBPyConnection
+    ) -> duckdb.sqltypes.DuckDBPyType:
+        """Return duckdb data type."""
+        if self.constraints.enum:
+            quoted_enum = [f"'{val}'" for val in self.constraints.enum]
+            conn.execute(
+                f"CREATE TYPE {self.name}_type as ENUM ({','.join(quoted_enum)})"
+            )
+            return conn.dtype(f"{self.name}_type")
+        return FIELD_DTYPES_DUCKDB[self.type]
+
+    def to_polars_dtype(self) -> pl.DataType:
+        """Return polars data type."""
+        if self.constraints.enum:
+            return pl.Enum(self.constraints.enum)
+        return FIELD_DTYPES_POLARS[self.type]
+
     def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
         """Return Pandas data type.
 
@@ -646,7 +679,7 @@ class Field(PudlMeta):
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
 
-    def to_pyarrow_dtype(self) -> pa.lib.DataType:
+    def to_pyarrow_dtype(self) -> pa.DataType:
         """Return PyArrow data type."""
         if self.constraints.enum and self.type == "string":
             return pa.dictionary(pa.int32(), pa.string(), ordered=False)
@@ -730,13 +763,25 @@ class Field(PudlMeta):
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
-    def to_pandera_column(self) -> pr.Column:
+    def to_pandera_column(self, use_pandas_backend: bool) -> pr_polars.Column:
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
-        checks = constraints.to_pandera_checks()
-        column_type = "category" if constraints.enum else FIELD_DTYPES_PANDAS[self.type]
+        checks = constraints.to_pandera_checks(use_pandas_backend)
+        if constraints.enum:
+            column_type = (
+                "category" if use_pandas_backend else pl.Enum(constraints.enum)
+            )
+        elif self.type == "geometry":
+            column_type = gpd.array.GeometryDtype()
+        else:
+            column_type = (
+                FIELD_DTYPES_PANDAS[self.type]
+                if use_pandas_backend
+                else FIELD_DTYPES_POLARS[self.type]
+            )
 
-        return pr.Column(
+        pandera_module = pr_pandas if use_pandas_backend else pr_polars
+        return pandera_module.Column(
             column_type,
             checks=checks,
             nullable=not constraints.required,
@@ -841,13 +886,18 @@ class Schema(PudlMeta):
                     )
         return self
 
-    def to_pandera(self: Self) -> pr.DataFrameSchema:
+    def to_pandera(self: Self) -> pr_polars.DataFrameSchema:
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
+        use_pandas_backend = any(field.type == "geometry" for field in self.fields)
+        pandera_module = pr_pandas if use_pandas_backend else pr_polars
 
-        return pr.DataFrameSchema(
-            {field.name: field.to_pandera_column() for field in self.fields},
+        return pandera_module.DataFrameSchema(
+            {
+                field.name: field.to_pandera_column(use_pandas_backend)
+                for field in self.fields
+            },
             unique=self.primary_key,
         )
 
@@ -922,7 +972,7 @@ class Contributor(PudlMeta):
     def __hash__(self):
         """Implements simple hash method.
 
-        Allows use of `set()` on a list of Contributor
+        Allows use of ``set()`` on a list of Contributor
         """
         return hash(str(self))
 
@@ -945,7 +995,6 @@ class DataSource(PudlMeta):
     name: SnakeCase
     title: String | None = None
     description: String | None = None
-    field_namespace: String | None = None
     keywords: list[str] = []
     path: AnyHttpUrl | None = None
     contributors: list[Contributor] = []
@@ -987,12 +1036,11 @@ class DataSource(PudlMeta):
             temporal_coverage = ""
         return temporal_coverage
 
-    def add_datastore_metadata(self) -> None:
+    def add_datastore_metadata(self, datastore: Datastore | None = None) -> None:
         """Get source file metadata from the datastore."""
-        dp_desc = Datastore(
-            local_cache_path=PudlPaths().data_dir,
-            gcs_cache_path="gs://zenodo-cache.catalyst.coop",
-        ).get_datapackage_descriptor(self.name)
+        if datastore is None:
+            datastore = Datastore(local_cache_path=PudlPaths().data_dir)
+        dp_desc = datastore.get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
             partitions["years"] = partitions["year"]
@@ -1003,12 +1051,13 @@ class DataSource(PudlMeta):
     def to_rst(
         self,
         docs_dir: DirectoryPath,
-        source_resources: list,
-        extra_resources: list,
-        output_path: str = None,
+        source_resources: "list[Resource]",
+        extra_resources: "list[Resource]",
+        output_path: str | None = None,
+        datastore: Datastore | None = None,
     ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        self.add_datastore_metadata()
+        self.add_datastore_metadata(datastore=datastore)
         template = _get_jinja_environment(docs_dir).get_template(
             f"{self.name}_child.rst.jinja"
         )
@@ -1040,17 +1089,6 @@ class DataSource(PudlMeta):
         else:
             sys.stdout.write(rendered)
 
-    @classmethod
-    def from_field_namespace(
-        cls, x: str, sources: dict[str, Any] = SOURCES
-    ) -> list["DataSource"]:
-        """Return list of DataSource objects by field namespace."""
-        return [
-            cls(**cls.dict_from_id(name, sources))
-            for name, val in sources.items()
-            if val.get("field_namespace") == x
-        ]
-
     @staticmethod
     def dict_from_id(x: str, sources: dict[str, Any]) -> dict:
         """Look up the source by source name in the metadata."""
@@ -1070,7 +1108,7 @@ class ResourceHarvest(PudlMeta):
     harvest: StrictBool = False
     """Whether to harvest from dataframes based on field names.
 
-    If `False`, the dataframe with the same name is used and the process is limited to
+    If ``False``, the dataframe with the same name is used and the process is limited to
     dropping unwanted fields.
     """
 
@@ -1111,34 +1149,47 @@ class PudlResourceDescriptor(PudlMeta):
     class PudlCodeMetadata(PudlMeta):
         """Describes a bunch of codes."""
 
-        class CodeDataFrame(pr.DataFrameModel):
-            """The DF we use to represent code/label/description associations."""
+        class CodeDataFrame(pr_pandas.DataFrameModel):
+            """The DataFrame we use to represent code/label/description associations."""
 
             # TODO (daz) 2024-02-09: each of these | Nones are one-offs. Fix
             # the frickin data instead.
-            code: pr.typing.Series[Any]
-            label: pr.typing.Series[str] | None
-            description: pr.typing.Series[str]
-            operational_status: pr.typing.Series[str] | None
+            code: pr_pandas.typing.Series[Any]
+            label: pr_pandas.typing.Series[str] | None
+            description: pr_pandas.typing.Series[str]
+            operational_status: pr_pandas.typing.Series[str] | None
 
-        df: pr.typing.DataFrame[CodeDataFrame] = pd.DataFrame(
+        df: pr_pandas.typing.DataFrame[CodeDataFrame] = pd.DataFrame(
             {"code": [], "label": [], "description": []}
         )
         code_fixes: dict = {}
         ignored_codes: list = []
+        model_config = ConfigDict(arbitrary_types_allowed=True)
+
+        @field_serializer("df")
+        def serialize_df(
+            self, df: pr_pandas.typing.DataFrame[CodeDataFrame], _info
+        ) -> pd.DataFrame:
+            """Return DataFrame to avoid warnings from default serializer."""
+            return df
 
     class PudlDescriptionComponents(PudlMeta):
         """Container to hold description configuration information.
 
-        All of these parameters have reasonable defaults for most resources if left unset.
-        You must specify :attr:`PudlResourceDescriptor.description` as a dictionary, but you do not have to put anything in it so long as the resource id follows the standard pattern.
+        All of these parameters have reasonable defaults for most resources if left
+        unset.  You must specify :attr:`PudlResourceDescriptor.description` as a
+        dictionary, but you do not have to put anything in it so long as the resource id
+        follows the standard pattern.
         """
 
         table_type_code: (
             Literal["assn", "codes", "entity", "scd", "timeseries"] | None
         ) = None
         """Indicates the type of asset stored in this resource.
-        If None or otherwise left unset, will be filled in with a default type parsed from the resource id string."""
+
+        If None or otherwise left unset, will be filled in with a default type parsed
+        from the resource id string."""
+
         timeseries_resolution_code: (
             Literal[
                 "quarterly",
@@ -1148,73 +1199,123 @@ class PudlResourceDescriptor(PudlMeta):
             ]
             | None
         ) = None
-        """If this resource has :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` timeseries, indicates the temporal resolution, otherwise None.
-        If :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` is timeseries and this value is None or otherwise left unset, will be filled in with a default resolution parsed from the resource id string."""
-        layer_code: Literal["raw", "_core", "core", "out", "test"] | None = None
-        """Indicates the degree of processing applied to the data in this resource.
-        If None or otherwise left unset, will be filled in with a default layer parsed from the resource id string."""
-        source_code: str | None = None
-        """Indicates the source we wish to display for this resource; distinct from :attr:`PudlResourceDescriptor.source_ids` because here we want the majority source (or grouped source if truly mixed) and not a complete list of all sources used for this resource.
-        If set, should be a known data source shortcode like "eia923" or one of the grouped shortcodes from :data:`~pudl.metadata.descriptions.source_descriptions`.
-        If None or otherwise left unset, will be filled in with a default source parsed from the resource id string."""
-        usage_warnings: list[str | dict] | None = None
-        """List of string keys (for common warnings; see :mod:`warnings`) and dicts (for custom warnings) stating necessary precautions for using this resource.
+        """If this resource has
+        :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+        timeseries, indicates the temporal resolution, otherwise None.  If
+        :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` is
+        timeseries and this value is None or otherwise left unset, will be filled in
+        with a default resolution parsed from the resource id string."""
 
-        Usage Warnings are a way for us to quickly and skim-ably tell users about analysis hazards when using a particular table.
-        It has two goals:
+        layer_code: (
+            Literal["raw", "_core", "core", "out", "out_narrow", "test"] | None
+        ) = None
+        """Indicates the degree of processing applied to the data in this resource.  If
+        None or otherwise left unset, will be filled in with a default layer parsed from
+        the resource id string."""
+
+        source_code: str | None = None
+        """Indicates the source we wish to display for this resource; distinct from
+        :attr:`PudlResourceDescriptor.source_ids` because here we want the majority
+        source (or grouped source if truly mixed) and not a complete list of all sources
+        used for this resource.  If set, should be a known data source shortcode like
+        "eia923" or one of the grouped shortcodes from
+        :data:`~pudl.metadata.descriptions.source_descriptions`.  If None or otherwise
+        left unset, will be filled in with a default source parsed from the resource id
+        string."""
+
+        usage_warnings: list[str | dict] | None = None
+        """List of string keys (for common warnings; see :mod:`warnings`) and dicts (for
+        custom warnings) stating necessary precautions for using this resource.
+
+        Usage Warnings are a way for us to quickly and skim-ably tell users about
+        analysis hazards when using a particular table.  It has two goals:
 
         1. help users quickly reach a point of success in their use of our data, and
-        2. reduce the incidence of repeated questions and bug-like reports due to these inescapable hazards.
+        2. reduce the incidence of repeated questions and bug-like reports due to these
+           inescapable hazards.
 
-        Reserve this field for severe and/or frequent problems an unfamiliar user may encounter, and list lighter or edge-case problems in :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_details_text`.
+        Reserve this field for severe and/or frequent problems an unfamiliar user may
+        encounter, and list lighter or edge-case problems in
+        :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_details_text`.
 
         The list can contain two kinds of entries:
 
-        * a string, which should match one of the keys in :data:`~pudl.metadata.warnings.USAGE_WARNINGS`
+        * a string, which should match one of the keys in
+          :data:`~pudl.metadata.warnings.USAGE_WARNINGS`
         * a dict, which should contain two keys:
 
-          * "type" - a short code for the warning, which doesn't need to be unique and will only appear in preview & debugging tooling, not to users
-          * "description" - the one-to-two-sentence summary of a warning used only on this particular resource
+          * "type" - a short code for the warning, which doesn't need to be unique and
+            will only appear in preview & debugging tooling, not to users
+          * "description" - the one-to-two-sentence summary of a warning used only on
+            this particular resource
 
-        The system will automatically detect and include the following warnings based on the resource id string and schema information (see :meth:`~pudl.metadata.descriptions.ResourceDescriptionBuilder._assemble_usage_warnings`):
+        The system will automatically detect and include the following warnings based on
+        the resource id string and schema information (see
+        :meth:`~pudl.metadata.descriptions.ResourceDescriptionBuilder._assemble_usage_warnings`):
 
         * multiple_inputs
         * ferc_is_hard
 
-        Any items provided here will be listed before the automatically detected warnings.
+        Any items provided here will be listed before the automatically detected
+        warnings.
 
-        If None or otherwise left unset, will be filled in with auto warnings only. If no auto warnings apply, hides the Usage Warnings section entirely."""
+        If None or otherwise left unset, will be filled in with auto warnings only. If
+        no auto warnings apply, hides the Usage Warnings section entirely."""
+
         additional_summary_text: str | None = None
         """A brief (~one-line) description of the contents of this resource.
         If None or otherwise left unset, will be left blank.
 
-        If filled, should support whichever of the following scenarios is most appropriate for this resource:
+        If filled, should support whichever of the following scenarios is most
+        appropriate for this resource:
 
-        * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` is set or can be automatically detected: this value should complete the sentence corresponding to :data:`~pudl.metadata.descriptions.table_type_fragments` for this resource's :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
-        * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` is None/unset *and* the resource is not named according to a standard table type listed in :data:`~pudl.metadata.descriptions.table_type_fragments`: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
+        * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+          is set or can be automatically detected: this value should complete the
+          sentence corresponding to
+          :data:`~pudl.metadata.descriptions.table_type_fragments` for this resource's
+          :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+        * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+          is None/unset *and* the resource is not named according to a standard table
+          type listed in :data:`~pudl.metadata.descriptions.table_type_fragments`: this
+          value should be a complete sentence summarizing the contents of this resource
+          at a similar level of detail.
+
         """
         additional_layer_text: str | None = None
-        """Unusual details about this resource's level of processing that don't fall into the normal definition of raw/core/_core/out/etc.
-        If None or otherwise left unset, will be left blank.
-        This should only be set in truly obscure situations. If set, should be a complete sentence."""
+        """Unusual details about this resource's level of processing that don't fall
+        into the normal definition of raw/core/_core/out/etc.  If None or otherwise left
+        unset, will be left blank.  This should only be set in truly obscure situations.
+        If set, should be a complete sentence."""
+
         additional_source_text: str | None = None
-        """A brief refinement on the source data for this table, such as indicating the Schedule or other section number.
-        If None or otherwise left unset, will be left blank.
-        If set, should make sense when displayed directly after the title of a datasource (see :data:`~pudl.metadata.descriptions.source_descriptions`); parentheticals work best here."""
+        """A brief refinement on the source data for this table, such as indicating the
+        Schedule or other section number.  If None or otherwise left unset, will be left
+        blank.  If set, should make sense when displayed directly after the title of a
+        datasource (see :data:`~pudl.metadata.descriptions.source_descriptions`);
+        parentheticals work best here."""
+
         additional_primary_key_text: str | None = None
-        """For resources with no primary key, a brief summary of what each row contains, and perhaps why a primary key doesn't make sense for this table.
-        If None or otherwise left unset, will be left blank.
-        If set, should be a complete sentence or two.
+        """For resources with no primary key, a brief summary of what each row contains,
+        and perhaps why a primary key doesn't make sense for this table.  If None or
+        otherwise left unset, will be left blank.  If set, should be a complete sentence
+        or two.
 
-        This is generally not set when there is a primary key for the table.
-        If a primary key is available, :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text` will appear after the comma-delimited list of primary key columns."""
+        This is generally not set when there is a primary key for the table.  If a
+        primary key is available,
+        :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text`
+        will appear after the comma-delimited list of primary key columns."""
+
         additional_details_text: str | None = None
-        """All other information about this resource's construction and intended use, including guidelines and recommendations for best results.
-        If None or otherwise left unset, will be left blank; hides the Additional Details section entirely.
+        """All other information about this resource's construction and intended use,
+        including guidelines and recommendations for best results.  If None or otherwise
+        left unset, will be left blank; hides the Additional Details section entirely.
 
-        Q3 2025 Migration Mode variance: if :attr:`PudlResourceDescriptor.description` is a string, it gets moved here so you can see the old description content in the Additional Details section of the preview.
+        Q3 2025 Migration Mode variance: if :attr:`PudlResourceDescriptor.description`
+        is a string, it gets moved here so you can see the old description content in
+        the Additional Details section of the preview.
 
-        May also include more-detailed explanations of listed usage warnings."""  # TODO: drop migration mode variance after migration is complete
+        May also include more-detailed explanations of listed usage warnings."""
+        # TODO: drop migration mode variance after migration is complete
 
     # TODO (daz) 2024-02-09: with a name like "title" you might imagine all
     # resources would have one...
@@ -1227,6 +1328,8 @@ class PudlResourceDescriptor(PudlMeta):
     etl_group_id: str = pydantic.Field(alias="etl_group")
     field_namespace_id: str = pydantic.Field(alias="field_namespace")
     create_database_schema: bool = True
+    path: str | None = None
+    extrapaths: list[str] | None = None
 
 
 class Resource(PudlMeta):
@@ -1288,7 +1391,7 @@ class Resource(PudlMeta):
         True
 
         Alternatively, aggregate by primary key
-        (the default when :attr:`harvest`. `harvest=True`)
+        (the default when :attr:`harvest`. ``harvest=True``)
         and report aggregation errors.
 
         >>> df, report = resource.harvest_dfs(dfs)
@@ -1319,7 +1422,7 @@ class Resource(PudlMeta):
         Name: x, dtype: object
 
         Limit harvesting to the input dataframe of the same name
-        by setting :attr:`harvest`. `harvest=False`.
+        by setting :attr:`harvest`. ``harvest=False``.
 
         >>> resource.harvest.harvest = False
         >>> df, _ = resource.harvest_dfs(dfs, aggregate_kwargs={'raised': False})
@@ -1332,8 +1435,8 @@ class Resource(PudlMeta):
         a    2  2
 
         Harvesting can also handle conversion to longer time periods.
-        Period harvesting requires primary key fields with a `datetime` data type,
-        except for `year` fields which can be integer.
+        Period harvesting requires primary key fields with a ``datetime`` data type,
+        except for ``year`` fields which can be integer.
 
         >>> fields = [{'name': 'report_year', 'type': 'year', 'description': 'Report year'}]
         >>> resource = Resource(**{
@@ -1361,7 +1464,6 @@ class Resource(PudlMeta):
     # Alias required to avoid shadowing Python built-in format()
     format_: String | None = pydantic.Field(alias="format", default=None)
     mediatype: String | None = None
-    path: String | None = None
     dialect: dict[str, str] | None = None
     profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
@@ -1369,26 +1471,35 @@ class Resource(PudlMeta):
     sources: list[DataSource] = []
     keywords: list[String] = []
     encoder: Encoder | None = None
+    path: str = pydantic.Field(default_factory=lambda data: f"{data['name']}.parquet")
+    extrapaths: list[str] | None = None
     field_namespace: (
         Literal[
+            "censusdp1tract",
             "eia",
             "eiaaeo",
             "eiaapi",
             "epacems",
+            "ferc",
             "ferc1",
             "ferc714",
+            "ferceqr",
             "glue",
             "gridpathratoolkit",
             "ppe",
             "pudl",
             "nrelatb",
             "vcerare",
+            "phmsagas",
             "sec",
+            "rus",
         ]
         | None
     ) = None
     etl_group: (
         Literal[
+            "censusdp1tract",
+            "eia176",
             "eia860",
             "eia861",
             "eia861_disabled",
@@ -1397,9 +1508,11 @@ class Resource(PudlMeta):
             "eiaaeo",
             "entity_eia",
             "epacems",
+            "entity_ferc",
             "ferc1",
             "ferc1_disabled",
             "ferc714",
+            "ferceqr",
             "glue",
             "gridpathratoolkit",
             "outputs",
@@ -1412,7 +1525,11 @@ class Resource(PudlMeta):
             "service_territories",
             "nrelatb",
             "vcerare",
+            "phmsagas",
             "sec10k",
+            "rus7",
+            "static_rus",
+            "rus12",
         ]
         | None
     ) = None
@@ -1460,21 +1577,21 @@ class Resource(PudlMeta):
     ) -> dict:
         """Get a Resource-shaped dict from a PudlResourceDescriptor.
 
-        * `schema.fields`
+        * ``schema.fields``
 
           * Field names are expanded (:meth:`Field.from_id`).
           * Field attributes are replaced with any specific to the
-            `resource.group` and `field.name`.
+            ``resource.group`` and ``field.name``.
 
-        * `sources`: Source ids are expanded (:meth:`Source.from_id`).
-        * `licenses`: License ids are expanded (:meth:`License.from_id`).
-        * `contributors`: Contributor ids are fetched by source ids,
+        * ``sources``: Source ids are expanded (:meth:`Source.from_id`).
+        * ``licenses``: License ids are expanded (:meth:`License.from_id`).
+        * ``contributors``: Contributor ids are fetched by source ids,
           then expanded (:meth:`Contributor.from_id`).
-        * `keywords`: Keywords are fetched by source ids.
-        * `schema.foreign_keys`: Foreign keys are fetched by resource name.
-        * `description`: Full description text block is rendered from its component parts.
+        * ``keywords``: Keywords are fetched by source ids.
+        * ``schema.foreign_keys``: Foreign keys are fetched by resource name.
+        * ``description``: Full description text block is rendered from its component parts.
         """
-        obj = descriptor.model_dump(by_alias=True)
+        obj = descriptor.model_dump(by_alias=True, exclude_none=True)
         obj["name"] = resource_id
         schema = obj["schema"]
         # Expand fields
@@ -1523,10 +1640,14 @@ class Resource(PudlMeta):
             del schema["foreign_key_rules"]
 
         # overwrite description components with rendered text block
-        obj["description"] = descriptions.ResourceDescriptionBuilder(
-            resource_id,
-            obj,
-        ).build(_get_jinja_environment())
+        obj["description"] = (
+            descriptions.ResourceDescriptionBuilder(
+                resource_id,
+                obj,
+            )
+            .build()
+            .jinja_render(_get_jinja_environment())
+        )
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -1590,20 +1711,25 @@ class Resource(PudlMeta):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
-    def to_frictionless(self) -> frictionless.Resource:
+    def to_frictionless(self) -> dict:
         """Convert to a Frictionless Resource."""
         schema = frictionless.Schema(
             fields=[
-                frictionless.Field(name=f.name, description=f.description)
+                frictionless.Field(
+                    name=f.name,
+                    description=f.description,
+                )
                 for f in self.schema.fields
             ],
             primary_key=self.schema.primary_key,
         )
+
         return frictionless.Resource(
             name=self.name,
             description=self.description,
             schema=schema,
-            path=f"{self.name}.parquet",
+            path=self.path,
+            extrapaths=self.extrapaths,
         )
 
     def to_pyarrow(self) -> pa.Schema:
@@ -1613,6 +1739,16 @@ class Resource(PudlMeta):
         if self.schema.primary_key is not None:
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
+
+    def to_duckdb_dtypes(
+        self, conn: duckdb.DuckDBPyConnection
+    ) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
+        """Return Polars data type of each field by field name."""
+        return {f.name: f.to_duckdb_dtype(conn) for f in self.schema.fields}
+
+    def to_polars_dtypes(self) -> dict[str, pl.DataType]:
+        """Return Polars data type of each field by field name."""
+        return {f.name: f.to_polars_dtype() for f in self.schema.fields}
 
     def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
         """Return Pandas data type of each field by field name.
@@ -1637,7 +1773,7 @@ class Resource(PudlMeta):
 
         Returns:
             The name matching each primary key field (if any) as a :class:`dict`,
-            or `None` if not all primary key fields have a match.
+            or ``None`` if not all primary key fields have a match.
 
         Examples:
             >>> fields = [{'name': 'x_year', 'type': 'year', 'description': 'Year'}]
@@ -1696,7 +1832,9 @@ class Resource(PudlMeta):
             matches = {key: key for key in keys if key in names}
         return matches if len(matches) == len(keys) else None
 
-    def format_df(self, df: pd.DataFrame | None = None, **kwargs: Any) -> pd.DataFrame:
+    def format_df(
+        self, df: pd.DataFrame | gpd.GeoDataFrame | None = None, **kwargs: Any
+    ) -> pd.DataFrame | gpd.GeoDataFrame:
         """Format a dataframe according to the resources's table schema.
 
         * DataFrame columns not in the schema are dropped.
@@ -1705,8 +1843,8 @@ class Resource(PudlMeta):
         * All columns are cast to their specified pandas dtypes.
         * Primary key columns must be present and non-null.
         * Periodic primary key fields are snapped to the start of the desired period.
-        * If the primary key fields could not be matched to columns in `df`
-          (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
+        * If the primary key fields could not be matched to columns in ``df``
+          (:meth:`match_primary_key`) or if ``df=None``, an empty dataframe is returned.
 
         Args:
             df: Dataframe to format.
@@ -1740,7 +1878,7 @@ class Resource(PudlMeta):
                     if value not in dtypes[field.name].categories
                 ]
                 if uncategorized:
-                    logger.warning(
+                    raise ValueError(
                         f"Values in {field.name} column are not included in "
                         "categorical values in field enum constraint "
                         f"and will be converted to nulls ({uncategorized})."
@@ -1758,7 +1896,9 @@ class Resource(PudlMeta):
                 df[key] = PERIODS[period](df[key])
         return df
 
-    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
+    def enforce_schema(
+        self, df: pd.DataFrame | gpd.GeoDataFrame
+    ) -> pd.DataFrame | gpd.GeoDataFrame:
         """Drop columns not in the DB schema and enforce specified types."""
         expected_cols = pd.Index(self.get_field_names())
         missing_cols = list(expected_cols.difference(df.columns))
@@ -1780,9 +1920,16 @@ class Resource(PudlMeta):
 
         df = self.format_df(df)
         pk = self.schema.primary_key
-        if pk and not (dupes := df[df.duplicated(subset=pk)]).empty:
+        if (
+            pk
+            and not (
+                dupes := df[df.duplicated(subset=pk, keep=False)].sort_values(pk)
+            ).empty
+        ):
             raise ValueError(
-                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema:\n{dupes.head()}{'\n...' if len(dupes) > 5 else ''}"
+                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) "
+                "when enforcing schema:\n"
+                f"{dupes.head()}{'\n...' if len(dupes) > 5 else ''}"
             )
         if pk and not (nulls := df[df[pk].isna().any(axis=1)]).empty:
             raise ValueError(
@@ -1797,39 +1944,39 @@ class Resource(PudlMeta):
 
         The dataframe is grouped by primary key fields
         and aggregated with the aggregate function of each field
-        (:attr:`schema_`. `fields[*].harvest.aggregate`).
+        (:attr:`schema_`. ``fields[*].harvest.aggregate``).
 
         The report is formatted as follows:
 
-        * `valid` (bool): Whether resource is valid.
-        * `stats` (dict): Error statistics for resource fields.
-        * `fields` (dict):
+        * ``valid`` (bool): Whether resource is valid.
+        * ``stats`` (dict): Error statistics for resource fields.
+        * ``fields`` (dict):
 
-          * `<field_name>` (str)
+          * ``<field_name>`` (str)
 
-            * `valid` (bool): Whether field is valid.
-            * `stats` (dict): Error statistics for field groups.
-            * `errors` (:class:`pandas.Series`): Error values indexed by primary key.
+            * ``valid`` (bool): Whether field is valid.
+            * ``stats`` (dict): Error statistics for field groups.
+            * ``errors`` (:class:`pandas.Series`): Error values indexed by primary key.
 
           * ...
 
-        Each `stats` (dict) contains the following:
+        Each ``stats`` (dict) contains the following:
 
-        * `all` (int): Number of entities (field or field group).
-        * `invalid` (int): Invalid number of entities.
-        * `tolerance` (float): Fraction of invalid entities below which
+        * ``all`` (int): Number of entities (field or field group).
+        * ``invalid`` (int): Invalid number of entities.
+        * ``tolerance`` (float): Fraction of invalid entities below which
           parent entity is considered valid.
-        * `actual` (float): Actual fraction of invalid entities.
+        * ``actual`` (float): Actual fraction of invalid entities.
 
         Args:
             df: Dataframe to aggregate. It is assumed to have column names and
               data types matching the resource fields.
             raised: Whether aggregation errors are raised or
                replaced with :obj:`np.nan` and returned in an error report.
-            error: A function with signature `f(x, e) -> Any`,
-              where `x` are the original field values as a :class:`pandas.Series`
-              and `e` is the original error.
-              If provided, the returned value is reported instead of `e`.
+            error: A function with signature ``f(x, e) -> Any``,
+              where ``x`` are the original field values as a :class:`pandas.Series`
+              and ``e`` is the original error.
+              If provided, the returned value is reported instead of ``e``.
 
         Raises:
             ValueError: A primary key is required for aggregating.
@@ -1880,7 +2027,7 @@ class Resource(PudlMeta):
             freports[field.name] = {
                 "valid": stats["actual"] <= stats["tolerance"],
                 "stats": stats,
-                "errors": errors.get(field.name, None),
+                "errors": errors.get(field.name),
             }
         nerrors = sum(not f["valid"] for f in freports.values())
         stats = {
@@ -1904,25 +2051,25 @@ class Resource(PudlMeta):
     ) -> tuple[pd.DataFrame, dict]:
         """Harvest from named dataframes.
 
-        For standard resources (:attr:`harvest`. `harvest=False`), the columns
+        For standard resources (:attr:`harvest`. ``harvest=False``), the columns
         matching all primary key fields and any data fields are extracted from
         the input dataframe of the same name.
 
-        For harvested resources (:attr:`harvest`. `harvest=True`), the columns
+        For harvested resources (:attr:`harvest`. ``harvest=True``), the columns
         matching all primary key fields and any data fields are extracted from
         each compatible input dataframe, and concatenated into a single
         dataframe.  Periodic key fields (e.g. 'report_month') are matched to any
         column of the same name with an equal or smaller period (e.g.
         'report_day') and snapped to the start of the desired period.
 
-        If `aggregate=False`, rows are indexed by the name of the input dataframe.
-        If `aggregate=True`, rows are indexed by primary key fields.
+        If ``aggregate=False``, rows are indexed by the name of the input dataframe.
+        If ``aggregate=True``, rows are indexed by primary key fields.
 
         Args:
             dfs: Dataframes to harvest.
             aggregate: Whether to aggregate the harvested rows by their primary key.
-                By default, this is `True` if `self.harvest.harvest=True` and
-                `False` otherwise.
+                By default, this is ``True`` if ``self.harvest.harvest=True`` and
+                ``False`` otherwise.
             aggregate_kwargs: Optional arguments to :meth:`aggregate_df`.
             format_kwargs: Optional arguments to :meth:`format_df`.
 
@@ -2218,13 +2365,21 @@ class Package(PudlMeta):
                 assert encoders[field.name].ignored_codes == field.encoder.ignored_codes
         return encoders
 
-    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
+    def encode(self, df: pd.DataFrame, copy: bool = True) -> pd.DataFrame:
         """Clean up all coded columns in a dataframe based on PUDL coding tables.
 
+        Running with ``copy=False`` is intended for memory-intensive data frames where no
+        upstream process retains a reference to the data. Use care with this option,
+        and keep an eye out for spooky data changes showing up in unexpected places.
+
+        Args:
+            df: DataFrame whose code columns are being cleaned up.
+            copy: (Default True) Return a copy, making no changes to the original data.
+
         Returns:
-            A modified copy of the input dataframe.
+            A dataframe with clean code columns.
         """
-        encoded_df = df.copy()
+        encoded_df = df.copy() if copy else df
         for col in encoded_df.columns:
             if col in self.encoders:
                 encoded_df[col] = self.encoders[col].encode(
@@ -2232,11 +2387,35 @@ class Package(PudlMeta):
                 )
         return encoded_df
 
-    def to_frictionless(self) -> frictionless.Package:
-        """Convert to a Frictionless Datapackage."""
+    def to_frictionless(
+        self,
+        exclude_pattern: Pattern[str] | None = None,
+        include_pattern: Pattern[str] | None = None,
+    ) -> frictionless.Package:
+        """Convert to a Frictionless Datapackage.
+
+        Allows filtering out specific resources by passing regex patterns to include
+        or exclude resources by name. This is used to generate an independent
+        'datapackage.json' file for ``ferceqr`` assets, which are distributed separately
+        from the rest of PUDL. This method will only look for table names that exactly
+        match the supplied patterns, not substring matches.
+
+        Args:
+            exclude_pattern: Exclude resources whose names exactly match this pattern.
+            include_pattern: Only include resources whose names exactly match this pattern.
+        """
         resources = [r.to_frictionless() for r in self.resources]
-        package = frictionless.Package(name=self.name, resources=resources)
-        return package
+
+        if exclude_pattern is not None:
+            resources = [
+                r for r in resources if re.match(exclude_pattern, r.name) is None
+            ]
+        if include_pattern is not None:
+            resources = [
+                r for r in resources if re.match(include_pattern, r.name) is not None
+            ]
+
+        return frictionless.Package(name=self.name, resources=resources)
 
 
 PUDL_PACKAGE = Package.from_resource_ids()
@@ -2282,93 +2461,3 @@ class CodeMetadata(PudlMeta):
                     top_dir=top_dir, csv_subdir=csv_subdir, is_header=header
                 )
                 f.write(rendered)
-
-
-class DatasetteMetadata(PudlMeta):
-    """A collection of Data Sources and Resources for metadata export.
-
-    Used to create metadata YAML file to accompany Datasette.
-    """
-
-    data_sources: list[DataSource]
-    resources: list[Resource] = PUDL_PACKAGE.resources
-    xbrl_resources: dict[str, list[Resource]] = {}
-    label_columns: dict[str, str] = {
-        "core_eia__entity_plants": "plant_name_eia",
-        "core_pudl__assn_ferc1_pudl_plants": "plant_name_ferc1",
-        "core_pudl__entity_plants_pudl": "plant_name_pudl",
-        "core_eia__entity_utilities": "utility_name_eia",
-        "core_pudl__assn_ferc1_pudl_utilities": "utility_name_ferc1",
-        "core_pudl__entity_utilities_pudl": "utility_name_pudl",
-    }
-
-    @classmethod
-    def from_data_source_ids(
-        cls,
-        output_path: Path,
-        data_source_ids: list[str] = [
-            "pudl",
-            "eia860",
-            "eia860m",
-            "eia861",
-            "eia923",
-            "ferc1",
-            "ferc2",
-            "ferc6",
-            "ferc60",
-            "ferc714",
-        ],
-        xbrl_ids: list[str] = [
-            "ferc1_xbrl",
-            "ferc2_xbrl",
-            "ferc6_xbrl",
-            "ferc60_xbrl",
-            "ferc714_xbrl",
-        ],
-    ) -> "DatasetteMetadata":
-        """Construct a dictionary of DataSources from data source names.
-
-        Create dictionary of first and last year or year-month for each source.
-
-        Args:
-            output_path: PUDL_OUTPUT path.
-            data_source_ids: ids of data sources currently included in Datasette
-            xbrl_ids: ids of data converted XBRL data to be included in Datasette
-        """
-        # Compile a list of DataSource objects for use in the template
-        data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
-
-        # Instantiate all possible resources in a Package:
-        resources = PUDL_PACKAGE.resources
-
-        # Get XBRL based resources
-        xbrl_resources = {}
-        for xbrl_id in xbrl_ids:
-            # Read JSON Package descriptor from file
-            with Path.open(Path(output_path) / f"{xbrl_id}_datapackage.json") as f:
-                descriptor = json.load(f)
-
-            # Use descriptor to create Package object
-            xbrl_package = Package(**descriptor)
-
-            # Add list of resources to dict
-            xbrl_resources[xbrl_id] = xbrl_package.resources
-
-        return cls(
-            data_sources=data_sources,
-            resources=resources,
-            xbrl_resources=xbrl_resources,
-        )
-
-    def to_yaml(self) -> str:
-        """Output database, table, and column metadata to YAML file."""
-        template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
-
-        rendered = template.render(
-            license=LICENSES["cc-by-4.0"],
-            data_sources=self.data_sources,
-            resources=self.resources,
-            xbrl_resources=self.xbrl_resources,
-            label_columns=self.label_columns,
-        )
-        return rendered

@@ -58,9 +58,15 @@ class GenericMetadata:
 
     def _load_csv(self, package: str, filename: str) -> pd.DataFrame:
         """Load metadata from a filename that is found in a package."""
-        return pd.read_csv(
+        df = pd.read_csv(
             importlib.resources.files(package) / filename, index_col=0, comment="#"
         )
+        # we are assigning the index which contains the partitions as a sting dtype.
+        # many of the partitions are years which are reasonably interpreted as ints,
+        # but some are dates or other actual strings. We force the partitions to be
+        # strings here and via _get_partition_selection.
+        df.index = df.index.astype(pd.StringDtype())
+        return df
 
     def _load_column_maps(self, column_map_pkg: str) -> dict:
         """Create a dictionary of all column mapping CSVs to use in get_column_map()."""
@@ -99,17 +105,23 @@ class GenericMetadata:
 
     def get_all_columns(self, page) -> list[str]:
         """Returns list of all pudl columns for a given page across all partitions."""
-        return sorted(self._column_map[page].T.columns)
+        return sorted(self._column_map[page].columns)
 
-    def get_column_map(self, page, **partition):
-        """Return dictionary for renaming columns in a given partition and page."""
+    def get_column_map(self, page, **partition) -> dict[str, str]:
+        """Return dictionary of original columns to renamed columns for renaming in a given partition and page.
+
+        Columns that don't exist in this partition/page will show up as pd.nan, so we need to filter those out.
+        """
+        # we drop all of the nulls which are either straight nulls (removed via dropna)
+        # OR they are -1's (which are often int's but sometimes show up as strings)
         return {
             v: k
             for k, v in self._column_map[page]
-            .T.loc[str(self._get_partition_selection(partition))]
+            .loc[str(self._get_partition_selection(partition))]
+            .dropna()
             .to_dict()
             .items()
-            if v != -1
+            if v not in [-1, "-1"]
         }
 
 
@@ -182,11 +194,12 @@ class GenericExtractor(ABC):
     def get_page_cols(self, page: str, partition_selection: str) -> pd.RangeIndex:
         """Get the columns for a particular page and partition key."""
         col_map = self._metadata._column_map[page]
-        return col_map.loc[
-            (col_map[partition_selection].notnull())
-            & (col_map[partition_selection] != -1),
-            [partition_selection],
-        ].index
+        return (
+            col_map.loc[[partition_selection], :]
+            .replace(to_replace=[-1, "-1"], value=None)
+            .dropna(how="all", axis=1)
+            .columns
+        )
 
     def validate(self, df: pd.DataFrame, page: str, **partition: PartitionSelection):
         """Check if there are any missing or extra columns."""
@@ -195,17 +208,18 @@ class GenericExtractor(ABC):
         expected_cols = page_cols.union(self.cols_added)
         if set(df.columns) != set(expected_cols):
             # Ensure that expected and actually extracted columns match
-            extra_raw_cols = set(df.columns).difference(expected_cols)
-            missing_raw_cols = set(expected_cols).difference(df.columns)
+            extra_raw_cols = [col for col in df.columns if col not in expected_cols]
+            missing_raw_cols = [col for col in expected_cols if col not in df.columns]
             if extra_raw_cols:
                 raise ValueError(
-                    f"{page}/{partition_selection}: Extra columns found in extracted table:"
+                    f"{page}/{partition_selection}: Columns found in raw extracted table that are unmapped:"
                     f"\n{extra_raw_cols}"
                 )
             if missing_raw_cols:
                 raise ValueError(
                     f"{page}/{partition_selection}: Expected columns not found in extracted table:"
                     f"\n{missing_raw_cols}"
+                    f"\nAvailable columns: \n{'\n'.join(df.columns)}"
                 )
 
     def process_final_page(self, df: pd.DataFrame, page: str) -> pd.DataFrame:
@@ -407,6 +421,8 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
         )
         partition = partition[0]
         parts = getattr(data_settings, partition)  # Get the actual values
+        if name == "phmsagas":  # phmsa has old years with multiple years in each tab
+            parts = data_settings.extraction_years
         # In Zenodo we use "year", "half_year" as the partition, but in our settings
         # we use the plural "years". Drop the "s" at the end if present.
         partition = partition.removesuffix("s")

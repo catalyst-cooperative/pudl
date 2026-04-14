@@ -103,3 +103,12 @@ we've picked out some issues that are
 * have some context, success criteria, and next steps information.
 
 Pick one of these and follow the contribution flow above!
+
+Contributor survey
+------------------
+
+We'd love your feedback on working with PUDL. Please consider taking ~10 minutes
+to fill out our
+`contributor survey
+<https://docs.google.com/forms/d/e/1FAIpQLSd8bbncVEKLt-EDktTAgL6AJt_fmRXFkhE955Ax0w6QIXClEg/viewform?usp=header>`__
+so we can improve the process for future contributors!

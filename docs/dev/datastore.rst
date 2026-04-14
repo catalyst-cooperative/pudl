@@ -71,9 +71,16 @@ Tell PUDL about the archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once you have used pudl-archiver to prepare a Zenodo archive as above, you
-can make the PUDL Datastore aware of it by updating the appropriate DOI in
-:class:`pudl.workspace.datastore.ZenodoDoiSettings`. DOIs can refer to resources from
-the `Zenodo sandbox server <https://sandbox.zenodo.org>`__ for archives that are still
-in testing or development (sandbox DOIs have a prefix of ``10.5072``), or the
-`Zenodo production server <https://zenodo.org>`__ server if the archive is ready for
-public use (production DOIs have a prefix of ``10.5281``).
+can make the PUDL Datastore aware of it by updating the appropriate DOI in the
+``src/pudl/package_data/settings/zenodo_dois.yml`` settings file.  This file is used
+to initialize the :class:`pudl.workspace.datastore.ZenodoDoiSettings` class by default.
+DOIs can refer to resources from the `Zenodo sandbox server
+<https://sandbox.zenodo.org>`__ for archives that are still in testing or development
+(sandbox DOIs have a prefix of ``10.5072``), or the `Zenodo production server
+<https://zenodo.org>`__ server if the archive is ready for public use (production DOIs
+have a prefix of ``10.5281``).
+
+.. note::
+
+    There is a unit test that fail if any sandbox DOIs are found in the Zenodo DOI
+    Settings to prevent non-production archives from feeding into official outputs.

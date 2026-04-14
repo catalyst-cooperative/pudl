@@ -8,6 +8,7 @@ import fsspec
 import pandas as pd
 import yaml
 from dagster import Field as DagsterField
+from dagster import StaticPartitionsDefinition
 from pydantic import (
     AnyHttpUrl,
     BaseModel,
@@ -24,6 +25,9 @@ from pudl.metadata.classes import DataSource
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 
 logger = pudl.logging_helpers.get_logger(__name__)
+ferceqr_year_quarters: StaticPartitionsDefinition = StaticPartitionsDefinition(
+    DataSource.from_id("ferceqr").working_partitions["year_quarters"]
+)
 
 
 @unique
@@ -174,6 +178,24 @@ class PhmsaGasSettings(GenericDatasetSettings):
 
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
+
+    @property
+    def extraction_years(self) -> list[int]:
+        """The list of years to extract.
+
+        These are different from the standard :attr:`years` because
+        the oldest years (1970 - 1989) are published with multiple years
+        in each tab. Instead of running the extraction step on each year
+        and filtering on the year from each tab, we extract the whole tab
+        all at once using the first year in the tab as the partition.
+        """
+        old_years = range(1970, 1990)
+        first_year_tabs = [1970, 1980, 1982, 1984]
+        return [
+            year
+            for year in self.years
+            if (year not in old_years) or (year in first_year_tabs)
+        ]
 
 
 class Sec10kSettings(GenericDatasetSettings):
@@ -423,7 +445,6 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
     technology_types: list[str] = ["wind", "solar"]
     processing_levels: list[str] = ["extended"]
     daily_weather: bool = True
-    parts: list[str] = []
 
     @field_validator("technology_types", "processing_levels")
     @classmethod
@@ -449,30 +470,24 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
                 raise ValueError(f"{proc_level} is not a valid processing level.")
         return v
 
-    @field_validator("parts")
-    @classmethod
-    def compile_parts(cls, parts: list[str], info: ValidationInfo) -> list[str]:
-        """Based on technology types and processing levels, compile a list of parts."""
-        if info.data["daily_weather"]:
+    @property
+    def parts(self) -> list[str]:
+        """Construct parts from selected technologies, processing levels, and daily weather."""
+        parts = []
+        if self.daily_weather:
             parts.append("daily_weather")
-        if (
-            "solar" in info.data["technology_types"]
-            and "extended" in info.data["processing_levels"]
-        ):
+        if "solar" in self.technology_types and "extended" in self.processing_levels:
             parts.append("aggregated_extended_solar_capacity")
-        if (
-            "wind" in info.data["technology_types"]
-            and "extended" in info.data["processing_levels"]
-        ):
+        if "wind" in self.technology_types and "extended" in self.processing_levels:
             parts.append("aggregated_extended_wind_capacity")
-        if "solar" in info.data["technology_types"] and (
-            "extended" in info.data["processing_levels"]
-            or "aggregated" in info.data["processing_levels"]
+        if "solar" in self.technology_types and (
+            "extended" in self.processing_levels
+            or "aggregated" in self.processing_levels
         ):
             parts.append("solar_capacity_aggregations")
-        if "wind" in info.data["technology_types"] and (
-            "extended" in info.data["processing_levels"]
-            or "aggregated" in info.data["processing_levels"]
+        if "wind" in self.technology_types and (
+            "extended" in self.processing_levels
+            or "aggregated" in self.processing_levels
         ):
             parts.append("wind_capacity_aggregations")
         return parts
@@ -533,6 +548,22 @@ class EiaSettings(FrozenBaseModel):
         return data
 
 
+class Rus7Settings(GenericDatasetSettings):
+    """An immutable pydantic model to validate RUS-7 datasets settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("rus7")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
+
+class Rus12Settings(GenericDatasetSettings):
+    """An immutable pydantic model to validate RUS Form 12 settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("rus12")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
+
 class DatasetsSettings(FrozenBaseModel):
     """An immutable pydantic model to validate PUDL Dataset settings."""
 
@@ -547,6 +578,8 @@ class DatasetsSettings(FrozenBaseModel):
     sec10k: Sec10kSettings | None = None
     vcerare: VCERareSettings | None = None
     censuspep: CensusPepSettings | None = None
+    rus7: Rus7Settings | None = None
+    rus12: Rus12Settings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -568,9 +601,11 @@ class DatasetsSettings(FrozenBaseModel):
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
             data["nrelatb"] = NrelAtbSettings()
             data["phmsagas"] = PhmsaGasSettings()
+            data["rus7"] = Rus7Settings()
             data["sec10k"] = Sec10kSettings()
             data["vcerare"] = VCERareSettings()
             data["censuspep"] = CensusPepSettings()
+            data["rus12"] = Rus12Settings()
 
         return data
 
@@ -863,14 +898,17 @@ class EtlSettings(BaseSettings):
         """
         for which_ferc in ["ferc1", "ferc714"]:
             if (
-                (pudl_ferc := getattr(self.datasets, which_ferc))
+                self.datasets is not None
+                and self.ferc_to_sqlite_settings is not None
+                and (pudl_ferc := getattr(self.datasets, which_ferc))
                 and (
                     sqlite_ferc := getattr(
                         self.ferc_to_sqlite_settings,
                         f"{which_ferc}_xbrl_to_sqlite_settings",
                     )
                 )
-            ) and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years)):
+                and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years))
+            ):
                 raise AssertionError(
                     "You are trying to build a PUDL database with different XBRL years "
                     f"than the ferc_to_sqlite_settings years for {which_ferc}.\nPUDL years: {pudl_ferc.xbrl_years}\n"

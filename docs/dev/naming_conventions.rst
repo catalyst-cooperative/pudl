@@ -78,6 +78,15 @@ Naming convention: ``core_{source}__{asset_type}_{asset_name}``
       PUDL Plant IDs.
     * ``core_epa__assn_epacamd_eia`` associates  EPA units with EIA plants, boilers,
       and generators.
+  * ``changelog``: Changelog tables make it simpler to track changes in an entity's
+    values over time by deduplicating repeated data. They preserve the first reported
+    instance when any of the tracked variables changed, ignoring rows where data stays
+    the same over time. Examples:
+
+    * ``core_eia860m__changelog_generators`` preserves the first
+      record when any new information about a generator was reported.
+    * ``core_sec10k__changelog_company_name`` preserves the first record when
+      a company reported a new name when filing the SEC-10K form.
   * ``codes``: Code tables contain more verbose descriptions of categorical codes
     typically manually compiled from source data dictionaries. Examples:
 
@@ -126,7 +135,8 @@ underscore, like a private python method. For example, the intermediate asset
 asset but still contains duplicate plant entities. The computation intensive
 harvesting process deduplicates ``_core_eia860__plants`` and outputs the
 ``core_eia860__entity_plants`` and ``core_eia860__scd_plants`` assets which
-follow Tiny Data standards.
+follow Tidy Data standards. For a conceptual description of this reconciliation process,
+see :doc:`/methodology/entity_resolution`.
 
 Limit the number of intermediate assets to avoid an extremely
 cluttered DAG. It is appropriate to create an intermediate asset when:
@@ -163,7 +173,12 @@ quantities are actually different.
   for percent, ``_ppm`` for parts per million, or a generic ``_per_unit`` when
   the type of unit varies, as in columns containing a heterogeneous collection
   of fuels)
-* Financial values are assumed to be in nominal US dollars (I.e., the suffix
+* If a column contains a percentage, denoted by the ``_pct`` suffix, then the
+  values should in general lie between 0 and 100 **not** between 0.0 and 1.0.
+  E.g. a value of 50 indicates 50% or a decimal value of 0.5. Often "percent"
+  columns create confusion and data entry errors because some respondents use
+  one interpretation and some the other. Always check the data!
+* Financial values are assumed to be in nominal US dollars (i.e., the suffix
   _usd is implied.)If they are not reported in USD, convert them to USD. If
   they must be kept in their original form for some reason, append a suffix
   that lets the user know they are not USD.

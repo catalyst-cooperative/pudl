@@ -4,9 +4,9 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__yearly_fuel_receipts_costs_aggs": {
-        "description": (
-            "Aggregated fuel receipts and costs from the EIA bulk electricity data."
-        ),
+        "description": {
+            "additional_summary_text": "aggregated fuel receipts and costs from the EIA API.",
+        },
         "schema": {
             "fields": [
                 "fuel_agg",

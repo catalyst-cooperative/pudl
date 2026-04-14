@@ -35,7 +35,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     # Preliminary clean and get rid of unnecessary 'year' column
     own_df = (
         raw_eia860__ownership.copy()
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.convert_to_date)
         .drop(columns=["year"])
     )
@@ -277,20 +277,27 @@ def _core_eia860__generators(
         "ferc_qualifying_facility",
     ]
     gens_df = (
+        # pandas complains when you pass in empty dfs, but it's surprisingly more
+        # memory-expensive to skip the empty dfs and manually add the columns
+        # we need from them back in, so the complainer stays.
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
+            inplace=True,
         )
-        .replace(to_replace=nulls_replace_cols)
-        .pipe(pudl.helpers.month_year_to_date)
+    )
+    gens_df.replace(to_replace=nulls_replace_cols, inplace=True)  # noqa: PD002
+    gens_df = (
+        gens_df.pipe(pudl.helpers.month_year_to_date)
         .pipe(
             pudl.helpers.simplify_strings,
             columns=["rto_iso_lmp_node_id", "rto_iso_location_wholesale_reporting_id"],
+            copy=False,
         )
-        .pipe(pudl.helpers.convert_to_date)
+        .pipe(pudl.helpers.convert_to_date, copy=False)
     )
     # This manual fix is required before encoding because there's not a unique mapping
     # PA -> PACW in Oregon
@@ -303,7 +310,32 @@ def _core_eia860__generators(
         (gens_df.state == "UT") & (gens_df.balancing_authority_code_eia == "PA"),
         "balancing_authority_code_eia",
     ] = "PACE"
-    gens_df = PUDL_PACKAGE.encode(gens_df)
+    gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
+
+    # spot fix one or two assumed to be bad technology description. It's assumed to be wrong
+    # because we learned via pudl.output.eia.fill_generator_technology_description
+    # that all other combos of PM code and ESC have a different technology. See #4788
+    # we have to do this after encoding bc we are dealing with codes
+    bad_tech_mask = (
+        (gens_df.technology_description == "All Other")
+        & (gens_df.prime_mover_code == "OT")
+        & (gens_df.energy_source_code_1 == "OG")
+    )
+    expected_bad_tech_len_min = 1 if 2025 in gens_df.report_date.dt.year.unique() else 0
+    expected_bad_tech_len_max = 0 if expected_bad_tech_len_min == 0 else 4
+    if not (
+        expected_bad_tech_len_min
+        <= len(gens_df[bad_tech_mask])
+        <= expected_bad_tech_len_max
+    ):
+        raise AssertionError(
+            f"Spot fixing: We expect to find between {expected_bad_tech_len_min} "
+            f"and {expected_bad_tech_len_max} records "
+            "which has what we assume is an incorrect technology description, "
+            f"but we found: {len(gens_df[bad_tech_mask])}."
+            f"\n\n{gens_df[bad_tech_mask].dropna(axis=1, how='all')}"
+        )
+    gens_df.loc[bad_tech_mask, "technology_description"] = "Other Gases"
 
     gens_df["fuel_type_code_pudl"] = gens_df.energy_source_code_1.str.upper().map(
         pudl.helpers.label_map(
@@ -322,7 +354,17 @@ def _core_eia860__generators(
             null_value=pd.NA,
         )
     )
-
+    # spot fix (remove) a plant with no information about it that EIA confirmed was an error.
+    # See issue #4769.
+    bad_gen_mask = (gens_df["report_date"] == "2024-01-01") & (
+        gens_df["plant_id_eia"] == 68815
+    )
+    if (len_observed := len(gens_df[bad_gen_mask])) >= 2:
+        raise AssertionError(
+            "Spot fixing: We expect to find 1 record for plant_id_eia 68815 in "
+            f"2024-01-01, but found {len_observed}"
+        )
+    gens_df = gens_df[~bad_gen_mask]
     return gens_df
 
 
@@ -358,7 +400,7 @@ def _core_eia860__generators_solar(
         )
     solar_df = (
         pd.concat([solar_existing, solar_retired], sort=True)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.fix_boolean_columns, boolean_columns_to_fix)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
@@ -373,6 +415,17 @@ def _core_eia860__generators_solar(
             null_value=pd.NA,
         )
     )
+    # spot fix (remove) a plant with no information about it that EIA confirmed was an error.
+    # See issue #4769. The plant is solar so we have to remove it from here too.
+    bad_gen_mask = (solar_df["report_date"] == "2024-01-01") & (
+        solar_df["plant_id_eia"] == 68815
+    )
+    if (len_observed := len(solar_df[bad_gen_mask])) >= 2:
+        raise AssertionError(
+            "Spot fixing: We expect to find 1 record for plant_id_eia 68815 in "
+            f"2024-01-01, but found {len_observed}"
+        )
+    solar_df = solar_df[~bad_gen_mask]
     return solar_df
 
 
@@ -396,7 +449,7 @@ def _core_eia860__generators_energy_storage(
 
     storage_df = (
         pd.concat([storage_ex, storage_pr, storage_re], sort=True)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
         .pipe(
@@ -474,7 +527,7 @@ def _core_eia860__generators_wind(
 
     wind_df = (
         pd.concat([wind_ex, wind_re], sort=True)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
         .pipe(
@@ -534,7 +587,7 @@ def _core_eia860__generators_multifuel(
     multifuel_df = (
         pd.concat([multifuel_ex, multifuel_pr, multifuel_re], sort=True)
         .dropna(subset=["generator_id", "plant_id_eia"])
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
@@ -602,7 +655,7 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
     """
     # Populating the '_core_eia860__plants' table
     p_df = (
-        raw_eia860__plant.pipe(pudl.helpers.fix_eia_na)
+        raw_eia860__plant.pipe(pudl.helpers.standardize_na_values)
         .astype({"zip_code": str})
         .drop("iso_rto", axis="columns")
     )
@@ -711,7 +764,7 @@ def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
     u_df = raw_eia860__utility
 
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    u_df = pudl.helpers.fix_eia_na(u_df)
+    u_df = pudl.helpers.standardize_na_values(u_df)
     u_df["state"] = u_df.state.str.upper()
     u_df["state"] = u_df.state.replace(
         {
@@ -805,7 +858,7 @@ def _core_eia860__boilers(
     b_df = (
         pd.concat([b_df, ecs], sort=True)
         .dropna(subset=["boiler_id", "plant_id_eia"])
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
     )
 
     # Defensive check: if any values in boiler_fuel_code_5 - boiler_fuel_code_8,
@@ -959,6 +1012,15 @@ def _core_eia860__boilers(
         )
     )
 
+    # Convert max steam flow from '1000 lbs per hour' to 'lbs per hour'
+    b_df["max_steam_flow_1000_lbs_per_hour"] *= 1000
+    b_df.columns = b_df.columns.str.replace(
+        "1000_lbs_per_hour", "lbs_per_hour"
+    )  # Rename columns
+    b_df.loc[:, "max_steam_flow_lbs_per_hour"] = b_df.loc[
+        :, "max_steam_flow_lbs_per_hour"
+    ].round(-2)
+
     # Prior to 2012, efficiency was reported as a percentage, rather than
     # as a proportion, so we need to divide those values by 100.
     b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_100pct_load"] = (
@@ -977,7 +1039,10 @@ def _core_eia860__emissions_control_equipment(
 ) -> pd.DataFrame:
     """Pull and transform the emissions control equipment table."""
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    emce_df = pudl.helpers.fix_eia_na(raw_eia860__emissions_control_equipment)
+    emce_df = raw_eia860__emissions_control_equipment.pipe(
+        pudl.helpers.standardize_na_values
+    ).pipe(pudl.helpers.convert_to_date)
+    report_date_2013 = emce_df["report_date"] == pd.Timestamp("2013-01-01")
 
     # Spot fix bad months
     emce_df["emission_control_operating_month"] = emce_df[
@@ -987,45 +1052,45 @@ def _core_eia860__emissions_control_equipment(
     # I thought about doing some sort of backfill here, but decided not to because
     # emission_control_id_pudl is not guaranteed to be consistent over time
     bad_month_1 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 10346)
         & (emce_df["nox_control_id_eia"] == "BOIL01")
     )
     bad_month_2 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 10202)
         & (emce_df["particulate_control_id_eia"].isin(["5PMDC", "5PPPT"]))
     )
     bad_month_3 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 3131)
         & (emce_df["emission_control_operating_year"] == "2005")
     )
-    bad_month_4 = (emce_df["report_year"] == 2013) & (emce_df["plant_id_eia"] == 10405)
+    bad_month_4 = report_date_2013 & (emce_df["plant_id_eia"] == 10405)
     bad_month_5 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 50661)
         & (emce_df["nox_control_id_eia"].isin(["ASNCR", "BSNCR"]))
     )
     bad_month_6 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 4054)
         & (emce_df["emission_control_operating_year"] == "2011")
     )
     bad_month_7 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 50544)
         & (emce_df["emission_control_operating_year"] == "1990")
     )
     bad_month_8 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 50189)
         & (emce_df["particulate_control_id_eia"].isin(["EGS1", "EGS2", "ESP1CB"]))
     )
 
     # Add this conditional in case we're doing the fast ETL with one year of data
     # (in which case the assertions will fail)
-    if 2013 in emce_df.report_year.unique():
+    if report_date_2013.any():
         assert len(emce_df[bad_month_1]) == 1
         emce_df.loc[bad_month_1, "emission_control_operating_month"] = 6
         assert len(emce_df[bad_month_2]) == 4
@@ -1063,14 +1128,14 @@ def _core_eia860__emissions_control_equipment(
     # Add a emission_control_id_pudl as a primary key. This is not unique over years.
     # We could maybe try and do this, but not doing it now.
     emce_df["emission_control_id_pudl"] = (
-        emce_df.groupby(["report_year", "plant_id_eia"]).cumcount() + 1
+        emce_df.groupby(["report_date", "plant_id_eia"]).cumcount() + 1
     )
     # Fix outlier value in emission_control_equipment_cost. We know this is an
     # outlier because it is the highest value reported in the dataset and
     # the other years from the same plant show that it likely contains three
     # extra zeros. We use the primary keys to spot fix the value.
     outlier_primary_keys = (
-        (emce_df["report_year"] == 2017)
+        (emce_df["report_date"] == pd.Timestamp("2017-01-01"))
         & (emce_df["plant_id_eia"] == 57794)
         & (emce_df["emission_control_equipment_cost"] == 3200000)
     )
@@ -1183,7 +1248,7 @@ def _core_eia860__boiler_cooling(
         A cleaned and normalized version of the EIA boiler to cooler ID table.
     """
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    bc_assn = pudl.helpers.fix_eia_na(raw_eia860__boiler_cooling)
+    bc_assn = pudl.helpers.standardize_na_values(raw_eia860__boiler_cooling)
     # Replace the report year col with a report date col for the harvesting process
     bc_assn = pudl.helpers.convert_to_date(
         df=bc_assn, year_col="report_year", date_col="report_date"
@@ -1208,7 +1273,7 @@ def _core_eia860__boiler_stack_flue(
         A cleaned and normalized version of the EIA boiler to stack flue ID table.
     """
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    bsf_assn = pudl.helpers.fix_eia_na(raw_eia860__boiler_stack_flue)
+    bsf_assn = pudl.helpers.standardize_na_values(raw_eia860__boiler_stack_flue)
     # Replace the report year col with a report date col for the harvesting process
     bsf_assn = pudl.helpers.convert_to_date(
         df=bsf_assn, year_col="report_year", date_col="report_date"
@@ -1228,11 +1293,9 @@ def _core_eia860__boiler_stack_flue(
     # missrepresent complicated relationships between stacks and flues. Also there's
     # several instances where flue_id_eia is NA (hence the last fillna(x.stack_id_eia))
     bsf_assn = bsf_assn.assign(
-        stack_flue_id_pudl=lambda x: (
-            x.stack_flue_id_eia.fillna(
-                x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
-            ).fillna(x.stack_id_eia)
-        )
+        stack_flue_id_pudl=lambda x: x.stack_flue_id_eia.fillna(
+            x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
+        ).fillna(x.stack_id_eia)
     )
 
     return bsf_assn
@@ -1268,7 +1331,7 @@ def _core_eia860__cooling_equipment(
     ce_df = raw_eia860__cooling_equipment
 
     # Generic cleaning
-    ce_df = ce_df.pipe(pudl.helpers.fix_eia_na).pipe(
+    ce_df = ce_df.pipe(pudl.helpers.standardize_na_values).pipe(
         pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes
     )
 
@@ -1362,7 +1425,7 @@ def _core_eia860__fgd_equipment(
     fgd_df = raw_eia860__fgd_equipment
 
     # Generic cleaning
-    fgd_df = fgd_df.pipe(pudl.helpers.fix_eia_na).pipe(
+    fgd_df = fgd_df.pipe(pudl.helpers.standardize_na_values).pipe(
         pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes
     )
 

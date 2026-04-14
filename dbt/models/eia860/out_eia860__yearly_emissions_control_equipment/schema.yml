@@ -6,10 +6,11 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: out_eia860__yearly_emissions_control_equipment
-              partition_column: report_year
+              arguments:
+                table_name: out_eia860__yearly_emissions_control_equipment
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
-          - name: report_year
+          - name: report_date
           - name: plant_id_eia
           - name: plant_id_pudl
           - name: plant_name_eia

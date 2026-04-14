@@ -2,7 +2,6 @@
 
 import enum
 import json
-import logging
 import re
 from importlib.resources import files
 from typing import Self
@@ -10,7 +9,9 @@ from typing import Self
 import pandas as pd
 from pydantic import BaseModel, Field, model_validator
 
-logger = logging.getLogger(__name__)
+from pudl.logging_helpers import get_logger
+
+logger = get_logger(__name__)
 
 CLEANING_RULES_DICT = {
     "remove_email": [" ", r"\S*@\S*\s?"],
@@ -28,6 +29,7 @@ CLEANING_RULES_DICT = {
     "replace_underscore_by_space": [" ", r"\s*_\s*"],
     "remove_all_punctuation": [" ", r"([^\w\s])"],
     "remove_punctuation_except_dot": [" ", r"([^\w\s.])"],
+    "replace_dot_with_nothing": ["", r"\."],
     "remove_mentions": [" ", r"@\S+"],
     "remove_hashtags": [" ", r"#\S+"],
     "remove_numbers": [" ", r"\w*\d+\w*"],
@@ -173,12 +175,12 @@ class CompanyNameCleaner(BaseModel):
         The dictionary must contain cleaning rules written in regex format.
 
         Arguments:
-            col (pd.Series): The column that needs to be cleaned.
-            dict_regex_rules (dict): a dictionary of cleaning rules written in regex with the format
-                [rule name] : ['replacement', 'regex rule']
+            col: The column that needs to be cleaned.
+            dict_regex_rules: a dictionary of cleaning rules written in regex with the
+                format [rule name] : ['replacement', 'regex rule']
 
         Returns:
-            (pd.Series): the modified/cleaned column.
+            The modified/cleaned column.
         """
         clean_col = col
         # Iterate through the dictionary and apply each regex rule
@@ -206,10 +208,10 @@ class CompanyNameCleaner(BaseModel):
         """Removes unicode characters that are unreadable in ASCII format.
 
         Arguments:
-            col (pd.Series): series containing unicode characters.
+            col: series containing unicode characters.
 
         Returns:
-            (pd.Series): the corresponding input series without unicode characters.
+            the corresponding input series without unicode characters.
         """
         return col.str.encode("ascii", "ignore").str.decode("ascii")
 
@@ -301,10 +303,10 @@ class CompanyNameCleaner(BaseModel):
         """Clean names and normalize legal terms.
 
         Arguments:
-            col (pd.Series): the column that is to be cleaned
+            col: the column that is to be cleaned
 
         Returns:
-            clean_col (pd.Series): the clean version of the column
+            A the clean version of the column.
         """
         # remove unicode characters
         clean_col = self._remove_unicode_chars(col) if self.remove_unicode else col
@@ -336,14 +338,15 @@ class CompanyNameCleaner(BaseModel):
         """Clean up text names in a dataframe.
 
         Arguments:
-            df (dataframe): the input dataframe that contains the text's name to be cleaned
-            return_as_dframe (bool): whether to return the cleaned data as a dataframe or series.
-                Useful to return as a dataframe if used in a cleaning pipeline with no
-                vectorization step after name cleaning. If multiple columns are passed in for
-                cleaning then output will be a dataframe regardless of this parameter.
+            df: the input dataframe that contains the text's name to be cleaned.
+            return_as_dframe: whether to return the cleaned data as a dataframe or
+                series. Useful to return as a dataframe if used in a cleaning pipeline
+                with no vectorization step after name cleaning. If multiple columns are
+                passed in for cleaning then output will be a dataframe regardless of
+                this parameter.
 
         Returns:
-            df (dataframe): the clean version of the input dataframe
+            A clean version of the input dataframe.
         """
         if isinstance(df, pd.DataFrame) and len(df.columns) > 1:
             clean_df = pd.DataFrame()

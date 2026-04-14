@@ -9,27 +9,29 @@ with cleaning and restructuring dataframes.
 
 import importlib.resources
 import itertools
-import json
-import multiprocessing
 import pathlib
 import re
 import shutil
+import tempfile
 import time
 from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable
+from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
+from pathlib import Path
 from typing import Any, Literal, NamedTuple
 
-import datasette
+import duckdb
+import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
+import polars as pl
 import requests
 import sqlalchemy as sa
-import yaml
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
+from pydantic import BaseModel, Field
 
 import pudl.logging_helpers
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
@@ -93,7 +95,7 @@ def find_new_ferc1_strings(
         table: Name of the FERC Form 1 DB to search.
         field: Name of the column in that table to search.
         strdict: A string cleaning dictionary. See
-            e.g. `pudl.transform.ferc1.FUEL_UNIT_STRINGS`
+            e.g. :py:const:`pudl.transform.ferc1.FUEL_UNIT_STRINGS`
         ferc1_engine: SQL Alchemy DB connection engine for the FERC Form 1 DB.
 
     Returns:
@@ -193,7 +195,7 @@ def add_fips_ids(
     df: pd.DataFrame,
     geocodes: pd.DataFrame,
     state_col: str = "state",
-    county_col: str = "county",
+    county_col: str | None = "county",
 ) -> pd.DataFrame:
     """Add State and County FIPS IDs to a dataframe.
 
@@ -578,7 +580,7 @@ def date_merge(
             If one of these temporal columns already exists in the dataframe it will not
             be clobbered by the merge, as the suffix "_temp_for_merge" is added when
             expanding the datetime column into year, quarter, month, and day. By default,
-            `date_on` will just include year.
+            ``date_on`` will just include year.
         how: How the dataframes should be merged. See :func:`pandas.DataFrame.merge`.
         report_at_start: Whether the data in the dataframe whose report date is not being
             kept in the merged output (in most cases the less frequently reported dataframe)
@@ -656,11 +658,12 @@ def expand_timeseries(
             unique group of these ID columns that are present in the dataframe.
         date_col: Name of the datetime column being expanded into a full timeseries.
         freq: The frequency of the time series to expand the data to.
-            See :ref:`here <timeseries.offset_aliases>` for a list of
-            frequency aliases.
+            See :mod:`pandas.tseries.offsets` and
+            :func:`pandas.tseries.frequencies.to_offset` for valid frequency
+            aliases.
         fill_through_freq: The frequency in which to fill in the data through. For
             example, if equal to "year" the data will be filled in through the end of
-            the last reported year for each grouping of `key_cols`. Valid frequencies
+            the last reported year for each grouping of ``key_cols``. Valid frequencies
             are only "year", "month", or "day".
 
     Raises:
@@ -745,7 +748,9 @@ def organize_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df[organized_cols]
 
 
-def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+def simplify_strings(
+    df: pd.DataFrame, columns: list[str], copy: bool = True
+) -> pd.DataFrame:
     """Simplify the strings contained in a set of dataframe columns.
 
     Performs several operations to simplify strings for comparison and parsing purposes.
@@ -755,31 +760,38 @@ def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 
     Leaves null values unaltered. Casts other values with astype(str).
 
+    Running with ``copy=False`` is intended for memory-intensive data frames where no
+    upstream process retains a reference to the data. Use care with this option,
+    and keep an eye out for spooky data changes showing up in unexpected places.
+
     Args:
         df: DataFrame whose columns are being cleaned up.
         columns: The labels of the string columns to be simplified.
+        copy: (Default True) Return a copy, making no changes to the original data.
 
     Returns:
         The whole DataFrame that was passed in, with the string columns cleaned up.
     """
-    out_df = df.copy()
+    out_df = df.copy() if copy else df
     for col in columns:
         if col in out_df.columns:
-            out_df.loc[out_df[col].notnull(), col] = (
-                out_df.loc[out_df[col].notnull(), col]
-                .astype(str)
-                .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
-                .str.strip()
-                .str.lower()
-                .str.replace(r"\s+", " ", regex=True)
-            )
+            mask = out_df[col].notnull()
+            if mask.sum() > 0:
+                out_df.loc[mask, col] = (
+                    out_df.loc[mask, col]
+                    .astype(str)
+                    .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
+                    .str.strip()
+                    .str.lower()
+                    .str.replace(r"\s+", " ", regex=True)
+                )
     return out_df
 
 
 def cleanstrings_series(
     col: pd.Series,
     str_map: dict[str, list[str]],
-    unmapped: str | None = None,
+    unmapped: str | NAType | None = None,
     simplify: bool = True,
 ) -> pd.Series:
     """Clean up the strings in a single column/Series.
@@ -828,13 +840,13 @@ def cleanstrings(
     df: pd.DataFrame,
     columns: list[str],
     stringmaps: list[dict[str, list[str]]],
-    unmapped: str | None = None,
+    unmapped: str | NAType | None = None,
     simplify: bool = True,
 ) -> pd.DataFrame:
     """Consolidate freeform strings in several dataframe columns.
 
-    This function will consolidate freeform strings found in `columns` into simplified
-    categories, as defined by `stringmaps`. This is useful when a field contains many
+    This function will consolidate freeform strings found in ``columns`` into simplified
+    categories, as defined by ``stringmaps``. This is useful when a field contains many
     different strings that are really meant to represent a finite number of categories,
     e.g. a type of fuel. It can also be used to create simplified categories that apply
     to similar attributes that are reported in various data sources from different
@@ -975,9 +987,7 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
         month_year_date.append((month_col, year_col, date_col))
 
     for month_col, year_col, date_col in month_year_date:
-        df = fix_int_na(df, columns=[year_col, month_col])
-
-        date_mask = (df[year_col] != "") & (df[month_col] != "")
+        date_mask = df[[year_col, month_col]].notna().all(axis="columns")
         years = df.loc[date_mask, year_col]
         months = df.loc[date_mask, month_col]
 
@@ -999,6 +1009,7 @@ def convert_to_date(
     day_col: str = "report_day",
     month_na_value: int = 1,
     day_na_value: int = 1,
+    copy: bool = True,
 ) -> pd.DataFrame:
     """Convert specified year, month or day columns into a datetime object.
 
@@ -1006,6 +1017,10 @@ def convert_to_date(
     conversion is applied, and the original dataframe is returned unchanged.
     Otherwise the constructed date is placed in that column, and the columns
     which were used to create the date are dropped.
+
+    Running with ``copy=False`` is intended for memory-intensive data frames where no
+    upstream process retains a reference to the data. Use care with this option,
+    and keep an eye out for spooky data changes showing up in unexpected places.
 
     Args:
         df: dataframe to convert
@@ -1016,12 +1031,14 @@ def convert_to_date(
         month_na_value: generated month if no month exists or if the month
             value is NA.
         day_na_value: generated day if no day exists or if the day value is NA.
+        copy: (default True) return a copy, making no changes to the original data.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted
         into datetime objects.
     """
-    df = df.copy()
+    if copy:
+        df = df.copy()
     if date_col in df.columns:
         return df
 
@@ -1037,8 +1054,10 @@ def convert_to_date(
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
-    df = df.drop(cols_to_drop, axis="columns")
 
+    if copy:
+        return df.drop(cols_to_drop, axis="columns")
+    df.drop(cols_to_drop, axis="columns", inplace=True)  # noqa: PD002
     return df
 
 
@@ -1078,11 +1097,13 @@ def remove_leading_zeros_from_numeric_strings(
     return df
 
 
-def fix_eia_na(df: pd.DataFrame) -> pd.DataFrame:
-    """Replace common ill-posed EIA NA spreadsheet values with np.nan.
+def standardize_na_values(df: pd.DataFrame) -> pd.DataFrame:
+    """Replace common apparently NA values in numerical columns with the floating point np.nan.
 
-    Currently replaces empty string, single decimal points with no numbers,
-    and any single whitespace character with np.nan.
+    Currently replaces the empty string, any string entirely composed of whitespace,
+    bare decimal points, and any string entirely composed of hyphens, all of which are
+    common stand-ins for NA in spreadsheets. Note that this function should only be
+    applied to columns whose true type is expected to be numeric.
 
     Args:
         df: The DataFrame to clean.
@@ -1090,7 +1111,13 @@ def fix_eia_na(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame with regularized NA values.
     """
-    return df.replace(regex=r"(^\.$|^\s*$)", value=np.nan)
+    # Define a regex pattern to match ill-posed NA values
+    na_patterns = r"(^\.$|^\s*$|^-+$)"
+
+    # Replace matching patterns in all object columns with np.nan
+    df = df.replace(na_patterns, np.nan, regex=True)
+
+    return df
 
 
 def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -1185,7 +1212,7 @@ def convert_cols_dtypes(
     so we are keeping those columns as objects and preforming a simple mask for
     the boolean columns.
 
-    The other exception in here is with the `utility_id_eia` column. It is
+    The other exception in here is with the ``utility_id_eia`` column. It is
     often an object column of strings. All of the strings are numbers, so it
     should be possible to convert to :func:`pandas.Int32Dtype` directly, but it
     is requiring us to convert to int first. There will probably be other
@@ -1401,7 +1428,7 @@ def cleanstrings_snake(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     for col in cols:
         df.loc[:, col] = (
             df[col]
-            .astype(str)
+            .astype(pd.StringDtype())
             .str.strip()
             .str.lower()
             .str.replace(r"\s+", "_", regex=True)
@@ -1483,26 +1510,6 @@ def iterate_multivalue_dict(**kwargs):
         for k_v in value_assignments:
             result.update(k_v)
         yield result
-
-
-def get_working_dates_by_datasource(datasource: str) -> pd.DatetimeIndex:
-    """Get all working dates of a datasource as a DatetimeIndex."""
-    import pudl.metadata.classes
-
-    dates = pd.DatetimeIndex([])
-    for data_source in pudl.metadata.classes.DataSource.from_field_namespace(
-        datasource
-    ):
-        working_partitions = data_source.working_partitions
-        if "years" in working_partitions:
-            dates = dates.append(
-                pd.to_datetime(working_partitions["years"], format="%Y")
-            )
-        if "year_months" in working_partitions:
-            dates = dates.append(
-                pd.DatetimeIndex(pd.to_datetime(working_partitions["year_months"]))
-            )
-    return dates
 
 
 def dedupe_on_category(
@@ -1634,7 +1641,7 @@ def calc_capacity_factor(
     dataframe are pulled out to determine the hours in each period based on
     the frequency. The number of hours is used in calculating the capacity
     factor. Then records with capacity factors outside the range specified by
-    `min_cap_fact` and `max_cap_fact` are dropped.
+    ``min_cap_fact`` and ``max_cap_fact`` are dropped.
 
     Args:
         df: table with required inputs for capacity factor (``report_date``,
@@ -1657,10 +1664,12 @@ def calc_capacity_factor(
             "report_date": dates,
             "hours": dates.apply(
                 lambda d: (
-                    pd.date_range(d, periods=2, freq=freq)[1]
-                    - pd.date_range(d, periods=2, freq=freq)[0]
+                    (
+                        pd.date_range(d, periods=2, freq=freq)[1]
+                        - pd.date_range(d, periods=2, freq=freq)[0]
+                    )
+                    / pd.Timedelta(hours=1)
                 )
-                / pd.Timedelta(hours=1)
             ),
         }
     )
@@ -1887,19 +1896,30 @@ def convert_col_to_bool(
 def fix_boolean_columns(
     df: pd.DataFrame,
     boolean_columns_to_fix: list[str],
+    inplace: bool = False,
 ) -> pd.DataFrame:
-    """Fix standard issues with EIA boolean columns.
+    """Fix standard issues with boolean columns.
 
     Most boolean columns have either "Y" for True or "N" for False. A subset of the
     columns have "X" values which represents a False value. A subset of the columns
     have "U" values, presumably for "Unknown," which must be set to null in order to
-    convert the columns to datatype Boolean.
+    convert the columns to datatype Boolean. Other data sources may use a 1/0 system
+    instead, with 1 as True and 0 as False.
+
+    If running with ``inplace=True``, will run in-place versions of the fill and
+    replace operations instead of returning a copy of the data frame. This mode is
+    useful for memory-intensive data frames, but be aware that upstream processes
+    retaining a reference to the data will see the changes made here.
     """
     fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {
-        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
+        col: {"Y": True, "N": False, "X": False, "U": pd.NA, 1: True, 0: False}
         for col in boolean_columns_to_fix
     }
+    if inplace:
+        df.fillna(fillna_cols, inplace=True)  # noqa: PD002
+        df.replace(to_replace=boolean_replace_cols, inplace=True)  # noqa: PD002
+        return df
     return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)
 
 
@@ -2012,10 +2032,6 @@ def get_dagster_execution_config(
     executor, otherwise multi-process executor with maximum of num_workers
     will be used.
 
-    If we use the multi-process executor AND the ``forkserver`` start method is
-    available, we pre-import the ``pudl`` package in the template process. This
-    allows us to reduce the startup latency of each op.
-
     Args:
         num_workers: The number of workers to use for the dagster execution config.
             If 0, then the dagster execution config will not include a multiprocess
@@ -2027,7 +2043,7 @@ def get_dagster_execution_config(
             Dagster description: If a value is set, the limit is applied to
             only that key-value pair. If no value is set, the limit is applied
             across all values of that key. If the value is set to a dict with
-            `applyLimitPerUniqueValue: true`, the limit will apply to the
+            ``applyLimitPerUniqueValue: true``, the limit will apply to the
             number of unique values for that key. Note that these limits are
             per run, not global.
 
@@ -2043,17 +2059,12 @@ def get_dagster_execution_config(
             },
         }
 
-    start_method_config = {}
-    if "forkserver" in multiprocessing.get_all_start_methods():
-        start_method_config = {"forkserver": {"preload_modules": ["pudl"]}}
-
     return {
         "execution": {
             "config": {
                 "multiprocess": {
                     "max_concurrent": num_workers,
                     "tag_concurrency_limits": tag_concurrency_limits,
-                    "start_method": start_method_config,
                 },
             },
         },
@@ -2137,78 +2148,6 @@ def diff_wide_tables(
     )
 
 
-def parse_datasette_metadata_yml(metadata_yml: str) -> dict:
-    """Parse a yaml file of datasette metadata as json.
-
-    Args:
-        metadata_yml: datasette metadata as yml.
-
-    Returns:
-        Parsed datasette metadata as JSON.
-    """
-    metadata_json = json.dumps(yaml.safe_load(metadata_yml))
-    return datasette.utils.parse_metadata(metadata_json)
-
-
-def check_tables_have_metadata(
-    metadata_yml: str,
-    databases: list[str],
-) -> None:
-    """Check to make sure all tables in the databases have datasette metadata.
-
-    This function fails if there are tables lacking Datasette metadata in one of the
-    databases we expect to have that kind of metadata. Note that we currently do
-    not have this kind of metadata for the FERC databases derived from DBF or the
-    Census DP1.
-
-    Args:
-        metadata_yml: The structure metadata for the datasette deployment as yaml
-        databases: The list of databases to test.
-    """
-    pudl_output = PudlPaths().pudl_output
-    database_table_exceptions = {"pudl": {"alembic_version"}}
-
-    tables_missing_metadata_results = {}
-
-    # PUDL and XBRL databases are the only databases with metadata
-    databases_with_metadata = (
-        dataset
-        for dataset in databases
-        if dataset == "pudl.sqlite" or dataset.endswith("xbrl.sqlite")
-    )
-    parsed_datasette_metadata = parse_datasette_metadata_yml(metadata_yml)["databases"]
-    for database in databases_with_metadata:
-        database_path = pudl_output / database
-        database_name = database_path.stem
-
-        # Grab all tables in the database
-        engine = sa.create_engine(f"sqlite:///{database_path!s}")
-        inspector = sa.inspect(engine)
-        tables_in_database = set(inspector.get_table_names())
-
-        # There are some tables that we don't expect to have metadata
-        # like alembic_version in pudl.sqlite.
-        table_exceptions = database_table_exceptions.get(database_name)
-
-        if table_exceptions:
-            tables_in_database = tables_in_database - table_exceptions
-
-        tables_with_metadata = set(parsed_datasette_metadata[database_name]["tables"])
-
-        # Find the tables the database that don't have metadata
-        tables_missing_metadata = tables_in_database - tables_with_metadata
-
-        tables_missing_metadata_results[database_name] = tables_missing_metadata
-
-    has_no_missing_tables_with_missing_metadata = all(
-        not bool(value) for value in tables_missing_metadata_results.values()
-    )
-
-    assert has_no_missing_tables_with_missing_metadata, (
-        f"These tables are missing datasette metadata: {tables_missing_metadata_results}"
-    )
-
-
 def retry(
     func: Callable,
     retry_on: tuple[type[BaseException], ...],
@@ -2222,10 +2161,11 @@ def retry(
     seconds.
 
     Args:
-    func: the function to retry
-    retry_on: the errors to catch.
-    base_delay_sec: how much time to sleep for the first retry.
-    kwargs: keyword arguments to pass to the wrapped function. Pass non-kwargs as kwargs too.
+        func: the function to retry
+        retry_on: the errors to catch.
+        base_delay_sec: how much time to sleep for the first retry.
+        kwargs: keyword arguments to pass to the wrapped function. Pass non-kwargs as
+            kwargs too.
     """
     for try_count in range(max_retries):
         delay = 2**try_count * base_delay_sec
@@ -2239,13 +2179,44 @@ def retry(
     return func(**kwargs)
 
 
+def get_parquet_table_polars(
+    table_name: str, partitions: dict | None = None
+) -> pl.LazyFrame:
+    """Read a table from a parquet file and return as a polars LazyFrame.
+
+    Args:
+        table_name: Name of the table to read.
+        partitions: Optional dictionary of partitions to filter the data. See
+            :class:`ParquetData` definition for details.
+
+    Returns:
+        A polars LazyFrame representing the table.
+    """
+    # Import here to avoid circular imports
+    from pudl.metadata.classes import Resource
+
+    resource = Resource.from_id(table_name)
+    schema = resource.to_polars_dtypes()
+
+    # Get the Parquet file path
+    if partitions is None:
+        paths = PudlPaths()
+        parquet_path = paths.parquet_path(table_name)
+    else:
+        parquet_data = ParquetData(table_name=table_name, partitions=partitions)
+        # Points to a directory of parquet files when there partitions is non None
+        parquet_path = parquet_data.parquet_path
+
+    return pl.scan_parquet(parquet_path).cast(schema, strict=False)
+
+
 def get_parquet_table(
     table_name: str,
     columns: list[str] | None = None,
     filters: list[tuple[str, str, Any]]
     | list[list[tuple[str, str, Any]]]
     | None = None,
-) -> pd.DataFrame:
+) -> pd.DataFrame | gpd.GeoDataFrame:
     """Read a table from Parquet files with optional column selection and filtering.
 
     This function provides a general-purpose interface for reading PUDL tables from
@@ -2269,27 +2240,336 @@ def get_parquet_table(
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
 
-    paths = PudlPaths()
-
-    # Get the Parquet file path
-    parquet_path = paths.parquet_path(table_name)
-
-    # Get the schema for validation
     resource = Resource.from_id(table_name)
+    if columns is None:
+        columns = resource.get_field_names()
+    # Get the schema for validation
     pyarrow_schema = resource.to_pyarrow()
 
-    # Read the Parquet file
-    df = pq.read_table(
-        source=parquet_path,
-        schema=pyarrow_schema,
-        columns=columns,
-        filters=filters,
-        use_threads=True,
-        memory_map=True,
-    ).to_pandas()
+    # Get the Parquet file path
+    paths = PudlPaths()
+    parquet_path = paths.parquet_path(table_name)
+
+    is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
+
+    if is_geospatial:
+        df = gpd.read_parquet(
+            path=parquet_path,
+            columns=columns,
+            filters=filters,
+            schema=pyarrow_schema,
+            use_threads=True,
+            memory_map=True,
+        )
+    else:
+        df = pd.read_parquet(
+            path=parquet_path,
+            columns=columns,
+            filters=filters,
+            schema=pyarrow_schema,
+            use_threads=True,
+            memory_map=True,
+        )
 
     # Only enforce schema if we're reading all columns
-    if columns is None:
+    if set(columns) == set(resource.get_field_names()):
         return resource.enforce_schema(df)
     # For specific columns, apply PUDL dtypes for the columns we have
     return apply_pudl_dtypes(df, group=resource.field_namespace)
+
+
+def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    """Standardize phone numbers in the specified columns of the DataFrame.
+
+    US numbers: ###-###-####
+    International numbers with the international code at the beginning.
+    Numbers with extensions will be appended with "x#".
+    Non-numeric entries will be returned as np.nan. Entries with fewer than
+    10 digits will be returned with no hyphens.
+
+    Args:
+        df: The DataFrame to modify.
+        columns: A list of the names of the columns that need to be standardized.
+
+    Returns:
+        The modified DataFrame with standardized phone numbers in the same column.
+    """
+    # Define a regex pattern to identify and separate extensions
+    extension_pattern = r"[xX](\d+)$"
+
+    # Standardize each specified column
+    for column in columns:
+        # Convert column to string type for consistent processing
+        df[column] = df[column].astype("string")
+
+        # Remove ".0" from the end of phone numbers, if present
+        df[column] = df[column].str.replace(r"\.0$", "", regex=True)
+
+        # Separate phone number from extension, if present
+        phone_main = df[column].str.extract(r"^(.*?)(?:[xX].*)?$")[0]
+        extension = df[column].str.extract(extension_pattern)[0]
+
+        # Remove non-digit characters from the main phone number
+        phone_main = phone_main.str.replace(r"[^\d]", "", regex=True)
+
+        # Handle numbers with exactly 10 digits (US format)
+        df[column] = phone_main.where(
+            phone_main.str.len() != 10,
+            phone_main.str.slice(0, 3)
+            + "-"
+            + phone_main.str.slice(3, 6)
+            + "-"
+            + phone_main.str.slice(6, 10),
+        )
+
+        # For numbers with an extension, append it back
+        df[column] = df[column].where(extension.isna(), df[column] + "x" + extension)
+
+        # Replace invalid or empty phone numbers with NaN
+        invalid_mask = (
+            (phone_main.isna()) | (phone_main.str.fullmatch(r"0+")) | (phone_main == "")
+        )
+        df[column] = df[column].mask(invalid_mask, pd.NA)
+
+    return df
+
+
+class ParquetData(BaseModel):
+    """Wrap table data offloaded as parquet file(s) on disk.
+
+    Writing data to disk as parquet files enables the use of highly efficient
+    processing/transforms with tools like Polars or duckdb. This class provides
+    helpers for managing paths to parquet data on disk.
+    """
+
+    table_name: str
+    """Name of the table corresponding to the parquet data."""
+
+    partitions: dict[str, Any] = Field(default_factory=dict)
+    """Optional dictionary of partition values indicating what data is being offloaded to disk.
+
+    If passed ``{'years': 1995}`` then this class will produce a parquet file at the
+    path ``PudlPaths().parquet_path() / table_name / 1995.parquet``.  if passed
+    ``{'years': 1995, 'states': 'CA'}`` then this class will produce a parquet file at
+    the path ``PudlPaths().parquet_path() / table_name / 1995_ca.parquet``.  If
+    partitions is empty, then the parquet file will be written
+    ``PudlPaths().parquet_path() / table_name / {table_name}.parquet``.
+    """
+
+    @property
+    def parquet_directory(self) -> Path:
+        """Get path to directory for writing/reading parquet files."""
+        parquet_path = PudlPaths().parquet_path() / self.table_name
+        parquet_path.mkdir(exist_ok=True, parents=True)
+        return parquet_path
+
+    @property
+    def parquet_path(self) -> Path:
+        """Get name of an individual parquet file corresponding to a single partition of data."""
+        if self.partitions != {}:
+            filename = "_".join(map(str, self.partitions.values())) + ".parquet"
+        else:
+            filename = f"{self.table_name}.parquet"
+        return self.parquet_directory / filename
+
+
+def persist_table_as_parquet(
+    table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
+    table_name: str,
+    partitions: dict[str, Any] | None = None,
+    compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
+) -> ParquetData:
+    """Write data from DataFrame or LazyFrame to disk as a parquet file.
+
+    Offloading data to disk allows Polars and duckdb to perform highly efficient
+    transforms.
+
+    Args:
+        table_data: Tabular data to write to disk.
+        table_name: Table name used to construct path to/name of parquet file.
+        partitions: Optional partition dimension values indicating the data to be
+            written.
+    """
+    # Create ParquetData class to get path to write parquet file
+    parquet_data = ParquetData(table_name=table_name, partitions=partitions or {})
+    if isinstance(table_data, pd.DataFrame):
+        table_data.to_parquet(parquet_data.parquet_path, compression=compression)
+    elif isinstance(table_data, pl.LazyFrame):
+        table_data.sink_parquet(
+            parquet_data.parquet_path,
+            engine="streaming",
+            compression=compression,
+        )
+    elif isinstance(table_data, duckdb.DuckDBPyRelation):
+        table_data.to_parquet(
+            str(parquet_data.parquet_path),
+            overwrite=True,
+            compression=compression,
+        )
+    else:
+        raise TypeError(
+            "table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."
+            f" Got {type(table_data)}."
+        )
+    return parquet_data
+
+
+def lf_from_parquet(
+    parquet_data: ParquetData, use_all_partitions: bool = False
+) -> pl.LazyFrame:
+    """Scan parquet file(s) from disk and return Polars LazyFrame.
+
+    Args:
+        parquet_data: Points to parquet data on disk.
+        use_all_partitions: If true read the entire directory of parquet files.
+            Otherwise only read data from the partition specified in parquet_data.
+    """
+    if use_all_partitions:
+        return pl.scan_parquet(parquet_data.parquet_directory)
+    return pl.scan_parquet(parquet_data.parquet_path)
+
+
+def df_from_parquet(
+    parquet_data: ParquetData, use_all_partitions: bool = False
+) -> pd.DataFrame:
+    """Read data from a set of parquet files and return a pandas DataFrame.
+
+    Args:
+        parquet_data: Points to parquet data on disk.
+        use_all_partitions: If true read the entire directory of parquet files.
+            Otherwise only read data from the partition specified in parquet_data.
+    """
+    if use_all_partitions:
+        return pd.read_parquet(parquet_data.parquet_directory)
+    return pd.read_parquet(parquet_data.parquet_path)
+
+
+@contextmanager
+def duckdb_relation_from_parquet(
+    parquet_data: ParquetData, use_all_partitions: bool = False
+) -> tuple[duckdb.DuckDBPyRelation, duckdb.DuckDBPyConnection]:
+    """Create a duckdb relation to read from parquet files.
+
+    This method is intended to be used as a context manager to keep the duckdb
+    connection open while the relation is in use.
+
+    Args:
+        parquet_data: Points to parquet data on disk.
+        use_all_partitions: If true read the entire directory of parquet files.
+            Otherwise only read data from the partition specified in parquet_data.
+    """
+    with duckdb.connect() as conn:
+        if use_all_partitions:
+            yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet"), conn
+        else:
+            yield conn.read_parquet(str(parquet_data.parquet_path)), conn
+
+
+def duckdb_extract_zipped_csv(
+    dataset: str,
+    partitions: dict[str, Any],
+    pages: list[str],
+    datasore,
+    zip_path: Path = Path(),
+) -> tuple[str, ParquetData]:
+    """Extract data from zipped CSV page(s) in a data archive.
+
+    A common pattern for raw PUDL data is a set of zipfiles with one zipfile per
+    partition, and one or more CSV files within each zipfile. This function provides
+    a highly efficient way to extract data from archives that conform to this pattern
+    using duckdb. This function is a generator, which will yield a duckdb relation for
+    each CSV file within a zipfile, allowing the caller to perform transforms using
+    the relation before writing to disk with the ``offload_table`` function.
+
+    Args:
+        dataset: Name of dataset (required to get archive from datastore).
+        partition: Partitions of resource to extract data from.
+        pages: List of csv files to extract from archive.
+        datastore: Instance of PUDL datastore to get raw data.
+        zip_path: Base path within zipfile that points to where CSV files are stored.
+            If not explicitly set, assume CSV files are at the top level of the zipfile.
+    """
+    with (
+        duckdb.connect() as conn,
+        datasore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
+        tempfile.TemporaryDirectory() as tmp_dir,
+    ):
+        tmp_dir = Path(tmp_dir)
+        zf.extractall(tmp_dir)
+
+        for page in pages:
+            yield page, conn.read_csv(str(tmp_dir / zip_path / page))
+
+
+def normalize_year_fragments(
+    raw_year: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+    base_century: int = 2000,
+) -> pd.Series:
+    """Normalize year fragments into 4-digit years using a rolling-century rule.
+
+    This helper accepts a Series of string years that are either 2-digit (e.g. ``"05"``
+    or ``"95"``) or 4-digit (e.g. ``"2008"``) and returns integer 4-digit years.
+
+    Two-digit years are interpreted using a rolling-century rule anchored to
+    ``base_century``. By default ``base_century=2000``, so this logic is geared toward
+    20th/21st century data: two-digit values are first mapped into 2000-2099, and then
+    shifted back 100 years when they exceed ``max_valid_year``.
+
+    For example, with ``base_century=2000`` and ``max_valid_year=2026``:
+
+    * ``"05"`` -> ``2005``
+    * ``"95"`` -> ``1995``
+
+    Args:
+        raw_year: Series of string-like year tokens extracted from raw date text.
+        min_valid_year: Lower year bound used to avoid mapping to past years.
+        max_valid_year: Upper year bound used to avoid mapping to future years.
+        base_century: Century anchor for two-digit years. Must be divisible by 100.
+            Defaults to 2000.
+
+    Returns:
+        A Series of integer-like 4-digit year values.
+
+    Raises:
+        ValueError: If the valid year range is too wide to apply the rolling-century
+            logic, or if any resulting year falls outside the valid range.
+    """
+    if min_valid_year > max_valid_year:
+        raise ValueError(
+            f"Expected min_valid_year <= max_valid_year, got {min_valid_year=} and {max_valid_year=}."
+        )
+    if base_century % 100 != 0:
+        raise ValueError(
+            f"Expected base_century to be divisible by 100, got {base_century=}."
+        )
+    if max_valid_year - min_valid_year >= 100:
+        raise ValueError(
+            "For normalization by rolling century to work the valid year range must be less than 100 years."
+            f" Got min_valid_year={min_valid_year} and max_valid_year={max_valid_year}."
+        )
+    raw_year = raw_year.astype("string")
+    invalid_shape = ~raw_year.str.fullmatch(r"\d{2}|\d{4}")
+    if invalid_shape.any():
+        bad = raw_year[invalid_shape].dropna().drop_duplicates().tolist()
+        raise ValueError(
+            f"Expected only 2- or 4-digit year fragments, found invalid values: {bad}"
+        )
+    year = pd.to_numeric(raw_year, errors="raise")
+    two_digit = raw_year.str.len().eq(2)
+    # Start by mapping all 2-digit years into the configured base century.
+    year = year.where(~two_digit, base_century + year)
+    # If that creates a future year, shift to the prior century.
+    year = year.where(~(two_digit & year.gt(max_valid_year)), year - 100)
+    if year.lt(min_valid_year).any() or year.gt(max_valid_year).any():
+        bad = (
+            raw_year[year.lt(min_valid_year) | year.gt(max_valid_year)]
+            .dropna()
+            .drop_duplicates()
+            .tolist()
+        )
+        raise ValueError(
+            f"Year out of expected range ({min_valid_year}-{max_valid_year}) in values: {bad}"
+        )
+    return year

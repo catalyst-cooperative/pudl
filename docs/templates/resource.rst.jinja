@@ -1,18 +1,17 @@
 -------------------------------------------------------------------------------
 {{ resource.name }}
 -------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table={{ resource.name }}>`__
 
 {{ resource.description|safe if resource.description else 'No table description available.' }}
 
 Access methods
 ^^^^^^^^^^^^^^^
 
-{% if resource.create_database_schema -%}
-* `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
-{% else -%}
-* This table is not published to Datasette.
-{%- endif %}
-* `Download this table as a Parquet file. <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ resource.name }}.parquet>`__
+{% include [
+    'access_examples/' ~ resource.name ~ '.rst.jinja',
+    'access_examples/default.rst.jinja'
+] %}
 
 Columns
 ^^^^^^^

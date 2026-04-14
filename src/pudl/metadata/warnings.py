@@ -1,4 +1,8 @@
-"""Standard usage warnings to reference in dynamic table descriptions."""
+"""Standard usage warnings to reference in dynamic table descriptions.
+
+For now, these texts are duplicated in ``docs/data_dictionaries/usage_warnings.rst`` --
+if you make an update here, be sure to update there as well!
+"""
 
 USAGE_WARNINGS = {
     "multiple_inputs": "Contains information from multiple raw inputs.",
@@ -7,6 +11,7 @@ USAGE_WARNINGS = {
     "estimated_values": "Contains estimated values.",  # TODO: what do we mean here
     "incomplete_id_coverage": "Not all IDs are present.",  # TODO: do we want to set a coverage threshold and only apply this when we don't meet it?
     "incomplete_value_coverage": "?",  # TODO: do we mean high rates of missingness? do we want to set a threshold?
+    "low_coverage": "Table has known low coverage - either geographic or temporal or otherwise.",
     "redacted_values": "Some values have been redacted.",  # eg 88888
     "mixed_aggregations": "Some entries contain aggregates that do not match the table type.",  # eg 99999
     "month_as_date": "Date column arbitrarily uses the first of the month.",
@@ -15,9 +20,31 @@ USAGE_WARNINGS = {
     "known_discrepancies": "Contains known calculation discrepancies.",
     "free_text": "Contains columns which may appear categorical, but are actually free text.",
     "early_release": "May contain early release data.",
-    "aggregation_hazard": "Some columns are subtotals; use caution when choosing columns to aggregate.",
-    "scale_hazard": "Extremely large table; do not attempt to open with Excel.",  # TODO: set a threshold
+    "aggregation_hazard": "Some columns contain subtotals; use caution when choosing columns to aggregate.",
+    "scale_hazard": "Large table; do not attempt to open with Excel.",  # TODO: set a threshold
     "outliers": "Outliers present.",
     "missing_years": "Some years are missing from the data record.",
-    "ferc_is_hard": "FERC data is notoriously difficult to extract cleanly; see TODO for details.",
+    "ferc_is_hard": (
+        "FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, "
+        "non-labeled total rows and lack of IDs. See "
+        "`Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ "
+        "for details."
+    ),
+    "discontinued_data": "The data is no longer being collected or reported in this way.",
+    "discontinued_pudl": "PUDL does not currently update its copy of this data.",
+    "experimental_wip": "This table is experimental and/or a work in progress and may change in the future.",
+    "harvested": (
+        "Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses "
+        "the most consistent or relevant value to facilitate cross-referencing even if that means some values"
+        " will differ from the raw sources. See "
+        "`Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ "
+        "for details, and see "
+        "`Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ "
+        "for a fuller conceptual overview."
+    ),
+    "harvested_rus": (  # TODO: If more attributes harvested, update to refer to static attributes.
+        "Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses "
+        "the most consistent borrower name to facilitate cross-referencing even if that means some values"
+        " will differ from the raw sources."
+    ),
 }

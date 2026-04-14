@@ -8,10 +8,9 @@ from typing import Any
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_pudl__codes_subdivisions": {
         "title": "Political Subdivisions",
-        "description": (
-            "Various static attributes associated with states, provinces, and other "
-            "sub-national political subdivisions."
-        ),
+        "description": {
+            "additional_summary_text": "states, provinces, and other sub-national political subdivisions.",
+        },
         "schema": {
             "fields": [
                 "country_code",
@@ -34,11 +33,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_pudl__codes_imputation_reasons": {
         "title": "Imputation Reason Codes",
-        "description": (
-            "Contains codes and descriptions explaining why a value was flagged "
-            "for imputation. Any time a column is imputed, there should be a corresponding "
-            "column which contains codes for every value in the column that was imputed."
-        ),
+        "description": {
+            "additional_summary_text": "the reasons a value might be flagged for imputation.",
+            "additional_details_text": "Any time a column is imputed, there should be a corresponding column which contains codes for every value in the column that was imputed.",
+        },
         "schema": {
             "fields": [
                 "code",
@@ -52,7 +50,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_pudl__entity_plants_pudl": {
         "title": "PUDL Plants",
-        "description": "Home table for PUDL assigned plant IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
+        "description": {
+            "additional_summary_text": "PUDL-assigned plant IDs.",
+            "additional_details_text": "These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
+        },
         "schema": {
             "fields": ["plant_id_pudl", "plant_name_pudl"],
             "primary_key": ["plant_id_pudl"],
@@ -64,7 +65,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_pudl__entity_utilities_pudl": {
         "title": "PUDL Utilities",
-        "description": "Home table for PUDL assigned utility IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
+        "description": {
+            "additional_summary_text": "PUDL-assigned utility IDs.",
+            "additional_details_text": "These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
+        },
         "schema": {
             "fields": ["utility_id_pudl", "utility_name_pudl"],
             "primary_key": ["utility_id_pudl"],
@@ -76,7 +80,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_pudl__assn_utilities_plants": {
         "title": "PUDL Utility-Plant Associations",
-        "description": "Associations between PUDL utility IDs and PUDL plant IDs. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
+        "description": {
+            "additional_summary_text": "PUDL utility IDs and PUDL plant IDs.",
+            "additional_details_text": "This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
+        },
         "schema": {
             "fields": ["utility_id_pudl", "plant_id_pudl"],
             "primary_key": ["utility_id_pudl", "plant_id_pudl"],
@@ -87,7 +94,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_pudl__codes_datasources": {
         "title": "PUDL Data Sources",
-        "description": "Static table defining codes associated with the data sources that PUDL integrates.",
+        "description": {
+            "additional_summary_text": "the data sources that PUDL integrates.",
+        },
         "schema": {
             "fields": [
                 "datasource",
@@ -102,8 +111,28 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["pudl"],
     },
     "out_ferc714__hourly_estimated_state_demand": {
-        "title": "Estimated Hourly State Electricity Demand",
-        "description": "Estimated hourly electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861.",
+        "description": {
+            "additional_summary_text": (
+                "estimated electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861."
+            ),
+            "usage_warnings": ["estimated_values", "multiple_inputs", "scale_hazard"],
+            "additional_details_text": """This table uses hourly
+electricity demand and information about service territories to estimate the total
+hourly electricity demand for each US state. Hourly demand is drawn from the FERC
+714, which reports at the balancing authority and utility level. Service territories
+for utilities and balancing authorities are inferred from information in the EIA 861,
+including the counties served by each utility and the utilities that make up each
+balancing authority.
+
+This table uses the total electricity sales by state reported in the EIA 861 as a
+scaling factor to ensure that the magnitude of electricity sales is roughly correct, and
+obtains the shape of the demand curve from the hourly planning area demand reported in
+the FERC 714.
+
+This table includes the state FIPS codes - see :ref:`out_censusdp1tract__states` for
+additional information about FIPS state codes.
+""",
+        },
         "schema": {
             "fields": [
                 "state_id_fips",

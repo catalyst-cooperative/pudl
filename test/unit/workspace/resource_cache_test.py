@@ -1,206 +1,323 @@
 """Unit tests for resource_cache."""
 
-import shutil
-import tempfile
-from pathlib import Path
+import google.auth.exceptions
+import pytest
+from upath import UPath
 
-import requests.exceptions as requests_exceptions
-from google.api_core.exceptions import BadRequest
-from google.cloud.storage.retry import _should_retry
-
-from pudl.workspace import resource_cache
-from pudl.workspace.resource_cache import PudlResourceKey, extend_gcp_retry_predicate
-
-
-class TestGoogleCloudStorageCache:
-    """Unit tests for the GoogleCloudStorageCache class."""
-
-    def test_bad_request_predicate(self):
-        """Check extended predicate catches BadRequest and default exceptions."""
-        bad_request_predicate = extend_gcp_retry_predicate(_should_retry, BadRequest)
-
-        # Check default exceptions.
-        assert not _should_retry(BadRequest(message="Bad request!"))
-        assert _should_retry(requests_exceptions.Timeout())
-
-        # Check extended predicate handles default exceptions and BadRequest.
-        assert bad_request_predicate(requests_exceptions.Timeout())
-        assert bad_request_predicate(BadRequest(message="Bad request!"))
-
-
-class TestLocalFileCache:
-    """Unit tests for the LocalFileCache class."""
-
-    def setup_method(self):
-        """Prepares temporary directory for storing cache contents."""
-        self.test_dir = tempfile.mkdtemp()
-        self.cache = resource_cache.LocalFileCache(Path(self.test_dir))
-
-    def teardown_method(self):
-        """Deletes content of the temporary directories."""
-        shutil.rmtree(self.test_dir)
-
-    def test_add_single_resource(self):
-        """Adding resource has expected effect on later get() and contains() calls."""
-        res = PudlResourceKey("ds", "doi", "file.txt")
-        assert not self.cache.contains(res)
-        self.cache.add(res, b"blah")
-        assert self.cache.contains(res)
-        assert self.cache.get(res) == b"blah"
-
-    def test_that_two_cache_objects_share_storage(self):
-        """Two LocalFileCache instances with the same path share the object storage."""
-        second_cache = resource_cache.LocalFileCache(Path(self.test_dir))
-        res = PudlResourceKey("dataset", "doi", "file.txt")
-        assert not self.cache.contains(res)
-        assert not second_cache.contains(res)
-        self.cache.add(res, b"testContents")
-        assert self.cache.contains(res)
-        assert second_cache.contains(res)
-        assert second_cache.get(res) == b"testContents"
-
-    def test_deletion(self):
-        """Deleting resources has expected effect on later get() / contains() calls."""
-        res = PudlResourceKey("a", "b", "c")
-        assert not self.cache.contains(res)
-        self.cache.add(res, b"sampleContents")
-        assert self.cache.contains(res)
-        self.cache.delete(res)
-        assert not self.cache.contains(res)
-
-    def test_read_only_add_and_delete_do_nothing(self):
-        """Test that in read_only mode, add() and delete() calls are ignored."""
-        res = PudlResourceKey("a", "b", "c")
-        ro_cache = resource_cache.LocalFileCache(Path(self.test_dir), read_only=True)
-        assert ro_cache.is_read_only()
-
-        ro_cache.add(res, b"sample")
-        assert not ro_cache.contains(res)
-
-        # Use read-write cache to insert resource
-        self.cache.add(res, b"sample")
-        assert not self.cache.is_read_only()
-        assert ro_cache.contains(res)
-
-        # Deleting via ro cache should not happen
-        ro_cache.delete(res)
-        assert ro_cache.contains(res)
+from pudl.workspace.resource_cache import LayeredCache, PudlResourceKey, UPathCache
 
 
 class TestLayeredCache:
     """Unit tests for LayeredCache class."""
 
-    def setup_method(self):
-        """Constructs two LocalFileCache layers pointed at temporary directories."""
-        self.layered_cache = resource_cache.LayeredCache()
-        self.test_dir_1 = tempfile.mkdtemp()
-        self.test_dir_2 = tempfile.mkdtemp()
-        self.cache_1 = resource_cache.LocalFileCache(self.test_dir_1)
-        self.cache_2 = resource_cache.LocalFileCache(self.test_dir_2)
+    @pytest.fixture(autouse=True)
+    def setup_caches(self, tmp_path):
+        """Constructs two UPathCache layers pointed at temporary directories."""
+        self.layered_cache = LayeredCache()
+        self.test_dir_1 = tmp_path / "cache1"
+        self.test_dir_2 = tmp_path / "cache2"
+        self.test_dir_1.mkdir()
+        self.test_dir_2.mkdir()
+        self.cache_1 = UPathCache(UPath(f"file://{self.test_dir_1}"))
+        self.cache_2 = UPathCache(UPath(f"file://{self.test_dir_2}"))
 
-    def tearDown(self):
-        """Remove temporary directories storing the cache contents."""
-        shutil.rmtree(self.test_dir_1)
-        shutil.rmtree(self.test_dir_2)
-
-    def test_add_caching_layers(self):
-        """Adding layers has expected effect on the subsequent num_layers() calls."""
-        # self.assertEqual(0, self.layered_cache.num_layers())
+    def test_layering_and_multi_layer_operations(self):
+        """Test layer management, multi-layer add/delete, and priority retrieval."""
+        # Test layer counting
         assert self.layered_cache.num_layers() == 0
         self.layered_cache.add_cache_layer(self.cache_1)
         assert self.layered_cache.num_layers() == 1
         self.layered_cache.add_cache_layer(self.cache_2)
         assert self.layered_cache.num_layers() == 2
 
-    def test_add_to_first_layer(self):
-        """Adding to layered cache by default stores entires in the first layer."""
-        self.layered_cache.add_cache_layer(self.cache_1)
-        self.layered_cache.add_cache_layer(self.cache_2)
+        # Test adding to all writable layers
         res = PudlResourceKey("a", "b", "x.txt")
-        # self.assertFalse(self.layered_cache.contains(res))
         assert not self.layered_cache.contains(res)
         self.layered_cache.add(res, b"sampleContent")
         assert self.layered_cache.contains(res)
         assert self.cache_1.contains(res)
-        assert not self.cache_2.contains(res)
+        assert self.cache_2.contains(res)
+        assert self.cache_1.get(res) == b"sampleContent"
+        assert self.cache_2.get(res) == b"sampleContent"
 
-    def test_get_uses_innermost_layer(self):
-        """Resource is retrieved from the leftmost layer that contains it."""
-        res = PudlResourceKey("a", "b", "x.txt")
-        self.layered_cache.add_cache_layer(self.cache_1)
-        self.layered_cache.add_cache_layer(self.cache_2)
+        # Test retrieval from first layer
         self.cache_1.add(res, b"firstLayer")
         self.cache_2.add(res, b"secondLayer")
-        # assert self.layered_cache.get(res) == b"secondLayer"
         assert self.layered_cache.get(res) == b"firstLayer"
 
-        self.cache_1.add(res, b"firstLayer")
-        assert self.layered_cache.get(res) == b"firstLayer"
-        # Set on layered cache updates innermost layer
+        # Test updating all layers
+        self.layered_cache.delete(res)
         self.layered_cache.add(res, b"newContents")
         assert self.layered_cache.get(res) == b"newContents"
         assert self.cache_1.get(res) == b"newContents"
-        assert self.cache_2.get(res) == b"secondLayer"
+        assert self.cache_2.get(res) == b"newContents"
 
-        # Deletion also only affects innermost layer
+        # Test deletion from all layers
         self.layered_cache.delete(res)
-        assert self.layered_cache.contains(res)
+        assert not self.layered_cache.contains(res)
         assert not self.cache_1.contains(res)
-        assert self.cache_2.contains(res)
-        assert self.cache_2.get(res) == b"secondLayer"
+        assert not self.cache_2.contains(res)
 
-    def test_add_with_no_layers_does_nothing(self):
-        """When add() is called on cache with no layers nothing happens."""
+        # Test operations on cache with no layers
+        empty_cache = LayeredCache()
+        res2 = PudlResourceKey("a", "b", "c")
+        assert not empty_cache.contains(res2)
+        empty_cache.add(res2, b"sample")
+        assert not empty_cache.contains(res2)
+
+    def test_read_only_behavior(self):
+        """Test read-only layer and cache behavior."""
+        # Test read-only layer is skipped for writes
+        c1 = UPathCache(UPath(f"file://{self.test_dir_1}"), read_only=True)
+        c2 = UPathCache(UPath(f"file://{self.test_dir_2}"))
+        lc = LayeredCache(c1, c2)
         res = PudlResourceKey("a", "b", "c")
-        assert not self.layered_cache.contains(res)
-        self.layered_cache.add(res, b"sample")
-        assert not self.layered_cache.contains(res)
-        self.layered_cache.delete(res)
-
-    def test_read_only_layers_skipped_when_adding(self):
-        """When add() is called, layers that are marked as read_only are skipped."""
-        c1 = resource_cache.LocalFileCache(self.test_dir_1, read_only=True)
-        c2 = resource_cache.LocalFileCache(self.test_dir_2)
-        lc = resource_cache.LayeredCache(c1, c2)
-
-        res = PudlResourceKey("a", "b", "c")
-
-        assert not lc.contains(res)
-        assert not c1.contains(res)
-        assert not c2.contains(res)
 
         lc.add(res, b"test")
         assert lc.contains(res)
-        assert not c1.contains(res)
+        assert not c1.contains(res)  # Read-only layer not written
         assert c2.contains(res)
 
         lc.delete(res)
         assert not lc.contains(res)
-        assert not c1.contains(res)
         assert not c2.contains(res)
 
-    def test_read_only_cache_ignores_modifications(self):
-        """When cache is marked as read_only, add() and delete() calls are ignored."""
+        # Test read-only cache ignores all modifications
         r1 = PudlResourceKey("a", "b", "r1")
         r2 = PudlResourceKey("a", "b", "r2")
         self.cache_1.add(r1, b"xxx")
         self.cache_2.add(r2, b"yyy")
-        assert self.cache_1.contains(r1)
-        assert self.cache_2.contains(r2)
-        lc = resource_cache.LayeredCache(self.cache_1, self.cache_2, read_only=True)
+        ro_cache = LayeredCache(self.cache_1, self.cache_2, read_only=True)
 
-        assert lc.contains(r1)
-        assert lc.contains(r2)
+        assert ro_cache.contains(r1)
+        assert ro_cache.contains(r2)
 
-        lc.delete(r1)
-        lc.delete(r2)
-        assert lc.contains(r1)
-        assert lc.contains(r2)
-        assert self.cache_1.contains(r1)
-        assert self.cache_2.contains(r2)
+        # Deletion ignored on read-only cache
+        ro_cache.delete(r1)
+        ro_cache.delete(r2)
+        assert ro_cache.contains(r1)
+        assert ro_cache.contains(r2)
 
+        # Addition ignored on read-only cache
         r_new = PudlResourceKey("a", "b", "new")
-        lc.add(r_new, b"xyz")
-        assert not lc.contains(r_new)
-        assert not self.cache_1.contains(r_new)
-        assert not self.cache_2.contains(r_new)
+        ro_cache.add(r_new, b"xyz")
+        assert not ro_cache.contains(r_new)
+
+    def test_skip_update_if_closer_layer_has_resource(self, mocker):
+        """Test that get() doesn't overwrite closer layer if it already has the resource."""
+        # Setup mocks
+        layer1 = mocker.Mock(spec=UPathCache)
+        layer2 = mocker.Mock(spec=UPathCache)
+
+        # Configure layer1 (local):
+        # 1. contains() returns False (during search)
+        # 2. contains() returns True (during update attempt)
+        layer1.contains.side_effect = [False, True]
+        layer1.is_read_only.return_value = False
+
+        # Configure layer2 (remote):
+        # contains() returns True (found here)
+        layer2.contains.return_value = True
+        layer2.get.return_value = b"content"
+
+        # Create layered cache
+        lc = LayeredCache(layer1, layer2)
+        res = PudlResourceKey("a", "b", "x")
+
+        # Execute
+        lc.get(res)
+
+        # Verify
+        layer1.add.assert_not_called()
+
+    def test_add_skips_existing_layers(self, mocker):
+        """Test that add() does not write to layers that already contain the resource."""
+        layer1 = mocker.Mock(spec=UPathCache)
+        layer2 = mocker.Mock(spec=UPathCache)
+
+        layer1.is_read_only.return_value = False
+        layer2.is_read_only.return_value = False
+
+        # layer1 doesn't have it, layer2 has it
+        layer1.contains.return_value = False
+        layer2.contains.return_value = True
+
+        lc = LayeredCache(layer1, layer2)
+        res = PudlResourceKey("a", "b", "x")
+        content = b"content"
+
+        lc.add(res, content)
+
+        # layer1 should be written to
+        layer1.add.assert_called_once_with(res, content)
+        # layer2 should NOT be written to because it already has it
+        layer2.add.assert_not_called()
+
+
+class TestUPathCache:
+    """Unit tests for the UPathCache class."""
+
+    @pytest.fixture
+    def mock_s3_credentials(self, mocker):
+        """Fixture providing mocked boto3 components with credentials."""
+        mock_session = mocker.patch("pudl.workspace.resource_cache.boto3.Session")
+        mock_creds = mocker.Mock()
+        mock_session.return_value.get_credentials.return_value = mock_creds
+        return {"session": mock_session, "credentials": mock_creds}
+
+    @pytest.fixture
+    def mock_s3_no_credentials(self, mocker):
+        """Fixture providing mocked boto3 components without credentials."""
+        mock_session = mocker.patch("pudl.workspace.resource_cache.boto3.Session")
+        mock_session.return_value.get_credentials.return_value = None
+        return {"session": mock_session}
+
+    @pytest.fixture
+    def mock_gcp_credentials(self, mocker):
+        """Fixture providing mocked GCP credentials."""
+        mock_auth = mocker.patch("pudl.workspace.resource_cache.google.auth.default")
+        mock_creds = mocker.Mock()
+        project_id = "test-project"
+        mock_auth.return_value = (mock_creds, project_id)
+        return {"auth": mock_auth, "credentials": mock_creds, "project_id": project_id}
+
+    @pytest.fixture
+    def mock_gcp_no_credentials(self, mocker):
+        """Fixture providing mocked GCP auth that fails."""
+        mock_auth = mocker.patch("pudl.workspace.resource_cache.google.auth.default")
+        mock_auth.side_effect = google.auth.exceptions.DefaultCredentialsError(
+            "No credentials found"
+        )
+        return {"auth": mock_auth}
+
+    def test_invalid_schemes(self):
+        """Test that invalid storage schemes raise ValueError."""
+        with pytest.raises(ValueError, match="Unsupported storage scheme"):
+            UPathCache(UPath("http://example.com/path"))
+        with pytest.raises(ValueError, match="Unsupported storage scheme"):
+            UPathCache(UPath("ftp://example.com/path"))
+
+    def test_local_initialization(self, tmp_path):
+        """Test local filesystem cache initialization."""
+        local_cache = UPathCache(UPath(f"file://{tmp_path}"))
+        assert local_cache._protocol == "file"
+        assert local_cache._storage_options == {}
+
+    def test_s3_with_credentials(self, mock_s3_credentials):
+        """Test S3 cache initialization with credentials."""
+        s3_cache = UPathCache(UPath("s3://test-bucket/prefix"))
+        assert s3_cache._protocol == "s3"
+        assert s3_cache._storage_options.get("anon") is False
+
+    def test_s3_without_credentials(self, mock_s3_no_credentials):
+        """Test S3 cache initialization without credentials uses anonymous access."""
+        s3_cache = UPathCache(UPath("s3://public-bucket/path"))
+        assert s3_cache._protocol == "s3"
+        assert s3_cache._storage_options.get("anon") is True
+        assert s3_cache.is_read_only()
+
+    def test_gcs_with_credentials(self, mock_gcp_credentials):
+        """Test GCS cache initialization with credentials."""
+        gcs_cache = UPathCache(UPath("gs://test-bucket/prefix"))
+        assert gcs_cache._protocol == "gs"
+        assert gcs_cache._storage_options.get("project") == "test-project"
+
+    def test_gcs_without_credentials(self, mock_gcp_no_credentials):
+        """Test GCS cache initialization without credentials uses anonymous access."""
+        gcs_cache = UPathCache(UPath("gs://public-bucket/path"))
+        assert gcs_cache._protocol == "gs"
+        assert gcs_cache._storage_options.get("token") == "anon"
+        assert gcs_cache.is_read_only()
+
+    def test_local_filesystem_operations(self, tmp_path):
+        """Test add, get, delete, contains, and resource path construction on local filesystem."""
+        cache = UPathCache(UPath(f"file://{tmp_path}"))
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        # Test add and get
+        assert not cache.contains(res)
+        cache.add(res, b"test content")
+        assert cache.contains(res)
+        assert cache.get(res) == b"test content"
+
+        # Test delete
+        cache.delete(res)
+        assert not cache.contains(res)
+
+        # Test get on missing resource raises KeyError
+        missing_res = PudlResourceKey("dataset", "doi", "missing.txt")
+        with pytest.raises(KeyError, match="not found"):
+            cache.get(missing_res)
+        assert not cache.contains(missing_res)
+
+        # Test resource path construction with DOI
+        doi_res = PudlResourceKey("dataset", "10.5281/zenodo.123", "data.csv")
+        path = cache._resource_path(doi_res)
+        assert str(path).endswith("dataset/10.5281-zenodo.123/data.csv")
+
+        # Test that two cache instances share storage
+        cache2 = UPathCache(UPath(f"file://{tmp_path}"))
+        cache.add(res, b"shared content")
+        assert cache2.contains(res)
+        assert cache2.get(res) == b"shared content"
+
+    def test_read_only_behavior(self, tmp_path):
+        """Test read-only cache behavior for add and delete operations."""
+        # Create resource with writable cache
+        write_cache = UPathCache(UPath(f"file://{tmp_path}"))
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+        write_cache.add(res, b"content")
+
+        # Read-only cache should not allow modifications, and should raise RuntimeError
+        ro_cache = UPathCache(UPath(f"file://{tmp_path}"), read_only=True)
+        assert ro_cache.is_read_only()
+        assert ro_cache.contains(res)
+
+        # Add should raise RuntimeError
+        new_res = PudlResourceKey("dataset", "doi", "new.txt")
+        with pytest.raises(
+            RuntimeError,
+            match="Cannot add .* to cache. The cache was explicitly initialized with read_only=True.",
+        ):
+            ro_cache.add(new_res, b"content")
+        assert not ro_cache.contains(new_res)
+
+        # Delete should raise RuntimeError
+        with pytest.raises(
+            RuntimeError,
+            match="Cannot delete .* from cache. The cache was explicitly initialized with read_only=True.",
+        ):
+            ro_cache.delete(res)
+        assert ro_cache.contains(res)
+
+    def test_s3_write_operations_without_credentials(self, mock_s3_no_credentials):
+        """Test that S3 write operations without credentials raise appropriate errors."""
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+        s3_cache = UPathCache(UPath("s3://public-bucket/path"))
+
+        assert s3_cache.is_read_only()
+        with pytest.raises(
+            RuntimeError, match="Cannot add .* to cache. Only anonymous credentials"
+        ):
+            s3_cache.add(res, b"content")
+        with pytest.raises(
+            RuntimeError,
+            match="Cannot delete .* from cache. Only anonymous credentials",
+        ):
+            s3_cache.delete(res)
+
+    def test_gcs_write_operations_without_credentials(self, mock_gcp_no_credentials):
+        """Test that GCS write operations without credentials raise appropriate errors."""
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+        gcs_cache = UPathCache(UPath("gs://public-bucket/path"))
+
+        assert gcs_cache.is_read_only()
+        with pytest.raises(
+            RuntimeError, match="Cannot add .* to cache. Only anonymous credentials"
+        ):
+            gcs_cache.add(res, b"content")
+        with pytest.raises(
+            RuntimeError,
+            match="Cannot delete .* from cache. Only anonymous credentials",
+        ):
+            gcs_cache.delete(res)

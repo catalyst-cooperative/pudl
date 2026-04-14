@@ -1,0 +1,83 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__scd_plants
+        data_tests:
+          - expect_columns_not_all_null:
+              arguments:
+                ignore_eia860m_nulls: true
+                row_conditions:
+                  ash_impoundment: EXTRACT(year FROM report_date) >= 2013
+                  ash_impoundment_lined: EXTRACT(year FROM report_date) >= 2013
+                  ash_impoundment_status: EXTRACT(year FROM report_date) >= 2013
+                  balancing_authority_code_eia: EXTRACT(year FROM report_date) >= 2013
+                  balancing_authority_name_eia: EXTRACT(year FROM report_date) >= 2013
+                  datum: EXTRACT(year FROM report_date) = 2007
+                  energy_storage: EXTRACT(year FROM report_date) >= 2016
+                  ferc_cogen_docket_no: EXTRACT(year FROM report_date) NOT IN (2004, 2005, 2006)
+                  ferc_qualifying_facility_docket_no: EXTRACT(year FROM report_date) <= 2006
+                  grid_voltage_1_kv: EXTRACT(year FROM report_date) >= 2011
+                  grid_voltage_2_kv: EXTRACT(year FROM report_date) >= 2013
+                  grid_voltage_3_kv: EXTRACT(year FROM report_date) >= 2013
+                  iso_rto_code: EXTRACT(year FROM report_date) BETWEEN 2010 AND 2012
+                  liquefied_natural_gas_storage: EXTRACT(year FROM report_date) >= 2016
+                  natural_gas_local_distribution_company: EXTRACT(year FROM report_date) >= 2016
+                  natural_gas_storage: EXTRACT(year FROM report_date) >= 2016
+                  natural_gas_pipeline_name_1: EXTRACT(year FROM report_date) >= 2013
+                  natural_gas_pipeline_name_2: EXTRACT(year FROM report_date) >= 2016
+                  natural_gas_pipeline_name_3: EXTRACT(year FROM report_date) >= 2016
+                  has_net_metering: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2015
+                  pipeline_notes: EXTRACT(year FROM report_date) >= 2016
+                  regulatory_status_code: EXTRACT(year FROM report_date) >= 2006
+                  reporting_frequency_code: EXTRACT(year FROM report_date) >= 2008
+                  service_area: EXTRACT(year FROM report_date) <= 2006
+                  transmission_distribution_owner_id: EXTRACT(year FROM report_date) >= 2007
+                  transmission_distribution_owner_name: EXTRACT(year FROM report_date) >= 2007
+                  transmission_distribution_owner_state: EXTRACT(year FROM report_date) >= 2007
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia860__scd_plants
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+        columns:
+          - name: plant_id_eia
+          - name: report_date
+          - name: ash_impoundment
+          - name: ash_impoundment_lined
+          - name: ash_impoundment_status
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_name_eia
+          - name: datum
+          - name: energy_storage
+          - name: ferc_cogen_docket_no
+          - name: ferc_cogen_status
+          - name: ferc_exempt_wholesale_generator_docket_no
+          - name: ferc_exempt_wholesale_generator
+          - name: ferc_small_power_producer_docket_no
+          - name: ferc_small_power_producer
+          - name: ferc_qualifying_facility_docket_no
+          - name: grid_voltage_1_kv
+          - name: grid_voltage_2_kv
+          - name: grid_voltage_3_kv
+          - name: iso_rto_code
+          - name: liquefied_natural_gas_storage
+          - name: natural_gas_local_distribution_company
+          - name: natural_gas_storage
+          - name: natural_gas_pipeline_name_1
+          - name: natural_gas_pipeline_name_2
+          - name: natural_gas_pipeline_name_3
+          - name: nerc_region
+          - name: has_net_metering
+          - name: pipeline_notes
+          - name: primary_purpose_id_naics
+          - name: regulatory_status_code
+          - name: reporting_frequency_code
+          - name: sector_id_eia
+          - name: sector_name_eia
+          - name: service_area
+          - name: transmission_distribution_owner_id
+          - name: transmission_distribution_owner_name
+          - name: transmission_distribution_owner_state
+          - name: utility_id_eia
+          - name: water_source
+          - name: data_maturity

@@ -49,12 +49,15 @@ AS_MS_ONLY_FREQ_TABLES = [
     "gen_fuel_by_generator_eia923",
 ]
 
-# In general we run our tests and some subprocesses using more than one thread, and
-# sometimes we access remote HTTPS / S3 resources. When this happens it's possible
-# for DuckDB to get confused about whether the httpfs extension is installed and error
-# out if one processes is trying to install it after another one already has. Doing
-# this forced installation during setup avoids that issue.
-duckdb.execute("FORCE INSTALL httpfs")
+# In general we run tests and subprocesses with multiple workers, and some tests touch
+# remote HTTPS / S3 resources. We try to LOAD first so collection works in
+# network-restricted environments (for example, sandboxed CI/test runners). If the
+# extension is missing, we install it once and then load it.
+try:
+    duckdb.execute("LOAD httpfs")
+except duckdb.Error:
+    duckdb.execute("INSTALL httpfs")
+    duckdb.execute("LOAD httpfs")
 
 
 def pytest_addoption(parser):
@@ -76,11 +79,6 @@ def pytest_addoption(parser):
         action="store",
         default=False,
         help="Path to a non-standard ETL settings file to use.",
-    )
-    parser.addoption(
-        "--gcs-cache-path",
-        default=None,
-        help="If set, use this GCS path as a datastore cache layer.",
     )
     parser.addoption(
         "--bypass-local-cache",
@@ -367,7 +365,7 @@ def configure_paths_for_tests(tmp_path_factory, request):
     # Just in case we need this later...
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")
     # We only use a temporary input directory when explicitly requested.
-    # This will force a re-download of raw inputs from Zenodo or the GCS cache.
+    # This will force a re-download of raw inputs from Zenodo or the S3 cache.
     if request.config.getoption("--tmp-data"):
         in_tmp = pudl_tmpdir / "input"
         in_tmp.mkdir()
@@ -399,12 +397,31 @@ def dataset_settings_config(request, etl_settings: EtlSettings):
     return etl_settings.datasets.model_dump()
 
 
+@pytest.fixture(scope="session", autouse=True)
+def logger_config():
+    """Configure root logger to filter out excessive logs from certain dependencies."""
+    pudl.logging_helpers.configure_root_logger(
+        dependency_loglevels={
+            "aiobotocore": logging.WARNING,
+            "alembic": logging.WARNING,
+            "arelle": logging.INFO,
+            "asyncio": logging.INFO,
+            "boto3": logging.WARNING,
+            "botocore": logging.WARNING,
+            "fsspec": logging.INFO,
+            "google": logging.INFO,
+            "matplotlib": logging.WARNING,
+            "numba": logging.WARNING,
+            "urllib3": logging.INFO,
+        },
+        propagate=True,
+    )
+
+
 @pytest.fixture(scope="session")
 def pudl_datastore_config(request) -> dict[str, Any]:
     """Produce a :class:pudl.workspace.datastore.Datastore."""
-    gcs_cache_path = request.config.getoption("--gcs-cache-path")
     return {
-        "gcs_cache_path": gcs_cache_path if gcs_cache_path else "",
         "use_local_cache": not request.config.getoption("--bypass-local-cache"),
     }
 

@@ -70,19 +70,19 @@ class ExcelMetadata(GenericMetadata):
 
     def get_sheet_name(self, page, **partition):
         """Return name of Excel sheet containing data for given partition and page."""
-        return self._sheet_name.loc[page, str(self._get_partition_selection(partition))]
+        return self._sheet_name.loc[str(self._get_partition_selection(partition)), page]
 
     def get_skiprows(self, page, **partition):
         """Return number of header rows to skip when loading a partition and page."""
-        return self._skiprows.loc[page, str(self._get_partition_selection(partition))]
+        return self._skiprows.loc[str(self._get_partition_selection(partition)), page]
 
     def get_skipfooter(self, page, **partition):
         """Return number of footer rows to skip when loading a partition and page."""
-        return self._skipfooter.loc[page, str(self._get_partition_selection(partition))]
+        return self._skipfooter.loc[str(self._get_partition_selection(partition)), page]
 
     def get_file_name(self, page, **partition):
         """Returns file name of given partition and page."""
-        return self._file_name.loc[page, str(self._get_partition_selection(partition))]
+        return self._file_name.loc[str(self._get_partition_selection(partition)), page]
 
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""
@@ -230,9 +230,15 @@ class ExcelExtractor(GenericExtractor):
                             df, index=False
                         )
                 else:
-                    excel_file = pd.ExcelFile(
-                        BytesIO(zf.read(xlsx_filename)), engine="calamine"
-                    )
+                    try:
+                        excel_file = pd.ExcelFile(
+                            BytesIO(zf.read(xlsx_filename)), engine="calamine"
+                        )
+                    except Exception as e:
+                        logger.error(
+                            f"Error while loading page {page}, partition {partition}: {e=}, {type(e)=}"
+                        )
+                        raise
             self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
         excel_file = self._file_cache[xlsx_filename]

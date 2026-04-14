@@ -26,16 +26,54 @@ class Extractor(excel.ExcelExtractor):
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
+    def load_source(self, page: str, **partition) -> pd.DataFrame:
+        """Run same load_source and then replace all periods w/ n's.
+
+        There are a ton of identical column names in the raw dataset for 1984.
+        Typically these get processed in load_source via pd.read_excel which adds
+        a period and then an auto-incremented number as a suffix. Then this
+        data gets run through :func:`pudl.helpers.simplify_columns` which converts
+        all non-alphanumeric (aka periods) into spaces and then condenses any multiple
+        spaces into one space. This would all be fine and good except for the fact that
+        there are 22 column names that are identical expect for trailing spaces in the
+        raw source. These trailing spaces effectively get removed in
+        :func:`pudl.helpers.simplify_columns` and then we have duplicate column names.
+        This method runs the parent adds _n#'s to these trailing space column names.
+        """
+        df = super().load_source(page, **partition)
+        if (int(partition["year"]) == 1984) and (page == "yearly_distribution"):
+            df.columns = df.columns.str.replace(" .", "n")
+            # the first two iterations of these columns that have trailing spaces
+            # don't get the .# at the end and such need this special treatment
+            ends_w_space_cols = [col for col in df.columns if col.endswith(" ")]
+            assert len(ends_w_space_cols) == 2
+            df = df.rename(
+                columns={raw_col: f"{raw_col}_n0" for raw_col in ends_w_space_cols}
+            )
+        return df
+
     def process_renamed(self, newdata: pd.DataFrame, page: str, **partition):
         """Drop columns that get mapped to other assets and columns with unstructured data.
 
-        Older years of PHMSA data have one Excel tab in the raw data, while newer data
-        has multiple tabs. To extract data into tables that follow the newer data format
-        without duplicating the older data, we need to split older pages into multiple
-        tables by column. To prevent each table from containing all columns from these
-        older years, filter by the list of columns specified for the page, with a
+        Old-ish years (1990-2009) of PHMSA data have one Excel tab in the raw data, while
+        newer data has multiple tabs. To extract data into tables that follow the newer
+        data format without duplicating the older data, we need to split older pages into
+        multiple tables by column. To prevent each table from containing all columns from
+        these older years, filter by the list of columns specified for the page, with a
         warning.
+
+        The oldest years (before 1990) contain multiple years in one tab. The records
+        contain a report_year column but some of them are reported at a two digit year
+        (ex: 87 for 1987). We convert these into four digit years.
         """
+        if (int(partition["year"]) <= 1998) and (page == "yearly_distribution"):
+            newdata.report_year = newdata.report_year.astype(pd.Int64Dtype())
+            double_digit_year_mask = (
+                newdata["report_year"].astype("str").str.contains(r"^[0-9]{2}$")
+            )
+            newdata.loc[double_digit_year_mask, "report_year"] = (
+                newdata.loc[double_digit_year_mask, "report_year"] + 1900
+            )
         if (int(partition["year"]) < 2010) and (
             self._metadata.get_form(page) == "gas_transmission_gathering"
         ):
@@ -59,7 +97,7 @@ class Extractor(excel.ExcelExtractor):
         # FYI: In 2009 there were a ton of extra columns seemingly from two records that had a
         # multi-line comment that shifted the rest of the cells over. Presumably we could map
         # them all and do a manual shift of the data. But its only 2 records so rn we are just
-        # droppign them.
+        # dropping them.
         unnamed_page_years = {
             "yearly_distribution": [
                 2000,
@@ -91,7 +129,7 @@ raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")
 
 @multi_asset(
     outs={
-        table_name: AssetOut()
+        table_name: AssetOut(is_required=False)
         for table_name in sorted(
             (
                 "raw_phmsagas__yearly_distribution",
@@ -111,9 +149,10 @@ raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")
                 "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_material",
             )
         )
-    }
+    },
+    can_subset=True,
 )
-def extract_phmsagas(raw_phmsagas__all_dfs):
+def extract_phmsagas(context, raw_phmsagas__all_dfs):
     """Extract raw PHMSA gas data from excel sheets into dataframes."""
     # create descriptive table_names
     raw_phmsagas__all_dfs = {
@@ -121,8 +160,10 @@ def extract_phmsagas(raw_phmsagas__all_dfs):
         for table_name, df in raw_phmsagas__all_dfs.items()
     }
     raw_phmsagas__all_dfs = dict(sorted(raw_phmsagas__all_dfs.items()))
+    selected_outputs = set(context.selected_output_names)
 
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in raw_phmsagas__all_dfs.items()
+        if table_name in selected_outputs
     )

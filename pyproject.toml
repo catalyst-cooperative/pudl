@@ -1,191 +1,437 @@
 [build-system]
-build-backend = "setuptools.build_meta"
-requires = ["setuptools>=66", "setuptools_scm[toml]>=3.5.0", "wheel"]
+build-backend = "hatchling.build"
+requires = ["hatchling", "hatch-vcs"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pudl"]
+
+[tool.hatch.version]
+source = "vcs"
+# Use CalVer-style versioning: YYYY.MM.PATCH (years 2000-2099)
+# Only consider tags matching v20*.*.* to avoid nightly and other non-version tags
+tag-pattern = "^v(?P<version>20\\d{2}\\.\\d{1,2}\\.\\d{1,2})$"
+fallback-version = "0.0.0.dev0"
+
+[tool.hatch.version.raw-options]
+# Tell git to only consider version tags, not nightly-* or other tags
+git_describe_command = [
+    "git",
+    "describe",
+    "--tags",
+    "--long",
+    "--match",
+    "v20*",
+]
+# Disable local version identifier (no +g1234567 suffix)
+local_scheme = "no-local-version"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/pudl/_version.py"
 
 [project]
 name = "catalystcoop.pudl"
 description = "An open data processing pipeline for US energy data"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
-license = { file = "LICENSE.txt" }
-dependencies = [
-    "alembic>=1.16",
-    "boto3>=1.35",
-    "bottleneck>=1.5.0", # pandas[performance]; 1.3.7 required for Python 3.12
-    "build>=1.2",
-    "catalystcoop.dbfread>=3.0,<3.1",
-    "catalystcoop.ferc-xbrl-extractor>=1.6.0,<2",
-    "click>=8,!=8.2.0",
-    "coloredlogs>=14.0", # Dagster requires 14.0
-    "conda-lock>=3",
-    "coverage>=7.6",
-    "dagster>=1.11",
-    "dagster-dbt", # Automatically follows dagster version
-    "dagster-postgres", # Automatically follows dagster version
-    "dask>=2025",
-    "dask-expr>=2", # Required for dask[dataframe]
-    "datasette>=0.65",
-    "dbt-core>=1.10.4",
-    "dbt-duckdb>=1.9.4",
-    "deepdiff>=7.0.1",
-    "doc8>=1.1",
-    "duckdb>=1.3.2",
-    "email-validator>=1.0.3", # pydantic[email]
-    "frictionless>=5,<6",
-    "fsspec>=2025",
-    "furo>=2024",
-    "gcsfs>=2025",
-    "gdal==3.11.3", # pinned, because we need it to work with pudl-archiver
-    "geopandas>=1.1",
-    "grpcio==1.71.0", # Required by dagster, binary dependencies are flaky
-    "grpcio-health-checking==1.71.0", # Required by dagster, binary dependencies are flaky
-    "grpcio-status==1.71.0", # Required by dagster, binary dependencies are flaky
-    "hypothesis>=6.123",
-    "jellyfish>=1",
-    "jinja2>=3.1",
-    "jupyter",
-    "matplotlib>=3.10",
-    "mlflow>=3.1",
-    "nbconvert>=7",
-    "nbformat>=5.10",
-    "networkx>=3.5",
-    "numba>=0.61.2", # pandas[performance]; 0.61.2 required for Numpy 2.2
-    "numexpr>=2.10", # pandas[performance]
-    "numpy>=2.2",
-    "packaging>=24",
-    "pandas>=2.3",
-    "pandera>=0.25",
-    "pre-commit>=4",
-    "pyarrow>=19", # pandas[parquet]
-    "pydantic>=2.11",
-    "pydantic-settings>=2.10",
-    "pytest>=8",
-    "pytest-console-scripts>=1.4",
-    "pytest-cov>=5",
-    "pytest-mock>=3.14",
-    "pytest-xdist>=3.8",
-    "python-calamine>=0.4", # pandas[excel]
-    "python-dotenv>=1",
-    "pytz>=2025",
-    "pyyaml>=6",
-    "readthedocs-sphinx-ext>=2",
-    "requests>=2.32",
-    "responses>=0.25",
-    "ruff>=0.12",
-    "s3fs>=2025",
-    "scikit-learn>=1.7",
-    "scipy>=1.16",
-    "Shapely>=2.1.1",
-    "splink>=4",
-    "sphinx>=8",
-    "sphinx-autoapi>=3",
-    "sphinx-issues>=5",
-    "sphinx-reredirects>=1",
-    "sphinxcontrib_bibtex>=2.6",
-    "sphinxcontrib_googleanalytics>=0.4",
-    "sqlalchemy>=2",
-    "sqlglot>=27",
-    "timezonefinder>=6.5",
-    "typos>=1.34", # Spell-checker
-    "universal_pathlib>=0.2",
-    "urllib3>=2.4",
-    "xlsxwriter>=3.2", # pandas[excel]
-]
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Console",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Natural Language :: English",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python",
-    "Topic :: Scientific/Engineering",
-]
-keywords = [
-    "analysis",
-    "climate change",
-    "coal",
-    "data",
-    "economics",
-    "eia 860",
-    "eia 861",
-    "eia 923",
-    "electricity",
-    "emissions",
-    "energy",
-    "epa ampd",
-    "epa cems",
-    "ferc form 1",
-    "ferc form 2",
-    "ferc form 6",
-    "ferc form 60",
-    "ferc form 714",
-    "finance",
-    "fossil fuel",
-    "natural gas",
-    "oil",
-    "policy",
-    "utility",
-]
-
-[project.scripts]
-ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
-metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
-pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
-pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
-pudl_etl = "pudl.etl.cli:pudl_etl"
-pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
-dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
-pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
-resource_description = "pudl.scripts.resource_description:main"
+license = "MIT"
+# All dependencies are managed through pixi, ensuring they're always installed from
+# conda-forge if available. See tool.pixi.dependencies, tool.pixi.pypi-dependencies,
+# and tool.pixi.package.run-dependencies below. This means that the package cannot be
+# installed with pip or uv, but it is set up to be built with pixi into a conda package
+# which can be installed with conda, mamba, micromamba, pixi, etc.
+dependencies = []
 
 [project.urls]
-"Homepage" = "https://catalyst.coop/pudl/"
+"Homepage" = "https://github.com/catalyst-cooperative/pudl"
 "Source" = "https://github.com/catalyst-cooperative/pudl"
 "Documentation" = "https://catalystcoop-pudl.readthedocs.io"
-"Release Notes" = "https://catalystcoop-pudl.readthedocs.io/en/nightly/release_notes.html"
 "Issue Tracker" = "https://github.com/catalyst-cooperative/pudl/issues"
 "Support" = "https://github.com/catalyst-cooperative/pudl/discussions"
 "Funding" = "https://catalyst.coop/support-the-pudl-project/"
 
-[project.optional-dependencies]
-dev = [
-    "dagster-webserver>=1.11",
-    "jupyterlab>4.4",
-    "jupyter-lsp",
-    "jupyterlab-lsp",
-    "ruff-lsp",
-    "jupyter-resource-usage",
-    "pygraphviz",
-    "terraform>=1.9.2",
+[tool.pixi.workspace]
+name = "catalystcoop.pudl"
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+channels = ["conda-forge"]
+channel-priority = "strict"
+preview = ["pixi-build"]
+
+# This is an expansive listing of all PUDL dependencies that are available via
+# conda-forge. It includes development, testing, and run-time dependencies.
+# For any dependency with an upper bound on the version, please add a
+# comment explaining why it's necessary.
+[tool.pixi.dependencies]
+alembic = ">=1.17"
+boto3 = ">=1.35"
+bottleneck = ">=1.5.0"
+"catalystcoop.dbfread" = ">=3.0,<3.1"
+"catalystcoop.ferc_xbrl_extractor" = ">=1.8,<1.9"
+click = ">=8.3"
+coloredlogs = ">=14.0"
+coverage = ">=7.13"
+curl = ">=8.17"
+dagster = ">=1.12.20"
+dagster-dbt = ">=1!0.28.20"
+dagster-dg-cli = ">=1.12.20"
+dagster-gcp = ">=1!0.28.20"
+dagster-postgres = ">=1!0.28.20"
+dagster-webserver = ">=1.12.20"
+dbt-core = ">=1.11.7"
+dbt-duckdb = ">=1.9.4"
+deepdiff = ">=8"
+doc8 = ">=1.1"
+email-validator = ">=1.0.3"
+frictionless = ">=5,<6"
+fsspec = ">=2026"
+gcsfs = ">=2026"
+# The Python geospatial stack is notoriously finnicky and full of compiled # extensions
+# that have to be kept in sync. If this isn't pinned things will probably break.
+gdal = "==3.12.3"
+geoarrow-pyarrow = ">=0.2"
+geopandas = ">=1.1"
+google-cloud-sdk = ">=535"
+# grpcio packages all need to have same version to avoid conflicts.
+# They are also compiled and finnicky. Check compatibility before upgrading.
+grpcio = "==1.78.0"
+grpcio-health-checking = "==1.78.0"
+grpcio-status = "==1.78.0"
+hypothesis = ">=6.123"
+jellyfish = ">=1"
+jinja2 = ">=3.1"
+jupyter = ">=1.1"
+jupyter-lsp = ">=2.3"
+jupyter-resource-usage = ">=1.2"
+jupyterlab = ">=4.5"
+jupyterlab-lsp = ">=5.2"
+matplotlib-base = ">=3.10"
+memray = ">=1.18.0"
+mlflow = ">=3.10"
+nbconvert = ">=7"
+nbformat = ">=5.10"
+networkx = ">=3.6"
+nodejs = ">=24"
+numba = ">=0.64"
+numexpr = ">=2.10"
+numpy = ">=2.4"
+packaging = ">=25"
+pandas = ">=2.3"
+pandoc = ">=3.7"
+pandera-polars = ">=0.30"
+parallel = ">=20250822"
+polars = ">=1.39"
+pre-commit = ">=4.5"
+# potentially unresolveable breaking changes in prettier 4.x
+prettier = ">=3.7,<4"
+# pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
+pyarrow = ">=23"
+pydantic = ">=2.12"
+pydantic-settings = ">=2.13"
+pydata-sphinx-theme = ">=0.16.1"
+pygraphviz = ">=1"
+pytest = ">=9"
+pytest-console-scripts = ">=1.4"
+pytest-cov = ">=7"
+pytest-mock = ">=3.15"
+pytest-order = ">=1.3"
+pytest-xdist = ">=3.8"
+python-calamine = ">=0.6.1"
+python-dotenv = ">=1"
+python-duckdb = ">=1.4,<1.5"
+pytz = ">=2025"
+pyyaml = ">=6"
+readthedocs-sphinx-ext = ">=2"
+requests = ">=2.32"
+responses = ">=0.25"
+ruff = ">=0.15"
+ruff-lsp = ">=0.0.62"
+s3fs = ">=2026"
+scikit-learn = ">=1.8"
+scipy = ">=1.17"
+shapely = ">=2.1.1"
+slack-sdk = ">=3.39.0"
+sphinx = ">=9"
+sphinx-autoapi = ">=3.8"
+sphinx-design = ">=0.7.0"
+sphinx-issues = ">=5"
+sphinx-reredirects = ">=1"
+sphinxcontrib-bibtex = ">=2.6"
+sphinxcontrib-googleanalytics = ">=0.4"
+sphinxcontrib-mermaid = ">=2.0"
+splink = ">=4.0.14"
+sqlalchemy = ">=2"
+sqlite = ">=3.52"
+taplo = "==0.9.3"
+terraform = ">=1.14"
+timezonefinder = ">=8"
+typos = ">=1.40"
+universal-pathlib = ">=0.3.10"
+urllib3 = ">=2.4"
+uv = ">=0.10"
+xlsxwriter = ">=3.2"
+zip = ">=3.0"
+
+[tool.pixi.pypi-dependencies]
+# Install the local package in editable mode. Assume dependencies are specified either
+# above in [tools.pixi.dependenccies] (for conda packages) or in this section, if they
+# happen to only be available via PyPI.
+"catalystcoop.pudl" = { path = ".", editable = true }
+
+[tool.pixi.package]
+version = "v0.0.0"
+
+[tool.pixi.package.build.backend]
+name = "pixi-build-python"
+version = ">=0.4.3"
+channels = ["conda-forge"]
+
+[tool.pixi.package.build-dependencies]
+python = ">=3.13,<3.14.0"
+
+[tool.pixi.package.host-dependencies]
+hatchling = ">=1.16"
+hatch-vcs = ">=0.5"
+uv = ">=0.10"
+
+# This is a list of the minimal set of run-time dependencies required for PUDL to
+# be installed and function properly. These should be kept in sync with the more
+# expansive list in [tool.pixi.dependencies] above.
+[tool.pixi.package.run-dependencies]
+alembic = ">=1.17"
+boto3 = ">=1.35"
+bottleneck = ">=1.5.0"
+"catalystcoop.dbfread" = ">=3.0,<3.1"
+"catalystcoop.ferc_xbrl_extractor" = ">=1.8,<1.9"
+click = ">=8.3"
+coloredlogs = ">=14.0"
+dagster = ">=1.12.20"
+dagster-dbt = ">=0.28.20"
+dagster-postgres = ">=0.28.20"
+dagster-webserver = ">=1.12.20"
+dbt-core = ">=1.11.8"
+dbt-duckdb = ">=1.9.4"
+email-validator = ">=1.0.3"
+frictionless = ">=5,<6"
+fsspec = ">=2026"
+gcsfs = ">=2026"
+# The Python geospatial stack is notoriously finnicky and full of compiled # extensions
+# that have to be kept in sync. If this isn't pinned things will probably break.
+gdal = "==3.12.3"
+geoarrow-pyarrow = ">=0.2"
+geopandas = ">=1.1"
+# grpcio packages all need to have same version to avoid conflicts.
+# They are also compiled and finnicky. Check compatibility before upgrading.
+grpcio = "==1.78.0"
+grpcio-health-checking = "==1.78.0"
+grpcio-status = "==1.78.0"
+jellyfish = ">=1"
+jinja2 = ">=3.1"
+matplotlib-base = ">=3.10"
+mlflow = ">=3.10"
+networkx = ">=3.6"
+numba = ">=0.64"
+numexpr = ">=2.10"
+numpy = ">=2.4"
+packaging = ">=25"
+pandas = ">=2.3"
+pandera-polars = ">=0.30"
+polars = ">=1.39"
+pyarrow = ">=23"
+pydantic = ">=2.12"
+pydantic-settings = ">=2.13"
+python-calamine = ">=0.6.1"
+python-dotenv = ">=1"
+python-duckdb = ">=1.4,<1.5"
+pytz = ">=2025"
+pyyaml = ">=6"
+requests = ">=2.32"
+s3fs = ">=2026"
+scikit-learn = ">=1.8"
+scipy = ">=1.17"
+shapely = ">=2.1.1"
+splink = ">=4.0.14"
+sqlalchemy = ">=2"
+timezonefinder = ">=8"
+universal-pathlib = ">=0.3.10"
+urllib3 = ">=2.4"
+xlsxwriter = ">=3.2"
+
+[tool.pixi.activation.env]
+# Reusable variables for pixi tasks
+ETL_FAST_YML = "src/pudl/package_data/settings/etl_fast.yml"
+ETL_FULL_YML = "src/pudl/package_data/settings/etl_full.yml"
+
+[tool.pixi.tasks]
+# Documentation tasks
+[tool.pixi.tasks.docs-clean]
+cmd = """
+bash -c 'shopt -s nullglob; rm -rf \
+    docs/_build \
+    docs/autoapi \
+    docs/data_dictionaries/pudl_db.rst \
+    docs/data_dictionaries/codes_and_labels.rst \
+    docs/data_dictionaries/code_csvs \
+    docs/data_sources/census*.rst \
+    docs/data_sources/eia*.rst \
+    docs/data_sources/epacems*.rst \
+    docs/data_sources/epacamd*.rst \
+    docs/data_sources/ferc*.rst \
+    docs/data_sources/gridpathratoolkit*.rst \
+    docs/data_sources/nrelatb*.rst \
+    docs/data_sources/phmsagas*.rst \
+    docs/data_sources/rus*.rst \
+    docs/data_sources/sec10k*.rst \
+    docs/data_sources/vcerare*.rst'
+"""
+description = "Remove all generated documentation files"
+
+[tool.pixi.tasks.docs-build]
+cmd = """
+doc8 docs/ README.rst && \
+python -m sphinx --jobs auto -W -b html docs docs/_build/html
+"""
+depends-on = ["docs-clean"]
+description = "Build PUDL docs using Sphinx"
+
+[tool.pixi.tasks.toml-format]
+cmd = "taplo fmt"
+description = "Format TOML files with Taplo"
+
+[tool.pixi.tasks.toml-format-check]
+cmd = "taplo fmt --check"
+description = "Check TOML formatting with Taplo"
+
+[tool.pixi.tasks.toml-check]
+cmd = "taplo check"
+description = "Validate TOML files with Taplo"
+
+[tool.pixi.tasks.docs-check]
+cmd = """
+doc8 docs/ README.rst && \
+PUDL_DOCS_DISABLE_INTERSPHINX=1 coverage run --append -m sphinx --jobs auto -W -b dummy docs docs/_build/dummy
+"""
+depends-on = ["docs-clean"]
+description = "Run a fast validation-only Sphinx docs check"
+
+[tool.pixi.tasks.docs-linkcheck]
+cmd = """
+sphinx-build --jobs auto -W -b linkcheck docs docs/_build/linkcheck
+"""
+depends-on = ["docs-clean"]
+description = "Check external links in the PUDL docs using Sphinx linkcheck"
+
+# Testing tasks
+[tool.pixi.tasks.coverage-erase]
+cmd = "coverage erase"
+description = "Clear coverage data"
+
+[tool.pixi.tasks.pytest-unit]
+cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit"
+description = "Run unit tests and doctests"
+
+[tool.pixi.tasks.pytest-integration]
+cmd = "pytest --cov-fail-under=0 --etl-settings $ETL_FAST_YML test/integration"
+description = "Run integration tests with fast ETL settings"
+
+[tool.pixi.tasks.pytest-ci]
+cmd = "coverage report"
+depends-on = [
+    "coverage-erase",
+    "docs-check",
+    "pytest-unit",
+    "pytest-integration",
 ]
+description = "Run all CI tests and report test coverage"
 
-[tool.setuptools]
-include-package-data = true
+[tool.pixi.tasks.pytest-integration-full]
+cmd = "pytest --live-dbs --no-cov --etl-settings $ETL_FULL_YML test/integration"
+description = "Run integration tests against local full ETL outputs"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.pixi.tasks.pytest-jupyter]
+cmd = "pytest --live-dbs test/integration/jupyter_notebooks_test.py"
+description = "Test Jupyter notebooks"
 
-[tool.setuptools_scm]
-tag_regex = "^v(?P<version>20\\d{2}\\.\\d{1,2}\\.\\d{1,2})$"
-git_describe_command = [
-    "git",
-    "describe",
-    "--dirty",
-    "--tags",
-    "--long",
-    "--match",
-    "v20*",
-]
+# Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
+# Identify any plant or utility IDs in the DBs that haven't yet been mapped
+# These outputs should be turned into normal dagster assets. See issue #4338
+[tool.pixi.tasks.unmapped-ids]
+cmd = """
+pytest \
+    --save-unmapped-ids
+    --ignore-foreign-key-constraints \
+    --etl-settings $ETL_FULL_YML \
+    test/integration/glue_test.py
+"""
+description = "Identify unmapped plant and utility IDs"
+
+# ETL tasks
+[tool.pixi.tasks.ferc]
+cmd = """
+bash -c 'shopt -s nullglob; rm -f \
+    $PUDL_OUTPUT/ferc*.sqlite \
+    $PUDL_OUTPUT/ferc*.duckdb \
+    $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
+    $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json' && \
+coverage run --append ferc_to_sqlite $ETL_FULL_YML
+"""
+description = "Build FERC databases from scratch"
+
+[tool.pixi.tasks.pudl]
+cmd = """
+bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite' && \
+alembic upgrade head && \
+coverage run --append pudl_etl $ETL_FULL_YML
+"""
+description = "Run full PUDL ETL pipeline"
+
+# Code quality tasks
+[tool.pixi.tasks.pre-commit-run]
+cmd = "pre-commit run --all-files"
+description = "Run all pre-commit hooks"
+
+[tool.pixi.tasks.pre-commit-install]
+cmd = "pre-commit install"
+description = "Install pre-commit hooks"
+
+# Dependency Update tasks
+[tool.pixi.tasks.pre-commit-autoupdate]
+cmd = "pre-commit autoupdate"
+description = "Update pre-commit hook versions"
+
+[tool.pixi.tasks.dbt-deps-upgrade]
+cmd = "dbt deps --upgrade"
+cwd = "dbt"
+description = "Update dbt dependencies"
+
+# Coding agent environment
+# NOTE (2026-03-17): We're using the `experimental_install` command
+# which is the workaround for "restoring from a lockfile" - see
+# https://github.com/vercel-labs/skills/issues/549 - we probably want to switch to
+# `npx skills install` whenever that actually becomes a thing.
+[tool.pixi.tasks.install-skills]
+cmd = "npx skills experimental_install"
+description = "Install skills from lockfile"
+
+[project.scripts]
+auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
+ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
+metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
+pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
+pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
+pudl_deploy = "pudl.scripts.deploy:pudl_deploy"
+pudl_etl = "pudl.etl.cli:pudl_etl"
+pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
+dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
+generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
+pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
+resource_description = "pudl.scripts.resource_description:main"
+update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
+zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
-target-version = "py312"
+target-version = "py313"
 line-length = 88
 indent-width = 4
 # Don't touch autogenerated alembic migrations and ignore notebooks for now
@@ -253,7 +499,6 @@ ignore = [
     "PD010", # Use of df.stack()
     "PD013", # Use of df.unstack()
     "PD015", # Use of pd.merge() rather than df.merge()
-    "PD901", # df as variable name
     "RET504", # Ignore unnecessary assignment before return
     "RUF005", # Unpack iterables instead of concatenation
     "S101", # Use of assert
@@ -283,8 +528,9 @@ multiline-quotes = "double"
 max-line-length = 88
 ignore-path = ["docs/ferc/form1", "docs/_build", "docs/data_sources/phmsagas"]
 
-[tool.pytest.ini_options]
-testpaths = "./"
+[tool.pytest]
+minversion = "9.0"
+testpaths = ["./"]
 filterwarnings = [
     "ignore:distutils Version classes are deprecated:DeprecationWarning",
     "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning",
@@ -322,48 +568,28 @@ markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 # must not end with `--cov` since that will treat the first argument you pass
 # to pytest as a coverage source! see
 # https://github.com/catalyst-cooperative/pudl/issues/3609
-addopts = """\
-    --verbose \
-    --cov \
-    --cov-append \
-    --cov-config=pyproject.toml \
-    --cov-report= \
-    """
+addopts = [
+    "--verbose",
+    "--cov",
+    "--cov-append",
+    "--cov-config=pyproject.toml",
+    "--cov-report=",
+    "--durations=20",
+]
 log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 log_cli = true
-log_cli_level = "DEBUG"
-doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
-
-[tool.conda-lock]
-channels = ["conda-forge"]
-platforms = [
-    "linux-64",
-    "osx-64",
-    "osx-arm64",
-    # The google-cloud-sdk conda package doesn't support Windows
-    # "win-64",
+log_cli_level = "INFO"
+doctest_optionflags = [
+    "NORMALIZE_WHITESPACE",
+    "IGNORE_EXCEPTION_DETAIL",
+    "ELLIPSIS",
 ]
-channel-priority = "strict"
-name = "pudl-dev"
-
-[tool.conda-lock.dependencies]
-curl = ">=8.4.0"
-google-cloud-sdk = ">=500"
-nodejs = ">=20"
-pandoc = ">=2"
-pip = ">=24"
-prettier = ">=3.0,<4"
-python = ">=3.12,<3.13"
-sqlite = ">=3.47"
-zip = ">=3.0"
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
-omit = [
-    # Never hit by integration tests:
-    "src/pudl/validate.py",
-]
+omit = ["src/pudl/*/ferceqr*.py", "src/pudl/_version.py"]
+relative_files = true
 
 [tool.coverage.report]
 precision = 2
@@ -391,6 +617,14 @@ modules = [
     { type = "module", name = "pudl.etl" },
     { type = "module", name = "pudl.ferc_to_sqlite" },
 ]
+
+[tool.dg]
+directory_type = "project"
+
+[tool.dg.project]
+root_module = "pudl"
+code_location_target_module = "pudl.definitions"
+registry_modules = ["pudl.etl", "pudl.ferc_to_sqlite"]
 
 [tool.typos.default]
 # Ignore spellchecking all lines with # spellchecker:ignore
@@ -430,6 +664,18 @@ TRE = "TRE"
 Worchester = "Worchester"
 wrk = "wrk"
 
-
 [tool.typos.files]
-extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv", "*.html", "src/pudl/metadata/codes.py", "migrations/", "notebooks/","devtools/","test/","src/pudl/transform/params/ferc1.py"]
+extend-exclude = [
+    "*.yml",
+    "*.toml",
+    "*.bib",
+    "*.csv",
+    "*.html",
+    "src/pudl/metadata/codes.py",
+    "migrations/",
+    "notebooks/",
+    "devtools/",
+    "test/",
+    "src/pudl/transform/params/ferc1.py",
+    "src/pudl/package_data/ferc1/*_categories.yaml",
+]

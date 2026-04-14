@@ -1,5 +1,6 @@
-page,2010,2011,2012,2013,2014
-books,b-file.xlsx,b-file.xlsx,everything.xlsx
-boxes,b-file.xlsx,b-file.xlsx,everything.xlsx
-shoes,s-file.xlsx,s-file.xlsx,everything.xlsx
-time,EIA923_Schedules_2_3_4_5_M_12_2021_Final_Revision.xlsx,EIA923_Schedules_2_3_4_5_M_12_2023_Final.xlsx,EIA923_Schedules_2_3_4_5_M_12_2024_21FEB2025.xlsx,EIA923_Schedule_8_Annual_Envir_Infor_2013_Early Release.xlsx,EIA923_Schedules_2_3_4_5_M_12_2024_Early_Release.xlsx
+page,books,boxes,shoes,time
+2010,b-file.xlsx,b-file.xlsx,s-file.xlsx,EIA923_Schedules_2_3_4_5_M_12_2021_Final_Revision.xlsx
+2011,b-file.xlsx,b-file.xlsx,s-file.xlsx,EIA923_Schedules_2_3_4_5_M_12_2023_Final.xlsx
+2012,everything.xlsx,everything.xlsx,everything.xlsx,EIA923_Schedules_2_3_4_5_M_12_2024_21FEB2025.xlsx
+2013,,,,EIA923_Schedule_8_Annual_Envir_Infor_2013_Early Release.xlsx
+2014,,,,EIA923_Schedules_2_3_4_5_M_12_2024_Early_Release.xlsx

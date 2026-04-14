@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__codes_data_maturities
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_pudl__codes_data_maturities
+                partition_expr:
+        columns:
+          - name: code
+          - name: description

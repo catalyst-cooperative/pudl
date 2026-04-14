@@ -6,8 +6,9 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: core_eia861__yearly_short_form
-              partition_column: report_date
+              arguments:
+                table_name: core_eia861__yearly_short_form
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: utility_id_eia
@@ -16,8 +17,20 @@ sources:
           - name: state
           - name: balancing_authority_code_eia
           - name: sales_revenue
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: sales_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: has_net_metering
           - name: has_demand_side_management
           - name: has_time_responsive_programs

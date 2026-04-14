@@ -37,6 +37,13 @@ class CsvExtractor(GenericExtractor):
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
         """Produce the source CSV file name as it will appear in the archive.
 
+        This method assumes the CSV files within each partition are structured as
+        the: f"{self._dataset_name}_{partition_selection}.csv"
+
+        If you have a dataset with multiple pages within each partition you'll need
+        to use a filemap.csv like we use in the excel extractor. For an example of
+        how to do this in the CSV extractor framework, see the RUS extractors.
+
         Args:
             page: pudl name for the dataset contents, eg "boiler_generator_assn" or
                 "data"
@@ -65,10 +72,13 @@ class CsvExtractor(GenericExtractor):
         """
         filename = self.source_filename(page, **partition)
 
-        with (
-            self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
-            zf.open(filename) as f,
-        ):
-            df = pd.read_csv(f, **self.READ_CSV_KWARGS)
+        try:
+            with (
+                self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
+                zf.open(filename) as f,
+            ):
+                df = pd.read_csv(f, **self.READ_CSV_KWARGS)
+        except pd.errors.ParserError as err:  # Give more context to parsing errors
+            raise ValueError(f"Error parsing {filename}:\n{err}") from err
 
         return df

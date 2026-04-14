@@ -1,13 +1,15 @@
 // secrets
 locals {
   pudl_viewer_secret_versions = {
-    pudl_viewer_secret_key          = 1
-    pudl_viewer_db_username         = 1
-    pudl_viewer_db_password         = 1
-    pudl_viewer_db_name             = 1
-    pudl_viewer_auth0_domain        = 1
-    pudl_viewer_auth0_client_id     = 1
-    pudl_viewer_auth0_client_secret = 1
+    pudl_viewer_secret_key                   = 1
+    pudl_viewer_db_username                  = 1
+    pudl_viewer_db_password                  = 1
+    pudl_viewer_db_name                      = 1
+    pudl_viewer_auth0_domain                 = 1
+    pudl_viewer_auth0_client_id              = 1
+    pudl_viewer_auth0_client_secret          = 1
+    pudl_viewer_auth0_user_api_client_id     = 1
+    pudl_viewer_auth0_user_api_client_secret = 1
   }
 }
 
@@ -17,6 +19,24 @@ resource "google_secret_manager_secret" "pudl_viewer_secrets" {
   replication {
     auto {}
   }
+}
+
+// GHA service account & permissions
+resource "google_service_account" "pudl_viewer_gha" {
+  account_id   = "pudl-viewer-gha"
+  display_name = "PUDL Viewer GitHub Actions Service Account"
+}
+
+
+resource "google_project_iam_member" "pudl_viewer_gha" {
+  for_each = toset([
+    "roles/artifactregistry.writer", // push docker image to artifact registry
+    "roles/run.developer",           // update cloud run service
+    "roles/iam.serviceAccountUser",  // cloud run service can use a different service account from this one
+  ])
+  project = var.project_id
+  role    = each.key
+  member  = google_service_account.pudl_viewer_gha.member
 }
 
 // cloud run service account & permissions
@@ -44,6 +64,9 @@ resource "google_artifact_registry_repository" "pudl_viewer" {
   repository_id = "pudl-viewer"
   description   = "Docker repository for PUDL viewer"
   format        = "DOCKER"
+  labels = {
+    component = "pudl-viewer"
+  }
 }
 
 
@@ -56,6 +79,9 @@ resource "google_sql_database_instance" "pudl_viewer_database" {
     tier      = "db-custom-1-3840"
     edition   = "ENTERPRISE"
     disk_size = 10
+    user_labels = {
+      component = "pudl-viewer"
+    }
   }
   deletion_protection = true
 }
@@ -87,6 +113,9 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
   name                = "pudl-viewer"
   location            = "us-east1"
   deletion_protection = false
+  labels = {
+    component = "pudl-viewer"
+  }
 
   scaling {
     min_instance_count = 1
@@ -112,7 +141,7 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
       resources {
         limits = {
           cpu    = "1000m"
-          memory = "768Mi"
+          memory = "1Gi"
         }
         cpu_idle = true
       }
@@ -152,6 +181,9 @@ resource "google_cloud_run_v2_job" "pudl_viewer_db_migration" {
   name                = "pudl-viewer-db-migration"
   location            = "us-east1"
   deletion_protection = false
+  labels = {
+    component = "pudl-viewer"
+  }
 
   template {
     task_count = 1
@@ -216,6 +248,9 @@ resource "google_storage_bucket" "pudl_viewer_logs" {
   name          = "pudl-viewer-logs.catalyst.coop"
   location      = "US"
   storage_class = "STANDARD"
+  labels = {
+    component = "pudl-viewer"
+  }
 
   lifecycle_rule {
     condition {
@@ -245,4 +280,12 @@ resource "google_storage_bucket_iam_member" "pudl_viewer_log_writer" {
   role   = "roles/storage.objectCreator"
 
   member = google_logging_project_sink.pudl_viewer_log_sink.writer_identity
+}
+
+resource "google_storage_bucket_iam_member" "usage_metrics_etl_pudl_viewer" {
+  for_each = toset(["roles/storage.legacyBucketReader", "roles/storage.objectViewer"])
+
+  bucket = google_storage_bucket.pudl_viewer_logs.name
+  role   = each.key
+  member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 }

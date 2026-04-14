@@ -76,22 +76,21 @@ with ``entity_id``'s, which we rename to ``utility_id_ferc1_dbf`` and
     PUDL-assigned utility ID is used as a merge key.
 
 .. warning::
-    To fully map the FERC1 utilities you'll need to run the `make unmapped_ids`
-    step - documented below - twice because there are two layers of ID's as described
-    above.
+    To fully map the FERC1 utilities you'll need to run the unmapped IDs
+    check - documented below - twice because there are two layers of ID's as
+    described above.
 
 Checking for Unmapped Records
 -----------------------------
 
 With every new year of data comes the possibility of new plants and utilities. Once
-you've integrated the new data into PUDL
-:doc:`(see instructions) <existing_data_updates>`, you'll need to check for unmapped
-utility and plants. To do this, run the glue tests with specific arguments, or directly
-run the following ``make`` command.
+you've integrated the new data into PUDL :doc:`(see instructions)
+<existing_data_updates>`, you'll need to check for unmapped utility and plants. To do
+this, run the following command:
 
 .. code-block:: console
 
-    $ make unmapped_ids
+    $ pixi run unmapped-ids
 
 This invokes a script that identifies plants and utilities which exist in the updated
 FERC 1 and EIA datasets that do not yet appear in the stored ID maps. This will generate
@@ -101,11 +100,11 @@ unmapped IDs to the ``devtools/ferc1-eia-glue`` directory that correspond to unm
 plants and utilities from FERC 1 and EIA.
 
 If you have already generated a database without foreign-key constraints, you can run
-just the script that extracts the umapped IDs with:
+just the script that extracts the unmapped IDs with:
 
 .. code-block:: console
 
-    $ pytest test/integration/glue_test.py --live-dbs --save-unmapped-ids
+    $ pixi run pytest test/integration/glue_test.py --live-dbs --save-unmapped-ids
 
 The ``--save-unmapped-ids`` flag saves unmapped plants and utilities in the
 ``devtools/ferc1-eia-glue`` folder by default.
@@ -168,16 +167,16 @@ to have the same PUDL ID.
     plants csv for the first plant under 5 MW and everything below that can remain
     unlinked.
 
-For each new record, search the entire plants_combined tab for a piece of the
+For each new record, search the ``pudl_id_mapping`` spreadsheet for a piece of the
 plant name string (e.g. for ``chenango solar``, you could search for ``chen``,
-or ``chenan``). Searching the entire plant tab helps find other records within
-both FERC and EIA that may be the same or part of the same facility. Searching
+or ``chenan``). If the new records you're mapping come from FERC, look for matches
+in the ``plant_name_eia`` column (and vice versa for EIA). Searching
 for a piece can help catch misspellings in the plant name, which are more common
-in the FERC records. Use the ``devtools/pudl_id_mapping_help.ipynb`` notebook to speed
-up this process.
+in the FERC records. You can also use the ``devtools/pudl_id_mapping_help.ipynb``
+notebook to speed up this process.
 
-* **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
-  they should not be lumped under a single PUDL Plant ID, as that artificially reduces
+* **If co-located EIA plants have distinct EIA plant IDs and no FERC 1 plant:**
+  they should *not* be lumped under a single PUDL Plant ID, as that artificially reduces
   the granularity of data without providing any additional linkage to other datasets.
 * **If a record has the same plant and utility name as another record:**
   assign it the same PUDL ID as the other record **by reference** to the cell in which
@@ -218,9 +217,23 @@ left-hand columns and EIA utility information goes in the right-hand columns.
 
 Next, you'll have to manually assign ``utility_id_pudl`` values to each row. There is no
 formula you can drag down, so just find the largest ``utility_id_pudl`` and create new
-values incrementing from there. To double check whether a utility has already appeared,
-search by name, creating a reference to the original ``utility_id_pudl`` assignment
-above.
+values incrementing from there.
+
+Next, run the auto-matching script to automatically match utilities with identical
+names (after some light cleaning to remove variations in Inc. vs Incorporated, etc.).
+To test this match without overwriting the existing matching spreadsheet, run:
+
+.. code-block:: console
+
+    $ pixi run auto_match_utilities --test-run
+
+The console will output information about the number of matches made, which utilities
+are mapped to more than one ID, and which warrant additional manual review. Once you
+are satisfied with the proposed changes, run:
+
+.. code-block:: console
+
+    $ pixi run auto_match_utilities
 
 Make sure to save the file when you're done!
 

@@ -1,12 +1,9 @@
 {% extends "data_source_parent.rst.jinja" %}
 {% block database_text %}
 Clicking on the links will show you a description of the table as well as the names and
-descriptions of each of its fields. Due to the size of the CEMS data we only publish
-it as Parquet files, which are not browsable online, but which can be downloaded
-directly from :ref:`access-cloud` using the links embedded in the
-:doc:`/data_dictionaries/pudl_db` or accessed with a Jupyter Notebook on
-:ref:`access-kaggle`. See :ref:`access-cloud` for more information on how to query
-the Parquet outputs.
+descriptions of each of its fields. Due to the size of the CEMS data we do not publish
+it as part of our SQLite database, but it is available through all of our other
+:doc:`data access methods <../data_access>`.
 {% endblock %}
 
 {% block background %}
@@ -23,15 +20,14 @@ units and EIA boilers isn't perfect. See "Notable Irregularities" below.
 {% block download_docs %}
 {% for filename in download_paths -%}
 * :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
-{%- endfor %}
+{% endfor %}
 {% endblock %}
 
 {% block availability %}
 We integrate all years of EPA CEMS hourly data, including all reporting states.
 
 EPA releases the hourly CEMS data on a quarterly basis, with a lag of 2-3 months. We
-update the CEMS data within PUDL on a quarterly schedule, in support of `RMI's Utility
-Transition Hub <https://utilitytransitionhub.rmi.org/>`__.
+update the CEMS data within PUDL on a quarterly schedule.
 {% endblock %}
 
 {% block respondents_title %}
@@ -39,7 +35,7 @@ Who is required to install CEMS and report to EPA?
 --------------------------------------------------
 {% endblock %}
 {% block respondents %}
-`Part 75 <https://www.ecfr.gov/cgi-bin/retrieveECFR?gp=&SID=d20546b42dd4ea978d0de7eabe15cbf4&mc=true&n=pt40.18.75&r=PART&ty=HTML#se40.18.75_12>`__
+`Part 75 <https://www.ecfr.gov/current/title-40/chapter-I/subchapter-C/part-75?toc=1>`__
 of the Code of Federal Regulations (CFR), the backbone of the Clean Air Act's Acid Rain
 Program, requires fossil-combustion units to install and use CEMS. The qualifications
 (§75.2(a), §72.6(a)) are closely followed by a myriad of exceptions (§75.2(b), §72.6(b),
@@ -51,10 +47,11 @@ and units burning low-sulfer fuels.
 Once CEMS are installed, Part 75 requires hourly data recording, including during
 startup, shutdown, and instances of malfunction as well as quarterly data reporting to
 the EPA. The regulation further details the protocol for missing data calculations and
-backup monitoring for instances of CEMS failure (see §§75.31-37).
+backup monitoring for instances of CEMS failure (see §75.31-37).
 
 A plain English explanation of the requirements of Part 75 is available in section
-`2.0 Overview of Part 75 Monitoring Requirements <https://www.epa.gov/sites/production/files/2015-05/documents/plain_english_guide_to_the_part_75_rule.pdf>`__
+2.0 Overview of Part 75 Monitoring Requirements in the
+:download:`Plain English Guide to the Part 75 Rule <epacems/plain_english_guide_to_the_part_75_rule.pdf>`.
 {% endblock %}
 
 {% block original_data %}
@@ -77,7 +74,7 @@ SQLite.
 Check out the `PUDL data access example notebook on Kaggle
 <https://www.kaggle.com/code/catalystcooperative/01-pudl-data-access>`__ or in our
 `pudl-examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__ on
-GitHub for pointers on how to access this dataset efficiently using :mod:`dask`.
+GitHub for pointers on how to access this dataset efficiently using :mod:`polars`.
 
 EPA units vs. EIA units
 -----------------------

@@ -27,37 +27,40 @@
       "name": "Xia, Dazhong"
     },
     {
+      "orcid": "0000-0001-9784-8531",
       "affiliation": "Catalyst Cooperative",
       "name": "Belfer, Ella"
     },
     {
+      "orcid": "0009-0009-9063-080X",
       "affiliation": "Catalyst Cooperative",
       "name": "Mazaitis, Kathryn"
-    },
-    {
-      "affiliation": "Catalyst Cooperative",
-      "name": "Hoogeveen, Marianne"
     }
   ],
   "language": "eng",
   "keywords": [
+    "coal",
+    "dagster",
+    "EIA",
+    "distribution",
     "electricity",
     "energy",
-    "coal",
-    "wind",
-    "solar",
-    "renewable energy",
-    "python",
-    "open data",
-    "dagster",
-    "natural gas",
-    "utility",
-    "power",
-    "regulation",
-    "policy",
-    "EIA",
     "EPA",
     "FERC",
-    "NREL"
+    "finance",
+    "grid",
+    "natural gas",
+    "NREL",
+    "open data",
+    "pipeline",
+    "policy",
+    "power",
+    "python",
+    "regulation",
+    "renewable energy",
+    "solar",
+    "transmission",
+    "utility",
+    "wind"
   ]
 }

@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc714__hourly_estimated_state_demand
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_ferc714__hourly_estimated_state_demand
+                partition_expr: "EXTRACT(YEAR FROM datetime_utc)"
+        columns:
+          - name: state_id_fips
+          - name: datetime_utc
+          - name: demand_mwh
+          - name: scaled_demand_mwh

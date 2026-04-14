@@ -8,17 +8,19 @@ sources:
               description: >
                 Excluded columns are 3rd and 4th tier categories that are very
                 infrequently used. It's fine for them to be null.
-              exclude_columns:
-                - tower_type_3
-                - tower_type_4
-                - cooling_type_4
-              row_conditions:
-                county: "extract(year from report_date) <= 2010"
-                plant_summer_capacity_mw: "extract(year from report_date) <= 2010"
-                water_source: "extract(year from report_date) <= 2010"
+              arguments:
+                exclude_columns:
+                  - tower_type_3
+                  - tower_type_4
+                  - cooling_type_4
+                row_conditions:
+                  county: "extract(year from report_date) <= 2010"
+                  plant_summer_capacity_mw: "extract(year from report_date) <= 2010"
+                  water_source: "extract(year from report_date) <= 2010"
           - check_row_counts_per_partition:
-              table_name: _core_eia860__cooling_equipment
-              partition_column: report_date
+              arguments:
+                table_name: _core_eia860__cooling_equipment
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: plant_id_eia

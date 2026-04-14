@@ -38,16 +38,21 @@ class Extractor(excel.ExcelExtractor):
 
     def process_raw(self, df, page, **partition):
         """Rename columns with location."""
-        column_map_numeric = self._metadata.get_column_map(page, **partition)
-        df = df.rename(
-            columns=dict(
-                zip(
-                    df.columns[list(column_map_numeric.keys())],
-                    list(column_map_numeric.values()),
-                    strict=True,
+        # for 2024 we began mapping the columns using the string names instead of
+        # the numeric location.
+        if int(list(partition.values())[0]) >= 2024:
+            df = super().process_raw(df, page, **partition)
+        else:
+            column_map_numeric = self._metadata.get_column_map(page, **partition)
+            df = df.rename(
+                columns=dict(
+                    zip(
+                        df.columns[[int(col) for col in column_map_numeric]],
+                        list(column_map_numeric.values()),
+                        strict=True,
+                    )
                 )
             )
-        )
         self.cols_added = []
         # Eventually we should probably make this a transform
         for col in ["generator_id", "boiler_id"]:
@@ -78,7 +83,7 @@ raw_eia861__all_dfs = raw_df_factory(Extractor, name="eia861")
 
 @multi_asset(
     outs={
-        table_name: AssetOut()
+        table_name: AssetOut(is_required=False)
         for table_name in sorted(
             (  # is there some way to programmatically generate this list?
                 "raw_eia861__advanced_metering_infrastructure",
@@ -104,16 +109,19 @@ raw_eia861__all_dfs = raw_df_factory(Extractor, name="eia861")
             )
         )
     },
+    can_subset=True,
 )
-def extract_eia861(raw_eia861__all_dfs):
+def extract_eia861(context, raw_eia861__all_dfs):
     """Extract raw EIA-861 data from Excel sheets into dataframes."""
     raw_eia861__all_dfs = {
         "raw_eia861__" + table_name.replace("_eia861", ""): df
         for table_name, df in raw_eia861__all_dfs.items()
     }
     raw_eia861__all_dfs = dict(sorted(raw_eia861__all_dfs.items()))
+    selected_outputs = set(context.selected_output_names)
 
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in raw_eia861__all_dfs.items()
+        if table_name in selected_outputs
     )

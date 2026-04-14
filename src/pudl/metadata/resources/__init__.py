@@ -210,7 +210,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "wet_dry_bottom",
             "fly_ash_reinjection",
             "hrsg",
-            "max_steam_flow_1000_lbs_per_hour",
+            "max_steam_flow_lbs_per_hour",
             "turndown_ratio",
             "efficiency_100pct_load",
             "efficiency_50pct_load",
@@ -325,6 +325,13 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
                 "operator_state": "state",
             },
         ],
+    },
+    # THIS IS A RUS ENTITY (everything above is from EIA)
+    "borrowers": {
+        "id_cols": ["borrower_id_rus"],
+        "static_cols": ["borrower_name_rus", "state"],
+        "annual_cols": [],
+        "mapped_schemas": [],
     },
 }
 """Columns kept for either entity or annual EIA tables in the harvesting process.
