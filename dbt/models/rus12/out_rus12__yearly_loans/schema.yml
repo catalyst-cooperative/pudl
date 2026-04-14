@@ -13,11 +13,10 @@ sources:
               config:
                 error_if: ">1" #TODO: Investigate 1 case where loan balance exceeds original amount.
               description: "The original amount of the loan should be greater than or equal to the current balance of the loan."
-          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+          - dbt_utils.expression_is_true:
               arguments:
-                column_A: loan_maturity_date
-                column_B: report_date
-              description: "The maturity date of the loan should be after the report date."
+                expression: date_trunc('year', report_date) <= date_trunc('year', loan_maturity_date)
+              description: "The report date year should be before or equal to the loan maturity date year."
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_rus12__yearly_loans

@@ -4,7 +4,7 @@
     "dagster-expert": {
       "source": "dagster-io/skills",
       "sourceType": "github",
-      "computedHash": "dc32f5b0fe71cd56f39cb56382d2c6cfb89b212241d17204db302952f372c3ea"
+      "computedHash": "6e4d897e0aeaf83758a55b50f0d7b739338895c89b0522ca8d1816fe723a3414"
     },
     "dignified-python": {
       "source": "dagster-io/skills",
@@ -14,12 +14,7 @@
     "pudl": {
       "source": "catalyst-cooperative/skills",
       "sourceType": "github",
-      "computedHash": "25277cd4a380c3f6f868db36064d083ae1978dee897a9d80dbb65cfa79e9bef8"
+      "computedHash": "a7fafd4fc2d88199c107c89104c448b8b2fc5bb307c849f1866f057244873d8b"
     },
-    "pudl-dev": {
-      "source": "catalyst-cooperative/skills",
-      "sourceType": "github",
-      "computedHash": "489465af914d7bf5c7293e5b12ad3a784e107e9cb2c42c71aa3a52722c66b1a6"
-    }
   }
 }
