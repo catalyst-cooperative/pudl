@@ -57,6 +57,9 @@ the names and descriptions of each of its fields.
    * - :ref:`core_ferc1__yearly_depreciation_changes_sched219`
      - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_depreciation_changes_sched219
    
+   * - :ref:`core_ferc1__yearly_depreciation_factors_sched336`
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_depreciation_factors_sched336
+   
    * - :ref:`core_ferc1__yearly_depreciation_summary_sched336`
      - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_depreciation_summary_sched336
    

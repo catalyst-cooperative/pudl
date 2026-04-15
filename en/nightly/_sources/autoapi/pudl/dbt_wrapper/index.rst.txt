@@ -32,6 +32,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.dbt_wrapper._preserve_logging_propagation
    pudl.dbt_wrapper.__get_failed_nodes
    pudl.dbt_wrapper.__get_quantile_contexts
    pudl.dbt_wrapper.__get_compiled_sql_contexts
@@ -46,6 +47,16 @@ Module Contents
 
 .. py:data:: DBT_DIR
    :type:  pathlib.Path
+
+.. py:function:: _preserve_logging_propagation()
+
+   Restore logging propagation settings after a dbt invocation.
+
+   Invoking dbt via dbtRunner triggers Dagster's logging initialization, which
+   resets ``logging.getLogger("dagster").propagate`` to ``False``. This context
+   manager saves and restores the setting so callers don't experience unexpected
+   side effects on the global logging configuration.
+
 
 .. py:class:: NodeContext
 

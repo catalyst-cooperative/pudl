@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.params.ferc1 &#8212; PUDL 2026.4.0 documentation</title>
+    <title>pudl.transform.params.ferc1 &#8212; PUDL 2026.4.1.dev9 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../../_static/documentation_options.js?v=9f98d0f7"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev9 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev9 documentation - Home"/>
   
   
 </a></div>
@@ -2913,6 +2913,48 @@ window.runMermaid = runMermaid;</script>
                     <span class="p">},</span>  <span class="c1"># worst utility: 331</span>
                 <span class="p">},</span>
             <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_ferc1__yearly_depreciation_factors_sched336&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;rename_columns_ferc1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;respondent_id&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;spplmnt_num&quot;</span><span class="p">:</span> <span class="s2">&quot;spplmnt_num&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;row_number&quot;</span><span class="p">:</span> <span class="s2">&quot;row_number&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;row_seq&quot;</span><span class="p">:</span> <span class="s2">&quot;row_seq&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;row_prvlg&quot;</span><span class="p">:</span> <span class="s2">&quot;row_prvlg&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;depr_plnt_base&quot;</span><span class="p">:</span> <span class="s2">&quot;depreciable_plant_base&quot;</span><span class="p">,</span>  <span class="c1"># $1000s</span>
+                    <span class="s2">&quot;est_avg_srvce_lf&quot;</span><span class="p">:</span> <span class="s2">&quot;service_life_avg&quot;</span><span class="p">,</span>  <span class="c1"># est</span>
+                    <span class="s2">&quot;net_salvage&quot;</span><span class="p">:</span> <span class="s2">&quot;net_salvage_pct&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;apply_depr_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;depreciation_rate&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;mrtlty_crv_typ&quot;</span><span class="p">:</span> <span class="s2">&quot;mortality_curve_type&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;avg_remaining_lf&quot;</span><span class="p">:</span> <span class="s2">&quot;remaining_life_avg&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;acct_num&quot;</span><span class="p">:</span> <span class="s2">&quot;account_num&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;report_prd&quot;</span><span class="p">:</span> <span class="s2">&quot;report_prd&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;entity_id&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;estimated_depreciation_charges_factors_axis&quot;</span><span class="p">:</span> <span class="s2">&quot;depreciation_factors&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;utility_plant_applied_depreciation_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;depreciation_rate&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;utility_plant_estimated_average_service_life&quot;</span><span class="p">:</span> <span class="s2">&quot;service_life_avg&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;utility_plant_weighted_average_remaining_life&quot;</span><span class="p">:</span> <span class="s2">&quot;remaining_life_avg&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;order_number&quot;</span><span class="p">:</span> <span class="s2">&quot;order_num&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;mortality_curve_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mortality_curve_type&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;account_number_factors_used_in_estimating_depreciation_charges&quot;</span><span class="p">:</span> <span class="s2">&quot;account_num&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;depreciable_plant_base&quot;</span><span class="p">:</span> <span class="s2">&quot;depreciable_plant_base&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;utility_plant_net_salvage_value_percentage&quot;</span><span class="p">:</span> <span class="s2">&quot;net_salvage_pct&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;normalize_strings&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;account_num&quot;</span><span class="p">:</span> <span class="n">FERC1_STRING_NORM</span><span class="p">,</span>
+            <span class="s2">&quot;service_life_avg&quot;</span><span class="p">:</span> <span class="n">FERC1_STRING_NORM</span><span class="p">,</span>
+            <span class="s2">&quot;remaining_life_avg&quot;</span><span class="p">:</span> <span class="n">FERC1_STRING_NORM</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;core_ferc1__yearly_operating_revenues_sched300&quot;</span><span class="p">:</span> <span class="p">{</span>

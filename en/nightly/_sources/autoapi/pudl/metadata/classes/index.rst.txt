@@ -1570,7 +1570,7 @@ Module Contents
 
 
    .. py:attribute:: etl_group
-      :type:  Literal['censusdp1tract', 'eia176', 'eia860', 'eia861', 'eia861_disabled', 'eia923', 'eia930', 'eiaaeo', 'entity_eia', 'epacems', 'entity_ferc', 'ferc1', 'ferc1_disabled', 'ferc714', 'ferceqr', 'glue', 'gridpathratoolkit', 'outputs', 'static_ferc1', 'static_eia', 'static_eia_disabled', 'eiaapi', 'state_demand', 'static_pudl', 'service_territories', 'nrelatb', 'vcerare', 'phmsagas', 'sec10k', 'rus7', 'static_rus', 'rus12'] | None
+      :type:  Literal['censusdp1tract', 'eia176', 'eia191', 'eia860', 'eia861', 'eia861_disabled', 'eia923', 'eia930', 'eiaaeo', 'entity_eia', 'epacems', 'entity_ferc', 'ferc1', 'ferc1_disabled', 'ferc714', 'ferceqr', 'glue', 'gridpathratoolkit', 'outputs', 'static_ferc1', 'static_eia', 'static_eia_disabled', 'eiaapi', 'state_demand', 'static_pudl', 'service_territories', 'nrelatb', 'vcerare', 'phmsagas', 'sec10k', 'rus7', 'static_rus', 'rus12'] | None
       :value: None
 
 

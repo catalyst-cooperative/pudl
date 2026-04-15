@@ -9052,6 +9052,148 @@ Columns
     - string
     - Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.
 
+.. _out_ferc1__yearly_depreciation_factors_sched336:
+
+-------------------------------------------------------------------------------
+out_ferc1__yearly_depreciation_factors_sched336
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_ferc1__yearly_depreciation_factors_sched336>`__
+
+Annual time series of factors used in estimating depreciation charges.
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  FERC Form 1 -- Annual Report of Major Electric Utilities (Schedule 336 - Section C)
+
+Primary key:
+  This table has no primary key. This table is too unstructured to have a primary key.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
+
+* Contains columns which may appear categorical, but are actually free text.
+
+* The rate and percentage (pct) columns are reported either as values between 0-1 or 0-100. It is often consistent within a given utility-year but use caution when comparing value across different utilities and even the same utility filing in a different year.
+
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This table contains details at a variety of levels of granularity.There are many free-form text fields in this table which results in respondents filling out this table very differently from each other or from year to year. We recommend using this table carefully with one utility-year at a time - not attempting to perform analysis across long time-series or across utilities without much caution and cleaning. This table only contains information from Section C: Factors Used in Estimating Depreciation Charges.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_ferc1__yearly_depreciation_factors_sched336>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc1__yearly_depreciation_factors_sched336.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_ferc1__yearly_depreciation_factors_sched336.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_ferc1__yearly_depreciation_factors_sched336.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_depreciation_factors_sched336.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_ferc1__yearly_depreciation_factors_sched336.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - account_num
+    - string
+    - Account number(s) in connection with factors used in estimating depreciation charges.
+  * - depreciable_plant_base
+    - number
+    - Depreciable plant balance (depreciable base) to which rates are applied.
+  * - depreciation_factors
+    - string
+    - Label of the factor of depreciation factors. This field contains is an unstructured, free-form strings. It often includes FERC account IDs, sometimes includes plant names and sometimes includes headers indicating the beginning of a new section - such as a plant or asset type header which is followed by sub-components like FERC account IDs or plant names depending on the section.
+  * - depreciation_rate
+    - string
+    - Depreciation rate applied to utility plant balance.Be aware that the formatting of this column is not expected to be standard - expect some values between 0-1 and some between 0-100.
+  * - mortality_curve_type
+    - string
+    - Description of the type of mortality curve selected in plant mortality studies prepared to assist in estimating average service lives.
+  * - net_salvage_pct
+    - number
+    - Percentage representing the estimated value of utility plant at the end of its service life. Be aware that the formatting of this column is not expected to be standard - expect some values between 0-1 and some between 0-100.
+  * - order_num
+    - number
+    - This field is defined in FERC-XBRL documentation as a field that is used to sequence a table.FERC-XBRL documentation notes: 'This field is added to a table to control ordering of the items on the table.'FERC's documentation also notes that this field should always be an integer - although there are many instances of floating point values which seem to increment by decimal points. Nonetheless, this field can be used to help understand the original order of the table. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021.
+  * - record_id
+    - string
+    - Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.
+  * - remaining_life_avg
+    - number
+    - Estimated weighted average of remaining life of utility plant assets.The original DBF data was reported as years while the XBRL data was reported as strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these string time durations into years.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - service_life_avg
+    - number
+    - Estimated average service life of utility plant. The original DBF data was reported as years while the XBRL data was reported as strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these string time durations into years.
+  * - utility_id_ferc1
+    - integer
+    - PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.
+  * - utility_id_ferc1_dbf
+    - integer
+    - FERC-assigned respondent_id from DBF reporting years, identifying the reporting entity. Stable from year to year.
+  * - utility_id_ferc1_xbrl
+    - string
+    - FERC-assigned entity_id from XBRL reporting years, identifying the reporting entity. Stable from year to year.
+  * - utility_id_pudl
+    - integer
+    - A manually assigned PUDL utility ID. May not be stable over time.
+  * - utility_name_ferc1
+    - string
+    - Name of the responding utility, as it is reported in FERC Form 1. For human readability only.
+
 .. _out_ferc1__yearly_depreciation_summary_sched336:
 
 -------------------------------------------------------------------------------
@@ -19424,7 +19566,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - filename_sec10k
     - string
     - Unique portion of the filename associated with the SEC 10-K filing in the EDGAR database. The full source URL can be reconstructed by prepending https://www.sec.gov/Archives/edgar/data/ and adding the .txt file type extension.
@@ -19600,7 +19742,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - exhibit_21_version
     - string
     - Version of exhibit 21 submitted (if applicable).
@@ -20035,6 +20177,133 @@ Columns
   * - volume_mcf
     - number
     - Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+
+.. _core_eia191__monthly_gas_storage:
+
+-------------------------------------------------------------------------------
+core_eia191__monthly_gas_storage
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia191__monthly_gas_storage>`__
+
+Monthly time series of monthly underground natural gas storage activity reported by operators.
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 191 -- Monthly Underground Natural Gas Storage Report
+
+Primary key:
+  storage_field_id_eia, report_date
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* ``total_field_capacity_mcf`` is not reliably equal to the sum of ``working_gas_capacity_mcf`` and ``base_gas_mcf``: approximately 23% of records differ. This reflects loose EIA definitions and operator self-reporting practices, not data errors. Do not assume additivity among these three fields.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia191__monthly_gas_storage>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia191__monthly_gas_storage.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - base_gas_mcf
+    - number
+    - Volume of base gas (cushion gas) in the underground storage reservoir. Base gas is the volume of gas intended as permanent inventory in a reservoir to maintain adequate pressure and deliverability rates.
+  * - company_name
+    - string
+    - Name of the reporting company.
+  * - county
+    - string
+    - County name.
+  * - field_name
+    - string
+    - Name of the natural gas storage field.
+  * - field_type
+    - string
+    - Type of underground natural gas storage facility. One of: depleted field (a reservoir previously used for natural gas production), aquifer (a porous rock structure used to store gas), or salt dome (a cavern created within a salt formation).
+  * - gas_field_id_eia
+    - integer
+    - EIA-assigned numeric identifier for a natural gas storage field.
+  * - maximum_daily_delivery_mcf
+    - number
+    - Maximum daily quantity of gas that can be withdrawn from the underground storage reservoir under normal operating conditions.
+  * - operational_status
+    - string
+    - Operational status of the underground natural gas storage reservoir.
+  * - region
+    - string
+    - EIA storage region in which the underground natural gas storage field is located.
+  * - report_date
+    - date
+    - Date reported.
+  * - reservoir_id_eia
+    - integer
+    - EIA-assigned numeric identifier for the individual storage reservoir within a natural gas storage field.
+  * - reservoir_name
+    - string
+    - Name of the individual underground natural gas storage reservoir.
+  * - state
+    - string
+    - Two letter US state abbreviation.
+  * - storage_field_id_eia
+    - string
+    - EIA-assigned identifier for an underground natural gas storage reservoir. IDs are assigned per company and state, so the same physical reservoir may have different IDs if ownership changes.
+  * - total_field_capacity_mcf
+    - number
+    - Total design capacity of the underground natural gas storage field (base gas plus working gas).
+  * - working_gas_capacity_mcf
+    - number
+    - Volume of working gas (the portion of stored gas available for withdrawal) in the underground storage reservoir.
 
 .. _core_eia860__assn_boiler_cooling:
 
@@ -32995,6 +33264,136 @@ Columns
     - string
     - Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.
 
+.. _core_ferc1__yearly_depreciation_factors_sched336:
+
+-------------------------------------------------------------------------------
+core_ferc1__yearly_depreciation_factors_sched336
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_ferc1__yearly_depreciation_factors_sched336>`__
+
+Annual time series of factors used in estimating depreciation charges.
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  FERC Form 1 -- Annual Report of Major Electric Utilities (Schedule 336 - Section C)
+
+Primary key:
+  This table has no primary key. This table is too unstructured to have a primary key.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
+
+* Contains columns which may appear categorical, but are actually free text.
+
+* The rate and percentage (pct) columns are reported either as values between 0-1 or 0-100. It is often consistent within a given utility-year but use caution when comparing value across different utilities and even the same utility filing in a different year.
+
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This table contains details at a variety of levels of granularity.There are many free-form text fields in this table which results in respondents filling out this table very differently from each other or from year to year. We recommend using this table carefully with one utility-year at a time - not attempting to perform analysis across long time-series or across utilities without much caution and cleaning. This table only contains information from Section C: Factors Used in Estimating Depreciation Charges.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_depreciation_factors_sched336>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_ferc1__yearly_depreciation_factors_sched336.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_ferc1__yearly_depreciation_factors_sched336.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_ferc1__yearly_depreciation_factors_sched336.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_depreciation_factors_sched336.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_ferc1__yearly_depreciation_factors_sched336.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - account_num
+    - string
+    - Account number(s) in connection with factors used in estimating depreciation charges.
+  * - depreciable_plant_base
+    - number
+    - Depreciable plant balance (depreciable base) to which rates are applied.
+  * - depreciation_factors
+    - string
+    - Label of the factor of depreciation factors. This field contains is an unstructured, free-form strings. It often includes FERC account IDs, sometimes includes plant names and sometimes includes headers indicating the beginning of a new section - such as a plant or asset type header which is followed by sub-components like FERC account IDs or plant names depending on the section.
+  * - depreciation_rate
+    - string
+    - Depreciation rate applied to utility plant balance.Be aware that the formatting of this column is not expected to be standard - expect some values between 0-1 and some between 0-100.
+  * - mortality_curve_type
+    - string
+    - Description of the type of mortality curve selected in plant mortality studies prepared to assist in estimating average service lives.
+  * - net_salvage_pct
+    - number
+    - Percentage representing the estimated value of utility plant at the end of its service life. Be aware that the formatting of this column is not expected to be standard - expect some values between 0-1 and some between 0-100.
+  * - order_num
+    - number
+    - This field is defined in FERC-XBRL documentation as a field that is used to sequence a table.FERC-XBRL documentation notes: 'This field is added to a table to control ordering of the items on the table.'FERC's documentation also notes that this field should always be an integer - although there are many instances of floating point values which seem to increment by decimal points. Nonetheless, this field can be used to help understand the original order of the table. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021.
+  * - record_id
+    - string
+    - Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.
+  * - remaining_life_avg
+    - number
+    - Estimated weighted average of remaining life of utility plant assets.The original DBF data was reported as years while the XBRL data was reported as strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these string time durations into years.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - service_life_avg
+    - number
+    - Estimated average service life of utility plant. The original DBF data was reported as years while the XBRL data was reported as strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these string time durations into years.
+  * - utility_id_ferc1
+    - integer
+    - PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.
+
 .. _core_ferc1__yearly_depreciation_summary_sched336:
 
 -------------------------------------------------------------------------------
@@ -36287,7 +36686,7 @@ Columns
     - The Company Identifier (CID) obtained through FERC's Company Registration system.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - contact_address
     - string
     - Street address for contact identified in contact_name.
@@ -44218,7 +44617,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - company_name_old
     - string
     - Name of company prior to name change.
@@ -44354,7 +44753,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - filename_sec10k
     - string
     - Unique portion of the filename associated with the SEC 10-K filing in the EDGAR database. The full source URL can be reconstructed by prepending https://www.sec.gov/Archives/edgar/data/ and adding the .txt file type extension.
@@ -44620,7 +45019,7 @@ Columns
     - Identifier of the company in SEC database.
   * - company_name
     - string
-    - Name of company submitting SEC 10k filing.
+    - Name of the reporting company.
   * - exhibit_21_version
     - string
     - Version of exhibit 21 submitted (if applicable).

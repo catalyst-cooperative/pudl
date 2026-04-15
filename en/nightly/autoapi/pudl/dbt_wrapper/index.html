@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dbt_wrapper &#8212; PUDL 2026.4.0 documentation</title>
+    <title>pudl.dbt_wrapper &#8212; PUDL 2026.4.1.dev9 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../_static/documentation_options.js?v=9f98d0f7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev9 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev9 documentation - Home"/>
   
   
 </a></div>
@@ -486,6 +486,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia191/index.html">pudl.metadata.resources.eia191</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
@@ -610,6 +611,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../transform/classes/index.html">pudl.transform.classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../transform/eia/index.html">pudl.transform.eia</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eia191/index.html">pudl.transform.eia191</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../transform/eia860/index.html">pudl.transform.eia860</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../transform/eia860m/index.html">pudl.transform.eia860m</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../transform/eia861/index.html">pudl.transform.eia861</a></li>
@@ -770,19 +772,22 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.__get_failed_nodes" title="pudl.dbt_wrapper.__get_failed_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_failed_nodes</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_wrapper._preserve_logging_propagation" title="pudl.dbt_wrapper._preserve_logging_propagation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_preserve_logging_propagation</span></code></a>()</p></td>
+<td><p>Restore logging propagation settings after a dbt invocation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.__get_failed_nodes" title="pudl.dbt_wrapper.__get_failed_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_failed_nodes</span></code></a>(...)</p></td>
 <td><p>Get test node output from tests that failed.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.__get_quantile_contexts" title="pudl.dbt_wrapper.__get_quantile_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_quantile_contexts</span></code></a>(→ list[NodeContext])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.__get_quantile_contexts" title="pudl.dbt_wrapper.__get_quantile_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_quantile_contexts</span></code></a>(→ list[NodeContext])</p></td>
 <td><p>Run debug_quantile_constraints macro for failed quantile constraints.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.__get_compiled_sql_contexts" title="pudl.dbt_wrapper.__get_compiled_sql_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_compiled_sql_contexts</span></code></a>(→ list[NodeContext])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.__get_compiled_sql_contexts" title="pudl.dbt_wrapper.__get_compiled_sql_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__get_compiled_sql_contexts</span></code></a>(→ list[NodeContext])</p></td>
 <td><p>Run the compiled SQL against duckdb to get failure contexts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.build_with_context" title="pudl.dbt_wrapper.build_with_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_with_context</span></code></a>(→ BuildResult)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.build_with_context" title="pudl.dbt_wrapper.build_with_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_with_context</span></code></a>(→ BuildResult)</p></td>
 <td><p>Run the DBT build and get failure information back.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.dagster_to_dbt_selection" title="pudl.dbt_wrapper.dagster_to_dbt_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster_to_dbt_selection</span></code></a>(→ str)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dbt_wrapper.dagster_to_dbt_selection" title="pudl.dbt_wrapper.dagster_to_dbt_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster_to_dbt_selection</span></code></a>(→ str)</p></td>
 <td><p>Translate dagster asset selection to db node selection.</p></td>
 </tr>
 </tbody>
@@ -800,6 +805,16 @@
 <dt class="sig sig-object py" id="pudl.dbt_wrapper.DBT_DIR">
 <span class="sig-prename descclassname"><span class="pre">pudl.dbt_wrapper.</span></span><span class="sig-name descname"><span class="pre">DBT_DIR</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span><a class="reference internal" href="../../../_modules/pudl/dbt_wrapper.html#DBT_DIR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dbt_wrapper.DBT_DIR" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.dbt_wrapper._preserve_logging_propagation">
+<span class="sig-prename descclassname"><span class="pre">pudl.dbt_wrapper.</span></span><span class="sig-name descname"><span class="pre">_preserve_logging_propagation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/dbt_wrapper.html#_preserve_logging_propagation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dbt_wrapper._preserve_logging_propagation" title="Link to this definition">#</a></dt>
+<dd><p>Restore logging propagation settings after a dbt invocation.</p>
+<p>Invoking dbt via dbtRunner triggers Dagster’s logging initialization, which
+resets <code class="docutils literal notranslate"><span class="pre">logging.getLogger(&quot;dagster&quot;).propagate</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code>. This context
+manager saves and restores the setting so callers don’t experience unexpected
+side effects on the global logging configuration.</p>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.dbt_wrapper.NodeContext">
@@ -958,6 +973,7 @@ manifest via <code class="docutils literal notranslate"><span class="pre">dbt</s
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dbt_wrapper.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dbt_wrapper.DBT_DIR"><code class="docutils literal notranslate"><span class="pre">DBT_DIR</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dbt_wrapper._preserve_logging_propagation"><code class="docutils literal notranslate"><span class="pre">_preserve_logging_propagation()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dbt_wrapper.NodeContext"><code class="docutils literal notranslate"><span class="pre">NodeContext</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dbt_wrapper.NodeContext.name"><code class="docutils literal notranslate"><span class="pre">NodeContext.name</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dbt_wrapper.NodeContext.context"><code class="docutils literal notranslate"><span class="pre">NodeContext.context</span></code></a></li>
