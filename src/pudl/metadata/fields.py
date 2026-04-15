@@ -11167,9 +11167,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "office_zip": {
             "type": "string",
             "description": "Zipcode of principal office at end of period.",
-            # "constraints": { # TODO 04/26: Would require additional cleaning to validate, some Canada postal codes in here as well.
-            #     "pattern": r"^\d{5}(-\d{4})?$",
-            # },
+            "constraints": {},  # TODO 04/26: Would require additional cleaning to validate, some Canada postal codes in here as well.
         },
         "report_filing_type": {
             "description": "Type of report submitted: O (original) or R (revision).",
