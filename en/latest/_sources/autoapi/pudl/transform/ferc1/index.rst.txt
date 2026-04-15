@@ -83,6 +83,7 @@ Classes
    pudl.transform.ferc1.CashFlowsTableTransformer
    pudl.transform.ferc1.SalesByRateSchedulesTableTransformer
    pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer
+   pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer
 
 
 Functions
@@ -305,6 +306,11 @@ Module Contents
 
    .. py:attribute:: OTHER_REGULATORY_LIABILITIES
       :value: 'core_ferc1__yearly_other_regulatory_liabilities_sched278'
+
+
+
+   .. py:attribute:: OTHER_REGULATORY_ASSETS
+      :value: 'core_ferc1__yearly_other_regulatory_assets_sched232'
 
 
 
@@ -4004,6 +4010,52 @@ Module Contents
       output records, and so we should not expect record IDs to be unique. In those cases
       they serve only a forensic purpose, telling us where to find the original source of
       the transformed data.
+
+
+.. py:class:: OtherRegulatoryAssetsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_other_regulatory_assets_sched232` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: process_xbrl(raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+
+      Add values to the axis columns from the totals tables, then standard.
+
+      The raw XBRL data for this table comes from two tables - one of which has
+      an "axis" column - which is generally designated as a unique identifying field -
+      that is a free-text field containing details about what type of asset the record
+      pertains to. The second table is a "totals" table which based on the XBRL
+      documentation is the total of the other regulatory assets. So we assign the value
+      for the ``other_regulatory_assets_axis`` column as ``totals``. These records are
+      labeled as ``totals`` instead of ``total`` because there are some records (~3%) from
+      the ``other_regulatory_assets_account_182_3_232`` table that are labeled as total
+      and will break the pk expectations.
+
 
 
 .. py:data:: FERC1_TFR_CLASSES

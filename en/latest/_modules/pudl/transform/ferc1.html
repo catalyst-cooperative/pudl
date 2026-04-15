@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.4.1.dev9 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.4.1.dev10 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=9f98d0f7"></script>
+    <script src="../../../_static/documentation_options.js?v=c0267ed7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev9 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev9 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
   
   
 </a></div>
@@ -1098,6 +1098,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">OTHER_REGULATORY_LIABILITIES</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;core_ferc1__yearly_other_regulatory_liabilities_sched278&quot;</span>
     <span class="p">)</span></div>
+
+<div class="viewcode-block" id="TableIdFerc1.OTHER_REGULATORY_ASSETS">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.TableIdFerc1.OTHER_REGULATORY_ASSETS">[docs]</a>
+    <span class="n">OTHER_REGULATORY_ASSETS</span> <span class="o">=</span> <span class="s2">&quot;core_ferc1__yearly_other_regulatory_assets_sched232&quot;</span></div>
 </div>
 
 
@@ -8083,6 +8087,52 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="OtherRegulatoryAssetsTableTransformer">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OtherRegulatoryAssetsTableTransformer</span><span class="p">(</span><span class="n">Ferc1AbstractTableTransformer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformer class for :ref:`core_ferc1__yearly_other_regulatory_assets_sched232` table.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OtherRegulatoryAssetsTableTransformer.table_id">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer.table_id">[docs]</a>
+    <span class="n">table_id</span><span class="p">:</span> <span class="n">TableIdFerc1</span> <span class="o">=</span> <span class="n">TableIdFerc1</span><span class="o">.</span><span class="n">OTHER_REGULATORY_ASSETS</span></div>
+
+<div class="viewcode-block" id="OtherRegulatoryAssetsTableTransformer.has_unique_record_ids">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer.has_unique_record_ids">[docs]</a>
+    <span class="n">has_unique_record_ids</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="OtherRegulatoryAssetsTableTransformer.process_xbrl">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer.process_xbrl">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_xbrl</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">raw_xbrl_instant</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">raw_xbrl_duration</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add values to the axis columns from the totals tables, then standard.</span>
+
+<span class="sd">        The raw XBRL data for this table comes from two tables - one of which has</span>
+<span class="sd">        an &quot;axis&quot; column - which is generally designated as a unique identifying field -</span>
+<span class="sd">        that is a free-text field containing details about what type of asset the record</span>
+<span class="sd">        pertains to. The second table is a &quot;totals&quot; table which based on the XBRL</span>
+<span class="sd">        documentation is the total of the other regulatory assets. So we assign the value</span>
+<span class="sd">        for the ``other_regulatory_assets_axis`` column as ``totals``. These records are</span>
+<span class="sd">        labeled as ``totals`` instead of ``total`` because there are some records (~3%) from</span>
+<span class="sd">        the ``other_regulatory_assets_account_182_3_232`` table that are labeled as total</span>
+<span class="sd">        and will break the pk expectations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">raw_xbrl_instant</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">raw_xbrl_instant</span><span class="o">.</span><span class="n">sched_table_name</span>
+            <span class="o">==</span> <span class="s2">&quot;other_regulatory_assets_account_182_3_totals_232&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;other_regulatory_assets_axis&quot;</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;totals&quot;</span>
+        <span class="n">raw_xbrl_duration</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">raw_xbrl_duration</span><span class="o">.</span><span class="n">sched_table_name</span>
+            <span class="o">==</span> <span class="s2">&quot;other_regulatory_assets_account_182_3_totals_232&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;other_regulatory_assets_axis&quot;</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;totals&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">process_xbrl</span><span class="p">(</span><span class="n">raw_xbrl_instant</span><span class="p">,</span> <span class="n">raw_xbrl_duration</span><span class="p">)</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="FERC1_TFR_CLASSES">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.FERC1_TFR_CLASSES">[docs]</a>
 <span class="n">FERC1_TFR_CLASSES</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">Ferc1AbstractTableTransformer</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
@@ -8110,6 +8160,7 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;core_ferc1__yearly_cash_flows_sched120&quot;</span><span class="p">:</span> <span class="n">CashFlowsTableTransformer</span><span class="p">,</span>
     <span class="s2">&quot;core_ferc1__yearly_sales_by_rate_schedules_sched304&quot;</span><span class="p">:</span> <span class="n">SalesByRateSchedulesTableTransformer</span><span class="p">,</span>
     <span class="s2">&quot;core_ferc1__yearly_other_regulatory_liabilities_sched278&quot;</span><span class="p">:</span> <span class="n">OtherRegulatoryLiabilitiesTableTransformer</span><span class="p">,</span>
+    <span class="s2">&quot;core_ferc1__yearly_other_regulatory_assets_sched232&quot;</span><span class="p">:</span> <span class="n">OtherRegulatoryAssetsTableTransformer</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 
