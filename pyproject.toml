@@ -116,7 +116,7 @@ numba = ">=0.65"
 numexpr = ">=2.10"
 numpy = ">=2.4"
 packaging = ">=25"
-pandas = ">=2.3"
+pandas = ">=3.0.2"
 pandoc = ">=3.7"
 pandera-polars = ">=0.30"
 parallel = ">=20250822"
@@ -124,7 +124,6 @@ polars = ">=1.39"
 prek = ">=0.3.8"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.7,<4"
-# pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
 pyarrow = ">=23"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
@@ -188,7 +187,7 @@ version = ">=0.4.3"
 channels = ["conda-forge"]
 
 [tool.pixi.package.build-dependencies]
-python = ">=3.13,<3.14.0"
+python = ">=3.14,<3.15.0a0"
 
 [tool.pixi.package.host-dependencies]
 hatchling = ">=1.16"
@@ -214,6 +213,7 @@ dbt-core = ">=1.11.8"
 dbt-duckdb = ">=1.9.4"
 email-validator = ">=1.0.3"
 frictionless = ">=5,<6"
+# The Python geospatial stack is notoriously finnicky and full of compiled # extensions
 fsspec = ">=2026"
 gcsfs = ">=2026"
 # The Python geospatial stack is notoriously finnicky and full of compiled # extensions
@@ -235,10 +235,10 @@ numba = ">=0.65"
 numexpr = ">=2.10"
 numpy = ">=2.4"
 packaging = ">=25"
-pandas = ">=2.3"
-pandera-polars = ">=0.30"
+pandas = ">=3.0.2"
 polars = ">=1.39"
 pyarrow = ">=23"
+pandera-polars = ">=0.30"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
 python-calamine = ">=0.6.1"
