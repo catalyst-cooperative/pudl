@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.fields &#8212; PUDL 2026.4.1.dev10 documentation</title>
+    <title>pudl.metadata.fields &#8212; PUDL 2026.4.1.dev11 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=c0267ed7"></script>
+    <script src="../../../_static/documentation_options.js?v=69660ab1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev11 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev11 documentation - Home"/>
   
   
 </a></div>
@@ -1370,6 +1370,22 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;attention_line&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Mail attention name of the operator/owner.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;attestation_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Name of person signing the corporate officer&#39;s certification.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;attestation_title&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Title of person signing the corporate officer&#39;s certification.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;attestation_signature&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Signature of corporate officer to certify the report.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;attestation_date&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Date that corporate officer&#39;s certification was signed.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;automated_meter_reading&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
@@ -3876,6 +3892,10 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Energy used for pumping, in megawatt-hours.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;entity_id_gleif&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Legal Entity Identification Number issued by Global Legal Entity Identifier Foundation (GLEIF). The Legal Entity Identifier (LEI) is a 20-character, alpha-numeric code based on the ISO 17442 standard developed by the International Organization for Standardization (ISO).&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Entity type of principal owner.&quot;</span><span class="p">,</span>
@@ -4152,6 +4172,10 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;filing_date&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Date on which the filing was submitted.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;filing_software_vendor_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Name of software company used for creating the instance file submitted. If the filer created the submission, is null&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;film_number&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -9080,6 +9104,12 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;Name of the responding utility, as it is reported in FERC Form 1. For human readability only.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
+    <span class="s2">&quot;prior_utility_name_ferc1&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Former name of the responding utility, when it changed within the last year.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
     <span class="s2">&quot;utility_name_pudl&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -11991,6 +12021,42 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect.&quot;</span>
             <span class="p">)</span>
         <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_ferc1__yearly_identification_certification&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;contact_name&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Name of contact person for the respondent.&quot;</span><span class="p">)},</span>
+        <span class="s2">&quot;contact_title&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Title of contact person for the respondent.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="c1"># TODO 04/26: Would require additional cleaning to validate, some</span>
+        <span class="c1"># Canada postal codes in here as well.</span>
+        <span class="c1"># &quot;contact_zip&quot;: {</span>
+        <span class="c1">#     &quot;constraints&quot;: {</span>
+        <span class="c1">#         &quot;pattern&quot;: r&quot;^\d{5}(-\d{4})?$&quot;,</span>
+        <span class="c1">#     },</span>
+        <span class="c1"># },</span>
+        <span class="s2">&quot;contact_state&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SUBDIVISION_CODES_ISO3166</span><span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;office_street_address&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Street address of principal office at end of period.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;office_city&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;City of principal office at end of period.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;office_state&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;State of principal office at end of period.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SUBDIVISION_CODES_ISO3166</span><span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;office_zip&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zipcode of principal office at end of period.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># TODO 04/26: Would require additional cleaning to validate, some Canada postal codes in here as well.</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;report_filing_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Type of report submitted: O (original) or R (revision).&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">]},</span>
+        <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;core_ferceqr__contracts&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;product_name&quot;</span><span class="p">:</span> <span class="p">{</span>

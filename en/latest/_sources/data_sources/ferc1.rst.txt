@@ -72,6 +72,9 @@ the names and descriptions of each of its fields.
    * - :ref:`core_ferc1__yearly_hydroelectric_plants_sched406`
      - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_hydroelectric_plants_sched406
    
+   * - :ref:`core_ferc1__yearly_identification_certification`
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_identification_certification
+   
    * - :ref:`core_ferc1__yearly_income_statements_sched114`
      - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_income_statements_sched114
    

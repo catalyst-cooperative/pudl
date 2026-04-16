@@ -59,6 +59,7 @@ Classes
    pudl.transform.ferc1.NullReportedValueFrequency
    pudl.transform.ferc1.Ferc1TableTransformParams
    pudl.transform.ferc1.Ferc1AbstractTableTransformer
+   pudl.transform.ferc1.IdentificationCertificationTableTransformer
    pudl.transform.ferc1.SteamPlantsFuelTableTransformer
    pudl.transform.ferc1.SteamPlantsTableTransformer
    pudl.transform.ferc1.HydroelectricPlantsTableTransformer
@@ -306,6 +307,11 @@ Module Contents
 
    .. py:attribute:: OTHER_REGULATORY_LIABILITIES
       :value: 'core_ferc1__yearly_other_regulatory_liabilities_sched278'
+
+
+
+   .. py:attribute:: IDENTIFICATION_CERTIFICATION
+      :value: 'core_ferc1__yearly_identification_certification'
 
 
 
@@ -1595,7 +1601,7 @@ Module Contents
       instantiated but is an empty table, then there are no calculations for that table.
 
 
-   .. py:method:: transform_start(raw_dbf: pandas.DataFrame, raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+   .. py:method:: transform_start(raw_dbf_dfs: dict[str, pandas.DataFrame], raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
 
       Process the raw data until the XBRL and DBF inputs have been unified.
 
@@ -1805,6 +1811,18 @@ Module Contents
 
 
 
+   .. py:method:: preprocess_dbf(raw_dbf_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+
+      Pre-process DBF inputs into one dataframe. Concats by default.
+
+
+
+   .. py:method:: preprocess_xbrl(raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+
+      Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
+
+
+
    .. py:method:: process_dbf(raw_dbf: pandas.DataFrame) -> pandas.DataFrame
 
       DBF-specific transformations that take place before concatenation.
@@ -1994,6 +2012,53 @@ Module Contents
    .. py:method:: reconcile_table_calculations(df: pandas.DataFrame, params: ReconcileTableCalculations | None = None)
 
       Check how well a table's calculated values match reported values.
+
+
+
+.. py:class:: IdentificationCertificationTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for the :ref:`core_ferc1__yearly_identification_certification` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:method:: preprocess_xbrl(raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+
+      Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
+
+
+
+   .. py:method:: source_table_primary_key(source_ferc1: SourceFerc1) -> list[str]
+
+      Look up the pre-renaming source table primary key columns.
+
+      The identification table does not have spplmnt_num or row_number,
+      which are part of the DBF primary key for every other DBF table.
+
+
+
+   .. py:method:: drop_unused_original_columns_dbf(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Remove one residual DBF specific column.
+
+
+
+   .. py:method:: transform_main(df)
+
+      Standard transform_main plus address normalization and string cleaning.
+
+      Transformations include phone number normalization, address parsing using
+      usaddress, null normalization, and converting names and titles to title case.
 
 
 

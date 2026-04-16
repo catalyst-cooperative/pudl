@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.ferc1 &#8212; PUDL 2026.4.1.dev10 documentation</title>
+    <title>pudl.metadata.resources.ferc1 &#8212; PUDL 2026.4.1.dev11 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../../_static/documentation_options.js?v=c0267ed7"></script>
+    <script src="../../../../_static/documentation_options.js?v=69660ab1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev11 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev11 documentation - Home"/>
   
   
 </a></div>
@@ -1224,6 +1224,17 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;There are a number of revenue_type&#39;s that do not have sales_mwh,&quot;</span>
             <span class="s2">&quot;or avg_customers_per_month provided, in which case these columns&quot;</span>
             <span class="s2">&quot;will be NULL.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;yearly_identification_certification&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;respondent identification and corporate officer certification information.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part I and II)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;free_text&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;This table contains information identifying a utility&#39;s contact information, &quot;</span>
+            <span class="s2">&quot;addresses and individuals responsible for accounting and certification. Note that &quot;</span>
+            <span class="s2">&quot;the entity_id_gleif field does not conform to the expected format and largely includes &quot;</span>
+            <span class="s2">&quot;the names of respondents.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
@@ -1983,6 +1994,48 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;revenue_type&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_ferc1__yearly_identification_certification&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">&quot;yearly_identification_certification&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;record_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prior_utility_name_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name_change_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;company_id_ferc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;entity_id_gleif&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_title&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_email&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_address&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_phone&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_city&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contact_zip&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;office_street_address&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;office_city&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;office_state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;office_zip&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;attestation_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;attestation_title&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;attestation_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;attestation_signature&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;filing_software_vendor_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_filing_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_filing_type&quot;</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
         <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">],</span>

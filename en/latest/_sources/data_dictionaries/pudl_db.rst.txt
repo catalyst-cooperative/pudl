@@ -34054,6 +34054,177 @@ Columns
     - integer
     - PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.
 
+.. _core_ferc1__yearly_identification_certification:
+
+-------------------------------------------------------------------------------
+core_ferc1__yearly_identification_certification
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_ferc1__yearly_identification_certification>`__
+
+Annual time series of respondent identification and corporate officer certification information.
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  FERC Form 1 -- Annual Report of Major Electric Utilities (Part I and II)
+
+Primary key:
+  utility_id_ferc1, report_year, report_filing_type
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Contains columns which may appear categorical, but are actually free text.
+
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This table contains information identifying a utility's contact information, addresses and individuals responsible for accounting and certification. Note that the entity_id_gleif field does not conform to the expected format and largely includes the names of respondents.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_identification_certification>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_ferc1__yearly_identification_certification.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_ferc1__yearly_identification_certification.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_ferc1__yearly_identification_certification.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_identification_certification.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_ferc1__yearly_identification_certification.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - attestation_date
+    - date
+    - Date that corporate officer's certification was signed.
+  * - attestation_name
+    - string
+    - Name of person signing the corporate officer's certification.
+  * - attestation_signature
+    - string
+    - Signature of corporate officer to certify the report.
+  * - attestation_title
+    - string
+    - Title of person signing the corporate officer's certification.
+  * - company_id_ferc
+    - string
+    - The Company Identifier (CID) obtained through FERC's Company Registration system.
+  * - contact_address
+    - string
+    - Street address for contact identified in contact_name.
+  * - contact_city
+    - string
+    - City for contact identified in contact_name.
+  * - contact_email
+    - string
+    - Email for contact identified in contact_name.
+  * - contact_name
+    - string
+    - Name of contact person for the respondent.
+  * - contact_phone
+    - string
+    - Phone number for contact identified in contact_name.
+  * - contact_state
+    - string
+    - State for contact identified in contact_name.
+  * - contact_title
+    - string
+    - Title of contact person for the respondent.
+  * - contact_zip
+    - string
+    - Zip code for contact identified in contact_name.
+  * - entity_id_gleif
+    - string
+    - Legal Entity Identification Number issued by Global Legal Entity Identifier Foundation (GLEIF). The Legal Entity Identifier (LEI) is a 20-character, alpha-numeric code based on the ISO 17442 standard developed by the International Organization for Standardization (ISO).
+  * - filing_date
+    - date
+    - Date on which the filing was submitted.
+  * - filing_software_vendor_name
+    - string
+    - Name of software company used for creating the instance file submitted. If the filer created the submission, is null
+  * - name_change_date
+    - date
+    - Date of last name change of the company.
+  * - office_city
+    - string
+    - City of principal office at end of period.
+  * - office_state
+    - string
+    - State of principal office at end of period.
+  * - office_street_address
+    - string
+    - Street address of principal office at end of period.
+  * - office_zip
+    - string
+    - Zipcode of principal office at end of period.
+  * - prior_utility_name_ferc1
+    - string
+    - Former name of the responding utility, when it changed within the last year.
+  * - record_id
+    - string
+    - Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.
+  * - report_filing_type
+    - string
+    - Type of report submitted: O (original) or R (revision).
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - utility_id_ferc1
+    - integer
+    - PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.
+  * - utility_name_ferc1
+    - string
+    - Name of the responding utility, as it is reported in FERC Form 1. For human readability only.
+
 .. _core_ferc1__yearly_income_statements_sched114:
 
 -------------------------------------------------------------------------------

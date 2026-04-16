@@ -167,7 +167,7 @@ Module Contents
       the appropriate :class:`TableTransformParams` object.
 
 
-   .. py:method:: transform(raw_dbf: pandas.DataFrame, raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+   .. py:method:: transform(raw_dbf_dfs: dict[str, pandas.DataFrame], raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
 
       Only apply the generic :meth:``transform_start``.
 
