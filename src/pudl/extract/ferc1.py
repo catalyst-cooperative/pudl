@@ -209,6 +209,13 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_othr_reg_liab",
         "xbrl": "other_regulatory_liabilities_account_254_278",
     },
+    "core_ferc1__yearly_other_regulatory_assets_sched232": {
+        "dbf": "f1_othr_reg_assets",
+        "xbrl": [
+            "other_regulatory_assets_account_182_3_232",
+            "other_regulatory_assets_account_182_3_totals_232",
+        ],
+    },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
