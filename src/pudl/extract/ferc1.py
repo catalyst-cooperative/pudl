@@ -209,6 +209,13 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_othr_reg_liab",
         "xbrl": "other_regulatory_liabilities_account_254_278",
     },
+    "core_ferc1__yearly_identification_certification": {
+        "dbf": "f1_ident_attsttn",
+        "xbrl": [
+            "identification_001",
+            "corporate_officer_certification_001",
+        ],
+    },
     "core_ferc1__yearly_other_regulatory_assets_sched232": {
         "dbf": "f1_othr_reg_assets",
         "xbrl": [

@@ -41,7 +41,7 @@ license = "MIT"
 # and tool.pixi.package.run-dependencies below. This means that the package cannot be
 # installed with pip or uv, but it is set up to be built with pixi into a conda package
 # which can be installed with conda, mamba, micromamba, pixi, etc.
-dependencies = []
+dependencies = ["usaddress>=0.5.16,<0.6"]
 
 [project.urls]
 "Homepage" = "https://github.com/catalyst-cooperative/pudl"
