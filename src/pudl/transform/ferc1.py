@@ -168,6 +168,7 @@ class TableIdFerc1(enum.Enum):
         "core_ferc1__yearly_other_regulatory_liabilities_sched278"
     )
     IDENTIFICATION_CERTIFICATION = "core_ferc1__yearly_identification_certification"
+    OTHER_REGULATORY_ASSETS = "core_ferc1__yearly_other_regulatory_assets_sched232"
 
 
 ################################################################################
@@ -6403,6 +6404,40 @@ class OtherRegulatoryLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
     has_unique_record_ids = False
 
 
+class OtherRegulatoryAssetsTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`core_ferc1__yearly_other_regulatory_assets_sched232` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_ASSETS
+    has_unique_record_ids = False
+
+    def process_xbrl(
+        self: Self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Add values to the axis columns from the totals tables, then standard.
+
+        The raw XBRL data for this table comes from two tables - one of which has
+        an "axis" column - which is generally designated as a unique identifying field -
+        that is a free-text field containing details about what type of asset the record
+        pertains to. The second table is a "totals" table which based on the XBRL
+        documentation is the total of the other regulatory assets. So we assign the value
+        for the ``other_regulatory_assets_axis`` column as ``totals``. These records are
+        labeled as ``totals`` instead of ``total`` because there are some records (~3%) from
+        the ``other_regulatory_assets_account_182_3_232`` table that are labeled as total
+        and will break the pk expectations.
+        """
+        raw_xbrl_instant.loc[
+            raw_xbrl_instant.sched_table_name
+            == "other_regulatory_assets_account_182_3_totals_232",
+            "other_regulatory_assets_axis",
+        ] = "totals"
+        raw_xbrl_duration.loc[
+            raw_xbrl_duration.sched_table_name
+            == "other_regulatory_assets_account_182_3_totals_232",
+            "other_regulatory_assets_axis",
+        ] = "totals"
+        return super().process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+
+
 FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_steam_plants_fuel_sched402": SteamPlantsFuelTableTransformer,
     "core_ferc1__yearly_steam_plants_sched402": SteamPlantsTableTransformer,
@@ -6429,6 +6464,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_sales_by_rate_schedules_sched304": SalesByRateSchedulesTableTransformer,
     "core_ferc1__yearly_other_regulatory_liabilities_sched278": OtherRegulatoryLiabilitiesTableTransformer,
     "core_ferc1__yearly_identification_certification": IdentificationCertificationTableTransformer,
+    "core_ferc1__yearly_other_regulatory_assets_sched232": OtherRegulatoryAssetsTableTransformer,
 }
 
 

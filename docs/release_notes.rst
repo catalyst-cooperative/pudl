@@ -17,11 +17,13 @@ New Data
 FERC 1
 ~~~~~~
 
-* Added new :ref:`core_ferc1__yearly_depreciation_factors_sched336` table. See
+* Added new :ref:`out_ferc1__yearly_depreciation_factors_sched336` table. See
   issue :issue:`5103` and PR :pr:`5112`.
 * Added FERC Form 1 respondents' identification and certification information as
   :ref:`core_ferc1__yearly_identification_certification`. See :issue:`5150` and
   :pr:`5008`.
+* Added new :ref:`out_ferc1__yearly_other_regulatory_assets_sched232` table. See
+  issue :issue:`5104` and PR :pr:`5170`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
