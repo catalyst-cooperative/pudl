@@ -1,7 +1,7 @@
 """Add identification and certification table
 
 Revision ID: 4f252e9e2ce3
-Revises: cfbb9479cc73
+Revises: 6b25097da735
 Create Date: 2026-04-14 14:30:23.354100
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '4f252e9e2ce3'
-down_revision = 'cfbb9479cc73'
+down_revision = '6b25097da735'
 branch_labels = None
 depends_on = None
 
