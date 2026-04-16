@@ -81,6 +81,9 @@ the names and descriptions of each of its fields.
    * - :ref:`core_ferc1__yearly_operating_revenues_sched300`
      - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_operating_revenues_sched300
    
+   * - :ref:`core_ferc1__yearly_other_regulatory_assets_sched232`
+     - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_other_regulatory_assets_sched232
+   
    * - :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278`
      - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_other_regulatory_liabilities_sched278
    
@@ -113,6 +116,9 @@ the names and descriptions of each of its fields.
    
    * - :ref:`core_ferc1__yearly_utility_plant_summary_sched200`
      - https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_utility_plant_summary_sched200
+   
+   * - :ref:`out_ferc1__yearly_other_regulatory_assets_sched232`
+     - https://data.catalyst.coop/preview/pudl/out_ferc1__yearly_other_regulatory_assets_sched232
    
 
 We've also created the following tables mapping manually assigned PUDL IDs to FERC

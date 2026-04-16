@@ -10571,6 +10571,128 @@ Columns
     - string
     - Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.
 
+.. _out_ferc1__yearly_other_regulatory_assets_sched232:
+
+-------------------------------------------------------------------------------
+out_ferc1__yearly_other_regulatory_assets_sched232
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_ferc1__yearly_other_regulatory_assets_sched232>`__
+
+Annual time series of utilities' other regulatory assets, including rate order docket number.
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  FERC Form 1 -- Annual Report of Major Electric Utilities (Schedule 232)
+
+Primary key:
+  This table has no primary key. Respondents are able to enter any number of assets across many rows. There are no IDs or set fields enforced in the original table.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Contains columns which may appear categorical, but are actually free text.
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
+
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_ferc1__yearly_other_regulatory_assets_sched232>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc1__yearly_other_regulatory_assets_sched232.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_ferc1__yearly_other_regulatory_assets_sched232.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_ferc1__yearly_other_regulatory_assets_sched232.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_ferc1__yearly_other_regulatory_assets_sched232.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_ferc1__yearly_other_regulatory_assets_sched232.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - account_detail
+    - string
+    - Description of the account number credited from making debit adjustment to other regulatory liabilities.
+  * - additional_description
+    - string
+    - Additional free-form description column. In most instances, the values in this column are exactly the same as the description column,but it differs from the standard description enough that we kept both columns. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021.
+  * - credits_written_off_recovered
+    - number
+    - Recovered amount of divestiture of other assets lacking physical substance resulting from the ratemaking actions of regulatory agencies.
+  * - debits
+    - number
+    - The increase (decrease) during the period in the value of other assets resulting from the ratemaking actions of regulatory agencies.
+  * - description
+    - string
+    - Long human-readable description of the meaning of a code/label.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - starting_balance
+    - number
+    - Account balance at beginning of year.
+  * - utility_id_ferc1
+    - integer
+    - PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.
+  * - utility_id_ferc1_dbf
+    - integer
+    - FERC-assigned respondent_id from DBF reporting years, identifying the reporting entity. Stable from year to year.
+  * - utility_id_ferc1_xbrl
+    - string
+    - FERC-assigned entity_id from XBRL reporting years, identifying the reporting entity. Stable from year to year.
+  * - utility_id_pudl
+    - integer
+    - A manually assigned PUDL utility ID. May not be stable over time.
+  * - utility_name_ferc1
+    - string
+    - Name of the responding utility, as it is reported in FERC Form 1. For human readability only.
+
 .. _out_ferc1__yearly_other_regulatory_liabilities_sched278:
 
 -------------------------------------------------------------------------------
@@ -10594,7 +10716,9 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* The ``description`` column is a free-form string.
+* Contains columns which may appear categorical, but are actually free text.
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
 
 * FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
@@ -34263,6 +34387,116 @@ Columns
     - string
     - Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.
 
+.. _core_ferc1__yearly_other_regulatory_assets_sched232:
+
+-------------------------------------------------------------------------------
+core_ferc1__yearly_other_regulatory_assets_sched232
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_ferc1__yearly_other_regulatory_assets_sched232>`__
+
+Annual time series of utilities' other regulatory assets, including rate order docket number.
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  FERC Form 1 -- Annual Report of Major Electric Utilities (Schedule 232)
+
+Primary key:
+  This table has no primary key. Respondents are able to enter any number of assets across many rows. There are no IDs or set fields enforced in the original table.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Contains columns which may appear categorical, but are actually free text.
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
+
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_ferc1__yearly_other_regulatory_assets_sched232>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_ferc1__yearly_other_regulatory_assets_sched232.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_ferc1__yearly_other_regulatory_assets_sched232.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_ferc1__yearly_other_regulatory_assets_sched232.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_ferc1__yearly_other_regulatory_assets_sched232.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_ferc1__yearly_other_regulatory_assets_sched232.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - account_detail
+    - string
+    - Description of the account number credited from making debit adjustment to other regulatory liabilities.
+  * - additional_description
+    - string
+    - Additional free-form description column. In most instances, the values in this column are exactly the same as the description column,but it differs from the standard description enough that we kept both columns. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021.
+  * - credits_written_off_recovered
+    - number
+    - Recovered amount of divestiture of other assets lacking physical substance resulting from the ratemaking actions of regulatory agencies.
+  * - debits
+    - number
+    - The increase (decrease) during the period in the value of other assets resulting from the ratemaking actions of regulatory agencies.
+  * - description
+    - string
+    - Free-form description and purpose of other regulatory assets.
+  * - ending_balance
+    - number
+    - Account balance at end of year.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - starting_balance
+    - number
+    - Account balance at beginning of year.
+  * - utility_id_ferc1
+    - integer
+    - PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.
+
 .. _core_ferc1__yearly_other_regulatory_liabilities_sched278:
 
 -------------------------------------------------------------------------------
@@ -34286,7 +34520,9 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* The ``description`` column is a free-form string.
+* Contains columns which may appear categorical, but are actually free text.
+
+* Some columns contain subtotals; use caution when choosing columns to aggregate.
 
 * FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
@@ -34346,6 +34582,9 @@ Columns
   * - account_detail
     - string
     - Description of the account number credited from making debit adjustment to other regulatory liabilities.
+  * - additional_description
+    - string
+    - Additional free-form description column. In most instances, the values in this column are exactly the same as the description column,but it differs from the standard description enough that we kept both columns. This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021.
   * - decrease_in_other_regulatory_liabilities
     - number
     - The decrease during the reporting period of other regulatory liabilities.

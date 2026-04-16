@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.ferc1 &#8212; PUDL 2026.4.1.dev9 documentation</title>
+    <title>pudl.metadata.resources.ferc1 &#8212; PUDL 2026.4.1.dev10 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../../_static/documentation_options.js?v=9f98d0f7"></script>
+    <script src="../../../../_static/documentation_options.js?v=c0267ed7"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev9 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev9 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
   
   
 </a></div>
@@ -1080,12 +1080,13 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;utilities&#39; other regulatory liabilities, including rate order docket number.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 278)&quot;</span><span class="p">,</span>
         <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Respondents are able to enter any number of liabilities across many rows. There are no IDs or set fields enforced in the original table.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The ``description`` column is a free-form string.&quot;</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">],</span>
+        <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;free_text&quot;</span><span class="p">,</span> <span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;yearly_other_regulatory_assets_sched232&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;utilities&#39; other regulatory assets, including rate order docket number.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 232)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Respondents are able to enter any number of assets across many rows. There are no IDs or set fields enforced in the original table.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;free_text&quot;</span><span class="p">,</span> <span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
     <span class="p">},</span>
     <span class="s2">&quot;yearly_plant_in_service_sched204&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;utilities&#39; balances and changes to FERC Electric Plant in Service accounts.&quot;</span><span class="p">,</span>
@@ -1555,11 +1556,31 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;additional_description&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;starting_balance&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;increase_in_other_regulatory_liabilities&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;account_detail&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;decrease_in_other_regulatory_liabilities&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_ferc1__yearly_other_regulatory_assets_sched232&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">&quot;yearly_other_regulatory_assets_sched232&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;additional_description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;starting_balance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;debits&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;credits_written_off_recovered&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;account_detail&quot;</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
         <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">],</span>
@@ -2323,6 +2344,29 @@ window.runMermaid = runMermaid;</script>
         <span class="p">},</span>
         <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">],</span>
         <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_ferc1__yearly_other_regulatory_assets_sched232&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">&quot;yearly_other_regulatory_assets_sched232&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;additional_description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;starting_balance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;debits&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;credits_written_off_recovered&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;account_detail&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
         <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;out_ferc1__yearly_other_regulatory_liabilities_sched278&quot;</span><span class="p">:</span> <span class="p">{</span>
