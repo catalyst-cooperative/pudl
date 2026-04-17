@@ -428,6 +428,7 @@ def test_frictionless_data_package_filter_resources():
     assert not any("eqr" in r.name for r in no_eqr_resources)
     assert all("eqr" in r.name for r in only_eqr_resources)
 
+
 @pytest.mark.parametrize(
     "partition_key,period,offset,expected",
     [
@@ -536,6 +537,19 @@ CHECK_DESCRIPTION_PRIMARY_KEYS = False
 
 RE_CAPS = re.compile("[A-Z]")
 
+EXPECT_NO_AVAILABILITY = {
+    "core_ferc__entity_companies",
+    "core_gridpathratoolkit__assn_generator_aggregation_group",
+    "core_pudl__assn_utilities_plants",
+    "core_pudl__codes_datasources",
+    "core_pudl__codes_imputation_reasons",
+    "core_pudl__codes_subdivisions",
+    "core_pudl__entity_plants_pudl",
+    "core_pudl__entity_utilities_pudl",
+    "core_rus__codes_fuel_types",
+    "core_rus__codes_investment_types",
+}
+
 
 @pytest.mark.parametrize(
     # todo: back this off to sorted(PUDL_RESOURCES.keys()) after the migration.
@@ -595,15 +609,7 @@ def test_description_compliance(resource_id):
     ), (
         f"Table {resource_id} has set both availability_text and availability_offset; you can't have both."
     )
-    if resource_id not in {
-        "core_gridpathratoolkit__assn_generator_aggregation_group",
-        "core_pudl__assn_utilities_plants",
-        "core_pudl__codes_datasources",
-        "core_pudl__codes_imputation_reasons",
-        "core_pudl__codes_subdivisions",
-        "core_pudl__entity_plants_pudl",
-        "core_pudl__entity_utilities_pudl",
-    }:
+    if resource_id not in EXPECT_NO_AVAILABILITY:
         assert resolved.availability.type == "True", (
             f"Missing availability for {resource_id}"
         )
