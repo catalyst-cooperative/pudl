@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.4.1.dev10 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.4.1.dev13 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=c0267ed7"></script>
+    <script src="../../../_static/documentation_options.js?v=e097e43c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev13 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev13 documentation - Home"/>
   
   
 </a></div>
@@ -864,6 +864,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Self</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -875,8 +876,15 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.extract.ferc1</span><span class="w"> </span><span class="kn">import</span> <span class="n">TABLE_NAME_MAP_FERC1</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">assert_cols_areclose</span><span class="p">,</span> <span class="n">convert_cols_dtypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">assert_cols_areclose</span><span class="p">,</span>
+    <span class="n">convert_cols_dtypes</span><span class="p">,</span>
+    <span class="n">listify</span><span class="p">,</span>
+    <span class="n">parse_address</span><span class="p">,</span>
+    <span class="n">standardize_phone_column</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dfs</span><span class="w"> </span><span class="kn">import</span> <span class="n">POLITICAL_SUBDIVISIONS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ferc1Settings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.classes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1098,6 +1106,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">OTHER_REGULATORY_LIABILITIES</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;core_ferc1__yearly_other_regulatory_liabilities_sched278&quot;</span>
     <span class="p">)</span></div>
+
+<div class="viewcode-block" id="TableIdFerc1.IDENTIFICATION_CERTIFICATION">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.TableIdFerc1.IDENTIFICATION_CERTIFICATION">[docs]</a>
+    <span class="n">IDENTIFICATION_CERTIFICATION</span> <span class="o">=</span> <span class="s2">&quot;core_ferc1__yearly_identification_certification&quot;</span></div>
 
 <div class="viewcode-block" id="TableIdFerc1.OTHER_REGULATORY_ASSETS">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.TableIdFerc1.OTHER_REGULATORY_ASSETS">[docs]</a>
@@ -3353,13 +3365,18 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.transform_start">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">transform_start</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">raw_dbf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-        <span class="n">raw_xbrl_instant</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-        <span class="n">raw_xbrl_duration</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">raw_dbf_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+        <span class="n">raw_xbrl_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the raw data until the XBRL and DBF inputs have been unified.&quot;&quot;&quot;</span>
-        <span class="n">processed_dbf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_dbf</span><span class="p">(</span><span class="n">raw_dbf</span><span class="p">)</span>
-        <span class="n">processed_xbrl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_xbrl</span><span class="p">(</span><span class="n">raw_xbrl_instant</span><span class="p">,</span> <span class="n">raw_xbrl_duration</span><span class="p">)</span>
+        <span class="n">preprocessed_dbf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_dbf</span><span class="p">(</span><span class="n">raw_dbf_dfs</span><span class="p">)</span>
+        <span class="n">preprocessed_xbrl_instant</span><span class="p">,</span> <span class="n">preprocessed_xbrl_duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_xbrl</span><span class="p">(</span>
+            <span class="n">raw_xbrl_dfs</span>
+        <span class="p">)</span>
+        <span class="n">processed_dbf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_dbf</span><span class="p">(</span><span class="n">preprocessed_dbf</span><span class="p">)</span>
+        <span class="n">processed_xbrl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_xbrl</span><span class="p">(</span>
+            <span class="n">preprocessed_xbrl_instant</span><span class="p">,</span> <span class="n">preprocessed_xbrl_duration</span>
+        <span class="p">)</span>
         <span class="n">processed_dbf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_dbf_rows_by_category</span><span class="p">(</span><span class="n">processed_dbf</span><span class="p">,</span> <span class="n">processed_xbrl</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">table_id</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">: Concatenating DBF + XBRL dataframes.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">processed_dbf</span><span class="p">,</span> <span class="n">processed_xbrl</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
@@ -4029,6 +4046,50 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">df</span></div>
 
 
+    <span class="c1"># Note: no cache decorator to mirror preprocess_xbrl, which returns a tuple</span>
+    <span class="c1"># and cannot be cached.</span>
+<div class="viewcode-block" id="Ferc1AbstractTableTransformer.preprocess_dbf">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.preprocess_dbf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess_dbf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_dbf_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-process DBF inputs into one dataframe. Concats by default.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">raw_dbf_dfs</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div>
+
+
+    <span class="c1"># TODO (04-2026): Would be nice to refactor to take raw_xbrl_instant_dfs and</span>
+    <span class="c1"># raw_xbrl_duration_dfs rather than a dictionary.</span>
+<div class="viewcode-block" id="Ferc1AbstractTableTransformer.preprocess_xbrl">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.preprocess_xbrl">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess_xbrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_xbrl_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.&quot;&quot;&quot;</span>
+        <span class="n">raw_xbrls</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">table_name</span><span class="p">:</span> <span class="n">filter_for_freshest_data_xbrl</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">,</span>
+                <span class="n">get_primary_key_raw_xbrl</span><span class="p">(</span>
+                    <span class="n">table_name</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_xbrl__&quot;</span><span class="p">),</span> <span class="s2">&quot;ferc1&quot;</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_xbrl_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">raw_xbrl_table_name</span> <span class="ow">in</span> <span class="n">listify</span><span class="p">(</span>
+            <span class="n">TABLE_NAME_MAP_FERC1</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">table_id</span><span class="o">.</span><span class="n">value</span><span class="p">][</span><span class="s2">&quot;xbrl&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">raw_xbrls</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_xbrl__</span><span class="si">{</span><span class="n">raw_xbrl_table_name</span><span class="si">}</span><span class="s2">_instant&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
+                <span class="ow">and</span> <span class="n">raw_xbrls</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_xbrl__</span><span class="si">{</span><span class="n">raw_xbrl_table_name</span><span class="si">}</span><span class="s2">_duration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">raw_xbrl_table_name</span><span class="si">}</span><span class="s2"> has neither instant nor duration tables. &quot;</span>
+                    <span class="s2">&quot;Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1&quot;</span>
+                <span class="p">)</span>
+        <span class="n">raw_xbrl_instant</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_xbrls</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_instant&quot;</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="n">raw_xbrl_duration</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_xbrls</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_duration&quot;</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">raw_xbrl_instant</span><span class="p">,</span> <span class="n">raw_xbrl_duration</span></div>
+
+
     <span class="nd">@cache_df</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;dbf&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="Ferc1AbstractTableTransformer.process_dbf">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.process_dbf">[docs]</a>
@@ -4564,6 +4625,223 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">table_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table_id</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
                 <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="IdentificationCertificationTableTransformer">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IdentificationCertificationTableTransformer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IdentificationCertificationTableTransformer</span><span class="p">(</span><span class="n">Ferc1AbstractTableTransformer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformer class for the :ref:`core_ferc1__yearly_identification_certification` table.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IdentificationCertificationTableTransformer.table_id">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IdentificationCertificationTableTransformer.table_id">[docs]</a>
+    <span class="n">table_id</span><span class="p">:</span> <span class="n">TableIdFerc1</span> <span class="o">=</span> <span class="n">TableIdFerc1</span><span class="o">.</span><span class="n">IDENTIFICATION_CERTIFICATION</span></div>
+
+
+<div class="viewcode-block" id="IdentificationCertificationTableTransformer.preprocess_xbrl">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IdentificationCertificationTableTransformer.preprocess_xbrl">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess_xbrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_xbrl_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.&quot;&quot;&quot;</span>
+        <span class="n">raw_xbrls</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">table_name</span><span class="p">:</span> <span class="n">filter_for_freshest_data_xbrl</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">,</span>
+                <span class="n">get_primary_key_raw_xbrl</span><span class="p">(</span>
+                    <span class="n">table_name</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_xbrl__&quot;</span><span class="p">),</span> <span class="s2">&quot;ferc1&quot;</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_xbrl_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">raw_xbrl_table_name</span> <span class="ow">in</span> <span class="n">listify</span><span class="p">(</span>
+            <span class="n">TABLE_NAME_MAP_FERC1</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">table_id</span><span class="o">.</span><span class="n">value</span><span class="p">][</span><span class="s2">&quot;xbrl&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">raw_xbrls</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_xbrl__</span><span class="si">{</span><span class="n">raw_xbrl_table_name</span><span class="si">}</span><span class="s2">_instant&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
+                <span class="ow">and</span> <span class="n">raw_xbrls</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_xbrl__</span><span class="si">{</span><span class="n">raw_xbrl_table_name</span><span class="si">}</span><span class="s2">_duration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">raw_xbrl_table_name</span><span class="si">}</span><span class="s2"> has neither instant nor duration tables. &quot;</span>
+                    <span class="s2">&quot;Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1&quot;</span>
+                <span class="p">)</span>
+        <span class="n">raw_xbrl_instant</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_xbrls</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_instant&quot;</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="c1"># Rather than concatenating, we merge these tables on their primary key.</span>
+        <span class="c1"># This is because we want to join these two tables into one horizontally</span>
+        <span class="c1"># rather than vertically.</span>
+        <span class="c1"># We sort to consistently assign the table name to identification.</span>
+        <span class="n">duration_df_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">df</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">raw_xbrls</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_duration&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">raw_xbrl_duration</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">y</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+                <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">,</span>
+                <span class="n">on</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;entity_id&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;filing_name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;start_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;end_date&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;_x&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">duration_df_list</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">raw_xbrl_duration</span> <span class="o">=</span> <span class="n">raw_xbrl_duration</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">col</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">raw_xbrl_duration</span><span class="o">.</span><span class="n">columns</span>
+                <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sched_table_name_x&quot;</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>  <span class="c1"># Drop extra schedule name column</span>
+
+        <span class="k">return</span> <span class="n">raw_xbrl_instant</span><span class="p">,</span> <span class="n">raw_xbrl_duration</span></div>
+
+
+<div class="viewcode-block" id="IdentificationCertificationTableTransformer.source_table_primary_key">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IdentificationCertificationTableTransformer.source_table_primary_key">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">source_table_primary_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_ferc1</span><span class="p">:</span> <span class="n">SourceFerc1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up the pre-renaming source table primary key columns.</span>
+
+<span class="sd">        The identification table does not have spplmnt_num or row_number,</span>
+<span class="sd">        which are part of the DBF primary key for every other DBF table.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">source_ferc1</span> <span class="o">==</span> <span class="n">SourceFerc1</span><span class="o">.</span><span class="n">DBF</span><span class="p">:</span>
+            <span class="n">pk_cols</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_prd&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;submission_type&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">source_ferc1</span> <span class="o">==</span> <span class="n">SourceFerc1</span><span class="o">.</span><span class="n">XBRL</span>  <span class="c1"># nosec: B101</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">rename_columns_ferc1</span><span class="o">.</span><span class="n">xbrl</span><span class="o">.</span><span class="n">columns</span>
+            <span class="n">pk_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;entity_id&quot;</span><span class="p">]</span>
+            <span class="c1"># Sort to avoid dependence on the ordering of rename_columns.</span>
+            <span class="c1"># Doing the sorting here because we have a particular ordering</span>
+            <span class="c1"># hard coded for the DBF primary keys.</span>
+            <span class="n">pk_cols</span> <span class="o">+=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_axis&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">pk_cols</span></div>
+
+
+    <span class="nd">@cache_df</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;dbf&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="IdentificationCertificationTableTransformer.drop_unused_original_columns_dbf">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IdentificationCertificationTableTransformer.drop_unused_original_columns_dbf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_unused_original_columns_dbf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove one residual DBF specific column.&quot;&quot;&quot;</span>
+        <span class="n">unused_cols</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;report_prd&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">table_id</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">: Dropping unused DBF structural columns: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unused_cols</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">missing_cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">unused_cols</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">missing_cols</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">table_id</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">: Trying to drop missing original DBF columns:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">missing_cols</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">unused_cols</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IdentificationCertificationTableTransformer.transform_main">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IdentificationCertificationTableTransformer.transform_main">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Standard transform_main plus address normalization and string cleaning.</span>
+
+<span class="sd">        Transformations include phone number normalization, address parsing using</span>
+<span class="sd">        usaddress, null normalization, and converting names and titles to title case.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">super</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">transform_main</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">standardize_phone_column</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;contact_phone&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Check that is_migrated_data is all null and drop</span>
+        <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">is_migrated_data</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;is_migrated_data&quot;</span><span class="p">)</span>
+
+        <span class="n">title_cols</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;contact_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;contact_title&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attestation_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;attestation_title&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">title_cols</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+        <span class="n">date_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;attestation_date&quot;</span><span class="p">,</span> <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span> <span class="s2">&quot;name_change_date&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">date_cols</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+
+        <span class="n">to_null</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;not applicable&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;na&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;no change&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;z&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zzz&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="c1"># Build a single regex pattern that is case insensitive</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?i)^(&quot;</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">,</span> <span class="n">to_null</span><span class="p">))</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;)$&quot;</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;prior_utility_name_ferc1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;prior_utility_name_ferc1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">pattern</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;office_street_address&quot;</span><span class="p">,</span> <span class="s2">&quot;office_city&quot;</span><span class="p">,</span> <span class="s2">&quot;office_state&quot;</span><span class="p">,</span> <span class="s2">&quot;office_zip&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;office_street_address&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">parse_address</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;contact_address&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_city&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_state&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_zip&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;contact_address&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">parse_address</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Standardize state columns</span>
+        <span class="n">state_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">subdivision_name</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+                <span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">subdivision_code</span><span class="p">,</span>
+                <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;office_state&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_state&quot;</span><span class="p">]:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">state_map</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">state_map</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Drop three duplicated records where one row is entirely NA.</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;report_filing_type&quot;</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">office_street_address</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mask</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected to drop 3 duplicate records, instead dropping: </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">df</span></div>
 </div>
 
@@ -8160,6 +8438,7 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;core_ferc1__yearly_cash_flows_sched120&quot;</span><span class="p">:</span> <span class="n">CashFlowsTableTransformer</span><span class="p">,</span>
     <span class="s2">&quot;core_ferc1__yearly_sales_by_rate_schedules_sched304&quot;</span><span class="p">:</span> <span class="n">SalesByRateSchedulesTableTransformer</span><span class="p">,</span>
     <span class="s2">&quot;core_ferc1__yearly_other_regulatory_liabilities_sched278&quot;</span><span class="p">:</span> <span class="n">OtherRegulatoryLiabilitiesTableTransformer</span><span class="p">,</span>
+    <span class="s2">&quot;core_ferc1__yearly_identification_certification&quot;</span><span class="p">:</span> <span class="n">IdentificationCertificationTableTransformer</span><span class="p">,</span>
     <span class="s2">&quot;core_ferc1__yearly_other_regulatory_assets_sched232&quot;</span><span class="p">:</span> <span class="n">OtherRegulatoryAssetsTableTransformer</span><span class="p">,</span>
 <span class="p">}</span></div>
 
@@ -8192,7 +8471,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ins</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AssetIn</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="n">listify</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>  <span class="c1"># noqa: E731</span>
     <span class="n">dbf_tables</span> <span class="o">=</span> <span class="n">listify</span><span class="p">(</span><span class="n">TABLE_NAME_MAP_FERC1</span><span class="p">[</span><span class="n">table_name</span><span class="p">][</span><span class="s2">&quot;dbf&quot;</span><span class="p">])</span>
     <span class="n">xbrl_tables</span> <span class="o">=</span> <span class="n">listify</span><span class="p">(</span><span class="n">TABLE_NAME_MAP_FERC1</span><span class="p">[</span><span class="n">table_name</span><span class="p">][</span><span class="s2">&quot;xbrl&quot;</span><span class="p">])</span>
 
@@ -8234,36 +8512,17 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">xbrl_metadata_json</span><span class="o">=</span><span class="n">_core_ferc1_xbrl__metadata_json</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span>
             <span class="p">)</span>
 
-        <span class="n">raw_dbf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_dbf__&quot;</span><span class="p">)]</span>
-        <span class="p">)</span>
-        <span class="n">raw_xbrls</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">tn</span><span class="p">:</span> <span class="n">filter_for_freshest_data_xbrl</span><span class="p">(</span>
-                <span class="n">df</span><span class="p">,</span>
-                <span class="n">get_primary_key_raw_xbrl</span><span class="p">(</span><span class="n">tn</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_xbrl__&quot;</span><span class="p">),</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">),</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">tn</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">tn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_xbrl__&quot;</span><span class="p">)</span>
+        <span class="c1"># Split the DBF and XBRL dfs into input dictionaries for transformation</span>
+        <span class="n">raw_dbf_dfs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">df</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_dbf__&quot;</span><span class="p">)</span>
         <span class="p">}</span>
-        <span class="k">for</span> <span class="n">raw_xbrl_table_name</span> <span class="ow">in</span> <span class="n">listify</span><span class="p">(</span><span class="n">TABLE_NAME_MAP_FERC1</span><span class="p">[</span><span class="n">table_name</span><span class="p">][</span><span class="s2">&quot;xbrl&quot;</span><span class="p">]):</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">raw_xbrls</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_xbrl__</span><span class="si">{</span><span class="n">raw_xbrl_table_name</span><span class="si">}</span><span class="s2">_instant&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
-                <span class="ow">and</span> <span class="n">raw_xbrls</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_xbrl__</span><span class="si">{</span><span class="n">raw_xbrl_table_name</span><span class="si">}</span><span class="s2">_duration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
-            <span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">raw_xbrl_table_name</span><span class="si">}</span><span class="s2"> has neither instant nor duration tables. &quot;</span>
-                    <span class="s2">&quot;Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1&quot;</span>
-                <span class="p">)</span>
-        <span class="n">raw_xbrl_instant</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_xbrls</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_instant&quot;</span><span class="p">)]</span>
-        <span class="p">)</span>
-        <span class="n">raw_xbrl_duration</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_xbrls</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_duration&quot;</span><span class="p">)]</span>
-        <span class="p">)</span>
+        <span class="n">raw_xbrl_dfs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">df</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_xbrl__&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+
         <span class="n">df</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-            <span class="n">raw_dbf</span><span class="o">=</span><span class="n">raw_dbf</span><span class="p">,</span>
-            <span class="n">raw_xbrl_instant</span><span class="o">=</span><span class="n">raw_xbrl_instant</span><span class="p">,</span>
-            <span class="n">raw_xbrl_duration</span><span class="o">=</span><span class="n">raw_xbrl_duration</span><span class="p">,</span>
+            <span class="n">raw_dbf_dfs</span><span class="o">=</span><span class="n">raw_dbf_dfs</span><span class="p">,</span>
+            <span class="n">raw_xbrl_dfs</span><span class="o">=</span><span class="n">raw_xbrl_dfs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">convert_dtypes</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">convert_cols_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="s2">&quot;ferc1&quot;</span><span class="p">)</span>

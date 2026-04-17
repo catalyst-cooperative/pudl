@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.4.1.dev10 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.4.1.dev13 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=c0267ed7"></script>
+    <script src="../../../_static/documentation_options.js?v=e097e43c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev13 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev13 documentation - Home"/>
   
   
 </a></div>
@@ -974,6 +974,12 @@ with cleaning and restructuring dataframes.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.normalize_year_fragments" title="pudl.helpers.normalize_year_fragments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_year_fragments</span></code></a>(→ pandas.Series)</p></td>
 <td><p>Normalize year fragments into 4-digit years using a rolling-century rule.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.parse_address" title="pudl.helpers.parse_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_address</span></code></a>(addr)</p></td>
+<td><p>Parse a U.S. address into components.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.listify" title="pudl.helpers.listify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">listify</span></code></a>(→ list[Any])</p></td>
+<td><p>Listify an input that is sometimes a list and sometimes not.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2487,6 +2493,18 @@ logic, or if any resulting year falls outside the valid range.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.helpers.parse_address">
+<span class="sig-prename descclassname"><span class="pre">pudl.helpers.</span></span><span class="sig-name descname"><span class="pre">parse_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/helpers.html#parse_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.helpers.parse_address" title="Link to this definition">#</a></dt>
+<dd><p>Parse a U.S. address into components.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.helpers.listify">
+<span class="sig-prename descclassname"><span class="pre">pudl.helpers.</span></span><span class="sig-name descname"><span class="pre">listify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/pudl/helpers.html#listify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.helpers.listify" title="Link to this definition">#</a></dt>
+<dd><p>Listify an input that is sometimes a list and sometimes not.</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -2624,6 +2642,8 @@ logic, or if any resulting year falls outside the valid range.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.duckdb_relation_from_parquet"><code class="docutils literal notranslate"><span class="pre">duckdb_relation_from_parquet()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.duckdb_extract_zipped_csv"><code class="docutils literal notranslate"><span class="pre">duckdb_extract_zipped_csv()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.normalize_year_fragments"><code class="docutils literal notranslate"><span class="pre">normalize_year_fragments()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.parse_address"><code class="docutils literal notranslate"><span class="pre">parse_address()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.listify"><code class="docutils literal notranslate"><span class="pre">listify()</span></code></a></li>
 </ul>
 </li>
 </ul>

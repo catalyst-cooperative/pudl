@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.params.ferc1 &#8212; PUDL 2026.4.1.dev10 documentation</title>
+    <title>pudl.transform.params.ferc1 &#8212; PUDL 2026.4.1.dev13 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../../_static/documentation_options.js?v=c0267ed7"></script>
+    <script src="../../../../_static/documentation_options.js?v=e097e43c"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev10 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev13 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev13 documentation - Home"/>
   
   
 </a></div>
@@ -4342,6 +4342,60 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">],</span>
             <span class="p">}</span>
         <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_ferc1__yearly_identification_certification&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;rename_columns_ferc1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;respondent_id&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;cntc_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_phone&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;respondent_name&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;cntc_name&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;chg_dt_prev_name&quot;</span><span class="p">:</span> <span class="s2">&quot;prior_utility_name_ferc1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;rpt_date&quot;</span><span class="p">:</span> <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;date_name_changed&quot;</span><span class="p">:</span> <span class="s2">&quot;name_change_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;submission_type&quot;</span><span class="p">:</span> <span class="s2">&quot;report_filing_type&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;cntc_ttl&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_title&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;cntc_addr&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_address&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;report_prd&quot;</span><span class="p">:</span> <span class="s2">&quot;report_prd&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;addr_prncpl_offc&quot;</span><span class="p">:</span> <span class="s2">&quot;office_street_address&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;attestation_name&quot;</span><span class="p">:</span> <span class="s2">&quot;attestation_name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;attestation_ttl&quot;</span><span class="p">:</span> <span class="s2">&quot;attestation_title&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;attestation_date&quot;</span><span class="p">:</span> <span class="s2">&quot;attestation_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;poc_email&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_email&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;entity_id&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span><span class="p">,</span>
+                    <span class="c1"># &quot;filing_name&quot;: &quot;filing_name&quot;,</span>
+                    <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;start_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;end_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;telephone_of_contact_person&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_phone&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;respondent_legal_name&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;migrated_data&quot;</span><span class="p">:</span> <span class="s2">&quot;is_migrated_data&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;vendor_name&quot;</span><span class="p">:</span> <span class="s2">&quot;filing_software_vendor_name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;name_of_contact_person&quot;</span><span class="p">:</span> <span class="s2">&quot;contact name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;previous_name&quot;</span><span class="p">:</span> <span class="s2">&quot;prior_utility_name_ferc1&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;company_name_old&quot;?</span>
+                    <span class="s2">&quot;report_date&quot;</span><span class="p">:</span> <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;name_change_date&quot;</span><span class="p">:</span> <span class="s2">&quot;name_change_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;form_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc_form&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;submission_type&quot;</span><span class="p">:</span> <span class="s2">&quot;report_filing_type&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;title_of_contact_person&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_title&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;address_of_contact_person&quot;</span><span class="p">:</span> <span class="s2">&quot;contact_address&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;report_period&quot;</span><span class="p">:</span> <span class="s2">&quot;report_period&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;company_identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;company_id_ferc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;legal_entity_identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;entity_id_gleif&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;address_of_principal_office_at_end_of_period&quot;</span><span class="p">:</span> <span class="s2">&quot;office_street_address&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;attestation_title&quot;</span><span class="p">:</span> <span class="s2">&quot;attestation_title&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;attestation_name&quot;</span><span class="p">:</span> <span class="s2">&quot;attestation_name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;corporate_officer_certification_signature&quot;</span><span class="p">:</span> <span class="s2">&quot;attestation_signature&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;attestation_date&quot;</span><span class="p">:</span> <span class="s2">&quot;attestation_date&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 

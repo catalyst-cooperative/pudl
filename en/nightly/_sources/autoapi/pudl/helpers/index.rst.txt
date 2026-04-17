@@ -104,6 +104,8 @@ Functions
    pudl.helpers.duckdb_relation_from_parquet
    pudl.helpers.duckdb_extract_zipped_csv
    pudl.helpers.normalize_year_fragments
+   pudl.helpers.parse_address
+   pudl.helpers.listify
 
 
 Module Contents
@@ -1284,5 +1286,15 @@ Module Contents
 
    :raises ValueError: If the valid year range is too wide to apply the rolling-century
        logic, or if any resulting year falls outside the valid range.
+
+
+.. py:function:: parse_address(addr: str)
+
+   Parse a U.S. address into components.
+
+
+.. py:function:: listify(x: Any) -> list[Any]
+
+   Listify an input that is sometimes a list and sometimes not.
 
 
