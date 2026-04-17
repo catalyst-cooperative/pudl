@@ -305,16 +305,7 @@ default_jobs = [
     dg.define_asset_job(
         name="ferceqr",
         description="This job processes the FERC EQR data.",
-        config={
-            "execution": {
-                "config": {
-                    "multiprocess": {
-                        "max_concurrent": 0,
-                        "tag_concurrency_limits": default_tag_concurrency_limits,
-                    },
-                },
-            },
-        },
+        config=default_execution_config,
         selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
     ),
 ]
