@@ -1290,8 +1290,8 @@ class PudlResourceDescriptor(PudlMeta):
         listed for the data source, optionally offset by ``availability_offset``
         partitions.
 
-        Generally only set when one table from a data source has been discontinued, but
-        the remaining tables continue being updated."""
+        Generally only set when a discontinued table does not use temporal partitioning
+        in the row counts file, but we still know when its freshest data was from."""
 
         additional_summary_text: str | None = None
         """A brief (~one-line) description of the contents of this resource.
