@@ -5908,8 +5908,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.4.1.dev179
-  sha256: 4b70bb329da7e6488a68cee7f29a13636e2c5802b58d9485ed080eb0fc4d686e
+  version: 2026.4.1.dev183
+  sha256: 6fa80931640191eedb96b4b939ecfe013716ba3febc9a5a49fa1a21dfe16b270
   requires_dist:
   - usaddress>=0.5.16,<0.6
   requires_python: '>=3.13,<3.14.0a0'

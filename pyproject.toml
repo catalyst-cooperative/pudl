@@ -355,7 +355,7 @@ description = "Run unit tests and doctests"
 
 [tool.pixi.tasks.pytest-integration]
 cmd = "pytest --cov-fail-under=0 test/integration"
-description = "Run integration tests with the default settings"
+description = "Run integration tests"
 
 [tool.pixi.tasks.pytest-unit-nightly]
 cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG test/unit"

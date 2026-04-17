@@ -44,7 +44,6 @@ The raw FERC conversion flow within ``ferc_to_sqlite`` looks like this:
 
    flowchart TD
    A[FERC archives in Zenodo datastore] --> B[raw_ferc_to_sqlite assets]
-
    B --> C[DBF extraction<br/>1994-2020]
    B --> D[XBRL extraction<br/>2021-present]
 

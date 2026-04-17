@@ -11,9 +11,10 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from importlib.metadata import version
+from importlib.resources.abc import Traversable
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Annotated, Any, Self, cast
+from typing import Annotated, Any, Self
 
 import click
 import frictionless
@@ -41,13 +42,10 @@ ZenodoDoi = Annotated[
 ]
 
 
-def get_zenodo_dois_path() -> Path:
+def get_zenodo_dois_path() -> Traversable:
     """Return the canonical packaged Zenodo DOI settings path."""
-    return cast(
-        Path,
-        importlib.resources.files("pudl.package_data.settings").joinpath(
-            "zenodo_dois.yml"
-        ),
+    return importlib.resources.files("pudl.package_data.settings").joinpath(
+        "zenodo_dois.yml"
     )
 
 
