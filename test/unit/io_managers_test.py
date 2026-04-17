@@ -357,12 +357,13 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
             metadata=build_ferc_sqlite_provenance_metadata(
-                db_name="ferc1_dbf",
+                dataset="ferc1",
+                data_format="dbf",
                 etl_settings=etl_settings,
                 zenodo_dois=zenodo_dois,
                 sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
                 status="complete",
-            )
+            ).to_dagster_metadata()
         )
     )
     context: InputContext = build_input_context(
@@ -402,12 +403,13 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
             metadata=build_ferc_sqlite_provenance_metadata(
-                db_name="ferc1_xbrl",
+                dataset="ferc1",
+                data_format="xbrl",
                 etl_settings=etl_settings,
                 zenodo_dois=zenodo_dois,
                 sqlite_path=Path("test-data/ferc1_xbrl.sqlite"),
                 status="complete",
-            )
+            ).to_dagster_metadata()
         )
     )
     context: InputContext = build_input_context(
@@ -448,12 +450,13 @@ def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):
         )
     )
     stale_metadata = build_ferc_sqlite_provenance_metadata(
-        db_name="ferc1_dbf",
+        dataset="ferc1",
+        data_format="dbf",
         etl_settings=etl_settings,
         zenodo_dois=stale_zenodo_dois,
         sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
         status="complete",
-    )
+    ).to_dagster_metadata()
     instance: DagsterInstance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=stale_metadata)
