@@ -1,6 +1,3 @@
-"""Integration tests for dbt validations and helper commands on prebuilt outputs."""
-
-import contextlib
 import json
 import re
 
@@ -39,29 +36,18 @@ def test_update_tables(dbt_target: str, script_runner):
     assert ret.success
 
 
-def test_validate_asset_selection(mocker, dbt_dependencies):
-    """Verify that dbt_helper expands asset selections in dry-run mode."""
+def test_validate_asset_selection(dbt_dependencies):
     runner = CliRunner()
-    logger_mock = mocker.patch("pudl.scripts.dbt_helper.logger.info")
-    # Click 8.3.1 still raises "I/O operation on closed file" in invoke() here,
-    # so keep using isolation() until the bundled version actually behaves.
-    # See https://github.com/pallets/click/issues/3110
-    with runner.isolation(), contextlib.suppress(SystemExit):
-        dbt_helper.main(
-            args=[
-                "validate",
-                "--dry-run",
-                "--asset-select",
-                '+key:"core_eia860_*"',
-            ],
-            prog_name="dbt_helper",
-            standalone_mode=False,
-        )
-
-    if logger_mock.call_args is None:
-        raise AssertionError("Expected dbt_helper dry-run to log build parameters.")
-
-    output = logger_mock.call_args.args[0]
+    result = runner.invoke(
+        dbt_helper,
+        [
+            "validate",
+            "--dry-run",
+            "--asset-select",
+            '+key:"core_eia860_*"',
+        ],
+    )
+    output = result.output
     if "node_selection" not in output:
         raise AssertionError(f"Unexpected output: {output}")
     params_match = re.search(r"({.+})", output)

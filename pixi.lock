@@ -117,7 +117,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/db-dtypes-1.4.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-adapters-1.22.10-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.37.3-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.7-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.8-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-duckdb-1.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dbt-extractor-0.6.0-py313h5c7d99a_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.419-pyhcf101f3_0.conda
@@ -390,9 +390,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/memray-1.19.2-py313h422961c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/minizip-4.0.10-h05a5f5f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mistune-3.2.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.10.1-pyh707e725_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.11.1-pyh707e725_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/more-itertools-10.8.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/msgpack-python-1.1.2-py313h7037e92_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/multidict-6.7.1-py313h3dea7bd_0.conda
@@ -588,7 +588,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-28.0.0-h5602114_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/sqlglotrs-0.7.3-py313h5a021e7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.52.0-h04a0ce9_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.4-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.5-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stack_data-0.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/starlette-1.0.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stdlib-list-0.12.0-pyhd8ed1ab_0.conda
@@ -788,7 +788,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/db-dtypes-1.4.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-adapters-1.22.10-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.37.3-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.7-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.8-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-duckdb-1.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/dbt-extractor-0.6.0-py313h35a1e28_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.419-pyhcf101f3_0.conda
@@ -1034,9 +1034,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/memray-1.19.2-py313ha00f39b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/minizip-4.0.10-hfb7a1ec_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mistune-3.2.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.10.1-pyh707e725_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.11.1-pyh707e725_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/more-itertools-10.8.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/msgpack-python-1.1.2-py313h5eff275_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/multidict-6.7.1-py313h84cef87_0.conda
@@ -1230,7 +1230,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-28.0.0-h5602114_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/sqlglotrs-0.7.3-py313hd090e6f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.52.0-hd4d344e_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.4-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.5-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stack_data-0.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/starlette-1.0.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stdlib-list-0.12.0-pyhd8ed1ab_0.conda
@@ -1413,7 +1413,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/db-dtypes-1.4.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-adapters-1.22.10-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.37.3-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.7-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.8-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-duckdb-1.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/dbt-extractor-0.6.0-py313h6e3aefc_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.419-pyhcf101f3_0.conda
@@ -1659,9 +1659,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/memray-1.19.2-py313hd8878d0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/minizip-4.0.10-hff1a8ea_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mistune-3.2.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.10.1-pyh707e725_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.11.1-pyh707e725_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/more-itertools-10.8.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/msgpack-python-1.1.2-py313ha61f8ec_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/multidict-6.7.1-py313haf6918d_0.conda
@@ -1855,7 +1855,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-28.0.0-h5602114_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/sqlglotrs-0.7.3-py313hb4875b5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/sqlite-3.52.0-h77b7338_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.4-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.5-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stack_data-0.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/starlette-1.0.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stdlib-list-0.12.0-pyhd8ed1ab_0.conda
@@ -2048,7 +2048,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/db-dtypes-1.4.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-adapters-1.22.10-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.37.3-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.7-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.8-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-duckdb-1.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/dbt-extractor-0.6.0-py313h5c7d99a_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.419-pyhcf101f3_0.conda
@@ -2333,9 +2333,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/memray-1.19.2-py313h422961c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/minizip-4.0.10-h05a5f5f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mistune-3.2.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.10.1-pyh707e725_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.11.1-pyh707e725_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/more-itertools-10.8.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/msgpack-python-1.1.2-py313h7037e92_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/msgspec-0.20.0-py313h07c4f96_2.conda
@@ -2538,7 +2538,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-28.0.0-h5602114_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/sqlglotrs-0.7.3-py313h5a021e7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.52.0-h04a0ce9_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.4-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.5-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stack_data-0.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/starlette-1.0.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stdlib-list-0.12.0-pyhd8ed1ab_0.conda
@@ -2745,7 +2745,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/db-dtypes-1.4.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-adapters-1.22.10-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.37.3-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.7-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.8-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-duckdb-1.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/dbt-extractor-0.6.0-py313h35a1e28_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.419-pyhcf101f3_0.conda
@@ -2996,9 +2996,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/memray-1.19.2-py313ha00f39b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/minizip-4.0.10-hfb7a1ec_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mistune-3.2.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.10.1-pyh707e725_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.11.1-pyh707e725_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/more-itertools-10.8.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/msgpack-python-1.1.2-py313h5eff275_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/msgspec-0.20.0-py313h36bb7f5_2.conda
@@ -3197,7 +3197,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-28.0.0-h5602114_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/sqlglotrs-0.7.3-py313hd090e6f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.52.0-hd4d344e_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.4-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.5-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stack_data-0.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/starlette-1.0.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stdlib-list-0.12.0-pyhd8ed1ab_0.conda
@@ -3381,7 +3381,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/db-dtypes-1.4.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-adapters-1.22.10-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.37.3-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.7-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.8-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-duckdb-1.9.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/dbt-extractor-0.6.0-py313h6e3aefc_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.419-pyhcf101f3_0.conda
@@ -3632,9 +3632,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/memray-1.19.2-py313hd8878d0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/minizip-4.0.10-hff1a8ea_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mistune-3.2.0-pyhcf101f3_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.10.1-pyh707e725_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.10.1-pyh707e725_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.11.1-pyh707e725_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.11.1-pyh707e725_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/more-itertools-10.8.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/msgpack-python-1.1.2-py313ha61f8ec_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/msgspec-0.20.0-py313h0997733_2.conda
@@ -3833,7 +3833,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-28.0.0-h5602114_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/sqlglotrs-0.7.3-py313hb4875b5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/sqlite-3.52.0-h77b7338_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.4-pyhcf101f3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.5-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stack_data-0.6.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/starlette-1.0.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/stdlib-list-0.12.0-pyhd8ed1ab_0.conda
@@ -5886,8 +5886,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.3.1.dev250
-  sha256: bb3700b26b3e037a16bc21ed3c12f6bbcc7642b173377a94507a4c22529eab09
+  version: 2026.4.1.dev224
+  sha256: 512af3ec296ee1982d1f52544b6be7da48724eb78684b745fba42f123838c7f2
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -6694,9 +6694,9 @@ packages:
   - pkg:pypi/dbt-common?source=hash-mapping
   size: 81669
   timestamp: 1772697083567
-- conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.7-pyhcf101f3_0.conda
-  sha256: d449a9e9faedb2f1970e7e6e0440e0487e8b47060809c34de54b352983f42864
-  md5: ae5e51339495aedfb90e04eef039932b
+- conda: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.11.8-pyhcf101f3_0.conda
+  sha256: d8d420fa5a556e3fa6c616a56a5ce7bfc551fdadac1c89a96dc9500bbb1dcb0c
+  md5: eda9f5923d141e6f0380440921a2e392
   depends:
   - python >=3.10
   - agate >=1.7.0,<1.10
@@ -6709,7 +6709,7 @@ packages:
   - requests <3.0.0
   - snowplow-tracker >=1.0.2,<2.0
   - pathspec >=0.9,<0.13
-  - sqlparse >=0.5.0,<0.5.5
+  - sqlparse >=0.5.5,<0.6.0
   - dbt-extractor >=0.5.0,<=0.6
   - dbt-semantic-interfaces >=0.9.0,<0.10
   - dbt-common >=1.37.3,<2.0
@@ -6726,8 +6726,8 @@ packages:
   license_family: APACHE
   purls:
   - pkg:pypi/dbt-core?source=hash-mapping
-  size: 813612
-  timestamp: 1772731670395
+  size: 819635
+  timestamp: 1775688208353
 - conda: https://conda.anaconda.org/conda-forge/noarch/dbt-duckdb-1.9.4-pyhd8ed1ab_0.conda
   sha256: e09883caad4e698d930d1e9d1798d4cc057729e230ad3b270edfe42a280eea63
   md5: 5145e58b851d21432cab72d2f9ca810a
@@ -14379,9 +14379,9 @@ packages:
   - pkg:pypi/mistune?source=hash-mapping
   size: 74250
   timestamp: 1766504456031
-- conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.10.1-pyh707e725_1.conda
-  sha256: dcf3dcaff7cc9333adb60c86ec62f357c432343c9fcd7c90d865ae51c83338b3
-  md5: 7d3c4a08fffa68fc93690fc69f769959
+- conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-3.11.1-pyh707e725_0.conda
+  sha256: b1dde2a0ab7dc1a90cb1802a4033a573da85fbe97bc26d8f74d80d115f56116f
+  md5: 75d35b7ceefa2fccda1ea8c66e4e230a
   depends:
   - __unix
   - alembic <2,!=1.10.0
@@ -14400,7 +14400,7 @@ packages:
   - huey <3,>=2.5.4
   - importlib-metadata <9,>=3.7.0,!=4.7.0
   - matplotlib-base <4
-  - mlflow-ui 3.10.1 pyh707e725_1
+  - mlflow-ui 3.11.1 pyh707e725_0
   - numpy <3
   - opentelemetry-api <3,>=1.9.0
   - opentelemetry-proto <3,>=1.9.0
@@ -14425,11 +14425,11 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls: []
-  size: 18716
-  timestamp: 1773669917355
-- conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.10.1-pyh707e725_1.conda
-  sha256: 4b31a3683f5179182960c8079da42010e69385bae74edb8d390a85782d41b37c
-  md5: 2604020c23adc92659874ffa23d39baf
+  size: 18685
+  timestamp: 1775642645256
+- conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-skinny-3.11.1-pyh707e725_0.conda
+  sha256: 112c49cf0f53d9034973d288b346b2e450b10845bae3a83f76e576fd760d2178
+  md5: 67f364910df074a0c1d442da7c11de34
   depends:
   - __unix
   - cachetools <8,>=5.0.0
@@ -14456,24 +14456,24 @@ packages:
   license_family: APACHE
   purls:
   - pkg:pypi/mlflow-skinny?source=hash-mapping
-  size: 1734765
-  timestamp: 1773669261805
-- conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.10.1-pyh707e725_1.conda
-  sha256: 7471111ac1cbef7f103e9a3f4fba35396b884c82af040a74e4c0b592a244200a
-  md5: 8fbb5ac105434eb9882ce69705f23e6a
+  size: 1855769
+  timestamp: 1775642254407
+- conda: https://conda.anaconda.org/conda-forge/noarch/mlflow-ui-3.11.1-pyh707e725_0.conda
+  sha256: c9dcb40c5a1524a2219970e60365db0181974ce61ebe6bdd809b0e0f1d8d3e3e
+  md5: 669b819d70ab78badc8cf2116b78e787
   depends:
   - __unix
   - flask <4
   - gunicorn <24
-  - mlflow-skinny 3.10.1 pyh707e725_1
+  - mlflow-skinny 3.11.1 pyh707e725_0
   - python >=3.10
   - querystring_parser <2
   license: Apache-2.0
   license_family: APACHE
   purls:
   - pkg:pypi/mlflow?source=hash-mapping
-  size: 4930926
-  timestamp: 1773669821055
+  size: 5477883
+  timestamp: 1775642601488
 - conda: https://conda.anaconda.org/conda-forge/noarch/more-itertools-10.8.0-pyhcf101f3_1.conda
   sha256: 449609f0d250607a300754474350a3b61faf45da183d3071e9720e453c765b8a
   md5: 32f78e9d06e8593bc4bbf1338da06f5f
@@ -19446,9 +19446,9 @@ packages:
   purls: []
   size: 180864
   timestamp: 1772819525725
-- conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.4-pyhcf101f3_1.conda
-  sha256: 4ef08b50c6d49e2b15859967d07b02be64875c5830b4010c70b100a286d1b0f0
-  md5: 65d949d575edd0d9b9044bf78f36caa0
+- conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.5-pyhcf101f3_0.conda
+  sha256: 20159c171d31cbbde7937f2f74c4cfc78eeaf1e3e9de4c830d0e070c93aa16c4
+  md5: a1db6adc1093f9d5b3e6ffd46dac84b1
   depends:
   - python >=3.10
   - python
@@ -19456,8 +19456,8 @@ packages:
   license_family: BSD
   purls:
   - pkg:pypi/sqlparse?source=hash-mapping
-  size: 44161
-  timestamp: 1764433038651
+  size: 44238
+  timestamp: 1766143791089
 - conda: https://conda.anaconda.org/conda-forge/noarch/stack_data-0.6.3-pyhd8ed1ab_1.conda
   sha256: 570da295d421661af487f1595045760526964f41471021056e993e73089e9c41
   md5: b1b505328da7a6b246787df4b5a49fbc

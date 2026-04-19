@@ -30,10 +30,10 @@ class Extractor(CsvExtractor):
     def process_raw(
         self, df: pd.DataFrame, page: str, **partition: PartitionSelection
     ) -> pd.DataFrame:
-        """Append report year to df to distinguish data from other years."""
-        self.cols_added.append("report_year")
-        selection = self._metadata._get_partition_selection(partition)
-        return df.assign(report_year=selection)
+        """Rename columns using ``any_year`` partition."""
+        return df.rename(
+            columns=self._metadata.get_column_map(page=page, year="any_year")
+        )
 
 
 raw_eia191__all_dfs = raw_df_factory(Extractor, name="eia191")
