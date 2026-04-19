@@ -41,7 +41,7 @@ license = "MIT"
 # and tool.pixi.package.run-dependencies below. This means that the package cannot be
 # installed with pip or uv, but it is set up to be built with pixi into a conda package
 # which can be installed with conda, mamba, micromamba, pixi, etc.
-dependencies = ["usaddress>=0.5.16,<0.6"]
+dependencies = []
 
 [project.urls]
 "Homepage" = "https://github.com/catalyst-cooperative/pudl"
@@ -83,6 +83,7 @@ dbt-duckdb = ">=1.9.4"
 deepdiff = ">=8"
 doc8 = ">=1.1"
 email-validator = ">=1.0.3"
+filelock = ">=3.29"
 frictionless = ">=5,<6"
 fsspec = ">=2026"
 gcsfs = ">=2026"
@@ -179,6 +180,7 @@ zip = ">=3.0"
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
 detect-secrets = ">=1.5"
+usaddress = ">=0.5.16,<0.6"
 
 [tool.pixi.feature.dev.dependencies]
 jq = ">=1.8" # Primarily for agent skills use
