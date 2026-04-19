@@ -354,6 +354,7 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
         )
     )
     instance: DagsterInstance = mocker.MagicMock()
+    instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
             metadata=build_ferc_sqlite_provenance_metadata(
@@ -400,6 +401,7 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
         )
     )
     instance: DagsterInstance = mocker.MagicMock()
+    instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
             metadata=build_ferc_sqlite_provenance_metadata(
@@ -458,6 +460,7 @@ def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):
         status="complete",
     ).to_dagster_metadata()
     instance: DagsterInstance = mocker.MagicMock()
+    instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=stale_metadata)
     )
@@ -496,6 +499,7 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
         )
     )
     instance: DagsterInstance = mocker.MagicMock()
+    instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = None
     context: InputContext = build_input_context(
         asset_key=AssetKey("raw_ferc1_dbf__f1_respondent_id"),

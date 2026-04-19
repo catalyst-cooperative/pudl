@@ -6,7 +6,6 @@ from pathlib import Path
 import pandas as pd
 import pytest
 import sqlalchemy as sa
-from dagster import DagsterInstance
 
 from pudl.glue.ferc1_eia import (
     get_missing_ids,
@@ -25,9 +24,7 @@ from pudl.helpers import get_parquet_table
 logger = logging.getLogger(__name__)
 
 
-def plants_ferc1_raw(
-    etl_settings_path: Path, dagster_instance: DagsterInstance
-) -> pd.DataFrame:
+def plants_ferc1_raw(etl_settings_path: Path) -> pd.DataFrame:
     """Execute the partial ETL of FERC plant tables.
 
     Args:
@@ -44,9 +41,8 @@ def plants_ferc1_raw(
                         "etl_settings_path": str(etl_settings_path),
                     },
                 },
-            }
+            },
         },
-        instance=dagster_instance,
     )
     return result.output_for_node("plants_ferc1_raw")
 
@@ -57,13 +53,12 @@ def glue_test_dfs(
     ferc1_engine_xbrl: sa.Engine,
     ferc1_engine_dbf: sa.Engine,
     etl_settings_path: Path,
-    dagster_instance: DagsterInstance,
 ) -> dict[str, pd.DataFrame]:
     """Build the dataframes required for glue integration tests."""
     glue_test_dfs = {
         "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
         "util_ids_ferc1_raw_dbf": get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf),
-        "plants_ferc1_raw": plants_ferc1_raw(etl_settings_path, dagster_instance),
+        "plants_ferc1_raw": plants_ferc1_raw(etl_settings_path),
         "plants_eia_pudl_db": get_parquet_table("out_eia__yearly_plants"),
         "plants_eia_labeled": label_plants_eia(
             get_parquet_table("out_eia__yearly_plants"),

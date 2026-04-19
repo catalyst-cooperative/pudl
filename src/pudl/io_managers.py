@@ -48,12 +48,17 @@ def _get_dagster_instance_if_available(
 ) -> dg.DagsterInstance | None:
     """Return the Dagster instance from an input context if one was provided.
 
-    Some notebook and integration-test helpers build ad hoc ``InputContext`` objects
-    without attaching a Dagster instance. Provenance checks should be ignored for those
-    direct reads rather than raising while trying to access ``context.instance``.
+    Returns ``None`` in two cases where provenance checks should be skipped:
+
+    * The context has no attached instance (e.g. ad hoc ``InputContext`` objects built
+      by notebook or integration-test helpers).
+    * The instance is ephemeral (created by ``execute_in_process()`` without an explicit
+      ``instance=`` argument). An ephemeral instance has an empty event log, so
+      provenance checks against it would always raise rather than meaningfully validate.
     """
     try:
-        return context.instance
+        instance = context.instance
+        return None if instance.is_ephemeral else instance
     except DagsterInvariantViolationError:
         return None
 
