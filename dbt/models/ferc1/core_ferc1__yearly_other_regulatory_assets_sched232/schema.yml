@@ -2,12 +2,12 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: core_ferc1__yearly_other_regulatory_liabilities_sched278
+      - name: core_ferc1__yearly_other_regulatory_assets_sched232
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_ferc1__yearly_other_regulatory_liabilities_sched278
+                table_name: core_ferc1__yearly_other_regulatory_assets_sched232
                 partition_expr: report_year
         columns:
           - name: utility_id_ferc1
@@ -16,6 +16,6 @@ sources:
           - name: additional_description
           - name: ending_balance
           - name: starting_balance
-          - name: increase_in_other_regulatory_liabilities
+          - name: debits
+          - name: credits_written_off_recovered
           - name: account_detail
-          - name: decrease_in_other_regulatory_liabilities

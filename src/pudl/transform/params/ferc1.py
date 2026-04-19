@@ -3066,13 +3066,13 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
+                    "other_regulatory_liability_axis": "description",
+                    "description_and_purpose_of_other_regulatory_liabilities": "additional_description",
                     "increase_in_other_regulatory_liabilities": "increase_in_other_regulatory_liabilities",
                     "decrease_in_other_regulatory_liabilities": "decrease_in_other_regulatory_liabilities",
-                    "description_and_purpose_of_other_regulatory_liabilities": "description",
                     "other_regulatory_liabilities_description_of_credited_account_number_for_debit_adjustment": "account_detail",
                     "other_regulatory_liabilities_ending_balance": "ending_balance",
                     "other_regulatory_liabilities_starting_balance": "starting_balance",
-                    "other_regulatory_liability_axis": "other_regulatory_liability_axis",
                 }
             },
         },
@@ -3087,6 +3087,57 @@ TRANSFORM_PARAMS = {
                     "starting_balance",
                     "increase_in_other_regulatory_liabilities",
                     "decrease_in_other_regulatory_liabilities",
+                ],
+            },
+        ],
+    },
+    "core_ferc1__yearly_other_regulatory_assets_sched232": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "report_year": "report_year",
+                    "spplmnt_num": "spplmnt_num",
+                    "row_number": "row_number",
+                    "row_seq": "row_seq",
+                    "row_prvlg": "row_prvlg",
+                    "report_prd": "report_prd",
+                    "dsc_purp_asset": "description",
+                    "debits": "debits",
+                    "acct_chrg_cr": "account_detail",
+                    "amount_cr": "credits_written_off_recovered",
+                    "yr_end_bal": "ending_balance",
+                    "beg_yr_bal": "starting_balance",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    "report_year": "report_year",
+                    "other_regulatory_assets_axis": "description",
+                    "description_and_purpose_of_other_regulatory_assets": "additional_description",
+                    "order_number": "order_number",
+                    "other_regulatory_assets_written_off_recovered": "credits_written_off_recovered",
+                    "other_regulatory_assets_written_off_account_charged": "account_detail",
+                    "increase_decrease_in_other_regulatory_assets": "debits",
+                    "other_regulatory_assets_ending_balance": "ending_balance",
+                    "other_regulatory_assets_starting_balance": "starting_balance",
+                }
+            },
+        },
+        "unstack_balances_to_report_year_instant_xbrl": {
+            "unstack_balances_to_report_year": True,
+        },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [0, pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "description",
+                    "ending_balance",
+                    "debits",
+                    "starting_balance",
+                    "credits_written_off_recovered",
+                    "account_detail",
                 ],
             },
         ],
@@ -3330,6 +3381,60 @@ TRANSFORM_PARAMS = {
                 ],
             }
         ],
+    },
+    "core_ferc1__yearly_identification_certification": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    "cntc_phone": "contact_phone",
+                    "respondent_name": "utility_name_ferc1",
+                    "cntc_name": "contact_name",
+                    "chg_dt_prev_name": "prior_utility_name_ferc1",
+                    "rpt_date": "filing_date",
+                    "date_name_changed": "name_change_date",
+                    "submission_type": "report_filing_type",
+                    "cntc_ttl": "contact_title",
+                    "cntc_addr": "contact_address",
+                    "report_prd": "report_prd",
+                    "report_year": "report_year",
+                    "addr_prncpl_offc": "office_street_address",
+                    "attestation_name": "attestation_name",
+                    "attestation_ttl": "attestation_title",
+                    "attestation_date": "attestation_date",
+                    "poc_email": "contact_email",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    # "filing_name": "filing_name",
+                    "start_date": "start_date",
+                    "end_date": "end_date",
+                    "telephone_of_contact_person": "contact_phone",
+                    "respondent_legal_name": "utility_name_ferc1",
+                    "migrated_data": "is_migrated_data",
+                    "vendor_name": "filing_software_vendor_name",
+                    "name_of_contact_person": "contact name",
+                    "previous_name": "prior_utility_name_ferc1",  # or "company_name_old"?
+                    "report_date": "filing_date",
+                    "name_change_date": "name_change_date",
+                    "form_type": "ferc_form",
+                    "submission_type": "report_filing_type",
+                    "title_of_contact_person": "contact_title",
+                    "address_of_contact_person": "contact_address",
+                    "report_period": "report_period",
+                    "report_year": "report_year",
+                    "company_identifier": "company_id_ferc",
+                    "legal_entity_identifier": "entity_id_gleif",
+                    "address_of_principal_office_at_end_of_period": "office_street_address",
+                    "attestation_title": "attestation_title",
+                    "attestation_name": "attestation_name",
+                    "corporate_officer_certification_signature": "attestation_signature",
+                    "attestation_date": "attestation_date",
+                }
+            },
+        },
     },
 }
 """The full set of parameters used to transform the FERC Form 1 data.

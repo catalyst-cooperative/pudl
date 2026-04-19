@@ -521,6 +521,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Mail attention name of the operator/owner.",
     },
+    "attestation_name": {
+        "type": "string",
+        "description": "Name of person signing the corporate officer's certification.",
+    },
+    "attestation_title": {
+        "type": "string",
+        "description": "Title of person signing the corporate officer's certification.",
+    },
+    "attestation_signature": {
+        "type": "string",
+        "description": "Signature of corporate officer to certify the report.",
+    },
+    "attestation_date": {
+        "type": "date",
+        "description": "Date that corporate officer's certification was signed.",
+    },
     "automated_meter_reading": {
         "type": "integer",
         "description": (
@@ -3026,6 +3042,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Energy used for pumping, in megawatt-hours.",
         "unit": "MWh",
     },
+    "entity_id_gleif": {
+        "type": "string",
+        "description": "Legal Entity Identification Number issued by Global Legal Entity Identifier Foundation (GLEIF). The Legal Entity Identifier (LEI) is a 20-character, alpha-numeric code based on the ISO 17442 standard developed by the International Organization for Standardization (ISO).",
+    },
     "entity_type": {
         "type": "string",
         "description": "Entity type of principal owner.",
@@ -3302,6 +3322,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "filing_date": {
         "type": "date",
         "description": "Date on which the filing was submitted.",
+    },
+    "filing_software_vendor_name": {
+        "type": "string",
+        "description": "Name of software company used for creating the instance file submitted. If the filer created the submission, is null",
     },
     "film_number": {
         "type": "string",
@@ -8230,6 +8254,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Name of the responding utility, as it is reported in FERC Form 1. For human readability only."
         ),
     },
+    "prior_utility_name_ferc1": {
+        "type": "string",
+        "description": (
+            "Former name of the responding utility, when it changed within the last year."
+        ),
+    },
     "utility_name_pudl": {
         "type": "string",
         "description": (
@@ -10203,6 +10233,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Cost of retirements minus any net salvage value.",
         "unit": "USD",
     },
+    "debits": {
+        "type": "number",
+        "description": "The increase (decrease) during the period in the value of other assets resulting from the ratemaking actions of regulatory agencies.",
+    },
+    "credits_written_off_recovered": {
+        "type": "number",
+        "description": "Recovered amount of divestiture of other assets lacking physical substance resulting from the ratemaking actions of regulatory agencies.",
+    },
+    "additional_description": {
+        "type": "string",
+        "description": (
+            "Additional free-form description column. In most instances, the values in this column are exactly the same as the "
+            "description column,but it differs from the standard description enough that we kept both columns. "
+            "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
+        ),
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -10944,6 +10990,18 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             },
         }
     },
+    "core_ferc1__yearly_other_regulatory_assets_sched232": {
+        "description": {
+            "type": "string",
+            "description": "Free-form description and purpose of other regulatory assets.",
+        }
+    },
+    "core_ferc1__yearly_other_liabilities_sched278": {
+        "description": {
+            "type": "string",
+            "description": "Free-form description and purpose of other regulatory liabilities.",
+        }
+    },
     "plant_parts_eia": {
         "energy_source_code_1": {
             "constraints": {
@@ -11107,6 +11165,42 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
             )
         }
+    },
+    "core_ferc1__yearly_identification_certification": {
+        "contact_name": {"description": ("Name of contact person for the respondent.")},
+        "contact_title": {
+            "description": "Title of contact person for the respondent.",
+        },
+        # TODO 04/26: Would require additional cleaning to validate, some
+        # Canada postal codes in here as well.
+        # "contact_zip": {
+        #     "constraints": {
+        #         "pattern": r"^\d{5}(-\d{4})?$",
+        #     },
+        # },
+        "contact_state": {
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+        },
+        "office_street_address": {
+            "description": "Street address of principal office at end of period.",
+        },
+        "office_city": {
+            "description": "City of principal office at end of period.",
+        },
+        "office_state": {
+            "type": "string",
+            "description": "State of principal office at end of period.",
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+        },
+        "office_zip": {
+            "type": "string",
+            "description": "Zipcode of principal office at end of period.",
+            "constraints": {},  # TODO 04/26: Would require additional cleaning to validate, some Canada postal codes in here as well.
+        },
+        "report_filing_type": {
+            "description": "Type of report submitted: O (original) or R (revision).",
+            "constraints": {"enum": ["R", "O"]},
+        },
     },
     "core_ferceqr__contracts": {
         "product_name": {

@@ -3,10 +3,10 @@
 import logging
 from pathlib import Path
 
+import filelock
 import pandas as pd
 import pytest
 import sqlalchemy as sa
-from dagster import DagsterInstance
 
 from pudl.glue.ferc1_eia import (
     get_missing_ids,
@@ -25,30 +25,41 @@ from pudl.helpers import get_parquet_table
 logger = logging.getLogger(__name__)
 
 
-def plants_ferc1_raw(
-    etl_settings_path: Path, dagster_instance: DagsterInstance
+@pytest.fixture(scope="session")
+def plants_ferc1_raw_df(
+    tmp_path_factory: pytest.TempPathFactory,
+    worker_id: str,
+    etl_settings_path: Path,
 ) -> pd.DataFrame:
-    """Execute the partial ETL of FERC plant tables.
+    """Return plants_ferc1_raw, computing it at most once across all xdist workers.
 
-    Args:
-        etl_settings_path: ETL settings file used for the given pytest run.
-
-    Returns:
-        plants_ferc1_raw: all plants in the FERC Form 1 DBF and XBRL DB for given years.
+    When running under pytest-xdist the first worker to acquire the lock computes
+    the DataFrame and writes it to a shared Parquet file; subsequent workers read
+    from that file.  In a single-process run (``worker_id == "master"``) the
+    result is returned directly without any file I/O.
     """
-    result = get_plants_ferc1_raw_job().execute_in_process(
-        run_config={
-            "resources": {
-                "etl_settings": {
-                    "config": {
-                        "etl_settings_path": str(etl_settings_path),
+
+    def compute() -> pd.DataFrame:
+        result = get_plants_ferc1_raw_job().execute_in_process(
+            run_config={
+                "resources": {
+                    "etl_settings": {
+                        "config": {"etl_settings_path": str(etl_settings_path)},
                     },
                 },
-            }
-        },
-        instance=dagster_instance,
-    )
-    return result.output_for_node("plants_ferc1_raw")
+            },
+        )
+        return result.output_for_node("plants_ferc1_raw")
+
+    if worker_id == "master":
+        return compute()
+
+    root_tmp = tmp_path_factory.getbasetemp().parent
+    cache_file = root_tmp / "plants_ferc1_raw.parquet"
+    with filelock.FileLock(cache_file.with_suffix(".lock")):
+        if not cache_file.is_file():
+            compute().to_parquet(cache_file)
+    return pd.read_parquet(cache_file)
 
 
 @pytest.fixture(scope="module")
@@ -56,14 +67,13 @@ def glue_test_dfs(
     prebuilt_outputs,
     ferc1_engine_xbrl: sa.Engine,
     ferc1_engine_dbf: sa.Engine,
-    etl_settings_path: Path,
-    dagster_instance: DagsterInstance,
+    plants_ferc1_raw_df: pd.DataFrame,
 ) -> dict[str, pd.DataFrame]:
     """Build the dataframes required for glue integration tests."""
     glue_test_dfs = {
         "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
         "util_ids_ferc1_raw_dbf": get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf),
-        "plants_ferc1_raw": plants_ferc1_raw(etl_settings_path, dagster_instance),
+        "plants_ferc1_raw": plants_ferc1_raw_df,
         "plants_eia_pudl_db": get_parquet_table("out_eia__yearly_plants"),
         "plants_eia_labeled": label_plants_eia(
             get_parquet_table("out_eia__yearly_plants"),

@@ -224,14 +224,11 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     def transform(
         self,
-        raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
+        raw_dbf_dfs: dict[str, pd.DataFrame],
+        raw_xbrl_dfs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
         """Only apply the generic :meth:``transform_start``."""
-        return self.transform_start(raw_dbf, raw_xbrl_instant, raw_xbrl_duration).pipe(
-            self.transform_main
-        )
+        return self.transform_start(raw_dbf_dfs, raw_xbrl_dfs).pipe(self.transform_main)
 
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """Basic name normalization and dropping of invalid rows."""

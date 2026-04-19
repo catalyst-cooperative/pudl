@@ -24,6 +24,7 @@ import pudl
 from pudl.dagster import build_defs, resources
 from pudl.dagster.io_managers import (
     PudlMixedFormatIOManager,
+    _FercSqliteConfigurableIOManagerBase,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,
@@ -170,6 +171,7 @@ def pytest_addoption(parser):
         default=DG_CONFIG_PATH_DEFAULT,
         help=(
             "Path to a Dagster dg launch config YAML file for integration tests. "
+            "Relative paths are resolved from the repository root. "
             f"Defaults to {DG_CONFIG_PATH_DEFAULT}."
         ),
     )
@@ -215,7 +217,6 @@ def _pudl_etl(
         str(dg_config_path),
         "--verbose",
     ]
-    # Command args are fully constructed in-process and do not include user input.
     env = os.environ.copy()
     # Force dg launch to read/write within pytest-managed paths.
     env["PUDL_INPUT"] = str(pudl_test_paths.input_dir)
@@ -266,7 +267,7 @@ def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
 
 
 def _engine_from_io_manager(
-    io_manager_factory,
+    io_manager_factory: PudlMixedFormatIOManager | _FercSqliteConfigurableIOManagerBase,
     dataset_settings_config: DatasetsSettings | None = None,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine exposed by a Dagster IO manager resource."""
@@ -288,10 +289,15 @@ def test_dir():
 
 @pytest.fixture(scope="session")
 def dg_config_path(request, test_dir: Path) -> Path:
-    """Resolve Dagster launch config path used by integration-test prebuild."""
+    """Resolve Dagster launch config path used by integration-test prebuild.
+
+    Relative paths (including the default) are resolved relative to the repository
+    root, not the current working directory. Absolute paths are used as-is.
+    """
     config_path = Path(request.config.getoption("--dg-config"))
 
     if not config_path.is_absolute():
+        # test_dir is the test/ subdirectory; its parent is the repo root.
         config_path = (test_dir.parent / config_path).resolve()
 
     if not config_path.exists():
