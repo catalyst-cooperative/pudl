@@ -50,4 +50,8 @@ sources:
                   arguments:
                     min_value: 0.0
           - name: fees_and_expenses_for_board_members
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: does_manager_have_written_contract

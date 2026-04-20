@@ -24,6 +24,7 @@ from pudl.metadata.enums import (
     DEPRECIATION_CHANGES_ITEMS_RUS12,
     DEPRECIATION_ITEMS_MISC_RUS12,
     DIVISION_CODES_US_CENSUS,
+    EIA191_STORAGE_REGIONS,
     ELECTRICITY_MARKET_MODULE_REGIONS,
     ENERGY_DISPOSITION_TYPES_FERC1,
     ENERGY_SOURCE_TYPES_FERC1,
@@ -520,6 +521,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Mail attention name of the operator/owner.",
     },
+    "attestation_name": {
+        "type": "string",
+        "description": "Name of person signing the corporate officer's certification.",
+    },
+    "attestation_title": {
+        "type": "string",
+        "description": "Title of person signing the corporate officer's certification.",
+    },
+    "attestation_signature": {
+        "type": "string",
+        "description": "Signature of corporate officer to certify the report.",
+    },
+    "attestation_date": {
+        "type": "date",
+        "description": "Date that corporate officer's certification was signed.",
+    },
     "automated_meter_reading": {
         "type": "integer",
         "description": (
@@ -614,6 +631,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "balancing_authority_subregion_name_eia": {
         "type": "string",
         "description": "Name of the balancing authority subregion.",
+    },
+    "base_gas_mcf": {
+        "type": "number",
+        "description": (
+            "Volume of base gas (cushion gas) in the underground storage reservoir. "
+            "Base gas is the volume of gas intended as permanent inventory in a "
+            "reservoir to maintain adequate pressure and deliverability rates."
+        ),
+        "unit": "Mcf",
     },
     "bga_source": {
         "type": "string",
@@ -1217,7 +1243,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "company_name": {
         "type": "string",
-        "description": "Name of company submitting SEC 10k filing.",
+        "description": "Name of the reporting company.",
     },
     "company_name_new": {
         "type": "string",
@@ -3016,6 +3042,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Energy used for pumping, in megawatt-hours.",
         "unit": "MWh",
     },
+    "entity_id_gleif": {
+        "type": "string",
+        "description": "Legal Entity Identification Number issued by Global Legal Entity Identifier Foundation (GLEIF). The Legal Entity Identifier (LEI) is a 20-character, alpha-numeric code based on the ISO 17442 standard developed by the International Organization for Standardization (ISO).",
+    },
     "entity_type": {
         "type": "string",
         "description": "Entity type of principal owner.",
@@ -3260,6 +3290,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
     },
+    "field_name": {
+        "type": "string",
+        "description": "Name of the natural gas storage field.",
+    },
+    "field_type": {
+        "type": "string",
+        "description": (
+            "Type of underground natural gas storage facility. One of: depleted field "
+            "(a reservoir previously used for natural gas production), aquifer (a "
+            "porous rock structure used to store gas), or salt dome (a cavern created "
+            "within a salt formation)."
+        ),
+        "constraints": {
+            "enum": ["aquifer", "depleted field", "salt dome"],
+        },
+    },
     "filename_sec10k": {
         "type": "string",
         "description": (
@@ -3276,6 +3322,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "filing_date": {
         "type": "date",
         "description": "Date on which the filing was submitted.",
+    },
+    "filing_software_vendor_name": {
+        "type": "string",
+        "description": "Name of software company used for creating the instance file submitted. If the filer created the submission, is null",
     },
     "film_number": {
         "type": "string",
@@ -3718,6 +3768,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "street and highway lighting."
         ),
         "unit": "MWh",
+    },
+    "gas_field_id_eia": {
+        "type": "integer",
+        "description": "EIA-assigned numeric identifier for a natural gas storage field.",
     },
     "gas_fraction_cost": {
         "type": "number",
@@ -4542,6 +4596,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "lb_per_hour",
         "description": "Maximum continuous steam flow at 100 percent load.",
+    },
+    "maximum_daily_delivery_mcf": {
+        "type": "number",
+        "description": (
+            "Maximum daily quantity of gas that can be withdrawn from the underground "
+            "storage reservoir under normal operating conditions."
+        ),
+        "unit": "Mcf",
     },
     "mercury_content_ppm": {
         "type": "number",
@@ -6448,6 +6510,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped."
         ),
     },
+    "region": {
+        "type": "string",
+        "description": (
+            "EIA storage region in which the underground natural gas storage field "
+            "is located."
+        ),
+        "constraints": {"enum": EIA191_STORAGE_REGIONS},
+    },
     "region_name_eiaaeo": {
         "type": "string",
         "description": (
@@ -6568,6 +6638,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 )
             )
         },
+    },
+    "reservoir_id_eia": {
+        "type": "integer",
+        "description": (
+            "EIA-assigned numeric identifier for the individual storage reservoir "
+            "within a natural gas storage field."
+        ),
+    },
+    "reservoir_name": {
+        "type": "string",
+        "description": "Name of the individual underground natural gas storage reservoir.",
     },
     "respondent_id_ferc714": {
         "type": "integer",
@@ -7447,6 +7528,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "A code representing the enclosure type that best describes where the generator is located."
         ),
     },
+    "storage_field_id_eia": {
+        "type": "string",
+        "description": (
+            "EIA-assigned identifier for an underground natural gas storage reservoir. "
+            "IDs are assigned per company and state, so the same physical reservoir "
+            "may have different IDs if ownership changes."
+        ),
+    },
     "storage_technology_code_1": {
         "type": "string",
         "description": (
@@ -7896,6 +7985,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "unit into commercial operation."
         ),
     },
+    "total_field_capacity_mcf": {
+        "type": "number",
+        "description": (
+            "Total design capacity of the underground natural gas storage field "
+            "(base gas plus working gas)."
+        ),
+        "unit": "Mcf",
+    },
     "total_fuel_cost": {
         "type": "number",
         "description": (
@@ -8157,6 +8254,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Name of the responding utility, as it is reported in FERC Form 1. For human readability only."
         ),
     },
+    "prior_utility_name_ferc1": {
+        "type": "string",
+        "description": (
+            "Former name of the responding utility, when it changed within the last year."
+        ),
+    },
     "utility_name_pudl": {
         "type": "string",
         "description": (
@@ -8390,6 +8493,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "demand is the greatest."
         ),
         "unit": "MW",
+    },
+    "working_gas_capacity_mcf": {
+        "type": "number",
+        "description": (
+            "Volume of working gas (the portion of stored gas available for withdrawal) "
+            "in the underground storage reservoir."
+        ),
+        "unit": "Mcf",
     },
     "year": {
         "type": "integer",
@@ -10006,6 +10117,73 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The cost of materials and supplies used.",
         "unit": "USD",
     },
+    "depreciable_plant_base": {
+        "type": "number",
+        "description": "Depreciable plant balance (depreciable base) to which rates are applied.",
+        "unit": "USD",
+    },
+    "net_salvage_pct": {
+        "type": "number",
+        "description": (
+            "Percentage representing the estimated value of utility plant at the end of its service life. "
+            "Be aware that the formatting of this column is not expected to be standard - expect some "
+            "values between 0-1 and some between 0-100."
+        ),
+    },
+    "depreciation_rate": {
+        "type": "string",
+        "description": (
+            "Depreciation rate applied to utility plant balance."
+            "Be aware that the formatting of this column is not expected to be standard - expect some "
+            "values between 0-1 and some between 0-100."
+        ),
+    },
+    "mortality_curve_type": {
+        "type": "string",
+        "description": "Description of the type of mortality curve selected in plant mortality studies prepared to assist in estimating average service lives.",
+    },
+    "depreciation_factors": {
+        "type": "string",
+        "description": (
+            "Label of the factor of depreciation factors. This field contains is an unstructured, free-form strings. "
+            "It often includes FERC account IDs, sometimes includes plant names and sometimes includes headers "
+            "indicating the beginning of a new section - such as a plant or asset type header which is followed "
+            "by sub-components like FERC account IDs or plant names depending on the section."
+        ),
+    },
+    "order_num": {
+        "type": "number",
+        "description": (
+            "This field is defined in FERC-XBRL documentation as a field that is used to sequence a table."
+            "FERC-XBRL documentation notes: 'This field is added to a table to control ordering of the items on the table.'"
+            "FERC's documentation also notes that this field should always be an integer - although "
+            "there are many instances of floating point values which seem to increment by decimal points. "
+            "Nonetheless, this field can be used to help understand the original order of the table. "
+            "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
+        ),
+    },
+    "account_num": {
+        "type": "string",
+        "description": "Account number(s) in connection with factors used in estimating depreciation charges.",
+    },
+    "service_life_avg": {
+        "type": "number",
+        "description": (
+            "Estimated average service life of utility plant. "
+            "The original DBF data was reported as years while the XBRL data was reported as "
+            "strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these "
+            "string time durations into years."
+        ),
+    },
+    "remaining_life_avg": {
+        "type": "number",
+        "description": (
+            "Estimated weighted average of remaining life of utility plant assets."
+            "The original DBF data was reported as years while the XBRL data was reported as "
+            "strings in this time duration format: `PnYnMnDTnHnMnS`. PUDL converts these "
+            "string time durations into years."
+        ),
+    },
     "utility_plant_group": {
         "type": "string",
         "description": "High-level category of utility plant asset type.",
@@ -10054,6 +10232,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Cost of retirements minus any net salvage value.",
         "unit": "USD",
+    },
+    "debits": {
+        "type": "number",
+        "description": "The increase (decrease) during the period in the value of other assets resulting from the ratemaking actions of regulatory agencies.",
+    },
+    "credits_written_off_recovered": {
+        "type": "number",
+        "description": "Recovered amount of divestiture of other assets lacking physical substance resulting from the ratemaking actions of regulatory agencies.",
+    },
+    "additional_description": {
+        "type": "string",
+        "description": (
+            "Additional free-form description column. In most instances, the values in this column are exactly the same as the "
+            "description column,but it differs from the standard description enough that we kept both columns. "
+            "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
+        ),
     },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
@@ -10796,6 +10990,18 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             },
         }
     },
+    "core_ferc1__yearly_other_regulatory_assets_sched232": {
+        "description": {
+            "type": "string",
+            "description": "Free-form description and purpose of other regulatory assets.",
+        }
+    },
+    "core_ferc1__yearly_other_liabilities_sched278": {
+        "description": {
+            "type": "string",
+            "description": "Free-form description and purpose of other regulatory liabilities.",
+        }
+    },
     "plant_parts_eia": {
         "energy_source_code_1": {
             "constraints": {
@@ -10959,6 +11165,42 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
             )
         }
+    },
+    "core_ferc1__yearly_identification_certification": {
+        "contact_name": {"description": ("Name of contact person for the respondent.")},
+        "contact_title": {
+            "description": "Title of contact person for the respondent.",
+        },
+        # TODO 04/26: Would require additional cleaning to validate, some
+        # Canada postal codes in here as well.
+        # "contact_zip": {
+        #     "constraints": {
+        #         "pattern": r"^\d{5}(-\d{4})?$",
+        #     },
+        # },
+        "contact_state": {
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+        },
+        "office_street_address": {
+            "description": "Street address of principal office at end of period.",
+        },
+        "office_city": {
+            "description": "City of principal office at end of period.",
+        },
+        "office_state": {
+            "type": "string",
+            "description": "State of principal office at end of period.",
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+        },
+        "office_zip": {
+            "type": "string",
+            "description": "Zipcode of principal office at end of period.",
+            "constraints": {},  # TODO 04/26: Would require additional cleaning to validate, some Canada postal codes in here as well.
+        },
+        "report_filing_type": {
+            "description": "Type of report submitted: O (original) or R (revision).",
+            "constraints": {"enum": ["R", "O"]},
+        },
     },
     "core_ferceqr__contracts": {
         "product_name": {
@@ -11234,6 +11476,12 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "core_rus12__monthly_demand_and_energy_at_power_sources": {
         "peak_demand_mw": {"description": "peak demand in a given timeframe."}
+    },
+    "core_eia191__monthly_gas_storage": {
+        "operational_status": {
+            "description": "Operational status of the underground natural gas storage reservoir.",
+            "constraints": {"enum": ["active", "inactive"]},
+        },
     },
     "core_rus12__yearly_depreciation_changes": {
         "depreciation_and_amortization_item": {

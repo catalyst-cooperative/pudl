@@ -140,6 +140,8 @@ To make sense of hundreds of resources, structured resource-level metadata is cr
 The following fields should be filled out for each new resource. You may wish to use
 :ref:`one of the preview methods <preview_methods>` to guide your edits.
 
+All the ``_text`` fields below take RST formatting -- use whitespace accordingly.
+
 * ``additional_summary_text``: A ~1 line brief description of the table's contents.
   Based on the table type, this should be a fragment that completes the
   corresponding phrase:
@@ -180,7 +182,11 @@ clarification:
   raw/core/_core/out/_out, etc. This will be appended to the stock text for this layer.
 * ``additional_primary_key_text``: Only set if this table has no natural primary key.
   In that case, this should be used to describe what each row contains and why a
-  primary key doesn't make sense for this table
+  primary key doesn't make sense for this table.
+
+For a full reference on available description fields, including fields that
+override automatic table classifications, see
+:class:`pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents`.
 
 Because the description is not wholly legible in its structured state,
 we have developed a few tools to help editors see what they are doing.

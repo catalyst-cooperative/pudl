@@ -36,7 +36,7 @@ sources:
                     min_value: 0.0
               - dbt_expectations.expect_column_max_to_be_between:
                   arguments:
-                    min_value: 100.0
+                    max_value: 100.0
           - name: is_partly_owned_by_borrower
           - name: fuel_consumption_coal_lbs
             data_tests:

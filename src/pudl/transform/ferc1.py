@@ -16,6 +16,7 @@ import re
 from abc import abstractmethod
 from collections import namedtuple
 from collections.abc import Mapping
+from functools import reduce
 from typing import Annotated, Any, Literal, Self
 
 import numpy as np
@@ -27,8 +28,15 @@ from pydantic import BaseModel, Field, field_validator
 
 import pudl
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-from pudl.helpers import assert_cols_areclose, convert_cols_dtypes
+from pudl.helpers import (
+    assert_cols_areclose,
+    convert_cols_dtypes,
+    listify,
+    parse_address,
+    standardize_phone_column,
+)
 from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
@@ -147,6 +155,7 @@ class TableIdFerc1(enum.Enum):
     OPERATING_EXPENSES = "core_ferc1__yearly_operating_expenses_sched320"
     BALANCE_SHEET_LIABILITIES = "core_ferc1__yearly_balance_sheet_liabilities_sched110"
     DEPRECIATION_SUMMARY = "core_ferc1__yearly_depreciation_summary_sched336"
+    DEPRECIATION_FACTORS = "core_ferc1__yearly_depreciation_factors_sched336"
     BALANCE_SHEET_ASSETS = "core_ferc1__yearly_balance_sheet_assets_sched110"
     RETAINED_EARNINGS = "core_ferc1__yearly_retained_earnings_sched118"
     INCOME_STATEMENTS = "core_ferc1__yearly_income_statements_sched114"
@@ -158,6 +167,8 @@ class TableIdFerc1(enum.Enum):
     OTHER_REGULATORY_LIABILITIES = (
         "core_ferc1__yearly_other_regulatory_liabilities_sched278"
     )
+    IDENTIFICATION_CERTIFICATION = "core_ferc1__yearly_identification_certification"
+    OTHER_REGULATORY_ASSETS = "core_ferc1__yearly_other_regulatory_assets_sched232"
 
 
 ################################################################################
@@ -1965,13 +1976,18 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     @cache_df(key="start")
     def transform_start(
         self,
-        raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
+        raw_dbf_dfs: dict[str, pd.DataFrame],
+        raw_xbrl_dfs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
         """Process the raw data until the XBRL and DBF inputs have been unified."""
-        processed_dbf = self.process_dbf(raw_dbf)
-        processed_xbrl = self.process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+        preprocessed_dbf = self.preprocess_dbf(raw_dbf_dfs)
+        preprocessed_xbrl_instant, preprocessed_xbrl_duration = self.preprocess_xbrl(
+            raw_xbrl_dfs
+        )
+        processed_dbf = self.process_dbf(preprocessed_dbf)
+        processed_xbrl = self.process_xbrl(
+            preprocessed_xbrl_instant, preprocessed_xbrl_duration
+        )
         processed_dbf = self.select_dbf_rows_by_category(processed_dbf, processed_xbrl)
         logger.info(f"{self.table_id.value}: Concatenating DBF + XBRL dataframes.")
         return pd.concat([processed_dbf, processed_xbrl]).reset_index(drop=True)
@@ -2586,6 +2602,44 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             df = drop_duplicate_rows_dbf(df, params=params)
         return df
 
+    # Note: no cache decorator to mirror preprocess_xbrl, which returns a tuple
+    # and cannot be cached.
+    def preprocess_dbf(self, raw_dbf_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        """Pre-process DBF inputs into one dataframe. Concats by default."""
+        return pd.concat(list(raw_dbf_dfs.values()))
+
+    # TODO (04-2026): Would be nice to refactor to take raw_xbrl_instant_dfs and
+    # raw_xbrl_duration_dfs rather than a dictionary.
+    def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        raw_xbrls = {
+            table_name: filter_for_freshest_data_xbrl(
+                df,
+                get_primary_key_raw_xbrl(
+                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                ),
+            )
+            for table_name, df in raw_xbrl_dfs.items()
+        }
+        for raw_xbrl_table_name in listify(
+            TABLE_NAME_MAP_FERC1[self.table_id.value]["xbrl"]
+        ):
+            if (
+                raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
+                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_duration"].empty
+            ):
+                raise AssertionError(
+                    f"{raw_xbrl_table_name} has neither instant nor duration tables. "
+                    "Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1"
+                )
+        raw_xbrl_instant = pd.concat(
+            [df for key, df in raw_xbrls.items() if key.endswith("_instant")]
+        )
+        raw_xbrl_duration = pd.concat(
+            [df for key, df in raw_xbrls.items() if key.endswith("_duration")]
+        )
+        return raw_xbrl_instant, raw_xbrl_duration
+
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """DBF-specific transformations that take place before concatenation."""
@@ -3068,6 +3122,205 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 table_name=self.table_id.value,
                 params=params,
             )
+        return df
+
+
+class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for the :ref:`core_ferc1__yearly_identification_certification` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.IDENTIFICATION_CERTIFICATION
+
+    def preprocess_xbrl(self, raw_xbrl_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        """Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default."""
+        raw_xbrls = {
+            table_name: filter_for_freshest_data_xbrl(
+                df,
+                get_primary_key_raw_xbrl(
+                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                ),
+            )
+            for table_name, df in raw_xbrl_dfs.items()
+        }
+        for raw_xbrl_table_name in listify(
+            TABLE_NAME_MAP_FERC1[self.table_id.value]["xbrl"]
+        ):
+            if (
+                raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
+                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_duration"].empty
+            ):
+                raise AssertionError(
+                    f"{raw_xbrl_table_name} has neither instant nor duration tables. "
+                    "Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1"
+                )
+        raw_xbrl_instant = pd.concat(
+            [df for key, df in raw_xbrls.items() if key.endswith("_instant")]
+        )
+        # Rather than concatenating, we merge these tables on their primary key.
+        # This is because we want to join these two tables into one horizontally
+        # rather than vertically.
+        # We sort to consistently assign the table name to identification.
+        duration_df_list = [
+            df
+            for key, df in sorted(raw_xbrls.items(), reverse=True)
+            if key.endswith("_duration")
+        ]
+        raw_xbrl_duration = reduce(
+            lambda x, y: x.merge(
+                y,
+                how="outer",
+                validate="1:1",
+                on=[
+                    "entity_id",
+                    "report_year",
+                    "filing_name",
+                    "start_date",
+                    "end_date",
+                ],
+                suffixes=["", "_x"],
+            ),
+            duration_df_list,
+        )
+        raw_xbrl_duration = raw_xbrl_duration.drop(
+            columns=[
+                col
+                for col in raw_xbrl_duration.columns
+                if col.startswith("sched_table_name_x")
+            ]
+        )  # Drop extra schedule name column
+
+        return raw_xbrl_instant, raw_xbrl_duration
+
+    def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
+        """Look up the pre-renaming source table primary key columns.
+
+        The identification table does not have spplmnt_num or row_number,
+        which are part of the DBF primary key for every other DBF table.
+        """
+        if source_ferc1 == SourceFerc1.DBF:
+            pk_cols = [
+                "report_year",
+                "report_prd",
+                "respondent_id",
+                "submission_type",
+            ]
+        else:
+            assert source_ferc1 == SourceFerc1.XBRL  # nosec: B101
+            cols = self.params.rename_columns_ferc1.xbrl.columns
+            pk_cols = ["report_year", "entity_id"]
+            # Sort to avoid dependence on the ordering of rename_columns.
+            # Doing the sorting here because we have a particular ordering
+            # hard coded for the DBF primary keys.
+            pk_cols += sorted(col for col in cols if col.endswith("_axis"))
+        return pk_cols
+
+    @cache_df(key="dbf")
+    def drop_unused_original_columns_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Remove one residual DBF specific column."""
+        unused_cols = [
+            "report_prd",
+        ]
+        logger.debug(
+            f"{self.table_id.value}: Dropping unused DBF structural columns: "
+            f"{unused_cols}"
+        )
+        missing_cols = set(unused_cols).difference(df.columns)
+        if missing_cols:
+            raise ValueError(
+                f"{self.table_id.value}: Trying to drop missing original DBF columns:"
+                f"{missing_cols}"
+            )
+        return df.drop(columns=unused_cols)
+
+    def transform_main(self, df):
+        """Standard transform_main plus address normalization and string cleaning.
+
+        Transformations include phone number normalization, address parsing using
+        usaddress, null normalization, and converting names and titles to title case.
+        """
+        df = (
+            super()
+            .transform_main(df)
+            .pipe(standardize_phone_column, columns=["contact_phone"])
+        )
+
+        # Check that is_migrated_data is all null and drop
+        assert df.is_migrated_data.isna().all()
+        df = df.drop(columns="is_migrated_data")
+
+        title_cols = [
+            "contact_name",
+            "contact_title",
+            "attestation_name",
+            "attestation_title",
+        ]
+        for col in title_cols:
+            df[col] = df[col].str.title()
+
+        date_cols = ["attestation_date", "filing_date", "name_change_date"]
+        for col in date_cols:
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+
+        to_null = [
+            "",
+            "not applicable",
+            "na",
+            "n/a",
+            "none",
+            "no change",
+            "x",
+            "xxx",
+            "z",
+            "zzz",
+        ]
+        # Build a single regex pattern that is case insensitive
+        pattern = r"(?i)^(" + "|".join(map(re.escape, to_null)) + r")$"
+        df["prior_utility_name_ferc1"] = df["prior_utility_name_ferc1"].replace(
+            pattern, pd.NA, regex=True
+        )
+
+        df[["office_street_address", "office_city", "office_state", "office_zip"]] = (
+            pd.DataFrame(
+                df["office_street_address"].apply(parse_address).tolist(),
+                index=df.index,
+            )
+        )
+        df[["contact_address", "contact_city", "contact_state", "contact_zip"]] = (
+            pd.DataFrame(
+                df["contact_address"].apply(parse_address).tolist(),
+                index=df.index,
+            )
+        )
+
+        # Standardize state columns
+        state_map = dict(
+            zip(
+                POLITICAL_SUBDIVISIONS.subdivision_name.str.upper(),
+                POLITICAL_SUBDIVISIONS.subdivision_code,
+                strict=True,
+            )
+        )
+
+        for col in ["office_state", "contact_state"]:
+            df[col] = df[col].str.upper()
+            df[col] = np.where(
+                df[col].isin(state_map.values()), df[col], df[col].map(state_map)
+            )
+
+        # Drop three duplicated records where one row is entirely NA.
+        mask = df[
+            (
+                df.set_index(
+                    ["utility_id_ferc1", "report_year", "report_filing_type"]
+                ).index.duplicated(keep=False)
+            )
+            & (df.office_street_address.isnull())
+        ].index
+        if not mask.empty:
+            assert len(mask) == 3, (
+                f"Expected to drop 3 duplicate records, instead dropping: {df.loc[mask]}"
+            )
+        df = df.drop(mask)
+
         return df
 
 
@@ -5564,6 +5817,67 @@ class DepreciationSummaryTableTransformer(Ferc1AbstractTableTransformer):
         return meta
 
 
+def convert_pnynmndtnhnmns_to_years(dep_factors: pd.DataFrame, life_col: str):
+    """Convert the XBRL-based PnYnMnDTnHnMnS time period into years.
+
+    FERC1's Taxonomy documents these fields as: Estimated average service life of
+    utility plant, in 'PnYnMnDTnHnMnS' format, for example 'P4Y7M12D' represents a
+    fact of four years, seven months, and 12 days.
+
+    As a format, its a fine standard despite not being a widely used format for
+    duration of time. not super standard but is acceptable. but the DBF data is all reported - seemingly - in years.
+    """
+    dep_factors = dep_factors.replace({life_col: {"": pd.NA}})
+    # the new format is only in the xbrl data
+    duration_format_mask = dep_factors.report_year > 2020
+    temp_date_cols = ["year", "month", "day"]
+    dep_factors[temp_date_cols] = (
+        dep_factors.loc[duration_format_mask, life_col]
+        .str.extract(r"p(\d*y|)(\d*m|)(\d*d|)")
+        .replace({"": pd.NA})
+        .dropna(how="all", axis=1)
+        .replace("y$|m$|d$", "", regex=True)
+        .astype(pd.Float64Dtype())
+    )
+
+    dep_factors.loc[duration_format_mask, f"{life_col}_new"] = (
+        dep_factors.year.fillna(0)
+        + (dep_factors.month.fillna(0) / 12)
+        + (dep_factors.day.fillna(0) / 365)
+    )
+
+    # make sure we don't have any null new lives when the old weird format had
+    # something something in there
+    assert dep_factors[
+        duration_format_mask
+        & dep_factors[f"{life_col}_new"].isnull()
+        & dep_factors[life_col].notnull()
+    ].empty
+
+    dep_factors[life_col] = dep_factors[f"{life_col}_new"].fillna(
+        dep_factors.loc[~duration_format_mask, life_col].astype(pd.Float64Dtype())
+    )
+    return dep_factors.drop(columns=[f"{life_col}_new"] + temp_date_cols)
+
+
+class DepreciationFactorsTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`core_ferc1__yearly_depreciation_factors_sched336` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_FACTORS
+    has_unique_record_ids: bool = False
+
+    def transform_main(self, df):
+        """Convert $1000s to $s & standardize life cols after standard transform_main."""
+        df = (
+            super()
+            .transform_main(df)
+            .assign(depreciable_plant_base=lambda x: x.depreciable_plant_base / 1000)
+            .pipe(convert_pnynmndtnhnmns_to_years, "service_life_avg")
+            .pipe(convert_pnynmndtnhnmns_to_years, "remaining_life_avg")
+        )
+        return df
+
+
 class DepreciationChangesTableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`core_ferc1__yearly_depreciation_changes_sched219` table."""
 
@@ -6090,6 +6404,40 @@ class OtherRegulatoryLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
     has_unique_record_ids = False
 
 
+class OtherRegulatoryAssetsTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`core_ferc1__yearly_other_regulatory_assets_sched232` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.OTHER_REGULATORY_ASSETS
+    has_unique_record_ids = False
+
+    def process_xbrl(
+        self: Self, raw_xbrl_instant: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Add values to the axis columns from the totals tables, then standard.
+
+        The raw XBRL data for this table comes from two tables - one of which has
+        an "axis" column - which is generally designated as a unique identifying field -
+        that is a free-text field containing details about what type of asset the record
+        pertains to. The second table is a "totals" table which based on the XBRL
+        documentation is the total of the other regulatory assets. So we assign the value
+        for the ``other_regulatory_assets_axis`` column as ``totals``. These records are
+        labeled as ``totals`` instead of ``total`` because there are some records (~3%) from
+        the ``other_regulatory_assets_account_182_3_232`` table that are labeled as total
+        and will break the pk expectations.
+        """
+        raw_xbrl_instant.loc[
+            raw_xbrl_instant.sched_table_name
+            == "other_regulatory_assets_account_182_3_totals_232",
+            "other_regulatory_assets_axis",
+        ] = "totals"
+        raw_xbrl_duration.loc[
+            raw_xbrl_duration.sched_table_name
+            == "other_regulatory_assets_account_182_3_totals_232",
+            "other_regulatory_assets_axis",
+        ] = "totals"
+        return super().process_xbrl(raw_xbrl_instant, raw_xbrl_duration)
+
+
 FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_steam_plants_fuel_sched402": SteamPlantsFuelTableTransformer,
     "core_ferc1__yearly_steam_plants_sched402": SteamPlantsTableTransformer,
@@ -6105,6 +6453,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_operating_expenses_sched320": OperatingExpensesTableTransformer,
     "core_ferc1__yearly_balance_sheet_liabilities_sched110": BalanceSheetLiabilitiesTableTransformer,
     "core_ferc1__yearly_depreciation_summary_sched336": DepreciationSummaryTableTransformer,
+    "core_ferc1__yearly_depreciation_factors_sched336": DepreciationFactorsTransformer,
     "core_ferc1__yearly_balance_sheet_assets_sched110": BalanceSheetAssetsTableTransformer,
     "core_ferc1__yearly_income_statements_sched114": IncomeStatementsTableTransformer,
     "core_ferc1__yearly_depreciation_changes_sched219": DepreciationChangesTableTransformer,
@@ -6114,6 +6463,8 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_cash_flows_sched120": CashFlowsTableTransformer,
     "core_ferc1__yearly_sales_by_rate_schedules_sched304": SalesByRateSchedulesTableTransformer,
     "core_ferc1__yearly_other_regulatory_liabilities_sched278": OtherRegulatoryLiabilitiesTableTransformer,
+    "core_ferc1__yearly_identification_certification": IdentificationCertificationTableTransformer,
+    "core_ferc1__yearly_other_regulatory_assets_sched232": OtherRegulatoryAssetsTableTransformer,
 }
 
 
@@ -6142,7 +6493,6 @@ def ferc1_transform_asset_factory(
     """
     ins: Mapping[str, AssetIn] = {}
 
-    listify = lambda x: x if isinstance(x, list) else [x]  # noqa: E731
     dbf_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["dbf"])
     xbrl_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"])
 
@@ -6184,36 +6534,17 @@ def ferc1_transform_asset_factory(
                 xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name]
             )
 
-        raw_dbf = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_ferc1_dbf__")]
-        )
-        raw_xbrls = {
-            tn: filter_for_freshest_data_xbrl(
-                df,
-                get_primary_key_raw_xbrl(tn.removeprefix("raw_ferc1_xbrl__"), "ferc1"),
-            )
-            for tn, df in kwargs.items()
-            if tn.startswith("raw_ferc1_xbrl__")
+        # Split the DBF and XBRL dfs into input dictionaries for transformation
+        raw_dbf_dfs = {
+            key: df for key, df in kwargs.items() if key.startswith("raw_ferc1_dbf__")
         }
-        for raw_xbrl_table_name in listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"]):
-            if (
-                raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
-                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_duration"].empty
-            ):
-                raise AssertionError(
-                    f"{raw_xbrl_table_name} has neither instant nor duration tables. "
-                    "Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1"
-                )
-        raw_xbrl_instant = pd.concat(
-            [df for key, df in raw_xbrls.items() if key.endswith("_instant")]
-        )
-        raw_xbrl_duration = pd.concat(
-            [df for key, df in raw_xbrls.items() if key.endswith("_duration")]
-        )
+        raw_xbrl_dfs = {
+            key: df for key, df in kwargs.items() if key.startswith("raw_ferc1_xbrl__")
+        }
+
         df = transformer.transform(
-            raw_dbf=raw_dbf,
-            raw_xbrl_instant=raw_xbrl_instant,
-            raw_xbrl_duration=raw_xbrl_duration,
+            raw_dbf_dfs=raw_dbf_dfs,
+            raw_xbrl_dfs=raw_xbrl_dfs,
         )
         if convert_dtypes:
             df = convert_cols_dtypes(df, data_source="ferc1")

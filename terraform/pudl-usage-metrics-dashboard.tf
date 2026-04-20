@@ -53,6 +53,17 @@ resource "google_service_account" "pudl_usage_metrics_dashboard_cloud_run" {
   display_name = "PUDL Usage Metrics Dashboard Service Account"
 }
 
+resource "google_storage_bucket_iam_member" "pudl_usage_metrics_dashboard_cloud_run" {
+  for_each = toset([
+    "roles/storage.legacyBucketReader",
+    "roles/storage.objectViewer",
+  ])
+
+  bucket = google_storage_bucket.pudl_usage_metrics_output_bucket.name
+  role   = each.key
+  member = google_service_account.pudl_usage_metrics_dashboard_cloud_run.member
+}
+
 resource "google_secret_manager_secret_iam_member" "pudl_usage_metrics_dashboard_secret_accessor" {
   for_each  = google_secret_manager_secret.pudl_usage_metrics_dashboard_secrets
   secret_id = each.value.secret_id
@@ -94,7 +105,7 @@ resource "google_cloud_run_v2_service" "pudl_usage_metrics_dashboard" {
   # TODO 2025-07-22: latest GCP provider (6.45.0) doesn't let us configure more than just 'enabled' and 'disabled'
   # I added catalyst-cooperative-pudl-admins@catalyst.coop to the IAP policy here.
   # I also had to click a button in the console to give a service account `run.invoke` on this service, but that policy doesn't show up in IAM anywhere.
-  launch_stage         = "BETA"
+  launch_stage         = "GA"
   iap_enabled          = true
   invoker_iam_disabled = true
 

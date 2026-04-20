@@ -29,6 +29,7 @@ import pandas as pd
 import polars as pl
 import requests
 import sqlalchemy as sa
+import usaddress
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
 from pydantic import BaseModel, Field
@@ -2606,3 +2607,50 @@ def make_changelog(df_all: pd.DataFrame, idx: list[str]):
     )
 
     return df_changelog.sort_values(idx)
+
+
+def parse_address(addr: str):
+    """Parse a U.S. address into components."""
+    try:
+        if pd.isna(addr):
+            return (addr, None, None, None)
+        tagged, addr_type = usaddress.tag(addr)
+
+        parsed = defaultdict(str)
+        for key, val in tagged.items():
+            parsed[key] = val.strip() if val else None
+
+        # Concatenate street parts into one column
+        # Handle occupancy a special way, as both parts should only get parsed it
+        # the first exists.
+        occupancy = (
+            f"{parsed.get('OccupancyType')} {parsed.get('OccupancyIdentifier')}"
+            if pd.notna(parsed.get("OccupancyType"))
+            else None
+        )
+
+        street_parts = [
+            parsed.get("AddressNumber", ""),
+            parsed.get("StreetNamePreDirectional", ""),
+            parsed.get("StreetName", ""),
+            parsed.get("StreetNamePostType", ""),
+            parsed.get("StreetNamePostDirectional"),
+            parsed.get("OccupancyType", ""),
+            occupancy,  # Only add if occupancy type exists
+        ]
+        street_address = " ".join([p for p in street_parts if pd.notna(p)]).strip()
+
+        return (
+            None if street_address == "" else street_address,
+            parsed.get("PlaceName", None),
+            parsed.get("StateName", None),
+            parsed.get("ZipCode", None),
+        )
+    except usaddress.RepeatedLabelError:
+        logger.warning(f"Could not parse {addr}")
+        return (addr, None, None, None)
+
+
+def listify(x: Any) -> list[Any]:
+    """Listify an input that is sometimes a list and sometimes not."""
+    return x if isinstance(x, list) else [x]  # noqa: E731

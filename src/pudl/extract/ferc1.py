@@ -171,6 +171,10 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
     },
+    "core_ferc1__yearly_depreciation_factors_sched336": {
+        "dbf": "f1_edcfu_epda",
+        "xbrl": "factors_used_in_estimating_depreciation_charges_section_c_336",
+    },
     "core_ferc1__yearly_depreciation_changes_sched219": {
         "dbf": "f1_accumdepr_prvsn",
         "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219",
@@ -204,6 +208,20 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
     "core_ferc1__yearly_other_regulatory_liabilities_sched278": {
         "dbf": "f1_othr_reg_liab",
         "xbrl": "other_regulatory_liabilities_account_254_278",
+    },
+    "core_ferc1__yearly_identification_certification": {
+        "dbf": "f1_ident_attsttn",
+        "xbrl": [
+            "identification_001",
+            "corporate_officer_certification_001",
+        ],
+    },
+    "core_ferc1__yearly_other_regulatory_assets_sched232": {
+        "dbf": "f1_othr_reg_assets",
+        "xbrl": [
+            "other_regulatory_assets_account_182_3_232",
+            "other_regulatory_assets_account_182_3_totals_232",
+        ],
     },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""

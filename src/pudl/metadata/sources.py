@@ -6,6 +6,15 @@ import pandas as pd
 
 from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
 
+
+def _year_quarter_range(start_quarter: str, end_quarter: str) -> list[str]:
+    """Return a range of year-quarters formatted as ``YYYYqQ``."""
+    return [
+        str(q).lower()
+        for q in pd.period_range(start=start_quarter, end=end_quarter, freq="Q")
+    ]
+
+
 SOURCES: dict[str, Any] = {
     "censusdp1tract": {
         "title": "Census DP1 -- Profile of General Demographic Characteristics",
@@ -207,7 +216,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2026-01", freq="M")
+                for q in pd.period_range(start="2015-07", end="2026-02", freq="M")
             ],
         },
         "keywords": sorted(
@@ -457,10 +466,9 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "working_partitions": {
-            "year_quarters": [
-                str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2025q4", freq="Q")
-            ]
+            "year_quarters": _year_quarter_range(
+                start_quarter="1995q1", end_quarter="2025q4"
+            )
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -743,12 +751,9 @@ SOURCES: dict[str, Any] = {
             )
         ),
         "working_partitions": {
-            "year_quarters": [
-                f"{year}q{quarter}"
-                for year in range(2013, 2026)
-                for quarter in range(1, 5)
-                if not (year == 2013 and quarter < 3)
-            ],
+            "year_quarters": _year_quarter_range(
+                start_quarter="2013q3", end_quarter="2026q1"
+            ),
         },
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
