@@ -1,7 +1,7 @@
 """Transform the RUS7 tables."""
 
 import pandas as pd
-from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
+from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
@@ -675,19 +675,9 @@ _CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
         table_name: AssetIn()
         for table_name in ["_core_rus7__scd_borrowers"] + _CORE_RUS7_TABLES
     },
-    config_schema={
-        "debug": Field(
-            bool,
-            default_value=False,
-            description=(
-                "If True, allow inconsistent values in harvested columns and "
-                "produce additional debugging output."
-            ),
-        ),
-    },
     outs={
         "core_rus7__entity_borrowers": AssetOut(io_manager_key="pudl_io_manager"),
-        "_core_rus7__changelog_borrower_names": AssetOut(),
+        "_core_rus7__changelog_pre_normalization_values": AssetOut(),
     },
 )
 def core_rus7__entity_borrowers(context, **clean_dfs):
@@ -709,11 +699,13 @@ def core_rus7__entity_borrowers(context, **clean_dfs):
         entity,
         clean_dfs,
         special_case_strictness=special_case_strictness,
-        debug=context.op_config["debug"],
+        debug=True,
     )
-    rus_borrower_names_all = _col_dfs["borrower_name_rus"]
-    _core_rus7__changelog_borrower_names = make_changelog(rus_borrower_names_all)
-    return entity_df, _core_rus7__changelog_borrower_names
+    out_all = pd.concat(
+        [df for harvested_col_name, df in _col_dfs.items()], axis="index"
+    )
+    changelog = make_changelog(out_all, ["borrower_id_rus"])
+    return entity_df, changelog
 
 
 finished_rus_assets = [
