@@ -7,8 +7,8 @@ import dagster as dg
 import pytest
 
 from pudl.dagster.provenance import (
-    FercSQLiteProvenance,
-    FercSQLiteProvenanceRecord,
+    FercSqliteProvenance,
+    FercSqliteProvenanceRecord,
     _parse_db_name,
     assert_ferc_sqlite_compatible,
     build_ferc_sqlite_provenance_metadata,
@@ -32,7 +32,7 @@ def zenodo_dois() -> ZenodoDoiSettings:
 
 
 # ---------------------------------------------------------------------------
-# FercSQLiteProvenance factory tests
+# FercSqliteProvenance factory tests
 # ---------------------------------------------------------------------------
 
 
@@ -52,13 +52,13 @@ def test_ferc_sqlite_provenance_from_dataset_and_format(
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """from_dataset_and_format builds the correct provenance fingerprint."""
-    provenance = FercSQLiteProvenance.from_dataset_and_format(
+    provenance = FercSqliteProvenance.from_dataset_and_format(
         dataset=dataset,
         data_format=data_format,
         global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
-    assert isinstance(provenance, FercSQLiteProvenance)
+    assert isinstance(provenance, FercSqliteProvenance)
     assert provenance.dataset == dataset
     assert provenance.data_format == data_format
     assert provenance.asset_key == dg.AssetKey(f"raw_{dataset}_{data_format}__sqlite")
@@ -99,7 +99,7 @@ def test_ferc_sqlite_provenance_years_reflect_settings(
             update={"ferc1_dbf": Ferc1DbfToSqliteDataConfig(years=configured_years)}
         )
     )
-    provenance = FercSQLiteProvenance.from_dataset_and_format(
+    provenance = FercSqliteProvenance.from_dataset_and_format(
         dataset="ferc1",
         data_format="dbf",
         global_data_config=config,
@@ -122,7 +122,7 @@ def test_parse_db_name_rejects_bad_input(db_name: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# FercSQLiteProvenanceRecord serialization round-trip
+# FercSqliteProvenanceRecord serialization round-trip
 # ---------------------------------------------------------------------------
 
 
@@ -140,7 +140,7 @@ def test_ferc_sqlite_provenance_record_round_trip(
         status="complete",
     )
     dagster_meta = record.to_dagster_metadata()
-    recovered = FercSQLiteProvenanceRecord.from_dagster_metadata(dagster_meta)
+    recovered = FercSqliteProvenanceRecord.from_dagster_metadata(dagster_meta)
 
     assert recovered.status == record.status
     assert recovered.zenodo_doi == record.zenodo_doi
@@ -151,9 +151,9 @@ def test_ferc_sqlite_provenance_record_round_trip(
 @pytest.mark.parametrize("status", ["skipped", "not_configured"])
 def test_ferc_sqlite_provenance_record_minimal_round_trip(status: str) -> None:
     """A skipped or not_configured record only stores dataset and status."""
-    record = FercSQLiteProvenanceRecord(dataset="ferc714", status=status)
+    record = FercSqliteProvenanceRecord(dataset="ferc714", status=status)
     dagster_meta = record.to_dagster_metadata()
-    recovered = FercSQLiteProvenanceRecord.from_dagster_metadata(dagster_meta)
+    recovered = FercSqliteProvenanceRecord.from_dagster_metadata(dagster_meta)
 
     assert recovered.status == status
     assert recovered.dataset == "ferc714"
@@ -378,7 +378,7 @@ def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
     Both 'skipped' and 'not_configured' mean the SQLite file was never fully
     populated, so downstream IO managers must refuse to read from it.
     """
-    dagster_meta = FercSQLiteProvenanceRecord(
+    dagster_meta = FercSqliteProvenanceRecord(
         dataset="ferc1",
         status=status,
     ).to_dagster_metadata()

@@ -10,7 +10,7 @@ import dagster as dg
 
 import pudl
 from pudl.dagster.provenance import (
-    FercSQLiteProvenanceRecord,
+    FercSqliteProvenanceRecord,
     build_ferc_sqlite_provenance_metadata,
 )
 from pudl.extract.ferc import (
@@ -87,7 +87,7 @@ def xbrl_to_sqlite_asset_factory(
             )
             return dg.MaterializeResult(
                 value="not_configured",
-                metadata=FercSQLiteProvenanceRecord(
+                metadata=FercSqliteProvenanceRecord(
                     dataset=f"ferc{form.value}",
                     status="not_configured",
                 ).to_dagster_metadata(),

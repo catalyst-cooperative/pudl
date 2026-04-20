@@ -44,13 +44,13 @@ def _parse_db_name(db_name: str) -> tuple[str, str]:
 
 
 @dataclass(frozen=True)
-class FercSQLiteProvenance:
+class FercSqliteProvenance:
     """The provenance requirements derived from the current run's ETL settings.
 
     Computed from ``global_data_config`` and ``zenodo_dois`` to describe what a
     compatible FERC SQLite prerequisite must contain. Used by
     :func:`assert_ferc_sqlite_compatible` to compare against the stored
-    :class:`FercSQLiteProvenanceRecord` that was written when the DB was built.
+    :class:`FercSqliteProvenanceRecord` that was written when the DB was built.
     """
 
     asset_key: dg.AssetKey
@@ -67,7 +67,7 @@ class FercSQLiteProvenance:
         data_format: str,
         global_data_config: GlobalDataConfig,
         zenodo_dois: ZenodoDoiSettings,
-    ) -> "FercSQLiteProvenance":
+    ) -> "FercSqliteProvenance":
         """Build a provenance fingerprint from explicit dataset and format names."""
         settings_attr = f"{dataset}_{data_format}"
         settings = global_data_config.ferc_to_sqlite.model_dump(mode="json")[
@@ -84,12 +84,12 @@ class FercSQLiteProvenance:
         )
 
 
-class FercSQLiteProvenanceRecord(BaseModel):
+class FercSqliteProvenanceRecord(BaseModel):
     """The provenance data recorded when a FERC SQLite prerequisite was materialized.
 
     Written to Dagster materialization metadata when a raw FERC SQLite asset is
     built. :func:`assert_ferc_sqlite_compatible` reads it back and compares it
-    against :class:`FercSQLiteProvenance` (the current run's requirements) to
+    against :class:`FercSqliteProvenance` (the current run's requirements) to
     decide whether the stored DB can be reused or must be rebuilt.
 
     For assets whose extraction was skipped (e.g. an XBRL form with no
@@ -134,7 +134,7 @@ class FercSQLiteProvenanceRecord(BaseModel):
     @classmethod
     def from_dagster_metadata(
         cls, metadata: dict[str, Any]
-    ) -> "FercSQLiteProvenanceRecord":
+    ) -> "FercSqliteProvenanceRecord":
         """Reconstruct a provenance record from stored Dagster materialization metadata."""
 
         def _unwrap(value: Any) -> Any:
@@ -164,7 +164,7 @@ def build_ferc_sqlite_provenance_metadata(
     zenodo_dois: ZenodoDoiSettings,
     sqlite_path: Path | None,
     status: Literal["complete", "skipped", "not_configured"],
-) -> FercSQLiteProvenanceRecord:
+) -> FercSqliteProvenanceRecord:
     """Build a provenance record for a FERC SQLite prerequisite asset.
 
     Args:
@@ -176,15 +176,15 @@ def build_ferc_sqlite_provenance_metadata(
         status: ``"complete"`` if extraction ran; ``"skipped"`` if bypassed.
 
     Returns:
-        A :class:`FercSQLiteProvenanceRecord` ready to be serialized via
-        :meth:`~FercSQLiteProvenanceRecord.to_dagster_metadata`.
+        A :class:`FercSqliteProvenanceRecord` ready to be serialized via
+        :meth:`~FercSqliteProvenanceRecord.to_dagster_metadata`.
     """
     settings_attr = f"{dataset}_{data_format}"
     settings = global_data_config.ferc_to_sqlite.model_dump(mode="json")[settings_attr]
     if settings is None:
         raise ValueError(f"Missing {settings_attr} in ETL settings.")
 
-    return FercSQLiteProvenanceRecord(
+    return FercSqliteProvenanceRecord(
         dataset=dataset,
         status=status,
         zenodo_doi=str(zenodo_dois.model_dump()[dataset]),
@@ -240,7 +240,7 @@ def assert_ferc_sqlite_compatible(
         return
 
     dataset, data_format = _parse_db_name(db_name)
-    provenance: FercSQLiteProvenance = FercSQLiteProvenance.from_dataset_and_format(
+    provenance: FercSqliteProvenance = FercSqliteProvenance.from_dataset_and_format(
         dataset=dataset,
         data_format=data_format,
         global_data_config=global_data_config,
@@ -254,8 +254,8 @@ def assert_ferc_sqlite_compatible(
             f"{provenance.asset_key.to_user_string()}. Refresh the FERC SQLite assets."
         )
 
-    stored: FercSQLiteProvenanceRecord = (
-        FercSQLiteProvenanceRecord.from_dagster_metadata(materialization.metadata or {})
+    stored: FercSqliteProvenanceRecord = (
+        FercSqliteProvenanceRecord.from_dagster_metadata(materialization.metadata or {})
     )
 
     if stored.status == "not_configured":
