@@ -53,6 +53,7 @@ def dbf_to_sqlite_asset_factory(
             metadata=build_ferc_sqlite_provenance_metadata(
                 dataset=dataset,
                 data_format="dbf",
+                global_data_config=context.resources.global_data_config,
                 zenodo_dois=context.resources.zenodo_dois,
                 sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
                 status="complete",
