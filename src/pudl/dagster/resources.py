@@ -49,11 +49,11 @@ class ZenodoDoiSettingsResource(dg.ConfigurableResource):
     Two configuration paths are supported:
 
     * **Inline defaults** (``zenodo_dois_path=None``): uses the canonical Zenodo DOIs
-    that are hardcoded as defaults in :class:`~pudl.workspace.datastore.ZenodoDoiSettings`.
-    This is the normal production path — no extra config file is needed.
+      that are hardcoded as defaults in :class:`~pudl.workspace.datastore.ZenodoDoiSettings`.
+      This is the normal production path — no extra config file is needed.
     * **Path override** (``zenodo_dois_path="..."``): loads DOIs from an external YAML
-    file, allowing deployments or tests to substitute different DOIs without modifying
-    the source code.
+      file, allowing deployments or tests to substitute different DOIs without modifying
+      the source code.
     """
 
     zenodo_dois_path: str | None = None
