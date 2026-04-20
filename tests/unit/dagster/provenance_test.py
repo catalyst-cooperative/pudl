@@ -7,22 +7,22 @@ import dagster as dg
 import pytest
 
 from pudl.dagster.provenance import (
-    FercSQLiteProvenance,
-    FercSQLiteProvenanceRecord,
+    FercSqliteProvenance,
+    FercSqliteProvenanceRecord,
     _parse_db_name,
     assert_ferc_sqlite_compatible,
     build_ferc_sqlite_provenance_metadata,
 )
-from pudl.settings import EtlSettings, FercToSqliteSettings
+from pudl.settings import FercToSqliteDataConfig, GlobalDataConfig
 from pudl.workspace.datastore import ZenodoDoiSettings
 
 # pytestmark: MarkDecorator = pytest.mark.ferc1_sqlite_provenance
 
 
 @pytest.fixture()
-def etl_settings() -> EtlSettings:
+def global_data_config() -> GlobalDataConfig:
     """Minimal ETL settings with FERC-to-SQLite config for provenance tests."""
-    return EtlSettings(ferc_to_sqlite_settings=FercToSqliteSettings())
+    return GlobalDataConfig(ferc_to_sqlite=FercToSqliteDataConfig())
 
 
 @pytest.fixture()
@@ -32,7 +32,7 @@ def zenodo_dois() -> ZenodoDoiSettings:
 
 
 # ---------------------------------------------------------------------------
-# FercSQLiteProvenance factory tests
+# FercSqliteProvenance factory tests
 # ---------------------------------------------------------------------------
 
 
@@ -48,17 +48,17 @@ def zenodo_dois() -> ZenodoDoiSettings:
 def test_ferc_sqlite_provenance_from_dataset_and_format(
     dataset: str,
     data_format: str,
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """from_dataset_and_format builds the correct provenance fingerprint."""
-    provenance = FercSQLiteProvenance.from_dataset_and_format(
+    provenance = FercSqliteProvenance.from_dataset_and_format(
         dataset=dataset,
         data_format=data_format,
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
-    assert isinstance(provenance, FercSQLiteProvenance)
+    assert isinstance(provenance, FercSqliteProvenance)
     assert provenance.dataset == dataset
     assert provenance.data_format == data_format
     assert provenance.asset_key == dg.AssetKey(f"raw_{dataset}_{data_format}__sqlite")
@@ -83,7 +83,7 @@ def test_parse_db_name(
 
 
 def test_ferc_sqlite_provenance_years_reflect_settings(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """Years in the provenance fingerprint must match those in the ETL settings.
@@ -91,22 +91,18 @@ def test_ferc_sqlite_provenance_years_reflect_settings(
     The compatibility check uses set equality, so order does not matter, and an
     empty year list is a valid statement of provenance (no years were processed).
     """
-    from pudl.settings import Ferc1DbfToSqliteSettings
+    from pudl.settings import Ferc1DbfToSqliteDataConfig
 
     configured_years = [2020, 2021]
-    settings = EtlSettings(
-        ferc_to_sqlite_settings=etl_settings.ferc_to_sqlite.model_copy(
-            update={
-                "ferc1_dbf_to_sqlite_settings": Ferc1DbfToSqliteSettings(
-                    years=configured_years
-                )
-            }
+    config = GlobalDataConfig(
+        ferc_to_sqlite=global_data_config.ferc_to_sqlite.model_copy(
+            update={"ferc1_dbf": Ferc1DbfToSqliteDataConfig(years=configured_years)}
         )
     )
-    provenance = FercSQLiteProvenance.from_dataset_and_format(
+    provenance = FercSqliteProvenance.from_dataset_and_format(
         dataset="ferc1",
         data_format="dbf",
-        etl_settings=settings,
+        global_data_config=config,
         zenodo_dois=zenodo_dois,
     )
     assert set(provenance.years) == set(configured_years)
@@ -126,25 +122,25 @@ def test_parse_db_name_rejects_bad_input(db_name: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# FercSQLiteProvenanceRecord serialization round-trip
+# FercSqliteProvenanceRecord serialization round-trip
 # ---------------------------------------------------------------------------
 
 
 def test_ferc_sqlite_provenance_record_round_trip(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
 ) -> None:
     """A complete record round-trips through Dagster metadata without data loss."""
     record = build_ferc_sqlite_provenance_metadata(
         dataset="ferc1",
         data_format="dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
         status="complete",
     )
     dagster_meta = record.to_dagster_metadata()
-    recovered = FercSQLiteProvenanceRecord.from_dagster_metadata(dagster_meta)
+    recovered = FercSqliteProvenanceRecord.from_dagster_metadata(dagster_meta)
 
     assert recovered.status == record.status
     assert recovered.zenodo_doi == record.zenodo_doi
@@ -155,9 +151,9 @@ def test_ferc_sqlite_provenance_record_round_trip(
 @pytest.mark.parametrize("status", ["skipped", "not_configured"])
 def test_ferc_sqlite_provenance_record_minimal_round_trip(status: str) -> None:
     """A skipped or not_configured record only stores dataset and status."""
-    record = FercSQLiteProvenanceRecord(dataset="ferc714", status=status)
+    record = FercSqliteProvenanceRecord(dataset="ferc714", status=status)
     dagster_meta = record.to_dagster_metadata()
-    recovered = FercSQLiteProvenanceRecord.from_dagster_metadata(dagster_meta)
+    recovered = FercSqliteProvenanceRecord.from_dagster_metadata(dagster_meta)
 
     assert recovered.status == status
     assert recovered.dataset == "ferc714"
@@ -171,7 +167,7 @@ def test_ferc_sqlite_provenance_record_minimal_round_trip(status: str) -> None:
 
 
 def test_assert_ferc_sqlite_compatible_skips_without_instance(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -180,7 +176,7 @@ def test_assert_ferc_sqlite_compatible_skips_without_instance(
     assert_ferc_sqlite_compatible(
         instance=None,
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
     assert mock_warn.call_count == 1
@@ -188,7 +184,7 @@ def test_assert_ferc_sqlite_compatible_skips_without_instance(
 
 
 def test_assert_ferc_sqlite_compatible_skips_with_env_var(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -200,7 +196,7 @@ def test_assert_ferc_sqlite_compatible_skips_with_env_var(
     assert_ferc_sqlite_compatible(
         instance=mock_instance,
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
 
@@ -212,7 +208,7 @@ def test_assert_ferc_sqlite_compatible_skips_with_env_var(
 @pytest.mark.parametrize("truthy_value", ["1", "true", "yes", "TRUE", "YES"])
 def test_assert_ferc_sqlite_compatible_env_var_truthy_values(
     truthy_value: str,
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -223,14 +219,14 @@ def test_assert_ferc_sqlite_compatible_env_var_truthy_values(
     assert_ferc_sqlite_compatible(
         instance=mock_instance,
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
     mock_instance.get_latest_materialization_event.assert_not_called()
 
 
 def test_assert_ferc_sqlite_compatible_passes_matching_provenance(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -238,7 +234,7 @@ def test_assert_ferc_sqlite_compatible_passes_matching_provenance(
     dagster_meta = build_ferc_sqlite_provenance_metadata(
         dataset="ferc1",
         data_format="dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         sqlite_path=None,
         status="complete",
@@ -251,7 +247,7 @@ def test_assert_ferc_sqlite_compatible_passes_matching_provenance(
     assert_ferc_sqlite_compatible(
         instance=instance,
         db_name="ferc1_dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
     )
 
@@ -266,7 +262,7 @@ def test_assert_ferc_sqlite_compatible_passes_matching_provenance(
     ],
 )
 def test_assert_ferc_sqlite_compatible_year_subset_check(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
     stored_years: list[int],
@@ -277,30 +273,22 @@ def test_assert_ferc_sqlite_compatible_year_subset_check(
 
     Passes when stored ⊇ required; raises RuntimeError when any required year is absent.
     """
-    from pudl.settings import Ferc1DbfToSqliteSettings
+    from pudl.settings import Ferc1DbfToSqliteDataConfig
 
-    stored_settings = EtlSettings(
-        ferc_to_sqlite_settings=etl_settings.ferc_to_sqlite.model_copy(
-            update={
-                "ferc1_dbf_to_sqlite_settings": Ferc1DbfToSqliteSettings(
-                    years=stored_years
-                )
-            }
+    stored_config = GlobalDataConfig(
+        ferc_to_sqlite=global_data_config.ferc_to_sqlite.model_copy(
+            update={"ferc1_dbf": Ferc1DbfToSqliteDataConfig(years=stored_years)}
         )
     )
-    required_settings = EtlSettings(
-        ferc_to_sqlite_settings=etl_settings.ferc_to_sqlite.model_copy(
-            update={
-                "ferc1_dbf_to_sqlite_settings": Ferc1DbfToSqliteSettings(
-                    years=required_years
-                )
-            }
+    required_config = GlobalDataConfig(
+        ferc_to_sqlite=global_data_config.ferc_to_sqlite.model_copy(
+            update={"ferc1_dbf": Ferc1DbfToSqliteDataConfig(years=required_years)}
         )
     )
     stored_dagster_meta = build_ferc_sqlite_provenance_metadata(
         dataset="ferc1",
         data_format="dbf",
-        etl_settings=stored_settings,
+        global_data_config=stored_config,
         zenodo_dois=zenodo_dois,
         sqlite_path=None,
         status="complete",
@@ -314,20 +302,20 @@ def test_assert_ferc_sqlite_compatible_year_subset_check(
             assert_ferc_sqlite_compatible(
                 instance=instance,
                 db_name="ferc1_dbf",
-                etl_settings=required_settings,
+                global_data_config=required_config,
                 zenodo_dois=zenodo_dois,
             )
     else:
         assert_ferc_sqlite_compatible(
             instance=instance,
             db_name="ferc1_dbf",
-            etl_settings=required_settings,
+            global_data_config=required_config,
             zenodo_dois=zenodo_dois,
         )
 
 
 def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -336,7 +324,7 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
     dagster_meta = build_ferc_sqlite_provenance_metadata(
         dataset="ferc1",
         data_format="dbf",
-        etl_settings=etl_settings,
+        global_data_config=global_data_config,
         zenodo_dois=stale_dois,
         sqlite_path=None,
         status="complete",
@@ -349,13 +337,13 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
         assert_ferc_sqlite_compatible(
             instance=instance,
             db_name="ferc1_dbf",
-            etl_settings=etl_settings,
+            global_data_config=global_data_config,
             zenodo_dois=zenodo_dois,
         )
 
 
 def test_assert_ferc_sqlite_compatible_rejects_missing_materialization(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
 ) -> None:
@@ -366,7 +354,7 @@ def test_assert_ferc_sqlite_compatible_rejects_missing_materialization(
         assert_ferc_sqlite_compatible(
             instance=instance,
             db_name="ferc1_dbf",
-            etl_settings=etl_settings,
+            global_data_config=global_data_config,
             zenodo_dois=zenodo_dois,
         )
 
@@ -379,7 +367,7 @@ def test_assert_ferc_sqlite_compatible_rejects_missing_materialization(
     ],
 )
 def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
-    etl_settings: EtlSettings,
+    global_data_config: GlobalDataConfig,
     zenodo_dois: ZenodoDoiSettings,
     mocker,
     status: str,
@@ -390,7 +378,7 @@ def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
     Both 'skipped' and 'not_configured' mean the SQLite file was never fully
     populated, so downstream IO managers must refuse to read from it.
     """
-    dagster_meta = FercSQLiteProvenanceRecord(
+    dagster_meta = FercSqliteProvenanceRecord(
         dataset="ferc1",
         status=status,
     ).to_dagster_metadata()
@@ -402,6 +390,6 @@ def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
         assert_ferc_sqlite_compatible(
             instance=instance,
             db_name="ferc1_dbf",
-            etl_settings=etl_settings,
+            global_data_config=global_data_config,
             zenodo_dois=zenodo_dois,
         )

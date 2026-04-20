@@ -22,7 +22,7 @@ from pudl.extract.dbf import (
     add_key_constraints,
     deduplicate_by_year,
 )
-from pudl.settings import FercDbfToSqliteSettings, FercToSqliteSettings
+from pudl.settings import FercDbfToSqliteDataConfig, FercToSqliteDataConfig
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -33,11 +33,11 @@ class Ferc2DbfExtractor(FercDbfExtractor):
     DATASET = "ferc2"
     DATABASE_NAME = "ferc2_dbf.sqlite"
 
-    def get_settings(
-        self: Self, global_settings: FercToSqliteSettings
-    ) -> FercDbfToSqliteSettings:
-        """Returns settings for FERC Form 2 DBF dataset."""
-        return global_settings.ferc2_dbf_to_sqlite_settings
+    def get_data_config(
+        self: Self, ferc_to_sqlite_data_config: FercToSqliteDataConfig
+    ) -> FercDbfToSqliteDataConfig:
+        """Returns data config for FERC Form 2 DBF dataset."""
+        return ferc_to_sqlite_data_config.ferc2_dbf
 
     def finalize_schema(self: Self, meta: sa.MetaData) -> sa.MetaData:
         """Add primary and foreign keys for respondent_id."""

@@ -5,8 +5,6 @@ This modules pulls data from EIA's published Excel spreadsheets.
 This code is for use analyzing EIA Form 861 data.
 """
 
-import warnings
-
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
@@ -30,11 +28,6 @@ class Extractor(excel.ExcelExtractor):
         self.METADATA = excel.ExcelMetadata("eia861")
         self.cols_added = []
         super().__init__(*args, **kwargs)
-        warnings.warn(
-            "Integration of EIA 861 into PUDL is still experimental and incomplete.\n"
-            "The data has not yet been validated, and the structure may change.",
-            stacklevel=1,
-        )
 
     def process_raw(self, df, page, **partition):
         """Rename columns with location."""

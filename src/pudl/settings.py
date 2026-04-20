@@ -1,4 +1,4 @@
-"""Module for validating pudl etl settings."""
+"""Module for validating pudl ETL data configurations."""
 
 import importlib.resources
 import json
@@ -44,7 +44,7 @@ class FrozenBaseModel(BaseModel):
     model_config: ConfigDict = ConfigDict(frozen=True, extra="forbid")
 
 
-class GenericDatasetSettings(FrozenBaseModel):
+class GenericDataConfig(FrozenBaseModel):
     """An abstract pydantic model for generic datasets.
 
     Each dataset must specify working partitions. A dataset can have an arbitrary number
@@ -109,8 +109,8 @@ class GenericDatasetSettings(FrozenBaseModel):
         return partitions
 
 
-class Ferc1Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate Ferc1Settings."""
+class Ferc1DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate Ferc1DataConfig."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
 
@@ -128,8 +128,8 @@ class Ferc1Settings(GenericDatasetSettings):
         return [year for year in self.years if year >= 2021]
 
 
-class Ferc714Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate Ferc714Settings."""
+class Ferc714DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate Ferc714DataConfig."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
 
@@ -150,8 +150,8 @@ class Ferc714Settings(GenericDatasetSettings):
         return [year for year in self.years if year >= 2021]
 
 
-class EpaCemsSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EPA CEMS settings."""
+class EpaCemsDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EPA CEMS data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
 
@@ -167,8 +167,8 @@ class EpaCemsSettings(GenericDatasetSettings):
         return year_quarters
 
 
-class PhmsaGasSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate PHMSA settings."""
+class PhmsaGasDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate PHMSA data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("phmsagas")
 
@@ -194,8 +194,8 @@ class PhmsaGasSettings(GenericDatasetSettings):
         ]
 
 
-class Sec10kSettings(GenericDatasetSettings):
-    """An immutable Pydantic model to validate SEC 10-K settings."""
+class Sec10kDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate SEC 10-K data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("sec10k")
     years: list[int] = data_source.working_partitions["years"]
@@ -203,24 +203,24 @@ class Sec10kSettings(GenericDatasetSettings):
     tables: list[str] = data_source.working_partitions["tables"]
 
 
-class NrelAtbSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate NREL ATB settings."""
+class NrelAtbDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate NREL ATB data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("nrelatb")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class Eia923Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 923 settings."""
+class Eia923DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EIA 923 data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class Eia930Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 930 settings."""
+class Eia930DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EIA 930 data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia930")
     half_years: list[str] = data_source.working_partitions["half_years"]
@@ -235,18 +235,18 @@ class Eia930Settings(GenericDatasetSettings):
         return half_years
 
 
-class Eia861Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 861 settings."""
+class Eia861DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EIA 861 data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia861")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class Eia860Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 860 settings.
+class Eia860DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EIA 860 data configuration.
 
-    This model also check 860m settings.
+    This model also checks 860m data configuration.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
@@ -319,8 +319,8 @@ class Eia860Settings(GenericDatasetSettings):
     @classmethod
     def validate_eia860m_params(cls, v, info: ValidationInfo) -> list[str]:
         """Check that the year_month values for eia860m_year_months are valid."""
-        eia860m_settings = Eia860mSettings(year_months=v)
-        return eia860m_settings.year_months
+        eia860m_data_config = Eia860mDataConfig(year_months=v)
+        return eia860m_data_config.year_months
 
     @field_validator("eia860m_year_months")
     @classmethod
@@ -333,8 +333,8 @@ class Eia860Settings(GenericDatasetSettings):
         return v
 
 
-class Eia860mSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 860m settings."""
+class Eia860mDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EIA 860m data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
     year_months: list[str] = data_source.working_partitions["year_months"]
@@ -349,40 +349,40 @@ class Eia860mSettings(GenericDatasetSettings):
         return year_months
 
 
-class Eia757aSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 757a settings."""
+class Eia757aDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EIA 757a data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia757a")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class Eia191Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 191 settings."""
+class Eia191DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EIA 191 data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia191")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class Eia176Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 176 settings."""
+class Eia176DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EIA 176 data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia176")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class EiaAeoSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 176 settings."""
+class EiaAeoDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EIA AEO data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eiaaeo")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class VceRareSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate VCE RARE Power Dataset settings."""
+class VceRareDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate VCE RARE data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("vcerare")
     years: list[int] = data_source.working_partitions["years"]
@@ -392,22 +392,22 @@ class VceRareSettings(GenericDatasetSettings):
     """Include FIPS codes in VCE RARE Power Dataset."""
 
 
-class CensusPepSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate Census PEP settings."""
+class CensusPepDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate Census PEP data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("censuspep")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class GlueSettings(FrozenBaseModel):
-    """An immutable pydantic model to validate Glue settings."""
+class GlueDataConfig(FrozenBaseModel):
+    """An immutable pydantic model to validate Glue data configuration."""
 
     eia: bool = True
-    """Include eia in glue settings."""
+    """Include eia in glue data configuration."""
 
     ferc1: bool = True
-    """Include ferc1 in glue settings."""
+    """Include ferc1 in glue data configuration."""
 
 
 @unique
@@ -430,8 +430,8 @@ class GridPathRaToolkitProcLevel(StrEnum):
     # ORIGINAL = auto()
 
 
-class GridPathRaToolkitSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate GridPath RA Toolkit settings.
+class GridPathRaToolkitDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate GridPath RA Toolkit data configuration.
 
     Note that the default values for technology_types, processing_levels, and
     daily_weather are such that by default, all working partitions will be included.
@@ -489,33 +489,33 @@ class GridPathRaToolkitSettings(GenericDatasetSettings):
         return parts
 
 
-class EiaSettings(FrozenBaseModel):
-    """An immutable pydantic model to validate EIA datasets settings."""
+class EiaDataConfig(FrozenBaseModel):
+    """An immutable pydantic model to validate EIA datasets data configuration."""
 
-    eia176: Eia176Settings | None = None
-    eia191: Eia191Settings | None = None
-    eia757a: Eia757aSettings | None = None
-    eia860: Eia860Settings | None = None
-    eia860m: Eia860mSettings | None = None
-    eia861: Eia861Settings | None = None
-    eia923: Eia923Settings | None = None
-    eia930: Eia930Settings | None = None
-    eiaaeo: EiaAeoSettings | None = None
+    eia176: Eia176DataConfig | None = None
+    eia191: Eia191DataConfig | None = None
+    eia757a: Eia757aDataConfig | None = None
+    eia860: Eia860DataConfig | None = None
+    eia860m: Eia860mDataConfig | None = None
+    eia861: Eia861DataConfig | None = None
+    eia923: Eia923DataConfig | None = None
+    eia930: Eia930DataConfig | None = None
+    eiaaeo: EiaAeoDataConfig | None = None
 
     @model_validator(mode="before")
     @classmethod
     def default_load_all(cls, data: dict[str, Any]) -> dict[str, Any]:
         """If no datasets are specified default to all."""
         if not any(data.values()):
-            data["eia176"] = Eia176Settings()
-            data["eia191"] = Eia191Settings()
-            data["eia757a"] = Eia757aSettings()
-            data["eia860"] = Eia860Settings()
-            data["eia860m"] = Eia860mSettings()
-            data["eia861"] = Eia861Settings()
-            data["eia923"] = Eia923Settings()
-            data["eia930"] = Eia930Settings()
-            data["eiaaeo"] = EiaAeoSettings()
+            data["eia176"] = Eia176DataConfig()
+            data["eia191"] = Eia191DataConfig()
+            data["eia757a"] = Eia757aDataConfig()
+            data["eia860"] = Eia860DataConfig()
+            data["eia860m"] = Eia860mDataConfig()
+            data["eia861"] = Eia861DataConfig()
+            data["eia923"] = Eia923DataConfig()
+            data["eia930"] = Eia930DataConfig()
+            data["eiaaeo"] = EiaAeoDataConfig()
 
         return data
 
@@ -528,54 +528,54 @@ class EiaSettings(FrozenBaseModel):
         * eia923 requires eia860 for harvesting purposes.
 
         Args:
-            values (Dict[str, BaseModel]): dataset settings.
+            values (Dict[str, BaseModel]): dataset data configuration.
 
         Returns:
-            values (Dict[str, BaseModel]): dataset settings.
+            values (Dict[str, BaseModel]): dataset data configuration.
         """
         if not data.get("eia923") and data.get("eia860"):
-            data["eia923"] = Eia923Settings(years=data["eia860"].years)
+            data["eia923"] = Eia923DataConfig(years=data["eia860"].years)
 
         if data.get("eia923") and not data.get("eia860"):
-            available_years = Eia860Settings().years
-            data["eia860"] = Eia860Settings(
+            available_years = Eia860DataConfig().years
+            data["eia860"] = Eia860DataConfig(
                 years=[year for year in data["eia923"].years if year in available_years]
             )
         return data
 
 
-class Rus7Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate RUS-7 datasets settings."""
+class Rus7DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate RUS-7 datasets data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("rus7")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class Rus12Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate RUS Form 12 settings."""
+class Rus12DataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate RUS Form 12 data configuration."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("rus12")
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
 
-class DatasetsSettings(FrozenBaseModel):
-    """An immutable pydantic model to validate PUDL Dataset settings."""
+class PudlDataConfig(FrozenBaseModel):
+    """An immutable pydantic model to validate PUDL Dataset data configuration."""
 
-    eia: EiaSettings | None = None
-    epacems: EpaCemsSettings | None = None
-    ferc1: Ferc1Settings | None = None
-    ferc714: Ferc714Settings | None = None
-    glue: GlueSettings | None = None
-    gridpathratoolkit: GridPathRaToolkitSettings | None = None
-    nrelatb: NrelAtbSettings | None = None
-    phmsagas: PhmsaGasSettings | None = None
-    sec10k: Sec10kSettings | None = None
-    vcerare: VceRareSettings | None = None
-    censuspep: CensusPepSettings | None = None
-    rus7: Rus7Settings | None = None
-    rus12: Rus12Settings | None = None
+    eia: EiaDataConfig | None = None
+    epacems: EpaCemsDataConfig | None = None
+    ferc1: Ferc1DataConfig | None = None
+    ferc714: Ferc714DataConfig | None = None
+    glue: GlueDataConfig | None = None
+    gridpathratoolkit: GridPathRaToolkitDataConfig | None = None
+    nrelatb: NrelAtbDataConfig | None = None
+    phmsagas: PhmsaGasDataConfig | None = None
+    sec10k: Sec10kDataConfig | None = None
+    vcerare: VceRareDataConfig | None = None
+    censuspep: CensusPepDataConfig | None = None
+    rus7: Rus7DataConfig | None = None
+    rus12: Rus12DataConfig | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -583,98 +583,101 @@ class DatasetsSettings(FrozenBaseModel):
         """If no datasets are specified default to all.
 
         Args:
-            data: dataset settings inputs.
+            data: PUDL data configuration.
 
         Returns:
-            Validated dataset settings inputs.
+            Validated PUDL data configuration.
         """
         if not any(data.values()):
-            data["eia"] = EiaSettings()
-            data["epacems"] = EpaCemsSettings()
-            data["ferc1"] = Ferc1Settings()
-            data["ferc714"] = Ferc714Settings()
-            data["glue"] = GlueSettings()
-            data["gridpathratoolkit"] = GridPathRaToolkitSettings()
-            data["nrelatb"] = NrelAtbSettings()
-            data["phmsagas"] = PhmsaGasSettings()
-            data["rus7"] = Rus7Settings()
-            data["sec10k"] = Sec10kSettings()
-            data["vcerare"] = VceRareSettings()
-            data["censuspep"] = CensusPepSettings()
-            data["rus12"] = Rus12Settings()
+            data["eia"] = EiaDataConfig()
+            data["epacems"] = EpaCemsDataConfig()
+            data["ferc1"] = Ferc1DataConfig()
+            data["ferc714"] = Ferc714DataConfig()
+            data["glue"] = GlueDataConfig()
+            data["gridpathratoolkit"] = GridPathRaToolkitDataConfig()
+            data["nrelatb"] = NrelAtbDataConfig()
+            data["phmsagas"] = PhmsaGasDataConfig()
+            data["rus7"] = Rus7DataConfig()
+            data["sec10k"] = Sec10kDataConfig()
+            data["vcerare"] = VceRareDataConfig()
+            data["censuspep"] = CensusPepDataConfig()
+            data["rus12"] = Rus12DataConfig()
 
         return data
 
     @model_validator(mode="before")
     @classmethod
-    def add_glue_settings(cls, data: dict[str, Any]) -> dict[str, Any]:
-        """Add glue settings if ferc1 and eia data are both requested.
+    def add_glue_data_config(cls, data: dict[str, Any]) -> dict[str, Any]:
+        """Add glue data configuration if ferc1 and eia data are both requested.
 
         Args:
-            values (Dict[str, BaseModel]): dataset settings.
+            values (Dict[str, BaseModel]): PUDL data configuration.
 
         Returns:
-            values (Dict[str, BaseModel]): dataset settings.
+            values (Dict[str, BaseModel]): PUDL data configuration.
         """
         ferc1 = bool(data.get("ferc1"))
         eia = bool(data.get("eia"))
         if ferc1 and eia:
-            data["glue"] = GlueSettings(ferc1=ferc1, eia=eia)
+            data["glue"] = GlueDataConfig(ferc1=ferc1, eia=eia)
         return data
 
     def get_datasets(self: Self):
-        """Gets dictionary of dataset settings."""
+        """Gets dictionary of PUDL data configuration."""
         return vars(self)
 
-    def make_datasources_table(self: Self, ds: Datastore) -> pd.DataFrame:
+    def make_datasources_table(self: Self, data_store: Datastore) -> pd.DataFrame:
         """Compile a table of dataset information.
 
         There are three places we can look for information about a dataset:
         * the datastore (for DOIs, working partitions, etc)
-        * the ETL settings (for partitions that are used in the ETL)
-        * the DataSource info (which is stored within the ETL settings)
+        * the PUDL data configuration (for partitions that are used in the ETL)
+        * the DataSource info (which is stored within the PUDL data configuration)
 
-        The ETL settings and the datastore have different levels of nesting - and
-        therefore names for datasets. The nesting happens particularly with the EI
-        data. There are three EIA datasets right now eia923, eia860 and eia860m.
-        eia860m is a monthly update of a few tables in the larger eia860 dataset.
+        The PUDL data configuration and the datastore have different levels of nesting -
+        and therefore names for datasets. The nesting happens particularly with the EIA
+        data.
 
         Args:
-            ds: An initialized PUDL Datastore from which the DOI's for each raw input
+            data_store: An initialized PUDL Datastore from which the DOI's for each raw input
                 dataset can be obtained.
 
         Returns:
             a dataframe describing the partitions and DOI's of each of the datasets in
-            this settings object.
+            this PUDL data config object.
         """
-        datasets_settings = self.get_datasets()
+        pudl_data_config = self.get_datasets()
         # grab all of the datasets that show up by name in the datastore
-        datasets_in_datastore_format = {
-            name: setting
-            for (name, setting) in datasets_settings.items()
-            if name in ds.get_known_datasets() and setting is not None
+        pudl_data_config_in_datastore_format = {
+            name: data_config
+            for (name, data_config) in pudl_data_config.items()
+            if name in data_store.get_known_datasets() and data_config is not None
         }
-        # add the eia datasets that are nested inside of the eia settings
-        if datasets_settings.get("eia", False):
-            datasets_in_datastore_format.update(
+        # add the eia datasets that are nested inside of the eia data configuration
+        if pudl_data_config.get("eia", False):
+            pudl_data_config_in_datastore_format.update(
                 {
-                    "eia860": datasets_settings["eia"].eia860,
-                    "eia860m": datasets_settings["eia"].eia860m,
-                    "eia861": datasets_settings["eia"].eia861,
-                    "eia923": datasets_settings["eia"].eia923,
+                    "eia860": pudl_data_config["eia"].eia860,
+                    "eia860m": pudl_data_config["eia"].eia860m,
+                    "eia861": pudl_data_config["eia"].eia861,
+                    "eia923": pudl_data_config["eia"].eia923,
                 }
             )
 
-        datasets = datasets_in_datastore_format.keys()
+        datasets = pudl_data_config_in_datastore_format.keys()
         df = pd.DataFrame(
             data={
                 "datasource": datasets,
                 "partitions": [
-                    json.dumps(datasets_in_datastore_format[dataset].partitions)
+                    json.dumps(pudl_data_config_in_datastore_format[dataset].partitions)
                     for dataset in datasets
                 ],
                 "doi": [
-                    str(_zenodo_doi_to_url(ds.get_datapackage_descriptor(dataset).doi))
+                    str(
+                        _zenodo_doi_to_url(
+                            data_store.get_datapackage_descriptor(dataset).doi
+                        )
+                    )
                     for dataset in datasets
                 ],
             }
@@ -683,12 +686,12 @@ class DatasetsSettings(FrozenBaseModel):
         return df
 
 
-class FercDbfToSqliteSettings(GenericDatasetSettings):
-    """Base class for all FERC DBF-to-SQLite settings models.
+class FercDbfToSqliteDataConfig(GenericDataConfig):
+    """Base class for all FERC DBF-to-SQLite data config models.
 
     Declares the ``years`` and ``refyear`` attributes shared by every FERC DBF
     form so that :class:`~pudl.extract.dbf.FercDbfExtractor` can be typed
-    against this base rather than the looser :class:`GenericDatasetSettings`.
+    against this base rather than the looser :class:`GenericDataConfig`.
     """
 
     years: list[int] = []
@@ -698,8 +701,8 @@ class FercDbfToSqliteSettings(GenericDatasetSettings):
     """Reference year used to build the destination schema; provided by each subclass."""
 
 
-class Ferc1DbfToSqliteSettings(FercDbfToSqliteSettings):
-    """An immutable Pydantic model to validate FERC 1 to SQLite settings."""
+class Ferc1DbfToSqliteDataConfig(FercDbfToSqliteDataConfig):
+    """An immutable Pydantic model to validate FERC 1 to SQLite data config."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
     years: list[int] = [
@@ -711,15 +714,15 @@ class Ferc1DbfToSqliteSettings(FercDbfToSqliteSettings):
     """The reference year for the dataset."""
 
 
-class FercGenericXbrlToSqliteSettings(BaseSettings):
-    """An immutable pydantic model to validate Ferc1 to SQLite settings."""
+class FercGenericXbrlToSqliteDataConfig(BaseSettings):
+    """An immutable pydantic model to validate Ferc1 to SQLite data config."""
 
     years: list[int]
     """The list of years to validate."""
 
 
-class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate Ferc1 to SQLite settings.."""
+class Ferc1XbrlToSqliteDataConfig(FercGenericXbrlToSqliteDataConfig):
+    """An immutable pydantic model to validate Ferc1 to SQLite data config."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
     years: list[int] = [
@@ -728,8 +731,8 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """The list of years to validate."""
 
 
-class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate FERC from 2 XBRL to SQLite settings."""
+class Ferc2XbrlToSqliteDataConfig(FercGenericXbrlToSqliteDataConfig):
+    """An immutable pydantic model to validate FERC from 2 XBRL to SQLite data config."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
     years: list[int] = [
@@ -738,8 +741,8 @@ class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """The list of years to validate."""
 
 
-class Ferc2DbfToSqliteSettings(FercDbfToSqliteSettings):
-    """An immutable Pydantic model to validate FERC 2 to SQLite settings."""
+class Ferc2DbfToSqliteDataConfig(FercDbfToSqliteDataConfig):
+    """An immutable Pydantic model to validate FERC 2 to SQLite data config."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
     years: list[int] = [
@@ -751,8 +754,8 @@ class Ferc2DbfToSqliteSettings(FercDbfToSqliteSettings):
     """The reference year for the dataset."""
 
 
-class Ferc6DbfToSqliteSettings(FercDbfToSqliteSettings):
-    """An immutable Pydantic model to validate FERC 6 to SQLite settings."""
+class Ferc6DbfToSqliteDataConfig(FercDbfToSqliteDataConfig):
+    """An immutable Pydantic model to validate FERC 6 to SQLite data config."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
     years: list[int] = [
@@ -764,8 +767,8 @@ class Ferc6DbfToSqliteSettings(FercDbfToSqliteSettings):
     """The reference year for the dataset."""
 
 
-class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate FERC from 6 XBRL to SQLite settings."""
+class Ferc6XbrlToSqliteDataConfig(FercGenericXbrlToSqliteDataConfig):
+    """An immutable pydantic model to validate FERC from 6 XBRL to SQLite data config."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
     years: list[int] = [
@@ -774,8 +777,8 @@ class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """The list of years to validate."""
 
 
-class Ferc60DbfToSqliteSettings(FercDbfToSqliteSettings):
-    """An immutable Pydantic model to validate FERC 60 to SQLite settings."""
+class Ferc60DbfToSqliteDataConfig(FercDbfToSqliteDataConfig):
+    """An immutable Pydantic model to validate FERC 60 to SQLite data config."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc60")
     years: list[int] = [
@@ -787,8 +790,8 @@ class Ferc60DbfToSqliteSettings(FercDbfToSqliteSettings):
     """The reference year for the dataset."""
 
 
-class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate FERC from 60 XBRL to SQLite settings."""
+class Ferc60XbrlToSqliteDataConfig(FercGenericXbrlToSqliteDataConfig):
+    """An immutable pydantic model to validate FERC from 60 XBRL to SQLite data config."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc60")
     years: list[int] = [
@@ -797,8 +800,8 @@ class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """The list of years to validate."""
 
 
-class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate FERC from 714 XBRL to SQLite settings."""
+class Ferc714XbrlToSqliteDataConfig(FercGenericXbrlToSqliteDataConfig):
+    """An immutable pydantic model to validate FERC from 714 XBRL to SQLite data config."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
     years: list[int] = [
@@ -807,65 +810,65 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """The list of years to validate."""
 
 
-class FercToSqliteSettings(BaseSettings):
-    """An immutable pydantic model to validate FERC XBRL to SQLite settings."""
+class FercToSqliteDataConfig(BaseSettings):
+    """An immutable pydantic model to validate FERC XBRL to SQLite data config."""
 
-    ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings | None = None
-    ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings | None = None
-    ferc2_dbf_to_sqlite_settings: Ferc2DbfToSqliteSettings | None = None
-    ferc2_xbrl_to_sqlite_settings: Ferc2XbrlToSqliteSettings | None = None
-    ferc6_dbf_to_sqlite_settings: Ferc6DbfToSqliteSettings | None = None
-    ferc6_xbrl_to_sqlite_settings: Ferc6XbrlToSqliteSettings | None = None
-    ferc60_dbf_to_sqlite_settings: Ferc60DbfToSqliteSettings | None = None
-    ferc60_xbrl_to_sqlite_settings: Ferc60XbrlToSqliteSettings | None = None
-    ferc714_xbrl_to_sqlite_settings: Ferc714XbrlToSqliteSettings | None = None
+    ferc1_dbf: Ferc1DbfToSqliteDataConfig | None = None
+    ferc1_xbrl: Ferc1XbrlToSqliteDataConfig | None = None
+    ferc2_dbf: Ferc2DbfToSqliteDataConfig | None = None
+    ferc2_xbrl: Ferc2XbrlToSqliteDataConfig | None = None
+    ferc6_dbf: Ferc6DbfToSqliteDataConfig | None = None
+    ferc6_xbrl: Ferc6XbrlToSqliteDataConfig | None = None
+    ferc60_dbf: Ferc60DbfToSqliteDataConfig | None = None
+    ferc60_xbrl: Ferc60XbrlToSqliteDataConfig | None = None
+    ferc714_xbrl: Ferc714XbrlToSqliteDataConfig | None = None
 
     @model_validator(mode="before")
     @classmethod
     def default_load_all(cls, data: dict[str, Any]) -> dict[str, Any]:
         """If no datasets are specified default to all."""
         if not any(data.values()):
-            data["ferc1_dbf_to_sqlite_settings"] = Ferc1DbfToSqliteSettings()
-            data["ferc1_xbrl_to_sqlite_settings"] = Ferc1XbrlToSqliteSettings()
-            data["ferc2_dbf_to_sqlite_settings"] = Ferc2DbfToSqliteSettings()
-            data["ferc2_xbrl_to_sqlite_settings"] = Ferc2XbrlToSqliteSettings()
-            data["ferc6_dbf_to_sqlite_settings"] = Ferc6DbfToSqliteSettings()
-            data["ferc6_xbrl_to_sqlite_settings"] = Ferc6XbrlToSqliteSettings()
-            data["ferc60_dbf_to_sqlite_settings"] = Ferc60DbfToSqliteSettings()
-            data["ferc60_xbrl_to_sqlite_settings"] = Ferc60XbrlToSqliteSettings()
-            data["ferc714_xbrl_to_sqlite_settings"] = Ferc714XbrlToSqliteSettings()
+            data["ferc1_dbf"] = Ferc1DbfToSqliteDataConfig()
+            data["ferc1_xbrl"] = Ferc1XbrlToSqliteDataConfig()
+            data["ferc2_dbf"] = Ferc2DbfToSqliteDataConfig()
+            data["ferc2_xbrl"] = Ferc2XbrlToSqliteDataConfig()
+            data["ferc6_dbf"] = Ferc6DbfToSqliteDataConfig()
+            data["ferc6_xbrl"] = Ferc6XbrlToSqliteDataConfig()
+            data["ferc60_dbf"] = Ferc60DbfToSqliteDataConfig()
+            data["ferc60_xbrl"] = Ferc60XbrlToSqliteDataConfig()
+            data["ferc714_xbrl"] = Ferc714XbrlToSqliteDataConfig()
 
         return data
 
-    def get_xbrl_dataset_settings(
+    def get_xbrl_data_config(
         self, form_number: XbrlFormNumber
-    ) -> FercGenericXbrlToSqliteSettings | None:
+    ) -> FercGenericXbrlToSqliteDataConfig | None:
         """Return a list with all requested FERC XBRL to SQLite datasets.
 
         Args:
-            form_number: Get settings by FERC form number.
+            form_number: Get data config by FERC form number.
         """
-        # Get requested settings object
+        # Get requested data config object
         match form_number:
             case XbrlFormNumber.FORM1:
-                settings = self.ferc1_xbrl_to_sqlite_settings
+                return self.ferc1_xbrl
             case XbrlFormNumber.FORM2:
-                settings = self.ferc2_xbrl_to_sqlite_settings
+                return self.ferc2_xbrl
             case XbrlFormNumber.FORM6:
-                settings = self.ferc6_xbrl_to_sqlite_settings
+                return self.ferc6_xbrl
             case XbrlFormNumber.FORM60:
-                settings = self.ferc60_xbrl_to_sqlite_settings
+                return self.ferc60_xbrl
             case XbrlFormNumber.FORM714:
-                settings = self.ferc714_xbrl_to_sqlite_settings
+                return self.ferc714_xbrl
 
-        return settings
+        return None
 
 
-class EtlSettings(BaseSettings):
+class GlobalDataConfig(BaseSettings):
     """Main settings validation class."""
 
-    ferc_to_sqlite_settings: FercToSqliteSettings | None = None
-    datasets: DatasetsSettings | None = None
+    ferc_to_sqlite: FercToSqliteDataConfig | None = None
+    pudl: PudlDataConfig | None = None
 
     name: str | None = None
     title: str | None = None
@@ -873,8 +876,8 @@ class EtlSettings(BaseSettings):
     version: str | None = None
 
     @classmethod
-    def from_yaml(cls, path: str) -> "EtlSettings":
-        """Create an EtlSettings instance from a yaml_file path.
+    def from_yaml(cls, path: str) -> "GlobalDataConfig":
+        """Create a GlobalDataConfig instance from a yaml_file path.
 
         Args:
             path: path to a yaml file; this could be remote.
@@ -886,74 +889,69 @@ class EtlSettings(BaseSettings):
             yaml_file = yaml.safe_load(f)
         return cls.model_validate(yaml_file)
 
-    @property
-    def ferc_to_sqlite(self) -> "FercToSqliteSettings":
-        """Return validated FERC-to-SQLite settings, or raise if unavailable."""
-        if self.ferc_to_sqlite_settings is None:
-            raise ValueError(
-                "ferc_to_sqlite_settings is not set in ETL settings. "
-                "Ensure ferc_to_sqlite_settings is configured before accessing this property."
-            )
-        return self.ferc_to_sqlite_settings
-
     @model_validator(mode="after")
     def validate_xbrl_years(self):
-        """Ensure the XBRL years in DatasetsSettings align with FercToSqliteSettings.
+        """Ensure the XBRL years in PudlDataConfig align with FercToSqliteDataConfig.
 
         For each of the FERC forms that we are processing in PUDL, check to ensure
         that the years we are trying to process in the PUDL ETL are included in the
-        XBRL to SQLite settings.
+        XBRL to SQLite data config.
         """
-        if self.datasets is None or self.ferc_to_sqlite_settings is None:
+        if self.pudl is None or self.ferc_to_sqlite is None:
             return self
 
         for which_ferc in ["ferc1", "ferc714"]:
             if (
-                self.datasets is not None
-                and self.ferc_to_sqlite_settings is not None
-                and (pudl_ferc := getattr(self.datasets, which_ferc))
+                self.pudl is not None
+                and self.ferc_to_sqlite is not None
+                and (pudl_ferc := getattr(self.pudl, which_ferc))
                 and (
                     sqlite_ferc := getattr(
-                        self.ferc_to_sqlite_settings,
-                        f"{which_ferc}_xbrl_to_sqlite_settings",
+                        self.ferc_to_sqlite,
+                        f"{which_ferc}_xbrl",
                     )
                 )
                 and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years))
             ):
                 raise AssertionError(
                     "You are trying to build a PUDL database with different XBRL years "
-                    f"than the ferc_to_sqlite_settings years for {which_ferc}.\nPUDL years: {pudl_ferc.xbrl_years}\n"
+                    f"than the ferc_to_sqlite years for {which_ferc}.\nPUDL years: {pudl_ferc.xbrl_years}\n"
                     f"SQLite Years: {sqlite_ferc.years}"
                 )
         return self
 
     @property
-    def dataset_settings(self) -> DatasetsSettings:
-        """Return validated dataset settings or raise if they are unavailable."""
-        if self.datasets is None:
-            raise ValueError("Missing datasets settings in ETL settings.")
-        return self.datasets
+    def pudl_data_config(self) -> PudlDataConfig:
+        """Return validated PUDL data config or raise if it is unavailable."""
+        if self.pudl is None:
+            raise ValueError("Missing PUDL data config in GlobalDataConfig.")
+        return self.pudl
 
-    def get_xbrl_dataset_settings(
+    def get_xbrl_data_config(
         self, form_number: XbrlFormNumber
-    ) -> FercGenericXbrlToSqliteSettings | None:
-        """Proxy FERC XBRL settings lookup through the canonical ETL settings."""
-        return self.ferc_to_sqlite.get_xbrl_dataset_settings(form_number)
+    ) -> FercGenericXbrlToSqliteDataConfig | None:
+        """Proxy FERC XBRL data config lookup through the canonical global config."""
+        if self.ferc_to_sqlite is None:
+            raise ValueError(
+                "ferc_to_sqlite is not set in GlobalDataConfig. "
+                "Ensure ferc_to_sqlite is configured before accessing this method."
+            )
+        return self.ferc_to_sqlite.get_xbrl_data_config(form_number)
 
 
-def load_etl_settings(path: str | Path) -> EtlSettings:
-    """Load ETL settings from an arbitrary path.
+def load_global_data_config(path: str | Path) -> GlobalDataConfig:
+    """Load global data config from an arbitrary path.
 
     Expands ``~`` and resolves the path relative to the current working directory
-    before passing it to :meth:`EtlSettings.from_yaml`, which expects an absolute
+    before passing it to :meth:`GlobalDataConfig.from_yaml`, which expects an absolute
     path or a URI. This wrapper exists so callers can pass relative or user-expanded
     paths without knowing those normalisation details.
     """
-    return EtlSettings.from_yaml(str(Path(path).expanduser().resolve()))
+    return GlobalDataConfig.from_yaml(str(Path(path).expanduser().resolve()))
 
 
-def load_packaged_etl_settings(setting_filename: str) -> EtlSettings:
-    """Load a named ETL settings profile from ``pudl.package_data.settings``.
+def load_packaged_global_data_config(data_config_filename: str) -> GlobalDataConfig:
+    """Load a named global data config profile from ``pudl.package_data.settings``.
 
     Uses :mod:`importlib.resources` to locate the YAML file inside the installed
     package, so the lookup works correctly regardless of the current working directory
@@ -963,9 +961,9 @@ def load_packaged_etl_settings(setting_filename: str) -> EtlSettings:
     """
     settings_path = (
         importlib.resources.files("pudl.package_data.settings")
-        / f"{setting_filename}.yml"
+        / f"{data_config_filename}.yml"
     )
-    return EtlSettings.from_yaml(str(settings_path))
+    return GlobalDataConfig.from_yaml(str(settings_path))
 
 
 def _zenodo_doi_to_url(doi: ZenodoDoi) -> AnyHttpUrl:

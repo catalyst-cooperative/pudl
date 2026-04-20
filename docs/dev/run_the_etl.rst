@@ -130,9 +130,9 @@ Core Dagster concepts used in PUDL
   Resource that pulls our raw input data from `archives on Zenodo
   <https://zenodo.org/communities/catalyst-cooperative/>`__ identified by DOI. The
   :py:class:`pudl.workspace.datastore.ZenodoDoiSettings` Resource defines the current
-  Zenodo DOI for each dataset. We also store our dataset-specific ETL settings (like
+  Zenodo DOI for each dataset. We also store our dataset-specific data config (like
   what years of EIA-861 data to process) in a Resource
-  :py:class:`pudl.dagster.resources.PudlEtlSettingsResource`.
+  :py:class:`pudl.dagster.resources.GlobalDataConfigResource`.
 * **`IO Managers <https://docs.dagster.io/guides/build/io-managers>`__** in Dagster let
   us keep the code for data processing separate from the code for reading and writing
   data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
@@ -153,8 +153,8 @@ Core Dagster concepts used in PUDL
   are the runtime settings passed to Dagster jobs, assets, and resources to control
   what gets executed and how. In PUDL, we usually store these settings in YAML files
   like ``dg_fast.yml``, ``dg_full.yml``, ``dg_pytest.yml``, and ``dg_nightly.yml``,
-  which configure execution options and shared resources like ``etl_settings``. The
-  reusable helpers that assemble these run configs live in
+  which configure execution options and shared resources like ``global_data_config``.
+  The reusable helpers that assemble these run configs live in
   :mod:`pudl.dagster.config`.
 
 The Dagster Web UI
@@ -257,7 +257,7 @@ the logic of a specific asset and don't want to rerun the entire ETL.
 .. note::
 
   To process a subset of years for a specific asset group, select the asset group,
-  shift+click "Materialize all" and configure the ``etl_settings`` resource with the
+  shift+click "Materialize all" and configure the ``global_data_config`` resource with the
   desired years.
 
 See :ref:`troubleshooting_dagster` for tips on how to fix common issues we run into.
@@ -356,38 +356,38 @@ The standard Dagster config files we use are:
 .. warning::
 
   The Dagster config file selects resources and execution settings. The referenced
-  ETL settings YAML still determines partitions, years, and other dataset-specific
+  data config YAML still determines partitions, years, and other dataset-specific
   parameters, but job and asset selection determine which parts of the graph run.
 
 Each Dagster config file includes execution options and resource configuration,
-including the ``etl_settings_path`` used by the shared ``etl_settings`` resource.
-The referenced ETL settings YAML files specify which partitions of each dataset should
-be processed, and are generally structured like this:
+including the ``global_data_config_path`` used by the shared ``global_data_config``
+resource. The referenced data config YAML files specify which partitions of each
+dataset should be processed, and are generally structured like this:
 
 .. code-block::
 
-   # FERC-to-SQLite settings
-   ferc_to_sqlite_settings:
-     ├── ferc1_dbf_to_sqlite_settings
+   # FERC-to-SQLite data config
+   ferc_to_sqlite:
+     ├── ferc1_dbf
      |   └── years
-     ├── ferc1_xbrl_to_sqlite_settings
+     ├── ferc1_xbrl
      |   └── years
-     └── ferc2_xbrl_to_sqlite_settings
+     └── ferc2_xbrl
          └── years
 
-   # PUDL ETL settings
+   # PUDL ETL data config
    name : unique name identifying the etl outputs
    title : short human readable title for the etl outputs
    description : a longer description of the etl outputs
-   datasets:
+   pudl:
      ├── dataset name
-     │    └── dataset etl parameter (e.g. years) : editable list of years
+     │    └── dataset parameter (e.g. years) : editable list of years
      └── dataset name
-          └── dataset etl parameter (e.g. years) : editable list of years
+          └── dataset parameter (e.g. years) : editable list of years
 
 .. seealso::
 
-   For an exhaustive listing of the available parameters, see the ETL settings models in
+   For an exhaustive listing of the available parameters, see the data config models in
    :mod:`pudl.settings` and the packaged settings files under
    ``src/pudl/package_data/settings/``.
 
@@ -420,8 +420,8 @@ CEMS should take around 2 hours.
 
 Custom ETL
 ^^^^^^^^^^
-If you need a custom run profile, copy one of the existing Dagster config files,
-change its ``etl_settings_path`` or other resource settings, and point ``dg launch`` at
+If you need a custom run profile, copy one of the existing Dagster config files, change
+its ``global_data_config_path`` or other resource settings, and point ``dg launch`` at
 the new file.
 
 .. code-block:: console

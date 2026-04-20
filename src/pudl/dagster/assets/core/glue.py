@@ -24,7 +24,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
         if "core_epa__assn_eia_epacamd" not in table_name
     },
     can_subset=True,
-    required_resource_keys={"datastore", "etl_settings"},
+    required_resource_keys={"datastore", "global_data_config"},
 )
 def create_glue_tables(context):
     """Extract, transform and load CSVs for the FERC-EIA Glue tables.
@@ -40,11 +40,11 @@ def create_glue_tables(context):
     """
     # TODO 2024-09-23: double check if these settings are actually
     # doing anything for the FERC-EIA glue... doesn't look like it.
-    dataset_settings = context.resources.etl_settings.dataset_settings
+    pudl_data_config = context.resources.global_data_config.pudl
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
-        ferc1=dataset_settings.glue.ferc1,
-        eia=dataset_settings.glue.eia,
+        ferc1=pudl_data_config.glue.ferc1,
+        eia=pudl_data_config.glue.eia,
     )
     # these 714 glue tables are so easy to build, it doesn't seem worth it
     # to not build/load them if we are not etl-ing 714
@@ -88,7 +88,9 @@ def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
     return pd.concat(year_matches, ignore_index=True)
 
 
-@dg.asset(required_resource_keys={"etl_settings"}, io_manager_key="pudl_io_manager")
+@dg.asset(
+    required_resource_keys={"global_data_config"}, io_manager_key="pudl_io_manager"
+)
 def core_epa__assn_eia_epacamd(
     context,
     raw_pudl__assn_eia_epacamd: pd.DataFrame,
@@ -149,7 +151,7 @@ def core_epa__assn_eia_epacamd(
 
     Args:
         context: dagster keyword that provides access to resources and config. For this
-            asset, this determines whether the years from the Eia860Settings object
+            asset, this determines whether the years from the Eia860DataConfig object
             match the EIA860 working partitions. This indicates whether or not to
             restrict the crosswalk data so the tests don't fail on foreign key
             restraints.
@@ -192,10 +194,10 @@ def core_epa__assn_eia_epacamd(
         .dropna(subset=["plant_id_eia"])
         .pipe(correct_epa_eia_plant_id_mapping)
     )
-    dataset_settings = context.resources.etl_settings.dataset_settings
+    pudl_data_config = context.resources.global_data_config.pudl
     processing_all_eia_years = (
-        dataset_settings.eia.eia860.years
-        == dataset_settings.eia.eia860.data_source.working_partitions["years"]
+        pudl_data_config.eia.eia860.years
+        == pudl_data_config.eia.eia860.data_source.working_partitions["years"]
     )
     # Restrict crosswalk for tests if running fast etl
     if not processing_all_eia_years:

@@ -15,15 +15,15 @@ from pudl.dagster.resources import FercXbrlRuntimeSettings
 from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.settings import (
-    EtlSettings,
-    Ferc1DbfToSqliteSettings,
-    Ferc1XbrlToSqliteSettings,
-    Ferc2XbrlToSqliteSettings,
-    Ferc6XbrlToSqliteSettings,
-    Ferc60XbrlToSqliteSettings,
-    Ferc714XbrlToSqliteSettings,
-    FercGenericXbrlToSqliteSettings,
-    FercToSqliteSettings,
+    Ferc1DbfToSqliteDataConfig,
+    Ferc1XbrlToSqliteDataConfig,
+    Ferc2XbrlToSqliteDataConfig,
+    Ferc6XbrlToSqliteDataConfig,
+    Ferc60XbrlToSqliteDataConfig,
+    Ferc714XbrlToSqliteDataConfig,
+    FercGenericXbrlToSqliteDataConfig,
+    FercToSqliteDataConfig,
+    GlobalDataConfig,
     XbrlFormNumber,
 )
 from pudl.workspace.datastore import ZenodoDoiSettings
@@ -62,52 +62,52 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
 
 
 @pytest.mark.parametrize(
-    "settings,forms",
+    "data_config,forms",
     [
         (
-            FercToSqliteSettings(
-                ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(),
-                ferc2_xbrl_to_sqlite_settings=Ferc2XbrlToSqliteSettings(),
-                ferc6_xbrl_to_sqlite_settings=Ferc6XbrlToSqliteSettings(),
-                ferc60_xbrl_to_sqlite_settings=Ferc60XbrlToSqliteSettings(),
-                ferc714_xbrl_to_sqlite_settings=Ferc714XbrlToSqliteSettings(),
+            FercToSqliteDataConfig(
+                ferc1_xbrl=Ferc1XbrlToSqliteDataConfig(),
+                ferc2_xbrl=Ferc2XbrlToSqliteDataConfig(),
+                ferc6_xbrl=Ferc6XbrlToSqliteDataConfig(),
+                ferc60_xbrl=Ferc60XbrlToSqliteDataConfig(),
+                ferc714_xbrl=Ferc714XbrlToSqliteDataConfig(),
             ),
             list(XbrlFormNumber),
         ),
         (
-            FercToSqliteSettings(
-                ferc1_xbrl_to_sqlite_settings=None,
-                ferc2_xbrl_to_sqlite_settings=Ferc2XbrlToSqliteSettings(),
-                ferc6_xbrl_to_sqlite_settings=Ferc6XbrlToSqliteSettings(),
-                ferc60_xbrl_to_sqlite_settings=Ferc60XbrlToSqliteSettings(),
-                ferc714_xbrl_to_sqlite_settings=Ferc714XbrlToSqliteSettings(),
+            FercToSqliteDataConfig(
+                ferc1_xbrl=None,
+                ferc2_xbrl=Ferc2XbrlToSqliteDataConfig(),
+                ferc6_xbrl=Ferc6XbrlToSqliteDataConfig(),
+                ferc60_xbrl=Ferc60XbrlToSqliteDataConfig(),
+                ferc714_xbrl=Ferc714XbrlToSqliteDataConfig(),
             ),
             [form for form in XbrlFormNumber if form != XbrlFormNumber.FORM1],
         ),
         (
-            FercToSqliteSettings(
-                ferc1_dbf_to_sqlite_settings=Ferc1DbfToSqliteSettings(),
-                ferc1_xbrl_to_sqlite_settings=None,
-                ferc2_xbrl_to_sqlite_settings=None,
-                ferc6_xbrl_to_sqlite_settings=None,
-                ferc60_xbrl_to_sqlite_settings=None,
-                ferc714_xbrl_to_sqlite_settings=None,
+            FercToSqliteDataConfig(
+                ferc1_dbf=Ferc1DbfToSqliteDataConfig(),
+                ferc1_xbrl=None,
+                ferc2_xbrl=None,
+                ferc6_xbrl=None,
+                ferc60_xbrl=None,
+                ferc714_xbrl=None,
             ),
             [],
         ),
         (
-            FercToSqliteSettings(
-                ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(years=[]),
-                ferc2_xbrl_to_sqlite_settings=Ferc2XbrlToSqliteSettings(years=[]),
-                ferc6_xbrl_to_sqlite_settings=Ferc6XbrlToSqliteSettings(years=[]),
-                ferc60_xbrl_to_sqlite_settings=Ferc60XbrlToSqliteSettings(years=[]),
-                ferc714_xbrl_to_sqlite_settings=Ferc714XbrlToSqliteSettings(years=[]),
+            FercToSqliteDataConfig(
+                ferc1_xbrl=Ferc1XbrlToSqliteDataConfig(years=[]),
+                ferc2_xbrl=Ferc2XbrlToSqliteDataConfig(years=[]),
+                ferc6_xbrl=Ferc6XbrlToSqliteDataConfig(years=[]),
+                ferc60_xbrl=Ferc60XbrlToSqliteDataConfig(years=[]),
+                ferc714_xbrl=Ferc714XbrlToSqliteDataConfig(years=[]),
             ),
             [],
         ),
     ],
 )
-def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
+def test_xbrl2sqlite(data_config, forms, mocker, tmp_path):
     convert_form_mock = mocker.MagicMock()
     mocker.patch(
         "pudl.dagster.assets.raw.ferc_to_sqlite.convert_form", new=convert_form_mock
@@ -131,7 +131,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
     result: ExecuteInProcessResult = dg.materialize(
         assets=xbrl_assets,
         resources={
-            "etl_settings": EtlSettings(ferc_to_sqlite_settings=settings),
+            "global_data_config": GlobalDataConfig(ferc_to_sqlite=data_config),
             "datastore": ResourceDefinition.mock_resource(),
             "runtime_settings": FercXbrlRuntimeSettings(
                 xbrl_batch_size=20,
@@ -147,9 +147,9 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
 
     for form in forms:
         convert_form_mock.assert_any_call(
-            settings.get_xbrl_dataset_settings(form),
-            form,
-            mock_datastore,
+            form_data_config=data_config.get_xbrl_data_config(form),
+            form=form,
+            datastore=mock_datastore,
             output_path=PudlPaths().output_dir,
             sqlite_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.sqlite",
             duckdb_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.duckdb",
@@ -172,7 +172,7 @@ def test_convert_form(mocker):
         def get_filings(self, year, form: XbrlFormNumber):
             return f"filings_{year}_{form.value}"
 
-    settings = FercGenericXbrlToSqliteSettings(
+    settings = FercGenericXbrlToSqliteDataConfig(
         years=[2020, 2021],
     )
 
@@ -217,12 +217,12 @@ def test_ferc_dbf_extractor_skips_with_empty_years(mocker, tmp_path):
     mocker.patch("pudl.extract.dbf.sa.create_engine", return_value=mocker.MagicMock())
     mocker.patch("pudl.extract.dbf.sa.MetaData", return_value=mocker.MagicMock())
 
-    settings = FercToSqliteSettings(
-        ferc1_dbf_to_sqlite_settings=Ferc1DbfToSqliteSettings(years=[]),
+    data_config = FercToSqliteDataConfig(
+        ferc1_dbf=Ferc1DbfToSqliteDataConfig(years=[]),
     )
     extractor = Ferc1DbfExtractor(
         datastore=mocker.MagicMock(),
-        settings=settings,
+        data_config=data_config,
         output_path=tmp_path,
     )
 

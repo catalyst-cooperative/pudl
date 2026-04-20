@@ -40,7 +40,7 @@ from pudl.dagster.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
 )
 from pudl.dagster.resources import (
-    pudl_etl_settings_resource,
+    global_data_config_resource,
     zenodo_doi_settings_resource,
 )
 from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
@@ -339,7 +339,7 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
         resources={
             "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
             "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
-            "etl_settings": pudl_etl_settings_resource,
+            "global_data_config": global_data_config_resource,
             "zenodo_dois": zenodo_doi_settings_resource,
         },
         jobs=[define_asset_job(name="get_plants_ferc1_raw")],

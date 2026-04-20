@@ -14,9 +14,9 @@ class TestExcelExtractor:
                 f"file name for {page} in {year} doesn't match datastore."
             )
 
-    def test_excel_filename_eia860(self, pudl_datastore_fixture):
+    def test_excel_filename_eia860(self, zenodo_datastore):
         """Spot check eia860 extractor gets the correct excel sheet names."""
-        extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
+        extractor = pudl.extract.eia860.Extractor(zenodo_datastore)
         self.expected_file_name(
             extractor=extractor,
             page="boiler_generator_assn",
@@ -39,9 +39,9 @@ class TestExcelExtractor:
             extractor=extractor, page="plant", year=2003, expected_name="PLANTY03.DBF"
         )
 
-    def test_excel_filename_eia923(self, pudl_datastore_fixture):
+    def test_excel_filename_eia923(self, zenodo_datastore):
         """Spot check eia923 extractor gets the correct excel sheet names."""
-        extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
+        extractor = pudl.extract.eia923.Extractor(zenodo_datastore)
         self.expected_file_name(
             extractor=extractor,
             page="generation_fuel",
@@ -61,17 +61,17 @@ class TestExcelExtractor:
             expected_name="EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx",
         )
 
-    def test_extract_eia860(self, pudl_datastore_fixture):
+    def test_extract_eia860(self, zenodo_datastore):
         """Spot check extraction of eia860 excel files."""
-        extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
+        extractor = pudl.extract.eia860.Extractor(zenodo_datastore)
         page = "ownership"
         year = 2018
         if "Ownership ID" not in extractor.load_source(page=page, year=year).columns:
             raise AssertionError(f"page {page} not found in datastore for {year}")
 
-    def test_extract_eia923(self, pudl_datastore_fixture):
+    def test_extract_eia923(self, zenodo_datastore):
         """Spot check extraction eia923 excel files."""
-        extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
+        extractor = pudl.extract.eia923.Extractor(zenodo_datastore)
         page = "stocks"
         year = 2018
         if "Oil\nJune" not in extractor.load_source(page=page, year=year).columns:

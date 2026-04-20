@@ -377,8 +377,8 @@ def partition_extractor_factory(
     return extract_single_partition
 
 
-def partitions_from_settings_factory(name: str) -> OpDefinition:
-    """Construct a Dagster op to get target partitions from settings in Dagster context.
+def partitions_from_data_config_factory(name: str) -> OpDefinition:
+    """Construct a Dagster op to get target partitions from data config in Dagster context.
 
     Args:
         name: Name of an Excel based dataset (e.g. "eia860").
@@ -387,11 +387,11 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
 
     @op(
         out=DynamicOut(),
-        required_resource_keys={"etl_settings"},
-        name=f"{name}_partitions_from_settings",
+        required_resource_keys={"global_data_config"},
+        name=f"{name}_partitions_from_data_config",
     )
-    def partitions_from_settings(context) -> DynamicOutput:
-        """Produce target partitions for the given dataset from the dataset settings.
+    def partitions_from_data_config(context) -> DynamicOutput:
+        """Produce target partitions for the given dataset from the dataset data config.
 
         These will be used to kick off worker processes to extract each year of data in
         parallel.
@@ -401,16 +401,16 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
             extracted. See the Dagster API documentation for more details:
             https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
         """
-        if "eia" in name:  # Account for nested settings if EIA
-            partition_settings = context.resources.etl_settings.dataset_settings.eia
+        if "eia" in name:  # Account for nested data config if EIA
+            partition_data_config = context.resources.global_data_config.pudl.eia
         else:
-            partition_settings = context.resources.etl_settings.dataset_settings
+            partition_data_config = context.resources.global_data_config.pudl
         # Get year/year_quarter/half_year partition
-        data_settings = getattr(partition_settings, name)  # Get dataset settings
+        data_config = getattr(partition_data_config, name)  # Get data config
 
         partition = [
             var
-            for var in vars(data_settings)
+            for var in vars(data_config)
             if any(
                 date_partition in var
                 for date_partition in ["years", "half_years", "year_quarters"]
@@ -420,16 +420,16 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
             f"Only one working partition is supported: {partition}."
         )
         partition = partition[0]
-        parts = getattr(data_settings, partition)  # Get the actual values
+        parts = getattr(data_config, partition)  # Get the actual values
         if name == "phmsagas":  # phmsa has old years with multiple years in each tab
-            parts = data_settings.extraction_years
-        # In Zenodo we use "year", "half_year" as the partition, but in our settings
+            parts = data_config.extraction_years
+        # In Zenodo we use "year", "half_year" as the partition, but in our data config
         # we use the plural "years". Drop the "s" at the end if present.
         partition = partition.removesuffix("s")
         for part in parts:
             yield DynamicOutput({partition: part}, mapping_key=str(part))
 
-    return partitions_from_settings
+    return partitions_from_data_config
 
 
 def raw_df_factory(
@@ -444,13 +444,13 @@ def raw_df_factory(
     """
     # Build a Dagster op that can extract a single year/half-year of data
     partition_extractor = partition_extractor_factory(extractor_cls, name)
-    # Get the list of target partitions to extract from the PUDL ETL settings object
+    # Get the list of target partitions to extract from the PUDL data config object
     # which is stored in the Dagster context that is available to all ops.
-    partitions_from_settings = partitions_from_settings_factory(name)
+    partitions_from_data_config = partitions_from_data_config_factory(name)
 
     def raw_dfs() -> dict[str, pd.DataFrame]:
         """Produce a dictionary of extracted dataframes."""
-        partitions = partitions_from_settings()
+        partitions = partitions_from_data_config()
         logger.info(partitions)
         # Clone dagster op for each year using DynamicOut.map()
         # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut

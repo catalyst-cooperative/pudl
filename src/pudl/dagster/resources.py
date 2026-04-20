@@ -1,8 +1,8 @@
 """Dagster resources for PUDL.
 
 This module defines the configurable resources that PUDL assets depend on at runtime,
-such as ETL settings, datastore access, and other run-scoped helpers, along with the
-default resource mapping used by the assembled code location. Add
+such as data configuration, datastore access, and other run-scoped helpers, along with
+the default resource mapping used by the assembled code location. Add
 :class:`dagster.ConfigurableResource` classes and configured singleton instances here
 when they provide external services or shared runtime context to assets and jobs. Keep
 asset logic out of this module; it should focus on dependency injection and default
@@ -19,7 +19,7 @@ from typing import Any
 import dagster as dg
 from upath import UPath
 
-from pudl.settings import EtlSettings, load_etl_settings
+from pudl.settings import GlobalDataConfig, load_global_data_config
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
@@ -32,15 +32,15 @@ class FercXbrlRuntimeSettings(dg.ConfigurableResource):
     xbrl_loglevel: str = "INFO"
 
 
-class PudlEtlSettingsResource(dg.ConfigurableResource):
-    """Load validated PUDL ETL settings from a shared ETL YAML file."""
+class GlobalDataConfigResource(dg.ConfigurableResource):
+    """Load validated PUDL data configuration from a shared ETL YAML file."""
 
-    etl_settings_path: str
+    global_data_config_path: str
 
-    def create_resource(self, context) -> EtlSettings:
-        """Create runtime ETL settings from the configured ETL settings file."""
+    def create_resource(self, context) -> GlobalDataConfig:
+        """Create runtime data configuration from the configured YAML file."""
         del context  # Required by Dagster's hook signature; intentionally unused here.
-        return load_etl_settings(self.etl_settings_path)
+        return load_global_data_config(self.global_data_config_path)
 
 
 class ZenodoDoiSettingsResource(dg.ConfigurableResource):
@@ -86,7 +86,7 @@ class DatastoreResource(dg.ConfigurableResource):
         return Datastore(**ds_kwargs)
 
 
-class FercEqrExtractSettings(dg.ConfigurableResource):
+class FercEqrDataConfig(dg.ConfigurableResource):
     """Configure which archived FERC EQR filings are available for extraction."""
 
     ferceqr_archive_uri: str = "gs://archives.catalyst.coop/ferceqr/published"
@@ -97,14 +97,13 @@ class FercEqrExtractSettings(dg.ConfigurableResource):
         return UPath(self.ferceqr_archive_uri)
 
 
-pudl_etl_settings_resource = PudlEtlSettingsResource.configure_at_launch()
+global_data_config_resource = GlobalDataConfigResource.configure_at_launch()
 zenodo_doi_settings_resource = ZenodoDoiSettingsResource()
 datastore_resource = DatastoreResource(zenodo_dois=zenodo_doi_settings_resource)
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()
-ferceqr_extract_settings = FercEqrExtractSettings(
-    ferceqr_archive_uri=os.getenv(
-        "FERCEQR_ARCHIVE_PATH", "gs://archives.catalyst.coop/ferceqr/published"
-    )
+ferceqr_data_config = FercEqrDataConfig()
+ferceqr_archive_uri = os.getenv(
+    "FERCEQR_ARCHIVE_PATH", "gs://archives.catalyst.coop/ferceqr/published"
 )
 
 
@@ -132,11 +131,11 @@ class _LazyDefaultResources(Mapping[str, Any]):
                 "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
                 "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
                 "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
-                "etl_settings": pudl_etl_settings_resource,
+                "global_data_config": global_data_config_resource,
                 "runtime_settings": ferc_xbrl_runtime_settings,
                 "parquet_io_manager": parquet_io_manager,
                 "geoparquet_io_manager": geoparquet_io_manager,
-                "ferceqr_extract_settings": ferceqr_extract_settings,
+                "ferceqr_data_config": ferceqr_data_config,
             }
         return self._resources
 
@@ -154,14 +153,14 @@ default_resources = _LazyDefaultResources()
 
 __all__ = [
     "DatastoreResource",
-    "FercEqrExtractSettings",
+    "FercEqrDataConfig",
     "FercXbrlRuntimeSettings",
-    "PudlEtlSettingsResource",
+    "GlobalDataConfigResource",
     "ZenodoDoiSettingsResource",
     "default_resources",
     "datastore_resource",
-    "ferceqr_extract_settings",
+    "ferceqr_data_config",
     "ferc_xbrl_runtime_settings",
-    "pudl_etl_settings_resource",
+    "global_data_config_resource",
     "zenodo_doi_settings_resource",
 ]
