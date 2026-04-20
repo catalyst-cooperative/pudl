@@ -44,7 +44,17 @@ class GlobalDataConfigResource(dg.ConfigurableResource):
 
 
 class ZenodoDoiSettingsResource(dg.ConfigurableResource):
-    """Load the canonical Zenodo DOI settings for Dagster-managed runs."""
+    """Load the canonical Zenodo DOI settings for Dagster-managed runs.
+
+    Two configuration paths are supported:
+
+    * **Inline defaults** (``zenodo_dois_path=None``): uses the canonical Zenodo DOIs
+      that are hardcoded as defaults in :class:`~pudl.workspace.datastore.ZenodoDoiSettings`.
+      This is the normal production path — no extra config file is needed.
+    * **Path override** (``zenodo_dois_path="..."``): loads DOIs from an external YAML
+      file, allowing deployments or tests to substitute different DOIs without modifying
+      the source code.
+    """
 
     zenodo_dois_path: str | None = None
 

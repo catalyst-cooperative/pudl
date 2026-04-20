@@ -29,6 +29,7 @@ from pudl.transform.ferc1 import (
     add_columns_with_uniform_values,
     assign_parent_dimensions,
     calculate_values_from_components,
+    convert_pnynmndtnhnmns_to_years,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
     filter_for_freshest_data_xbrl,
@@ -1315,3 +1316,21 @@ def test_filter_for_freshest_data_xbrl(df):
     hypothesis.note(f"The freshest data:\n{deduped}")
     hypothesis.note(f"Paired by context:\n{paired_by_context}")
     assert (paired_by_context._merge == "both").all()
+
+
+def test_convert_pnynmndtnhnmns_to_years():
+    df = pd.DataFrame(
+        ["p10y", "p8y6m", "p27y11m12d", "p56y7m6d", "p3m15d"], columns=["life_col"]
+    ).assign(report_year=2027)
+
+    out = convert_pnynmndtnhnmns_to_years(df, "life_col")
+    assert all(
+        out.life_col.to_numpy()
+        == [
+            10.0,
+            8.5,
+            (27 + 11 / 12 + (12 / 365)),
+            (56 + 7 / 12 + 6 / 365),
+            (3 / 12 + 15 / 365),
+        ]
+    )

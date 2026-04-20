@@ -15,7 +15,6 @@ import dagster as dg
 from pudl.dagster.config import (
     default_execution_config,
     default_pudl_job_config,
-    default_tag_concurrency_limits,
     load_etl_run_config_from_file,
 )
 
@@ -53,16 +52,7 @@ default_jobs = [
     dg.define_asset_job(
         name="ferceqr",
         description="This job processes the FERC EQR data.",
-        config={
-            "execution": {
-                "config": {
-                    "multiprocess": {
-                        "max_concurrent": 0,
-                        "tag_concurrency_limits": default_tag_concurrency_limits,
-                    },
-                },
-            },
-        },
+        config=default_execution_config,
         selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
     ),
 ]

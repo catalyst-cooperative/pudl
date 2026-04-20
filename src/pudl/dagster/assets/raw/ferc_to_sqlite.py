@@ -9,7 +9,10 @@ databases, rather than the downstream transforms that consume them.
 import dagster as dg
 
 import pudl
-from pudl.dagster.provenance import build_ferc_sqlite_provenance_metadata
+from pudl.dagster.provenance import (
+    FercSQLiteProvenanceRecord,
+    build_ferc_sqlite_provenance_metadata,
+)
 from pudl.extract.ferc import (
     Ferc1DbfExtractor,
     Ferc2DbfExtractor,
@@ -48,12 +51,12 @@ def dbf_to_sqlite_asset_factory(
         return dg.MaterializeResult(
             value="complete",
             metadata=build_ferc_sqlite_provenance_metadata(
-                db_name=f"{dataset}_dbf",
-                global_data_config=context.resources.global_data_config,
+                dataset=dataset,
+                data_format="dbf",
                 zenodo_dois=context.resources.zenodo_dois,
                 sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
                 status="complete",
-            ),
+            ).to_dagster_metadata(),
         )
 
     return _asset
@@ -80,13 +83,14 @@ def xbrl_to_sqlite_asset_factory(
         data_config = context.resources.global_data_config.get_xbrl_data_config(form)
         if data_config is None or not data_config.years:
             logger.info(
-                f"Skipping dataset ferc{form.value}_xbrl: no config or no years configured."
+                f"No years configured for ferc{form.value}_xbrl: skipping extraction."
             )
             return dg.MaterializeResult(
-                value="skipped",
-                metadata={
-                    "pudl_ferc_sqlite_status": dg.MetadataValue.text("skipped"),
-                },
+                value="not_configured",
+                metadata=FercSQLiteProvenanceRecord(
+                    dataset=f"ferc{form.value}",
+                    status="not_configured",
+                ).to_dagster_metadata(),
             )
 
         output_path = PudlPaths().output_dir
@@ -111,12 +115,13 @@ def xbrl_to_sqlite_asset_factory(
         return dg.MaterializeResult(
             value="complete",
             metadata=build_ferc_sqlite_provenance_metadata(
-                db_name=f"ferc{form.value}_xbrl",
+                dataset=f"ferc{form.value}",
+                data_format="xbrl",
                 global_data_config=context.resources.global_data_config,
                 zenodo_dois=context.resources.zenodo_dois,
                 sqlite_path=sqlite_path,
                 status="complete",
-            ),
+            ).to_dagster_metadata(),
         )
 
     return _asset

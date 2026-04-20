@@ -43,22 +43,21 @@ The raw FERC conversion flow within ``ferc_to_sqlite`` looks like this:
 .. mermaid::
 
    flowchart TD
-   A[FERC archives in Zenodo datastore] --> B[raw_ferc_to_sqlite assets]
+       A[FERC archives in Zenodo datastore] --> B[raw_ferc_to_sqlite assets]
+       B --> C[DBF extraction<br/>1994-2020]
+       B --> D[XBRL extraction<br/>2021-present]
 
-   B --> C[DBF extraction<br/>1994-2020]
-   B --> D[XBRL extraction<br/>2021-present]
+       C --> E[ferc1_dbf.sqlite]
 
-   C --> E[ferc1_dbf.sqlite]
+       D --> F[ferc1_xbrl.sqlite]
+       D --> G[ferc1_xbrl.duckdb<br/>experimental]
+       D --> H[ferc1_xbrl_datapackage.json]
+       D --> I[ferc1_xbrl_taxonomy_metadata.json]
 
-   D --> F[ferc1_xbrl.sqlite]
-   D --> G[ferc1_xbrl.duckdb<br/>(experimental)]
-   D --> H[ferc1_xbrl_datapackage.json]
-   D --> I[ferc1_xbrl_taxonomy_metadata.json]
-
-   E --> J[Clean FERC tables in PUDL<br/>1994-present]
-   F --> J
-   H --> J
-   I --> J
+       E --> J[Clean FERC tables in PUDL<br/>1994-present]
+       F --> J
+       H --> J
+       I --> J
 
 The separation between FERC and PUDL is intentional: the raw FERC conversion step
 produces large source databases with hundreds of tables and thousands of columns that

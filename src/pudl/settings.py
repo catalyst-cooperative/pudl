@@ -940,12 +940,25 @@ class GlobalDataConfig(BaseSettings):
 
 
 def load_global_data_config(path: str | Path) -> GlobalDataConfig:
-    """Load global data config from a path, supporting relative paths from cwd."""
+    """Load global data config from an arbitrary path.
+
+    Expands ``~`` and resolves the path relative to the current working directory
+    before passing it to :meth:`GlobalDataConfig.from_yaml`, which expects an absolute
+    path or a URI. This wrapper exists so callers can pass relative or user-expanded
+    paths without knowing those normalisation details.
+    """
     return GlobalDataConfig.from_yaml(str(Path(path).expanduser().resolve()))
 
 
 def load_packaged_global_data_config(data_config_filename: str) -> GlobalDataConfig:
-    """Load global data config from a profile in ``pudl.package_data.settings``."""
+    """Load a named global data config profile from ``pudl.package_data.settings``.
+
+    Uses :mod:`importlib.resources` to locate the YAML file inside the installed
+    package, so the lookup works correctly regardless of the current working directory
+    or whether the package is installed as a zip. This wrapper exists so callers can
+    refer to profiles by short name (e.g. ``"etl_full"``) without knowing the
+    package-data path or the ``.yml`` extension.
+    """
     settings_path = (
         importlib.resources.files("pudl.package_data.settings")
         / f"{data_config_filename}.yml"
