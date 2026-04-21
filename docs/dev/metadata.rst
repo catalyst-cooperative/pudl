@@ -183,17 +183,26 @@ clarification:
 * ``additional_primary_key_text``: Only set if this table has no natural primary key.
   In that case, this should be used to describe what each row contains and why a
   primary key doesn't make sense for this table.
-* ``availability_text``: Only set for tables that we no longer update **and**
+* ``availability_text``: An optional field to override the default availability
+  of a source table. Only set for discontinued tables
   which do not have a temporal partition in the row counts file. In such cases,
   this field is optional for tables discontinued at the same time as their
   source, or which come from a monolithic source (having no source partitions).
   This field **must** be set for tables discontinued before their source, since
   otherwise they will be listed with the most recent source partition, and that
-  will not match the availability of the table.
+  will not match the availability of the table. For a table without temporal row
+  counts partitions that lags its source but continues to integrate new data
+  each (year, quarter, month, etc), consider
+  :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset`
+  instead.
 
 For a full reference on all available description fields, including fields that
 override automatic table classifications, see
-:class:`pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents`.
+:class:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents`.
+
+For details on how structured description fields and fragments become a fully
+rendered description, see
+:class:`~pudl.metadata.classes.description.ResourceDescriptionBuilder`
 
 Because the description is not wholly legible in its structured state,
 we have developed a few tools to help editors see what they are doing.
