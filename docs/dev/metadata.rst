@@ -183,8 +183,15 @@ clarification:
 * ``additional_primary_key_text``: Only set if this table has no natural primary key.
   In that case, this should be used to describe what each row contains and why a
   primary key doesn't make sense for this table.
+* ``availability_text``: Only set for tables that we no longer update **and**
+  which do not have a temporal partition in the row counts file. In such cases,
+  this field is optional for tables discontinued at the same time as their
+  source, or which come from a monolithic source (having no source partitions).
+  This field **must** be set for tables discontinued before their source, since
+  otherwise they will be listed with the most recent source partition, and that
+  will not match the availability of the table.
 
-For a full reference on available description fields, including fields that
+For a full reference on all available description fields, including fields that
 override automatic table classifications, see
 :class:`pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents`.
 
@@ -208,22 +215,38 @@ Example:
    Table found:
 
    core_ferc714__hourly_planning_area_demand
-      Summary [timeseries[hourly]]: Hourly time series of electricity demand by planning area.
-        Layer [core]: Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
-       Source [ferc714]: FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Report (Part III, Schedule 2a)
-           PK [True]: respondent_id_ferc714, datetime_utc
-     Warnings [2]:
-      custom - The datetime_utc timestamps have been cleaned due to inconsistent datetime reporting. See below for additional details.
-      ferc_is_hard - FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
-      Details [True]:
-   This table includes data from the pre-2021 CSV raw source as well as the newer 2021 through present XBRL raw source.
+        Summary [timeseries[hourly]]: Hourly time series of electricity demand by planning area.
+   Availability [True]: 2024
+          Layer [core]: Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+         Source [ferc714]: FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Report (Part III, Schedule 2a)
+             PK [True]: respondent_id_ferc714, datetime_utc
+       Warnings [2]:
+    custom - The datetime_utc timestamps have been cleaned due to inconsistent datetime reporting. See below for additional details.
+    ferc_is_hard - FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+        Details [True]:
+   This table includes data from the pre-2021 CSV raw source as well as the
+   newer 2021 through present XBRL raw source.
 
-   This table includes three respondent ID columns: one from the CSV raw source, one from the XBRL raw source and another that is PUDL-derived that links those two source ID's together. This table has filled in source IDs for all records so you can select the full timeseries for a given respondent from any of these three IDs.
+   This table includes three respondent ID columns: one from the CSV raw source,
+   one from the XBRL raw source and another that is PUDL-derived that links
+   those two source ID's together. This table has filled in source IDs for all
+   records so you can select the full timeseries for a given respondent from any
+   of these three IDs.
 
-   An important caveat to note is that there was some cleaning done to the datetime_utc timestamps. The Form 714 includes sparse documentation for respondents for how to interpret timestamps - the form asks respondents to provide 24 instances of hourly demand for each day. The form is labeled with hour 1-24. There is no indication if hour 1 begins at midnight.
+   An important caveat to note is that there was some cleaning done to the
+   datetime_utc timestamps. The Form 714 includes sparse documentation for
+   respondents for how to interpret timestamps - the form asks respondents to
+   provide 24 instances of hourly demand for each day. The form is labeled with
+   hour 1-24. There is no indication if hour 1 begins at midnight.
 
-   The XBRL data contained several formats of timestamps. Most records corresponding to hour 1 of the Form have a timestamp with hour 1 as T1. About two thirds of the records in the hour 24 location of the form have a timestamp with an hour reported as T24 while the remaining third report this as T00 of the next day. T24 is not a valid format for the hour of a datetime, so we convert these T24 hours into T00 of the next day. A smaller subset of the respondents reports the 24th hour as the last second of the day - we also convert these records to the T00 of the next day.
-
+   The XBRL data contained several formats of timestamps. Most records
+   corresponding to hour 1 of the Form have a timestamp with hour 1 as T1. About
+   two thirds of the records in the hour 24 location of the form have a
+   timestamp with an hour reported as T24 while the remaining third report this
+   as T00 of the next day. T24 is not a valid format for the hour of a datetime,
+   so we convert these T24 hours into T00 of the next day. A smaller subset of
+   the respondents reports the 24th hour as the last second of the day - we also
+   convert these records to the T00 of the next day.
 
 Detailed preview using the wizard
 ...................................
@@ -254,6 +277,7 @@ Metadata for each field is primarily stored in
 the same name share the same general definition, no matter where you find them.
 
 Field names should:
+
 * Be written as snake case (e.g., ``report_date``.)
 * Include units at the end where not implied (e.g., ``volume_mcf``)
 * Otherwise follow our established :doc:`naming_conventions`.

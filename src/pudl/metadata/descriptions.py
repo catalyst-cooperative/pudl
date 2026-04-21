@@ -377,28 +377,44 @@ class ResourceDescriptionBuilder:
 
     @component
     def availability(self, settings, defaults) -> ResourceTrait:
-        """Compute the availability component of the resource description."""
+        """Compute the availability component of the resource description.
+
+        If
+        :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_text`
+        was set manually, use that.
+
+        If the table has temporal partitions in the dbt row counts file, use the
+        most recent row counts partition.
+
+        If the table has exactly one source, and that source has temporal
+        partitions, use the most recent source partition, optionally offset by
+        :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset`.
+
+        Otherwise, use "Unknown" and set :attr:`ResourceTrait.type`=``False`` to
+        permit display logics to hide this component.
+        """
+        # go ahead and compute all of these; there are never more than 3
+        source_availabilities = [
+            ResourceDescriptionBuilder.offset_source_availability(
+                source, settings.get("availability_offset", 0)
+            )
+            for source in settings.get("sources")
+        ]
         most_recent_data = first_non_none(
             settings.get("availability_text"),
             # first fallback: use row counts file
             ResourceDescriptionBuilder.compute_rowcounts_availability(self.resource_id),
-            # second fallback: use source partitions
-            min(  # if availability differs between sources, use the *least* recent among them
-                [
-                    str(avail)
-                    for avail in (
-                        ResourceDescriptionBuilder.offset_source_availability(
-                            source, settings.get("availability_offset", 0)
-                        )
-                        for source in settings.get("sources")
-                    )
-                    # skip sources with weird partitions (inner)
-                    if avail is not None
-                ]
-                or [None]  # skip sources with weird partitions (outer)
-            ),
+            # second fallback: use source partitions, but only if there's only one source
+            str(source_availabilities[0])
+            if (
+                (len(source_availabilities) == 1)
+                and source_availabilities[0] is not None
+            )
+            else None,
             "Unknown",
         )
+        # the availability ResourceTrait uses a boolean type: True if present, False otherwise.
+        # this lets us condition display of the availability component on the type.
         return ResourceTrait(
             type=str(most_recent_data != "Unknown"), description=most_recent_data
         )
@@ -502,6 +518,8 @@ class ResourceDescriptionBuilder:
             settings["additional_details_text"] = settings["description"]
         # end TODO: remove
 
+        # the additional-details ResourceTrait uses a boolean type: True if present, False otherwise.
+        # this lets us condition display of the additional-details component on the type.
         return ResourceTrait(
             type=str(settings.get("additional_details_text") is not None),
             description=first_non_none(settings.get("additional_details_text"), ""),
