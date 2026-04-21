@@ -566,7 +566,8 @@ def core_eia176__yearly_company_characteristics(
     """
     pk = ["report_year", "operator_id_eia"]
     is_cols = [
-        c for c in raw_eia176__operation_types_and_sector_items.columns
+        c
+        for c in raw_eia176__operation_types_and_sector_items.columns
         if c.startswith("is_")
     ]
 
@@ -584,12 +585,17 @@ def core_eia176__yearly_company_characteristics(
 
     # 1.0 float artifact in 2012-2015 LNG terminal records — not a meaningful value
     df["other_ownership_description"] = df["other_ownership_description"].where(
-        df["other_ownership_description"].apply(lambda x: isinstance(x, str) or pd.isna(x))
+        df["other_ownership_description"].apply(
+            lambda x: isinstance(x, str) or pd.isna(x)
+        )
     )
     df = simplify_strings(df, ["other_ownership_description"])
 
-    df = df.rename(columns={"alternative_fuel_fleet_1_yes_0_no": "has_alternative_fuel_fleet"})
-    df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].eq(1.0)
+    df = df.rename(
+        columns={"alternative_fuel_fleet_1_yes_0_no": "has_alternative_fuel_fleet"}
+    )
+    # Only reported 2005-2015; preserve null for years where the question wasn't asked
+    df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].map({1.0: True})
 
     df = df.dropna(subset=["operating_state"])
 

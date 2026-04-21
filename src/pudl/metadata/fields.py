@@ -10428,8 +10428,24 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_company_characteristics": {
         "operating_state": {
             "description": "State that the operator is reporting for.",
-            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+            "constraints": {"required": True, "enum": SUBDIVISION_CODES_ISO3166},
         },
+        "is_distribution_company_cooperative": {"constraints": {"required": True}},
+        "is_distribution_company_investor_owned": {"constraints": {"required": True}},
+        "is_distribution_company_municipally_owned": {"constraints": {"required": True}},
+        "is_distribution_company_privately_owned": {"constraints": {"required": True}},
+        "is_gatherer": {"constraints": {"required": True}},
+        "is_interstate_pipeline": {"constraints": {"required": True}},
+        "is_intrastate_pipeline": {"constraints": {"required": True}},
+        "is_liquid_natural_gas_marine_terminal": {"constraints": {"required": True}},
+        "is_liquid_natural_gas_peak_facility_operator": {"constraints": {"required": True}},
+        "is_other_ownership": {"constraints": {"required": True}},
+        "is_other_ownership_2": {"constraints": {"required": True}},
+        "is_producer": {"constraints": {"required": True}},
+        "is_public_compressed_natural_gas_fueling_station": {"constraints": {"required": True}},
+        "is_public_liquid_natural_gas_fueling_station": {"constraints": {"required": True}},
+        "is_storage_operator": {"constraints": {"required": True}},
+        "is_synthetic_natural_gas_plant_operator": {"constraints": {"required": True}},
     },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
