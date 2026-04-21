@@ -228,6 +228,14 @@ Enhancements
 New Data
 ^^^^^^^^
 
+EIA-176
+~~~~~~~
+
+* Added :ref:`core_eia176__yearly_company_characteristics`, a new table with one
+  row per ``(report_year, operator_id_eia)`` covering company operation type,
+  ownership type, and alternative fuel fleet fields from EIA Form 176 Part 3
+  (Lines B-F). 55,589 rows spanning 1997-2024. See :issue:`4697` and :pr:`5197`.
+
 EIA-923
 ~~~~~~~
 
@@ -291,6 +299,11 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed an extract bug in ``src/pudl/extract/eia176.py`` where the page key
+  ``"operation_types_and_sector_items"`` did not match the ZIP filename
+  ``eia176_{year}_type_of_operations_and_sector_items.csv``, causing
+  ``raw_eia176__operation_types_and_sector_items`` to always be empty. See
+  :issue:`4697` and :pr:`5197`.
 * Set unknown ``mass_measurement_code`` values to ``NULL`` in
   :ref:`core_epacems__hourly_emissions` so the data conforms to the expected ENUM
   constraint. See :pr:`5041`.
@@ -309,6 +322,9 @@ Bug Fixes & Data Cleaning
   * :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`
   * :ref:`core_eia860__scd_emissions_control_equipment`
   * :ref:`out_eia860__yearly_emissions_control_equipment`
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
