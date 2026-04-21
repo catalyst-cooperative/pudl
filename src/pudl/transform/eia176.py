@@ -1301,7 +1301,8 @@ def core_eia176__yearly_company_characteristics(
     df = df.rename(
         columns={"alternative_fuel_fleet_1_yes_0_no": "has_alternative_fuel_fleet"}
     )
-    df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].eq(1.0)
+    # Only reported 2005-2015; preserve null for years where the question wasn't asked
+    df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].map({1.0: True})
 
     df = df.dropna(subset=["operating_state"])
 
