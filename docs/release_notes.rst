@@ -47,6 +47,9 @@ Bug Fixes & Data Cleaning
 * Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
   was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5197`.
 
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -316,9 +319,6 @@ Bug Fixes & Data Cleaning
   * :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`
   * :ref:`core_eia860__scd_emissions_control_equipment`
   * :ref:`out_eia860__yearly_emissions_control_equipment`
-
-Performance Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
