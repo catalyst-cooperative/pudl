@@ -3,6 +3,46 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_eia176__yearly_company_characteristics": {
+        "description": {
+            "additional_summary_text": (
+                "a company's operational and ownership characteristics."
+            ),
+            "additional_source_text": "(Part 3, Lines B–F)",
+        },
+        "schema": {
+            "fields": [
+                "report_year",
+                "operator_id_eia",
+                "operating_state",
+                "is_distribution_company_cooperative",
+                "is_distribution_company_investor_owned",
+                "is_distribution_company_municipally_owned",
+                "is_distribution_company_privately_owned",
+                "is_gatherer",
+                "is_interstate_pipeline",
+                "is_intrastate_pipeline",
+                "is_liquid_natural_gas_marine_terminal",
+                "is_liquid_natural_gas_peak_facility_operator",
+                "is_producer",
+                "is_storage_operator",
+                "is_synthetic_natural_gas_plant_operator",
+                "is_other_ownership",
+                "is_other_ownership_2",
+                "other_ownership_description",
+                "has_alternative_fuel_fleet",
+                "is_public_compressed_natural_gas_fueling_station",
+                "is_public_liquid_natural_gas_fueling_station",
+            ],
+            "primary_key": [
+                "report_year",
+                "operator_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia176"],
+        "etl_group": "eia176",
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "description": {
             "additional_summary_text": (

@@ -88,6 +88,6 @@ raw_eia176_assets = [
         "natural_gas_deliveries": None,
         "natural_gas_other_disposition_items": None,
         "natural_gas_supply_items": None,
-        "operation_types_and_sector_items": None,
+        "type_of_operations_and_sector_items": "operation_types_and_sector_items",
     }.items()
 ]

@@ -1,0 +1,41 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia176__yearly_company_characteristics
+
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia176__yearly_company_characteristics
+                partition_expr: "report_year"
+
+        columns:
+          - name: report_year
+            data_tests:
+              - not_null
+          - name: operator_id_eia
+            data_tests:
+              - not_null
+          - name: operating_state
+            data_tests:
+              - not_null
+          - name: is_distribution_company_cooperative
+          - name: is_distribution_company_investor_owned
+          - name: is_distribution_company_municipally_owned
+          - name: is_distribution_company_privately_owned
+          - name: is_gatherer
+          - name: is_interstate_pipeline
+          - name: is_intrastate_pipeline
+          - name: is_liquid_natural_gas_marine_terminal
+          - name: is_liquid_natural_gas_peak_facility_operator
+          - name: is_producer
+          - name: is_storage_operator
+          - name: is_synthetic_natural_gas_plant_operator
+          - name: is_other_ownership
+          - name: is_other_ownership_2
+          - name: other_ownership_description
+          - name: has_alternative_fuel_fleet
+          - name: is_public_compressed_natural_gas_fueling_station
+          - name: is_public_liquid_natural_gas_fueling_station
