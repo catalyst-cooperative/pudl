@@ -1,7 +1,7 @@
 """add_core_eia176__yearly_company_characteristics
 
 Revision ID: 48fade8aeee8
-Revises: 4c3808642f32
+Revises: 4f252e9e2ce3
 Create Date: 2026-04-21 08:27:53.098357
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '48fade8aeee8'
-down_revision = '4c3808642f32'
+down_revision = '4f252e9e2ce3'
 branch_labels = None
 depends_on = None
 
