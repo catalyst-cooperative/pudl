@@ -16,7 +16,7 @@ from pudl.etl.check_foreign_keys import (
     ForeignKeyErrors,
     check_foreign_keys,
 )
-from pudl.ferc_sqlite_provenance import build_ferc_sqlite_provenance_metadata
+from pudl.ferc_sqlite_provenance import FercSQLiteProvenanceRecord
 from pudl.io_managers import (
     FercDbfSQLiteConfigurableIOManager,
     FercDbfSQLiteIOManager,
@@ -355,15 +355,18 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
     )
     instance: DagsterInstance = mocker.MagicMock()
     instance.is_ephemeral = False
+
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
-            metadata=build_ferc_sqlite_provenance_metadata(
+            metadata=FercSQLiteProvenanceRecord(
                 dataset="ferc1",
                 data_format="dbf",
-                etl_settings=etl_settings,
-                zenodo_dois=zenodo_dois,
-                sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
                 status="complete",
+                years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
+                    "ferc1", "dbf"
+                ),
+                zenodo_doi=zenodo_dois.get_doi("ferc1"),
+                sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
             ).to_dagster_metadata()
         )
     )
@@ -404,13 +407,15 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
     instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
-            metadata=build_ferc_sqlite_provenance_metadata(
+            metadata=FercSQLiteProvenanceRecord(
                 dataset="ferc1",
-                data_format="xbrl",
-                etl_settings=etl_settings,
-                zenodo_dois=zenodo_dois,
-                sqlite_path=Path("test-data/ferc1_xbrl.sqlite"),
+                data_format="dbf",
                 status="complete",
+                years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
+                    "ferc1", "xbrl"
+                ),
+                zenodo_doi=zenodo_dois.get_doi("ferc1"),
+                sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
             ).to_dagster_metadata()
         )
     )
@@ -429,7 +434,7 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
     )
 
 
-def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):
+def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
     """The migrated FERC DBF IO manager should fail fast on stale prerequisites."""
     dataset_settings = DatasetsSettings(ferc1=Ferc1Settings(years=[2020, 2021]))
     etl_settings = EtlSettings(
@@ -437,7 +442,6 @@ def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):
         ferc_to_sqlite_settings=FercToSqliteSettings(),
     )
     zenodo_dois = ZenodoDoiSettings()
-    stale_zenodo_dois = ZenodoDoiSettings(ferc1="10.5281/zenodo.9999999")
 
     fake_engine = mocker.MagicMock()
     fake_engine.begin.return_value.__enter__.return_value = mocker.MagicMock()
@@ -451,13 +455,13 @@ def test_ferc_dbf_io_manager_rejects_incompatible_provenance(mocker):
             update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
         )
     )
-    stale_metadata = build_ferc_sqlite_provenance_metadata(
+    stale_metadata = FercSQLiteProvenanceRecord(
         dataset="ferc1",
         data_format="dbf",
-        etl_settings=etl_settings,
-        zenodo_dois=stale_zenodo_dois,
-        sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
         status="complete",
+        years=etl_settings.ferc_to_sqlite_settings.get_dataset_years("ferc1", "dbf"),
+        zenodo_doi="stale DOI",
+        sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
     ).to_dagster_metadata()
     instance: DagsterInstance = mocker.MagicMock()
     instance.is_ephemeral = False

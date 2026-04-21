@@ -4,7 +4,7 @@ import importlib.resources
 import json
 from enum import Enum, StrEnum, auto, unique
 from pathlib import Path
-from typing import Any, ClassVar, Self
+from typing import Any, ClassVar, Literal, Self
 
 import fsspec
 import pandas as pd
@@ -814,6 +814,7 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
 class FercToSqliteSettings(BaseSettings):
     """An immutable pydantic model to validate FERC XBRL to SQLite settings."""
 
+    # TODO this seems like an insane way to set defaults.
     ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings | None = None
     ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings | None = None
     ferc2_dbf_to_sqlite_settings: Ferc2DbfToSqliteSettings | None = None
@@ -841,28 +842,22 @@ class FercToSqliteSettings(BaseSettings):
 
         return data
 
-    def get_xbrl_dataset_settings(
-        self, form_number: XbrlFormNumber
-    ) -> FercGenericXbrlToSqliteSettings | None:
-        """Return a list with all requested FERC XBRL to SQLite datasets.
+    def get_dataset_settings(
+        self, dataset: str, data_format: Literal["dbf", "xbrl"]
+    ) -> FercGenericXbrlToSqliteSettings:
+        """Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
-        Args:
-            form_number: Get settings by FERC form number.
+        Throws a KeyError if dataset/format is not configured.
         """
-        # Get requested settings object
-        match form_number:
-            case XbrlFormNumber.FORM1:
-                settings = self.ferc1_xbrl_to_sqlite_settings
-            case XbrlFormNumber.FORM2:
-                settings = self.ferc2_xbrl_to_sqlite_settings
-            case XbrlFormNumber.FORM6:
-                settings = self.ferc6_xbrl_to_sqlite_settings
-            case XbrlFormNumber.FORM60:
-                settings = self.ferc60_xbrl_to_sqlite_settings
-            case XbrlFormNumber.FORM714:
-                settings = self.ferc714_xbrl_to_sqlite_settings
+        key = f"{dataset}_{data_format}_to_sqlite_settings"
+        return dict(self)[key]
 
-        return settings
+    def get_dataset_years(
+        self, dataset: str, data_format: Literal["dbf", "xbrl"]
+    ) -> list[int]:
+        """Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``)."""
+        settings = self.get_dataset_settings(dataset=dataset, data_format=data_format)
+        return sorted(settings.years)
 
 
 class EtlSettings(BaseSettings):
@@ -937,12 +932,6 @@ class EtlSettings(BaseSettings):
         if self.datasets is None:
             raise ValueError("Missing datasets settings in ETL settings.")
         return self.datasets
-
-    def get_xbrl_dataset_settings(
-        self, form_number: XbrlFormNumber
-    ) -> FercGenericXbrlToSqliteSettings | None:
-        """Proxy FERC XBRL settings lookup through the canonical ETL settings."""
-        return self.ferc_to_sqlite.get_xbrl_dataset_settings(form_number)
 
 
 def load_etl_settings(path: str | Path) -> EtlSettings:

@@ -104,7 +104,11 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
     def inner_op(context) -> None:
         output_path = PudlPaths().output_dir
         rs: RuntimeSettings = context.resources.runtime_settings
-        settings = context.resources.etl_settings.get_xbrl_dataset_settings(form)
+        settings = (
+            context.resources.etl_settings.ferc_to_sqlite_settings.get_dataset_settings(
+                dataset=f"ferc{form.value}", data_format="xbrl"
+            )
+        )
         datastore = FercXbrlDatastore(context.resources.datastore)
 
         logger.info(f"====== xbrl2sqlite runtime_settings: {rs}")

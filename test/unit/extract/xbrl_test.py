@@ -107,7 +107,7 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
         ),
     ],
 )
-def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
+def test_xbrl2sqlite(settings, forms, mocker):
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.etl.ferc_to_sqlite_assets.convert_form", new=convert_form_mock)
 
@@ -144,7 +144,9 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
 
     for form in forms:
         convert_form_mock.assert_any_call(
-            settings.get_xbrl_dataset_settings(form),
+            settings.get_dataset_settings(
+                dataset=f"ferc{form.value}", data_format="xbrl"
+            ),
             form,
             mock_datastore,
             output_path=PudlPaths().output_dir,

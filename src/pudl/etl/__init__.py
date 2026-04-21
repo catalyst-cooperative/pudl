@@ -346,7 +346,7 @@ def build_defs(
                     FercDbfSQLiteConfigurableIOManager(
                         etl_settings=etl_settings_override,
                         zenodo_dois=zenodo_dois_override,
-                        db_name=ferc1_dbf_sqlite_io_manager.db_name,
+                        dataset=ferc1_dbf_sqlite_io_manager.dataset,
                     )
                 )
 
@@ -355,7 +355,7 @@ def build_defs(
                     FercXbrlSQLiteConfigurableIOManager(
                         etl_settings=etl_settings_override,
                         zenodo_dois=zenodo_dois_override,
-                        db_name=ferc1_xbrl_sqlite_io_manager.db_name,
+                        dataset=ferc1_xbrl_sqlite_io_manager.dataset,
                     )
                 )
 
@@ -364,7 +364,7 @@ def build_defs(
                     FercXbrlSQLiteConfigurableIOManager(
                         etl_settings=etl_settings_override,
                         zenodo_dois=zenodo_dois_override,
-                        db_name=ferc714_xbrl_sqlite_io_manager.db_name,
+                        dataset=ferc714_xbrl_sqlite_io_manager.dataset,
                     )
                 )
 

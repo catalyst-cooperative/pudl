@@ -237,6 +237,13 @@ class ZenodoDoiSettings(BaseSettings):
         yaml_data.update(data)
         super().__init__(**yaml_data)
 
+    def get_doi(self, dataset: str) -> ZenodoDoi:
+        """Look up configured DOI by dataset.
+
+        Throws a KeyError if dataset not configured.
+        """
+        return dict(self)[dataset]
+
     @classmethod
     def from_yaml(cls, path: str | Path) -> "ZenodoDoiSettings":
         """Create a ZenodoDoiSettings instance from a YAML file path.

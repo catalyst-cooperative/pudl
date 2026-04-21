@@ -6,7 +6,6 @@ and does the FERC SQLite DB contain all the years needed by the downstream run?
 """
 
 import os
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, ClassVar, Literal
@@ -15,27 +14,8 @@ import dagster as dg
 from pydantic import BaseModel
 
 import pudl
-from pudl.settings import EtlSettings
-from pudl.workspace.datastore import ZenodoDoiSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-def _parse_db_name(db_name: str) -> tuple[str, str]:
-    """Parse a FERC SQLite db_name like 'ferc1_dbf' into (dataset, data_format)."""
-    match: re.Match[str] | None = re.search(r"ferc\d+", db_name)
-    if match is None:
-        raise ValueError(f"Could not determine FERC dataset from db_name={db_name!r}.")
-
-    dataset: str = match.group()
-    if db_name.endswith("_dbf"):
-        return dataset, "dbf"
-    if db_name.endswith("_xbrl"):
-        return dataset, "xbrl"
-
-    raise ValueError(
-        f"Could not determine FERC sqlite format from db_name={db_name!r}."
-    )
 
 
 @dataclass(frozen=True)
@@ -48,33 +28,15 @@ class FercSQLiteProvenance:
     :class:`FercSQLiteProvenanceRecord` that was written when the DB was built.
     """
 
-    asset_key: dg.AssetKey
     dataset: str
     data_format: str
     zenodo_doi: str
     years: list[int]
 
-    @classmethod
-    def from_dataset_and_format(
-        cls,
-        *,
-        dataset: str,
-        data_format: str,
-        etl_settings: EtlSettings,
-        zenodo_dois: ZenodoDoiSettings,
-    ) -> "FercSQLiteProvenance":
-        """Build a provenance fingerprint from explicit dataset and format names."""
-        settings_attr = f"{dataset}_{data_format}_to_sqlite_settings"
-        settings = etl_settings.ferc_to_sqlite.model_dump(mode="json")[settings_attr]
-        if settings is None:
-            raise ValueError(f"Missing {settings_attr} in ETL settings.")
-        return cls(
-            asset_key=dg.AssetKey(f"raw_{dataset}_{data_format}__sqlite"),
-            dataset=dataset,
-            data_format=data_format,
-            zenodo_doi=str(zenodo_dois.model_dump()[dataset]),
-            years=sorted(settings["years"]),
-        )
+    @property
+    def asset_key(self) -> dg.AssetKey:
+        """The AssetKey corresponding to the extracted SQLite database."""
+        return dg.AssetKey(f"raw_{self.dataset}_{self.data_format}__sqlite")
 
 
 class FercSQLiteProvenanceRecord(BaseModel):
@@ -95,6 +57,7 @@ class FercSQLiteProvenanceRecord(BaseModel):
 
     # Dagster materialization metadata keys -- stable across runs.
     _dataset: ClassVar[str] = "pudl_ferc_sqlite_dataset"
+    _data_format: ClassVar[str] = "pudl_ferc_sqlite_data_format"
     _status: ClassVar[str] = "pudl_ferc_sqlite_status"
     _zenodo_doi: ClassVar[str] = "pudl_ferc_sqlite_zenodo_doi"
     _settings: ClassVar[str] = "pudl_ferc_sqlite_etl_settings"
@@ -102,6 +65,7 @@ class FercSQLiteProvenanceRecord(BaseModel):
     _path: ClassVar[str] = "pudl_ferc_sqlite_path"
 
     dataset: str
+    data_format: Literal["dbf", "xbrl"]
     status: Literal["complete", "skipped", "not_configured"]
     zenodo_doi: str | None = None
     years: list[int] | None = None
@@ -112,6 +76,7 @@ class FercSQLiteProvenanceRecord(BaseModel):
         """Serialize to a Dagster metadata dict suitable for MaterializeResult."""
         metadata: dict[str, dg.MetadataValue] = {
             self._dataset: dg.MetadataValue.text(self.dataset),
+            self._data_format: dg.MetadataValue.text(self.data_format),
             self._status: dg.MetadataValue.text(self.status),
         }
         if self.zenodo_doi is not None:
@@ -135,6 +100,7 @@ class FercSQLiteProvenanceRecord(BaseModel):
 
         return cls(
             dataset=_unwrap(metadata.get(cls._dataset, "")),
+            data_format=_unwrap(metadata.get(cls._data_format, "")),
             status=_unwrap(metadata.get(cls._status, "skipped")),
             zenodo_doi=_unwrap(metadata[cls._zenodo_doi])
             if cls._zenodo_doi in metadata
@@ -149,50 +115,10 @@ class FercSQLiteProvenanceRecord(BaseModel):
         )
 
 
-def build_ferc_sqlite_provenance_metadata(
-    *,
-    dataset: str,
-    data_format: str,
-    etl_settings: EtlSettings,
-    zenodo_dois: ZenodoDoiSettings,
-    sqlite_path: Path | None,
-    status: Literal["complete", "skipped", "not_configured"],
-) -> FercSQLiteProvenanceRecord:
-    """Build a provenance record for a FERC SQLite prerequisite asset.
-
-    Args:
-        dataset: FERC dataset name, e.g. ``"ferc1"`` or ``"ferc714"``.
-        data_format: Source format, either ``"dbf"`` or ``"xbrl"``.
-        etl_settings: Full ETL settings for the current run.
-        zenodo_dois: Current Zenodo DOI settings.
-        sqlite_path: Path to the written SQLite file, if available.
-        status: ``"complete"`` if extraction ran; ``"skipped"`` if bypassed.
-
-    Returns:
-        A :class:`FercSQLiteProvenanceRecord` ready to be serialized via
-        :meth:`~FercSQLiteProvenanceRecord.to_dagster_metadata`.
-    """
-    settings_attr = f"{dataset}_{data_format}_to_sqlite_settings"
-    settings = etl_settings.ferc_to_sqlite.model_dump(mode="json")[settings_attr]
-    if settings is None:
-        raise ValueError(f"Missing {settings_attr} in ETL settings.")
-
-    return FercSQLiteProvenanceRecord(
-        dataset=dataset,
-        status=status,
-        zenodo_doi=str(zenodo_dois.model_dump()[dataset]),
-        years=sorted(settings["years"]),
-        settings_json=settings,
-        sqlite_path=sqlite_path,
-    )
-
-
 def assert_ferc_sqlite_compatible(
     *,
     instance: Any | None,
-    db_name: str,
-    etl_settings: EtlSettings,
-    zenodo_dois: ZenodoDoiSettings,
+    provenance: FercSQLiteProvenance,
 ) -> None:
     """Ensure a persisted FERC SQLite prerequisite is compatible with this run.
 
@@ -215,30 +141,26 @@ def assert_ferc_sqlite_compatible(
     """
     skip_env = os.environ.get("PUDL_SKIP_FERC_SQLITE_PROVENANCE", "").strip().lower()
     if skip_env in {"1", "true", "yes"}:
+        # TODO should we just fstring these logger calls
         logger.warning(
             "PUDL_SKIP_FERC_SQLITE_PROVENANCE is set: skipping FERC SQLite provenance "
-            "check for %s. Stale or incompatible prerequisites may cause downstream "
+            "check for %s_%s. Stale or incompatible prerequisites may cause downstream "
             "failures.",
-            db_name,
+            provenance.dataset,
+            provenance.data_format,
         )
         return
 
     if instance is None:
         logger.warning(
             "No Dagster instance is available; skipping FERC SQLite provenance check "
-            "for %s. This is expected when running assets outside a Dagster execution "
+            "for %s_%s. This is expected when running assets outside a Dagster execution "
             "context (e.g. in unit tests).",
-            db_name,
+            provenance.dataset,
+            provenance.data_format,
         )
         return
 
-    dataset, data_format = _parse_db_name(db_name)
-    provenance: FercSQLiteProvenance = FercSQLiteProvenance.from_dataset_and_format(
-        dataset=dataset,
-        data_format=data_format,
-        etl_settings=etl_settings,
-        zenodo_dois=zenodo_dois,
-    )
     event = instance.get_latest_materialization_event(provenance.asset_key)
     materialization = None if event is None else event.asset_materialization
     if materialization is None:
