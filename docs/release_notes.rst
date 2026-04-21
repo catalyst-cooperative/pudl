@@ -910,9 +910,6 @@ Bug Fixes & Data Cleaning
   * :ref:`core_eia860__scd_emissions_control_equipment`
   * :ref:`out_eia860__yearly_emissions_control_equipment`
 
-Performance Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^
-
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
