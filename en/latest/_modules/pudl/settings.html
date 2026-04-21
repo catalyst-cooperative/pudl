@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.settings &#8212; PUDL 2026.4.1.dev15 documentation</title>
+    <title>pudl.settings &#8212; PUDL 2026.4.1.dev16 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../_static/documentation_options.js?v=a1f4d1ea"></script>
+    <script src="../../_static/documentation_options.js?v=81454b01"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -873,11 +873,11 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.datastore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Datastore</span><span class="p">,</span> <span class="n">ZenodoDoi</span>
 
 <div class="viewcode-block" id="logger">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.logger">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.logger">[docs]</a>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ferceqr_year_quarters">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.ferceqr_year_quarters">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.ferceqr_year_quarters">[docs]</a>
 <span class="n">ferceqr_year_quarters</span><span class="p">:</span> <span class="n">StaticPartitionsDefinition</span> <span class="o">=</span> <span class="n">StaticPartitionsDefinition</span><span class="p">(</span>
     <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;year_quarters&quot;</span><span class="p">]</span>
 <span class="p">)</span></div>
@@ -886,47 +886,47 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@unique</span>
 <div class="viewcode-block" id="XbrlFormNumber">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.XbrlFormNumber">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.etl.XbrlFormNumber">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">XbrlFormNumber</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Contains full list of supported FERC XBRL forms.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="XbrlFormNumber.FORM1">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.XbrlFormNumber.FORM1">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.XbrlFormNumber.FORM1">[docs]</a>
     <span class="n">FORM1</span> <span class="o">=</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="XbrlFormNumber.FORM2">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.XbrlFormNumber.FORM2">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.XbrlFormNumber.FORM2">[docs]</a>
     <span class="n">FORM2</span> <span class="o">=</span> <span class="mi">2</span></div>
 
 <div class="viewcode-block" id="XbrlFormNumber.FORM6">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.XbrlFormNumber.FORM6">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.XbrlFormNumber.FORM6">[docs]</a>
     <span class="n">FORM6</span> <span class="o">=</span> <span class="mi">6</span></div>
 
 <div class="viewcode-block" id="XbrlFormNumber.FORM60">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.XbrlFormNumber.FORM60">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.XbrlFormNumber.FORM60">[docs]</a>
     <span class="n">FORM60</span> <span class="o">=</span> <span class="mi">60</span></div>
 
 <div class="viewcode-block" id="XbrlFormNumber.FORM714">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.XbrlFormNumber.FORM714">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.XbrlFormNumber.FORM714">[docs]</a>
     <span class="n">FORM714</span> <span class="o">=</span> <span class="mi">714</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="FrozenBaseModel">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FrozenBaseModel">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FrozenBaseModel">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FrozenBaseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;BaseModel with global configuration.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="FrozenBaseModel.model_config">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FrozenBaseModel.model_config">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FrozenBaseModel.model_config">[docs]</a>
     <span class="n">model_config</span><span class="p">:</span> <span class="n">ConfigDict</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="GenericDatasetSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GenericDatasetSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GenericDatasetSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GenericDatasetSettings</span><span class="p">(</span><span class="n">FrozenBaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract pydantic model for generic datasets.</span>
 
@@ -935,20 +935,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GenericDatasetSettings.disabled">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GenericDatasetSettings.disabled">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GenericDatasetSettings.disabled">[docs]</a>
     <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;If true, skip processing this dataset.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GenericDatasetSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GenericDatasetSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GenericDatasetSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The DataSource metadata object for this dataset.&quot;&quot;&quot;</span>
 
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="GenericDatasetSettings.validate_partitions">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GenericDatasetSettings.validate_partitions">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GenericDatasetSettings.validate_partitions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_partitions</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that partitions and their values are valid.</span>
 
@@ -986,7 +986,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="GenericDatasetSettings.partitions">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GenericDatasetSettings.partitions">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GenericDatasetSettings.partitions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">partitions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>  <span class="c1"># noqa: N805</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of dictionaries representing individual partitions.</span>
 
@@ -1007,24 +1007,24 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc1Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc1Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate Ferc1Settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc1Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc1&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Ferc1Settings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1Settings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1Settings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Ferc1Settings.dbf_years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1Settings.dbf_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1Settings.dbf_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dbf_years</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return validated years for which DBF data is available.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">years</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">2020</span><span class="p">]</span></div>
@@ -1032,7 +1032,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Ferc1Settings.xbrl_years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1Settings.xbrl_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1Settings.xbrl_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">xbrl_years</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return validated years for which XBRL data is available.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">years</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="mi">2021</span><span class="p">]</span></div>
@@ -1041,17 +1041,17 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc714Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc714Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc714Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc714Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate Ferc714Settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc714Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc714Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc714Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc714&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Ferc714Settings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc714Settings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc714Settings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
@@ -1061,7 +1061,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Ferc714Settings.csv_years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc714Settings.csv_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc714Settings.csv_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">csv_years</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return validated years for which CSV data is available.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">years</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="mi">2021</span><span class="p">]</span></div>
@@ -1069,7 +1069,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Ferc714Settings.xbrl_years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc714Settings.xbrl_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc714Settings.xbrl_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">xbrl_years</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return validated years for which XBRL data is available.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">years</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="mi">2021</span><span class="p">]</span></div>
@@ -1078,17 +1078,17 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="EpaCemsSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EpaCemsSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EpaCemsSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EpaCemsSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EPA CEMS settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="EpaCemsSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EpaCemsSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EpaCemsSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;epacems&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EpaCemsSettings.year_quarters">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EpaCemsSettings.year_quarters">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EpaCemsSettings.year_quarters">[docs]</a>
     <span class="n">year_quarters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;year_quarters&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years-quarters to validate.&quot;&quot;&quot;</span>
@@ -1096,7 +1096,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;year_quarters&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="EpaCemsSettings.allow_all_keyword_year_quarters">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EpaCemsSettings.allow_all_keyword_year_quarters">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EpaCemsSettings.allow_all_keyword_year_quarters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allow_all_keyword_year_quarters</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">year_quarters</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Allow users to specify [&#39;all&#39;] to get all quarters.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">year_quarters</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]:</span>
@@ -1107,24 +1107,24 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="PhmsaGasSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.PhmsaGasSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.PhmsaGasSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PhmsaGasSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate PHMSA settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PhmsaGasSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.PhmsaGasSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.PhmsaGasSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PhmsaGasSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.PhmsaGasSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.PhmsaGasSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="PhmsaGasSettings.extraction_years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.PhmsaGasSettings.extraction_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.PhmsaGasSettings.extraction_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">extraction_years</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The list of years to extract.</span>
 
@@ -1146,37 +1146,37 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Sec10kSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Sec10kSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Sec10kSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Sec10kSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable Pydantic model to validate SEC 10-K settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Sec10kSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Sec10kSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Sec10kSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;sec10k&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Sec10kSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Sec10kSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Sec10kSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of valid years for which SEC 10-K data is available.&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Sec10kSettings.tables">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Sec10kSettings.tables">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Sec10kSettings.tables">[docs]</a>
     <span class="n">tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;tables&quot;</span><span class="p">]</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="NrelAtbSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.NrelAtbSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.NrelAtbSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NrelAtbSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate NREL ATB settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="NrelAtbSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.NrelAtbSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.NrelAtbSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;nrelatb&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="NrelAtbSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.NrelAtbSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.NrelAtbSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1184,16 +1184,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Eia923Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia923Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia923Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Eia923Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA 923 settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia923Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia923Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia923Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eia923&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Eia923Settings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia923Settings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia923Settings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1201,16 +1201,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Eia930Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia930Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia930Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Eia930Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA 930 settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia930Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia930Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia930Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eia930&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Eia930Settings.half_years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia930Settings.half_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia930Settings.half_years">[docs]</a>
     <span class="n">half_years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;half_years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of half years to validate.&quot;&quot;&quot;</span>
@@ -1218,7 +1218,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;half_years&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Eia930Settings.allow_all_keyword_half_years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia930Settings.allow_all_keyword_half_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia930Settings.allow_all_keyword_half_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allow_all_keyword_half_years</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">half_years</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Allow users to specify [&#39;all&#39;] to get all half-years.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">half_years</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]:</span>
@@ -1229,16 +1229,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Eia861Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia861Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia861Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Eia861Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA 861 settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia861Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia861Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia861Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eia861&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Eia861Settings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia861Settings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia861Settings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1246,7 +1246,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Eia860Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Eia860Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA 860 settings.</span>
 
@@ -1254,23 +1254,23 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia860Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eia860&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Eia860Settings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia860Settings.eia860m">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings.eia860m">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings.eia860m">[docs]</a>
     <span class="n">eia860m</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether or not to incorporate an EIA-860m month.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia860Settings.all_eia860m_year_months">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings.all_eia860m_year_months">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings.all_eia860m_year_months">[docs]</a>
     <span class="n">all_eia860m_year_months</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span>
         <span class="s2">&quot;eia860m&quot;</span>
     <span class="p">)</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;year_months&quot;</span><span class="p">]</span></div>
@@ -1278,7 +1278,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of all EIA-860m year-months.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia860Settings.eia860m_year_months">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings.eia860m_year_months">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings.eia860m_year_months">[docs]</a>
     <span class="n">eia860m_year_months</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">validate_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The 860m year-months to incorporate.&quot;&quot;&quot;</span>
@@ -1286,7 +1286,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;eia860m_year_months&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Eia860Settings.add_other_860m_years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings.add_other_860m_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings.add_other_860m_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_other_860m_years</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">ValidationInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Find extra years from EIA860m if applicable.</span>
 
@@ -1330,7 +1330,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;eia860m_year_months&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Eia860Settings.no_repeat_years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings.no_repeat_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings.no_repeat_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">no_repeat_years</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">ValidationInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure there are no duplicate 860m year values.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;eia860m&quot;</span><span class="p">]:</span>
@@ -1343,7 +1343,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;eia860m_year_months&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Eia860Settings.validate_eia860m_params">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings.validate_eia860m_params">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings.validate_eia860m_params">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_eia860m_params</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">ValidationInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that the year_month values for eia860m_year_months are valid.&quot;&quot;&quot;</span>
         <span class="n">eia860m_settings</span> <span class="o">=</span> <span class="n">Eia860mSettings</span><span class="p">(</span><span class="n">year_months</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
@@ -1353,7 +1353,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;eia860m_year_months&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Eia860Settings.only_years_not_in_eia860">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860Settings.only_years_not_in_eia860">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860Settings.only_years_not_in_eia860">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">only_years_not_in_eia860</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">ValidationInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure no EIA860m values are from years already in EIA860.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;eia860m&quot;</span><span class="p">]:</span>
@@ -1366,16 +1366,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Eia860mSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860mSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860mSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Eia860mSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA 860m settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia860mSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860mSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860mSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eia860m&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Eia860mSettings.year_months">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860mSettings.year_months">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860mSettings.year_months">[docs]</a>
     <span class="n">year_months</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;year_months&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The 860m year to date.&quot;&quot;&quot;</span>
@@ -1383,7 +1383,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;year_months&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Eia860mSettings.allow_all_keyword_year_months">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia860mSettings.allow_all_keyword_year_months">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia860mSettings.allow_all_keyword_year_months">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allow_all_keyword_year_months</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">year_months</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Allow users to specify [&#39;all&#39;] to get all quarters.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">year_months</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]:</span>
@@ -1394,16 +1394,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Eia757aSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia757aSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia757aSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Eia757aSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA 757a settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia757aSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia757aSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia757aSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eia757a&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Eia757aSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia757aSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia757aSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1411,16 +1411,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Eia191Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia191Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia191Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Eia191Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA 191 settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia191Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia191Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia191Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eia191&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Eia191Settings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia191Settings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia191Settings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1428,16 +1428,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Eia176Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia176Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia176Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Eia176Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA 176 settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Eia176Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia176Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia176Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eia176&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Eia176Settings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Eia176Settings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Eia176Settings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1445,16 +1445,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="EiaAeoSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaAeoSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaAeoSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EiaAeoSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA 176 settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="EiaAeoSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaAeoSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaAeoSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eiaaeo&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="EiaAeoSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaAeoSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaAeoSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1462,22 +1462,22 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="VCERareSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.VCERareSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.VCERareSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VCERareSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate VCE RARE Power Dataset settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="VCERareSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.VCERareSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.VCERareSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;vcerare&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VCERareSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.VCERareSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.VCERareSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="VCERareSettings.fips">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.VCERareSettings.fips">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.VCERareSettings.fips">[docs]</a>
     <span class="n">fips</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Include FIPS codes in VCE RARE Power Dataset.&quot;&quot;&quot;</span></div>
@@ -1485,16 +1485,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="CensusPepSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.CensusPepSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.CensusPepSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CensusPepSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate Census PEP settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="CensusPepSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.CensusPepSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.CensusPepSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;censuspep&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CensusPepSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.CensusPepSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.CensusPepSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1502,18 +1502,18 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="GlueSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GlueSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GlueSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GlueSettings</span><span class="p">(</span><span class="n">FrozenBaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate Glue settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GlueSettings.eia">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GlueSettings.eia">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GlueSettings.eia">[docs]</a>
     <span class="n">eia</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Include eia in glue settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GlueSettings.ferc1">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GlueSettings.ferc1">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GlueSettings.ferc1">[docs]</a>
     <span class="n">ferc1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Include ferc1 in glue settings.&quot;&quot;&quot;</span></div>
@@ -1522,16 +1522,16 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@unique</span>
 <div class="viewcode-block" id="GPRATKTechType">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GPRATKTechType">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GPRATKTechType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GPRATKTechType</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enum to constrain GridPath RA Toolkit technology types.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GPRATKTechType.WIND">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GPRATKTechType.WIND">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GPRATKTechType.WIND">[docs]</a>
     <span class="n">WIND</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="GPRATKTechType.SOLAR">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GPRATKTechType.SOLAR">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GPRATKTechType.SOLAR">[docs]</a>
     <span class="n">SOLAR</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 </div>
 
@@ -1541,12 +1541,12 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@unique</span>
 <div class="viewcode-block" id="GPRATKProcLevel">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GPRATKProcLevel">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GPRATKProcLevel">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GPRATKProcLevel</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enum to constraint GridPath RA Toolkit processing levels.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GPRATKProcLevel.EXTENDED">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GPRATKProcLevel.EXTENDED">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GPRATKProcLevel.EXTENDED">[docs]</a>
     <span class="n">EXTENDED</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 </div>
 
@@ -1556,7 +1556,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="GridPathRAToolkitSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GridPathRAToolkitSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GridPathRAToolkitSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GridPathRAToolkitSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate GridPath RA Toolkit settings.</span>
 
@@ -1565,26 +1565,26 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GridPathRAToolkitSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GridPathRAToolkitSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GridPathRAToolkitSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;gridpathratoolkit&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GridPathRAToolkitSettings.technology_types">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GridPathRAToolkitSettings.technology_types">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GridPathRAToolkitSettings.technology_types">[docs]</a>
     <span class="n">technology_types</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;wind&quot;</span><span class="p">,</span> <span class="s2">&quot;solar&quot;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="GridPathRAToolkitSettings.processing_levels">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GridPathRAToolkitSettings.processing_levels">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GridPathRAToolkitSettings.processing_levels">[docs]</a>
     <span class="n">processing_levels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;extended&quot;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="GridPathRAToolkitSettings.daily_weather">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GridPathRAToolkitSettings.daily_weather">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GridPathRAToolkitSettings.daily_weather">[docs]</a>
     <span class="n">daily_weather</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;technology_types&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_levels&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="GridPathRAToolkitSettings.deduplicate_list">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GridPathRAToolkitSettings.deduplicate_list">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GridPathRAToolkitSettings.deduplicate_list">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">deduplicate_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Deduplicate technology type and processing level values.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
@@ -1593,7 +1593,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;technology_types&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="GridPathRAToolkitSettings.allowed_technology_types">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GridPathRAToolkitSettings.allowed_technology_types">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GridPathRAToolkitSettings.allowed_technology_types">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allowed_technology_types</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that technology types are valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">tech_type</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
@@ -1605,7 +1605,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;processing_levels&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="GridPathRAToolkitSettings.allowed_processing_levels">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GridPathRAToolkitSettings.allowed_processing_levels">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GridPathRAToolkitSettings.allowed_processing_levels">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allowed_processing_levels</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that processing levels are valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">proc_level</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
@@ -1616,7 +1616,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="GridPathRAToolkitSettings.parts">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.GridPathRAToolkitSettings.parts">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.GridPathRAToolkitSettings.parts">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">parts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct parts from selected technologies, processing levels, and daily weather.&quot;&quot;&quot;</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1642,51 +1642,51 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="EiaSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EiaSettings</span><span class="p">(</span><span class="n">FrozenBaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate EIA datasets settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="EiaSettings.eia176">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.eia176">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.eia176">[docs]</a>
     <span class="n">eia176</span><span class="p">:</span> <span class="n">Eia176Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EiaSettings.eia191">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.eia191">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.eia191">[docs]</a>
     <span class="n">eia191</span><span class="p">:</span> <span class="n">Eia191Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EiaSettings.eia757a">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.eia757a">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.eia757a">[docs]</a>
     <span class="n">eia757a</span><span class="p">:</span> <span class="n">Eia757aSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EiaSettings.eia860">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.eia860">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.eia860">[docs]</a>
     <span class="n">eia860</span><span class="p">:</span> <span class="n">Eia860Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EiaSettings.eia860m">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.eia860m">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.eia860m">[docs]</a>
     <span class="n">eia860m</span><span class="p">:</span> <span class="n">Eia860mSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EiaSettings.eia861">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.eia861">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.eia861">[docs]</a>
     <span class="n">eia861</span><span class="p">:</span> <span class="n">Eia861Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EiaSettings.eia923">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.eia923">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.eia923">[docs]</a>
     <span class="n">eia923</span><span class="p">:</span> <span class="n">Eia923Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EiaSettings.eia930">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.eia930">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.eia930">[docs]</a>
     <span class="n">eia930</span><span class="p">:</span> <span class="n">Eia930Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EiaSettings.eiaaeo">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.eiaaeo">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.eiaaeo">[docs]</a>
     <span class="n">eiaaeo</span><span class="p">:</span> <span class="n">EiaAeoSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="EiaSettings.default_load_all">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.default_load_all">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.default_load_all">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">default_load_all</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;If no datasets are specified default to all.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -1706,7 +1706,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="EiaSettings.check_eia_dependencies">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EiaSettings.check_eia_dependencies">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EiaSettings.check_eia_dependencies">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_eia_dependencies</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure the dependencies between the eia datasets are satisfied.</span>
 
@@ -1733,16 +1733,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Rus7Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Rus7Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Rus7Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Rus7Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate RUS-7 datasets settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Rus7Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Rus7Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Rus7Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;rus7&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Rus7Settings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Rus7Settings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Rus7Settings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1750,16 +1750,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Rus12Settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Rus12Settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Rus12Settings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Rus12Settings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate RUS Form 12 settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Rus12Settings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Rus12Settings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Rus12Settings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;rus12&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Rus12Settings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Rus12Settings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Rus12Settings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span></div>
@@ -1767,67 +1767,67 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="DatasetsSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DatasetsSettings</span><span class="p">(</span><span class="n">FrozenBaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate PUDL Dataset settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DatasetsSettings.eia">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.eia">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.eia">[docs]</a>
     <span class="n">eia</span><span class="p">:</span> <span class="n">EiaSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.epacems">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.epacems">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.epacems">[docs]</a>
     <span class="n">epacems</span><span class="p">:</span> <span class="n">EpaCemsSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.ferc1">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.ferc1">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.ferc1">[docs]</a>
     <span class="n">ferc1</span><span class="p">:</span> <span class="n">Ferc1Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.ferc714">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.ferc714">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.ferc714">[docs]</a>
     <span class="n">ferc714</span><span class="p">:</span> <span class="n">Ferc714Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.glue">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.glue">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.glue">[docs]</a>
     <span class="n">glue</span><span class="p">:</span> <span class="n">GlueSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.gridpathratoolkit">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.gridpathratoolkit">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.gridpathratoolkit">[docs]</a>
     <span class="n">gridpathratoolkit</span><span class="p">:</span> <span class="n">GridPathRAToolkitSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.nrelatb">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.nrelatb">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.nrelatb">[docs]</a>
     <span class="n">nrelatb</span><span class="p">:</span> <span class="n">NrelAtbSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.phmsagas">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.phmsagas">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.phmsagas">[docs]</a>
     <span class="n">phmsagas</span><span class="p">:</span> <span class="n">PhmsaGasSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.sec10k">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.sec10k">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.sec10k">[docs]</a>
     <span class="n">sec10k</span><span class="p">:</span> <span class="n">Sec10kSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.vcerare">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.vcerare">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.vcerare">[docs]</a>
     <span class="n">vcerare</span><span class="p">:</span> <span class="n">VCERareSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.censuspep">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.censuspep">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.censuspep">[docs]</a>
     <span class="n">censuspep</span><span class="p">:</span> <span class="n">CensusPepSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.rus7">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.rus7">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.rus7">[docs]</a>
     <span class="n">rus7</span><span class="p">:</span> <span class="n">Rus7Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.rus12">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.rus12">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.rus12">[docs]</a>
     <span class="n">rus12</span><span class="p">:</span> <span class="n">Rus12Settings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DatasetsSettings.default_load_all">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.default_load_all">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.default_load_all">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">default_load_all</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;If no datasets are specified default to all.</span>
 
@@ -1858,7 +1858,7 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DatasetsSettings.add_glue_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.add_glue_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.add_glue_settings">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_glue_settings</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add glue settings if ferc1 and eia data are both requested.</span>
 
@@ -1876,14 +1876,14 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="DatasetsSettings.get_datasets">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.get_datasets">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.get_datasets">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets dictionary of dataset settings.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DatasetsSettings.make_datasources_table">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.DatasetsSettings.make_datasources_table">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.DatasetsSettings.make_datasources_table">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">make_datasources_table</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compile a table of dataset information.</span>
 
@@ -1944,16 +1944,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc1DbfToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1DbfToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1DbfToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc1DbfToSqliteSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable Pydantic model to validate FERC 1 to SQLite settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc1DbfToSqliteSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1DbfToSqliteSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1DbfToSqliteSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc1&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Ferc1DbfToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1DbfToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1DbfToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">2020</span>
     <span class="p">]</span></div>
@@ -1961,7 +1961,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc1DbfToSqliteSettings.refyear">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1DbfToSqliteSettings.refyear">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1DbfToSqliteSettings.refyear">[docs]</a>
     <span class="n">refyear</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">years</span><span class="p">)</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The reference year for the dataset.&quot;&quot;&quot;</span></div>
@@ -1969,33 +1969,33 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="FercGenericXbrlToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercGenericXbrlToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercGenericXbrlToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercGenericXbrlToSqliteSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate Ferc1 to SQLite settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="FercGenericXbrlToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercGenericXbrlToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercGenericXbrlToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="FercGenericXbrlToSqliteSettings.disabled">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercGenericXbrlToSqliteSettings.disabled">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercGenericXbrlToSqliteSettings.disabled">[docs]</a>
     <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="Ferc1XbrlToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1XbrlToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1XbrlToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc1XbrlToSqliteSettings</span><span class="p">(</span><span class="n">FercGenericXbrlToSqliteSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate Ferc1 to SQLite settings..&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc1XbrlToSqliteSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1XbrlToSqliteSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1XbrlToSqliteSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc1&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Ferc1XbrlToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc1XbrlToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc1XbrlToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="mi">2021</span>
     <span class="p">]</span></div>
@@ -2005,16 +2005,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc2XbrlToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc2XbrlToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc2XbrlToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc2XbrlToSqliteSettings</span><span class="p">(</span><span class="n">FercGenericXbrlToSqliteSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate FERC from 2 XBRL to SQLite settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc2XbrlToSqliteSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc2XbrlToSqliteSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc2XbrlToSqliteSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc2&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Ferc2XbrlToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc2XbrlToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc2XbrlToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="mi">2021</span>
     <span class="p">]</span></div>
@@ -2024,16 +2024,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc2DbfToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc2DbfToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc2DbfToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc2DbfToSqliteSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable Pydantic model to validate FERC 2 to SQLite settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc2DbfToSqliteSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc2DbfToSqliteSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc2DbfToSqliteSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc2&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Ferc2DbfToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc2DbfToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc2DbfToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">2020</span>
     <span class="p">]</span></div>
@@ -2041,7 +2041,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc2DbfToSqliteSettings.refyear">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc2DbfToSqliteSettings.refyear">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc2DbfToSqliteSettings.refyear">[docs]</a>
     <span class="n">refyear</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">years</span><span class="p">)</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The reference year for the dataset.&quot;&quot;&quot;</span></div>
@@ -2049,16 +2049,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc6DbfToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc6DbfToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc6DbfToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc6DbfToSqliteSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable Pydantic model to validate FERC 6 to SQLite settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc6DbfToSqliteSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc6DbfToSqliteSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc6DbfToSqliteSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc6&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Ferc6DbfToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc6DbfToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc6DbfToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">2020</span>
     <span class="p">]</span></div>
@@ -2066,12 +2066,12 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc6DbfToSqliteSettings.disabled">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc6DbfToSqliteSettings.disabled">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc6DbfToSqliteSettings.disabled">[docs]</a>
     <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="Ferc6DbfToSqliteSettings.refyear">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc6DbfToSqliteSettings.refyear">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc6DbfToSqliteSettings.refyear">[docs]</a>
     <span class="n">refyear</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">years</span><span class="p">)</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The reference year for the dataset.&quot;&quot;&quot;</span></div>
@@ -2079,16 +2079,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc6XbrlToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc6XbrlToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc6XbrlToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc6XbrlToSqliteSettings</span><span class="p">(</span><span class="n">FercGenericXbrlToSqliteSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate FERC from 6 XBRL to SQLite settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc6XbrlToSqliteSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc6XbrlToSqliteSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc6XbrlToSqliteSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc6&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Ferc6XbrlToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc6XbrlToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc6XbrlToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="mi">2021</span>
     <span class="p">]</span></div>
@@ -2098,7 +2098,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc60DbfToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc60DbfToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc60DbfToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc60DbfToSqliteSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable Pydantic model to validate FERC 60 to SQLite settings.</span>
 
@@ -2108,11 +2108,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc60DbfToSqliteSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc60DbfToSqliteSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc60DbfToSqliteSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc60&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Ferc60DbfToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc60DbfToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc60DbfToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">2020</span>
     <span class="p">]</span></div>
@@ -2120,12 +2120,12 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc60DbfToSqliteSettings.disabled">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc60DbfToSqliteSettings.disabled">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc60DbfToSqliteSettings.disabled">[docs]</a>
     <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="Ferc60DbfToSqliteSettings.refyear">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc60DbfToSqliteSettings.refyear">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc60DbfToSqliteSettings.refyear">[docs]</a>
     <span class="n">refyear</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">years</span><span class="p">)</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The reference year for the dataset.&quot;&quot;&quot;</span></div>
@@ -2133,16 +2133,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc60XbrlToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc60XbrlToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc60XbrlToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc60XbrlToSqliteSettings</span><span class="p">(</span><span class="n">FercGenericXbrlToSqliteSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate FERC from 60 XBRL to SQLite settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc60XbrlToSqliteSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc60XbrlToSqliteSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc60XbrlToSqliteSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc60&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Ferc60XbrlToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc60XbrlToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc60XbrlToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="mi">2021</span>
     <span class="p">]</span></div>
@@ -2152,16 +2152,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="Ferc714XbrlToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc714XbrlToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc714XbrlToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc714XbrlToSqliteSettings</span><span class="p">(</span><span class="n">FercGenericXbrlToSqliteSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate FERC from 714 XBRL to SQLite settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Ferc714XbrlToSqliteSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc714XbrlToSqliteSettings.data_source">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc714XbrlToSqliteSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferc714&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Ferc714XbrlToSqliteSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.Ferc714XbrlToSqliteSettings.years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.Ferc714XbrlToSqliteSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="mi">2021</span>
     <span class="p">]</span></div>
@@ -2171,51 +2171,51 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="FercToSqliteSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercToSqliteSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate FERC XBRL to SQLite settings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="FercToSqliteSettings.ferc1_dbf_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.ferc1_dbf_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.ferc1_dbf_to_sqlite_settings">[docs]</a>
     <span class="n">ferc1_dbf_to_sqlite_settings</span><span class="p">:</span> <span class="n">Ferc1DbfToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="FercToSqliteSettings.ferc1_xbrl_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.ferc1_xbrl_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.ferc1_xbrl_to_sqlite_settings">[docs]</a>
     <span class="n">ferc1_xbrl_to_sqlite_settings</span><span class="p">:</span> <span class="n">Ferc1XbrlToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="FercToSqliteSettings.ferc2_dbf_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.ferc2_dbf_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.ferc2_dbf_to_sqlite_settings">[docs]</a>
     <span class="n">ferc2_dbf_to_sqlite_settings</span><span class="p">:</span> <span class="n">Ferc2DbfToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="FercToSqliteSettings.ferc2_xbrl_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.ferc2_xbrl_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.ferc2_xbrl_to_sqlite_settings">[docs]</a>
     <span class="n">ferc2_xbrl_to_sqlite_settings</span><span class="p">:</span> <span class="n">Ferc2XbrlToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="FercToSqliteSettings.ferc6_dbf_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.ferc6_dbf_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.ferc6_dbf_to_sqlite_settings">[docs]</a>
     <span class="n">ferc6_dbf_to_sqlite_settings</span><span class="p">:</span> <span class="n">Ferc6DbfToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="FercToSqliteSettings.ferc6_xbrl_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.ferc6_xbrl_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.ferc6_xbrl_to_sqlite_settings">[docs]</a>
     <span class="n">ferc6_xbrl_to_sqlite_settings</span><span class="p">:</span> <span class="n">Ferc6XbrlToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="FercToSqliteSettings.ferc60_dbf_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.ferc60_dbf_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.ferc60_dbf_to_sqlite_settings">[docs]</a>
     <span class="n">ferc60_dbf_to_sqlite_settings</span><span class="p">:</span> <span class="n">Ferc60DbfToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="FercToSqliteSettings.ferc60_xbrl_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.ferc60_xbrl_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.ferc60_xbrl_to_sqlite_settings">[docs]</a>
     <span class="n">ferc60_xbrl_to_sqlite_settings</span><span class="p">:</span> <span class="n">Ferc60XbrlToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="FercToSqliteSettings.ferc714_xbrl_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.ferc714_xbrl_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.ferc714_xbrl_to_sqlite_settings">[docs]</a>
     <span class="n">ferc714_xbrl_to_sqlite_settings</span><span class="p">:</span> <span class="n">Ferc714XbrlToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="FercToSqliteSettings.default_load_all">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.default_load_all">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.default_load_all">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">default_load_all</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;If no datasets are specified default to all.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -2233,7 +2233,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="FercToSqliteSettings.get_xbrl_dataset_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.FercToSqliteSettings.get_xbrl_dataset_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.FercToSqliteSettings.get_xbrl_dataset_settings">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_xbrl_dataset_settings</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">form_number</span><span class="p">:</span> <span class="n">XbrlFormNumber</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercGenericXbrlToSqliteSettings</span><span class="p">:</span>
@@ -2261,45 +2261,45 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="EtlSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.EtlSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.EtlSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EtlSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Main settings validation class.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="EtlSettings.ferc_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EtlSettings.ferc_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EtlSettings.ferc_to_sqlite_settings">[docs]</a>
     <span class="n">ferc_to_sqlite_settings</span><span class="p">:</span> <span class="n">FercToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EtlSettings.datasets">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EtlSettings.datasets">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EtlSettings.datasets">[docs]</a>
     <span class="n">datasets</span><span class="p">:</span> <span class="n">DatasetsSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="EtlSettings.name">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EtlSettings.name">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EtlSettings.name">[docs]</a>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EtlSettings.title">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EtlSettings.title">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EtlSettings.title">[docs]</a>
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EtlSettings.description">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EtlSettings.description">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EtlSettings.description">[docs]</a>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="EtlSettings.version">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EtlSettings.version">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EtlSettings.version">[docs]</a>
     <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="EtlSettings.publish_destinations">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.EtlSettings.publish_destinations">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.EtlSettings.publish_destinations">[docs]</a>
     <span class="n">publish_destinations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This is list of fsspec compatible paths to publish the output datasets to.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="EtlSettings.from_yaml">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.EtlSettings.from_yaml">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.EtlSettings.from_yaml">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EtlSettings&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an EtlSettings instance from a yaml_file path.</span>
 
@@ -2316,7 +2316,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="EtlSettings.validate_xbrl_years">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.EtlSettings.validate_xbrl_years">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.EtlSettings.validate_xbrl_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_xbrl_years</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the XBRL years in DatasetsSettings align with FercToSqliteSettings.</span>
 
@@ -2348,7 +2348,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="_convert_settings_to_dagster_config">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite._convert_settings_to_dagster_config">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl._convert_settings_to_dagster_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_convert_settings_to_dagster_config</span><span class="p">(</span><span class="n">settings_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively convert a dictionary of dataset settings to dagster config in place.</span>
 
@@ -2369,7 +2369,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="create_dagster_config">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite.create_dagster_config">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl.create_dagster_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_dagster_config</span><span class="p">(</span><span class="n">settings</span><span class="p">:</span> <span class="n">GenericDatasetSettings</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DagsterField</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a dictionary of dagster config out of a :class:`GenericDatasetsSettings`.</span>
 
@@ -2387,7 +2387,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="_zenodo_doi_to_url">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.ferc_to_sqlite._zenodo_doi_to_url">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.etl._zenodo_doi_to_url">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_zenodo_doi_to_url</span><span class="p">(</span><span class="n">doi</span><span class="p">:</span> <span class="n">ZenodoDoi</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnyHttpUrl</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a DOI URL out o a Zenodo DOI.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">AnyHttpUrl</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;https://doi.org/</span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>

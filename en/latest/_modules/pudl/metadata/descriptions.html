@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.descriptions &#8212; PUDL 2026.4.1.dev15 documentation</title>
+    <title>pudl.metadata.descriptions &#8212; PUDL 2026.4.1.dev16 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=a1f4d1ea"></script>
+    <script src="../../../_static/documentation_options.js?v=81454b01"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -854,14 +854,16 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">model_validator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOURCES</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">USAGE_WARNINGS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">DBT_DIR</span>
 
-<div class="viewcode-block" id="layer_descriptions">
-<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.layer_descriptions">[docs]</a>
-<span class="n">layer_descriptions</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+<div class="viewcode-block" id="LAYER_DESCRIPTIONS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.LAYER_DESCRIPTIONS">[docs]</a>
+<span class="n">LAYER_DESCRIPTIONS</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;raw&quot;</span><span class="p">:</span> <span class="p">(</span>
         <span class="s2">&quot;Data has been extracted from original format, columns have been renamed for &quot;</span>
         <span class="s2">&quot;consistency, and multiple reporting periods have been concatenated, but no &quot;</span>
@@ -896,9 +898,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="c1"># TODO: add link to https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/{datasource_name}.html</span>
 <span class="c1"># if we have a data_sources page for it.</span>
-<div class="viewcode-block" id="source_descriptions">
-<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.source_descriptions">[docs]</a>
-<span class="n">source_descriptions</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+<div class="viewcode-block" id="SOURCE_DESCRIPTIONS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.SOURCE_DESCRIPTIONS">[docs]</a>
+<span class="n">SOURCE_DESCRIPTIONS</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">source_name</span><span class="p">:</span> <span class="n">SOURCES</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">source_name</span> <span class="ow">in</span> <span class="n">SOURCES</span>
 <span class="p">}</span> <span class="o">|</span> <span class="p">{</span>
     <span class="s2">&quot;eia&quot;</span><span class="p">:</span> <span class="s2">&quot;EIA -- Mix of multiple EIA Forms&quot;</span><span class="p">,</span>
@@ -922,9 +924,9 @@ window.runMermaid = runMermaid;</script>
 </div>
 </div>
 
-<div class="viewcode-block" id="table_type_fragments">
-<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.table_type_fragments">[docs]</a>
-<span class="n">table_type_fragments</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TableTypeFragments</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<div class="viewcode-block" id="TABLE_TYPE_FRAGMENTS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS">[docs]</a>
+<span class="n">TABLE_TYPE_FRAGMENTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TableTypeFragments</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;assn&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">&quot;Association table&quot;</span><span class="p">,</span> <span class="s2">&quot;providing connections between&quot;</span><span class="p">),</span>
     <span class="s2">&quot;changelog&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">&quot;Changelog table&quot;</span><span class="p">,</span> <span class="s2">&quot;tracking changes in&quot;</span><span class="p">),</span>
     <span class="s2">&quot;codes&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span>
@@ -961,9 +963,9 @@ window.runMermaid = runMermaid;</script>
 <span class="n">NONE_TABLETYPE_FRAGMENTS</span> <span class="o">=</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="timeseries_resolution_fragments">
-<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.timeseries_resolution_fragments">[docs]</a>
-<span class="n">timeseries_resolution_fragments</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+<div class="viewcode-block" id="TIMESERIES_RESOLUTION_FRAGMENTS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS">[docs]</a>
+<span class="n">TIMESERIES_RESOLUTION_FRAGMENTS</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;quarterly&quot;</span><span class="p">:</span> <span class="s2">&quot;Quarterly&quot;</span><span class="p">,</span>
     <span class="s2">&quot;yearly&quot;</span><span class="p">:</span> <span class="s2">&quot;Annual&quot;</span><span class="p">,</span>
     <span class="s2">&quot;monthly&quot;</span><span class="p">:</span> <span class="s2">&quot;Monthly&quot;</span><span class="p">,</span>
@@ -971,6 +973,40 @@ window.runMermaid = runMermaid;</script>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources.&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="half_year_offset">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.half_year_offset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">half_year_offset</span><span class="p">(</span><span class="n">partition</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Offset a half_year partition by the specified number of half_years.&quot;&quot;&quot;</span>
+    <span class="n">yr</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">half</span> <span class="o">=</span> <span class="n">partition</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;half&quot;</span><span class="p">)</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span>
+        <span class="n">year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">yr</span><span class="p">),</span> <span class="n">month</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">half</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">offset</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">offset</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">half</span><span class="si">{</span><span class="n">offset</span><span class="o">.</span><span class="n">month</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="PARTITION_OFFSETS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.PARTITION_OFFSETS">[docs]</a>
+<span class="n">PARTITION_OFFSETS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;years&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="n">offset</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;Y&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+    <span class="s2">&quot;year_quarters&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">offset</span> <span class="o">*</span> <span class="mi">3</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+    <span class="s2">&quot;half_years&quot;</span><span class="p">:</span> <span class="n">half_year_offset</span><span class="p">,</span>
+    <span class="s2">&quot;year_months&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">offset</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;M&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Lookup table for computing offsets of temporal partitions.</span>
+
+<span class="sd">Maps each partition key to a function that, given a partition (2026, 2026q3,</span>
+<span class="sd">2026half1, 2026-07) and an integer offset, returns the partition ``offset``</span>
+<span class="sd">partition-units away from the input partition.&quot;&quot;&quot;</span>
 
 
 <span class="c1"># [jul 2025 kmm] This is a mirror of pudl.metadata.PudlMeta, which can&#39;t be included here because it creates a circular import.</span>
@@ -1044,9 +1080,10 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    This class stores the different components of a resource description, as computed by :class:`ResourceDescriptionBuilder`.</span>
 
-<span class="sd">    There are six description components:</span>
+<span class="sd">    There are seven description components:</span>
 
 <span class="sd">    * summary</span>
+<span class="sd">    * availability</span>
 <span class="sd">    * layer</span>
 <span class="sd">    * source</span>
 <span class="sd">    * primary_key</span>
@@ -1067,6 +1104,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResolvedResourceDescription.summary">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription.summary">[docs]</a>
     <span class="n">summary</span><span class="p">:</span> <span class="n">ResourceTrait</span></div>
+
+<div class="viewcode-block" id="ResolvedResourceDescription.availability">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription.availability">[docs]</a>
+    <span class="n">availability</span><span class="p">:</span> <span class="n">ResourceTrait</span></div>
 
 <div class="viewcode-block" id="ResolvedResourceDescription.layer">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription.layer">[docs]</a>
@@ -1098,12 +1139,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_id</span><span class="si">}</span>
-<span class="s2">   Summary [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
-<span class="s2">     Layer [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
-<span class="s2">    Source [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
-<span class="s2">        PK [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
-<span class="s2">  Warnings [</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_warnings</span><span class="p">)</span><span class="si">}</span><span class="s2">]:</span><span class="si">{</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">uw</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">uw</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">uw</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">usage_warnings</span><span class="p">])</span><span class="si">}</span>
-<span class="s2">   Details [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]:</span>
+<span class="s2">     Summary [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
+<span class="s2">Availability [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">availability</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">availability</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
+<span class="s2">       Layer [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
+<span class="s2">      Source [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
+<span class="s2">          PK [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
+<span class="s2">    Warnings [</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_warnings</span><span class="p">)</span><span class="si">}</span><span class="s2">]:</span><span class="si">{</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">uw</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">uw</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">uw</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">usage_warnings</span><span class="p">])</span><span class="si">}</span>
+<span class="s2">     Details [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]:</span>
 <span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
 <span class="s2">&quot;&quot;&quot;</span></div>
 
@@ -1199,6 +1241,50 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span></div>
 
 
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ResourceDescriptionBuilder.offset_source_availability">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.offset_source_availability">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">offset_source_availability</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units.&quot;&quot;&quot;</span>
+        <span class="n">availability</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">get_temporal_partitions</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[</span><span class="kc">None</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">availability</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># source availability isn&#39;t temporal so we don&#39;t care about it for offset purposes</span>
+            <span class="k">return</span> <span class="n">availability</span>
+        <span class="n">availability</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">availability</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">offset</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># we&#39;re not offsetting the source availability</span>
+            <span class="k">return</span> <span class="n">availability</span>
+        <span class="k">for</span> <span class="n">partition_key</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">partition_key</span> <span class="ow">in</span> <span class="n">PARTITION_OFFSETS</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">PARTITION_OFFSETS</span><span class="p">[</span><span class="n">partition_key</span><span class="p">](</span><span class="n">availability</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="c1"># we don&#39;t have an offset function configured for this key</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Need to offset temporal availability (</span><span class="si">{</span><span class="n">availability</span><span class="si">}</span><span class="s2">) from </span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> but couldn&#39;t find a partition key we know how to offset&quot;</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ResourceDescriptionBuilder.compute_rowcounts_availability">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.compute_rowcounts_availability">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_rowcounts_availability</span><span class="p">(</span><span class="n">resource_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute an availability date from the most recent available partition for a resource, according to the row counts file.&quot;&quot;&quot;</span>
+        <span class="n">rowcount_partition_lookups</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">DBT_DIR</span> <span class="o">/</span> <span class="s2">&quot;seeds&quot;</span> <span class="o">/</span> <span class="s2">&quot;etl_full_row_counts.csv&quot;</span><span class="p">,</span>
+                <span class="c1"># [kmm dec 2025] currently all non-null row count partitions are integer years.</span>
+                <span class="c1"># if we add other kinds of partitions to the row counts file, we&#39;ll need to revise this code.</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;partition&quot;</span><span class="p">:</span> <span class="s2">&quot;Int64&quot;</span><span class="p">,</span> <span class="s2">&quot;table_name&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;table_name&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">resource_id</span><span class="p">:</span><span class="n">resource_id</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">partition</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">rowcount_partition_lookups</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">rowcount_partition_lookups</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
     <span class="nd">@component</span>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.summary">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.summary">[docs]</a>
@@ -1219,14 +1305,14 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="n">additional_summary_text</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;additional_summary_text&quot;</span><span class="p">)</span>
         <span class="c1"># permit a none tabletype for weirdos like core_ferc714__respondent_id</span>
-        <span class="n">type_fragments</span> <span class="o">=</span> <span class="n">table_type_fragments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">type_fragments</span> <span class="o">=</span> <span class="n">TABLE_TYPE_FRAGMENTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="n">table_type_code</span><span class="p">,</span> <span class="n">NONE_TABLETYPE_FRAGMENTS</span>
         <span class="p">)</span>
 
         <span class="c1"># assemble the parts of the summary description in display order.</span>
         <span class="c1"># any or all of these may be none, depending on the resource name and manually specified information.</span>
         <span class="n">components</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">timeseries_resolution_fragments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeseries_resolution_code</span><span class="p">),</span>
+            <span class="n">TIMESERIES_RESOLUTION_FRAGMENTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeseries_resolution_code</span><span class="p">),</span>
             <span class="n">type_fragments</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span>
         <span class="p">]</span>
 
@@ -1244,6 +1330,53 @@ window.runMermaid = runMermaid;</script>
             <span class="nb">type</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_type_code</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">timeseries_resolution_code</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span>
             <span class="c1"># glue all the component parts into a single string, skipping any missing bits.</span>
             <span class="n">description</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@component</span>
+<div class="viewcode-block" id="ResourceDescriptionBuilder.availability">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.availability">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">availability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResourceTrait</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the availability component of the resource description.</span>
+
+<span class="sd">        If</span>
+<span class="sd">        :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_text`</span>
+<span class="sd">        was set manually, use that.</span>
+
+<span class="sd">        If the table has temporal partitions in the dbt row counts file, use the</span>
+<span class="sd">        most recent row counts partition.</span>
+
+<span class="sd">        If the table has exactly one source, and that source has temporal</span>
+<span class="sd">        partitions, use the most recent source partition, optionally offset by</span>
+<span class="sd">        :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset`.</span>
+
+<span class="sd">        Otherwise, use &quot;Unknown&quot; and set :attr:`ResourceTrait.type`=``False`` to</span>
+<span class="sd">        permit display logics to hide this component.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># go ahead and compute all of these; there are never more than 3</span>
+        <span class="n">source_availabilities</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ResourceDescriptionBuilder</span><span class="o">.</span><span class="n">offset_source_availability</span><span class="p">(</span>
+                <span class="n">source</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;availability_offset&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sources&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">most_recent_data</span> <span class="o">=</span> <span class="n">first_non_none</span><span class="p">(</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;availability_text&quot;</span><span class="p">),</span>
+            <span class="c1"># first fallback: use row counts file</span>
+            <span class="n">ResourceDescriptionBuilder</span><span class="o">.</span><span class="n">compute_rowcounts_availability</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_id</span><span class="p">),</span>
+            <span class="c1"># second fallback: use source partitions, but only if there&#39;s only one source</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">source_availabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">source_availabilities</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">source_availabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;Unknown&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># the availability ResourceTrait uses a boolean type: True if present, False otherwise.</span>
+        <span class="c1"># this lets us condition display of the availability component on the type.</span>
+        <span class="k">return</span> <span class="n">ResourceTrait</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">most_recent_data</span> <span class="o">!=</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">),</span> <span class="n">description</span><span class="o">=</span><span class="n">most_recent_data</span>
         <span class="p">)</span></div>
 
 
@@ -1298,7 +1431,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;layer_code&quot;</span><span class="p">),</span> <span class="s2">&quot;out_narrow&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_component</span><span class="p">(</span><span class="s2">&quot;layer&quot;</span><span class="p">,</span> <span class="n">layer_descriptions</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_component</span><span class="p">(</span><span class="s2">&quot;layer&quot;</span><span class="p">,</span> <span class="n">LAYER_DESCRIPTIONS</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span></div>
 
 
     <span class="nd">@component</span>
@@ -1307,7 +1440,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the data source component of the resource description.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_component</span><span class="p">(</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="n">source_descriptions</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="n">SOURCE_DESCRIPTIONS</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span>
         <span class="p">)</span></div>
 
 
@@ -1360,6 +1493,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;additional_details_text&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span>
         <span class="c1"># end TODO: remove</span>
 
+        <span class="c1"># the additional-details ResourceTrait uses a boolean type: True if present, False otherwise.</span>
+        <span class="c1"># this lets us condition display of the additional-details component on the type.</span>
         <span class="k">return</span> <span class="n">ResourceTrait</span><span class="p">(</span>
             <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;additional_details_text&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
             <span class="n">description</span><span class="o">=</span><span class="n">first_non_none</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;additional_details_text&quot;</span><span class="p">),</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
@@ -1406,21 +1541,21 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># define match groups for the different parts of a resource name</span>
 <div class="viewcode-block" id="ResourceNameComponents.layer_options">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.layer_options">[docs]</a>
-    <span class="n">layer_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">layer_descriptions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+    <span class="n">layer_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LAYER_DESCRIPTIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="ResourceNameComponents.source_options">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.source_options">[docs]</a>
-    <span class="n">source_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_descriptions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+    <span class="n">source_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SOURCE_DESCRIPTIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="ResourceNameComponents.timeseries_resolution_options">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.timeseries_resolution_options">[docs]</a>
     <span class="n">timeseries_resolution_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">timeseries_resolution_fragments</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">TIMESERIES_RESOLUTION_FRAGMENTS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
     <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ResourceNameComponents.table_type_options">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.table_type_options">[docs]</a>
-    <span class="n">table_type_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">table_type_fragments</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+    <span class="n">table_type_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TABLE_TYPE_FRAGMENTS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="ResourceNameComponents.resource_name_pattern">

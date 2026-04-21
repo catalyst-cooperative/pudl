@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.descriptions &#8212; PUDL 2026.4.1.dev15 documentation</title>
+    <title>pudl.metadata.descriptions &#8212; PUDL 2026.4.1.dev16 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../../_static/documentation_options.js?v=a1f4d1ea"></script>
+    <script src="../../../../_static/documentation_options.js?v=81454b01"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -747,20 +747,23 @@
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.layer_descriptions" title="pudl.metadata.descriptions.layer_descriptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_descriptions</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.LAYER_DESCRIPTIONS" title="pudl.metadata.descriptions.LAYER_DESCRIPTIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LAYER_DESCRIPTIONS</span></code></a></p></td>
 <td><p>Standard descriptive text to appear in the Processing section of resource descriptions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.source_descriptions" title="pudl.metadata.descriptions.source_descriptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_descriptions</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.SOURCE_DESCRIPTIONS" title="pudl.metadata.descriptions.SOURCE_DESCRIPTIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOURCE_DESCRIPTIONS</span></code></a></p></td>
 <td><p>Standard descriptive text to appear in the Source section of resource descriptions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.table_type_fragments" title="pudl.metadata.descriptions.table_type_fragments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_type_fragments</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS" title="pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TABLE_TYPE_FRAGMENTS</span></code></a></p></td>
 <td><p>Standard descriptive text to appear in the Summary (first line) of resource descriptions.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.NONE_TABLETYPE_FRAGMENTS" title="pudl.metadata.descriptions.NONE_TABLETYPE_FRAGMENTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NONE_TABLETYPE_FRAGMENTS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.timeseries_resolution_fragments" title="pudl.metadata.descriptions.timeseries_resolution_fragments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timeseries_resolution_fragments</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS" title="pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIMESERIES_RESOLUTION_FRAGMENTS</span></code></a></p></td>
 <td><p>More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.PARTITION_OFFSETS" title="pudl.metadata.descriptions.PARTITION_OFFSETS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PARTITION_OFFSETS</span></code></a></p></td>
+<td><p>Lookup table for computing offsets of temporal partitions.</p></td>
 </tr>
 </tbody>
 </table>
@@ -796,10 +799,13 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.first_non_none" title="pudl.metadata.descriptions.first_non_none"><code class="xref py py-obj docutils literal notranslate"><span class="pre">first_non_none</span></code></a>(*args)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.half_year_offset" title="pudl.metadata.descriptions.half_year_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">half_year_offset</span></code></a>(→ str)</p></td>
+<td><p>Offset a half_year partition by the specified number of half_years.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.first_non_none" title="pudl.metadata.descriptions.first_non_none"><code class="xref py py-obj docutils literal notranslate"><span class="pre">first_non_none</span></code></a>(*args)</p></td>
 <td><p>Return the first argument which is not None.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.component" title="pudl.metadata.descriptions.component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">component</span></code></a>(→ collections.abc.Callable[Ellipsis, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.descriptions.component" title="pudl.metadata.descriptions.component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">component</span></code></a>(→ collections.abc.Callable[Ellipsis, ...)</p></td>
 <td><p>Decorator for functions which resolve a description component.</p></td>
 </tr>
 </tbody>
@@ -809,14 +815,14 @@
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.descriptions.layer_descriptions">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">layer_descriptions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#layer_descriptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.layer_descriptions" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.LAYER_DESCRIPTIONS">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">LAYER_DESCRIPTIONS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#LAYER_DESCRIPTIONS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.LAYER_DESCRIPTIONS" title="Link to this definition">#</a></dt>
 <dd><p>Standard descriptive text to appear in the Processing section of resource descriptions.</p>
 </dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.descriptions.source_descriptions">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">source_descriptions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#source_descriptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.source_descriptions" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.SOURCE_DESCRIPTIONS">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">SOURCE_DESCRIPTIONS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#SOURCE_DESCRIPTIONS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.SOURCE_DESCRIPTIONS" title="Link to this definition">#</a></dt>
 <dd><p>Standard descriptive text to appear in the Source section of resource descriptions.</p>
 </dd></dl>
 
@@ -837,14 +843,14 @@
 </dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.descriptions.table_type_fragments">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">table_type_fragments</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.descriptions.TableTypeFragments" title="pudl.metadata.descriptions.TableTypeFragments"><span class="pre">TableTypeFragments</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#table_type_fragments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.table_type_fragments" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">TABLE_TYPE_FRAGMENTS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.descriptions.TableTypeFragments" title="pudl.metadata.descriptions.TableTypeFragments"><span class="pre">TableTypeFragments</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#TABLE_TYPE_FRAGMENTS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS" title="Link to this definition">#</a></dt>
 <dd><p>Standard descriptive text to appear in the Summary (first line) of resource descriptions.</p>
 <p>These are split into fragments to permit some resources to do without any additional descriptive text beyond the basic table type.
 Such resources should not provide <a class="reference internal" href="../classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text" title="pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text"><code class="xref py py-attr docutils literal notranslate"><span class="pre">additional_summary_text</span></code></a>,
 and the system will apply only the first fragment here.
 If a resource provides <a class="reference internal" href="../classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text" title="pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text"><code class="xref py py-attr docutils literal notranslate"><span class="pre">additional_summary_text</span></code></a>,
-the system will apply both fragments from the corresponding <a class="reference internal" href="#pudl.metadata.descriptions.table_type_fragments" title="pudl.metadata.descriptions.table_type_fragments"><code class="xref py py-data docutils literal notranslate"><span class="pre">table_type_fragments</span></code></a> entry, so that the summary starts with standardized text but finishes with more specific information.</p>
+the system will apply both fragments from the corresponding <code class="xref py py-data docutils literal notranslate"><span class="pre">table_type_fragments</span></code> entry, so that the summary starts with standardized text but finishes with more specific information.</p>
 <p class="rubric">Examples</p>
 <ul class="simple">
 <li><p>Rendered summary: “Association table”</p>
@@ -868,9 +874,24 @@ the system will apply both fragments from the corresponding <a class="reference 
 <dd></dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.descriptions.timeseries_resolution_fragments">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">timeseries_resolution_fragments</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#timeseries_resolution_fragments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.timeseries_resolution_fragments" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">TIMESERIES_RESOLUTION_FRAGMENTS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#TIMESERIES_RESOLUTION_FRAGMENTS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS" title="Link to this definition">#</a></dt>
 <dd><p>More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.half_year_offset">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">half_year_offset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#half_year_offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.half_year_offset" title="Link to this definition">#</a></dt>
+<dd><p>Offset a half_year partition by the specified number of half_years.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.PARTITION_OFFSETS">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">PARTITION_OFFSETS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">collections.abc.Callable</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#PARTITION_OFFSETS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.PARTITION_OFFSETS" title="Link to this definition">#</a></dt>
+<dd><p>Lookup table for computing offsets of temporal partitions.</p>
+<p>Maps each partition key to a function that, given a partition (2026, 2026q3,
+2026half1, 2026-07) and an integer offset, returns the partition <code class="docutils literal notranslate"><span class="pre">offset</span></code>
+partition-units away from the input partition.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -926,9 +947,10 @@ Call with candidates in order of descending preference, and you’ll get the mos
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.metadata.descriptions.</span></span><span class="sig-name descname"><span class="pre">ResolvedResourceDescription</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#ResolvedResourceDescription"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.ResolvedResourceDescription" title="Link to this definition">#</a></dt>
 <dd><p>The fully-resolved components of a resource description.</p>
 <p>This class stores the different components of a resource description, as computed by <a class="reference internal" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder" title="pudl.metadata.descriptions.ResourceDescriptionBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder</span></code></a>.</p>
-<p>There are six description components:</p>
+<p>There are seven description components:</p>
 <ul class="simple">
 <li><p>summary</p></li>
+<li><p>availability</p></li>
 <li><p>layer</p></li>
 <li><p>source</p></li>
 <li><p>primary_key</p></li>
@@ -947,6 +969,11 @@ appropriate for including in a data dictionary, datapackage export, or sqlachemy
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.metadata.descriptions.ResolvedResourceDescription.summary">
 <span class="sig-name descname"><span class="pre">summary</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.descriptions.ResourceTrait" title="pudl.metadata.descriptions.ResourceTrait"><span class="pre">ResourceTrait</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#ResolvedResourceDescription.summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.ResolvedResourceDescription.summary" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.ResolvedResourceDescription.availability">
+<span class="sig-name descname"><span class="pre">availability</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.descriptions.ResourceTrait" title="pudl.metadata.descriptions.ResourceTrait"><span class="pre">ResourceTrait</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#ResolvedResourceDescription.availability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.ResolvedResourceDescription.availability" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1038,6 +1065,18 @@ complete documentation on manually-specifiable keys.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.ResourceDescriptionBuilder.offset_source_availability">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">offset_source_availability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#ResourceDescriptionBuilder.offset_source_availability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.offset_source_availability" title="Link to this definition">#</a></dt>
+<dd><p>Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.ResourceDescriptionBuilder.compute_rowcounts_availability">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">compute_rowcounts_availability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resource_id</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#ResourceDescriptionBuilder.compute_rowcounts_availability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.compute_rowcounts_availability" title="Link to this definition">#</a></dt>
+<dd><p>Compute an availability date from the most recent available partition for a resource, according to the row counts file.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.descriptions.ResourceDescriptionBuilder.summary">
 <span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.metadata.descriptions.ResourceNameComponents" title="pudl.metadata.descriptions.ResourceNameComponents"><span class="pre">ResourceNameComponents</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.metadata.descriptions.ResourceTrait" title="pudl.metadata.descriptions.ResourceTrait"><span class="pre">ResourceTrait</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#ResourceDescriptionBuilder.summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.summary" title="Link to this definition">#</a></dt>
 <dd><p>Compute the summary component (first line) of the resource description.</p>
@@ -1045,6 +1084,22 @@ complete documentation on manually-specifiable keys.</p>
 Any <a class="reference internal" href="../classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text" title="pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text"><code class="xref py py-attr docutils literal notranslate"><span class="pre">additional_summary_text</span></code></a>, if present, is included after the standard text for the timeseries resolution and table type.
 If the timeseries resolution and table type aren’t set manually and can’t be auto detected, fall back to
 the <a class="reference internal" href="../classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text" title="pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text"><code class="xref py py-attr docutils literal notranslate"><span class="pre">additional_summary_text</span></code></a> key and use it as a complete sentence instead of just a predicate fragment.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.descriptions.ResourceDescriptionBuilder.availability">
+<span class="sig-name descname"><span class="pre">availability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.metadata.descriptions.ResourceTrait" title="pudl.metadata.descriptions.ResourceTrait"><span class="pre">ResourceTrait</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/descriptions.html#ResourceDescriptionBuilder.availability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.availability" title="Link to this definition">#</a></dt>
+<dd><p>Compute the availability component of the resource description.</p>
+<p>If
+<a class="reference internal" href="../classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_text" title="pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_text"><code class="xref py py-attr docutils literal notranslate"><span class="pre">availability_text</span></code></a>
+was set manually, use that.</p>
+<p>If the table has temporal partitions in the dbt row counts file, use the
+most recent row counts partition.</p>
+<p>If the table has exactly one source, and that source has temporal
+partitions, use the most recent source partition, optionally offset by
+<a class="reference internal" href="../classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset" title="pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">availability_offset</span></code></a>.</p>
+<p>Otherwise, use “Unknown” and set <code class="xref py py-attr docutils literal notranslate"><span class="pre">ResourceTrait.type`=``False`</span></code> to
+permit display logics to hide this component.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1254,16 +1309,18 @@ the manually-specified text will be placed after the primary key listing.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.layer_descriptions"><code class="docutils literal notranslate"><span class="pre">layer_descriptions</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.source_descriptions"><code class="docutils literal notranslate"><span class="pre">source_descriptions</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.LAYER_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">LAYER_DESCRIPTIONS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.SOURCE_DESCRIPTIONS"><code class="docutils literal notranslate"><span class="pre">SOURCE_DESCRIPTIONS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.TableTypeFragments"><code class="docutils literal notranslate"><span class="pre">TableTypeFragments</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.TableTypeFragments.subject"><code class="docutils literal notranslate"><span class="pre">TableTypeFragments.subject</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.TableTypeFragments.conjunction"><code class="docutils literal notranslate"><span class="pre">TableTypeFragments.conjunction</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.table_type_fragments"><code class="docutils literal notranslate"><span class="pre">table_type_fragments</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS"><code class="docutils literal notranslate"><span class="pre">TABLE_TYPE_FRAGMENTS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.NONE_TABLETYPE_FRAGMENTS"><code class="docutils literal notranslate"><span class="pre">NONE_TABLETYPE_FRAGMENTS</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.timeseries_resolution_fragments"><code class="docutils literal notranslate"><span class="pre">timeseries_resolution_fragments</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS"><code class="docutils literal notranslate"><span class="pre">TIMESERIES_RESOLUTION_FRAGMENTS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.half_year_offset"><code class="docutils literal notranslate"><span class="pre">half_year_offset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.PARTITION_OFFSETS"><code class="docutils literal notranslate"><span class="pre">PARTITION_OFFSETS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.DescriptionMeta"><code class="docutils literal notranslate"><span class="pre">DescriptionMeta</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.DescriptionMeta.model_config"><code class="docutils literal notranslate"><span class="pre">DescriptionMeta.model_config</span></code></a></li>
 </ul>
@@ -1277,6 +1334,7 @@ the manually-specified text will be placed after the primary key listing.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResolvedResourceDescription"><code class="docutils literal notranslate"><span class="pre">ResolvedResourceDescription</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResolvedResourceDescription.resource_id"><code class="docutils literal notranslate"><span class="pre">ResolvedResourceDescription.resource_id</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResolvedResourceDescription.summary"><code class="docutils literal notranslate"><span class="pre">ResolvedResourceDescription.summary</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResolvedResourceDescription.availability"><code class="docutils literal notranslate"><span class="pre">ResolvedResourceDescription.availability</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResolvedResourceDescription.layer"><code class="docutils literal notranslate"><span class="pre">ResolvedResourceDescription.layer</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResolvedResourceDescription.source"><code class="docutils literal notranslate"><span class="pre">ResolvedResourceDescription.source</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResolvedResourceDescription.primary_key"><code class="docutils literal notranslate"><span class="pre">ResolvedResourceDescription.primary_key</span></code></a></li>
@@ -1293,7 +1351,10 @@ the manually-specified text will be placed after the primary key listing.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.settings"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder.settings</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.components"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder.components</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.build"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder.build()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.offset_source_availability"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder.offset_source_availability()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.compute_rowcounts_availability"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder.compute_rowcounts_availability()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.summary"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder.summary()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.availability"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder.availability()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder._generic_component"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder._generic_component()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.layer"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder.layer()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.descriptions.ResourceDescriptionBuilder.source"><code class="docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder.source()</span></code></a></li>

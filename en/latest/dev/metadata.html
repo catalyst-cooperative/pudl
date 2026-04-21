@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Metadata editing guide &#8212; PUDL 2026.4.1.dev15 documentation</title>
+    <title>Metadata editing guide &#8212; PUDL 2026.4.1.dev16 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../_static/documentation_options.js?v=a1f4d1ea"></script>
+    <script src="../_static/documentation_options.js?v=81454b01"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -914,10 +914,25 @@ raw/core/_core/out/_out, etc. This will be appended to the stock text for this l
 <li><p><code class="docutils literal notranslate"><span class="pre">additional_primary_key_text</span></code>: Only set if this table has no natural primary key.
 In that case, this should be used to describe what each row contains and why a
 primary key doesn’t make sense for this table.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">availability_text</span></code>: An optional field to override the default availability
+of a source table. Only set for discontinued tables
+which do not have a temporal partition in the row counts file. In such cases,
+this field is optional for tables discontinued at the same time as their
+source, or which come from a monolithic source (having no source partitions).
+This field <strong>must</strong> be set for tables discontinued before their source, since
+otherwise they will be listed with the most recent source partition, and that
+will not match the availability of the table. For a table without temporal row
+counts partitions that lags its source but continues to integrate new data
+each (year, quarter, month, etc), consider
+<a class="reference internal" href="../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset" title="pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">availability_offset</span></code></a>
+instead.</p></li>
 </ul>
-<p>For a full reference on available description fields, including fields that
+<p>For a full reference on all available description fields, including fields that
 override automatic table classifications, see
-<a class="reference internal" href="../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents" title="pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents</span></code></a>.</p>
+<a class="reference internal" href="../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents" title="pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents"><code class="xref py py-class docutils literal notranslate"><span class="pre">PudlDescriptionComponents</span></code></a>.</p>
+<p>For details on how structured description fields and fragments become a fully
+rendered description, see
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceDescriptionBuilder</span></code></p>
 <p>Because the description is not wholly legible in its structured state,
 we have developed a few tools to help editors see what they are doing.</p>
 </section>
@@ -931,21 +946,38 @@ but it will fully resolve each section and print out the results.</p>
 Table found:
 
 core_ferc714__hourly_planning_area_demand
-   Summary [timeseries[hourly]]: Hourly time series of electricity demand by planning area.
-     Layer [core]: Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
-    Source [ferc714]: FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Report (Part III, Schedule 2a)
-        PK [True]: respondent_id_ferc714, datetime_utc
-  Warnings [2]:
-   custom - The datetime_utc timestamps have been cleaned due to inconsistent datetime reporting. See below for additional details.
-   ferc_is_hard - FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities &lt;https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities&gt;`_ for details.
-   Details [True]:
-This table includes data from the pre-2021 CSV raw source as well as the newer 2021 through present XBRL raw source.
+     Summary [timeseries[hourly]]: Hourly time series of electricity demand by planning area.
+Availability [True]: 2024
+       Layer [core]: Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+      Source [ferc714]: FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Report (Part III, Schedule 2a)
+          PK [True]: respondent_id_ferc714, datetime_utc
+    Warnings [2]:
+ custom - The datetime_utc timestamps have been cleaned due to inconsistent datetime reporting. See below for additional details.
+ ferc_is_hard - FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities &lt;https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities&gt;`_ for details.
+     Details [True]:
+This table includes data from the pre-2021 CSV raw source as well as the
+newer 2021 through present XBRL raw source.
 
-This table includes three respondent ID columns: one from the CSV raw source, one from the XBRL raw source and another that is PUDL-derived that links those two source ID&#39;s together. This table has filled in source IDs for all records so you can select the full timeseries for a given respondent from any of these three IDs.
+This table includes three respondent ID columns: one from the CSV raw source,
+one from the XBRL raw source and another that is PUDL-derived that links
+those two source ID&#39;s together. This table has filled in source IDs for all
+records so you can select the full timeseries for a given respondent from any
+of these three IDs.
 
-An important caveat to note is that there was some cleaning done to the datetime_utc timestamps. The Form 714 includes sparse documentation for respondents for how to interpret timestamps - the form asks respondents to provide 24 instances of hourly demand for each day. The form is labeled with hour 1-24. There is no indication if hour 1 begins at midnight.
+An important caveat to note is that there was some cleaning done to the
+datetime_utc timestamps. The Form 714 includes sparse documentation for
+respondents for how to interpret timestamps - the form asks respondents to
+provide 24 instances of hourly demand for each day. The form is labeled with
+hour 1-24. There is no indication if hour 1 begins at midnight.
 
-The XBRL data contained several formats of timestamps. Most records corresponding to hour 1 of the Form have a timestamp with hour 1 as T1. About two thirds of the records in the hour 24 location of the form have a timestamp with an hour reported as T24 while the remaining third report this as T00 of the next day. T24 is not a valid format for the hour of a datetime, so we convert these T24 hours into T00 of the next day. A smaller subset of the respondents reports the 24th hour as the last second of the day - we also convert these records to the T00 of the next day.
+The XBRL data contained several formats of timestamps. Most records
+corresponding to hour 1 of the Form have a timestamp with hour 1 as T1. About
+two thirds of the records in the hour 24 location of the form have a
+timestamp with an hour reported as T24 while the remaining third report this
+as T00 of the next day. T24 is not a valid format for the hour of a datetime,
+so we convert these T24 hours into T00 of the next day. A smaller subset of
+the respondents reports the 24th hour as the last second of the day - we also
+convert these records to the T00 of the next day.
 </pre></div>
 </div>
 </section>
@@ -971,10 +1003,12 @@ but if you need to iterate at all, use the wizard.</p>
 <p>Metadata for each field is primarily stored in
 <a class="reference internal" href="../autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.FIELD_METADATA" title="pudl.metadata.fields.FIELD_METADATA"><code class="xref py py-const docutils literal notranslate"><span class="pre">pudl.metadata.fields.FIELD_METADATA</span></code></a>. This lets us ensure that fields with
 the same name share the same general definition, no matter where you find them.</p>
-<p>Field names should:
-* Be written as snake case (e.g., <code class="docutils literal notranslate"><span class="pre">report_date</span></code>.)
-* Include units at the end where not implied (e.g., <code class="docutils literal notranslate"><span class="pre">volume_mcf</span></code>)
-* Otherwise follow our established <a class="reference internal" href="naming_conventions.html"><span class="doc">Naming Conventions</span></a>.</p>
+<p>Field names should:</p>
+<ul class="simple">
+<li><p>Be written as snake case (e.g., <code class="docutils literal notranslate"><span class="pre">report_date</span></code>.)</p></li>
+<li><p>Include units at the end where not implied (e.g., <code class="docutils literal notranslate"><span class="pre">volume_mcf</span></code>)</p></li>
+<li><p>Otherwise follow our established <a class="reference internal" href="naming_conventions.html"><span class="doc">Naming Conventions</span></a>.</p></li>
+</ul>
 <p>To define metadata for a new field:</p>
 <ul class="simple">
 <li><p>First, search to make sure it doesn’t already exist. Often there’s an almost

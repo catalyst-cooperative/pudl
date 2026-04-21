@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.4.1.dev15 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.4.1.dev16 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=a1f4d1ea"></script>
+    <script src="../../../_static/documentation_options.js?v=81454b01"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -2232,6 +2232,17 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="DataSource.get_temporal_partitions">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.etl.DataSource.get_temporal_partitions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_temporal_partitions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of temporal partitions encoding the time span covered by the data source.&quot;&quot;&quot;</span>
+        <span class="n">partitions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_partitions</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">,</span> <span class="s2">&quot;half_years&quot;</span><span class="p">,</span> <span class="s2">&quot;year_quarters&quot;</span><span class="p">,</span> <span class="s2">&quot;year_months&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">partitions</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">partitions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
 <div class="viewcode-block" id="DataSource.get_temporal_coverage">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.etl.DataSource.get_temporal_coverage">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_temporal_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partitions</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -2575,6 +2586,35 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        If None or otherwise left unset, will be filled in with auto warnings only. If</span>
 <span class="sd">        no auto warnings apply, hides the Usage Warnings section entirely.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PudlResourceDescriptor.PudlDescriptionComponents.availability_offset">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.etl.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset">[docs]</a>
+        <span class="n">availability_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Partition offset of most recent data available from that claimed by the data</span>
+<span class="sd">        source.</span>
+
+<span class="sd">        Only permitted when ``availability_text`` is None or otherwise unset.</span>
+<span class="sd">        Useful in cases where a particular resource both has no natural date column</span>
+<span class="sd">        for row count partitioning, and is updated on a slower cadence than its</span>
+<span class="sd">        source. For example, EIA 923 has yearly partitions, but while the</span>
+<span class="sd">        monthly output tables receive data from the new year as soon as it is</span>
+<span class="sd">        added to the source, the annual output tables aren&#39;t updated until the</span>
+<span class="sd">        following year.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PudlResourceDescriptor.PudlDescriptionComponents.availability_text">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.etl.PudlResourceDescriptor.PudlDescriptionComponents.availability_text">[docs]</a>
+        <span class="n">availability_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Most recent data available. If None or otherwise left unset, will be</span>
+<span class="sd">        filled in with the most recent partition listed in the row counts file</span>
+<span class="sd">        for this resource. If this is None/unset **and** the row counts</span>
+<span class="sd">        partition is null, then will be filled in with the most recent partition</span>
+<span class="sd">        listed for the data source, optionally offset by ``availability_offset``</span>
+<span class="sd">        partitions.</span>
+
+<span class="sd">        Generally only set when a discontinued table does not use temporal partitioning</span>
+<span class="sd">        in the row counts file, but we still know when its freshest data was from.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.etl.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text">[docs]</a>
@@ -3004,13 +3044,13 @@ window.runMermaid = runMermaid;</script>
 
 
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Resource.dict_from_resource_descriptor">
-<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.etl.Resource.dict_from_resource_descriptor">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">dict_from_resource_descriptor</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<div class="viewcode-block" id="Resource._resolve_references_from_resource_descriptor">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.etl.Resource._resolve_references_from_resource_descriptor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_references_from_resource_descriptor</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
         <span class="n">resource_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">descriptor</span><span class="p">:</span> <span class="n">PudlResourceDescriptor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a Resource-shaped dict from a PudlResourceDescriptor.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Partially constructs a Resource-shaped dict from a PudlResourceDescriptor.</span>
 
 <span class="sd">        * ``schema.fields``</span>
 
@@ -3024,7 +3064,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">          then expanded (:meth:`Contributor.from_id`).</span>
 <span class="sd">        * ``keywords``: Keywords are fetched by source ids.</span>
 <span class="sd">        * ``schema.foreign_keys``: Foreign keys are fetched by resource name.</span>
-<span class="sd">        * ``description``: Full description text block is rendered from its component parts.</span>
+
+<span class="sd">        **Does not compute** resource description text and field encoders.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">by_alias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource_id</span>
@@ -3073,6 +3114,36 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Delete foreign key rules</span>
         <span class="k">if</span> <span class="s2">&quot;foreign_key_rules&quot;</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">obj</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Resource.dict_from_resource_descriptor">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.etl.Resource.dict_from_resource_descriptor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dict_from_resource_descriptor</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+        <span class="n">resource_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">descriptor</span><span class="p">:</span> <span class="n">PudlResourceDescriptor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a Resource-shaped dict from a PudlResourceDescriptor.</span>
+
+<span class="sd">        * `schema.fields`</span>
+
+<span class="sd">          * Field names are expanded (:meth:`Field.from_id`).</span>
+<span class="sd">          * Field attributes are replaced with any specific to the</span>
+<span class="sd">            `resource.group` and `field.name`.</span>
+
+<span class="sd">        * `sources`: Source ids are expanded (:meth:`Source.from_id`).</span>
+<span class="sd">        * `licenses`: License ids are expanded (:meth:`License.from_id`).</span>
+<span class="sd">        * `contributors`: Contributor ids are fetched by source ids,</span>
+<span class="sd">          then expanded (:meth:`Contributor.from_id`).</span>
+<span class="sd">        * `keywords`: Keywords are fetched by source ids.</span>
+<span class="sd">        * `schema.foreign_keys`: Foreign keys are fetched by resource name.</span>
+<span class="sd">        * `description`: Full description text block is rendered from its component parts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># swap string names for proper objects</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">_resolve_references_from_resource_descriptor</span><span class="p">(</span>
+            <span class="n">resource_id</span><span class="p">,</span> <span class="n">descriptor</span>
+        <span class="p">)</span>
 
         <span class="c1"># overwrite description components with rendered text block</span>
         <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>

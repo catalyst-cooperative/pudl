@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.resources &#8212; PUDL 2026.4.1.dev15 documentation</title>
+    <title>pudl.resources &#8212; PUDL 2026.4.1.dev16 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../_static/documentation_options.js?v=a1f4d1ea"></script>
+    <script src="../../_static/documentation_options.js?v=81454b01"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -572,8 +572,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev15 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -856,16 +856,16 @@ window.runMermaid = runMermaid;</script>
 
 
 <div class="viewcode-block" id="RuntimeSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.RuntimeSettings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.etl.RuntimeSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RuntimeSettings</span><span class="p">(</span><span class="n">ConfigurableResource</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encodes runtime settings for the ferc_to_sqlite graphs.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RuntimeSettings.xbrl_num_workers">
-<a class="viewcode-back" href="../../autoapi/pudl/resources/index.html#pudl.ferc_to_sqlite.RuntimeSettings.xbrl_num_workers">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/resources/index.html#pudl.etl.RuntimeSettings.xbrl_num_workers">[docs]</a>
     <span class="n">xbrl_num_workers</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="RuntimeSettings.xbrl_batch_size">
-<a class="viewcode-back" href="../../autoapi/pudl/resources/index.html#pudl.ferc_to_sqlite.RuntimeSettings.xbrl_batch_size">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/resources/index.html#pudl.etl.RuntimeSettings.xbrl_batch_size">[docs]</a>
     <span class="n">xbrl_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span></div>
 </div>
 
@@ -873,7 +873,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@resource</span><span class="p">(</span><span class="n">config_schema</span><span class="o">=</span><span class="n">create_dagster_config</span><span class="p">(</span><span class="n">DatasetsSettings</span><span class="p">()))</span>
 <div class="viewcode-block" id="dataset_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.ferc_to_sqlite.dataset_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.dataset_settings">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dataset_settings</span><span class="p">(</span><span class="n">init_context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetsSettings</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Dagster resource for parameterizing PUDL ETL assets.</span>
 
@@ -886,7 +886,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@resource</span><span class="p">(</span><span class="n">config_schema</span><span class="o">=</span><span class="n">create_dagster_config</span><span class="p">(</span><span class="n">FercToSqliteSettings</span><span class="p">()))</span>
 <div class="viewcode-block" id="ferc_to_sqlite_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.ferc_to_sqlite_settings">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.ferc_to_sqlite_settings">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ferc_to_sqlite_settings</span><span class="p">(</span><span class="n">init_context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercToSqliteSettings</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Dagster resource for parameterizing the ``ferc_to_sqlite`` graph.</span>
 
@@ -912,7 +912,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="datastore">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.datastore">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.datastore">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">datastore</span><span class="p">(</span><span class="n">init_context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Datastore</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Dagster resource to interact with Zenodo archives.&quot;&quot;&quot;</span>
     <span class="n">ds_kwargs</span> <span class="o">=</span> <span class="p">{}</span>

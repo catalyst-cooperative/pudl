@@ -15,7 +15,6 @@ Attributes
 .. autoapisummary::
 
    pudl.dbt_wrapper.logger
-   pudl.dbt_wrapper.DBT_DIR
 
 
 Classes
@@ -44,9 +43,6 @@ Module Contents
 ---------------
 
 .. py:data:: logger
-
-.. py:data:: DBT_DIR
-   :type:  pathlib.Path
 
 .. py:function:: _preserve_logging_propagation()
 
