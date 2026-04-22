@@ -916,6 +916,12 @@ Module Contents
 
 
 
+   .. py:method:: get_temporal_partitions() -> list
+
+      Return a list of temporal partitions encoding the time span covered by the data source.
+
+
+
    .. py:method:: get_temporal_coverage(partitions: dict = None) -> str
 
       Return a string describing the time span covered by the data source.
@@ -1207,6 +1213,39 @@ Module Contents
 
          If None or otherwise left unset, will be filled in with auto warnings only. If
          no auto warnings apply, hides the Usage Warnings section entirely.
+
+
+      .. py:attribute:: availability_offset
+         :type:  int
+         :value: 0
+
+
+         Partition offset of most recent data available from that claimed by the data
+         source.
+
+         Only permitted when ``availability_text`` is None or otherwise unset.
+         Useful in cases where a particular resource both has no natural date column
+         for row count partitioning, and is updated on a slower cadence than its
+         source. For example, EIA 923 has yearly partitions, but while the
+         monthly output tables receive data from the new year as soon as it is
+         added to the source, the annual output tables aren't updated until the
+         following year.
+
+
+      .. py:attribute:: availability_text
+         :type:  str | None
+         :value: None
+
+
+         Most recent data available. If None or otherwise left unset, will be
+         filled in with the most recent partition listed in the row counts file
+         for this resource. If this is None/unset **and** the row counts
+         partition is null, then will be filled in with the most recent partition
+         listed for the data source, optionally offset by ``availability_offset``
+         partitions.
+
+         Generally only set when a discontinued table does not use temporal partitioning
+         in the row counts file, but we still know when its freshest data was from.
 
 
       .. py:attribute:: additional_summary_text
@@ -1610,11 +1649,11 @@ Module Contents
 
 
 
-   .. py:method:: dict_from_resource_descriptor(resource_id: str, descriptor: PudlResourceDescriptor) -> dict
+   .. py:method:: _resolve_references_from_resource_descriptor(resource_id: str, descriptor: PudlResourceDescriptor) -> dict
       :staticmethod:
 
 
-      Get a Resource-shaped dict from a PudlResourceDescriptor.
+      Partially constructs a Resource-shaped dict from a PudlResourceDescriptor.
 
       * ``schema.fields``
 
@@ -1628,7 +1667,30 @@ Module Contents
         then expanded (:meth:`Contributor.from_id`).
       * ``keywords``: Keywords are fetched by source ids.
       * ``schema.foreign_keys``: Foreign keys are fetched by resource name.
-      * ``description``: Full description text block is rendered from its component parts.
+
+      **Does not compute** resource description text and field encoders.
+
+
+
+   .. py:method:: dict_from_resource_descriptor(resource_id: str, descriptor: PudlResourceDescriptor) -> dict
+      :staticmethod:
+
+
+      Get a Resource-shaped dict from a PudlResourceDescriptor.
+
+      * `schema.fields`
+
+        * Field names are expanded (:meth:`Field.from_id`).
+        * Field attributes are replaced with any specific to the
+          `resource.group` and `field.name`.
+
+      * `sources`: Source ids are expanded (:meth:`Source.from_id`).
+      * `licenses`: License ids are expanded (:meth:`License.from_id`).
+      * `contributors`: Contributor ids are fetched by source ids,
+        then expanded (:meth:`Contributor.from_id`).
+      * `keywords`: Keywords are fetched by source ids.
+      * `schema.foreign_keys`: Foreign keys are fetched by resource name.
+      * `description`: Full description text block is rendered from its component parts.
 
 
 
