@@ -1,8 +1,8 @@
-"""Add AEO 2026
+"""Add 2026 AEO
 
-Revision ID: 089f55a7ede5
-Revises: 6b25097da735
-Create Date: 2026-04-21 10:45:29.181758
+Revision ID: 9ab919aee81f
+Revises: 4f252e9e2ce3
+Create Date: 2026-04-21 15:17:27.452300
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '089f55a7ede5'
-down_revision = '6b25097da735'
+revision = '9ab919aee81f'
+down_revision = '4f252e9e2ce3'
 branch_labels = None
 depends_on = None
 
