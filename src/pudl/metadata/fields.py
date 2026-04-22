@@ -10233,6 +10233,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Cost of retirements minus any net salvage value.",
         "unit": "USD",
     },
+    "debits": {
+        "type": "number",
+        "description": "The increase (decrease) during the period in the value of other assets resulting from the ratemaking actions of regulatory agencies.",
+    },
+    "credits_written_off_recovered": {
+        "type": "number",
+        "description": "Recovered amount of divestiture of other assets lacking physical substance resulting from the ratemaking actions of regulatory agencies.",
+    },
+    "additional_description": {
+        "type": "string",
+        "description": (
+            "Additional free-form description column. In most instances, the values in this column are exactly the same as the "
+            "description column,but it differs from the standard description enough that we kept both columns. "
+            "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
+        ),
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -10972,6 +10988,18 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "payments_for_retirement_abstract",
                 }
             },
+        }
+    },
+    "core_ferc1__yearly_other_regulatory_assets_sched232": {
+        "description": {
+            "type": "string",
+            "description": "Free-form description and purpose of other regulatory assets.",
+        }
+    },
+    "core_ferc1__yearly_other_liabilities_sched278": {
+        "description": {
+            "type": "string",
+            "description": "Free-form description and purpose of other regulatory liabilities.",
         }
     },
     "plant_parts_eia": {
