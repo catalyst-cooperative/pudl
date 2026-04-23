@@ -29,7 +29,6 @@ from pudl.resources import (
     etl_settings,
     zenodo_dois,
 )
-from pudl.settings import load_packaged_etl_settings
 
 from . import (
     eia_bulk_elec_assets,
@@ -252,18 +251,14 @@ def load_etl_run_config_from_file(setting_filename: str) -> dict:
     The settings file path is resolved via ``importlib.resources`` so the config
     works correctly regardless of the current working directory.
     """
-    etl_settings = load_packaged_etl_settings(setting_filename)
-    if etl_settings.ferc_to_sqlite_settings is None:
-        raise ValueError("Missing ferc_to_sqlite_settings in ETL settings file.")
-
-    etl_settings_path = str(
+    etl_settings_path = (
         importlib.resources.files("pudl.package_data.settings")
         / f"{setting_filename}.yml"
     )
 
     return {
         "resources": {
-            "etl_settings": {"config": {"etl_settings_path": etl_settings_path}},
+            "etl_settings": {"config": {"etl_settings_path": str(etl_settings_path)}},
             "runtime_settings": {
                 "config": {},
             },

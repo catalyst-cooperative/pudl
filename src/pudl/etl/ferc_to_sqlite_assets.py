@@ -53,11 +53,11 @@ def dbf_to_sqlite_asset_factory(
                         data_format="dbf",
                         status="complete",
                         zenodo_doi=context.resources.zenodo_dois.get_doi(dataset),
-                        years=context.resources.etl_settings.ferc_to_sqlite_settings.get_dataset_years(
+                        years=context.resources.etl_settings.ferc_to_sqlite.get_dataset_years(
                             dataset=dataset, data_format="dbf"
                         ),
                         settings=json.loads(
-                            context.resources.etl_settings.ferc_to_sqlite_settings.model_dump_json()
+                            context.resources.etl_settings.ferc_to_sqlite.model_dump_json()
                         ),
                         sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
                     ).model_dump(mode="json")
@@ -86,10 +86,8 @@ def xbrl_to_sqlite_asset_factory(
     )
     def _asset(context) -> dg.MaterializeResult[str]:
         runtime_settings = context.resources.runtime_settings
-        settings = (
-            context.resources.etl_settings.ferc_to_sqlite_settings.get_dataset_settings(
-                dataset=f"ferc{form.value}", data_format="xbrl"
-            )
+        settings = context.resources.etl_settings.ferc_to_sqlite.get_dataset_settings(
+            dataset=f"ferc{form.value}", data_format="xbrl"
         )
         if settings is None or not settings.years:
             logger.info(
@@ -139,11 +137,11 @@ def xbrl_to_sqlite_asset_factory(
                         zenodo_doi=context.resources.zenodo_dois.get_doi(
                             f"ferc{form.value}"
                         ),
-                        years=context.resources.etl_settings.ferc_to_sqlite_settings.get_dataset_years(
+                        years=context.resources.etl_settings.ferc_to_sqlite.get_dataset_years(
                             dataset=f"ferc{form.value}", data_format="xbrl"
                         ),
                         settings=json.loads(
-                            context.resources.etl_settings.ferc_to_sqlite_settings.model_dump_json()
+                            context.resources.etl_settings.ferc_to_sqlite.model_dump_json()
                         ),
                         sqlite_path=PudlPaths().sqlite_db_path(
                             f"ferc{form.value}_xbrl"

@@ -1,12 +1,10 @@
 """Module for validating pudl etl settings."""
 
-import importlib.resources
 import json
 from enum import Enum, StrEnum, auto, unique
 from pathlib import Path
 from typing import Any, ClassVar, Literal, Self
 
-import fsspec
 import pandas as pd
 import yaml
 from dagster import StaticPartitionsDefinition
@@ -872,16 +870,17 @@ class EtlSettings(BaseSettings):
     version: str | None = None
 
     @classmethod
-    def from_yaml(cls, path: str) -> "EtlSettings":
-        """Create an EtlSettings instance from a yaml_file path.
+    def from_yaml(cls, path: str | Path) -> "EtlSettings":
+        """Create validated ETL settings from a local YAML file path.
 
         Args:
-            path: path to a yaml file; this could be remote.
+            path: Path to a YAML file. Relative paths are resolved against the
+                current working directory and ``~`` is expanded.
 
         Returns:
             An ETL settings object.
         """
-        with fsspec.open(path) as f:
+        with Path(path).expanduser().resolve().open() as f:
             yaml_file = yaml.safe_load(f)
         return cls.model_validate(yaml_file)
 
@@ -932,33 +931,6 @@ class EtlSettings(BaseSettings):
         if self.datasets is None:
             raise ValueError("Missing datasets settings in ETL settings.")
         return self.datasets
-
-
-def load_etl_settings(path: str | Path) -> EtlSettings:
-    """Load ETL settings from an arbitrary path.
-
-    Expands ``~`` and resolves the path relative to the current working directory
-    before passing it to :meth:`EtlSettings.from_yaml`, which expects an absolute
-    path or a URI. This wrapper exists so callers can pass relative or user-expanded
-    paths without knowing those normalisation details.
-    """
-    return EtlSettings.from_yaml(str(Path(path).expanduser().resolve()))
-
-
-def load_packaged_etl_settings(setting_filename: str) -> EtlSettings:
-    """Load a named ETL settings profile from ``pudl.package_data.settings``.
-
-    Uses :mod:`importlib.resources` to locate the YAML file inside the installed
-    package, so the lookup works correctly regardless of the current working directory
-    or whether the package is installed as a zip. This wrapper exists so callers can
-    refer to profiles by short name (e.g. ``"etl_full"``) without knowing the
-    package-data path or the ``.yml`` extension.
-    """
-    settings_path = (
-        importlib.resources.files("pudl.package_data.settings")
-        / f"{setting_filename}.yml"
-    )
-    return EtlSettings.from_yaml(str(settings_path))
 
 
 def _zenodo_doi_to_url(doi: ZenodoDoi) -> AnyHttpUrl:

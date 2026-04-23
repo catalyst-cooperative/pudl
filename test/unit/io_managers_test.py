@@ -366,9 +366,7 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
                     dataset="ferc1",
                     data_format="dbf",
                     status="complete",
-                    years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
-                        "ferc1", "dbf"
-                    ),
+                    years=etl_settings.ferc_to_sqlite.get_dataset_years("ferc1", "dbf"),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
                     sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
                 ).model_dump(mode="json")
@@ -417,7 +415,7 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
                     dataset="ferc1",
                     data_format="dbf",
                     status="complete",
-                    years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
+                    years=etl_settings.ferc_to_sqlite.get_dataset_years(
                         "ferc1", "xbrl"
                     ),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
@@ -467,9 +465,7 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
             dataset="ferc1",
             data_format="dbf",
             status="complete",
-            years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
-                "ferc1", "dbf"
-            ),
+            years=etl_settings.ferc_to_sqlite.get_dataset_years("ferc1", "dbf"),
             zenodo_doi="stale DOI",
             sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
         ).model_dump(mode="json")

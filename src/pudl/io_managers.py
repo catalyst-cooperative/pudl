@@ -741,7 +741,7 @@ class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
             dataset=self.dataset,
             data_format=self.data_format,
             zenodo_doi=zenodo_doi,
-            years=self.etl_settings.ferc_to_sqlite_settings.get_dataset_years(
+            years=self.etl_settings.ferc_to_sqlite.get_dataset_years(
                 self.dataset, self.data_format
             ),
         )

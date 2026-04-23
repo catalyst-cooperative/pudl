@@ -3,10 +3,7 @@
 import dagster as dg
 from dagster import ConfigurableResource
 
-from pudl.settings import (
-    EtlSettings,
-    load_etl_settings,
-)
+from pudl.settings import EtlSettings
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
@@ -27,7 +24,7 @@ class PudlEtlSettingsResource(ConfigurableResource):
     def create_resource(self, context) -> EtlSettings:
         """Create runtime ETL settings from the configured ETL settings file."""
         del context  # Required by Dagster's hook signature; intentionally unused here.
-        return load_etl_settings(self.etl_settings_path)
+        return EtlSettings.from_yaml(self.etl_settings_path)
 
 
 class ZenodoDoiSettingsResource(ConfigurableResource):
