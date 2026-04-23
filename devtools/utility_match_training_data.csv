@@ -1,0 +1,154 @@
+utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_eia,address_match,
+7,342,AEP Generating Company,343,AEP Generating Company,TRUE,
+8,340,AEP Generation Resources Inc.,58620,AEP Generation Resources Inc,TRUE,
+18,294,ALABAMA POWER COMPANY,195,Alabama Power Co,TRUE,
+19,394,Alaska Electric Light and Power Company,213,Alaska Electric Light&Power Co,TRUE,
+20,282,Alcoa Power Generating Inc.,317,Alcoa Power Generating Inc Yadkin Div,FALSE,
+20,282,Alcoa Power Generating Inc.,56093,alcoa power generating inc yadkin div,FALSE,
+23,307,"ALLETE, Inc.",12647,"ALLETE, Inc.",TRUE,
+25,222,Ameren Illinois Company,61576,Ameren Illinois,TRUE,
+29,200,Appalachian Power Company,733,Appalachian Power Co,TRUE,Different zips :o
+31,286,Arizona Public Service Company,803,Arizona Public Service Co,FALSE,Address never matches
+35,182,Avista Corporation,20169,Avista Corp,FALSE,PO Box shenanigans in recent years
+37,139,Beacon Power Corporation,57031,Beacon Power LLC,FALSE,Doesn’t exist in FERC data?
+40,46,Big Rivers Electric Corporation,1692,Big Rivers Electric Corp,FALSE,Address never matches
+41,53,"Black Creek Hydro, Inc.",1784,Black Creek Hydro Inc,FALSE,Address never matches
+42,285,"Black Hills Power, Inc.",19545,"Black Hills Power, Inc. d/b/a",TRUE,
+43,309,"Black Hills/Colorado Electric Utility Company, LP",56146,Black Hills/Colorado Elec.Util,TRUE,Contact address
+47,334,"Buckeye Power, Inc.",7004,"Buckeye Power, Inc",TRUE,
+52,77,"Carr Street Generating, L.P.",24202,Carr Street Generating Sta LP,FALSE,Doesn’t exist in FERC data?
+55,396,CENTRAL HUDSON GAS & ELECTRIC CORPORATION,3249,Central Hudson Gas & Elec Corp,TRUE,
+63,393,"Chugach Electric Association, Inc.",3522,Chugach Electric Assn Inc,TRUE,
+69,185,Cleco Power LLC,3265,Cleco Power LLC,FALSE,No EIA address
+79,159,"Consolidated Edison Company of New York, Inc.",4226,Consolidated Edison Co-NY Inc,FALSE,Same street + number one has room one has floor
+80,312,Consolidated Water Power Company,4247,Consolidated Water Power Co,TRUE,
+81,163,Consumers Energy Company,4254,Consumers Energy Co,TRUE,
+86,268,Deseret Generation & Transmission Cooperative,40230,Deseret Generation & Tran Coop,TRUE,Same except suite number in address
+89,184,DTE Electric Company,5109,DTE Electric Company,TRUE,
+90,170,"Duke Energy Carolinas, LLC",5416,"Duke Energy Carolinas, LLC",FALSE,"Weird prefix for EIA address, same street"
+91,161,"Duke Energy Florida, Inc.",6455,"Duke Energy Florida, Inc",FALSE,PO Box for EIA.
+92,169,"Duke Energy Indiana, Inc.",15470,"Duke Energy Indiana, LLC",TRUE,
+93,171,"Duke Energy Kentucky, Inc.",55729,Duke Energy Kentucky Inc,FALSE,
+96,172,"Duke Energy Ohio, Inc.",3542,Duke Energy Ohio Inc,FALSE,No EIA address
+97,160,"Duke Energy Progress, Inc.",3046,Duke Energy Progress - (NC),FALSE,Yes but not for the same years.
+100,402,"East Texas Electric Cooperative, Inc.",39347,"East Texas Electric Coop, Inc",TRUE,
+103,186,El Paso Electric Company,5701,El Paso Electric Co,FALSE,"No, bad FERC address format"
+104,321,"Electric Energy, Inc.",5748,Electric Energy Inc,FALSE,No FERC address
+105,158,Emera Maine,1179,Emera Maine,TRUE,contact address
+106,226,"Entergy Arkansas, Inc.",814,Entergy Arkansas Inc,TRUE,
+107,231,"Entergy Gulf States Louisiana, L.L.C.",11241,Entergy Louisiana LLC,TRUE,
+107,362,"Entergy Louisiana, LLC",11241,Entergy Louisiana LLC,TRUE,
+107,411,"Entergy Louisiana, LLC",11241,Entergy Louisiana LLC,TRUE,
+109,382,"entergy mississippi, llc",12685,Entergy Mississippi Inc,TRUE,
+110,233,"entergy new orleans, llc",13478,Entergy New Orleans Inc,TRUE,
+113,234,"Entergy Texas, Inc.",55937,Entergy Texas Inc.,TRUE,
+117,118,"Fall River Electric Cooperative, Inc",6169,Fall River Rural Elec Coop Inc,TRUE,
+120,119,"Florida Keys Electric Cooperative Assoc., Inc.",6443,"Florida Keys El Coop Assn, Inc",FALSE,
+121,247,Florida Power & Light Company,6452,Florida Power & Light Co,FALSE,
+123,295,Georgia Power Company,7140,Georgia Power Co,FALSE,
+124,273,"Golden Spread Electric Cooperative, Inc.",7349,"Golden Spread Electric Cooperative, Inc",FALSE,"Same address, other junk in address (suite) makes bad match"
+125,266,Golden State Water Company,54710,Golden State Water Company,FALSE,
+128,313,Green Mountain Power Corp,7601,Green Mountain Power Corp,TRUE,
+130,296,Gulf Power Company,7801,Gulf Power Co,FALSE,
+134,105,"Hawaii Electric Light Company, Inc.",8287,Hawaii Electric Light Co Inc,FALSE,Missing PO Box
+135,400,"Hawaiian Electric Company, Inc.",19547,Hawaiian Electric Co Inc,TRUE,
+136,345,"Hermiston Generating Company, L.P.",8503,Hermiston Generating Co LP,FALSE,
+140,216,Idaho Power Company,9191,Idaho Power Co,TRUE,
+143,223,Illinois Power Generating Company,520,Illinois Power Generating Co,FALSE,Renamed in 2013
+144,201,Indiana Michigan Power Company,9324,Indiana Michigan Power Co,FALSE,
+145,409,Indiana-Kentucky Electric Corporation,9269,Indiana-Kentucky Electric Corp,FALSE,Missing PO Box
+146,279,Indianapolis Power & Light Company,9273,Indianapolis Power & Light Co,FALSE,Missing PO Box
+150,220,Interstate Power and Light Company,9417,Interstate Power and Light Co,TRUE,
+156,173,Jersey Central Power & Light Company,9726,Jersey Central Power & Lt Co,TRUE,
+159,254,Kansas City Power & Light Company,10000,Kansas City Power & Light Co,TRUE,
+160,356,"evergy kansas south, inc.",10005,Kansas Gas & Electric Co,FALSE,Missing the South but near identical
+161,255,KCP&L Greater Missouri Operations Company,56211,KCP&L Greater Missouri Operations Co,TRUE,
+162,202,Kentucky Power Company,22053,Kentucky Power Co,FALSE,Missing the floor
+163,210,Kentucky Utilities Company,10171,Kentucky Utilities Co,TRUE,
+167,252,Lockhart Power Company,11118,Lockhart Power Co,TRUE,
+169,209,Louisville Gas and Electric Company,11249,Louisville Gas & Electric Co,TRUE,
+171,335,Madison Gas and Electric Company,11479,Madison Gas & Electric Co,FALSE,
+175,277,Massachusetts Electric Company,11804,Massachusetts Electric Co,TRUE,
+176,25,"MAUI ELECTRIC COMPANY, LIMITED",11843,Maui Electric Co Ltd,FALSE,Missing PO Box
+178,28,Montana-Dakota Utilities Company,12199,Montana-Dakota Utilities Co,FALSE,Doesn’t exist in FERC data?
+185,251,MidAmerican Energy Company,12341,MidAmerican Energy Co,FALSE,Missing PO Box/ Suite
+187,360,"Midwest Electric Power, Inc",12159,Midwest Electric Power Inc,FALSE,
+188,401,Midwest Energy Inc.,12524,Midwest Energy Inc,FALSE,Missing PO Box
+190,297,Mississippi Power Company,12686,Mississippi Power Co,TRUE,
+191,238,MONONGAHELA POWER COMPANY,12796,Monongahela Power Co,FALSE,
+195,126,"Moon Lake Electric Association, Inc.",12866,Moon Lake Electric Assn Inc,FALSE,Doesn’t exist in FERC data?
+202,426,Nantucket Electric Company,13206,Nantucket Electric Co,FALSE,
+203,281,National Grid Generation LLC,56505,National Grid Generation LLC,TRUE,
+204,301,"Nevada Power Company, d/b/a NV Energy",13407,Nevada Power Co,TRUE,
+213,215,New York State Electric & Gas Corporation,13511,New York State Elec & Gas Corp,FALSE,
+219,427,"North Central Power Co., Inc.",13697,North Central Power Co Inc,TRUE,
+222,208,Northern Indiana Public Service Company,13756,Northern Indiana Pub Serv Co,,
+224,229,Northern States Power Company (Minnesota),13781,Northern States Power Co - Minnesota,,
+226,315,NorthWestern Corporation,13902,NorthWestern Energy,,
+226,315,NorthWestern Corporation,56815,NorthWestern Energy DGGS,,
+226,315,NorthWestern Corporation,13809,NorthWestern Energy - (SD),,
+229,399,Northwestern Wisconsin Electric Company,13815,Northwestern Wisconsin Elec Co,,
+230,271,NSTAR Electric Company,54913,NSTAR Electric Company,,
+231,316,Ocean State Power,27769,Ocean State Power Co,,
+232,317,"Ocean State Power, II",27770,Ocean State Power II,,
+233,48,Oconto Electric Cooperative,13964,Oconto Electric Cooperative,,
+236,217,Ohio Valley Electric Corporation,14015,Ohio Valley Electric Corp,,
+237,314,Oklahoma Gas and Electric Company,14063,Oklahoma Gas & Electric Co,,
+238,287,Old Dominion Electric Cooperative,40229,Old Dominion Electric Coop,,
+239,428,"Omya, Inc.",19794,Omya Inc,,
+243,272,Otter Tail Power Company,14232,Otter Tail Power Co,,
+244,183,PACIFIC GAS AND ELECTRIC COMPANY,14328,Pacific Gas & Electric Co,,
+245,329,Pacific Northwest Generating Cooperative,14323,Pacific Northwest Generating Coop,,
+246,303,PacifiCorp,14354,PacifiCorp,,
+263,250,Portland General Electric Company,15248,Portland General Electric Co,,
+268,90,PSEG Fossil LLC,15147,PSEG Fossil LLC,,
+269,262,PSEG Nuclear LLC,15478,PSEG Nuclear LLC,,
+270,86,PSEG Power LLC,15452,PSEG Power Connecticut LLC,,
+271,87,PSEG Power New York Inc.,14294,PSEG Power New York Inc,,
+272,227,Public Service Company of Colorado,15466,Public Service Co of Colorado,,
+273,244,Public Service Company of New Hampshire,15472,Public Service Co of NH,,
+274,263,Public Service Company of New Mexico,15473,Public Service Co of NM,,
+275,205,Public Service Company of Oklahoma,15474,Public Service Co of Oklahoma,,
+276,260,Public Service Electric and Gas Company,15477,Public Service Elec & Gas Co,,
+277,162,"Puget Sound Energy, Inc.",15500,Puget Sound Energy Inc,,
+280,214,Rochester Gas and Electric Corporation,16183,Rochester Gas & Electric Corp,,
+282,311,Safe Harbor Water Power Corporation,59364,Safe Harbor,,
+284,218,San Diego Gas & Electric Company,16609,San Diego Gas & Electric Co,,
+287,300,Sierra Pacific Power Company d/b/a NV Energy,17166,Sierra Pacific Power Co,,
+292,168,South Carolina Electric & Gas Company,17539,South Carolina Electric&Gas Company,,
+293,351,"South Carolina Generating Company, Inc.",17554,"South Carolina Genertg Co, Inc",,
+295,155,Southern California Edison Company,17609,Southern California Edison Co,,
+298,242,Southern Indiana Gas and Electric Company,17633,Southern Indiana Gas & Elec Co,,
+301,206,Southwestern Electric Power Company,17698,Southwestern Electric Power Co,,
+302,230,Southwestern Public Service Company,17718,Southwestern Public Service Co,,
+311,235,"System Energy Resources, Inc.",12465,"System Energy Resources, Inc",,
+313,157,Tampa Electric Company,18454,Tampa Electric Co,,
+317,211,The Dayton Power and Light Company,4922,Dayton Power & Light Co,,
+318,249,The Empire District Electric Company,5860,Empire District Electric Co,,
+322,299,The United Illuminating Company,19497,United Illuminating Co,,
+327,104,TransCanada Hydro NorthEast Inc.,50048,"TransCanada Hydro Northeast Inc.,",,
+330,257,Tucson Electric Power Company,24211,Tucson Electric Power Co,,
+334,221,UNION ELECTRIC COMPANY,19436,Union Electric Co - (MO),,
+335,136,"United Power, Inc.",19499,"United Power, Inc",,
+339,258,"UNS Electric, Inc.",19728,"UNS Electric, Inc",,
+340,188,Upper Peninsula Power Company,19578,Upper Peninsula Power Company,,
+348,60,Village of Morrisville Water and Light Department,12989,Village of Morrisville - (VT),,
+349,164,VIRGINIA ELECTRIC AND POWER COMPANY,19876,Virginia Electric & Power Co,,
+352,156,"Wabash Valley Power Association, Inc.",40211,"Wabash Valley Power Assn, Inc",,
+354,74,"Washington Electric Cooperative, Inc.",20151,Washington Electric Coop - (VT),,
+359,225,"Westar Energy, Inc.",22500,Westar Energy Inc,,
+359,348,"Westar Generating, Inc.",22500,Westar Energy Inc,,
+360,245,Western Massachusetts Electric Company,56999,Western Massachusetts Electric Company,,
+361,207,Wheeling Power Company,20521,wheeling power co,,
+363,280,Wisconsin Electric Power Company,20847,Wisconsin Electric Power Co,,
+364,219,Wisconsin Power and Light Company,20856,Wisconsin Power & Light Co,,
+365,187,Wisconsin Public Service Corporation,20860,Wisconsin Public Service Corp,,
+366,189,Wisconsin River Power Company,20863,Wisconsin River Power Company,,
+367,94,Wolf Creek Nuclear Operating Corporation,20893,Wolf Creek Nuclear Optg Corp,,
+368,259,"Wolverine Power Supply Cooperative, Inc.",20910,Wolverine Power Supply Coop,,
+371,379,York Haven Power Company,56065,York Haven Power Company LLC,,
+5557,453,stanton clean energy llc,61903,Stanton Clean Energy LLC,,
+6960,454,"oleander power project, limited partnership",22313,Oleander Power Project LP,,
+16146,457,"harmony florida solar ii, llc",66091,"Harmony Florida Solar II, LLC",,
+16148,455,"storey bend solar, llc",66092,"Storey Bend Solar, LLC",,
+16149,456,"frp tupelo solar, llc",66063,"FRP Tupelo Solar, LLC",,

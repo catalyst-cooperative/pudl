@@ -22,8 +22,11 @@ FERC 1
 * Added FERC Form 1 respondents' identification and certification information as
   :ref:`core_ferc1__yearly_identification_certification`. See :issue:`5150` and
   :pr:`5008`.
+<<<<<<< HEAD
+=======
 * Added new :ref:`out_ferc1__yearly_other_regulatory_assets_sched232` table. See
   issue :issue:`5104` and PR :pr:`5170`.
+>>>>>>> main
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
