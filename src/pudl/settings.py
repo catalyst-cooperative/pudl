@@ -812,7 +812,6 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
 class FercToSqliteSettings(BaseSettings):
     """An immutable pydantic model to validate FERC XBRL to SQLite settings."""
 
-    # TODO this seems like an insane way to set defaults.
     ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings | None = None
     ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings | None = None
     ferc2_dbf_to_sqlite_settings: Ferc2DbfToSqliteSettings | None = None
