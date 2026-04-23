@@ -696,7 +696,7 @@ class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
     Holds the shared resource dependencies (``etl_settings``, ``zenodo_dois``,
     ``db_name``) and provides default delegation for ``engine``, ``handle_output``,
     and ``load_input``. Subclasses must define ``_manager`` (a ``cached_property``
-        returning the appropriate underlying IO manager) and ``data_format``
+    returning the appropriate underlying IO manager) and ``data_format``
     (``dbf`` or ``xbrl``).
 
     Note:
