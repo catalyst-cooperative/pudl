@@ -33,6 +33,9 @@ Expanded Data Coverage
 Documentation
 ^^^^^^^^^^^^^
 
+* Added new component to table descriptions showing the most recent data
+  available. See issue :issue:`4586` and PR :pr:`4632`.
+
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
