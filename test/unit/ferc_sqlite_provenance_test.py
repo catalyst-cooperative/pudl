@@ -1,6 +1,5 @@
 """Unit tests for the FERC SQLite provenance helpers."""
 
-import json
 import os
 from pathlib import Path
 from typing import Literal
@@ -23,13 +22,14 @@ from pudl.settings import FercToSqliteSettings
 
 def test_ferc_sqlite_provenance_record_round_trip() -> None:
     """A complete record round-trips through Dagster metadata without data loss."""
+    settings = FercToSqliteSettings()
     record = FercSQLiteProvenanceRecord(
         dataset="ferc1",
         data_format="dbf",
         status="complete",
         zenodo_doi="fake DOI",
         years=[2018, 2019],
-        settings=json.loads(FercToSqliteSettings().model_dump_json()),
+        settings=settings,
         sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
     )
     dagster_meta = {
@@ -43,6 +43,7 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
     )
 
     assert recovered == record
+    assert recovered.settings == settings
 
 
 @pytest.mark.parametrize("status", ["skipped", "not_configured"])

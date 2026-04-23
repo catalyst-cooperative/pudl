@@ -14,6 +14,7 @@ import dagster as dg
 from pydantic import BaseModel
 
 import pudl
+from pudl.settings import FercToSqliteSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 FERC_TO_SQLITE_METADATA_KEY = "ferc_to_sqlite"
@@ -48,7 +49,7 @@ class FercSQLiteProvenanceRecord(BaseModel):
     status: Literal["complete", "skipped", "not_configured"]
     zenodo_doi: str | None = None
     years: list[int] | None = None
-    settings: dict[str, Any] | None = None
+    settings: FercToSqliteSettings | None = None
     sqlite_path: Path | None = None
 
 
