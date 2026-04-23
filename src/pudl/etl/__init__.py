@@ -96,6 +96,7 @@ out_module_groups = {
     ],
     "out_allocate_gen_fuel": [pudl.analysis.allocate_gen_fuel],
     "out_derived_gen_attributes": [pudl.analysis.mcoe],
+    "out_epacems": [pudl.analysis.derived_plant_characteristics],
     "out_eia": [
         pudl.output.eia,
         pudl.output.eia860,

@@ -52,6 +52,43 @@ CEMS data.
         "etl_group": "epacems",
         "create_database_schema": False,
     },
+    "out_epacems__yearly_operational_characteristics": {
+        "description": {
+            "additional_summary_text": (
+                "estimated annual operational characteristics for EPA CEMS "
+                "emissions units."
+            ),
+            "usage_warnings": ["estimated_values"],
+            "additional_details_text": """This table summarizes several inferred
+operational characteristics for each EPA CEMS emissions unit using hourly CEMS
+gross load and fuel heat content over a configurable multi-year window.
+
+The values are not directly reported by source agencies. They are derived from
+observed hourly operations, including load factor bins, consecutive operating
+runs, and gross-load ramping behavior. As a result, the output should be treated
+as an analytical estimate rather than as reported plant characteristics.""",
+        },
+        "schema": {
+            "fields": [
+                "plant_id_epa",
+                "emissions_unit_id_epa",
+                "plant_id_eia",
+                "max_gross_load_mw",
+                "min_stable_level",
+                "min_up_time_hr",
+                "min_down_time_hr",
+                "heat_rate_at_max_load_factor_mmbtu_per_mwh",
+                "heat_rate_at_min_stable_level_mmbtu_per_mwh",
+                "ramp_up_rate_fraction_of_max_gross_load_per_min",
+                "ramp_down_rate_fraction_of_max_gross_load_per_min",
+            ],
+            "primary_key": ["plant_id_epa", "emissions_unit_id_epa"],
+        },
+        "sources": ["epacems"],
+        "field_namespace": "epacems",
+        "etl_group": "epacems",
+        "create_database_schema": False,
+    },
 }
 """EPA CEMS resource attributes by PUDL identifier (``resource.name``).
 
