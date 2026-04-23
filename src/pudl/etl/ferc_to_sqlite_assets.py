@@ -56,7 +56,7 @@ def dbf_to_sqlite_asset_factory(
                         years=context.resources.etl_settings.ferc_to_sqlite_settings.get_dataset_years(
                             dataset=dataset, data_format="dbf"
                         ),
-                        settings_json=json.loads(
+                        settings=json.loads(
                             context.resources.etl_settings.ferc_to_sqlite_settings.model_dump_json()
                         ),
                         sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
@@ -142,7 +142,7 @@ def xbrl_to_sqlite_asset_factory(
                         years=context.resources.etl_settings.ferc_to_sqlite_settings.get_dataset_years(
                             dataset=f"ferc{form.value}", data_format="xbrl"
                         ),
-                        settings_json=json.loads(
+                        settings=json.loads(
                             context.resources.etl_settings.ferc_to_sqlite_settings.model_dump_json()
                         ),
                         sqlite_path=PudlPaths().sqlite_db_path(

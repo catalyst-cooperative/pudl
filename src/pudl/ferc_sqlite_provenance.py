@@ -48,7 +48,7 @@ class FercSQLiteProvenanceRecord(BaseModel):
     status: Literal["complete", "skipped", "not_configured"]
     zenodo_doi: str | None = None
     years: list[int] | None = None
-    settings_json: dict[str, Any] | None = None
+    settings: dict[str, Any] | None = None
     sqlite_path: Path | None = None
 
 

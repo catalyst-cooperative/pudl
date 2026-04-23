@@ -29,7 +29,7 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
         status="complete",
         zenodo_doi="fake DOI",
         years=[2018, 2019],
-        settings_json=json.loads(FercToSqliteSettings().model_dump_json()),
+        settings=json.loads(FercToSqliteSettings().model_dump_json()),
         sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
     )
     dagster_meta = {
