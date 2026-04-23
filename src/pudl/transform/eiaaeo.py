@@ -642,7 +642,12 @@ def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
 
     assert set(sanitized.topic.unique()) == {"electricity"}
     assert set(sanitized.variable_name.unique()) == {"fuel_prices"}
-    assert set(sanitized.units.unique()) == {"2024_mmbtu", "2022_mmbtu", "nom_mmbtu"}
+    assert set(sanitized.units.unique()) == {
+        "2025_mmbtu",
+        "2024_mmbtu",
+        "2022_mmbtu",
+        "nom_mmbtu",
+    }
     # turn variable_name into `nominal_fuel_prices` and `real_fuel_prices` based on unit
     sanitized.variable_name = sanitized.units + "_" + sanitized.variable_name
 
@@ -688,7 +693,7 @@ class AeoCheckSpec:
 
 
 BASE_AEO_CATEGORIES = {
-    "model_case_eiaaeo": 20,
+    "model_case_eiaaeo": 23,
     "projection_year": 30,
     "electricity_market_module_region_eiaaeo": 26,
 }

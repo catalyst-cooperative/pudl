@@ -3911,7 +3911,7 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.4.1.dev14
+  version: 2026.4.1.dev15
   sha256: 2feaa81924fcba84f4eb9c65e40bbf044fd8bb2ba346024d4af1475a26379724
   requires_dist:
   - usaddress>=0.5.16,<0.6
