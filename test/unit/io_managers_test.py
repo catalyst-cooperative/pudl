@@ -16,7 +16,10 @@ from pudl.etl.check_foreign_keys import (
     ForeignKeyErrors,
     check_foreign_keys,
 )
-from pudl.ferc_sqlite_provenance import FercSQLiteProvenanceRecord
+from pudl.ferc_sqlite_provenance import (
+    FERC_TO_SQLITE_METADATA_KEY,
+    FercSQLiteProvenanceRecord,
+)
 from pudl.io_managers import (
     FercDbfSQLiteConfigurableIOManager,
     FercDbfSQLiteIOManager,
@@ -358,16 +361,18 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
 
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
-            metadata=FercSQLiteProvenanceRecord(
-                dataset="ferc1",
-                data_format="dbf",
-                status="complete",
-                years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
-                    "ferc1", "dbf"
-                ),
-                zenodo_doi=zenodo_dois.get_doi("ferc1"),
-                sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
-            ).to_dagster_metadata()
+            metadata={
+                FERC_TO_SQLITE_METADATA_KEY: FercSQLiteProvenanceRecord(
+                    dataset="ferc1",
+                    data_format="dbf",
+                    status="complete",
+                    years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
+                        "ferc1", "dbf"
+                    ),
+                    zenodo_doi=zenodo_dois.get_doi("ferc1"),
+                    sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+                ).model_dump(mode="json")
+            }
         )
     )
     context: InputContext = build_input_context(
@@ -407,16 +412,18 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
     instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
-            metadata=FercSQLiteProvenanceRecord(
-                dataset="ferc1",
-                data_format="dbf",
-                status="complete",
-                years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
-                    "ferc1", "xbrl"
-                ),
-                zenodo_doi=zenodo_dois.get_doi("ferc1"),
-                sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
-            ).to_dagster_metadata()
+            metadata={
+                FERC_TO_SQLITE_METADATA_KEY: FercSQLiteProvenanceRecord(
+                    dataset="ferc1",
+                    data_format="dbf",
+                    status="complete",
+                    years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
+                        "ferc1", "xbrl"
+                    ),
+                    zenodo_doi=zenodo_dois.get_doi("ferc1"),
+                    sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+                ).model_dump(mode="json")
+            }
         )
     )
     context: InputContext = build_input_context(
@@ -455,14 +462,18 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
             update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
         )
     )
-    stale_metadata = FercSQLiteProvenanceRecord(
-        dataset="ferc1",
-        data_format="dbf",
-        status="complete",
-        years=etl_settings.ferc_to_sqlite_settings.get_dataset_years("ferc1", "dbf"),
-        zenodo_doi="stale DOI",
-        sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
-    ).to_dagster_metadata()
+    stale_metadata = {
+        FERC_TO_SQLITE_METADATA_KEY: FercSQLiteProvenanceRecord(
+            dataset="ferc1",
+            data_format="dbf",
+            status="complete",
+            years=etl_settings.ferc_to_sqlite_settings.get_dataset_years(
+                "ferc1", "dbf"
+            ),
+            zenodo_doi="stale DOI",
+            sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+        ).model_dump(mode="json")
+    }
     instance: DagsterInstance = mocker.MagicMock()
     instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(

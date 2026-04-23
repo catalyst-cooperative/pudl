@@ -5,9 +5,11 @@ import os
 from pathlib import Path
 from typing import Literal
 
+import dagster as dg
 import pytest
 
 from pudl.ferc_sqlite_provenance import (
+    FERC_TO_SQLITE_METADATA_KEY,
     FercSQLiteProvenance,
     FercSQLiteProvenanceRecord,
     assert_ferc_sqlite_compatible,
@@ -30,8 +32,15 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
         settings_json=json.loads(FercToSqliteSettings().model_dump_json()),
         sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
     )
-    dagster_meta = record.to_dagster_metadata()
-    recovered = FercSQLiteProvenanceRecord.from_dagster_metadata(dagster_meta)
+    dagster_meta = {
+        FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
+            record.model_dump(mode="json")
+        )
+    }
+    assert set(dagster_meta) == {FERC_TO_SQLITE_METADATA_KEY}
+    recovered = FercSQLiteProvenanceRecord.model_validate(
+        dagster_meta[FERC_TO_SQLITE_METADATA_KEY].value
+    )
 
     assert recovered == record
 
@@ -40,13 +49,18 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
 def test_ferc_sqlite_provenance_record_minimal_round_trip(
     status: Literal["skipped", "not_configured"],
 ) -> None:
-    """A skipped or not_configured record only stores dataset and status."""
-    # TODO do we need to assert non-existence of anything here?
+    """A minimal record still round-trips through the nested Dagster metadata."""
     record = FercSQLiteProvenanceRecord(
         dataset="ferc714", data_format="xbrl", status=status
     )
-    dagster_meta = record.to_dagster_metadata()
-    recovered = FercSQLiteProvenanceRecord.from_dagster_metadata(dagster_meta)
+    dagster_meta = {
+        FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
+            record.model_dump(mode="json")
+        )
+    }
+    recovered = FercSQLiteProvenanceRecord.model_validate(
+        dagster_meta[FERC_TO_SQLITE_METADATA_KEY].value
+    )
 
     assert recovered == record
 
@@ -138,7 +152,11 @@ def test_assert_ferc_sqlite_compatible_year_subset_check(
         dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=required_years
     )
 
-    stored_dagster_meta = stored.to_dagster_metadata()
+    stored_dagster_meta = {
+        FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
+            stored.model_dump(mode="json")
+        )
+    }
     instance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=stored_dagster_meta)
@@ -166,7 +184,11 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
         dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[]
     )
 
-    stored_dagster_meta = stored.to_dagster_metadata()
+    stored_dagster_meta = {
+        FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
+            stored.model_dump(mode="json")
+        )
+    }
     instance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=stored_dagster_meta)
@@ -206,9 +228,13 @@ def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
     populated, so downstream IO managers must refuse to read from it.
     """
 
-    dagster_meta = FercSQLiteProvenanceRecord(
-        dataset="ferc1", data_format="dbf", status=status
-    ).to_dagster_metadata()
+    dagster_meta = {
+        FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
+            FercSQLiteProvenanceRecord(
+                dataset="ferc1", data_format="dbf", status=status
+            ).model_dump(mode="json")
+        )
+    }
     instance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=dagster_meta)
