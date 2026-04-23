@@ -1,7 +1,5 @@
 """Dagster asset definitions for granular FERC-to-SQLite extraction."""
 
-import json
-
 import dagster as dg
 
 import pudl
@@ -56,8 +54,8 @@ def dbf_to_sqlite_asset_factory(
                         years=context.resources.etl_settings.ferc_to_sqlite.get_dataset_years(
                             dataset=dataset, data_format="dbf"
                         ),
-                        settings=json.loads(
-                            context.resources.etl_settings.ferc_to_sqlite.model_dump_json()
+                        settings=context.resources.etl_settings.ferc_to_sqlite.model_dump(
+                            mode="json"
                         ),
                         sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
                     ).model_dump(mode="json")
@@ -140,8 +138,8 @@ def xbrl_to_sqlite_asset_factory(
                         years=context.resources.etl_settings.ferc_to_sqlite.get_dataset_years(
                             dataset=f"ferc{form.value}", data_format="xbrl"
                         ),
-                        settings=json.loads(
-                            context.resources.etl_settings.ferc_to_sqlite.model_dump_json()
+                        settings=context.resources.etl_settings.ferc_to_sqlite.model_dump(
+                            mode="json"
                         ),
                         sqlite_path=PudlPaths().sqlite_db_path(
                             f"ferc{form.value}_xbrl"
