@@ -78,23 +78,19 @@ def assert_ferc_sqlite_compatible(
     """
     skip_env = os.environ.get("PUDL_SKIP_FERC_SQLITE_PROVENANCE", "").strip().lower()
     if skip_env in {"1", "true", "yes"}:
-        # TODO should we just fstring these logger calls
         logger.warning(
-            "PUDL_SKIP_FERC_SQLITE_PROVENANCE is set: skipping FERC SQLite provenance "
-            "check for %s_%s. Stale or incompatible prerequisites may cause downstream "
-            "failures.",
-            provenance.dataset,
-            provenance.data_format,
+            f"PUDL_SKIP_FERC_SQLITE_PROVENANCE is set: skipping FERC SQLite "
+            f"provenance check for {provenance.dataset}_{provenance.data_format}. "
+            "Stale or incompatible prerequisites may cause downstream failures."
         )
         return
 
     if instance is None:
         logger.warning(
-            "No Dagster instance is available; skipping FERC SQLite provenance check "
-            "for %s_%s. This is expected when running assets outside a Dagster execution "
-            "context (e.g. in unit tests).",
-            provenance.dataset,
-            provenance.data_format,
+            f"No Dagster instance is available; skipping FERC SQLite provenance "
+            f"check for {provenance.dataset}_{provenance.data_format}. This is "
+            "expected when running assets outside a Dagster execution context "
+            "(e.g. in unit tests)."
         )
         return
 
