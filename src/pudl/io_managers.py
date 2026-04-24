@@ -733,9 +733,14 @@ class _FercSQLiteConfigurableIOManagerBase(ConfigurableIOManager):
         return self._manager.handle_output(context, obj)
 
     def _prepare(self, context: InputContext) -> None:
-        """Ensure the database is ready and provenance is compatible with this run."""
+        """Make sure extracted FERC database is valid for this run.
+
+        * does the database exist?
+        * do the FERC SQLite provenance check
+        """
         self._manager._ensure_database_ready()
-        zenodo_doi = getattr(self.zenodo_dois, self.dataset)
+
+        zenodo_doi = self.zenodo_dois.get_doi(self.dataset)
 
         provenance = FercSQLiteProvenance(
             dataset=self.dataset,
