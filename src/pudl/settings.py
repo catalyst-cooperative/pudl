@@ -1,12 +1,10 @@
 """Module for validating pudl etl settings."""
 
-import importlib.resources
 import json
 from enum import Enum, StrEnum, auto, unique
 from pathlib import Path
-from typing import Any, ClassVar, Self
+from typing import Any, ClassVar, Literal, Self
 
-import fsspec
 import pandas as pd
 import yaml
 from dagster import StaticPartitionsDefinition
@@ -841,28 +839,22 @@ class FercToSqliteSettings(BaseSettings):
 
         return data
 
-    def get_xbrl_dataset_settings(
-        self, form_number: XbrlFormNumber
-    ) -> FercGenericXbrlToSqliteSettings | None:
-        """Return a list with all requested FERC XBRL to SQLite datasets.
+    def get_dataset_settings(
+        self, dataset: str, data_format: Literal["dbf", "xbrl"]
+    ) -> FercGenericXbrlToSqliteSettings:
+        """Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
-        Args:
-            form_number: Get settings by FERC form number.
+        Throws a KeyError if dataset/format is not configured.
         """
-        # Get requested settings object
-        match form_number:
-            case XbrlFormNumber.FORM1:
-                settings = self.ferc1_xbrl_to_sqlite_settings
-            case XbrlFormNumber.FORM2:
-                settings = self.ferc2_xbrl_to_sqlite_settings
-            case XbrlFormNumber.FORM6:
-                settings = self.ferc6_xbrl_to_sqlite_settings
-            case XbrlFormNumber.FORM60:
-                settings = self.ferc60_xbrl_to_sqlite_settings
-            case XbrlFormNumber.FORM714:
-                settings = self.ferc714_xbrl_to_sqlite_settings
+        key = f"{dataset}_{data_format}_to_sqlite_settings"
+        return dict(self)[key]
 
-        return settings
+    def get_dataset_years(
+        self, dataset: str, data_format: Literal["dbf", "xbrl"]
+    ) -> list[int]:
+        """Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``)."""
+        settings = self.get_dataset_settings(dataset=dataset, data_format=data_format)
+        return sorted(settings.years)
 
 
 class EtlSettings(BaseSettings):
@@ -877,16 +869,17 @@ class EtlSettings(BaseSettings):
     version: str | None = None
 
     @classmethod
-    def from_yaml(cls, path: str) -> "EtlSettings":
-        """Create an EtlSettings instance from a yaml_file path.
+    def from_yaml(cls, path: str | Path) -> "EtlSettings":
+        """Create validated ETL settings from a local YAML file path.
 
         Args:
-            path: path to a yaml file; this could be remote.
+            path: Path to a YAML file. Relative paths are resolved against the
+                current working directory and ``~`` is expanded.
 
         Returns:
             An ETL settings object.
         """
-        with fsspec.open(path) as f:
+        with Path(path).expanduser().resolve().open() as f:
             yaml_file = yaml.safe_load(f)
         return cls.model_validate(yaml_file)
 
@@ -937,39 +930,6 @@ class EtlSettings(BaseSettings):
         if self.datasets is None:
             raise ValueError("Missing datasets settings in ETL settings.")
         return self.datasets
-
-    def get_xbrl_dataset_settings(
-        self, form_number: XbrlFormNumber
-    ) -> FercGenericXbrlToSqliteSettings | None:
-        """Proxy FERC XBRL settings lookup through the canonical ETL settings."""
-        return self.ferc_to_sqlite.get_xbrl_dataset_settings(form_number)
-
-
-def load_etl_settings(path: str | Path) -> EtlSettings:
-    """Load ETL settings from an arbitrary path.
-
-    Expands ``~`` and resolves the path relative to the current working directory
-    before passing it to :meth:`EtlSettings.from_yaml`, which expects an absolute
-    path or a URI. This wrapper exists so callers can pass relative or user-expanded
-    paths without knowing those normalisation details.
-    """
-    return EtlSettings.from_yaml(str(Path(path).expanduser().resolve()))
-
-
-def load_packaged_etl_settings(setting_filename: str) -> EtlSettings:
-    """Load a named ETL settings profile from ``pudl.package_data.settings``.
-
-    Uses :mod:`importlib.resources` to locate the YAML file inside the installed
-    package, so the lookup works correctly regardless of the current working directory
-    or whether the package is installed as a zip. This wrapper exists so callers can
-    refer to profiles by short name (e.g. ``"etl_full"``) without knowing the
-    package-data path or the ``.yml`` extension.
-    """
-    settings_path = (
-        importlib.resources.files("pudl.package_data.settings")
-        / f"{setting_filename}.yml"
-    )
-    return EtlSettings.from_yaml(str(settings_path))
 
 
 def _zenodo_doi_to_url(doi: ZenodoDoi) -> AnyHttpUrl:

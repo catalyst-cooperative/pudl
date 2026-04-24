@@ -31,7 +31,6 @@ from pudl.settings import (
     FercToSqliteSettings,
     GenericDatasetSettings,
     GridPathRAToolkitSettings,
-    load_etl_settings,
 )
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
@@ -281,7 +280,7 @@ class TestGridPathRAToolkitSettings:
         with importlib.resources.as_file(
             importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
         ) as path:
-            etl_settings: EtlSettings = load_etl_settings(str(path))
+            etl_settings: EtlSettings = EtlSettings.from_yaml(path)
         assert etl_settings.datasets is not None
 
         gridpath_settings: GridPathRAToolkitSettings | None = (

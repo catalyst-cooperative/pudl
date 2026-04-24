@@ -87,8 +87,8 @@ from pudl.extract.dbf import (
     deduplicate_by_year,
 )
 from pudl.io_managers import (
-    FercDbfSQLiteIOManager,
-    FercXbrlSQLiteIOManager,
+    FercDbfSQLiteConfigurableIOManager,
+    FercXbrlSQLiteConfigurableIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
@@ -98,6 +98,7 @@ from pudl.settings import (
     FercDbfToSqliteSettings,
     FercToSqliteSettings,
 )
+from pudl.workspace.datastore import ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -485,7 +486,7 @@ def raw_ferc1_xbrl__metadata_json(
 # Ferc extraction functions for devtool notebook testing
 def extract_dbf_generic(
     table_names: list[str],
-    io_manager: FercDbfSQLiteIOManager,
+    io_manager: FercDbfSQLiteConfigurableIOManager,
     dataset_settings: DatasetsSettings,
 ) -> pd.DataFrame:
     """Combine multiple raw dbf tables into one.
@@ -512,7 +513,7 @@ def extract_dbf_generic(
 
 def extract_xbrl_generic(
     table_names: list[str],
-    io_manager: FercXbrlSQLiteIOManager,
+    io_manager: FercXbrlSQLiteConfigurableIOManager,
     dataset_settings: DatasetsSettings,
     period: Literal["duration", "instant"],
 ) -> pd.DataFrame:
@@ -558,7 +559,13 @@ def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
     ferc1_dbf_raw_dfs = {}
 
     io_manager = ferc1_dbf_sqlite_io_manager.model_copy(
-        update={"etl_settings": EtlSettings(datasets=dataset_settings)}
+        update={
+            "etl_settings": EtlSettings(
+                datasets=dataset_settings,
+                ferc_to_sqlite_settings=FercToSqliteSettings(),
+            ),
+            "zenodo_dois": ZenodoDoiSettings(),
+        },
     )
 
     for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
@@ -593,7 +600,13 @@ def extract_xbrl(
     ferc1_xbrl_raw_dfs = {}
 
     io_manager = ferc1_xbrl_sqlite_io_manager.model_copy(
-        update={"etl_settings": EtlSettings(datasets=dataset_settings)}
+        update={
+            "etl_settings": EtlSettings(
+                datasets=dataset_settings,
+                ferc_to_sqlite_settings=FercToSqliteSettings(),
+            ),
+            "zenodo_dois": ZenodoDoiSettings(),
+        },
     )
 
     for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
