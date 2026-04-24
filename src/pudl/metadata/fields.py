@@ -10252,6 +10252,51 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
+DRAFT_FIELDS = {
+    "column_name": {
+        "type": "string",
+        "description": "The name of the column.",
+    },
+    "record_value": {
+        "type": "string",
+        "description": (
+            "The original values found in PUDL _core table records that were used as ingredients "
+            "to the entity resolution process."
+        ),
+    },
+    "entity_occurrences": {
+        "type": "integer",
+        "description": (
+            "The number of times this entity - aka this paritular utility, plant, etc - "
+            "occurs across the pre-entity resolution tables."
+        ),
+    },
+    "record_occurrences": {
+        "type": "integer",
+        "description": (
+            "The number of times this particular record_value occurs across the pre-entity resolution "
+            "tables in association with this particular entity."
+        ),
+    },
+    "consistent_rate": {
+        "type": "number",
+        "description": (
+            "What portion of the entity's records were reported with this particular ``record_value``. "
+            "This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."
+        ),
+    },
+    "is_consistent": {
+        "type": "boolean",
+        "description": (
+            "Does the record pass the consistency check? By default PUDL requires values "
+            "to be at least 70% consistent to pass this consistency check. There are "
+            "exceptions to the default 70% consistency check for columns like plant or "
+            "utility names when we always want a value - for those instances we choose the "
+            "most frequently occurring value regardless of how consistently it was reported."
+        ),
+    },
+}
+
 FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "epacems": {
         "state": {"constraints": {"enum": EPACEMS_STATES}},

@@ -697,6 +697,31 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     },
 }
 
+RESOURCE_METADATA_BASE_DRAFT = {
+    "_core_rus12__changelog_pre_entity_resolution": {
+        "description": {
+            "additional_summary_text": ("all pre-entity resolution values."),
+            "usage_warnings": ["harvesting_ingredients"],
+            # TODO: add a generic description for suggested use for this table into resource_helpers
+            # explaining things like: hey if you have a value in a core/out table you are feeling
+            # queazy about, filter this table by the column name and entity ID you care about.
+        },
+        "schema": {
+            "fields": [
+                "borrower_id_rus",
+                "report_date",
+                "valid_until_date",
+                "column_name",
+                "record_value",
+                "entity_occurrences",
+                "record_occurrences",
+                "consistent_rate",
+                "is_consistent",
+            ]
+        },
+    },
+}
+
 RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
     HARVESTED_CORE_TABLES_RUS7,
     RESOURCE_METADATA_BASE,

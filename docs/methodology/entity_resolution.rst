@@ -47,10 +47,11 @@ What Entity Resolution Produces
 For each entity type, PUDL typically creates two related tables:
 
 * A static entity table such as :ref:`core_eia__entity_plants`, with one row per entity
-  and attributes that are expected to be stable over time.
+  and attributes that are expected to be stable over time. These tables all have
+  ``entity`` in their names.
 * A yearly slowly changing dimension (SCD) table such as :ref:`core_eia860__scd_plants`,
   with one row per entity per report year and attributes that are expected to vary
-  slightly over time.
+  slightly over time. These tables all have ``scd`` in their names.
 
 PUDL currently resolves four kinds of EIA entities, with these associated entity ID
 columns:
@@ -59,6 +60,10 @@ columns:
 * Plants ``(plant_id_eia)``
 * Boilers ``(plant_id_eia, boiler_id)``
 * Generators ``(plant_id_eia, generator_id)``
+
+For forensic purposes, PUDL also publishes tables which includes all values which are
+found in the original tables which we use to create these canonical values. These
+tables are all have ``changelog_pre_entity_resolution`` in their names.
 
 Why A Canonical Record Is Necessary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

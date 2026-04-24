@@ -917,7 +917,7 @@ _CORE_RUS12_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS12]
     },
     outs={
         "core_rus12__entity_borrowers": AssetOut(io_manager_key="pudl_io_manager"),
-        "_core_rus12__changelog_pre_normalization_values": AssetOut(),
+        "_core_rus12__changelog_pre_entity_resolution": AssetOut(),
     },
 )
 def core_rus12__entity_borrowers(context, **clean_dfs):
