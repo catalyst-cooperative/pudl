@@ -10267,7 +10267,7 @@ DRAFT_FIELDS = {
     "entity_occurrences": {
         "type": "integer",
         "description": (
-            "The number of times this entity - aka this paritular utility, plant, etc - "
+            "The number of times this entity - aka this particular utility, plant, etc - "
             "occurs across the pre-entity resolution tables."
         ),
     },
