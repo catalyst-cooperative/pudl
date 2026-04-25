@@ -4591,10 +4591,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "max_gross_load_mw": {
         "type": "number",
-        "description": (
-            "Maximum observed gross load for an EPA CEMS emissions unit over the "
-            "analysis window."
-        ),
+        "description": ("Maximum observed gross load for an EPA CEMS emissions unit."),
         "unit": "MW",
     },
     "max_fuel_mmbtu_per_unit": {
@@ -4761,8 +4758,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "min_down_time_hr": {
         "type": "number",
         "description": (
-            "Minimum observed duration of a consecutive non-operating run over the "
-            "analysis window."
+            "Minimum observed duration of a consecutive non-operating run."
         ),
         "unit": "hr",
     },
@@ -4777,7 +4773,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Minimum observed duration of a consecutive run at or above the minimum "
-            "stable level over the analysis window."
+            "stable level."
         ),
         "unit": "hr",
     },
