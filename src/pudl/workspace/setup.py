@@ -14,6 +14,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 PotentialDirectoryPath = DirectoryPath | NewPath
 
 PUDL_ROOT_PATH = Path(__file__).parent.parent.parent.parent
+DBT_DIR: Path = PUDL_ROOT_PATH / "dbt"
 
 
 class PudlPaths(BaseSettings):
