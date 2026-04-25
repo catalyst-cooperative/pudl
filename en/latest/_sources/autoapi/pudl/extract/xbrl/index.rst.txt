@@ -22,6 +22,7 @@ Classes
 
 .. autoapisummary::
 
+   pudl.extract.xbrl._FilteringStream
    pudl.extract.xbrl.FercXbrlDatastore
 
 
@@ -30,6 +31,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.extract.xbrl._suppress_arelle_message_spam
    pudl.extract.xbrl.xbrl2sqlite_op_factory
    pudl.extract.xbrl.convert_form
 
@@ -39,6 +41,33 @@ Module Contents
 
 .. py:data:: logger
 
+.. py:class:: _FilteringStream(wrapped, drop_patterns: list[re.Pattern[str]])
+
+   Pass-through text stream that drops matching noisy lines.
+
+
+   .. py:attribute:: _wrapped
+
+
+   .. py:attribute:: _drop_patterns
+
+
+   .. py:attribute:: _dropped_previous_line
+      :value: False
+
+
+
+   .. py:method:: write(text: str) -> int
+
+
+   .. py:method:: flush() -> None
+
+
+.. py:function:: _suppress_arelle_message_spam()
+
+   Filter known Arelle console spam without suppressing normal logs.
+
+
 .. py:class:: FercXbrlDatastore(datastore: pudl.workspace.datastore.Datastore)
 
    Simple datastore wrapper for accessing ferc1 xbrl resources.
@@ -47,7 +76,7 @@ Module Contents
    .. py:attribute:: datastore
 
 
-   .. py:method:: get_taxonomy(form: pudl.settings.XbrlFormNumber) -> tuple[io.BytesIO, str]
+   .. py:method:: get_taxonomy(form: pudl.settings.XbrlFormNumber) -> io.BytesIO
 
       Returns the path to the taxonomy entry point within the an archive.
 
@@ -64,7 +93,7 @@ Module Contents
    Generates xbrl2sqlite op for a given FERC form.
 
 
-.. py:function:: convert_form(form_settings: pudl.settings.FercGenericXbrlToSqliteSettings, form: pudl.settings.XbrlFormNumber, datastore: FercXbrlDatastore, output_path: pathlib.Path, sqlite_path: pathlib.Path, duckdb_path: pathlib.Path, batch_size: int | None = None, workers: int | None = None) -> None
+.. py:function:: convert_form(form_settings: pudl.settings.FercGenericXbrlToSqliteSettings, form: pudl.settings.XbrlFormNumber, datastore: FercXbrlDatastore, output_path: pathlib.Path, sqlite_path: pathlib.Path, duckdb_path: pathlib.Path, batch_size: int | None = None, workers: int | None = None, loglevel: str = 'INFO') -> None
 
    Clone a single FERC XBRL form to SQLite.
 

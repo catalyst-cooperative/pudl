@@ -1,0 +1,149 @@
+pudl.ferc_sqlite_provenance
+===========================
+
+.. py:module:: pudl.ferc_sqlite_provenance
+
+.. autoapi-nested-parse::
+
+   Helpers for recording FERC SQLite provenance and checking compatibility.
+
+   Compatibility between a persisted FERC SQLite prerequisite and a downstream
+   PUDL run is determined by two independent criteria: do the Zenodo DOIs match,
+   and does the FERC SQLite DB contain all the years needed by the downstream run?
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.ferc_sqlite_provenance.logger
+   pudl.ferc_sqlite_provenance.FERC_TO_SQLITE_METADATA_KEY
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.ferc_sqlite_provenance.FercSQLiteProvenance
+   pudl.ferc_sqlite_provenance.FercSQLiteProvenanceRecord
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.ferc_sqlite_provenance.assert_ferc_sqlite_compatible
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: FERC_TO_SQLITE_METADATA_KEY
+   :value: 'ferc_to_sqlite'
+
+
+.. py:class:: FercSQLiteProvenance
+
+   The provenance requirements derived from the current run's ETL settings.
+
+   Computed from ``etl_settings`` and ``zenodo_dois`` to describe what a
+   compatible FERC SQLite prerequisite must contain. Used by
+   :func:`assert_ferc_sqlite_compatible` to compare against the stored
+   :class:`FercSQLiteProvenanceRecord` that was written when the DB was built.
+
+
+   .. py:attribute:: dataset
+      :type:  str
+
+
+   .. py:attribute:: data_format
+      :type:  str
+
+
+   .. py:attribute:: zenodo_doi
+      :type:  str
+
+
+   .. py:attribute:: years
+      :type:  list[int]
+
+
+   .. py:property:: asset_key
+      :type: dagster.AssetKey
+
+
+      The AssetKey corresponding to the extracted SQLite database.
+
+
+.. py:class:: FercSQLiteProvenanceRecord(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Stored provenance + extra debugging fields from materialization time.
+
+
+   .. py:attribute:: dataset
+      :type:  str
+
+
+   .. py:attribute:: data_format
+      :type:  Literal['dbf', 'xbrl']
+
+
+   .. py:attribute:: status
+      :type:  Literal['complete', 'skipped', 'not_configured']
+
+
+   .. py:attribute:: zenodo_doi
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: years
+      :type:  list[int] | None
+      :value: None
+
+
+
+   .. py:attribute:: settings
+      :type:  pudl.settings.FercToSqliteSettings | None
+      :value: None
+
+
+
+   .. py:attribute:: sqlite_path
+      :type:  pathlib.Path | None
+      :value: None
+
+
+
+.. py:function:: assert_ferc_sqlite_compatible(*, instance: Any | None, provenance: FercSQLiteProvenance) -> None
+
+   Ensure a persisted FERC SQLite prerequisite is compatible with this run.
+
+   Compatibility requires two conditions to hold:
+
+   1. The Zenodo DOI recorded when the FERC SQLite DB was built must match the
+      current :class:`~pudl.workspace.datastore.ZenodoDoiSettings`. A mismatch
+      means the raw archive has changed version and the DB must be rebuilt.
+
+   2. The years stored in the FERC SQLite DB must be a *superset* of the years
+      needed by the current downstream settings. This allows a "full" FERC SQLite
+      DB to serve a "fast" downstream run without an expensive rebuild.
+
+   The check is skipped (with a warning) in two cases:
+
+   * No Dagster instance is available (running outside a Dagster execution context).
+   * The environment variable ``PUDL_SKIP_FERC_SQLITE_PROVENANCE`` is set to a
+     truthy value (``1``, ``true``, or ``yes``). This allows contributors to use
+     externally-downloaded FERC databases without triggering a provenance error.
+
+

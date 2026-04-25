@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>PUDL Release Notes &#8212; PUDL 2026.4.1.dev16 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.4.1.dev17 documentation</title>
   
   
   
@@ -36,8 +36,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -45,18 +45,18 @@
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="_static/documentation_options.js?v=81454b01"></script>
+    <script src="_static/documentation_options.js?v=28053f67"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'release_notes';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -86,7 +86,9 @@
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -138,8 +140,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -598,6 +600,77 @@ See PR <a class="reference external" href="https://github.com/catalyst-cooperati
 <li><p>Switched repository tooling from <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> to <code class="docutils literal notranslate"><span class="pre">prek</span></code> and added
 <code class="docutils literal notranslate"><span class="pre">trufflehog</span></code> and <code class="docutils literal notranslate"><span class="pre">detect-secrets</span></code> hooks to help prevent secrets from being
 committed to the repository. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5141">#5141</a>.</p></li>
+</ul>
+</section>
+<section id="major-dagster-project-refactor">
+<h3>Major Dagster Project Refactor<a class="headerlink" href="#major-dagster-project-refactor" title="Link to this heading">#</a></h3>
+<p>We did a major overhaul of our Dagster configuration to bring it closer to the
+framework’s current best-practice recommendations, and also to experiment with the
+new <code class="docutils literal notranslate"><span class="pre">dg</span></code> CLI and <a class="reference external" href="https://github.com/dagster-io/skills">Dagster agent skills</a>.</p>
+<p>See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5066">#5066</a> for an overview of the issues involved, including issue
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5120">#5120</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5071">#5071</a>. This refactor includes the following changes:</p>
+<ul class="simple">
+<li><p><strong>Replaced the custom ``pudl_etl`` and ``ferc_to_sqlite`` CLI entry points</strong> with
+Dagster’s official <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> tool. The old entry points assembled hand-crafted
+Dagster <code class="docutils literal notranslate"><span class="pre">run_config</span></code> dicts at runtime; <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> reads YAML config files that
+are version-controlled alongside the code. Four packaged config files are provided:
+<code class="docutils literal notranslate"><span class="pre">dg_fast.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">dg_full.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">dg_pytest.yml</span></code>, and <code class="docutils literal notranslate"><span class="pre">dg_nightly.yml</span></code>.
+Pixi convenience tasks (<code class="docutils literal notranslate"><span class="pre">pudl-with-ferc-to-sqlite</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pudl-with-ferc-to-sqlite-nightly</span></code>, <code class="docutils literal notranslate"><span class="pre">ferc-to-sqlite</span></code>) wrap the most common
+invocations. The integration test suite now runs the ETL via <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> as a
+subprocess, so tests exercise exactly the same code path as production.</p></li>
+<li><p><strong>Consolidated the PUDL job graph.</strong> The previous <code class="docutils literal notranslate"><span class="pre">etl_fast</span></code> and <code class="docutils literal notranslate"><span class="pre">etl_full</span></code>
+jobs were thin wrappers assembled at import time. These are replaced by three
+top-level jobs defined directly in <a class="reference internal" href="autoapi/pudl/etl/index.html#module-pudl.etl" title="pudl.etl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.etl</span></code></a>: <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> (raw FERC
+prerequisite databases only), <code class="docutils literal notranslate"><span class="pre">pudl</span></code> (the main PUDL ETL assuming those raw FERC
+databases already exist), and <code class="docutils literal notranslate"><span class="pre">pudl_with_ferc_to_sqlite</span></code> (end-to-end build in a
+single job). The FERC EQR pipeline is now the <code class="docutils literal notranslate"><span class="pre">ferceqr</span></code> job. Job selection and
+asset scoping is handled by <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> config files rather than by code.</p></li>
+<li><p><strong>Switched to Dagster config YAML files</strong> for all run configuration (what years to
+process, which datasets to include, resource settings). The settings flow is now:
+<code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span> <span class="pre">--config</span> <span class="pre">some_dg.yml</span></code> → <a class="reference internal" href="autoapi/pudl/resources/index.html#pudl.resources.PudlEtlSettingsResource" title="pudl.resources.PudlEtlSettingsResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.resources.PudlEtlSettingsResource</span></code></a>
+loads a <a class="reference internal" href="autoapi/pudl/settings/index.html#pudl.settings.EtlSettings" title="pudl.settings.EtlSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.settings.EtlSettings</span></code></a> object from a path declared in that YAML
+→ individual assets and IO managers read from the injected
+<a class="reference internal" href="autoapi/pudl/settings/index.html#pudl.settings.EtlSettings" title="pudl.settings.EtlSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">EtlSettings</span></code></a>. This replaces the old pattern of serializing
+Pydantic models to raw <code class="docutils literal notranslate"><span class="pre">run_config</span></code> dicts, which required keeping Dagster config
+schemas manually in sync with the Pydantic models.</p></li>
+<li><p><strong>Updated Dagster resources and IO managers to use Pydantic-native</strong>
+<a class="reference external" href="https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.ConfigurableResource</span></code></a> <strong>and</strong> <a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.ConfigurableIOManager</span></code></a>
+<strong>base classes.</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.workspace.datastore.DatastoreResource</span></code> and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.workspace.datastore.ZenodoDoiSettingsResource</span></code> replace the legacy
+<code class="docutils literal notranslate"><span class="pre">&#64;resource</span></code>-decorated functions;
+<a class="reference internal" href="autoapi/pudl/io_managers/index.html#pudl.io_managers.PudlMixedFormatIOManager" title="pudl.io_managers.PudlMixedFormatIOManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.io_managers.PudlMixedFormatIOManager</span></code></a>,
+<a class="reference internal" href="autoapi/pudl/io_managers/index.html#pudl.io_managers.FercDbfSQLiteConfigurableIOManager" title="pudl.io_managers.FercDbfSQLiteConfigurableIOManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.io_managers.FercDbfSQLiteConfigurableIOManager</span></code></a>, and
+<a class="reference internal" href="autoapi/pudl/io_managers/index.html#pudl.io_managers.FercXbrlSQLiteConfigurableIOManager" title="pudl.io_managers.FercXbrlSQLiteConfigurableIOManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.io_managers.FercXbrlSQLiteConfigurableIOManager</span></code></a> replace the legacy
+<code class="docutils literal notranslate"><span class="pre">&#64;io_manager</span></code> wrappers. Resources now receive settings via Pydantic field
+injection rather than via <a class="reference external" href="https://docs.dagster.io/api/dagster/resources/#dagster.build_init_resource_context" title="(in Dagster)"><code class="xref py py-func docutils literal notranslate"><span class="pre">dagster.build_init_resource_context()</span></code></a> config dicts.</p></li>
+<li><p><strong>Added FERC SQLite provenance tracking</strong> via the new
+<a class="reference internal" href="autoapi/pudl/ferc_sqlite_provenance/index.html#module-pudl.ferc_sqlite_provenance" title="pudl.ferc_sqlite_provenance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.ferc_sqlite_provenance</span></code></a> module. Each time a FERC SQLite asset
+materializes, it records a fingerprint as <a class="reference external" href="https://docs.dagster.io/api/dagster/assets/#dagster.MaterializeResult" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.MaterializeResult</span></code></a>
+metadata: the Zenodo DOI of the source archive, the years included, and a hash of
+the ETL settings. When a downstream PUDL asset subsequently loads from that SQLite
+file, the IO manager checks the stored fingerprint against the current run’s
+settings and raises a descriptive error if the DOIs, years, or settings are
+incompatible. This eliminates a class of silent correctness failures that occurred
+when stale FERC SQLite databases from a previous run were silently reused.</p></li>
+<li><p><strong>Replaced the ``disabled: true`` flag</strong> in FERC-to-SQLite settings with
+<code class="docutils literal notranslate"><span class="pre">years:</span> <span class="pre">[]</span></code> (empty list). An empty <code class="docutils literal notranslate"><span class="pre">years</span></code> list is unambiguous — “process zero
+years” — and eliminates the need for a separate boolean field that had to be
+checked in addition to the years list. The <code class="docutils literal notranslate"><span class="pre">disabled</span></code> flag has been removed from
+all settings classes and YAML config files; FERC 2, 6, and 60 DBF/XBRL configs
+that previously used <code class="docutils literal notranslate"><span class="pre">disabled:</span> <span class="pre">true</span></code> now use <code class="docutils literal notranslate"><span class="pre">years:</span> <span class="pre">[]</span></code>.</p></li>
+<li><p><strong>Reorganized the integration test infrastructure</strong> in <code class="docutils literal notranslate"><span class="pre">test/conftest.py</span></code>. The
+old approach ran the PUDL ETL in-process using <code class="docutils literal notranslate"><span class="pre">execute_in_process</span></code>, which
+bypassed the standard <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> entry point and required each test fixture to
+hand-assemble Dagster <code class="docutils literal notranslate"><span class="pre">run_config</span></code> dicts. All three FERC extraction fixtures and
+the <code class="docutils literal notranslate"><span class="pre">pudl_io_manager</span></code> fixture are replaced by a single <code class="docutils literal notranslate"><span class="pre">prebuilt_outputs</span></code>
+fixture that runs the full <code class="docutils literal notranslate"><span class="pre">pudl_with_ferc_to_sqlite</span></code> job via <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> as a
+subprocess, with coverage collection appended to the existing test coverage report.
+A persistent <a class="reference external" href="https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.DagsterInstance</span></code></a> fixture allows test code to read
+asset materialisation metadata written by that subprocess. Pytest CLI flags are
+renamed for clarity: <code class="docutils literal notranslate"><span class="pre">--live-dbs</span></code> → <code class="docutils literal notranslate"><span class="pre">--live-pudl-output</span></code>, <code class="docutils literal notranslate"><span class="pre">--tmp-data</span></code> →
+<code class="docutils literal notranslate"><span class="pre">--temp-pudl-input</span></code>, <code class="docutils literal notranslate"><span class="pre">--etl-settings</span></code> → <code class="docutils literal notranslate"><span class="pre">--dg-config</span></code>.</p></li>
 </ul>
 </section>
 </section>
@@ -2897,7 +2970,7 @@ the <code class="docutils literal notranslate"><span class="pre">additional_epac
 <ul>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.extract.ferc1.dbf2sqlite()</span></code> and <code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.extract.xbrl.xbrl2sqlite()</span></code>
 are now configurable dagster ops. These ops make up the
-<code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> dagster graph in <a class="reference internal" href="autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.defs" title="pudl.ferc_to_sqlite.defs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.ferc_to_sqlite.defs</span></code></a>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> dagster graph in <code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.ferc_to_sqlite.defs</span></code>.</p></li>
 <li><p>FERC 714 extraction methods are now subsettable by year, with 2019 and 2020 data
 included in the <code class="docutils literal notranslate"><span class="pre">etl_fast.yml</span></code> by default. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/2628">#2628</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/2649">#2649</a>.</p></li>
 </ul>
@@ -3667,7 +3740,7 @@ Parquet using an existing PUDL database to source plant timezones.  See
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/1176">#1176</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/806">#806</a>.</p></li>
 <li><p>Data types, specified value constraints, and the uniqueness / non-null
 constraints on primary keys are validated during insertion into the SQLite DB.</p></li>
-<li><p>The PUDL ETL CLI <a class="reference internal" href="autoapi/pudl/etl/cli/index.html#module-pudl.etl.cli" title="pudl.etl.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.etl.cli</span></code></a> now has flags to toggle various constraint
+<li><p>The PUDL ETL CLI <code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.etl.cli</span></code> now has flags to toggle various constraint
 checks including <code class="docutils literal notranslate"><span class="pre">--ignore-foreign-key-constraints</span></code>
 <code class="docutils literal notranslate"><span class="pre">--ignore-type-constraints</span></code> and <code class="docutils literal notranslate"><span class="pre">--ignore-value-constraints</span></code>.</p></li>
 </ul>
@@ -4060,6 +4133,7 @@ there are users relying on this setup who need access to a well defined release.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">New Data Tests &amp; Validations</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Bug Fixes &amp; Data Cleaning</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Quality of Life Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#major-dagster-project-refactor">Major Dagster Project Refactor</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2026-3-0-2026-03-12">v2026.3.0 (2026-03-12)</a><ul class="nav section-nav flex-column">
@@ -4457,8 +4531,8 @@ there are users relying on this setup who need access to a well defined release.
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -4492,7 +4566,7 @@ there are users relying on this setup who need access to a well defined release.
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

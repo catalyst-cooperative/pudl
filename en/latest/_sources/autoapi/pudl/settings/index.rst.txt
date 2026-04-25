@@ -51,6 +51,7 @@ Classes
    pudl.settings.Rus7Settings
    pudl.settings.Rus12Settings
    pudl.settings.DatasetsSettings
+   pudl.settings.FercDbfToSqliteSettings
    pudl.settings.Ferc1DbfToSqliteSettings
    pudl.settings.FercGenericXbrlToSqliteSettings
    pudl.settings.Ferc1XbrlToSqliteSettings
@@ -70,8 +71,6 @@ Functions
 
 .. autoapisummary::
 
-   pudl.settings._convert_settings_to_dagster_config
-   pudl.settings.create_dagster_config
    pudl.settings._zenodo_doi_to_url
 
 
@@ -139,14 +138,6 @@ Module Contents
 
    Each dataset must specify working partitions. A dataset can have an arbitrary number
    of partitions.
-
-
-   .. py:attribute:: disabled
-      :type:  bool
-      :value: False
-
-
-      If true, skip processing this dataset.
 
 
    .. py:attribute:: data_source
@@ -1033,9 +1024,35 @@ Module Contents
 
 
 
-.. py:class:: Ferc1DbfToSqliteSettings(/, **data: Any)
+.. py:class:: FercDbfToSqliteSettings(/, **data: Any)
 
    Bases: :py:obj:`GenericDatasetSettings`
+
+
+   Base class for all FERC DBF-to-SQLite settings models.
+
+   Declares the ``years`` and ``refyear`` attributes shared by every FERC DBF
+   form so that :class:`~pudl.extract.dbf.FercDbfExtractor` can be typed
+   against this base rather than the looser :class:`GenericDatasetSettings`.
+
+
+   .. py:attribute:: years
+      :type:  list[int]
+      :value: []
+
+
+      Years of DBF data to extract.
+
+
+   .. py:attribute:: refyear
+      :type:  ClassVar[int]
+
+      Reference year used to build the destination schema; provided by each subclass.
+
+
+.. py:class:: Ferc1DbfToSqliteSettings(/, **data: Any)
+
+   Bases: :py:obj:`FercDbfToSqliteSettings`
 
 
    An immutable Pydantic model to validate FERC 1 to SQLite settings.
@@ -1071,12 +1088,6 @@ Module Contents
       :type:  list[int]
 
       The list of years to validate.
-
-
-   .. py:attribute:: disabled
-      :type:  bool
-      :value: False
-
 
 
 .. py:class:: Ferc1XbrlToSqliteSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
@@ -1117,7 +1128,7 @@ Module Contents
 
 .. py:class:: Ferc2DbfToSqliteSettings(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`FercDbfToSqliteSettings`
 
 
    An immutable Pydantic model to validate FERC 2 to SQLite settings.
@@ -1143,7 +1154,7 @@ Module Contents
 
 .. py:class:: Ferc6DbfToSqliteSettings(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`FercDbfToSqliteSettings`
 
 
    An immutable Pydantic model to validate FERC 6 to SQLite settings.
@@ -1159,14 +1170,6 @@ Module Contents
       :type:  list[int]
 
       The list of years to validate.
-
-
-   .. py:attribute:: disabled
-      :type:  bool
-      :value: False
-
-
-      If true, skip processing this dataset.
 
 
    .. py:attribute:: refyear
@@ -1195,13 +1198,10 @@ Module Contents
 
 .. py:class:: Ferc60DbfToSqliteSettings(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`FercDbfToSqliteSettings`
 
 
    An immutable Pydantic model to validate FERC 60 to SQLite settings.
-
-   :param years: List of years to validate.
-   :param disabled: if True, skip processing this dataset.
 
 
    .. py:attribute:: data_source
@@ -1214,14 +1214,6 @@ Module Contents
       :type:  list[int]
 
       The list of years to validate.
-
-
-   .. py:attribute:: disabled
-      :type:  bool
-      :value: False
-
-
-      If true, skip processing this dataset.
 
 
    .. py:attribute:: refyear
@@ -1336,11 +1328,17 @@ Module Contents
 
 
 
-   .. py:method:: get_xbrl_dataset_settings(form_number: XbrlFormNumber) -> FercGenericXbrlToSqliteSettings
+   .. py:method:: get_dataset_settings(dataset: str, data_format: Literal['dbf', 'xbrl']) -> FercGenericXbrlToSqliteSettings
 
-      Return a list with all requested FERC XBRL to SQLite datasets.
+      Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
-      :param form_number: Get settings by FERC form number.
+      Throws a KeyError if dataset/format is not configured.
+
+
+
+   .. py:method:: get_dataset_years(dataset: str, data_format: Literal['dbf', 'xbrl']) -> list[int]
+
+      Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
 
 
@@ -1388,24 +1386,24 @@ Module Contents
 
 
 
-   .. py:attribute:: publish_destinations
-      :type:  list[str]
-      :value: []
-
-
-      This is list of fsspec compatible paths to publish the output datasets to.
-
-
-   .. py:method:: from_yaml(path: str) -> EtlSettings
+   .. py:method:: from_yaml(path: str | pathlib.Path) -> EtlSettings
       :classmethod:
 
 
-      Create an EtlSettings instance from a yaml_file path.
+      Create validated ETL settings from a local YAML file path.
 
-      :param path: path to a yaml file; this could be remote.
+      :param path: Path to a YAML file. Relative paths are resolved against the
+                   current working directory and ``~`` is expanded.
 
       :returns: An ETL settings object.
 
+
+
+   .. py:property:: ferc_to_sqlite
+      :type: FercToSqliteSettings
+
+
+      Return validated FERC-to-SQLite settings, or raise if unavailable.
 
 
    .. py:method:: validate_xbrl_years()
@@ -1418,26 +1416,11 @@ Module Contents
 
 
 
-.. py:function:: _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None
-
-   Recursively convert a dictionary of dataset settings to dagster config in place.
-
-   For each partition parameter in a :class:`GenericDatasetSettings` subclass, create a
-   corresponding :class:`DagsterField`. By default the :class:`GenericDatasetSettings`
-   subclasses will default to include all working partitions if the partition value is
-   None. Get the value type so dagster can do some basic type checking in the UI.
-
-   :param settings_dict: dictionary of datasources and their parameters.
+   .. py:property:: dataset_settings
+      :type: DatasetsSettings
 
 
-.. py:function:: create_dagster_config(settings: GenericDatasetSettings) -> dict[str, dagster.Field]
-
-   Create a dictionary of dagster config out of a :class:`GenericDatasetsSettings`.
-
-   :param settings: A dataset settings object, subclassed from
-                    :class:`GenericDatasetSettings`.
-
-   :returns: A dictionary of :class:`DagsterField` objects.
+      Return validated dataset settings or raise if they are unavailable.
 
 
 .. py:function:: _zenodo_doi_to_url(doi: pudl.workspace.datastore.ZenodoDoi) -> pydantic.AnyHttpUrl

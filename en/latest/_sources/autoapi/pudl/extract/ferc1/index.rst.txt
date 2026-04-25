@@ -78,6 +78,9 @@ Attributes
 .. autoapisummary::
 
    pudl.extract.ferc1.logger
+   pudl.extract.ferc1.FERC1_DBF_SQLITE_ASSET_KEY
+   pudl.extract.ferc1.FERC1_XBRL_SQLITE_ASSET_KEY
+   pudl.extract.ferc1.RawFercTableName
    pudl.extract.ferc1.TABLE_NAME_MAP_FERC1
    pudl.extract.ferc1.XBRL_META_ONLY_FERC1
    pudl.extract.ferc1.raw_ferc1_assets
@@ -88,6 +91,7 @@ Classes
 
 .. autoapisummary::
 
+   pudl.extract.ferc1.RawTableMapping
    pudl.extract.ferc1.Ferc1DbfExtractor
 
 
@@ -109,12 +113,35 @@ Module Contents
 
 .. py:data:: logger
 
+.. py:data:: FERC1_DBF_SQLITE_ASSET_KEY
+
+.. py:data:: FERC1_XBRL_SQLITE_ASSET_KEY
+
+.. py:data:: RawFercTableName
+
+.. py:class:: RawTableMapping
+
+   Bases: :py:obj:`TypedDict`
+
+
+   Mapping between normalized PUDL table and raw DBF/XBRL table names.
+
+
+   .. py:attribute:: dbf
+      :type:  RawFercTableName
+
+
+   .. py:attribute:: xbrl
+      :type:  RawFercTableName
+
+
 .. py:data:: TABLE_NAME_MAP_FERC1
-   :type:  dict[str, dict[str, str]]
+   :type:  dict[str, RawTableMapping]
 
    A mapping of PUDL DB table names to their XBRL and DBF source table names.
 
 .. py:data:: XBRL_META_ONLY_FERC1
+   :type:  dict[str, RawTableMapping]
 
    A mapping of XBRL to (future) PUDL table names for tables not yet in PUDL.
 
@@ -141,7 +168,7 @@ Module Contents
 
 
 
-   .. py:method:: get_settings(global_settings: pudl.settings.FercToSqliteSettings) -> pudl.settings.GenericDatasetSettings
+   .. py:method:: get_settings(global_settings: pudl.settings.FercToSqliteSettings) -> pudl.settings.FercDbfToSqliteSettings
 
       Returns settings for FERC Form 1 DBF dataset.
 
@@ -227,7 +254,7 @@ Module Contents
              instead.
 
 
-.. py:function:: extract_dbf_generic(table_names: list[str], io_manager: pudl.io_managers.FercDBFSQLiteIOManager, dataset_settings: pudl.settings.DatasetsSettings) -> pandas.DataFrame
+.. py:function:: extract_dbf_generic(table_names: list[str], io_manager: pudl.io_managers.FercDbfSQLiteConfigurableIOManager, dataset_settings: pudl.settings.DatasetsSettings) -> pandas.DataFrame
 
    Combine multiple raw dbf tables into one.
 
@@ -239,7 +266,7 @@ Module Contents
    :returns: Concatenation of all tables in table_names as a dataframe.
 
 
-.. py:function:: extract_xbrl_generic(table_names: list[str], io_manager: pudl.io_managers.FercXBRLSQLiteIOManager, dataset_settings: pudl.settings.DatasetsSettings, period: Literal['duration', 'instant']) -> pandas.DataFrame
+.. py:function:: extract_xbrl_generic(table_names: list[str], io_manager: pudl.io_managers.FercXbrlSQLiteConfigurableIOManager, dataset_settings: pudl.settings.DatasetsSettings, period: Literal['duration', 'instant']) -> pandas.DataFrame
 
    Combine multiple raw dbf tables into one.
 

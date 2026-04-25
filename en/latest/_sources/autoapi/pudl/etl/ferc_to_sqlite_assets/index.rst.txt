@@ -1,0 +1,70 @@
+pudl.etl.ferc_to_sqlite_assets
+==============================
+
+.. py:module:: pudl.etl.ferc_to_sqlite_assets
+
+.. autoapi-nested-parse::
+
+   Dagster asset definitions for granular FERC-to-SQLite extraction.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.etl.ferc_to_sqlite_assets.logger
+   pudl.etl.ferc_to_sqlite_assets.raw_ferc1_dbf__sqlite
+   pudl.etl.ferc_to_sqlite_assets.raw_ferc2_dbf__sqlite
+   pudl.etl.ferc_to_sqlite_assets.raw_ferc6_dbf__sqlite
+   pudl.etl.ferc_to_sqlite_assets.raw_ferc60_dbf__sqlite
+   pudl.etl.ferc_to_sqlite_assets.raw_ferc1_xbrl__sqlite
+   pudl.etl.ferc_to_sqlite_assets.raw_ferc2_xbrl__sqlite
+   pudl.etl.ferc_to_sqlite_assets.raw_ferc6_xbrl__sqlite
+   pudl.etl.ferc_to_sqlite_assets.raw_ferc60_xbrl__sqlite
+   pudl.etl.ferc_to_sqlite_assets.raw_ferc714_xbrl__sqlite
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.etl.ferc_to_sqlite_assets.dbf_to_sqlite_asset_factory
+   pudl.etl.ferc_to_sqlite_assets.xbrl_to_sqlite_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: dbf_to_sqlite_asset_factory(*, key: dagster.AssetKey, dataset: str, extractor_class) -> dagster.AssetsDefinition
+
+   Create a DBF-to-SQLite prerequisite asset for a specific FERC dataset.
+
+
+.. py:function:: xbrl_to_sqlite_asset_factory(*, key: dagster.AssetKey, form: pudl.settings.XbrlFormNumber) -> dagster.AssetsDefinition
+
+   Create an XBRL-to-SQLite prerequisite asset for a specific FERC form.
+
+
+.. py:data:: raw_ferc1_dbf__sqlite
+
+.. py:data:: raw_ferc2_dbf__sqlite
+
+.. py:data:: raw_ferc6_dbf__sqlite
+
+.. py:data:: raw_ferc60_dbf__sqlite
+
+.. py:data:: raw_ferc1_xbrl__sqlite
+
+.. py:data:: raw_ferc2_xbrl__sqlite
+
+.. py:data:: raw_ferc6_xbrl__sqlite
+
+.. py:data:: raw_ferc60_xbrl__sqlite
+
+.. py:data:: raw_ferc714_xbrl__sqlite
+

@@ -57,9 +57,9 @@ Module Contents
 
 
 
-   .. py:method:: get_settings(global_settings: pudl.settings.FercToSqliteSettings) -> pudl.settings.GenericDatasetSettings
+   .. py:method:: get_settings(global_settings: pudl.settings.FercToSqliteSettings) -> pudl.settings.FercDbfToSqliteSettings
 
-      Returns settings for FERC Form 1 DBF dataset.
+      Returns settings for FERC Form 2 DBF dataset.
 
 
 

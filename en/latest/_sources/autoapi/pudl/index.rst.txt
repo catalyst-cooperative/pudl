@@ -15,7 +15,6 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
-   /autoapi/pudl/__main__/index
    /autoapi/pudl/_version/index
    /autoapi/pudl/analysis/index
    /autoapi/pudl/convert/index
@@ -25,7 +24,7 @@ Submodules
    /autoapi/pudl/deploy/index
    /autoapi/pudl/etl/index
    /autoapi/pudl/extract/index
-   /autoapi/pudl/ferc_to_sqlite/index
+   /autoapi/pudl/ferc_sqlite_provenance/index
    /autoapi/pudl/glue/index
    /autoapi/pudl/helpers/index
    /autoapi/pudl/io_managers/index
@@ -70,14 +69,15 @@ Functions
 Package Contents
 ----------------
 
-.. py:function:: configure_root_logger(logfile: str | None = None, loglevel: str = 'INFO', dependency_loglevels: dict[str, int] | None = None, propagate: bool = False) -> None
+.. py:function:: configure_root_logger(logfile: str | None = None, loglevel: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] = 'INFO', dependency_loglevels: dict[str, int] | None = None, color_logs: bool = True, propagate: bool = False) -> None
 
    Configure the root catalystcoop logger.
 
    :param logfile: Path to logfile or None.
-   :param loglevel: Level of detail at which to log, by default INFO.
+   :param loglevel: Level of detail at which to log. Defaults to ``INFO``.
    :param dependency_loglevels: Dictionary mapping dependency name to desired loglevel.
                                 This allows us to filter excessive logs from dependencies.
+   :param color_logs: Whether to emit ANSI color codes. Defaults to ``True``.
    :param propagate: Whether to propagate logs to ancestor loggers. Useful for ensuring
                      that pytest has access to PUDL logs during testing.
 
