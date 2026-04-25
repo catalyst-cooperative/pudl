@@ -216,7 +216,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.4
         with:
           locked: true
           cache: true
@@ -237,12 +237,10 @@ jobs:
           echo "$PATH"
 
       - name: Run the integration tests
-        run: |
-          pixi --version
+        run: .pixi/bin/pixi --version
 
       - name: Run the integration tests
-        run: |
-          which pixi
+        run: which pixi
 
       - name: Upload integration test coverage artifact
         uses: actions/upload-artifact@v7
