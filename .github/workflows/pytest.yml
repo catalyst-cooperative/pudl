@@ -221,7 +221,6 @@ jobs:
           locked: true
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
-          environments: default
 
       - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v5
