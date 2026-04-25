@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+import filelock
 import pandas as pd
 import pytest
 import sqlalchemy as sa
@@ -24,40 +25,55 @@ from pudl.helpers import get_parquet_table
 logger = logging.getLogger(__name__)
 
 
-def plants_ferc1_raw(dataset_settings_config) -> pd.DataFrame:
-    """Execute the partial ETL of FERC plant tables.
+@pytest.fixture(scope="session")
+def plants_ferc1_raw_df(
+    tmp_path_factory: pytest.TempPathFactory,
+    worker_id: str,
+    etl_settings_path: Path,
+) -> pd.DataFrame:
+    """Return plants_ferc1_raw, computing it at most once across all xdist workers.
 
-    Args:
-        dataset_settings_config: dataset settings for the given pytest run.
-
-    Returns:
-        plants_ferc1_raw: all plants in the FERC Form 1 DBF and XBRL DB for given years.
+    When running under pytest-xdist the first worker to acquire the lock computes
+    the DataFrame and writes it to a shared Parquet file; subsequent workers read
+    from that file.  In a single-process run (``worker_id == "master"``) the
+    result is returned directly without any file I/O.
     """
-    result = get_plants_ferc1_raw_job().execute_in_process(
-        run_config={
-            "resources": {
-                "dataset_settings": {
-                    "config": dataset_settings_config,
+
+    def compute() -> pd.DataFrame:
+        result = get_plants_ferc1_raw_job().execute_in_process(
+            run_config={
+                "resources": {
+                    "etl_settings": {
+                        "config": {"etl_settings_path": str(etl_settings_path)},
+                    },
                 },
-            }
-        }
-    )
-    return result.output_for_node("plants_ferc1_raw")
+            },
+        )
+        return result.output_for_node("plants_ferc1_raw")
+
+    if worker_id == "master":
+        return compute()
+
+    root_tmp = tmp_path_factory.getbasetemp().parent
+    cache_file = root_tmp / "plants_ferc1_raw.parquet"
+    with filelock.FileLock(cache_file.with_suffix(".lock")):
+        if not cache_file.is_file():
+            compute().to_parquet(cache_file)
+    return pd.read_parquet(cache_file)
 
 
 @pytest.fixture(scope="module")
 def glue_test_dfs(
-    pudl_engine: sa.Engine,  # Necessary to ensure data is already available.
+    prebuilt_outputs,
     ferc1_engine_xbrl: sa.Engine,
     ferc1_engine_dbf: sa.Engine,
-    etl_settings,
-    dataset_settings_config,
+    plants_ferc1_raw_df: pd.DataFrame,
 ) -> dict[str, pd.DataFrame]:
-    """Make a dictionary of the dataframes required for this test module."""
+    """Build the dataframes required for glue integration tests."""
     glue_test_dfs = {
         "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
         "util_ids_ferc1_raw_dbf": get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf),
-        "plants_ferc1_raw": plants_ferc1_raw(dataset_settings_config),
+        "plants_ferc1_raw": plants_ferc1_raw_df,
         "plants_eia_pudl_db": get_parquet_table("out_eia__yearly_plants"),
         "plants_eia_labeled": label_plants_eia(
             get_parquet_table("out_eia__yearly_plants"),
@@ -87,7 +103,7 @@ def glue_test_dfs(
     return glue_test_dfs
 
 
-def save_to_devtools_glue(missing_df: pd.DataFrame, test_dir, file_name: str):
+def save_to_devtools_glue(missing_df: pd.DataFrame, test_dir: Path, file_name: str):
     """Save a dataframe as a CSV to the glue directory in devtools."""
     file_path = Path(test_dir.parent, "devtools", "ferc1-eia-glue", file_name)
     missing_df.to_csv(file_path)

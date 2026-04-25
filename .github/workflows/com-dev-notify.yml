@@ -7,8 +7,8 @@ on:
     types: [created]
 
 env:
-  username: ${{ github.event.issue.user.login }}
-  url: ${{ github.event.issue.html_url }}
+  username: ""
+  url: ""
   org: catalyst-cooperative
 
 jobs:
@@ -16,8 +16,14 @@ jobs:
     name: Notify Catalyst of community activity
     runs-on: ubuntu-latest
     steps:
+      - name: Get username if an issue was opened
+        if: ${{ github.event_name == 'issues' }}
+        run: |
+          echo "username=${{ github.event.issue.user.login }}" >> "${GITHUB_ENV}"
+          echo "url=${{ github.event.issue.html_url }}" >> "${GITHUB_ENV}"
+
       - name: Get username if a discussion was created
-        if: ${{ (github.event_name == 'discussion') }}
+        if: ${{ github.event_name == 'discussion' }}
         run: |
           echo "username=${{ github.event.discussion.user.login }}" >> "${GITHUB_ENV}"
           echo "url=${{ github.event.discussion.html_url }}" >> "${GITHUB_ENV}"
@@ -36,13 +42,11 @@ jobs:
         uses: slackapi/slack-github-action@v3
 
         with:
-          # Slack channel id, channel name, or user id to post message.
-          # See also: https://api.slack.com/methods/chat.postMessage#channels
-          # You can pass in multiple channels to post to by providing a comma-delimited list of channel IDs.
-          channel-id: "community-dev"
-          # For posting a markdown message
+          method: chat.postMessage
+          token: ${{ secrets.COMMUNITY_DEV_SLACK_BOT_TOKEN }}
           payload: |
             {
+              "channel": "community-dev",
               "blocks": [
                 {
                   "type": "section",
@@ -53,5 +57,3 @@ jobs:
                 }
               ]
             }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.COMMUNITY_DEV_SLACK_BOT_TOKEN }}

@@ -49,6 +49,7 @@ def sample_resource():
 class TestUPathCacheIntegration:
     """Integration tests for UPathCache with real storage backends."""
 
+    @pytest.mark.order(1)
     def test_local_filesystem_via_upath(self, tmp_path, sample_resource):
         """Test UPathCache with local filesystem."""
         cache = UPathCache(UPath(f"file://{tmp_path}"))
@@ -185,6 +186,7 @@ class TestLayeredCacheIntegration:
 class TestCacheInteroperability:
     """Test that different cache implementations can interoperate."""
 
+    @pytest.mark.order(1)
     def test_multiple_upath_caches_in_layered_cache(self, tmp_path, sample_resource):
         """Test using multiple UPathCache instances in the same LayeredCache."""
         # Create different UPath caches pointing to different directories

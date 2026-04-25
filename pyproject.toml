@@ -41,7 +41,7 @@ license = "MIT"
 # and tool.pixi.package.run-dependencies below. This means that the package cannot be
 # installed with pip or uv, but it is set up to be built with pixi into a conda package
 # which can be installed with conda, mamba, micromamba, pixi, etc.
-dependencies = ["usaddress>=0.5.16,<0.6"]
+dependencies = []
 
 [project.urls]
 "Homepage" = "https://github.com/catalyst-cooperative/pudl"
@@ -83,6 +83,7 @@ dbt-duckdb = ">=1.9.4"
 deepdiff = ">=8"
 doc8 = ">=1.1"
 email-validator = ">=1.0.3"
+filelock = ">=3.29"
 frictionless = ">=5,<6"
 fsspec = ">=2026"
 gcsfs = ">=2026"
@@ -179,7 +180,22 @@ zip = ">=3.0"
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
 detect-secrets = ">=1.5"
+usaddress = ">=0.5.16,<0.6"
 
+[tool.pixi.feature.dev.dependencies]
+jq = ">=1.8" # Primarily for agent skills use
+marimo = ">=0.21"
+matplotx = ">=0.3.10"
+plotly = ">=6.6"
+ripgrep = ">=15" # Primarily for agent skills use
+ty = ">=0.0.25" # Experimental, also for agent skills use
+
+[tool.pixi.environments]
+dev = { features = ["dev"], solve-group = "default" }
+
+########################################################################################
+# Conda package build configuration. This is used by pixi to build the conda package
+########################################################################################
 [tool.pixi.package]
 version = "v0.0.0"
 
@@ -192,9 +208,9 @@ channels = ["conda-forge"]
 python = ">=3.13,<3.14.0"
 
 [tool.pixi.package.host-dependencies]
-hatchling = ">=1.16"
+hatchling = ">=1.29"
 hatch-vcs = ">=0.5"
-uv = ">=0.10"
+uv = ">=0.11"
 
 # This is a list of the minimal set of run-time dependencies required for PUDL to
 # be installed and function properly. These should be kept in sync with the more
@@ -260,11 +276,19 @@ universal-pathlib = ">=0.3.10"
 urllib3 = ">=2.4"
 xlsxwriter = ">=3.2"
 
+########################################################################################
+########################################################################################
+
 [tool.pixi.activation.env]
 # Reusable variables for pixi tasks
-ETL_FAST_YML = "src/pudl/package_data/settings/etl_fast.yml"
-ETL_FULL_YML = "src/pudl/package_data/settings/etl_full.yml"
+DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
+DG_NIGHTLY_CONFIG = "src/pudl/package_data/settings/dg_nightly.yml"
 
+########################################################################################
+# Pixi task definitions. These are used by pixi to run various tasks in a consistent
+# environment. They can be run with `pixi run <task-name>`, and can depend on each other
+# to create complex workflows. See the pixi documentation for more details:
+########################################################################################
 [tool.pixi.tasks]
 # Documentation tasks
 [tool.pixi.tasks.docs-clean]
@@ -334,8 +358,29 @@ cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit"
 description = "Run unit tests and doctests"
 
 [tool.pixi.tasks.pytest-integration]
-cmd = "pytest --cov-fail-under=0 --etl-settings $ETL_FAST_YML test/integration"
-description = "Run integration tests with fast ETL settings"
+cmd = "pytest --cov-fail-under=0 test/integration"
+description = "Run integration tests"
+
+[tool.pixi.tasks.pytest-unit-nightly]
+cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG test/unit"
+description = "Run nightly-build unit tests with the nightly Dagster config"
+
+[tool.pixi.tasks.pytest-integration-nightly]
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG --ignore=test/integration/data_validation_test.py test/integration"
+description = "Run nightly-build integration tests against live nightly-style outputs"
+
+[tool.pixi.tasks.pytest-data-validation-nightly]
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG test/integration/data_validation_test.py"
+description = "Run nightly-build data validation tests against live nightly-style outputs"
+
+[tool.pixi.tasks.pytest-nightly]
+cmd = "true"
+depends-on = [
+    "pytest-unit-nightly",
+    "pytest-integration-nightly",
+    "pytest-data-validation-nightly",
+]
+description = "Run the nightly-build pytest stages using the nightly Dagster config"
 
 [tool.pixi.tasks.pytest-ci]
 cmd = "coverage report"
@@ -347,46 +392,64 @@ depends-on = [
 ]
 description = "Run all CI tests and report test coverage"
 
-[tool.pixi.tasks.pytest-integration-full]
-cmd = "pytest --live-dbs --no-cov --etl-settings $ETL_FULL_YML test/integration"
-description = "Run integration tests against local full ETL outputs"
-
 [tool.pixi.tasks.pytest-jupyter]
-cmd = "pytest --live-dbs test/integration/jupyter_notebooks_test.py"
+cmd = "pytest --live-pudl-output test/integration/jupyter_notebooks_test.py"
 description = "Test Jupyter notebooks"
-
-# Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
+# Build the FERC 1 and PUDL DBs.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
 # These outputs should be turned into normal dagster assets. See issue #4338
 [tool.pixi.tasks.unmapped-ids]
 cmd = """
 pytest \
     --save-unmapped-ids
-    --ignore-foreign-key-constraints \
-    --etl-settings $ETL_FULL_YML \
+    --dg-config $DG_FULL_CONFIG \
     test/integration/glue_test.py
 """
 description = "Identify unmapped plant and utility IDs"
 
-# ETL tasks
-[tool.pixi.tasks.ferc]
+# Dagster tasks
+[tool.pixi.tasks.ferc-to-sqlite-clean]
 cmd = """
 bash -c 'shopt -s nullglob; rm -f \
     $PUDL_OUTPUT/ferc*.sqlite \
     $PUDL_OUTPUT/ferc*.duckdb \
     $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
-    $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json' && \
-coverage run --append ferc_to_sqlite $ETL_FULL_YML
+    $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json'
 """
+description = "Remove raw FERC SQLite databases and related outputs"
+
+[tool.pixi.tasks.ferc-to-sqlite]
+cmd = "dg launch --job ferc_to_sqlite --config $DG_FULL_CONFIG"
+depends-on = ["ferc-to-sqlite-clean"]
 description = "Build FERC databases from scratch"
+
+[tool.pixi.tasks.pudl-clean]
+cmd = "bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite'"
+description = "Remove PUDL SQLite database"
 
 [tool.pixi.tasks.pudl]
 cmd = """
-bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite' && \
 alembic upgrade head && \
-coverage run --append pudl_etl $ETL_FULL_YML
+dg launch --job pudl --config $DG_FULL_CONFIG
 """
-description = "Run full PUDL ETL pipeline"
+depends-on = ["pudl-clean"]
+description = "Run the full PUDL ETL without rebuilding raw FERC SQLite databases"
+
+[tool.pixi.tasks.pudl-with-ferc-to-sqlite]
+cmd = """
+alembic upgrade head && \
+dg launch --job pudl_with_ferc_to_sqlite --config $DG_FULL_CONFIG
+"""
+depends-on = ["ferc-to-sqlite-clean", "pudl-clean"]
+description = "Run the full PUDL ETL including rebuilding raw FERC SQLite databases"
+
+[tool.pixi.tasks.pudl-with-ferc-to-sqlite-nightly]
+cmd = """
+alembic upgrade head && \
+dg launch --job pudl_with_ferc_to_sqlite --config $DG_NIGHTLY_CONFIG
+"""
+depends-on = ["ferc-to-sqlite-clean", "pudl-clean"]
+description = "Run the full PUDL ETL (including FERC) using the nightly Dagster config"
 
 # Code quality tasks
 [tool.pixi.tasks.prek-run]
@@ -418,12 +481,10 @@ description = "Install skills from lockfile"
 
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
-ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
 pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
 pudl_deploy = "pudl.scripts.deploy:pudl_deploy"
-pudl_etl = "pudl.etl.cli:pudl_etl"
 pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
 dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
@@ -616,10 +677,7 @@ exclude_lines = [
 ]
 
 [tool.dagster]
-modules = [
-    { type = "module", name = "pudl.etl" },
-    { type = "module", name = "pudl.ferc_to_sqlite" },
-]
+modules = [{ type = "module", name = "pudl.etl" }]
 
 [tool.dg]
 directory_type = "project"
@@ -627,7 +685,7 @@ directory_type = "project"
 [tool.dg.project]
 root_module = "pudl"
 code_location_target_module = "pudl.definitions"
-registry_modules = ["pudl.etl", "pudl.ferc_to_sqlite"]
+registry_modules = ["pudl.etl"]
 
 [tool.typos.default]
 # Ignore spellchecking all lines with # spellchecker:ignore
@@ -674,6 +732,8 @@ extend-exclude = [
     "*.bib",
     "*.csv",
     "*.html",
+    "*.json",
+    ".github/skills/pudl-dev/references/datapackage.schema.json",
     "src/pudl/metadata/codes.py",
     "migrations/",
     "notebooks/",
@@ -682,3 +742,9 @@ extend-exclude = [
     "src/pudl/transform/params/ferc1.py",
     "src/pudl/package_data/ferc1/*_categories.yaml",
 ]
+
+[tool.ty.environment]
+python = ".pixi/envs/default/bin/python"
+python-version = "3.13"
+python-platform = "all"
+root = ["./src"]

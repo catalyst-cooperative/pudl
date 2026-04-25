@@ -3,7 +3,7 @@ import pytest
 from dagster import build_op_context
 
 from pudl.extract.extractor import concat_pages, partitions_from_settings_factory
-from pudl.settings import DatasetsSettings
+from pudl.settings import DatasetsSettings, EtlSettings
 
 
 @pytest.mark.parametrize(
@@ -18,7 +18,7 @@ def test_years_from_settings(dataset, expected_years):
     partitions_from_settings = partitions_from_settings_factory(dataset)
 
     with build_op_context(
-        resources={"dataset_settings": DatasetsSettings()}
+        resources={"etl_settings": EtlSettings(datasets=DatasetsSettings())}
     ) as context:
         # Assert actual years are a superset of expected. Instead of doing
         # an equality check, this avoids having to update expected years
