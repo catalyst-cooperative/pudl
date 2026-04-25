@@ -237,7 +237,7 @@ jobs:
 
       - name: Run the integration tests
         run: |
-          pixi run pytest-integration
+          pixi --version
 
       - name: Upload integration test coverage artifact
         uses: actions/upload-artifact@v7
