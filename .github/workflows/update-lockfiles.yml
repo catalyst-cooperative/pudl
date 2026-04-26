@@ -43,6 +43,7 @@ jobs:
           pixi update --json | pixi exec pixi-diff-to-markdown >> diff.md
           pixi install --locked
           pixi run prek-autoupdate
+          pixi run install-skills
           PUDL_OUTPUT="/home/runner/pudl-work/output/" pixi run dbt-deps-upgrade
       - name: Make a PR to merge updated lockfiles
         # If we are relocking dependencies on a schedule or workflow_dispatch, we need
@@ -63,4 +64,5 @@ jobs:
           add-paths: |
             pixi.lock
             .pre-commit-config.yaml
+            skills-lock.json
             dbt/package-lock.yml
