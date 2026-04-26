@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.eia930 &#8212; PUDL 2026.4.1.dev16 documentation</title>
+    <title>pudl.extract.eia930 &#8212; PUDL 2026.4.1.dev17 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=81454b01"></script>
+    <script src="../../../_static/documentation_options.js?v=28053f67"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/extract/eia930';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'nightly';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -520,7 +520,9 @@ window.runMermaid = runMermaid;</script>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -572,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -876,7 +878,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset_settings&quot;</span><span class="p">})</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;etl_settings&quot;</span><span class="p">})</span>
 <div class="viewcode-block" id="raw_eia930__balance">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia930/index.html#pudl.extract.eia930.raw_eia930__balance">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_eia930__balance</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParquetData</span><span class="p">:</span>
@@ -884,12 +886,12 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">extract_page</span><span class="p">(</span>
         <span class="n">datastore</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span><span class="p">,</span>
         <span class="n">page</span><span class="o">=</span><span class="s2">&quot;balance&quot;</span><span class="p">,</span>
-        <span class="n">half_years</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia930</span><span class="o">.</span><span class="n">half_years</span><span class="p">,</span>
+        <span class="n">half_years</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia930</span><span class="o">.</span><span class="n">half_years</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset_settings&quot;</span><span class="p">})</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;etl_settings&quot;</span><span class="p">})</span>
 <div class="viewcode-block" id="raw_eia930__interchange">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia930/index.html#pudl.extract.eia930.raw_eia930__interchange">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_eia930__interchange</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParquetData</span><span class="p">:</span>
@@ -897,12 +899,12 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">extract_page</span><span class="p">(</span>
         <span class="n">datastore</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span><span class="p">,</span>
         <span class="n">page</span><span class="o">=</span><span class="s2">&quot;interchange&quot;</span><span class="p">,</span>
-        <span class="n">half_years</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia930</span><span class="o">.</span><span class="n">half_years</span><span class="p">,</span>
+        <span class="n">half_years</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia930</span><span class="o">.</span><span class="n">half_years</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset_settings&quot;</span><span class="p">})</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;etl_settings&quot;</span><span class="p">})</span>
 <div class="viewcode-block" id="raw_eia930__subregion">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia930/index.html#pudl.extract.eia930.raw_eia930__subregion">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_eia930__subregion</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParquetData</span><span class="p">:</span>
@@ -912,7 +914,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">page</span><span class="o">=</span><span class="s2">&quot;subregion&quot;</span><span class="p">,</span>
         <span class="n">half_years</span><span class="o">=</span><span class="p">[</span>
             <span class="n">h</span>
-            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia930</span><span class="o">.</span><span class="n">half_years</span>
+            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia930</span><span class="o">.</span><span class="n">half_years</span>
             <span class="k">if</span> <span class="n">h</span> <span class="o">&gt;=</span> <span class="s2">&quot;2018half2&quot;</span>
         <span class="p">],</span>
     <span class="p">)</span></div>
@@ -1038,8 +1040,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1073,7 +1075,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

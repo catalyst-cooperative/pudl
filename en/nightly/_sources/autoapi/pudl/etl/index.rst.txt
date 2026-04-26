@@ -17,8 +17,8 @@ Submodules
 
    /autoapi/pudl/etl/asset_checks/index
    /autoapi/pudl/etl/check_foreign_keys/index
-   /autoapi/pudl/etl/cli/index
    /autoapi/pudl/etl/eia_bulk_elec_assets/index
+   /autoapi/pudl/etl/ferc_to_sqlite_assets/index
    /autoapi/pudl/etl/glue_assets/index
    /autoapi/pudl/etl/static_assets/index
 
@@ -28,7 +28,16 @@ Attributes
 
 .. autoapisummary::
 
+   pudl.etl.ferc1_dbf_sqlite_io_manager
+   pudl.etl.ferc1_xbrl_sqlite_io_manager
+   pudl.etl.ferc714_xbrl_sqlite_io_manager
+   pudl.etl.geoparquet_io_manager
+   pudl.etl.parquet_io_manager
+   pudl.etl.pudl_mixed_format_io_manager
    pudl.etl.PUDL_PACKAGE
+   pudl.etl.datastore
+   pudl.etl.etl_settings
+   pudl.etl.zenodo_dois
    pudl.etl.logger
    pudl.etl.raw_module_groups
    pudl.etl.core_module_groups
@@ -42,7 +51,10 @@ Attributes
    pudl.etl.high_memory_assets
    pudl.etl.default_resources
    pudl.etl.default_tag_concurrency_limits
-   pudl.etl.default_config
+   pudl.etl.default_execution_config
+   pudl.etl.default_pudl_job_config
+   pudl.etl.default_jobs
+   pudl.etl.default_sensors
    pudl.etl.defs
 
 
@@ -51,7 +63,9 @@ Classes
 
 .. autoapisummary::
 
-   pudl.etl.EtlSettings
+   pudl.etl.FercDbfSQLiteConfigurableIOManager
+   pudl.etl.FercXbrlSQLiteConfigurableIOManager
+   pudl.etl.RuntimeSettings
 
 
 Functions
@@ -59,22 +73,20 @@ Functions
 
 .. autoapisummary::
 
+   pudl.etl.get_ml_models_config
    pudl.etl.asset_check_from_schema
-   pudl.etl.ferc1_dbf_sqlite_io_manager
-   pudl.etl.ferc1_xbrl_sqlite_io_manager
-   pudl.etl.ferc714_xbrl_sqlite_io_manager
-   pudl.etl.geoparquet_io_manager
-   pudl.etl.parquet_io_manager
-   pudl.etl.pudl_mixed_format_io_manager
-   pudl.etl.dataset_settings
-   pudl.etl.datastore
-   pudl.etl.ferc_to_sqlite_settings
    pudl.etl._get_keys_from_assets
-   pudl.etl.load_dataset_settings_from_file
+   pudl.etl.load_etl_run_config_from_file
+   pudl.etl.build_defs
 
 
 Package Contents
 ----------------
+
+.. py:function:: get_ml_models_config()
+
+   Return default configuration for all PUDL models.
+
 
 .. py:function:: asset_check_from_schema(asset_key: dagster.AssetKey, package: pudl.metadata.classes.Package, duckdb_asset: bool, high_memory_asset: bool) -> dagster.AssetChecksDefinition | None
 
@@ -91,35 +103,63 @@ Package Contents
    a LazyFrame, then handled exactly the same as a typical asset.
 
 
-.. py:function:: ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager
+.. py:class:: FercDbfSQLiteConfigurableIOManager(**data: Any)
 
-   Create a SQLiteManager dagster resource for the ferc1 dbf database.
-
-
-.. py:function:: ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager
-
-   Create a SQLiteManager dagster resource for the ferc1 xbrl database.
+   Bases: :py:obj:`_FercSQLiteConfigurableIOManagerBase`
 
 
-.. py:function:: ferc714_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager
+   Configurable IO manager for reading tables from FERC DBF SQLite databases.
 
-   Create a SQLiteManager dagster resource for the ferc714 xbrl database.
-
-
-.. py:function:: geoparquet_io_manager(init_context: dagster.InitResourceContext) -> dagster.IOManager
-
-   Create a GeoParquet only IO manager.
+   Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.)
 
 
-.. py:function:: parquet_io_manager(init_context: dagster.InitResourceContext) -> dagster.IOManager
+   .. py:attribute:: data_format
+      :type:  Literal['dbf']
+      :value: 'dbf'
 
-   Create a Parquet only IO manager.
 
 
-.. py:function:: pudl_mixed_format_io_manager(init_context: dagster.InitResourceContext) -> dagster.IOManager
+   .. py:property:: _manager
+      :type: FercDbfSQLiteIOManager
 
-   Create a SQLiteManager dagster resource for the pudl database.
 
+      Build the underlying SQLite reader lazily.
+
+
+.. py:class:: FercXbrlSQLiteConfigurableIOManager(**data: Any)
+
+   Bases: :py:obj:`_FercSQLiteConfigurableIOManagerBase`
+
+
+   Configurable IO manager for reading tables from a FERC XBRL SQLite database.
+
+   Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.).
+
+
+   .. py:attribute:: data_format
+      :type:  Literal['xbrl']
+      :value: 'xbrl'
+
+
+
+   .. py:property:: _manager
+      :type: FercXbrlSQLiteIOManager
+
+
+      Build the underlying SQLite reader lazily.
+
+
+.. py:data:: ferc1_dbf_sqlite_io_manager
+
+.. py:data:: ferc1_xbrl_sqlite_io_manager
+
+.. py:data:: ferc714_xbrl_sqlite_io_manager
+
+.. py:data:: geoparquet_io_manager
+
+.. py:data:: parquet_io_manager
+
+.. py:data:: pudl_mixed_format_io_manager
 
 .. py:data:: PUDL_PACKAGE
 
@@ -130,100 +170,37 @@ Package Contents
    is kind of obscure, so it is imported in the __init__.py for this subpackage and then
    imported in other modules from that more prominent location.
 
-.. py:function:: dataset_settings(init_context) -> pudl.settings.DatasetsSettings
+.. py:class:: RuntimeSettings
 
-   Dagster resource for parameterizing PUDL ETL assets.
-
-   This resource allows us to specify the years we want to process for each datasource
-   in the Dagit UI.
+   Bases: :py:obj:`dagster.ConfigurableResource`
 
 
-.. py:function:: datastore(init_context) -> pudl.workspace.datastore.Datastore
-
-   Dagster resource to interact with Zenodo archives.
+   Encodes runtime settings for the ferc_to_sqlite graphs.
 
 
-.. py:function:: ferc_to_sqlite_settings(init_context) -> pudl.settings.FercToSqliteSettings
-
-   Dagster resource for parameterizing the ``ferc_to_sqlite`` graph.
-
-   This resource allows us to specify the years we want to process for each datasource
-   in the Dagit UI.
-
-
-.. py:class:: EtlSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
-
-   Bases: :py:obj:`pydantic_settings.BaseSettings`
-
-
-   Main settings validation class.
-
-
-   .. py:attribute:: ferc_to_sqlite_settings
-      :type:  FercToSqliteSettings | None
+   .. py:attribute:: xbrl_num_workers
+      :type:  None | int
       :value: None
 
 
 
-   .. py:attribute:: datasets
-      :type:  DatasetsSettings | None
-      :value: None
+   .. py:attribute:: xbrl_batch_size
+      :type:  int
+      :value: 50
 
 
 
-   .. py:attribute:: name
-      :type:  str | None
-      :value: None
+   .. py:attribute:: xbrl_loglevel
+      :type:  str
+      :value: 'INFO'
 
 
 
-   .. py:attribute:: title
-      :type:  str | None
-      :value: None
+.. py:data:: datastore
 
+.. py:data:: etl_settings
 
-
-   .. py:attribute:: description
-      :type:  str | None
-      :value: None
-
-
-
-   .. py:attribute:: version
-      :type:  str | None
-      :value: None
-
-
-
-   .. py:attribute:: publish_destinations
-      :type:  list[str]
-      :value: []
-
-
-      This is list of fsspec compatible paths to publish the output datasets to.
-
-
-   .. py:method:: from_yaml(path: str) -> EtlSettings
-      :classmethod:
-
-
-      Create an EtlSettings instance from a yaml_file path.
-
-      :param path: path to a yaml file; this could be remote.
-
-      :returns: An ETL settings object.
-
-
-
-   .. py:method:: validate_xbrl_years()
-
-      Ensure the XBRL years in DatasetsSettings align with FercToSqliteSettings.
-
-      For each of the FERC forms that we are processing in PUDL, check to ensure
-      that the years we are trying to process in the PUDL ETL are included in the
-      XBRL to SQLite settings.
-
-
+.. py:data:: zenodo_dois
 
 .. py:data:: logger
 
@@ -269,15 +246,29 @@ Package Contents
 
 .. py:data:: default_tag_concurrency_limits
 
-.. py:data:: default_config
+.. py:data:: default_execution_config
 
-.. py:function:: load_dataset_settings_from_file(setting_filename: str) -> dict
+.. py:data:: default_pudl_job_config
 
-   Load dataset settings from a settings file in `pudl.package_data.settings`.
+.. py:function:: load_etl_run_config_from_file(setting_filename: str) -> dict
 
-   :param setting_filename: name of settings file.
+   Load ETL run config from a packaged settings profile.
 
-   :returns: Dictionary of dataset settings.
+   The settings file path is resolved via ``importlib.resources`` so the config
+   works correctly regardless of the current working directory.
+
+
+.. py:data:: default_jobs
+
+.. py:data:: default_sensors
+
+.. py:function:: build_defs(*, resource_overrides: collections.abc.Mapping[str, Any] | None = None, asset_overrides: collections.abc.Sequence[Any] | None = None, asset_check_overrides: collections.abc.Sequence[dagster.AssetChecksDefinition] | None = None, job_overrides: collections.abc.Sequence[Any] | None = None, sensor_overrides: collections.abc.Sequence[dagster.SensorDefinition] | None = None) -> dagster.Definitions
+
+   Build a fresh PUDL ``Definitions`` object with optional overrides.
+
+   This allows tests and other callers to reuse the canonical ETL asset graph while
+   supplying concrete resources or a narrowed set of definitions without mutating the
+   module-level production ``defs`` object.
 
 
 .. py:data:: defs

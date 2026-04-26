@@ -34,6 +34,5 @@ Submodules
    /autoapi/pudl/output/ferc714/index
    /autoapi/pudl/output/rus/index
    /autoapi/pudl/output/sec10k/index
-   /autoapi/pudl/output/sql/index
 
 

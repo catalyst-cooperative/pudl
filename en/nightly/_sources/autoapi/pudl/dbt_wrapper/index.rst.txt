@@ -32,6 +32,7 @@ Functions
 .. autoapisummary::
 
    pudl.dbt_wrapper._preserve_logging_propagation
+   pudl.dbt_wrapper.install_dbt_deps
    pudl.dbt_wrapper.__get_failed_nodes
    pudl.dbt_wrapper.__get_quantile_contexts
    pudl.dbt_wrapper.__get_compiled_sql_contexts
@@ -96,6 +97,11 @@ Module Contents
 
       Nice legible output for logs.
 
+
+
+.. py:function:: install_dbt_deps(dbt: dbt.cli.main.dbtRunner | None = None) -> dbt.cli.main.dbtRunner
+
+   Ensure dbt package dependencies are installed in the project directory.
 
 
 .. py:function:: __get_failed_nodes(results: dbt.artifacts.schemas.run.RunExecutionResult) -> list[dbt.contracts.graph.nodes.GenericTestNode]

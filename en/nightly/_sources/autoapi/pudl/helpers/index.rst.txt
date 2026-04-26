@@ -91,7 +91,6 @@ Functions
    pudl.helpers.convert_col_to_bool
    pudl.helpers.fix_boolean_columns
    pudl.helpers.scale_by_ownership
-   pudl.helpers.get_dagster_execution_config
    pudl.helpers.assert_cols_areclose
    pudl.helpers.diff_wide_tables
    pudl.helpers.retry
@@ -1014,32 +1013,6 @@ Module Contents
              The "total" records correspond to the full plant for every owner (e.g. using
              the same 2-owner 200 MW generator as above, each owner will have a
              records with 200 MW).
-
-
-.. py:function:: get_dagster_execution_config(num_workers: int = 0, tag_concurrency_limits: list[dict] = [])
-
-   Get the dagster execution config for a given number of workers.
-
-   If num_workers is 0, then the dagster execution config will not include
-   any limits. With num_workers set to 1, we will use in-process serial
-   executor, otherwise multi-process executor with maximum of num_workers
-   will be used.
-
-   :param num_workers: The number of workers to use for the dagster execution config.
-                       If 0, then the dagster execution config will not include a multiprocess
-                       executor.
-   :param tag_concurrency_limits: A set of limits that are applied to steps with
-                                  particular tags. This is helpful for applying concurrency limits to
-                                  highly concurrent and memory intensive portions of the ETL like CEMS.
-
-                                  Dagster description: If a value is set, the limit is applied to
-                                  only that key-value pair. If no value is set, the limit is applied
-                                  across all values of that key. If the value is set to a dict with
-                                  ``applyLimitPerUniqueValue: true``, the limit will apply to the
-                                  number of unique values for that key. Note that these limits are
-                                  per run, not global.
-
-   :returns: A dagster execution config.
 
 
 .. py:function:: assert_cols_areclose(df: pandas.DataFrame, a_cols: list[str], b_cols: list[str], mismatch_threshold: float, message: str)

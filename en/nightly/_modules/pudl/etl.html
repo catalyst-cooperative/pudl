@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.etl &#8212; PUDL 2026.4.1.dev16 documentation</title>
+    <title>pudl.etl &#8212; PUDL 2026.4.1.dev17 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../_static/documentation_options.js?v=81454b01"></script>
+    <script src="../../_static/documentation_options.js?v=28053f67"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/etl';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'nightly';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -520,7 +520,9 @@ window.runMermaid = runMermaid;</script>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -572,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -851,13 +853,18 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.ml_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ml_models_config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.deploy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.etl.asset_checks</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset_check_from_schema</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.io_managers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FercDbfSQLiteConfigurableIOManager</span><span class="p">,</span>
+    <span class="n">FercXbrlSQLiteConfigurableIOManager</span><span class="p">,</span>
     <span class="n">ferc1_dbf_sqlite_io_manager</span><span class="p">,</span>
     <span class="n">ferc1_xbrl_sqlite_io_manager</span><span class="p">,</span>
     <span class="n">ferc714_xbrl_sqlite_io_manager</span><span class="p">,</span>
@@ -867,14 +874,15 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.resources</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">dataset_settings</span><span class="p">,</span>
+    <span class="n">RuntimeSettings</span><span class="p">,</span>
     <span class="n">datastore</span><span class="p">,</span>
-    <span class="n">ferc_to_sqlite_settings</span><span class="p">,</span>
+    <span class="n">etl_settings</span><span class="p">,</span>
+    <span class="n">zenodo_dois</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">EtlSettings</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">eia_bulk_elec_assets</span><span class="p">,</span>
+    <span class="n">ferc_to_sqlite_assets</span><span class="p">,</span>
     <span class="n">glue_assets</span><span class="p">,</span>
     <span class="n">static_assets</span><span class="p">,</span>
 <span class="p">)</span>
@@ -887,6 +895,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="raw_module_groups">
 <a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.raw_module_groups">[docs]</a>
 <span class="n">raw_module_groups</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;raw_ferc_to_sqlite&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ferc_to_sqlite_assets</span><span class="p">],</span>
     <span class="s2">&quot;raw_censuspep&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">pudl</span><span class="o">.</span><span class="n">extract</span><span class="o">.</span><span class="n">censuspep</span><span class="p">],</span>
     <span class="s2">&quot;raw_eia176&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">pudl</span><span class="o">.</span><span class="n">extract</span><span class="o">.</span><span class="n">eia176</span><span class="p">],</span>
     <span class="s2">&quot;raw_eia191&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">pudl</span><span class="o">.</span><span class="n">extract</span><span class="o">.</span><span class="n">eia191</span><span class="p">],</span>
@@ -1085,16 +1094,17 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.default_resources">[docs]</a>
 <span class="n">default_resources</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;datastore&quot;</span><span class="p">:</span> <span class="n">datastore</span><span class="p">,</span>
+    <span class="s2">&quot;zenodo_dois&quot;</span><span class="p">:</span> <span class="n">zenodo_dois</span><span class="p">,</span>
     <span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">:</span> <span class="n">pudl_mixed_format_io_manager</span><span class="p">,</span>
     <span class="s2">&quot;ferc1_dbf_sqlite_io_manager&quot;</span><span class="p">:</span> <span class="n">ferc1_dbf_sqlite_io_manager</span><span class="p">,</span>
     <span class="s2">&quot;ferc1_xbrl_sqlite_io_manager&quot;</span><span class="p">:</span> <span class="n">ferc1_xbrl_sqlite_io_manager</span><span class="p">,</span>
     <span class="s2">&quot;ferc714_xbrl_sqlite_io_manager&quot;</span><span class="p">:</span> <span class="n">ferc714_xbrl_sqlite_io_manager</span><span class="p">,</span>
-    <span class="s2">&quot;dataset_settings&quot;</span><span class="p">:</span> <span class="n">dataset_settings</span><span class="p">,</span>
-    <span class="s2">&quot;ferc_to_sqlite_settings&quot;</span><span class="p">:</span> <span class="n">ferc_to_sqlite_settings</span><span class="p">,</span>
+    <span class="s2">&quot;etl_settings&quot;</span><span class="p">:</span> <span class="n">etl_settings</span><span class="p">,</span>
+    <span class="s2">&quot;runtime_settings&quot;</span><span class="p">:</span> <span class="n">RuntimeSettings</span><span class="p">(),</span>
     <span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">:</span> <span class="n">parquet_io_manager</span><span class="p">,</span>
     <span class="s2">&quot;geoparquet_io_manager&quot;</span><span class="p">:</span> <span class="n">geoparquet_io_manager</span><span class="p">,</span>
     <span class="s2">&quot;ferceqr_extract_settings&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">extract</span><span class="o">.</span><span class="n">ferceqr</span><span class="o">.</span><span class="n">ExtractSettings</span><span class="p">(</span>
-        <span class="n">archive</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>  <span class="c1"># Default to read directly from GCS if local path not specified</span>
+        <span class="n">ferceqr_archive_uri</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>  <span class="c1"># Default to read directly from GCS if local path not specified</span>
             <span class="s2">&quot;FERCEQR_ARCHIVE_PATH&quot;</span><span class="p">,</span> <span class="s2">&quot;gs://archives.catalyst.coop/ferceqr/published&quot;</span>
         <span class="p">)</span>
     <span class="p">),</span>
@@ -1114,82 +1124,171 @@ window.runMermaid = runMermaid;</script>
 <span class="p">]</span></div>
 
 
+<div class="viewcode-block" id="default_execution_config">
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.default_execution_config">[docs]</a>
+<span class="n">default_execution_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;execution&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;multiprocess&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;max_concurrent&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;tag_concurrency_limits&quot;</span><span class="p">:</span> <span class="n">default_tag_concurrency_limits</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
 
-<div class="viewcode-block" id="default_config">
-<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.default_config">[docs]</a>
-<span class="n">default_config</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">get_dagster_execution_config</span><span class="p">(</span>
-    <span class="n">tag_concurrency_limits</span><span class="o">=</span><span class="n">default_tag_concurrency_limits</span>
-<span class="p">)</span></div>
-
-<span class="n">default_config</span> <span class="o">|=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">ml_tools</span><span class="o">.</span><span class="n">get_ml_models_config</span><span class="p">()</span>
+<div class="viewcode-block" id="default_pudl_job_config">
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.default_pudl_job_config">[docs]</a>
+<span class="n">default_pudl_job_config</span> <span class="o">=</span> <span class="n">default_execution_config</span> <span class="o">|</span> <span class="n">get_ml_models_config</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="load_dataset_settings_from_file">
-<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.load_dataset_settings_from_file">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_dataset_settings_from_file</span><span class="p">(</span><span class="n">setting_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load dataset settings from a settings file in `pudl.package_data.settings`.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        setting_filename: name of settings file.</span>
+<div class="viewcode-block" id="load_etl_run_config_from_file">
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.load_etl_run_config_from_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_etl_run_config_from_file</span><span class="p">(</span><span class="n">setting_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load ETL run config from a packaged settings profile.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        Dictionary of dataset settings.</span>
+<span class="sd">    The settings file path is resolved via ``importlib.resources`` so the config</span>
+<span class="sd">    works correctly regardless of the current working directory.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dataset_settings</span> <span class="o">=</span> <span class="n">EtlSettings</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+    <span class="n">etl_settings_path</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.settings&quot;</span><span class="p">)</span>
         <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">setting_filename</span><span class="si">}</span><span class="s2">.yml&quot;</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+    <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">dataset_settings</span></div>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;etl_settings&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;etl_settings_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">etl_settings_path</span><span class="p">)}},</span>
+            <span class="s2">&quot;runtime_settings&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="default_jobs">
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.default_jobs">[docs]</a>
+<span class="n">default_jobs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;This job executes the main PUDL ETL without refreshing the FERC-to-SQLite &quot;</span>
+            <span class="s2">&quot;prerequisites.&quot;</span>
+        <span class="p">),</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">default_pudl_job_config</span> <span class="o">|</span> <span class="n">load_etl_run_config_from_file</span><span class="p">(</span><span class="s2">&quot;etl_full&quot;</span><span class="p">),</span>
+        <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="o">-</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span>
+            <span class="s2">&quot;raw_ferc_to_sqlite&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferc_to_sqlite&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job refreshes the FERC-to-SQLite prerequisite assets only.&quot;</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">default_execution_config</span> <span class="o">|</span> <span class="n">load_etl_run_config_from_file</span><span class="p">(</span><span class="s2">&quot;etl_full&quot;</span><span class="p">),</span>
+        <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferc_to_sqlite&quot;</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pudl_with_ferc_to_sqlite&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;This job executes the main PUDL ETL including the FERC-to-SQLite &quot;</span>
+            <span class="s2">&quot;prerequisites (default: full settings profile).&quot;</span>
+        <span class="p">),</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">default_pudl_job_config</span> <span class="o">|</span> <span class="n">load_etl_run_config_from_file</span><span class="p">(</span><span class="s2">&quot;etl_full&quot;</span><span class="p">),</span>
+        <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="o">-</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span> <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job processes the FERC EQR data.&quot;</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">default_execution_config</span><span class="p">,</span>
+        <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span> <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">),</span>
+    <span class="p">),</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="default_sensors">
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.default_sensors">[docs]</a>
+<span class="n">default_sensors</span> <span class="o">=</span> <span class="p">[</span><span class="n">ferceqr</span><span class="o">.</span><span class="n">ferceqr_sensor</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="build_defs">
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.build_defs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_defs</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">resource_overrides</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">asset_overrides</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">asset_check_overrides</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetChecksDefinition</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">job_overrides</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">sensor_overrides</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">SensorDefinition</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">Definitions</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a fresh PUDL ``Definitions`` object with optional overrides.</span>
+
+<span class="sd">    This allows tests and other callers to reuse the canonical ETL asset graph while</span>
+<span class="sd">    supplying concrete resources or a narrowed set of definitions without mutating the</span>
+<span class="sd">    module-level production ``defs`` object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resources</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">default_resources</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resource_overrides</span><span class="p">:</span>
+        <span class="n">resources</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">resource_overrides</span><span class="p">)</span>
+
+        <span class="n">etl_settings_override</span> <span class="o">=</span> <span class="n">resource_overrides</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;etl_settings&quot;</span><span class="p">)</span>
+        <span class="n">zenodo_dois_override</span> <span class="o">=</span> <span class="n">resources</span><span class="p">[</span><span class="s2">&quot;zenodo_dois&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Temporary workaround for nested resource dependencies in the FERC IO managers.</span>
+        <span class="c1"># These IO managers embed ``etl_settings`` as a Dagster resource dependency at</span>
+        <span class="c1"># instantiation time, so overriding the top-level ``etl_settings`` resource alone</span>
+        <span class="c1"># is not sufficient — the IO managers must be rebuilt against the same resource</span>
+        <span class="c1"># instance. A follow-up PR will remove the nested dependency from the IO managers,</span>
+        <span class="c1"># after which this rebuild block can be deleted. See Issue #5118.</span>
+        <span class="k">if</span> <span class="n">etl_settings_override</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;ferc1_dbf_sqlite_io_manager&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resource_overrides</span><span class="p">:</span>
+                <span class="n">resources</span><span class="p">[</span><span class="s2">&quot;ferc1_dbf_sqlite_io_manager&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">FercDbfSQLiteConfigurableIOManager</span><span class="p">(</span>
+                        <span class="n">etl_settings</span><span class="o">=</span><span class="n">etl_settings_override</span><span class="p">,</span>
+                        <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_dois_override</span><span class="p">,</span>
+                        <span class="n">dataset</span><span class="o">=</span><span class="n">ferc1_dbf_sqlite_io_manager</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="s2">&quot;ferc1_xbrl_sqlite_io_manager&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resource_overrides</span><span class="p">:</span>
+                <span class="n">resources</span><span class="p">[</span><span class="s2">&quot;ferc1_xbrl_sqlite_io_manager&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">FercXbrlSQLiteConfigurableIOManager</span><span class="p">(</span>
+                        <span class="n">etl_settings</span><span class="o">=</span><span class="n">etl_settings_override</span><span class="p">,</span>
+                        <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_dois_override</span><span class="p">,</span>
+                        <span class="n">dataset</span><span class="o">=</span><span class="n">ferc1_xbrl_sqlite_io_manager</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="s2">&quot;ferc714_xbrl_sqlite_io_manager&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resource_overrides</span><span class="p">:</span>
+                <span class="n">resources</span><span class="p">[</span><span class="s2">&quot;ferc714_xbrl_sqlite_io_manager&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">FercXbrlSQLiteConfigurableIOManager</span><span class="p">(</span>
+                        <span class="n">etl_settings</span><span class="o">=</span><span class="n">etl_settings_override</span><span class="p">,</span>
+                        <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_dois_override</span><span class="p">,</span>
+                        <span class="n">dataset</span><span class="o">=</span><span class="n">ferc714_xbrl_sqlite_io_manager</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">Definitions</span><span class="p">(</span>
+        <span class="n">assets</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">default_assets</span> <span class="k">if</span> <span class="n">asset_overrides</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">asset_overrides</span><span class="p">),</span>
+        <span class="n">asset_checks</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span>
+            <span class="n">default_asset_checks</span>
+            <span class="k">if</span> <span class="n">asset_check_overrides</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">asset_check_overrides</span>
+        <span class="p">),</span>
+        <span class="n">resources</span><span class="o">=</span><span class="n">resources</span><span class="p">,</span>
+        <span class="n">jobs</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">default_jobs</span> <span class="k">if</span> <span class="n">job_overrides</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">job_overrides</span><span class="p">),</span>
+        <span class="n">sensors</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">default_sensors</span> <span class="k">if</span> <span class="n">sensor_overrides</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sensor_overrides</span><span class="p">),</span>
+    <span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="defs">
 <a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.defs">[docs]</a>
-<span class="n">defs</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">Definitions</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">Definitions</span><span class="p">(</span>
-    <span class="n">assets</span><span class="o">=</span><span class="n">default_assets</span><span class="p">,</span>
-    <span class="n">asset_checks</span><span class="o">=</span><span class="n">default_asset_checks</span><span class="p">,</span>
-    <span class="n">resources</span><span class="o">=</span><span class="n">default_resources</span><span class="p">,</span>
-    <span class="n">jobs</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;etl_full&quot;</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job executes all years of all assets.&quot;</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">default_config</span>
-            <span class="o">|</span> <span class="p">{</span>
-                <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;dataset_settings&quot;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">load_dataset_settings_from_file</span><span class="p">(</span><span class="s2">&quot;etl_full&quot;</span><span class="p">)</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">},</span>
-            <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-            <span class="o">-</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span> <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;etl_fast&quot;</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">default_config</span>
-            <span class="o">|</span> <span class="p">{</span>
-                <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;dataset_settings&quot;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">load_dataset_settings_from_file</span><span class="p">(</span><span class="s2">&quot;etl_fast&quot;</span><span class="p">)</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">},</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job executes the most recent year of each asset.&quot;</span><span class="p">,</span>
-            <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-            <span class="o">-</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span> <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferceqr_etl&quot;</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job executes the ferceqr ETL.&quot;</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">get_dagster_execution_config</span><span class="p">(</span>
-                <span class="n">tag_concurrency_limits</span><span class="o">=</span><span class="n">default_tag_concurrency_limits</span>
-            <span class="p">),</span>
-            <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span> <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">),</span>
-        <span class="p">),</span>
-    <span class="p">],</span>
-    <span class="n">sensors</span><span class="o">=</span><span class="p">[</span><span class="n">ferceqr</span><span class="o">.</span><span class="n">ferceqr_sensor</span><span class="p">],</span>
-<span class="p">)</span></div>
+<span class="n">defs</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">Definitions</span> <span class="o">=</span> <span class="n">build_defs</span><span class="p">()</span></div>
 
 <span class="sd">&quot;&quot;&quot;A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL.&quot;&quot;&quot;</span>
 </pre></div>
@@ -1221,8 +1320,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1256,7 +1355,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

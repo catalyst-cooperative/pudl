@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.io_managers &#8212; PUDL 2026.4.1.dev16 documentation</title>
+    <title>pudl.io_managers &#8212; PUDL 2026.4.1.dev17 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../_static/documentation_options.js?v=81454b01"></script>
+    <script src="../../_static/documentation_options.js?v=28053f67"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/io_managers';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'nightly';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -520,7 +520,9 @@ window.runMermaid = runMermaid;</script>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -572,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -850,9 +852,12 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlite3</span><span class="w"> </span><span class="kn">import</span> <span class="n">sqlite_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
@@ -862,18 +867,28 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">alembic.autogenerate.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_metadata</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">alembic.migration</span><span class="w"> </span><span class="kn">import</span> <span class="n">MigrationContext</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Field</span><span class="p">,</span>
-    <span class="n">InitResourceContext</span><span class="p">,</span>
+    <span class="n">ConfigurableIOManager</span><span class="p">,</span>
+    <span class="n">DagsterInvariantViolationError</span><span class="p">,</span>
     <span class="n">InputContext</span><span class="p">,</span>
     <span class="n">IOManager</span><span class="p">,</span>
     <span class="n">OutputContext</span><span class="p">,</span>
-    <span class="n">io_manager</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">packaging</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">model_validator</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.ferc_sqlite_provenance</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FercSQLiteProvenance</span><span class="p">,</span>
+    <span class="n">assert_ferc_sqlite_compatible</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parquet_table</span><span class="p">,</span> <span class="n">get_parquet_table_polars</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span><span class="p">,</span> <span class="n">Package</span><span class="p">,</span> <span class="n">Resource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.resources</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PudlEtlSettingsResource</span><span class="p">,</span>
+    <span class="n">ZenodoDoiSettingsResource</span><span class="p">,</span>
+    <span class="n">etl_settings</span><span class="p">,</span>
+    <span class="n">zenodo_dois</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
 <div class="viewcode-block" id="logger">
@@ -887,9 +902,32 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_get_dagster_instance_if_available">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._get_dagster_instance_if_available">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_dagster_instance_if_available</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">DagsterInstance</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the Dagster instance from an input context if one was provided.</span>
+
+<span class="sd">    Returns ``None`` in two cases where provenance checks should be skipped:</span>
+
+<span class="sd">    * The context has no attached instance (e.g. ad hoc ``InputContext`` objects built</span>
+<span class="sd">      by notebook or integration-test helpers).</span>
+<span class="sd">    * The instance is ephemeral (created by ``execute_in_process()`` without an explicit</span>
+<span class="sd">      ``instance=`` argument). An ephemeral instance has an empty event log, so</span>
+<span class="sd">      provenance checks against it would always raise rather than meaningfully validate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">instance</span>
+        <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">is_ephemeral</span> <span class="k">else</span> <span class="n">instance</span>
+    <span class="k">except</span> <span class="n">DagsterInvariantViolationError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
 <div class="viewcode-block" id="get_table_name_from_context">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.get_table_name_from_context">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span> <span class="o">|</span> <span class="n">OutputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieves the table name from the context object.&quot;&quot;&quot;</span>
     <span class="c1"># TODO(rousik): Figure out which kind of identifier is used when.</span>
     <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">has_asset_key</span><span class="p">:</span>
@@ -898,69 +936,72 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="get_ferc_form_name">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.get_ferc_form_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ferc_form_name</span><span class="p">(</span><span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the FERC form name from a SQLite database name.&quot;&quot;&quot;</span>
+    <span class="n">match</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;ferc\d+&quot;</span><span class="p">,</span> <span class="n">db_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not determine FERC form from db_name=</span><span class="si">{</span><span class="n">db_name</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">()</span></div>
+
+
+
 <div class="viewcode-block" id="PudlMixedFormatIOManager">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlMixedFormatIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PudlMixedFormatIOManager</span><span class="p">(</span><span class="n">IOManager</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PudlMixedFormatIOManager</span><span class="p">(</span><span class="n">ConfigurableIOManager</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Format switching IOManager that supports sqlite and parquet.</span>
 
 <span class="sd">    This IOManager provides for the use of parquet files along with the standard SQLite</span>
 <span class="sd">    database produced by PUDL.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Defaults should be provided here and should be potentially</span>
-    <span class="c1"># overridden by os env variables. This now resides in the</span>
-    <span class="c1"># @io_manager constructor of this, see pudl_mixed_format_io_manager&quot;.</span>
 <div class="viewcode-block" id="PudlMixedFormatIOManager.write_to_parquet">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlMixedFormatIOManager.write_to_parquet">[docs]</a>
-    <span class="n">write_to_parquet</span><span class="p">:</span> <span class="nb">bool</span></div>
+    <span class="n">write_to_parquet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;If true, data will be written to parquet files.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PudlMixedFormatIOManager.read_from_parquet">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlMixedFormatIOManager.read_from_parquet">[docs]</a>
-    <span class="n">read_from_parquet</span><span class="p">:</span> <span class="nb">bool</span></div>
+    <span class="n">read_from_parquet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;If true, data will be read from parquet files instead of sqlite.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">write_to_parquet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">read_from_parquet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates new instance of mixed format pudl IO manager.</span>
-
-<span class="sd">        By default, data is written and read from sqlite, but experimental</span>
-<span class="sd">        support for writing and/or reading from parquet files can be enabled</span>
-<span class="sd">        by setting the corresponding flags to True.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            write_to_parquet: if True, all data will be written to parquet</span>
-<span class="sd">                files in addition to sqlite.</span>
-<span class="sd">            read_from_parquet: if True, all data reads will be using</span>
-<span class="sd">                parquet files as source of truth. Otherwise, data will be</span>
-<span class="sd">                read from the sqlite database. Reading from parquet provides</span>
-<span class="sd">                performance increases as well as better datatype handling, so</span>
-<span class="sd">                this option is encouraged.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">read_from_parquet</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">write_to_parquet</span><span class="p">:</span>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="PudlMixedFormatIOManager.validate_parquet_settings">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlMixedFormatIOManager.validate_parquet_settings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_parquet_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PudlMixedFormatIOManager&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the configured read/write mode is internally consistent.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_from_parquet</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_to_parquet</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="s2">&quot;read_from_parquet cannot be set when write_to_parquet is False.&quot;</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_to_parquet</span> <span class="o">=</span> <span class="n">write_to_parquet</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_from_parquet</span> <span class="o">=</span> <span class="n">read_from_parquet</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="nd">@cached_property</span>
 <div class="viewcode-block" id="PudlMixedFormatIOManager._sqlite_io_manager">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlMixedFormatIOManager._sqlite_io_manager">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sqlite_io_manager</span> <span class="o">=</span> <span class="n">PudlSQLiteIOManager</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sqlite_io_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PudlSQLiteIOManager&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the SQLite-backed runtime IO manager lazily.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PudlSQLiteIOManager</span><span class="p">(</span>
             <span class="n">base_dir</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
             <span class="n">db_name</span><span class="o">=</span><span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
         <span class="p">)</span></div>
 
+
+    <span class="nd">@cached_property</span>
 <div class="viewcode-block" id="PudlMixedFormatIOManager._parquet_io_manager">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlMixedFormatIOManager._parquet_io_manager">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parquet_io_manager</span> <span class="o">=</span> <span class="n">PudlParquetIOManager</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parquet_io_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PudlParquetIOManager&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the Parquet-backed runtime IO manager lazily.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PudlParquetIOManager</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="PudlMixedFormatIOManager.handle_output">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlMixedFormatIOManager.handle_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Passes the output to the appropriate IO manager instance.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sqlite_io_manager</span><span class="o">.</span><span class="n">handle_output</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_to_parquet</span><span class="p">:</span>
@@ -969,7 +1010,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="PudlMixedFormatIOManager.load_input">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlMixedFormatIOManager.load_input">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads input from the appropriate IO manager instance.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_from_parquet</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parquet_io_manager</span><span class="o">.</span><span class="n">load_input</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
@@ -1091,7 +1134,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="SQLiteIOManager._handle_pandas_output">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.SQLiteIOManager._handle_pandas_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_pandas_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_pandas_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write dataframe to the database.</span>
 
 <span class="sd">        SQLite does not support concurrent writes to the database. Instead, SQLite</span>
@@ -1129,57 +1172,24 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span></div>
 
 
-    <span class="c1"># TODO (bendnorman): Create a SQLQuery type so it&#39;s clearer what this method expects</span>
-<div class="viewcode-block" id="SQLiteIOManager._handle_str_output">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.SQLiteIOManager._handle_str_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_str_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a sql query on the database.</span>
-
-<span class="sd">        This is used for creating output views in the database.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            context: dagster keyword that provides access output information like asset</span>
-<span class="sd">                name.</span>
-<span class="sd">            query: sql query to execute in the database.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span>
-        <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-
-        <span class="c1"># Make sure the metadata has been created for the view</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sqlalchemy_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
-
-        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
-            <span class="c1"># Drop the existing view if it exists and create the new view.</span>
-            <span class="c1"># TODO (bendnorman): parameterize this safely.</span>
-            <span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DROP VIEW IF EXISTS </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="SQLiteIOManager.handle_output">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.SQLiteIOManager.handle_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle an op or asset output.</span>
-
-<span class="sd">        If the output is a dataframe, write it to the database. If it is a string</span>
-<span class="sd">        execute it as a SQL query.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            context: dagster keyword that provides access output information like asset</span>
 <span class="sd">                name.</span>
-<span class="sd">            obj: a sql query or dataframe to add to the database.</span>
+<span class="sd">            obj: a dataframe to add to the database.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            Exception: if an asset or op returns an unsupported datatype.</span>
+<span class="sd">            TypeError: if an asset or op returns an unsupported datatype.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_pandas_output</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_str_output</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
-                <span class="s2">&quot;SQLiteIOManager only supports pandas DataFrames and strings of SQL &quot;</span>
-                <span class="s2">&quot;queries.&quot;</span>
-            <span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;SQLiteIOManager only supports pandas DataFrames, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handle_pandas_output</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SQLiteIOManager.load_input">
@@ -1241,7 +1251,6 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">schema</span><span class="o">=</span><span class="n">pa_schema</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;PudlParquetIOManager does not do any schema enforcement.&quot;</span><span class="p">)</span>
             <span class="n">obj</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">to_polars_dtypes</span><span class="p">())</span><span class="o">.</span><span class="n">sink_parquet</span><span class="p">(</span>
                 <span class="n">parquet_path</span><span class="p">,</span>
                 <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;streaming&quot;</span><span class="p">,</span>
@@ -1417,44 +1426,9 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;--autogenerate -m &#39;relevant message&#39; &amp;&amp; alembic upgrade head`.&quot;</span>
             <span class="p">)</span>
 
-<div class="viewcode-block" id="PudlSQLiteIOManager._handle_str_output">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlSQLiteIOManager._handle_str_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_str_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a sql query on the database.</span>
-
-<span class="sd">        This is used for creating output views in the database.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            context: dagster keyword that provides access output information like asset</span>
-<span class="sd">                name.</span>
-<span class="sd">            query: sql query to execute in the database.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span>
-        <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-
-        <span class="c1"># Check if there is a Resource in self.package for table_name.</span>
-        <span class="c1"># We don&#39;t want folks creating views without adding package metadata.</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> does not appear in pudl.metadata.resources. &quot;</span>
-                <span class="s2">&quot;Check for typos, or add the table to the metadata and recreate the &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;PUDL SQlite database. It&#39;s also possible that </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> is one of &quot;</span>
-                <span class="s2">&quot;the tables that does not get loaded into the PUDL SQLite DB because &quot;</span>
-                <span class="s2">&quot;it&#39;s a work in progress or is distributed in Apache Parquet format.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
-
-        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
-            <span class="c1"># Drop the existing view if it exists and create the new view.</span>
-            <span class="c1"># TODO (bendnorman): parameterize this safely.</span>
-            <span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DROP VIEW IF EXISTS </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="PudlSQLiteIOManager._handle_pandas_output">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.PudlSQLiteIOManager._handle_pandas_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_pandas_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_pandas_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Enforce PUDL DB schema and write dataframe to SQLite.&quot;&quot;&quot;</span>
         <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="c1"># If table_name doesn&#39;t show up in the self.md object, this will raise an error</span>
@@ -1525,49 +1499,17 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@io_manager</span><span class="p">(</span>
-    <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;write_to_parquet&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
-            <span class="nb">bool</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;If true, data will be written to parquet files,</span>
-<span class="s2">                in addition to the SQLite database.&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="s2">&quot;read_from_parquet&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
-            <span class="nb">bool</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;If True, the canonical source of data for reads</span>
-<span class="s2">                will be parquet files. Otherwise, data will be read from the</span>
-<span class="s2">                SQLite database.&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">),</span>
-    <span class="p">}</span>
-<span class="p">)</span>
 <div class="viewcode-block" id="pudl_mixed_format_io_manager">
 <a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.pudl_mixed_format_io_manager">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">pudl_mixed_format_io_manager</span><span class="p">(</span><span class="n">init_context</span><span class="p">:</span> <span class="n">InitResourceContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IOManager</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a SQLiteManager dagster resource for the pudl database.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">PudlMixedFormatIOManager</span><span class="p">(</span>
-        <span class="n">write_to_parquet</span><span class="o">=</span><span class="n">init_context</span><span class="o">.</span><span class="n">resource_config</span><span class="p">[</span><span class="s2">&quot;write_to_parquet&quot;</span><span class="p">],</span>
-        <span class="n">read_from_parquet</span><span class="o">=</span><span class="n">init_context</span><span class="o">.</span><span class="n">resource_config</span><span class="p">[</span><span class="s2">&quot;read_from_parquet&quot;</span><span class="p">],</span>
-    <span class="p">)</span></div>
+<span class="n">pudl_mixed_format_io_manager</span> <span class="o">=</span> <span class="n">PudlMixedFormatIOManager</span><span class="p">()</span></div>
 
-
-
-<span class="nd">@io_manager</span>
 <div class="viewcode-block" id="parquet_io_manager">
 <a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.parquet_io_manager">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parquet_io_manager</span><span class="p">(</span><span class="n">init_context</span><span class="p">:</span> <span class="n">InitResourceContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IOManager</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a Parquet only IO manager.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">PudlParquetIOManager</span><span class="p">()</span></div>
+<span class="n">parquet_io_manager</span> <span class="o">=</span> <span class="n">PudlParquetIOManager</span><span class="p">()</span></div>
 
-
-
-<span class="nd">@io_manager</span>
 <div class="viewcode-block" id="geoparquet_io_manager">
 <a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.geoparquet_io_manager">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">geoparquet_io_manager</span><span class="p">(</span><span class="n">init_context</span><span class="p">:</span> <span class="n">InitResourceContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IOManager</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a GeoParquet only IO manager.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">PudlGeoParquetIOManager</span><span class="p">()</span></div>
+<span class="n">geoparquet_io_manager</span> <span class="o">=</span> <span class="n">PudlGeoParquetIOManager</span><span class="p">()</span></div>
 
 
 
@@ -1582,11 +1524,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    This IOManager expects the database to already exist.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="FercSQLiteIOManager._db_path">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercSQLiteIOManager._db_path">[docs]</a>
+    <span class="n">_db_path</span><span class="p">:</span> <span class="n">Path</span>  <span class="c1"># set during _setup_database(); typed here for IDE and type-checker visibility</span></div>
+
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">md</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">md</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1_000.0</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize FercSQLiteIOManager.</span>
@@ -1604,14 +1551,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO(rousik): Note that this is a bit of a partially implemented IO manager that</span>
         <span class="c1"># is not actually used for writing anything. Given that this is derived from base</span>
-        <span class="c1"># SqliteIOManager, we do not support handling of parquet formats. This is probably</span>
+        <span class="c1"># SQLiteIOManager, we do not support handling of parquet formats. This is probably</span>
         <span class="c1"># okay for now.</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FercSQLiteIOManager._setup_database">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercSQLiteIOManager._setup_database">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_database</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1_000.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create database engine and read the metadata.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create database engine and read metadata if the DB already exists.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            timeout: How many seconds the connection should wait before raising an</span>
@@ -1622,120 +1569,255 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Returns:</span>
 <span class="sd">            engine: SQL Alchemy engine that connects to a database in the base_dir.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># If the sqlite directory doesn&#39;t exist, create it.</span>
         <span class="n">db_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">.sqlite&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">db_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No DB found at </span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">. Run the job that creates the &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2"> database.&quot;</span>
-            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db_path</span> <span class="o">=</span> <span class="n">db_path</span>
 
         <span class="n">engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">connect_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="n">timeout</span><span class="p">}</span>
         <span class="p">)</span>
 
-        <span class="c1"># Connect to the local SQLite DB and read its structure.</span>
-        <span class="n">ferc1_meta</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
-        <span class="n">ferc1_meta</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">md</span> <span class="o">=</span> <span class="n">ferc1_meta</span>
+        <span class="c1"># For single-pass Dagster runs, this resource may initialize before upstream</span>
+        <span class="c1"># sqlite-producing assets have materialized the DB file.</span>
+        <span class="k">if</span> <span class="n">db_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reflect_metadata</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2"> not found during resource initialization; metadata reflection &quot;</span>
+                <span class="s2">&quot;will happen on first load.&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">engine</span></div>
 
 
+<div class="viewcode-block" id="FercSQLiteIOManager._reflect_metadata">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercSQLiteIOManager._reflect_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reflect_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reflect table metadata from the sqlite database into ``self.md``.&quot;&quot;&quot;</span>
+        <span class="n">reflected</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
+        <span class="n">reflected</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="n">engine</span> <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span> <span class="o">=</span> <span class="n">reflected</span></div>
+
+
+<div class="viewcode-block" id="FercSQLiteIOManager._ensure_database_ready">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercSQLiteIOManager._ensure_database_ready">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_database_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the sqlite DB exists and metadata has been reflected.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No DB found at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_path</span><span class="si">}</span><span class="s2">. Run the job that creates the &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2"> database.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reflect_metadata</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FercSQLiteIOManager._query">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercSQLiteIOManager._query">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a year-filtered read against the FERC SQLite database.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;Subclasses of FercSQLiteIOManager must implement _query.&quot;</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="FercSQLiteIOManager.handle_output">
 <a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercSQLiteIOManager.handle_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle an op or asset output.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;FercSQLiteIOManager can&#39;t write outputs. Subclass FercSQLiteIOManager and &quot;</span>
             <span class="s2">&quot;implement the handle_output method.&quot;</span>
         <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="FercSQLiteIOManager.load_input">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercSQLiteIOManager.load_input">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataframe from a sqlite database.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            context: dagster keyword that provides access output information like asset</span>
-<span class="sd">                name.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;FercSQLiteIOManager can&#39;t load inputs. Subclass FercSQLiteIOManager and &quot;</span>
-            <span class="s2">&quot;implement the load_input method.&quot;</span>
-        <span class="p">)</span></div>
 </div>
 
 
 
-<div class="viewcode-block" id="FercDBFSQLiteIOManager">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercDBFSQLiteIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FercDBFSQLiteIOManager</span><span class="p">(</span><span class="n">FercSQLiteIOManager</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;IO Manager for only reading tables from the FERC 1 database.</span>
+<div class="viewcode-block" id="FercDbfSQLiteIOManager">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercDbfSQLiteIOManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FercDbfSQLiteIOManager</span><span class="p">(</span><span class="n">FercSQLiteIOManager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;IO Manager for reading tables from FERC DBF SQLite databases.</span>
 
 <span class="sd">    This IO Manager is for reading data only. It does not handle outputs because the raw</span>
 <span class="sd">    FERC tables are not known prior to running the ETL and are not recorded in our</span>
 <span class="sd">    metadata.</span>
+
+<span class="sd">    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so</span>
+<span class="sd">    a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as</span>
+<span class="sd">    the corresponding settings object exposes a ``dbf_years`` attribute.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="FercDBFSQLiteIOManager.handle_output">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercDBFSQLiteIOManager.handle_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="FercDbfSQLiteIOManager.handle_output">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercDbfSQLiteIOManager.handle_output">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle an op or asset output.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;FercDBFSQLiteIOManager can&#39;t write outputs yet.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;FercDbfSQLiteIOManager can&#39;t write outputs yet.&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FercDBFSQLiteIOManager.load_input">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercDBFSQLiteIOManager.load_input">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataframe from a sqlite database.</span>
+<div class="viewcode-block" id="FercDbfSQLiteIOManager._query">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercDbfSQLiteIOManager._query">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the year-filtered read against the FERC DBF SQLite database.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            context: dagster keyword that provides access output information like asset</span>
-<span class="sd">                name.</span>
+<span class="sd">            table_name: Name of the table to query (without the ``raw_&lt;db_name&gt;__``</span>
+<span class="sd">                prefix).</span>
+<span class="sd">            years: Years to include in the result set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.</span>
-        <span class="n">ferc1_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">ferc1</span>
-
-        <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="c1"># Remove preceding asset name metadata</span>
-        <span class="n">table_name</span> <span class="o">=</span> <span class="n">table_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_dbf__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Check if the table_name exists in the self.md object</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sqlalchemy_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
-
-        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span>
-
-        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;SELECT * FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> &quot;</span>  <span class="c1"># noqa: S608</span>
                 <span class="s2">&quot;WHERE report_year BETWEEN :min_year AND :max_year;&quot;</span><span class="p">,</span>
                 <span class="n">con</span><span class="o">=</span><span class="n">con</span><span class="p">,</span>
                 <span class="n">params</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;min_year&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">ferc1_settings</span><span class="o">.</span><span class="n">dbf_years</span><span class="p">),</span>
-                    <span class="s2">&quot;max_year&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">ferc1_settings</span><span class="o">.</span><span class="n">dbf_years</span><span class="p">),</span>
+                    <span class="s2">&quot;min_year&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">years</span><span class="p">),</span>
+                    <span class="s2">&quot;max_year&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">years</span><span class="p">),</span>
                 <span class="p">},</span>
             <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">sched_table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">)</span></div>
 </div>
 
 
 
-<span class="nd">@io_manager</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">})</span>
-<div class="viewcode-block" id="ferc1_dbf_sqlite_io_manager">
-<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.ferc1_dbf_sqlite_io_manager">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ferc1_dbf_sqlite_io_manager</span><span class="p">(</span><span class="n">init_context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDBFSQLiteIOManager</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a SQLiteManager dagster resource for the ferc1 dbf database.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">FercDBFSQLiteIOManager</span><span class="p">(</span>
-        <span class="n">base_dir</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
-        <span class="n">db_name</span><span class="o">=</span><span class="s2">&quot;ferc1_dbf&quot;</span><span class="p">,</span>
-    <span class="p">)</span></div>
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_FercSQLiteConfigurableIOManagerBase</span><span class="p">(</span><span class="n">ConfigurableIOManager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for Dagster-native FERC SQLite IO manager wrappers.</span>
+
+<span class="sd">    Holds the shared resource dependencies (``etl_settings``, ``zenodo_dois``,</span>
+<span class="sd">    ``db_name``) and provides default delegation for ``engine``, ``handle_output``,</span>
+<span class="sd">    and ``load_input``. Subclasses must define ``_manager`` (a ``cached_property``</span>
+<span class="sd">    returning the appropriate underlying IO manager) and ``data_format``</span>
+<span class="sd">    (``dbf`` or ``xbrl``).</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This wrapper pattern is a temporary workaround for nested ``etl_settings``</span>
+<span class="sd">        resource dependencies inside the FERC IO managers. Because Dagster wires</span>
+<span class="sd">        resource dependencies at instantiation time, overriding the top-level</span>
+<span class="sd">        ``etl_settings`` resource alone (e.g. in tests) is not enough — the IO</span>
+<span class="sd">        managers must be rebuilt against the new resource instance. ``build_defs``</span>
+<span class="sd">        in ``pudl.etl`` handles that rebuilding explicitly. A follow-up PR will</span>
+<span class="sd">        remove the nested dependency, at which point this base class can be</span>
+<span class="sd">        simplified or eliminated. See issue #5118</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase.etl_settings">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase.etl_settings">[docs]</a>
+    <span class="n">etl_settings</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">PudlEtlSettingsResource</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase.zenodo_dois">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase.zenodo_dois">[docs]</a>
+    <span class="n">zenodo_dois</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">ZenodoDoiSettingsResource</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase.dataset">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase.dataset">[docs]</a>
+    <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase.data_format">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase.data_format">[docs]</a>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">,</span> <span class="s2">&quot;xbrl&quot;</span><span class="p">]</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase._years_key">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase._years_key">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_years_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">_years&quot;</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase.db_name">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase.db_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">db_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase.engine">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase.engine">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">engine</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Expose the underlying SQLAlchemy engine for tests and helpers.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">engine</span></div>
+
+
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase.handle_output">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase.handle_output">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delegate writes to the underlying runtime IO manager.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">handle_output</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase._prepare">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase._prepare">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure extracted FERC database is valid for this run.</span>
+
+<span class="sd">        * does the database exist?</span>
+<span class="sd">        * do the FERC SQLite provenance check</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ensure_database_ready</span><span class="p">()</span>
+
+        <span class="n">zenodo_doi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois</span><span class="o">.</span><span class="n">get_doi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="n">provenance</span> <span class="o">=</span> <span class="n">FercSQLiteProvenance</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+            <span class="n">data_format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span>
+            <span class="n">zenodo_doi</span><span class="o">=</span><span class="n">zenodo_doi</span><span class="p">,</span>
+            <span class="n">years</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">ferc_to_sqlite</span><span class="o">.</span><span class="n">get_dataset_years</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">assert_ferc_sqlite_compatible</span><span class="p">(</span>
+            <span class="n">instance</span><span class="o">=</span><span class="n">_get_dagster_instance_if_available</span><span class="p">(</span><span class="n">context</span><span class="p">),</span> <span class="n">provenance</span><span class="o">=</span><span class="n">provenance</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_FercSQLiteConfigurableIOManagerBase.load_input">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl._FercSQLiteConfigurableIOManagerBase.load_input">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataframe from the configured FERC SQLite database.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepare</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">ferc_settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;raw_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ferc_settings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_years_key</span><span class="p">))</span></div>
+</div>
 
 
 
-<div class="viewcode-block" id="FercXBRLSQLiteIOManager">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXBRLSQLiteIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FercXBRLSQLiteIOManager</span><span class="p">(</span><span class="n">FercSQLiteIOManager</span><span class="p">):</span>
+<div class="viewcode-block" id="FercDbfSQLiteConfigurableIOManager">
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.FercDbfSQLiteConfigurableIOManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FercDbfSQLiteConfigurableIOManager</span><span class="p">(</span><span class="n">_FercSQLiteConfigurableIOManagerBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configurable IO manager for reading tables from FERC DBF SQLite databases.</span>
+
+<span class="sd">    Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FercDbfSQLiteConfigurableIOManager.data_format">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercDbfSQLiteConfigurableIOManager.data_format">[docs]</a>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dbf&quot;</span></div>
+
+
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="FercDbfSQLiteConfigurableIOManager._manager">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercDbfSQLiteConfigurableIOManager._manager">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDbfSQLiteIOManager</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the underlying SQLite reader lazily.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">FercDbfSQLiteIOManager</span><span class="p">(</span>
+            <span class="n">base_dir</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+            <span class="n">db_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FercXbrlSQLiteIOManager">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXbrlSQLiteIOManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FercXbrlSQLiteIOManager</span><span class="p">(</span><span class="n">FercSQLiteIOManager</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;IO Manager for only reading tables from the XBRL database.</span>
 
 <span class="sd">    This IO Manager is for reading data only. It does not handle outputs because the raw</span>
@@ -1744,8 +1826,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="FercXBRLSQLiteIOManager.refine_report_year">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXBRLSQLiteIOManager.refine_report_year">[docs]</a>
+<div class="viewcode-block" id="FercXbrlSQLiteIOManager.refine_report_year">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXbrlSQLiteIOManager.refine_report_year">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">refine_report_year</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">xbrl_years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a fact&#39;s report year by its actual dates.</span>
 
@@ -1788,76 +1870,90 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FercXBRLSQLiteIOManager.handle_output">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXBRLSQLiteIOManager.handle_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="FercXbrlSQLiteIOManager.handle_output">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXbrlSQLiteIOManager.handle_output">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle an op or asset output.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;FercXBRLSQLiteIOManager can&#39;t write outputs yet.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;FercXbrlSQLiteIOManager can&#39;t write outputs yet.&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FercXBRLSQLiteIOManager.load_input">
-<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXBRLSQLiteIOManager.load_input">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataframe from a sqlite database.</span>
+<div class="viewcode-block" id="FercXbrlSQLiteIOManager._query">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXbrlSQLiteIOManager._query">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the full-table read against the FERC XBRL SQLite database.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            context: dagster keyword that provides access output information like asset</span>
-<span class="sd">                name.</span>
+<span class="sd">            table_name: Name of the table to query (without the ``raw_&lt;db_name&gt;__``</span>
+<span class="sd">                prefix).</span>
+<span class="sd">            years: Years to include in the result set (passed to</span>
+<span class="sd">                :meth:`refine_report_year`).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ferc_settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-            <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span><span class="p">,</span>
-            <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;ferc\d+&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span>
-        <span class="p">)</span>
-
-        <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="c1"># Remove preceding asset name metadata</span>
-        <span class="n">table_name</span> <span class="o">=</span> <span class="n">table_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;raw_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-
-        <span class="c1"># TODO (bendnorman): Figure out a better to handle tables that</span>
-        <span class="c1"># don&#39;t have duration and instant</span>
-        <span class="c1"># Not every table contains both instant and duration</span>
-        <span class="c1"># Return empty dataframe if table doesn&#39;t exist</span>
+        <span class="c1"># TODO (bendnorman): Figure out a better way to handle tables that</span>
+        <span class="c1"># don&#39;t have duration and instant variants.</span>
+        <span class="c1"># Not every table contains both instant and duration;</span>
+        <span class="c1"># return an empty dataframe if the table doesn&#39;t exist.</span>
         <span class="k">if</span> <span class="n">table_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-
-        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span>
-
         <span class="n">sched_table_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;_instant|_duration&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;SELECT </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.* FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="c1"># noqa: S608 - table names not supplied by user</span>
                 <span class="n">con</span><span class="o">=</span><span class="n">con</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">sched_table_name</span><span class="o">=</span><span class="n">sched_table_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">FercXbrlSQLiteIOManager</span><span class="o">.</span><span class="n">refine_report_year</span><span class="p">,</span> <span class="n">xbrl_years</span><span class="o">=</span><span class="n">years</span><span class="p">)</span></div>
+</div>
 
-        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
-            <span class="n">FercXBRLSQLiteIOManager</span><span class="o">.</span><span class="n">refine_report_year</span><span class="p">,</span>
-            <span class="n">xbrl_years</span><span class="o">=</span><span class="n">ferc_settings</span><span class="o">.</span><span class="n">xbrl_years</span><span class="p">,</span>
+
+
+<div class="viewcode-block" id="FercXbrlSQLiteConfigurableIOManager">
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.FercXbrlSQLiteConfigurableIOManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FercXbrlSQLiteConfigurableIOManager</span><span class="p">(</span><span class="n">_FercSQLiteConfigurableIOManagerBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configurable IO manager for reading tables from a FERC XBRL SQLite database.</span>
+
+<span class="sd">    Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FercXbrlSQLiteConfigurableIOManager.data_format">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXbrlSQLiteConfigurableIOManager.data_format">[docs]</a>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;xbrl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;xbrl&quot;</span></div>
+
+
+    <span class="nd">@cached_property</span>
+<div class="viewcode-block" id="FercXbrlSQLiteConfigurableIOManager._manager">
+<a class="viewcode-back" href="../../autoapi/pudl/io_managers/index.html#pudl.etl.FercXbrlSQLiteConfigurableIOManager._manager">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercXbrlSQLiteIOManager</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the underlying SQLite reader lazily.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">FercXbrlSQLiteIOManager</span><span class="p">(</span>
+            <span class="n">base_dir</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+            <span class="n">db_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
 
 
-<span class="nd">@io_manager</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">})</span>
+<div class="viewcode-block" id="ferc1_dbf_sqlite_io_manager">
+<a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.ferc1_dbf_sqlite_io_manager">[docs]</a>
+<span class="n">ferc1_dbf_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercDbfSQLiteConfigurableIOManager</span><span class="p">(</span>
+    <span class="n">etl_settings</span><span class="o">=</span><span class="n">etl_settings</span><span class="p">,</span>
+    <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_dois</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
+<span class="p">)</span></div>
+
 <div class="viewcode-block" id="ferc1_xbrl_sqlite_io_manager">
 <a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.ferc1_xbrl_sqlite_io_manager">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ferc1_xbrl_sqlite_io_manager</span><span class="p">(</span><span class="n">init_context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercXBRLSQLiteIOManager</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a SQLiteManager dagster resource for the ferc1 xbrl database.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">FercXBRLSQLiteIOManager</span><span class="p">(</span>
-        <span class="n">base_dir</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
-        <span class="n">db_name</span><span class="o">=</span><span class="s2">&quot;ferc1_xbrl&quot;</span><span class="p">,</span>
-    <span class="p">)</span></div>
+<span class="n">ferc1_xbrl_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercXbrlSQLiteConfigurableIOManager</span><span class="p">(</span>
+    <span class="n">etl_settings</span><span class="o">=</span><span class="n">etl_settings</span><span class="p">,</span>
+    <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_dois</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
+<span class="p">)</span></div>
 
-
-
-<span class="nd">@io_manager</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">})</span>
 <div class="viewcode-block" id="ferc714_xbrl_sqlite_io_manager">
 <a class="viewcode-back" href="../../autoapi/pudl/etl/index.html#pudl.etl.ferc714_xbrl_sqlite_io_manager">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ferc714_xbrl_sqlite_io_manager</span><span class="p">(</span><span class="n">init_context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercXBRLSQLiteIOManager</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a SQLiteManager dagster resource for the ferc714 xbrl database.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">FercXBRLSQLiteIOManager</span><span class="p">(</span>
-        <span class="n">base_dir</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
-        <span class="n">db_name</span><span class="o">=</span><span class="s2">&quot;ferc714_xbrl&quot;</span><span class="p">,</span>
-    <span class="p">)</span></div>
+<span class="n">ferc714_xbrl_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercXbrlSQLiteConfigurableIOManager</span><span class="p">(</span>
+    <span class="n">etl_settings</span><span class="o">=</span><span class="n">etl_settings</span><span class="p">,</span>
+    <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_dois</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+<span class="p">)</span></div>
 
 </pre></div>
 
@@ -1888,8 +1984,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1923,7 +2019,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

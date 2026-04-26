@@ -9,22 +9,25 @@ pudl.resources
 
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.resources.etl_settings
+   pudl.resources.zenodo_dois
+   pudl.resources.datastore
+
+
 Classes
 -------
 
 .. autoapisummary::
 
    pudl.resources.RuntimeSettings
-
-
-Functions
----------
-
-.. autoapisummary::
-
-   pudl.resources.dataset_settings
-   pudl.resources.ferc_to_sqlite_settings
-   pudl.resources.datastore
+   pudl.resources.PudlEtlSettingsResource
+   pudl.resources.ZenodoDoiSettingsResource
+   pudl.resources.DatastoreResource
 
 
 Module Contents
@@ -50,24 +53,92 @@ Module Contents
 
 
 
-.. py:function:: dataset_settings(init_context) -> pudl.settings.DatasetsSettings
-
-   Dagster resource for parameterizing PUDL ETL assets.
-
-   This resource allows us to specify the years we want to process for each datasource
-   in the Dagit UI.
+   .. py:attribute:: xbrl_loglevel
+      :type:  str
+      :value: 'INFO'
 
 
-.. py:function:: ferc_to_sqlite_settings(init_context) -> pudl.settings.FercToSqliteSettings
 
-   Dagster resource for parameterizing the ``ferc_to_sqlite`` graph.
+.. py:class:: PudlEtlSettingsResource
 
-   This resource allows us to specify the years we want to process for each datasource
-   in the Dagit UI.
+   Bases: :py:obj:`dagster.ConfigurableResource`
 
 
-.. py:function:: datastore(init_context) -> pudl.workspace.datastore.Datastore
+   Load validated PUDL ETL settings from a shared ETL YAML file.
+
+
+   .. py:attribute:: etl_settings_path
+      :type:  str
+
+
+   .. py:method:: create_resource(context) -> pudl.settings.EtlSettings
+
+      Create runtime ETL settings from the configured ETL settings file.
+
+
+
+.. py:class:: ZenodoDoiSettingsResource
+
+   Bases: :py:obj:`dagster.ConfigurableResource`
+
+
+   Load the canonical Zenodo DOI settings for Dagster-managed runs.
+
+   Two configuration paths are supported:
+
+   * **Inline defaults** (``zenodo_dois_path=None``): uses the canonical Zenodo DOIs
+     that are hardcoded as defaults in :class:`~pudl.workspace.datastore.ZenodoDoiSettings`.
+     This is the normal production path — no extra config file is needed.
+   * **Path override** (``zenodo_dois_path="..."``): loads DOIs from an external YAML
+     file, allowing deployments or tests to substitute different DOIs without modifying
+     the source code.
+
+
+   .. py:attribute:: zenodo_dois_path
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:method:: create_resource(context) -> pudl.workspace.datastore.ZenodoDoiSettings
+
+      Create runtime DOI settings, optionally from an override YAML file.
+
+
+
+.. py:class:: DatastoreResource
+
+   Bases: :py:obj:`dagster.ConfigurableResource`
+
 
    Dagster resource to interact with Zenodo archives.
 
+
+   .. py:attribute:: zenodo_dois
+      :type:  dagster.ResourceDependency[ZenodoDoiSettingsResource]
+
+
+   .. py:attribute:: cloud_cache_path
+      :type:  str
+      :value: 's3://pudl.catalyst.coop/zenodo'
+
+
+
+   .. py:attribute:: use_local_cache
+      :type:  bool
+      :value: True
+
+
+
+   .. py:method:: create_resource(context) -> pudl.workspace.datastore.Datastore
+
+      Create a configured datastore runtime object.
+
+
+
+.. py:data:: etl_settings
+
+.. py:data:: zenodo_dois
+
+.. py:data:: datastore
 

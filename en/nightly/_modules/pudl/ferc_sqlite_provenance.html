@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.ferc_to_sqlite &#8212; PUDL 2026.4.1.dev16 documentation</title>
+    <title>pudl.ferc_sqlite_provenance &#8212; PUDL 2026.4.1.dev17 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../_static/documentation_options.js?v=81454b01"></script>
+    <script src="../../_static/documentation_options.js?v=28053f67"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -489,9 +489,9 @@ mermaid.initialize(
 
 window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/ferc_to_sqlite';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/ferc_sqlite_provenance';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'nightly';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -520,7 +520,9 @@ window.runMermaid = runMermaid;</script>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -572,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev16 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -828,7 +830,7 @@ window.runMermaid = runMermaid;</script>
     
     <li class="breadcrumb-item"><a href="../pudl.html" class="nav-link">pudl</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.ferc_to_sqlite</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.ferc_sqlite_provenance</span></li>
   </ul>
 </nav>
 </div>
@@ -845,102 +847,216 @@ window.runMermaid = runMermaid;</script>
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>Source code for pudl.ferc_to_sqlite</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Dagster definitions for the FERC to SQLite process.&quot;&quot;&quot;</span>
+  <h1>Source code for pudl.ferc_sqlite_provenance</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Helpers for recording FERC SQLite provenance and checking compatibility.</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
+<span class="sd">Compatibility between a persisted FERC SQLite prerequisite and a downstream</span>
+<span class="sd">PUDL run is determined by two independent criteria: do the Zenodo DOIs match,</span>
+<span class="sd">and does the FERC SQLite DB contain all the years needed by the downstream run?</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Definitions</span><span class="p">,</span> <span class="n">graph</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.extract.ferc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALL_DBF_EXTRACTORS</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.extract.xbrl</span><span class="w"> </span><span class="kn">import</span> <span class="n">xbrl2sqlite_op_factory</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">RuntimeSettings</span><span class="p">,</span> <span class="n">datastore</span><span class="p">,</span> <span class="n">ferc_to_sqlite_settings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">EtlSettings</span><span class="p">,</span> <span class="n">XbrlFormNumber</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">FercToSqliteSettings</span>
 
 <div class="viewcode-block" id="logger">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.logger">[docs]</a>
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.logger">[docs]</a>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
-
-
-<span class="nd">@graph</span>
-<div class="viewcode-block" id="ferc_to_sqlite">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.ferc_to_sqlite">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ferc_to_sqlite</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the FERC FoxPro databases and XBRL filings into SQLite.&quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">extractor</span> <span class="ow">in</span> <span class="n">ALL_DBF_EXTRACTORS</span><span class="p">:</span>
-        <span class="n">extractor</span><span class="o">.</span><span class="n">get_dagster_op</span><span class="p">()()</span>
-    <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">XbrlFormNumber</span><span class="p">:</span>
-        <span class="n">xbrl2sqlite_op_factory</span><span class="p">(</span><span class="n">form</span><span class="p">)()</span></div>
+<div class="viewcode-block" id="FERC_TO_SQLITE_METADATA_KEY">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FERC_TO_SQLITE_METADATA_KEY">[docs]</a>
+<span class="n">FERC_TO_SQLITE_METADATA_KEY</span> <span class="o">=</span> <span class="s2">&quot;ferc_to_sqlite&quot;</span></div>
 
 
 
-<div class="viewcode-block" id="default_resources_defs">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.default_resources_defs">[docs]</a>
-<span class="n">default_resources_defs</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;ferc_to_sqlite_settings&quot;</span><span class="p">:</span> <span class="n">ferc_to_sqlite_settings</span><span class="p">,</span>
-    <span class="s2">&quot;runtime_settings&quot;</span><span class="p">:</span> <span class="n">RuntimeSettings</span><span class="p">(),</span>
-    <span class="s2">&quot;datastore&quot;</span><span class="p">:</span> <span class="n">datastore</span><span class="p">,</span>
-<span class="p">}</span></div>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="FercSQLiteProvenance">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenance">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FercSQLiteProvenance</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The provenance requirements derived from the current run&#39;s ETL settings.</span>
+
+<span class="sd">    Computed from ``etl_settings`` and ``zenodo_dois`` to describe what a</span>
+<span class="sd">    compatible FERC SQLite prerequisite must contain. Used by</span>
+<span class="sd">    :func:`assert_ferc_sqlite_compatible` to compare against the stored</span>
+<span class="sd">    :class:`FercSQLiteProvenanceRecord` that was written when the DB was built.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FercSQLiteProvenance.dataset">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenance.dataset">[docs]</a>
+    <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenance.data_format">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenance.data_format">[docs]</a>
+    <span class="n">data_format</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenance.zenodo_doi">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenance.zenodo_doi">[docs]</a>
+    <span class="n">zenodo_doi</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenance.years">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenance.years">[docs]</a>
+    <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="ferc_to_sqlite_full_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.ferc_to_sqlite_full_settings">[docs]</a>
-<span class="n">ferc_to_sqlite_full_settings</span> <span class="o">=</span> <span class="n">EtlSettings</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
-    <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.settings&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;etl_full.yml&quot;</span>
-<span class="p">)</span><span class="o">.</span><span class="n">ferc_to_sqlite_settings</span></div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FercSQLiteProvenance.asset_key">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenance.asset_key">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">asset_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The AssetKey corresponding to the extracted SQLite database.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;raw_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">__sqlite&quot;</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ferc_to_sqlite_full">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.ferc_to_sqlite_full">[docs]</a>
-<span class="n">ferc_to_sqlite_full</span> <span class="o">=</span> <span class="n">ferc_to_sqlite</span><span class="o">.</span><span class="n">to_job</span><span class="p">(</span>
-    <span class="n">resource_defs</span><span class="o">=</span><span class="n">default_resources_defs</span><span class="p">,</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferc_to_sqlite_full&quot;</span><span class="p">,</span>
-    <span class="n">config</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;ferc_to_sqlite_settings&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">ferc_to_sqlite_full_settings</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(),</span>
-            <span class="p">},</span>
-            <span class="s2">&quot;runtime_settings&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="p">{},</span>
-            <span class="p">},</span>
-        <span class="p">},</span>
-    <span class="p">},</span>
-<span class="p">)</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenanceRecord">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenanceRecord">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FercSQLiteProvenanceRecord</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stored provenance + extra debugging fields from materialization time.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FercSQLiteProvenanceRecord.dataset">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenanceRecord.dataset">[docs]</a>
+    <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenanceRecord.data_format">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenanceRecord.data_format">[docs]</a>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">,</span> <span class="s2">&quot;xbrl&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenanceRecord.status">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenanceRecord.status">[docs]</a>
+    <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;complete&quot;</span><span class="p">,</span> <span class="s2">&quot;skipped&quot;</span><span class="p">,</span> <span class="s2">&quot;not_configured&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenanceRecord.zenodo_doi">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenanceRecord.zenodo_doi">[docs]</a>
+    <span class="n">zenodo_doi</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenanceRecord.years">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenanceRecord.years">[docs]</a>
+    <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenanceRecord.settings">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenanceRecord.settings">[docs]</a>
+    <span class="n">settings</span><span class="p">:</span> <span class="n">FercToSqliteSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="FercSQLiteProvenanceRecord.sqlite_path">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.FercSQLiteProvenanceRecord.sqlite_path">[docs]</a>
+    <span class="n">sqlite_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ferc_to_sqlite_fast_settings">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.ferc_to_sqlite_fast_settings">[docs]</a>
-<span class="n">ferc_to_sqlite_fast_settings</span> <span class="o">=</span> <span class="n">EtlSettings</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
-    <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.settings&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;etl_fast.yml&quot;</span>
-<span class="p">)</span><span class="o">.</span><span class="n">ferc_to_sqlite_settings</span></div>
 
+<div class="viewcode-block" id="assert_ferc_sqlite_compatible">
+<a class="viewcode-back" href="../../autoapi/pudl/ferc_sqlite_provenance/index.html#pudl.ferc_sqlite_provenance.assert_ferc_sqlite_compatible">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">assert_ferc_sqlite_compatible</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">provenance</span><span class="p">:</span> <span class="n">FercSQLiteProvenance</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure a persisted FERC SQLite prerequisite is compatible with this run.</span>
 
-<div class="viewcode-block" id="ferc_to_sqlite_fast">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.ferc_to_sqlite_fast">[docs]</a>
-<span class="n">ferc_to_sqlite_fast</span> <span class="o">=</span> <span class="n">ferc_to_sqlite</span><span class="o">.</span><span class="n">to_job</span><span class="p">(</span>
-    <span class="n">resource_defs</span><span class="o">=</span><span class="n">default_resources_defs</span><span class="p">,</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferc_to_sqlite_fast&quot;</span><span class="p">,</span>
-    <span class="n">config</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;resources&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;ferc_to_sqlite_settings&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">ferc_to_sqlite_fast_settings</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(),</span>
-            <span class="p">},</span>
-            <span class="s2">&quot;runtime_settings&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="p">{},</span>
-            <span class="p">},</span>
-        <span class="p">},</span>
-    <span class="p">},</span>
-<span class="p">)</span></div>
+<span class="sd">    Compatibility requires two conditions to hold:</span>
 
+<span class="sd">    1. The Zenodo DOI recorded when the FERC SQLite DB was built must match the</span>
+<span class="sd">       current :class:`~pudl.workspace.datastore.ZenodoDoiSettings`. A mismatch</span>
+<span class="sd">       means the raw archive has changed version and the DB must be rebuilt.</span>
 
-<div class="viewcode-block" id="defs">
-<a class="viewcode-back" href="../../autoapi/pudl/ferc_to_sqlite/index.html#pudl.ferc_to_sqlite.defs">[docs]</a>
-<span class="n">defs</span><span class="p">:</span> <span class="n">Definitions</span> <span class="o">=</span> <span class="n">Definitions</span><span class="p">(</span><span class="n">jobs</span><span class="o">=</span><span class="p">[</span><span class="n">ferc_to_sqlite_full</span><span class="p">,</span> <span class="n">ferc_to_sqlite_fast</span><span class="p">])</span></div>
+<span class="sd">    2. The years stored in the FERC SQLite DB must be a *superset* of the years</span>
+<span class="sd">       needed by the current downstream settings. This allows a &quot;full&quot; FERC SQLite</span>
+<span class="sd">       DB to serve a &quot;fast&quot; downstream run without an expensive rebuild.</span>
 
-<span class="sd">&quot;&quot;&quot;A collection of dagster assets, resources, IO managers, and jobs for the FERC to</span>
-<span class="sd">SQLite ETL.&quot;&quot;&quot;</span>
+<span class="sd">    The check is skipped (with a warning) in two cases:</span>
+
+<span class="sd">    * No Dagster instance is available (running outside a Dagster execution context).</span>
+<span class="sd">    * The environment variable ``PUDL_SKIP_FERC_SQLITE_PROVENANCE`` is set to a</span>
+<span class="sd">      truthy value (``1``, ``true``, or ``yes``). This allows contributors to use</span>
+<span class="sd">      externally-downloaded FERC databases without triggering a provenance error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">skip_env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PUDL_SKIP_FERC_SQLITE_PROVENANCE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">skip_env</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">}:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;PUDL_SKIP_FERC_SQLITE_PROVENANCE is set: skipping FERC SQLite &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;provenance check for </span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Stale or incompatible prerequisites may cause downstream failures.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No Dagster instance is available; skipping FERC SQLite provenance &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;check for </span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">. This is &quot;</span>
+            <span class="s2">&quot;expected when running assets outside a Dagster execution context &quot;</span>
+            <span class="s2">&quot;(e.g. in unit tests).&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">event</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">get_latest_materialization_event</span><span class="p">(</span><span class="n">provenance</span><span class="o">.</span><span class="n">asset_key</span><span class="p">)</span>
+    <span class="n">materialization</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">event</span><span class="o">.</span><span class="n">asset_materialization</span>
+    <span class="n">raw_payload</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">materialization</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="n">materialization</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">FERC_TO_SQLITE_METADATA_KEY</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">raw_payload</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">raw_payload</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">raw_payload</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;No Dagster provenance metadata is available for &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">asset_key</span><span class="o">.</span><span class="n">to_user_string</span><span class="p">()</span><span class="si">}</span><span class="s2">. Refresh the FERC SQLite assets.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">stored</span> <span class="o">=</span> <span class="n">FercSQLiteProvenanceRecord</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">stored</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;not_configured&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Stored provenance metadata for </span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">asset_key</span><span class="o">.</span><span class="n">to_user_string</span><span class="p">()</span><span class="si">}</span><span class="s2"> has &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;status=</span><span class="si">{</span><span class="n">stored</span><span class="o">.</span><span class="n">status</span><span class="si">!r}</span><span class="s2">: the DB was built from a run that had no years &quot;</span>
+            <span class="s2">&quot;configured for this form. Refresh the FERC SQLite assets with years configured.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">stored</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="s2">&quot;complete&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Stored provenance metadata for </span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">asset_key</span><span class="o">.</span><span class="n">to_user_string</span><span class="p">()</span><span class="si">}</span><span class="s2"> has &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;status=</span><span class="si">{</span><span class="n">stored</span><span class="o">.</span><span class="n">status</span><span class="si">!r}</span><span class="s2">. Refresh the FERC SQLite assets.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">stored</span><span class="o">.</span><span class="n">zenodo_doi</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">stored</span><span class="o">.</span><span class="n">years</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Stored provenance metadata for </span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">asset_key</span><span class="o">.</span><span class="n">to_user_string</span><span class="p">()</span><span class="si">}</span><span class="s2"> is &quot;</span>
+            <span class="s2">&quot;missing zenodo_doi or years. The DB may have been built before provenance &quot;</span>
+            <span class="s2">&quot;tracking was added. Refresh the FERC SQLite assets.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">mismatches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">stored</span><span class="o">.</span><span class="n">zenodo_doi</span> <span class="o">!=</span> <span class="n">provenance</span><span class="o">.</span><span class="n">zenodo_doi</span><span class="p">:</span>
+        <span class="n">mismatches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot;Zenodo DOI mismatch: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;stored=</span><span class="si">{</span><span class="n">stored</span><span class="o">.</span><span class="n">zenodo_doi</span><span class="si">!r}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;expected=</span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">zenodo_doi</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">stored_years</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stored</span><span class="o">.</span><span class="n">years</span><span class="p">)</span>
+    <span class="n">required_years</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">provenance</span><span class="o">.</span><span class="n">years</span><span class="p">)</span>
+    <span class="n">missing_years</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">required_years</span> <span class="o">-</span> <span class="n">stored_years</span>
+    <span class="k">if</span> <span class="n">missing_years</span><span class="p">:</span>
+        <span class="n">mismatches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot;FERC SQLite DB is missing required years: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;missing=</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">missing_years</span><span class="p">)</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;stored=</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">stored_years</span><span class="p">)</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;required=</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">required_years</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mismatches</span><span class="p">:</span>
+        <span class="n">mismatch_summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mismatches</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Stored prerequisite asset </span><span class="si">{</span><span class="n">provenance</span><span class="o">.</span><span class="n">asset_key</span><span class="o">.</span><span class="n">to_user_string</span><span class="p">()</span><span class="si">}</span><span class="s2"> is not &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;compatible with the current run configuration. </span><span class="si">{</span><span class="n">mismatch_summary</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Refresh the FERC SQLite assets.&quot;</span>
+        <span class="p">)</span></div>
+
 </pre></div>
 
                 </article>
@@ -970,8 +1086,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1005,7 +1121,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

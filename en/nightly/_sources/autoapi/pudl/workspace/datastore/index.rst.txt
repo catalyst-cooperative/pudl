@@ -42,6 +42,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.workspace.datastore.get_zenodo_dois_path
    pudl.workspace.datastore.print_partitions
    pudl.workspace.datastore.validate_cache
    pudl.workspace.datastore.fetch_resources
@@ -55,6 +56,11 @@ Module Contents
 .. py:data:: logger
 
 .. py:data:: ZenodoDoi
+
+.. py:function:: get_zenodo_dois_path() -> importlib.resources.abc.Traversable
+
+   Return the canonical packaged Zenodo DOI settings path.
+
 
 .. py:exception:: ChecksumMismatchError
 
@@ -273,6 +279,14 @@ Module Contents
       Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
 
 
+   .. py:method:: get_doi(dataset: str) -> ZenodoDoi
+
+      Look up configured DOI by dataset.
+
+      Throws a KeyError if dataset not configured.
+
+
+
    .. py:method:: from_yaml(path: str | pathlib.Path) -> ZenodoDoiSettings
       :classmethod:
 
@@ -338,7 +352,7 @@ Module Contents
 
 
 
-.. py:class:: Datastore(local_cache_path: str | pathlib.Path | upath.UPath | None = None, cloud_cache_path: str | upath.UPath | None = 's3://pudl.catalyst.coop/zenodo', timeout: float = 15.0)
+.. py:class:: Datastore(local_cache_path: str | pathlib.Path | upath.UPath | None = None, cloud_cache_path: str | upath.UPath | None = 's3://pudl.catalyst.coop/zenodo', timeout: float = 15.0, zenodo_dois: ZenodoDoiSettings | None = None)
 
    Handle connections and downloading of Zenodo Source archives.
 
@@ -354,6 +368,19 @@ Module Contents
 
 
    .. py:attribute:: _zenodo_fetcher
+
+
+   .. py:property:: zenodo_dois
+      :type: ZenodoDoiSettings
+
+
+      Expose the DOI settings used by this datastore instance.
+
+
+   .. py:method:: get_doi(dataset: str) -> ZenodoDoi
+
+      Return the configured DOI for a dataset.
+
 
 
    .. py:method:: get_known_datasets() -> list[str]
