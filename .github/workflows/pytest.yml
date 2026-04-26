@@ -242,6 +242,7 @@ jobs:
       - name: Preflight dbt parse
         run: |
           mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+          pixi run dbt deps --project-dir dbt --profiles-dir dbt
           pixi run dbt parse --project-dir dbt --profiles-dir dbt --target etl-full
 
       - name: Restore Zenodo datastore from cache if possible
