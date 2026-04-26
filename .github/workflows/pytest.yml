@@ -219,8 +219,30 @@ jobs:
         uses: prefix-dev/setup-pixi@v0.9.5
         with:
           locked: true
-          cache: true
+          # Temporary troubleshooting: avoid potentially stale pixi cache in CI.
+          cache: false
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+
+      - name: Debug dbt and environment metadata
+        run: |
+          pixi run python -V
+          pixi run python - <<'PY'
+          from importlib.metadata import version
+          from dbt.adapters.contracts.connection import Credentials
+          from dbt.adapters.duckdb.credentials import DuckDBCredentials
+
+          print(f"dbt-core={version('dbt-core')}")
+          print(f"dbt-duckdb={version('dbt-duckdb')}")
+          print(f"Credentials._ALIASES={Credentials._ALIASES}")
+          print(f"DuckDBCredentials._ALIASES={DuckDBCredentials._ALIASES}")
+          print(f"DuckDBCredentials._connection_keys={DuckDBCredentials(path=':memory:')._connection_keys()}")
+          PY
+          env | grep -E '^(DBT_|PUDL_)' || true
+
+      - name: Preflight dbt parse
+        run: |
+          mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+          pixi run dbt parse --project-dir dbt --profiles-dir dbt --target etl-full
 
       - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v5
