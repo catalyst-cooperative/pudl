@@ -14,6 +14,15 @@ Enhancements
 New Data
 ^^^^^^^^
 
+EIA-176
+~~~~~~~
+
+* Added :ref:`core_eia176__yearly_company_characteristics` with company operation
+  type, ownership type, and alternative fuel fleet fields from EIA Form 176 Part 3.
+  The raw ``is_other_ownership`` and ``is_other_ownership_2`` fields (which never
+  co-occur) are merged into a single ``is_other_ownership`` boolean.
+  See :issue:`4697` and :pr:`5197`.
+
 FERC 1
 ~~~~~~
 
@@ -39,6 +48,9 @@ New Data Tests & Validations
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
+  was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5197`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
