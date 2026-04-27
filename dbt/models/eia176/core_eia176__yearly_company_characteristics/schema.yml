@@ -60,14 +60,11 @@ sources:
           - name: is_other_ownership
             data_tests:
               - not_null
-          - name: is_other_ownership_2
-            data_tests:
-              - not_null
           - name: other_ownership_description
           - name: has_alternative_fuel_fleet
           - name: is_public_compressed_natural_gas_fueling_station
             data_tests:
               - not_null
-          - name: is_public_liquid_natural_gas_fueling_station
+          - name: is_public_lng_fueling_station
             data_tests:
               - not_null

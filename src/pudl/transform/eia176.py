@@ -583,6 +583,11 @@ def core_eia176__yearly_company_characteristics(
     for col in is_cols:
         df[col] = df[col].eq("X")
 
+    # is_other_ownership_2 appears only in 2016 (27 rows) and never co-occurs with
+    # is_other_ownership — merge them into a single column then drop the duplicate.
+    df["is_other_ownership"] = df["is_other_ownership"] | df["is_other_ownership_2"]
+    df = df.drop(columns=["is_other_ownership_2"])
+
     # 1.0 float artifact in 2012-2015 LNG terminal records — not a meaningful value
     df["other_ownership_description"] = df["other_ownership_description"].where(
         df["other_ownership_description"].apply(
@@ -597,7 +602,13 @@ def core_eia176__yearly_company_characteristics(
     # Only reported 2005-2015; preserve null for years where the question wasn't asked
     df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].map({1.0: True})
 
+    n_before = len(df)
     df = df.dropna(subset=["operating_state"])
+    n_dropped = n_before - len(df)
+    logger.info(
+        f"Dropped {n_dropped} rows with null operating_state from "
+        "core_eia176__yearly_company_characteristics."
+    )
 
     return df
 

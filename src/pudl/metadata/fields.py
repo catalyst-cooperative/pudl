@@ -4370,10 +4370,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether the company reported an ownership type other than investor-owned, cooperative, municipal, or private.",
     },
-    "is_other_ownership_2": {
-        "type": "boolean",
-        "description": "Secondary other-ownership indicator. Present only in 2016 data.",
-    },
     "is_producer": {
         "type": "boolean",
         "description": "Whether the company operates as a natural gas producer.",
@@ -4382,7 +4378,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether the company operates a public compressed natural gas (CNG) fueling station.",
     },
-    "is_public_liquid_natural_gas_fueling_station": {
+    "is_public_lng_fueling_station": {
         "type": "boolean",
         "description": "Whether the company operates a public liquefied natural gas (LNG) fueling station.",
     },
@@ -10426,34 +10422,13 @@ elements which should be overridden need to be specified.
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_company_characteristics": {
+        # The raw RP4 table contains non-US codes (FX, OO, BL, MX) attached to
+        # adjustment placeholder records (operator IDs like 17699999XX). Their meaning
+        # is unconfirmed; EIA was contacted for clarification. The enum constraint is
+        # omitted until that is resolved. See: https://github.com/catalyst-cooperative/pudl/issues/4729
         "operating_state": {
             "description": "State that the operator is reporting for.",
-            "constraints": {"required": True, "enum": SUBDIVISION_CODES_ISO3166},
         },
-        "is_distribution_company_cooperative": {"constraints": {"required": True}},
-        "is_distribution_company_investor_owned": {"constraints": {"required": True}},
-        "is_distribution_company_municipally_owned": {
-            "constraints": {"required": True}
-        },
-        "is_distribution_company_privately_owned": {"constraints": {"required": True}},
-        "is_gatherer": {"constraints": {"required": True}},
-        "is_interstate_pipeline": {"constraints": {"required": True}},
-        "is_intrastate_pipeline": {"constraints": {"required": True}},
-        "is_liquid_natural_gas_marine_terminal": {"constraints": {"required": True}},
-        "is_liquid_natural_gas_peak_facility_operator": {
-            "constraints": {"required": True}
-        },
-        "is_other_ownership": {"constraints": {"required": True}},
-        "is_other_ownership_2": {"constraints": {"required": True}},
-        "is_producer": {"constraints": {"required": True}},
-        "is_public_compressed_natural_gas_fueling_station": {
-            "constraints": {"required": True}
-        },
-        "is_public_liquid_natural_gas_fueling_station": {
-            "constraints": {"required": True}
-        },
-        "is_storage_operator": {"constraints": {"required": True}},
-        "is_synthetic_natural_gas_plant_operator": {"constraints": {"required": True}},
     },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
