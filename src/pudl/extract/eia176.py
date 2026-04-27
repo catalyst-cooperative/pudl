@@ -44,6 +44,9 @@ class Extractor(CsvExtractor):
             int(partition_selection[0:4]) in [2000, 2001, 2019]
         ):
             return "-1"
+        # ZIP archive uses the EIA's original longer name; our page key uses the shorter form
+        if page == "operation_types_and_sector_items":
+            page = "type_of_operations_and_sector_items"
         return f"{self._dataset_name}_{partition_selection}_{page}.csv"
 
     def process_raw(
@@ -88,6 +91,6 @@ raw_eia176_assets = [
         "natural_gas_deliveries": None,
         "natural_gas_other_disposition_items": None,
         "natural_gas_supply_items": None,
-        "type_of_operations_and_sector_items": "operation_types_and_sector_items",
+        "operation_types_and_sector_items": None,
     }.items()
 ]
