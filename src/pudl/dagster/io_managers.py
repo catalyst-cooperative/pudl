@@ -15,7 +15,7 @@ import re
 from functools import cached_property
 from pathlib import Path
 from sqlite3 import sqlite_version
-from typing import ClassVar
+from typing import Literal
 
 import dagster as dg
 import geopandas as gpd  # noqa: ICN002
@@ -31,17 +31,17 @@ from pydantic import model_validator
 from sqlalchemy.exc import IntegrityError
 
 import pudl
-from pudl.dagster.provenance import assert_ferc_sqlite_compatible
+from pudl.dagster.provenance import (
+    FercSQLiteProvenance,
+    assert_ferc_sqlite_compatible,
+)
 from pudl.dagster.resources import (
     PudlEtlSettingsResource,
     ZenodoDoiSettingsResource,
     pudl_etl_settings_resource,
     zenodo_doi_settings_resource,
 )
-from pudl.helpers import (
-    get_parquet_table,
-    get_parquet_table_polars,
-)
+from pudl.helpers import get_parquet_table, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.workspace.setup import PudlPaths
 
@@ -593,7 +593,6 @@ class FercSqliteIOManager(SqliteIOManager):
     """
 
     _db_path: Path  # set during _setup_database(); typed here for IDE and type-checker visibility
-    _years_key: ClassVar[str]  # "dbf_years" or "xbrl_years"; set by each subclass
 
     def __init__(
         self,
@@ -681,23 +680,6 @@ class FercSqliteIOManager(SqliteIOManager):
             "implement the handle_output method."
         )
 
-    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
-        """Load a dataframe from the FERC SQLite database.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-        """
-        self._ensure_database_ready()
-        ferc_settings = getattr(
-            context.resources.etl_settings.dataset_settings,
-            get_ferc_form_name(self.db_name),
-        )
-        table_name = get_table_name_from_context(context).replace(
-            f"raw_{self.db_name}__", ""
-        )
-        return self._query(table_name, getattr(ferc_settings, self._years_key))
-
 
 class FercDbfSqliteIOManager(FercSqliteIOManager):
     """IO Manager for reading tables from FERC DBF SQLite databases.
@@ -710,8 +692,6 @@ class FercDbfSqliteIOManager(FercSqliteIOManager):
     a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as
     the corresponding settings object exposes a ``dbf_years`` attribute.
     """
-
-    _years_key: ClassVar[str] = "dbf_years"
 
     def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
@@ -744,9 +724,8 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
     Holds the shared resource dependencies (``etl_settings``, ``zenodo_dois``,
     ``db_name``) and provides default delegation for ``engine``, ``handle_output``,
     and ``load_input``. Subclasses must define ``_manager`` (a ``cached_property``
-    returning the appropriate underlying IO manager) and ``_years_key`` (the name
-    of the ``ferc_settings`` attribute holding the relevant year list, e.g.
-    ``"dbf_years"`` or ``"xbrl_years"``).
+    returning the appropriate underlying IO manager) and ``data_format``
+    (``dbf`` or ``xbrl``).
 
     Note:
         This wrapper pattern is a temporary workaround for nested ``etl_settings``
@@ -761,8 +740,16 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
 
     etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
     zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
-    db_name: str
-    _years_key: ClassVar[str]  # "dbf_years" or "xbrl_years"; set by each subclass
+    dataset: str
+    data_format: Literal["dbf", "xbrl"]
+
+    @property
+    def _years_key(self) -> str:
+        return f"{self.data_format}_years"
+
+    @property
+    def db_name(self) -> str:
+        return f"{self.dataset}_{self.data_format}"
 
     @property
     def engine(self) -> sa.Engine:
@@ -774,13 +761,26 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
         return self._manager.handle_output(context, obj)
 
     def _prepare(self, context: dg.InputContext) -> None:
-        """Ensure the database is ready and provenance is compatible with this run."""
+        """Make sure extracted FERC database is valid for this run.
+
+        * does the database exist?
+        * do the FERC SQLite provenance check
+        """
         self._manager._ensure_database_ready()
+
+        zenodo_doi = self.zenodo_dois.get_doi(self.dataset)
+
+        provenance = FercSQLiteProvenance(
+            dataset=self.dataset,
+            data_format=self.data_format,
+            zenodo_doi=zenodo_doi,
+            years=self.etl_settings.ferc_to_sqlite.get_dataset_years(
+                self.dataset, self.data_format
+            ),
+        )
+
         assert_ferc_sqlite_compatible(
-            instance=_get_dagster_instance_if_available(context),
-            db_name=self.db_name,
-            etl_settings=self.etl_settings,
-            zenodo_dois=self.zenodo_dois,
+            instance=_get_dagster_instance_if_available(context), provenance=provenance
         )
 
     def load_input(self, context: dg.InputContext) -> pd.DataFrame:
@@ -788,7 +788,7 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
         self._prepare(context)
         ferc_settings = getattr(
             self.etl_settings.dataset_settings,
-            get_ferc_form_name(self.db_name),
+            self.dataset,
         )
         table_name = get_table_name_from_context(context).replace(
             f"raw_{self.db_name}__", ""
@@ -799,12 +799,10 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
 class FercDbfSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
     """Configurable IO manager for reading tables from FERC DBF SQLite databases.
 
-    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so
-    a single class serves all FERC DBF datasets. Instantiate with the appropriate
-    ``db_name`` (e.g. ``"ferc1_dbf"``, ``"ferc2_dbf"``) to target a specific form.
+    Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.)
     """
 
-    _years_key: ClassVar[str] = "dbf_years"
+    data_format: Literal["dbf"] = "dbf"
 
     @cached_property
     def _manager(self) -> FercDbfSqliteIOManager:
@@ -865,8 +863,6 @@ class FercXbrlSqliteIOManager(FercSqliteIOManager):
             .reset_index(drop=True)
         )
 
-    _years_key: ClassVar[str] = "xbrl_years"
-
     def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
         """Handle an op or asset output."""
         raise NotImplementedError("FercXbrlSqliteIOManager can't write outputs yet.")
@@ -896,9 +892,12 @@ class FercXbrlSqliteIOManager(FercSqliteIOManager):
 
 
 class FercXbrlSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
-    """Configurable IO manager for reading tables from a FERC XBRL SQLite database."""
+    """Configurable IO manager for reading tables from a FERC XBRL SQLite database.
 
-    _years_key: ClassVar[str] = "xbrl_years"
+    Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.).
+    """
+
+    data_format: Literal["xbrl"] = "xbrl"
 
     @cached_property
     def _manager(self) -> FercXbrlSqliteIOManager:
@@ -912,15 +911,15 @@ class FercXbrlSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
 ferc1_dbf_sqlite_io_manager = FercDbfSqliteConfigurableIOManager(
     etl_settings=pudl_etl_settings_resource,
     zenodo_dois=zenodo_doi_settings_resource,
-    db_name="ferc1_dbf",
+    dataset="ferc1",
 )
 ferc1_xbrl_sqlite_io_manager = FercXbrlSqliteConfigurableIOManager(
     etl_settings=pudl_etl_settings_resource,
     zenodo_dois=zenodo_doi_settings_resource,
-    db_name="ferc1_xbrl",
+    dataset="ferc1",
 )
 ferc714_xbrl_sqlite_io_manager = FercXbrlSqliteConfigurableIOManager(
     etl_settings=pudl_etl_settings_resource,
     zenodo_dois=zenodo_doi_settings_resource,
-    db_name="ferc714_xbrl",
+    dataset="ferc714",
 )

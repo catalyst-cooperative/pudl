@@ -4,6 +4,8 @@ import sys
 
 import click
 
+from pudl.metadata.classes import PudlResourceDescriptor, Resource
+
 
 @click.command(
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -31,7 +33,12 @@ def main(name: str):
     if name not in RESOURCE_METADATA:
         click.echo(f"No table {name}")
         return
-    resolved = ResourceDescriptionBuilder(name, RESOURCE_METADATA[name]).build()
+    resolved = ResourceDescriptionBuilder(
+        name,
+        Resource._resolve_references_from_resource_descriptor(
+            name, PudlResourceDescriptor.model_validate(RESOURCE_METADATA[name])
+        ),
+    ).build()
     click.echo("Table found:")
     click.echo(resolved.summarize())
 
