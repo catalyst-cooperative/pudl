@@ -27,7 +27,7 @@ USAGE_WARNINGS = {
     "ferc_is_hard": (
         "FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, "
         "non-labeled total rows and lack of IDs. See "
-        "`Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ "
+        "`Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ "
         "for details."
     ),
     "discontinued_data": "The original data is no longer being collected or reported in this way.",
@@ -37,14 +37,20 @@ USAGE_WARNINGS = {
         "Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses "
         "the most consistent or relevant value to facilitate cross-referencing even if that means some values"
         " will differ from the raw sources. See "
-        "`Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ "
+        "`Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ "
         "for details, and see "
-        "`Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ "
+        "`Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ "
         "for a fuller conceptual overview."
     ),
     "harvested_rus": (  # TODO: If more attributes harvested, update to refer to static attributes.
         "Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses "
         "the most consistent borrower name to facilitate cross-referencing even if that means some values"
         " will differ from the raw sources."
+    ),
+    "harvesting_ingredients": (
+        "This table is meant for forensic purposes only. It contains all values which were used to "
+        "choose canonical or golden-record. "
+        "See `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ "
+        "for a fuller conceptual overview."
     ),
 }
