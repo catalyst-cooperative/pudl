@@ -6,9 +6,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_company_characteristics": {
         "description": {
             "additional_summary_text": (
-                "a company's operational and ownership characteristics."
+                "a company's operational and ownership characteristics "
+                "(Part 3, Lines A–F). Several fields from Lines B–D are "
+                "available only in the EIA-176 bulk download, not in the "
+                "individual report CSV downloads that PUDL ingests, and are "
+                "therefore excluded: alternative fleet size count (Line B), "
+                "customer choice program participation counts (Line C), and "
+                "sales acquisitions (Line D). Natural gas pump price is "
+                "portal-only and also excluded. See GitHub issue #4729."
             ),
-            "additional_source_text": "(Part 3, Lines B–F)",
+            "additional_source_text": "(Part 3, Lines A–F; Lines B–D partial)",
         },
         "schema": {
             "fields": [
@@ -28,11 +35,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "is_storage_operator",
                 "is_synthetic_natural_gas_plant_operator",
                 "is_other_ownership",
-                "is_other_ownership_2",
                 "other_ownership_description",
                 "has_alternative_fuel_fleet",
                 "is_public_compressed_natural_gas_fueling_station",
-                "is_public_liquid_natural_gas_fueling_station",
+                "is_public_lng_fueling_station",
             ],
             "primary_key": [
                 "report_year",
