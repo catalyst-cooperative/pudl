@@ -29,7 +29,6 @@ from pudl.helpers import (
     standardize_phone_column,
     zero_pad_numeric_string,
 )
-from pudl.output.sql.helpers import sql_asset_factory
 
 MONTHLY_GEN_FUEL = pd.DataFrame(
     {
@@ -628,13 +627,6 @@ def test_flatten_mix_types():
     """Test if :func:`flatten_list` can flatten an arbitraty list of ints."""
     list1a = ["1", 22, ["333", [4, "5"]], [[666]]]
     assert list(flatten_list(list1a)) == ["1", 22, "333", 4, "5", 666]
-
-
-def test_sql_asset_factory_missing_file():
-    """Test sql_asset_factory throws a file not found error if file doesn't exist for an
-    asset name."""
-    with pytest.raises(FileNotFoundError):
-        sql_asset_factory(name="fake_view")()
 
 
 @pytest.mark.parametrize(

@@ -36,41 +36,12 @@ function initialize_postgres() {
         psql -c "CREATE DATABASE dagster OWNER dagster" -h127.0.0.1 -p5433
 }
 
-function run_ferc_to_sqlite() {
-    echo "Running FERC to SQLite conversion"
-    send_slack_msg ":play: Deployment started for $BUILD_ID :floppy_disk:"
+function run_dagster() {
+    echo "Launching Dagster and running the PUDL job"
+    send_slack_msg ":play: Launching Dagster and running the PUDL job for $BUILD_ID :floppy_disk:"
     initialize_postgres &&
         authenticate_gcp &&
-        alembic upgrade head &&
-        ferc_to_sqlite \
-            --loglevel DEBUG \
-            --workers 8 \
-            "$PUDL_SETTINGS_YML"
-}
-
-function run_pudl_etl() {
-    echo "Running PUDL ETL"
-    pudl_etl \
-        --loglevel DEBUG \
-        "$PUDL_SETTINGS_YML"
-}
-
-function run_unit_tests() {
-    echo "Running unit tests"
-    pytest \
-        -n auto \
-        --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/unit \
-        --no-cov
-}
-
-function run_integration_tests() {
-    echo "Running integration tests"
-    pytest \
-        -n auto \
-        --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/integration \
-        --no-cov
+        pixi run pudl-with-ferc-to-sqlite-nightly
 }
 
 function write_pudl_datapackage() {
@@ -278,18 +249,18 @@ function notify_slack() {
     fi
 
     message+=":time: \`[${total_build_duration}]\` Total Build Duration\n\n"
-    message+="$(slack_stage_status "Run FERC to SQLite" "$FERC_TO_SQLITE_STATUS" "$FERC_TO_SQLITE_DURATION")\n"
-    message+="$(slack_stage_status "Run PUDL ETL" "$PUDL_ETL_STATUS" "$PUDL_ETL_DURATION")\n"
+    message+="$(slack_stage_status "Run PUDL Dagster Job" "$DAGSTER_STATUS" "$DAGSTER_DURATION")\n"
     message+="$(slack_stage_status "Unit Tests" "$UNIT_TEST_STATUS" "$UNIT_TEST_DURATION")\n"
     message+="$(slack_stage_status "Integration Tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")\n"
+    message+="$(slack_stage_status "Data Validations (FKs/dbt)" "$DATA_VALIDATION_STATUS" "$DATA_VALIDATION_DURATION")\n"
     message+="$(slack_stage_status "Write PUDL Datapackage" "$WRITE_DATAPACKAGE_STATUS" "$WRITE_DATAPACKAGE_DURATION")\n"
     message+="$(slack_stage_status "Save Build Outputs" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
-    message+="$(slack_stage_status "Prep Outputs for Distribution" "$CLEAN_UP_OUTPUTS_STATUS" "$CLEAN_UP_OUTPUTS_DURATION")\n"
+    message+="$(slack_stage_status "Prep Outputs for Distribution" "$PREP_OUTPUTS_STATUS" "$PREP_OUTPUTS_DURATION")\n"
     message+="$(slack_stage_status "Update \`nightly\` Branch" "$UPDATE_NIGHTLY_STATUS" "$UPDATE_NIGHTLY_DURATION")\n"
     message+="$(slack_stage_status "Update \`stable\` Branch" "$UPDATE_STABLE_STATUS" "$UPDATE_STABLE_DURATION")\n"
-    message+="$(slack_stage_status "Distribute Outputs to S3/GCS" "$DISTRIBUTION_BUCKET_STATUS" "$DISTRIBUTION_BUCKET_DURATION")\n"
-    message+="$(slack_stage_status "Redeploy PUDL Data Viewer :eel: :hole:" "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS" "$TRIGGER_DATA_VIEWER_DEPLOY_DURATION")\n"
-    message+="$(slack_stage_status "Write-protect \`$BUILD_REF\` Outputs on GCS" "$GCS_TEMPORARY_HOLD_STATUS" "$GCS_TEMPORARY_HOLD_DURATION")\n\n"
+    message+="$(slack_stage_status "Distribute \`$BUILD_REF\` to S3/GCS" "$DISTRIBUTION_BUCKET_STATUS" "$DISTRIBUTION_BUCKET_DURATION")\n"
+    message+="$(slack_stage_status "Redeploy Eel Hole :eel: :hole:" "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS" "$TRIGGER_DATA_VIEWER_DEPLOY_DURATION")\n"
+    message+="$(slack_stage_status "Protect \`$BUILD_REF\` GCS Outputs" "$GCS_TEMPORARY_HOLD_STATUS" "$GCS_TEMPORARY_HOLD_DURATION")\n\n"
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
     message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
     message+="<https://storage.cloud.google.com/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log|*Download logs to your computer*>\n\n"
@@ -308,7 +279,7 @@ function merge_tag_into_branch() {
         git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git" &&
         set -x &&
         echo "Updating $BRANCH branch to point at $TAG." &&
-        # Check out the original row counts so the working tree is clean.
+        # Check out the original row counts so the working tree is .
         # This is a temporary hack around the unstable row-counts in some tables.
         # TODO: fix this for real in issue #4364 / PR #4367
         git checkout -- dbt/seeds/ &&
@@ -332,7 +303,7 @@ function upload_stable_distribution() {
         upload_to_dist_path "stable"
 }
 
-function clean_up_outputs_for_distribution() {
+function prep_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
     pushd "$PUDL_OUTPUT" &&
         find ./ -maxdepth 1 -type f -name '*.sqlite' -print | parallel --will-cite 'zip -9 "{1}.zip" "{1}"' &&
@@ -347,7 +318,7 @@ function clean_up_outputs_for_distribution() {
         # Move the parquet datapackage to the output directory also!
         mv ./pudl_parquet_datapackage.json "$PUDL_OUTPUT" &&
         popd &&
-        # Remove any remaiining files and directories we don't want to distribute
+        # Remove any remaining files and directories we don't want to distribute
         rm -rf "$PUDL_OUTPUT/parquet" &&
         rm -f "$PUDL_OUTPUT/pudl_dbt_tests.duckdb"
 }
@@ -361,28 +332,28 @@ STAGE_SKIPPED="skipped"
 BUILD_START_EPOCH_SECONDS=$(date +%s)
 
 # Initialize our stage-status variables so they all definitely have a value to check
-FERC_TO_SQLITE_STATUS="$STAGE_SKIPPED"
-PUDL_ETL_STATUS="$STAGE_SKIPPED"
+DAGSTER_STATUS="$STAGE_SKIPPED"
 UNIT_TEST_STATUS="$STAGE_SKIPPED"
 INTEGRATION_TEST_STATUS="$STAGE_SKIPPED"
-WRITE_DATAPACKAGE_STATUS="$STAGE_SKIPPED"
+DATA_VALIDATION_STATUS="$STAGE_SKIPPED"
 SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
 UPDATE_NIGHTLY_STATUS="$STAGE_SKIPPED"
 UPDATE_STABLE_STATUS="$STAGE_SKIPPED"
-CLEAN_UP_OUTPUTS_STATUS="$STAGE_SKIPPED"
+WRITE_DATAPACKAGE_STATUS="$STAGE_SKIPPED"
+PREP_OUTPUTS_STATUS="$STAGE_SKIPPED"
 DISTRIBUTION_BUCKET_STATUS="$STAGE_SKIPPED"
 TRIGGER_DATA_VIEWER_DEPLOY_STATUS="$STAGE_SKIPPED"
 GCS_TEMPORARY_HOLD_STATUS="$STAGE_SKIPPED"
 
-FERC_TO_SQLITE_DURATION=""
-PUDL_ETL_DURATION=""
+DAGSTER_DURATION=""
 UNIT_TEST_DURATION=""
 INTEGRATION_TEST_DURATION=""
-WRITE_DATAPACKAGE_DURATION=""
+DATA_VALIDATION_DURATION=""
 SAVE_OUTPUTS_DURATION=""
 UPDATE_NIGHTLY_DURATION=""
 UPDATE_STABLE_DURATION=""
-CLEAN_UP_OUTPUTS_DURATION=""
+WRITE_DATAPACKAGE_DURATION=""
+PREP_OUTPUTS_DURATION=""
 DISTRIBUTION_BUCKET_DURATION=""
 TRIGGER_DATA_VIEWER_DEPLOY_DURATION=""
 GCS_TEMPORARY_HOLD_DURATION=""
@@ -403,7 +374,10 @@ fi
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
-: "${PUDL_SETTINGS_YML:=/home/ubuntu/pudl/src/pudl/package_data/settings/etl_full.yml}"
+# Keep the nightly Dagster config path repo-relative so the same pixi task commands
+# work both locally and inside the nightly build container.
+: "${DG_NIGHTLY_CONFIG:=src/pudl/package_data/settings/dg_nightly.yml}"
+export DG_NIGHTLY_CONFIG
 
 # Save credentials for working with AWS S3
 # set +x / set -x is used to avoid printing the AWS credentials in the logs
@@ -415,16 +389,16 @@ echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
 set -x
 
-run_stage FERC_TO_SQLITE_STATUS FERC_TO_SQLITE_DURATION overwrite run_ferc_to_sqlite
-run_stage PUDL_ETL_STATUS PUDL_ETL_DURATION append run_pudl_etl
-run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION append run_unit_tests
-run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION append run_integration_tests
+run_stage DAGSTER_STATUS DAGSTER_DURATION overwrite run_dagster
+run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION append pixi run pytest-unit-nightly
+run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION append pixi run pytest-integration-nightly
+run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION append pixi run pytest-data-validation-nightly
 
 if ! any_stage_failed \
-    "$FERC_TO_SQLITE_STATUS" \
-    "$PUDL_ETL_STATUS" \
+    "$DAGSTER_STATUS" \
     "$UNIT_TEST_STATUS" \
-    "$INTEGRATION_TEST_STATUS"; then
+    "$INTEGRATION_TEST_STATUS" \
+    "$DATA_VALIDATION_STATUS"; then
     touch "$PUDL_OUTPUT/success"
 fi
 
@@ -439,17 +413,17 @@ pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
 
 run_stage SAVE_OUTPUTS_STATUS SAVE_OUTPUTS_DURATION append save_outputs_to_gcs
 
-exit_on_stage_failure "$FERC_TO_SQLITE_STATUS"
-exit_on_stage_failure "$PUDL_ETL_STATUS"
+exit_on_stage_failure "$DAGSTER_STATUS"
 exit_on_stage_failure "$UNIT_TEST_STATUS"
 exit_on_stage_failure "$INTEGRATION_TEST_STATUS"
+exit_on_stage_failure "$DATA_VALIDATION_STATUS"
 
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
     run_stage UPDATE_NIGHTLY_STATUS UPDATE_NIGHTLY_DURATION append merge_tag_into_branch "$NIGHTLY_TAG" nightly
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    run_stage CLEAN_UP_OUTPUTS_STATUS CLEAN_UP_OUTPUTS_DURATION append clean_up_outputs_for_distribution
-    exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
-    # Copy cleaned up outputs to the S3 and GCS distribution buckets
+    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION append prep_outputs_for_distribution
+    exit_on_stage_failure "$PREP_OUTPUTS_STATUS"
+    # Copy ed up outputs to the S3 and GCS distribution buckets
     run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION append upload_nightly_distribution
     run_stage TRIGGER_DATA_VIEWER_DEPLOY_STATUS TRIGGER_DATA_VIEWER_DEPLOY_DURATION append deploy_data_viewer
     if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
@@ -463,9 +437,9 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
     run_stage UPDATE_STABLE_STATUS UPDATE_STABLE_DURATION append merge_tag_into_branch "$BUILD_REF" stable
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    run_stage CLEAN_UP_OUTPUTS_STATUS CLEAN_UP_OUTPUTS_DURATION append clean_up_outputs_for_distribution
-    exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
-    # Copy cleaned up outputs to the S3 and GCS distribution buckets
+    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION append prep_outputs_for_distribution
+    exit_on_stage_failure "$PREP_OUTPUTS_STATUS"
+    # Copy ed up outputs to the S3 and GCS distribution buckets
     run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION append upload_stable_distribution
     # This is a versioned release. Ensure that outputs can't be accidentally deleted.
     # We can only do this on the GCS bucket, not S3
@@ -481,8 +455,8 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    run_stage CLEAN_UP_OUTPUTS_STATUS CLEAN_UP_OUTPUTS_DURATION append clean_up_outputs_for_distribution
-    exit_on_stage_failure "$CLEAN_UP_OUTPUTS_STATUS"
+    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION append prep_outputs_for_distribution
+    exit_on_stage_failure "$PREP_OUTPUTS_STATUS"
 
     # Disable the test upload to the distribution bucket for now to avoid egress fees
     # and speed up the build. Uncomment if you need to test the distribution upload.
@@ -521,18 +495,18 @@ rm -f ~/.aws/credentials
 
 # Notify slack about entire pipeline's success or failure;
 if ! any_stage_failed \
-    "$FERC_TO_SQLITE_STATUS" \
-    "$PUDL_ETL_STATUS" \
+    "$DAGSTER_STATUS" \
     "$UNIT_TEST_STATUS" \
     "$INTEGRATION_TEST_STATUS" \
+    "$DATA_VALIDATION_STATUS" \
     "$WRITE_DATAPACKAGE_STATUS" \
     "$SAVE_OUTPUTS_STATUS" \
     "$UPDATE_NIGHTLY_STATUS" \
     "$UPDATE_STABLE_STATUS" \
-    "$CLEAN_UP_OUTPUTS_STATUS" \
+    "$PREP_OUTPUTS_STATUS" \
     "$DISTRIBUTION_BUCKET_STATUS" \
-    "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS" \
-    "$GCS_TEMPORARY_HOLD_STATUS"; then
+    "$GCS_TEMPORARY_HOLD_STATUS" \
+    "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS"; then
     notify_slack "success"
 else
     notify_slack "failure"

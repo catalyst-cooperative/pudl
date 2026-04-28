@@ -3,7 +3,7 @@
 import logging
 
 import pandas as pd
-import sqlalchemy as sa
+import pytest
 
 import pudl
 from pudl.analysis.plant_parts_eia import (
@@ -44,12 +44,11 @@ def prep_test_merge(
     return test_merge
 
 
-def test_run_aggregations(
-    pudl_engine: sa.Engine,  # Implicit dependency to ensure data is available.
-) -> None:
-    """Run a test of the aggregated columns.
+@pytest.mark.usefixtures("prebuilt_outputs")
+def test_run_aggregations() -> None:
+    """Validate plant-part aggregations against the prebuilt integration outputs.
 
-    This test will used the plant_parts_eia, re-run groubys and check similarity.
+    This test re-runs the groupbys and compares them against the stored outputs.
     """
     logger.info("Testing ownership fractions for owned records.")
 

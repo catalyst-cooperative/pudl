@@ -4,12 +4,12 @@
     "dagster-expert": {
       "source": "dagster-io/skills",
       "sourceType": "github",
-      "computedHash": "61a6a92459a14ba609b1b499cc6bce23ce36ce03680a5ecef4c97f9735a4b7a7"
+      "computedHash": "6e6f714910d164f5cfcd08da2ff38a37e528ecad522945ab96127f1fef5c1df1"
     },
     "dignified-python": {
       "source": "dagster-io/skills",
       "sourceType": "github",
-      "computedHash": "522e3f4f33436966a478f8ce94140439981392a91d661cf90b6035f6ebc1e35a"
+      "computedHash": "1ef2e92b5496cf01b84df57d6cbe49bceb70d77e9e9d86546788fe1e648f926b"
     },
     "pudl": {
       "source": "catalyst-cooperative/agent-skills",

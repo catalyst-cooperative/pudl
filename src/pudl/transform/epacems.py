@@ -242,7 +242,7 @@ def _partitioned_path() -> Path:
 
 
 @dg.asset(
-    required_resource_keys={"datastore", "dataset_settings"},
+    required_resource_keys={"datastore", "etl_settings"},
     io_manager_key="parquet_io_manager",
     op_tags={"memory-use": "high"},
 )
@@ -262,7 +262,9 @@ def core_epacems__hourly_emissions(
     # internally and this will save us significant dagster process startup overhead and
     # avoid CPU resource contention.
     output_paths = []
-    for year_quarter in context.resources.dataset_settings.epacems.year_quarters:
+    for (
+        year_quarter
+    ) in context.resources.etl_settings.dataset_settings.epacems.year_quarters:
         output_path = partitioned_path / f"{year_quarter}.parquet"
         logger.info(f"Processing EPA CEMS {year_quarter}")
 

@@ -31,6 +31,9 @@ Expanded Data Coverage
 Documentation
 ^^^^^^^^^^^^^
 
+* Added new component to table descriptions showing the most recent data
+  available. See issue :issue:`4586` and PR :pr:`4632`.
+
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -192,6 +195,78 @@ Quality of Life Improvements
 * Switched repository tooling from ``pre-commit`` to ``prek`` and added
   ``trufflehog`` and ``detect-secrets`` hooks to help prevent secrets from being
   committed to the repository. See :pr:`5141`.
+
+Major Dagster Project Refactor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We did a major overhaul of our Dagster configuration to bring it closer to the
+framework's current best-practice recommendations, and also to experiment with the
+new ``dg`` CLI and `Dagster agent skills <https://github.com/dagster-io/skills>`__.
+
+See issue :issue:`5066` for an overview of the issues involved, including issue
+:issue:`5120` and PR :pr:`5071`. This refactor includes the following changes:
+
+* **Replaced the custom ``pudl_etl`` and ``ferc_to_sqlite`` CLI entry points** with
+  Dagster's official ``dg launch`` tool. The old entry points assembled hand-crafted
+  Dagster ``run_config`` dicts at runtime; ``dg launch`` reads YAML config files that
+  are version-controlled alongside the code. Four packaged config files are provided:
+  ``dg_fast.yml``, ``dg_full.yml``, ``dg_pytest.yml``, and ``dg_nightly.yml``.
+  Pixi convenience tasks (``pudl-with-ferc-to-sqlite``,
+  ``pudl-with-ferc-to-sqlite-nightly``, ``ferc-to-sqlite``) wrap the most common
+  invocations. The integration test suite now runs the ETL via ``dg launch`` as a
+  subprocess, so tests exercise exactly the same code path as production.
+* **Consolidated the PUDL job graph.** The previous ``etl_fast`` and ``etl_full``
+  jobs were thin wrappers assembled at import time. These are replaced by three
+  top-level jobs defined directly in :mod:`pudl.etl`: ``ferc_to_sqlite`` (raw FERC
+  prerequisite databases only), ``pudl`` (the main PUDL ETL assuming those raw FERC
+  databases already exist), and ``pudl_with_ferc_to_sqlite`` (end-to-end build in a
+  single job). The FERC EQR pipeline is now the ``ferceqr`` job. Job selection and
+  asset scoping is handled by ``dg launch`` config files rather than by code.
+* **Switched to Dagster config YAML files** for all run configuration (what years to
+  process, which datasets to include, resource settings). The settings flow is now:
+  ``dg launch --config some_dg.yml`` → :class:`pudl.resources.PudlEtlSettingsResource`
+  loads a :class:`pudl.settings.EtlSettings` object from a path declared in that YAML
+  → individual assets and IO managers read from the injected
+  :class:`~pudl.settings.EtlSettings`. This replaces the old pattern of serializing
+  Pydantic models to raw ``run_config`` dicts, which required keeping Dagster config
+  schemas manually in sync with the Pydantic models.
+* **Updated Dagster resources and IO managers to use Pydantic-native**
+  :class:`dagster.ConfigurableResource` **and** :class:`dagster.ConfigurableIOManager`
+  **base classes.**
+  :class:`pudl.workspace.datastore.DatastoreResource` and
+  :class:`pudl.workspace.datastore.ZenodoDoiSettingsResource` replace the legacy
+  ``@resource``-decorated functions;
+  :class:`pudl.io_managers.PudlMixedFormatIOManager`,
+  :class:`pudl.io_managers.FercDbfSQLiteConfigurableIOManager`, and
+  :class:`pudl.io_managers.FercXbrlSQLiteConfigurableIOManager` replace the legacy
+  ``@io_manager`` wrappers. Resources now receive settings via Pydantic field
+  injection rather than via :func:`dagster.build_init_resource_context` config dicts.
+* **Added FERC SQLite provenance tracking** via the new
+  :mod:`pudl.ferc_sqlite_provenance` module. Each time a FERC SQLite asset
+  materializes, it records a fingerprint as :class:`dagster.MaterializeResult`
+  metadata: the Zenodo DOI of the source archive, the years included, and a hash of
+  the ETL settings. When a downstream PUDL asset subsequently loads from that SQLite
+  file, the IO manager checks the stored fingerprint against the current run's
+  settings and raises a descriptive error if the DOIs, years, or settings are
+  incompatible. This eliminates a class of silent correctness failures that occurred
+  when stale FERC SQLite databases from a previous run were silently reused.
+* **Replaced the ``disabled: true`` flag** in FERC-to-SQLite settings with
+  ``years: []`` (empty list). An empty ``years`` list is unambiguous — "process zero
+  years" — and eliminates the need for a separate boolean field that had to be
+  checked in addition to the years list. The ``disabled`` flag has been removed from
+  all settings classes and YAML config files; FERC 2, 6, and 60 DBF/XBRL configs
+  that previously used ``disabled: true`` now use ``years: []``.
+* **Reorganized the integration test infrastructure** in ``test/conftest.py``. The
+  old approach ran the PUDL ETL in-process using ``execute_in_process``, which
+  bypassed the standard ``dg launch`` entry point and required each test fixture to
+  hand-assemble Dagster ``run_config`` dicts. All three FERC extraction fixtures and
+  the ``pudl_io_manager`` fixture are replaced by a single ``prebuilt_outputs``
+  fixture that runs the full ``pudl_with_ferc_to_sqlite`` job via ``dg launch`` as a
+  subprocess, with coverage collection appended to the existing test coverage report.
+  A persistent :class:`dagster.DagsterInstance` fixture allows test code to read
+  asset materialisation metadata written by that subprocess. Pytest CLI flags are
+  renamed for clarity: ``--live-dbs`` → ``--live-pudl-output``, ``--tmp-data`` →
+  ``--temp-pudl-input``, ``--etl-settings`` → ``--dg-config``.
 
 .. _release-v2026.3.0:
 
