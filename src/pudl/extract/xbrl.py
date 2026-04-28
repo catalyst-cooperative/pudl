@@ -74,7 +74,7 @@ class FercXbrlDatastore:
     def get_taxonomy(self, form: XbrlFormNumber) -> io.BytesIO:
         """Returns the path to the taxonomy entry point within the an archive."""
         raw_archive = self.datastore.get_unique_resource(
-            f"ferc{form.value}",
+            str(form),
             data_format="xbrl_taxonomy",
         )
 
@@ -83,9 +83,7 @@ class FercXbrlDatastore:
     def get_filings(self, year: int, form: XbrlFormNumber) -> io.BytesIO:
         """Return the corresponding archive full of XBRL filings."""
         return io.BytesIO(
-            self.datastore.get_unique_resource(
-                f"ferc{form.value}", year=year, data_format="xbrl"
-            )
+            self.datastore.get_unique_resource(str(form), year=year, data_format="xbrl")
         )
 
 
@@ -93,33 +91,33 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
     """Generates xbrl2sqlite op for a given FERC form."""
 
     @op(
-        name=f"ferc{form.value}_xbrl",
+        name=f"{form}_xbrl",
         required_resource_keys={
             "etl_settings",
             "datastore",
             "runtime_settings",
         },
-        tags={"data_format": "xbrl", "dataset": f"ferc{form.value}"},
+        tags={"data_format": "xbrl", "dataset": str(form)},
     )
     def inner_op(context) -> None:
         output_path = PudlPaths().output_dir
         rs: RuntimeSettings = context.resources.runtime_settings
         settings = context.resources.etl_settings.ferc_to_sqlite.get_dataset_settings(
-            dataset=f"ferc{form.value}", data_format="xbrl"
+            dataset=form, data_format="xbrl"
         )
         datastore = FercXbrlDatastore(context.resources.datastore)
 
         logger.info(f"====== xbrl2sqlite runtime_settings: {rs}")
         if settings is None or not settings.years:
             logger.info(
-                f"Skipping dataset ferc{form.value}_xbrl: no config or no years configured."
+                f"Skipping dataset {form}_xbrl: no config or no years configured."
             )
             return
 
-        sqlite_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
+        sqlite_path = PudlPaths().sqlite_db_path(f"{form}_xbrl")
         if sqlite_path.exists():
             sqlite_path.unlink()
-        duckdb_path = PudlPaths().duckdb_db_path(f"ferc{form.value}_xbrl")
+        duckdb_path = PudlPaths().duckdb_db_path(f"{form}_xbrl")
         if duckdb_path.exists():
             duckdb_path.unlink()
 
@@ -163,8 +161,8 @@ def convert_form(
     Returns:
         None
     """
-    datapackage_path = output_path / f"ferc{form.value}_xbrl_datapackage.json"
-    metadata_path = output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
+    datapackage_path = output_path / f"{form}_xbrl_datapackage.json"
+    metadata_path = output_path / f"{form}_xbrl_taxonomy_metadata.json"
 
     taxonomy_archive = datastore.get_taxonomy(form)
     # Process XBRL filings for each year requested
