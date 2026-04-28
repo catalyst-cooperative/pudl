@@ -39,6 +39,10 @@ class XbrlFormNumber(Enum):
     FORM60 = 60
     FORM714 = 714
 
+    def __str__(self):
+        """Format this as ``fercX``, the way we use it everywhere else."""
+        return f"ferc{self.value}"
+
 
 class FrozenBaseModel(BaseModel):
     """BaseModel with global configuration."""
@@ -840,7 +844,7 @@ class FercToSqliteSettings(BaseSettings):
         return data
 
     def get_dataset_settings(
-        self, dataset: str, data_format: Literal["dbf", "xbrl"]
+        self, dataset: str | XbrlFormNumber, data_format: Literal["dbf", "xbrl"]
     ) -> FercGenericXbrlToSqliteSettings:
         """Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
@@ -850,7 +854,7 @@ class FercToSqliteSettings(BaseSettings):
         return dict(self)[key]
 
     def get_dataset_years(
-        self, dataset: str, data_format: Literal["dbf", "xbrl"]
+        self, dataset: str | XbrlFormNumber, data_format: Literal["dbf", "xbrl"]
     ) -> list[int]:
         """Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``)."""
         settings = self.get_dataset_settings(dataset=dataset, data_format=data_format)
