@@ -9,7 +9,7 @@ from pudl.extract.dbf import (
     add_key_constraints,
     deduplicate_by_year,
 )
-from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
+from pudl.settings import FercDbfToSqliteSettings, FercToSqliteSettings
 
 
 class Ferc60DbfExtractor(FercDbfExtractor):
@@ -20,7 +20,7 @@ class Ferc60DbfExtractor(FercDbfExtractor):
 
     def get_settings(
         self, global_settings: FercToSqliteSettings
-    ) -> GenericDatasetSettings:
+    ) -> FercDbfToSqliteSettings:
         """Returns settings for FERC Form 60 DBF dataset."""
         return global_settings.ferc60_dbf_to_sqlite_settings
 
