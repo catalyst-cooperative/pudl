@@ -39,10 +39,12 @@ def build_defs(
     """Build a fresh PUDL ``Definitions`` object with optional overrides."""
     resources = dict(default_resources)
     if resource_overrides:
+        # Merge the overrides into the existing resources
         resources.update(resource_overrides)
-
-        etl_settings_override = resource_overrides.get("etl_settings")
+        etl_settings_override = resources.get("etl_settings")
         zenodo_dois_override = resources.get("zenodo_dois")
+        if zenodo_dois_override is None:
+            raise ValueError("zenodo_dois_override cannot be None")
         if etl_settings_override is not None:
             if "ferc1_dbf_sqlite_io_manager" not in resource_overrides:
                 resources["ferc1_dbf_sqlite_io_manager"] = type(
@@ -50,7 +52,7 @@ def build_defs(
                 )(
                     etl_settings=etl_settings_override,
                     zenodo_dois=zenodo_dois_override,
-                    db_name=ferc1_dbf_sqlite_io_manager.db_name,
+                    dataset="ferc1",
                 )
 
             if "ferc1_xbrl_sqlite_io_manager" not in resource_overrides:
@@ -59,7 +61,7 @@ def build_defs(
                 )(
                     etl_settings=etl_settings_override,
                     zenodo_dois=zenodo_dois_override,
-                    db_name=ferc1_xbrl_sqlite_io_manager.db_name,
+                    dataset="ferc1",
                 )
 
             if "ferc714_xbrl_sqlite_io_manager" not in resource_overrides:
@@ -68,7 +70,7 @@ def build_defs(
                 )(
                     etl_settings=etl_settings_override,
                     zenodo_dois=zenodo_dois_override,
-                    db_name=ferc714_xbrl_sqlite_io_manager.db_name,
+                    dataset="ferc714",
                 )
 
     return dg.Definitions(
