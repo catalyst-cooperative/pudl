@@ -12,7 +12,7 @@ from dagster import op
 from ferc_xbrl_extractor.cli import run_main
 
 import pudl
-from pudl.resources import RuntimeSettings
+from pudl.dagster.resources import FercXbrlRuntimeSettings
 from pudl.settings import FercGenericXbrlToSqliteSettings, XbrlFormNumber
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
@@ -103,7 +103,7 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
     )
     def inner_op(context) -> None:
         output_path = PudlPaths().output_dir
-        rs: RuntimeSettings = context.resources.runtime_settings
+        rs: FercXbrlRuntimeSettings = context.resources.runtime_settings
         settings = context.resources.etl_settings.ferc_to_sqlite.get_dataset_settings(
             dataset=f"ferc{form.value}", data_format="xbrl"
         )

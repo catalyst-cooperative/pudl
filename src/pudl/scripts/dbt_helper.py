@@ -1,6 +1,7 @@
 """A basic CLI to autogenerate dbt data test configurations."""
 
 import json
+import sys
 from collections import namedtuple
 from dataclasses import dataclass
 from difflib import unified_diff
@@ -14,10 +15,10 @@ import yaml
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
-from pudl.dbt_wrapper import build_with_context, dagster_to_dbt_selection
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.workspace.setup import DBT_DIR, PudlPaths
+from pudl.validate.dbt import DBT_DIR, build_with_context, dagster_to_dbt_selection
+from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
 
@@ -735,7 +736,7 @@ def validate(
 @click.group(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
-def dbt_helper():
+def main():
     """Script for auto-generating dbt configuration and migrating existing tests.
 
     This CLI currently provides the following sub-commands:
@@ -752,10 +753,13 @@ def dbt_helper():
     """
 
 
-dbt_helper.add_command(update_tables)
-dbt_helper.add_command(validate)
+main.add_command(update_tables)
+main.add_command(validate)
+
+# Alias for callers that import dbt_helper by name (e.g. integration tests).
+dbt_helper = main
 
 
 if __name__ == "__main__":
     configure_root_logger()
-    dbt_helper()
+    sys.exit(main())

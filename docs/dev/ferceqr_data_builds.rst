@@ -16,7 +16,9 @@ Notable differences from nightly builds
 While the FERC EQR builds use much of the same infrastructure as nightly
 builds, there are a few notable differences. First, the data distribution
 is all done in Python using Dagster tooling. More information on how this
-works can be found in the :mod:`pudl.etl.ferceqr_deployment` module. One other
+works can be found in the :mod:`pudl.deploy.ferceqr` module together with the
+``ferceqr`` Dagster assets, resources, and sensor exposed through
+:mod:`pudl.dagster`. One other
 major difference from the nightly builds is where data will be published.
 Due to the large size of the FERC EQR dataset, we do not maintain multiple
 versions of the data in S3, and instead have just one version, which will be

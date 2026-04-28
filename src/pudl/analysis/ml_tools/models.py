@@ -1,21 +1,46 @@
-"""Provides tooling for developing/tracking ml models within PUDL.
+"""Provides tooling for developing/tracking ML models within PUDL.
 
-The main interface from this module is the :func:`pudl_model` decorator, which
-is meant to be applied to a dagster `graph`. This decorator will handle finding all
-configuration for a model/passing configuration to dagster, creating an
-:class:`ExperimentTracker` for the model, and ultimately will return a `graph_asset`
-from the model.
+The ML pipelines here use Dagster's ``@op`` and ``@graph`` primitives rather than
+``@asset``. Each pipeline (e.g. ``ferc_to_ferc``, ``ferc_to_eia``) is a multi-step
+computation — embedding, clustering, matching — where the intermediate outputs (distance
+matrices, cluster assignments, etc.) are not meaningful PUDL data products. They are
+implementation details of the model.  Converting each ``@op`` to an ``@asset`` would
+pollute the asset catalog with tables that have no meaning outside the model.
 
-There are a few different ways to provide configuration for a PUDL model. First, configuration will come from default values for any dagster `Config`'s which are associated
-with `op`'s which make up the model `graph`. For more info on dagster configuration,
-see https://docs.dagster.io/concepts/configuration/config-schema. The next way to
-provide configuration is through the yaml file: `pudl.package_data.settings.pudl_models.yml`.
-Any configuration in this file should be follow dagster's config-schema formatting,
-see the `ferc_to_ferc` entry as an example. Configuration provided this way will
-override any default values. The final way to provide configuration is through the
-dagster UI. To provide configuration this way, click `Open Launchpad` in the UI, and
-values can be edited here. This configuration will override both default values and
-yaml configuration, but will only be used for a single run.
+``graph_asset`` is the Dagster idiom for exactly this use case: a complex computation
+with internal steps that nevertheless produces a single named asset visible in the
+catalog. Do not refactor these to chains of ``@asset``.
+
+The ``@pudl_model`` decorator
+------------------------------
+:func:`pudl_model` is a decorator factory that wraps a Dagster ``@graph`` and
+converts it into a ``graph_asset``. Applying it to a ``@graph`` function does
+three things:
+
+1. **Collects configuration.** It walks the graph's op tree, harvesting default
+   config values from each op's :class:`~dagster.Config` subclass. If
+   ``config_from_yaml=True``, it also merges overrides from
+   ``pudl.package_data.settings.pudl_models.yml``. The merged config is stored
+   in the module-level ``MODEL_CONFIGURATION`` dict, which
+   :func:`~pudl.dagster.config.get_ml_models_config` later folds into the
+   default job config so Dagster knows the defaults at launch time.
+
+2. **Injects an ExperimentTracker.** An :class:`~pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker`
+   op is synthesized and called first inside the ``graph_asset``, then passed as
+   the first argument to the wrapped graph. Ops that want to log metrics receive
+   it as an input parameter named ``experiment_tracker``. The tracker input is
+   excluded from the asset's ``ins`` mapping so Dagster does not treat it as a
+   dependency on an upstream asset.
+
+3. **Returns a graph_asset.** The decorated function is replaced by a
+   ``graph_asset`` whose name is ``asset_name`` and whose upstream asset
+   dependencies are inferred from the graph's remaining inputs.
+
+Configuration precedence (lowest → highest):
+
+* Default values on each op's ``Config`` subclass (code)
+* Entries in ``pudl_models.yml`` (repo-level YAML, only when ``config_from_yaml=True``)
+* Values entered in the Dagster UI Launchpad (single-run override)
 """
 
 import importlib

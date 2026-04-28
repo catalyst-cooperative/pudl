@@ -11,23 +11,12 @@ import duckdb
 from duckdb import DuckDBPyConnection
 from upath import UPath
 
+from pudl.dagster.partitions import ferceqr_year_quarters
+from pudl.dagster.resources import FercEqrExtractSettings
 from pudl.helpers import ParquetData, persist_table_as_parquet
 from pudl.logging_helpers import get_logger
-from pudl.settings import ferceqr_year_quarters
 
 logger = get_logger(f"catalystcoop.{__name__}")
-
-
-class ExtractSettings(dg.ConfigurableResource):
-    """Dagster resource which defines which EQR data to extract and configuration for raw archive."""
-
-    #: Valid fsspec compatible path pointing to directory of archived EQR filings
-    ferceqr_archive_uri: str = "gs://archives.catalyst.coop/ferceqr/published"
-
-    @property
-    def ferceqr_archive_path(self) -> UPath:
-        """Return UPath pointing to archive base path."""
-        return UPath(self.ferceqr_archive_uri)
 
 
 @contextmanager
@@ -188,7 +177,7 @@ def _save_extract_errors(year_quarter: str, duckdb_connection: DuckDBPyConnectio
 )
 def extract_ferceqr(
     context: dg.AssetExecutionContext,
-    ferceqr_extract_settings: ExtractSettings = ExtractSettings(),
+    ferceqr_extract_settings: FercEqrExtractSettings = FercEqrExtractSettings(),
 ) -> tuple[ParquetData, ParquetData, ParquetData, ParquetData, ParquetData]:
     """Extract year quarter from CSVs and load to parquet files.
 

@@ -1,14 +1,8 @@
 """Basic script to generate a duckdb file with views to local/nightly parquet files."""
 
+import sys
+
 import click
-import duckdb
-from upath import UPath
-
-from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.workspace.setup import PudlPaths
-
-NORMAL_TABLES = [r.name for r in PUDL_PACKAGE.resources if "ferceqr" not in r.name]
-PARTITIONED_TABLES = [r.name for r in PUDL_PACKAGE.resources if "ferceqr" in r.name]
 
 
 @click.command(
@@ -16,6 +10,15 @@ PARTITIONED_TABLES = [r.name for r in PUDL_PACKAGE.resources if "ferceqr" in r.n
 )
 def main():
     """Create duckdb file."""
+    # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
+    import duckdb  # noqa: PLC0415
+    from upath import UPath  # noqa: PLC0415
+
+    from pudl.metadata.classes import PUDL_PACKAGE  # noqa: PLC0415
+    from pudl.workspace.setup import PudlPaths  # noqa: PLC0415
+
+    normal_tables = [r.name for r in PUDL_PACKAGE.resources if "ferceqr" not in r.name]
+    partitioned_tables = [r.name for r in PUDL_PACKAGE.resources if "ferceqr" in r.name]
     schema_path_map = {
         "local": str(PudlPaths().parquet_path()),
         "nightly": "s3://pudl.catalyst.coop/nightly",
@@ -35,7 +38,7 @@ def main():
                 f"CREATE OR REPLACE VIEW {schema}.{table} AS "  # noqa: S608
                 f"(SELECT * FROM '{base_path}/{table}.parquet')"  # noqa: S608
             )
-            for table in NORMAL_TABLES
+            for table in normal_tables
             for schema, base_path in schema_path_map.items()
             # This is mostly for local files since all tables should exist in s3
             if UPath(f"{base_path}/{table}.parquet", anon=True).exists()
@@ -50,11 +53,11 @@ def main():
                     "nightly", "ferceqr"
                 )
             )
-            for table in PARTITIONED_TABLES
+            for table in partitioned_tables
             for schema, base_path in schema_path_map.items()
             if schema != "stable" and UPath(f"{base_path}/{table}/", anon=True).exists()
         ]
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

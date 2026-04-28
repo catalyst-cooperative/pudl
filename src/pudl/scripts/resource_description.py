@@ -5,8 +5,6 @@ import sys
 import click
 
 from pudl.metadata.classes import PudlResourceDescriptor, Resource
-from pudl.metadata.descriptions import ResourceDescriptionBuilder
-from pudl.metadata.resources import RESOURCE_METADATA
 
 
 @click.command(
@@ -28,6 +26,10 @@ def main(name: str):
     :mod:`pudl.metadata.resources` but don't yet have public documentation written.
 
     """
+    # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
+    from pudl.metadata.descriptions import ResourceDescriptionBuilder  # noqa: PLC0415
+    from pudl.metadata.resources import RESOURCE_METADATA  # noqa: PLC0415
+
     if name not in RESOURCE_METADATA:
         click.echo(f"No table {name}")
         return

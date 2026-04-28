@@ -84,7 +84,7 @@ documentation in your text editor with appropriate plugins.
     need to be checked in to version control.
 
     Similarly the :doc:`../data_dictionaries/pudl_db` is generated dynamically
-    by the :mod:`pudl.convert.metadata_to_rst` script that gets run by Sphinx during
+    by the :mod:`pudl.scripts.metadata_to_rst` script that gets run by Sphinx during
     the docs build.
 
     ``pixi run docs-build`` will build and then delete all generated files via
