@@ -177,7 +177,6 @@ def save_to_devtools_glue(missing_df: pd.DataFrame, test_dir: Path, file_name: s
         ),
     ],
 )
-# @pytest.mark.ferc1_sqlite_provenance
 def test_for_fk_validation_and_unmapped_ids(
     ids_left: str,
     ids_right: str,
