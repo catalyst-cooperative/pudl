@@ -35,7 +35,7 @@ class FercXbrlRuntimeSettings(dg.ConfigurableResource):
 class PudlEtlSettingsResource(dg.ConfigurableResource):
     """Load validated PUDL ETL settings from a shared ETL YAML file."""
 
-    etl_settings_path: str
+    etl_settings_path: str = "src/pudl/package_data/settings/etl_full.yml"
 
     def create_resource(self, context) -> EtlSettings:
         """Create runtime ETL settings from the configured ETL settings file."""
