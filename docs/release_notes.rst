@@ -40,11 +40,39 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a :class:`TypeError` in MCOE asset checks where ``sum(exc.null_rows)`` iterated
+  over a DataFrame's column names as strings instead of counting rows. Replaced with
+  ``len(exc.null_rows)``. See PR :pr:`5124`.
+* Fixed a data integrity bug in the FERC SQLite IO manager where SQLite silently
+  auto-incremented ``NULL`` values in single-column ``INTEGER PRIMARY KEY`` columns
+  (ROWID aliases) rather than raising an ``IntegrityError``. An explicit null check now
+  catches this case before writing. The bug affected 11 production entity and
+  association tables (e.g. ``core_eia__entity_plants``,
+  ``core_pudl__entity_utilities_pudl``); composite PKs and non-INTEGER single PKs are
+  enforced normally by SQLite and were unaffected. See PR :pr:`5124`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* **Reorganized the test suite from** ``test/`` **to** ``tests/`` with a three-tier
+  layout that matches the existing Pixi tasks: ``unit/`` (fast, no data),
+  ``integration/`` (software correctness against ETL outputs), and ``validate/``
+  (data quality on prebuilt outputs). The old ``integration/etl_test.py`` was
+  dissolved into per-extractor files and a ``dagster/pipeline_test.py``. New unit tests
+  were added for MCOE asset checks, ``no_null_rows``, ``weighted_quantile``, and IO
+  manager null-PK behavior. See PR :pr:`5124`.
+* **Separated dbt row count checks into a distinct**
+  ``pytest-validate-row-counts-nightly`` *Pixi stage.**
+  ``check_row_counts_per_partition`` is the most frequently failing dbt test; running it
+  in its own stage produces a clearly labelled line in nightly Slack reports instead of
+  failing the broader data validation stage, making failures easier to triage. The stage
+  is automatically skipped outside of full ETL builds. See PR :pr:`5124`.
+* **Renamed the** ``docker/`` **directory to** ``builds/`` to better reflect that it
+  contains all production build scripts and infrastructure, not just Docker-related
+  files. See PR :pr:`5124`.
 
 Major Dagster Project Refactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -246,16 +274,6 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Fixed a :class:`TypeError` in MCOE asset checks where ``sum(exc.null_rows)`` iterated
-  over a DataFrame's column names as strings instead of counting rows. Replaced with
-  ``len(exc.null_rows)``. See PR :pr:`5124`.
-* Fixed a data integrity bug in the FERC SQLite IO manager where SQLite silently
-  auto-incremented ``NULL`` values in single-column ``INTEGER PRIMARY KEY`` columns
-  (ROWID aliases) rather than raising an ``IntegrityError``. An explicit null check now
-  catches this case before writing. The bug affected 11 production entity and
-  association tables (e.g. ``core_eia__entity_plants``,
-  ``core_pudl__entity_utilities_pudl``); composite PKs and non-INTEGER single PKs are
-  enforced normally by SQLite and were unaffected. See PR :pr:`5124`.
 * Fixed a bug in :mod:`pudl.analysis.allocate_gen_fuel` that caused
   :ref:`out_eia923__monthly_generation_fuel_by_generator_energy_source` to incorrectly
   allocate generation and fuel consumption to retired generators. The previous logic
@@ -307,22 +325,6 @@ Quality of Life Improvements
 * Added a ``docs-linkcheck`` Pixi task and a separate manually triggered GitHub
   Actions workflow for experimenting with automated documentation link checking.
   See PR :pr:`5128`.
-* **Reorganized the test suite from** ``test/`` **to** ``tests/`` with a three-tier
-  layout that matches the existing Pixi tasks: ``unit/`` (fast, no data),
-  ``integration/`` (software correctness against ETL outputs), and ``validate/``
-  (data quality on prebuilt outputs). The old ``integration/etl_test.py`` was
-  dissolved into per-extractor files and a ``dagster/pipeline_test.py``. New unit tests
-  were added for MCOE asset checks, ``no_null_rows``, ``weighted_quantile``, and IO
-  manager null-PK behavior. See PR :pr:`5124`.
-* **Separated dbt row count checks into a distinct**
-  ``pytest-validate-row-counts-nightly`` *Pixi stage.**
-  ``check_row_counts_per_partition`` is the most frequently failing dbt test; running it
-  in its own stage produces a clearly labelled line in nightly Slack reports instead of
-  failing the broader data validation stage, making failures easier to triage. The stage
-  is automatically skipped outside of full ETL builds. See PR :pr:`5124`.
-* **Renamed the** ``docker/`` **directory to** ``builds/`` to better reflect that it
-  contains all production build scripts and infrastructure, not just Docker-related
-  files. See PR :pr:`5124`.
 * Switched repository tooling from ``pre-commit`` to ``prek`` and added
   ``trufflehog`` and ``detect-secrets`` hooks to help prevent secrets from being
   committed to the repository. See :pr:`5141`.
