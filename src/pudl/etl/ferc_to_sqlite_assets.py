@@ -78,23 +78,21 @@ def xbrl_to_sqlite_asset_factory(
             "runtime_settings",
             "zenodo_dois",
         },
-        tags={"dataset": f"ferc{form.value}", "data_format": "xbrl"},
+        tags={"dataset": str(form), "data_format": "xbrl"},
     )
     def _asset(context) -> dg.MaterializeResult[str]:
         runtime_settings = context.resources.runtime_settings
         settings = context.resources.etl_settings.ferc_to_sqlite.get_dataset_settings(
-            dataset=f"ferc{form.value}", data_format="xbrl"
+            dataset=form, data_format="xbrl"
         )
         if settings is None or not settings.years:
-            logger.info(
-                f"No years configured for ferc{form.value}_xbrl: skipping extraction."
-            )
+            logger.info(f"No years configured for {form}_xbrl: skipping extraction.")
             return dg.MaterializeResult(
                 value="not_configured",
                 metadata={
                     FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
                         FercSQLiteProvenanceRecord(
-                            dataset=f"ferc{form.value}",
+                            dataset=str(form),
                             data_format="xbrl",
                             status="not_configured",
                         ).model_dump(mode="json")
@@ -103,10 +101,10 @@ def xbrl_to_sqlite_asset_factory(
             )
 
         output_path = PudlPaths().output_dir
-        sqlite_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
+        sqlite_path = PudlPaths().sqlite_db_path(f"{form}_xbrl")
         if sqlite_path.exists():
             sqlite_path.unlink()
-        duckdb_path = PudlPaths().duckdb_db_path(f"ferc{form.value}_xbrl")
+        duckdb_path = PudlPaths().duckdb_db_path(f"{form}_xbrl")
         if duckdb_path.exists():
             duckdb_path.unlink()
 
@@ -127,19 +125,15 @@ def xbrl_to_sqlite_asset_factory(
             metadata={
                 FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
                     FercSQLiteProvenanceRecord(
-                        dataset=f"ferc{form.value}",
+                        dataset=str(form),
                         data_format="xbrl",
                         status="complete",
-                        zenodo_doi=context.resources.zenodo_dois.get_doi(
-                            f"ferc{form.value}"
-                        ),
+                        zenodo_doi=context.resources.zenodo_dois.get_doi(str(form)),
                         years=context.resources.etl_settings.ferc_to_sqlite.get_dataset_years(
-                            dataset=f"ferc{form.value}", data_format="xbrl"
+                            dataset=form, data_format="xbrl"
                         ),
                         settings=context.resources.etl_settings.ferc_to_sqlite,
-                        sqlite_path=PudlPaths().sqlite_db_path(
-                            f"ferc{form.value}_xbrl"
-                        ),
+                        sqlite_path=PudlPaths().sqlite_db_path(f"{form}_xbrl"),
                     ).model_dump(mode="json")
                 )
             },
