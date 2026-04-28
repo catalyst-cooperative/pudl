@@ -206,7 +206,7 @@ jobs:
       fail-fast: false
     defaults:
       run:
-        shell: bash -l {0}
+        shell: bash {0}
     steps:
       - name: Collect Workflow Telemetry
         uses: catchpoint/workflow-telemetry-action@v2
@@ -231,11 +231,9 @@ jobs:
           restore-keys: |
             zenodo-datastore-
 
-      - name: Make input, output and dagster dirs
-        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
-
-      - name: Run the integration tests and data validations
+      - name: Run the integration tests
         run: |
+          mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
           pixi run pytest-integration
 
       - name: Upload integration test coverage artifact

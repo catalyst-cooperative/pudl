@@ -88,28 +88,15 @@ resources contributors most often need to adjust are:
 
 :class:`pudl.dagster.resources.PudlEtlSettingsResource`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``etl_settings`` resource loads a validated
-:class:`pudl.settings.EtlSettings` object from an ETL settings YAML
-file. It controls which datasets and years are processed by both
-the ``ferc_to_sqlite`` and ``pudl`` jobs. The path to the settings
-file is configured via the ``etl_settings_path`` field, and the
-standard packaged settings files are under
-``src/pudl/package_data/settings/``.
+``pudl_etl_settings_resource`` loads a validated :class:`pudl.settings.EtlSettings`
+object from an ETL settings YAML file. It controls which datasets and years are
+processed by both the ``ferc_to_sqlite`` and ``pudl`` jobs. The path to the settings
+file is configured via the ``etl_settings_path`` field, and the standard packaged
+settings files are under ``src/pudl/package_data/settings/``.
 
-To override the settings for a single run from the Dagster UI, hold
-shift while clicking "Materialize All" to open the run configuration
-panel and set ``etl_settings.config.etl_settings_path`` to point at
-a custom settings YAML file.
-
-.. note::
-
-    The configuration edits you make in the Dagster UI are only used
-    for a single run.  To save a resource configuration permanently,
-    update the Dagster config YAML (e.g. ``dg_fast.yml``) or pass a
-    ``--config`` flag to ``dg launch``.
-
-:class:`pudl.resources.DatastoreResource`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To override the settings for a single run from the Dagster UI, hold shift while clicking
+"Materialize All" to open the run configuration panel and set
+``etl_settings.config.etl_settings_path`` to point at a custom settings YAML file.
 
 .. note::
 
@@ -119,16 +106,16 @@ a custom settings YAML file.
     Dagster YAML profiles, or define a custom job / ``Definitions`` override
     in :mod:`pudl.dagster.jobs` or :mod:`pudl.dagster.build`.
 
-:data:`pudl.dagster.resources.datastore`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:data:`pudl.dagster.resources.datastore_resource`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The datastore resource allows assets to pull data from
-PUDL's raw data archives on Zenodo.
+The datastore resource allows assets to pull data from PUDL's raw data archives on
+Zenodo.
 
-:data:`pudl.dagster.resources.runtime_settings`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The ``runtime_settings`` resource controls run-scoped behavior that is not
-part of the dataset selection itself.
+:data:`pudl.dagster.resources.ferc_xbrl_runtime_settings`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The ``ferc_xbrl_runtime_settings`` resource controls the concurrency and
+batch size for the FERC XBRL extraction.
 
 In addition to these commonly edited resources, :mod:`pudl.dagster.resources`
 also registers the standard PUDL IO managers and the ``zenodo_dois`` resource

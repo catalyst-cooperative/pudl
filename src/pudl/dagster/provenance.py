@@ -26,13 +26,13 @@ FERC_TO_SQLITE_METADATA_KEY = "ferc_to_sqlite"
 
 
 @dataclass(frozen=True)
-class FercSQLiteProvenance:
+class FercSqliteProvenance:
     """The provenance requirements derived from the current run's ETL settings.
 
     Computed from ``etl_settings`` and ``zenodo_dois`` to describe what a
     compatible FERC SQLite prerequisite must contain. Used by
     :func:`assert_ferc_sqlite_compatible` to compare against the stored
-    :class:`FercSQLiteProvenanceRecord` that was written when the DB was built.
+    :class:`FercSqliteProvenanceRecord` that was written when the DB was built.
     """
 
     dataset: str
@@ -46,7 +46,7 @@ class FercSQLiteProvenance:
         return dg.AssetKey(f"raw_{self.dataset}_{self.data_format}__sqlite")
 
 
-class FercSQLiteProvenanceRecord(BaseModel):
+class FercSqliteProvenanceRecord(BaseModel):
     """Stored provenance + extra debugging fields from materialization time."""
 
     dataset: str
@@ -61,7 +61,7 @@ class FercSQLiteProvenanceRecord(BaseModel):
 def assert_ferc_sqlite_compatible(
     *,
     instance: Any | None,
-    provenance: FercSQLiteProvenance,
+    provenance: FercSqliteProvenance,
 ) -> None:
     """Ensure a persisted FERC SQLite prerequisite is compatible with this run.
 
@@ -114,7 +114,7 @@ def assert_ferc_sqlite_compatible(
             f"{provenance.asset_key.to_user_string()}. Refresh the FERC SQLite assets."
         )
 
-    stored = FercSQLiteProvenanceRecord.model_validate(payload)
+    stored = FercSqliteProvenanceRecord.model_validate(payload)
 
     if stored.status == "not_configured":
         raise RuntimeError(

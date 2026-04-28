@@ -9,21 +9,21 @@ import pytest
 
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
-    FercSQLiteProvenance,
-    FercSQLiteProvenanceRecord,
+    FercSqliteProvenance,
+    FercSqliteProvenanceRecord,
     assert_ferc_sqlite_compatible,
 )
 from pudl.settings import FercToSqliteSettings
 
 # ---------------------------------------------------------------------------
-# FercSQLiteProvenanceRecord serialization round-trip
+# FercSqliteProvenanceRecord serialization round-trip
 # ---------------------------------------------------------------------------
 
 
 def test_ferc_sqlite_provenance_record_round_trip() -> None:
     """A complete record round-trips through Dagster metadata without data loss."""
     settings = FercToSqliteSettings()
-    record = FercSQLiteProvenanceRecord(
+    record = FercSqliteProvenanceRecord(
         dataset="ferc1",
         data_format="dbf",
         status="complete",
@@ -38,7 +38,7 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
         )
     }
     assert set(dagster_meta) == {FERC_TO_SQLITE_METADATA_KEY}
-    recovered = FercSQLiteProvenanceRecord.model_validate(
+    recovered = FercSqliteProvenanceRecord.model_validate(
         dagster_meta[FERC_TO_SQLITE_METADATA_KEY].value
     )
 
@@ -51,7 +51,7 @@ def test_ferc_sqlite_provenance_record_minimal_round_trip(
     status: Literal["skipped", "not_configured"],
 ) -> None:
     """A minimal record still round-trips through the nested Dagster metadata."""
-    record = FercSQLiteProvenanceRecord(
+    record = FercSqliteProvenanceRecord(
         dataset="ferc714", data_format="xbrl", status=status
     )
     dagster_meta = {
@@ -59,7 +59,7 @@ def test_ferc_sqlite_provenance_record_minimal_round_trip(
             record.model_dump(mode="json")
         )
     }
-    recovered = FercSQLiteProvenanceRecord.model_validate(
+    recovered = FercSqliteProvenanceRecord.model_validate(
         dagster_meta[FERC_TO_SQLITE_METADATA_KEY].value
     )
 
@@ -77,7 +77,7 @@ def test_assert_ferc_sqlite_compatible_skips_without_instance(
     """Provenance check is skipped with a warning when no Dagster instance is available."""
     # TODO replace mocker with caplog
     mock_warn = mocker.patch("pudl.dagster.provenance.logger.warning")
-    provenance = FercSQLiteProvenance(
+    provenance = FercSqliteProvenance(
         dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[2018, 2019]
     )
     assert_ferc_sqlite_compatible(instance=None, provenance=provenance)
@@ -94,7 +94,7 @@ def test_assert_ferc_sqlite_compatible_skips_with_env_var(
     mock_instance = mocker.MagicMock()
     mock_warn = mocker.patch("pudl.dagster.provenance.logger.warning")
 
-    provenance = FercSQLiteProvenance(
+    provenance = FercSqliteProvenance(
         dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[2018, 2019]
     )
 
@@ -115,7 +115,7 @@ def test_assert_ferc_sqlite_compatible_env_var_truthy_values(
     mocker.patch.dict(os.environ, {"PUDL_SKIP_FERC_SQLITE_PROVENANCE": truthy_value})
     mock_instance = mocker.MagicMock()
     # Should not raise.
-    provenance = FercSQLiteProvenance(
+    provenance = FercSqliteProvenance(
         dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[2018, 2019]
     )
 
@@ -142,14 +142,14 @@ def test_assert_ferc_sqlite_compatible_year_subset_check(
 
     Passes when stored ⊇ required; raises RuntimeError when any required year is absent.
     """
-    stored = FercSQLiteProvenanceRecord(
+    stored = FercSqliteProvenanceRecord(
         dataset="ferc1",
         data_format="dbf",
         status="complete",
         zenodo_doi="fake DOI",
         years=stored_years,
     )
-    required = FercSQLiteProvenance(
+    required = FercSqliteProvenance(
         dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=required_years
     )
 
@@ -174,14 +174,14 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
 ) -> None:
     """A Zenodo DOI mismatch should raise a descriptive RuntimeError."""
 
-    stored = FercSQLiteProvenanceRecord(
+    stored = FercSqliteProvenanceRecord(
         dataset="ferc1",
         data_format="dbf",
         status="complete",
         zenodo_doi="stale DOI",
         years=[],
     )
-    required = FercSQLiteProvenance(
+    required = FercSqliteProvenance(
         dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[]
     )
 
@@ -202,7 +202,7 @@ def test_assert_ferc_sqlite_compatible_rejects_missing_materialization(
     mocker,
 ) -> None:
     """Missing materialization event should raise a descriptive RuntimeError."""
-    required = FercSQLiteProvenance(
+    required = FercSqliteProvenance(
         dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[]
     )
     instance = mocker.MagicMock()
@@ -231,7 +231,7 @@ def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
 
     dagster_meta = {
         FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
-            FercSQLiteProvenanceRecord(
+            FercSqliteProvenanceRecord(
                 dataset="ferc1", data_format="dbf", status=status
             ).model_dump(mode="json")
         )
@@ -240,7 +240,7 @@ def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(metadata=dagster_meta)
     )
-    required = FercSQLiteProvenance(
+    required = FercSqliteProvenance(
         dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[]
     )
     with pytest.raises(RuntimeError, match=expected_match):

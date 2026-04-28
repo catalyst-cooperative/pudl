@@ -11,7 +11,7 @@ import dagster as dg
 import pudl
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
-    FercSQLiteProvenanceRecord,
+    FercSqliteProvenanceRecord,
 )
 from pudl.extract.ferc import (
     Ferc1DbfExtractor,
@@ -52,7 +52,7 @@ def dbf_to_sqlite_asset_factory(
             value="complete",
             metadata={
                 FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
-                    FercSQLiteProvenanceRecord(
+                    FercSqliteProvenanceRecord(
                         dataset=dataset,
                         data_format="dbf",
                         status="complete",
@@ -99,7 +99,7 @@ def xbrl_to_sqlite_asset_factory(
                 value="not_configured",
                 metadata={
                     FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
-                        FercSQLiteProvenanceRecord(
+                        FercSqliteProvenanceRecord(
                             dataset=f"ferc{form.value}",
                             data_format="xbrl",
                             status="not_configured",
@@ -132,7 +132,7 @@ def xbrl_to_sqlite_asset_factory(
             value="complete",
             metadata={
                 FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
-                    FercSQLiteProvenanceRecord(
+                    FercSqliteProvenanceRecord(
                         dataset=f"ferc{form.value}",
                         data_format="xbrl",
                         status="complete",

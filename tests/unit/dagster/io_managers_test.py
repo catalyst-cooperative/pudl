@@ -25,7 +25,7 @@ from pudl.dagster.io_managers import (
 )
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
-    FercSQLiteProvenanceRecord,
+    FercSqliteProvenanceRecord,
 )
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
@@ -376,7 +376,7 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
             metadata={
-                FERC_TO_SQLITE_METADATA_KEY: FercSQLiteProvenanceRecord(
+                FERC_TO_SQLITE_METADATA_KEY: FercSqliteProvenanceRecord(
                     dataset="ferc1",
                     data_format="dbf",
                     status="complete",
@@ -427,7 +427,7 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
     instance.get_latest_materialization_event.return_value = mocker.MagicMock(
         asset_materialization=mocker.MagicMock(
             metadata={
-                FERC_TO_SQLITE_METADATA_KEY: FercSQLiteProvenanceRecord(
+                FERC_TO_SQLITE_METADATA_KEY: FercSqliteProvenanceRecord(
                     dataset="ferc1",
                     data_format="dbf",
                     status="complete",
@@ -479,7 +479,7 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
         )
     )
     stale_metadata = {
-        FERC_TO_SQLITE_METADATA_KEY: FercSQLiteProvenanceRecord(
+        FERC_TO_SQLITE_METADATA_KEY: FercSqliteProvenanceRecord(
             dataset="ferc1",
             data_format="dbf",
             status="complete",

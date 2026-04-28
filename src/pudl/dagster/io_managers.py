@@ -26,13 +26,19 @@ import pyarrow.parquet as pq
 import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
+from dagster import (
+    ConfigurableIOManager,
+    DagsterInvariantViolationError,
+    InputContext,
+    OutputContext,
+)
 from packaging import version
 from pydantic import model_validator
 from sqlalchemy.exc import IntegrityError
 
 import pudl
 from pudl.dagster.provenance import (
-    FercSQLiteProvenance,
+    FercSqliteProvenance,
     assert_ferc_sqlite_compatible,
 )
 from pudl.dagster.resources import (
@@ -50,16 +56,8 @@ logger = pudl.logging_helpers.get_logger(__name__)
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
-def get_ferc_form_name(db_name: str) -> str:
-    """Extract the FERC form name from a SQLite database name."""
-    match = re.search(r"ferc\d+", db_name)
-    if match is None:
-        raise ValueError(f"Could not determine FERC form from db_name={db_name!r}")
-    return match.group()
-
-
 def _get_dagster_instance_if_available(
-    context: dg.InputContext,
+    context: InputContext,
 ) -> dg.DagsterInstance | None:
     """Return the Dagster instance from an input context if one was provided.
 
@@ -74,11 +72,11 @@ def _get_dagster_instance_if_available(
     try:
         instance = context.instance
         return None if instance.is_ephemeral else instance
-    except dg.DagsterInvariantViolationError:
+    except DagsterInvariantViolationError:
         return None
 
 
-def get_table_name_from_context(context: dg.InputContext | dg.OutputContext) -> str:
+def get_table_name_from_context(context: InputContext | OutputContext) -> str:
     """Retrieves the table name from the context object."""
     # TODO(rousik): Figure out which kind of identifier is used when.
     if context.has_asset_key:
@@ -718,7 +716,7 @@ class FercDbfSqliteIOManager(FercSqliteIOManager):
             ).assign(sched_table_name=table_name)
 
 
-class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
+class _FercSqliteConfigurableIOManagerBase(ConfigurableIOManager):
     """Base class for Dagster-native FERC SQLite IO manager wrappers.
 
     Holds the shared resource dependencies (``etl_settings``, ``zenodo_dois``,
@@ -731,11 +729,11 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
         This wrapper pattern is a temporary workaround for nested ``etl_settings``
         resource dependencies inside the FERC IO managers. Because Dagster wires
         resource dependencies at instantiation time, overriding the top-level
-        ``etl_settings`` resource alone (e.g. in tests) is not enough — the IO managers
-        must be rebuilt against the new resource instance.
-        :func:`pudl.dagster.build.build_defs` handles that rebuilding explicitly. A
-        follow-up PR will remove the nested dependency, at which point this base class
-        can be simplified or eliminated. See issue #5118
+        ``etl_settings`` resource alone (e.g. in tests) is not enough — the IO
+        managers must be rebuilt against the new resource instance. ``build_defs``
+        in ``pudl.etl`` handles that rebuilding explicitly. A follow-up PR will
+        remove the nested dependency, at which point this base class can be
+        simplified or eliminated. See issue #5118
     """
 
     etl_settings: dg.ResourceDependency[PudlEtlSettingsResource]
@@ -756,11 +754,11 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
         """Expose the underlying SQLAlchemy engine for tests and helpers."""
         return self._manager.engine
 
-    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
+    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str) -> None:
         """Delegate writes to the underlying runtime IO manager."""
         return self._manager.handle_output(context, obj)
 
-    def _prepare(self, context: dg.InputContext) -> None:
+    def _prepare(self, context: InputContext) -> None:
         """Make sure extracted FERC database is valid for this run.
 
         * does the database exist?
@@ -770,7 +768,7 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
 
         zenodo_doi = self.zenodo_dois.get_doi(self.dataset)
 
-        provenance = FercSQLiteProvenance(
+        provenance = FercSqliteProvenance(
             dataset=self.dataset,
             data_format=self.data_format,
             zenodo_doi=zenodo_doi,
@@ -783,7 +781,7 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
             instance=_get_dagster_instance_if_available(context), provenance=provenance
         )
 
-    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
+    def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC SQLite database."""
         self._prepare(context)
         ferc_settings = getattr(
