@@ -629,8 +629,7 @@ def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
 ):
     """Projected fuel cost for the electric power sector.
 
-    Includes 2022 US dollars per million BTU and nominal US dollars per million
-    BTU.
+    Includes 2022, 2024, 2025, and nominal US dollars per million BTU.
 
     In future report years, the base year for the real cost will change, so we
     store that base year as well.
