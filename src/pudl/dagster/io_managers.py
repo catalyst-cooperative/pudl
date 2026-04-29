@@ -15,7 +15,7 @@ import re
 from functools import cached_property
 from pathlib import Path
 from sqlite3 import sqlite_version
-from typing import Literal
+from typing import Any, Literal
 
 import dagster as dg
 import geopandas as gpd  # noqa: ICN002
@@ -921,3 +921,12 @@ ferc714_xbrl_sqlite_io_manager = FercXbrlSqliteConfigurableIOManager(
     zenodo_dois=zenodo_doi_settings_resource,
     dataset="ferc714",
 )
+
+default_io_managers: dict[str, Any] = {
+    "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
+    "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
+    "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
+    "geoparquet_io_manager": geoparquet_io_manager,
+    "parquet_io_manager": parquet_io_manager,
+    "pudl_io_manager": pudl_mixed_format_io_manager,
+}

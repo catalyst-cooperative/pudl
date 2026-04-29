@@ -13,7 +13,6 @@ https://docs.dagster.io/guides/build/external-resources
 """
 
 import os
-from collections.abc import Iterator, Mapping
 from typing import Any
 
 import dagster as dg
@@ -107,50 +106,13 @@ ferceqr_extract_settings = FercEqrExtractSettings(
     )
 )
 
-
-class _LazyDefaultResources(Mapping[str, Any]):
-    """Lazily assemble the default Dagster resource mapping."""
-
-    def __init__(self):
-        self._resources: dict[str, Any] | None = None
-
-    def _materialize(self) -> dict[str, Any]:
-        if self._resources is None:
-            from pudl.dagster.io_managers import (
-                ferc1_dbf_sqlite_io_manager,
-                ferc1_xbrl_sqlite_io_manager,
-                ferc714_xbrl_sqlite_io_manager,
-                geoparquet_io_manager,
-                parquet_io_manager,
-                pudl_mixed_format_io_manager,
-            )
-
-            self._resources = {
-                "datastore": datastore_resource,
-                "zenodo_dois": zenodo_doi_settings_resource,
-                "pudl_io_manager": pudl_mixed_format_io_manager,
-                "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
-                "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
-                "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
-                "etl_settings": pudl_etl_settings_resource,
-                "runtime_settings": ferc_xbrl_runtime_settings,
-                "parquet_io_manager": parquet_io_manager,
-                "geoparquet_io_manager": geoparquet_io_manager,
-                "ferceqr_extract_settings": ferceqr_extract_settings,
-            }
-        return self._resources
-
-    def __getitem__(self, key: str) -> Any:
-        return self._materialize()[key]
-
-    def __iter__(self) -> Iterator[str]:
-        return iter(self._materialize())
-
-    def __len__(self) -> int:
-        return len(self._materialize())
-
-
-default_resources = _LazyDefaultResources()
+default_resources: dict[str, Any] = {
+    "datastore": datastore_resource,
+    "etl_settings": pudl_etl_settings_resource,
+    "ferceqr_extract_settings": ferceqr_extract_settings,
+    "runtime_settings": ferc_xbrl_runtime_settings,
+    "zenodo_dois": zenodo_doi_settings_resource,
+}
 
 __all__ = [
     "DatastoreResource",
@@ -158,8 +120,8 @@ __all__ = [
     "FercXbrlRuntimeSettings",
     "PudlEtlSettingsResource",
     "ZenodoDoiSettingsResource",
-    "default_resources",
     "datastore_resource",
+    "default_resources",
     "ferceqr_extract_settings",
     "ferc_xbrl_runtime_settings",
     "pudl_etl_settings_resource",

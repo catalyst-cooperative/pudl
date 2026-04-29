@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from pudl.dagster.asset_checks import default_asset_checks
     from pudl.dagster.assets import default_assets
     from pudl.dagster.build import build_defs
+    from pudl.dagster.io_managers import default_io_managers
     from pudl.dagster.jobs import default_jobs
     from pudl.dagster.resources import default_resources
     from pudl.dagster.sensors import default_sensors
@@ -27,6 +28,7 @@ _EXPORTS = {
     "build_defs": ("pudl.dagster.build", "build_defs"),
     "default_asset_checks": ("pudl.dagster.asset_checks", "default_asset_checks"),
     "default_assets": ("pudl.dagster.assets", "default_assets"),
+    "default_io_managers": ("pudl.dagster.io_managers", "default_io_managers"),
     "default_jobs": ("pudl.dagster.jobs", "default_jobs"),
     "default_resources": ("pudl.dagster.resources", "default_resources"),
     "default_sensors": ("pudl.dagster.sensors", "default_sensors"),
@@ -60,6 +62,7 @@ __all__ = [
     "build_defs",
     "default_asset_checks",
     "default_assets",
+    "default_io_managers",
     "default_jobs",
     "default_resources",
     "default_sensors",
