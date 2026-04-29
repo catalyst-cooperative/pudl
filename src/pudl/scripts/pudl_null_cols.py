@@ -194,7 +194,7 @@ def main(
     ignore_eia860m: bool,
     date_column: str,
     max_year: int | None,
-):
+) -> int:
     """Generate row_conditions for use with the expect_columns_not_all_null dbt test.
 
     While these row conditions will work out of the box in many cases, they need to be
@@ -226,6 +226,7 @@ def main(
     )
 
     click.echo(output_data)
+    return 0
 
 
 if __name__ == "__main__":

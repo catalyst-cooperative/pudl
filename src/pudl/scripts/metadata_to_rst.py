@@ -66,7 +66,7 @@ def main(
     docs_dir: pathlib.Path,
     logfile: pathlib.Path,
     loglevel: str,
-):
+) -> int:
     """Export PUDL table and field metadata to RST for use in documentation.
 
     metadata_to_rst -s bad_table1 -s bad_table2 -d ./pudl/docs -o ./datadict.rst
@@ -86,6 +86,7 @@ def main(
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
     package.to_rst(docs_dir=docs_dir, path=output)
+    return 0
 
 
 if __name__ == "__main__":

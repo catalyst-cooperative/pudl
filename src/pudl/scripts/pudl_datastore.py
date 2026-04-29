@@ -146,7 +146,7 @@ def main(
     bypass_local_cache: bool,
     logfile: pathlib.Path,
     loglevel: str,
-):
+) -> int:
     """Manage the raw data inputs to the PUDL data processing pipeline.
 
     Download the raw FERC Form 2 data:

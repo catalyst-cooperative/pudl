@@ -8,7 +8,7 @@ import click
 @click.command(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
-def main():
+def main() -> int:
     """Create duckdb file."""
     # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
     import duckdb  # noqa: PLC0415
@@ -57,6 +57,8 @@ def main():
             for schema, base_path in schema_path_map.items()
             if schema != "stable" and UPath(f"{base_path}/{table}/", anon=True).exists()
         ]
+
+    return 0
 
 
 if __name__ == "__main__":

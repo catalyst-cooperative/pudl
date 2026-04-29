@@ -42,6 +42,10 @@ Guidelines for contributors and agents
 - **Always support** ``-h`` **and** ``--help``: every Click command must set
   ``context_settings={"help_option_names": ["-h", "--help"]}`` so users can
   get help with either flag without waiting for heavy imports to finish.
+- **Use one process-exit boundary**: command bodies should return integer status
+  codes (``0`` for success) and should not call ``sys.exit()`` directly.
+  Reserve ``sys.exit(main())`` for the module launcher under
+  ``if __name__ == "__main__":``.
 
 Keeping ``--help`` fast: defer heavy imports inside ``main()``
 --------------------------------------------------------------

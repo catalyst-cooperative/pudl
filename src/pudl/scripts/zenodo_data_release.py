@@ -542,7 +542,7 @@ class CompleteDraft(State):
     "draft to be reviewed and approved manually.",
     show_default=True,
 )
-def main(env: str, source_dir: str, publish: bool, ignore: tuple[str]):
+def main(env: str, source_dir: str, publish: bool, ignore: tuple[str]) -> int:
     """Publish a new PUDL data release to Zenodo."""
     zenodo_client = ZenodoClient(env)
     if env == SANDBOX:
@@ -563,6 +563,8 @@ def main(env: str, source_dir: str, publish: bool, ignore: tuple[str]):
         logger.info(f"Published at {completed_draft.get_html_url()}")
     else:
         logger.info(f"Completed draft at {completed_draft.get_html_url()}")
+
+    return 0
 
 
 if __name__ == "__main__":

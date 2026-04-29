@@ -100,7 +100,7 @@ def main(
     years: list[int],
     logfile: pathlib.Path,
     loglevel: str,
-):
+) -> int:
     """Compile historical utility and balancing area service territory geometries.
 
     This script produces GeoParquet files describing the historical service territories
@@ -144,6 +144,8 @@ def main(
         limit_by_state=limit_by_state,
         years=years,
     )
+
+    return 0
 
 
 if __name__ == "__main__":

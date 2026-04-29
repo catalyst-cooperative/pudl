@@ -736,7 +736,7 @@ def validate(
 @click.group(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
-def main():
+def main() -> int:
     """Script for auto-generating dbt configuration and migrating existing tests.
 
     This CLI currently provides the following sub-commands:
@@ -751,6 +751,7 @@ def main():
 
     Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
+    return 0
 
 
 main.add_command(update_tables)

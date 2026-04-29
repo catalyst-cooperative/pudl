@@ -35,7 +35,7 @@ import click
     ),
     default=None,
 )
-def main(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path):
+def main(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path) -> int:
     """Check that foreign key constraints in the PUDL database are respected.
 
     Dagster manages the dependencies between various assets in our ETL pipeline,
