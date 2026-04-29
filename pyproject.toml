@@ -355,31 +355,40 @@ cmd = "coverage erase"
 description = "Clear coverage data"
 
 [tool.pixi.tasks.pytest-unit]
-cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit"
+cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl tests/unit"
 description = "Run unit tests and doctests"
 
 [tool.pixi.tasks.pytest-integration]
-cmd = "pytest --cov-fail-under=0 test/integration"
-description = "Run integration tests"
+cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
+description = "Run integration and (non-row-count) validation tests."
+
+[tool.pixi.tasks.pytest-validate]
+cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py"
+description = "Run data validation tests (FK checks and dbt, no row counts) against existing PUDL_OUTPUT"
 
 [tool.pixi.tasks.pytest-unit-nightly]
-cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG test/unit"
+cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG --doctest-modules src/pudl tests/unit"
 description = "Run nightly-build unit tests with the nightly Dagster config"
 
 [tool.pixi.tasks.pytest-integration-nightly]
-cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG --ignore=test/integration/data_validation_test.py test/integration"
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/integration"
 description = "Run nightly-build integration tests against live nightly-style outputs"
 
-[tool.pixi.tasks.pytest-data-validation-nightly]
-cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG test/integration/data_validation_test.py"
-description = "Run nightly-build data validation tests against live nightly-style outputs"
+[tool.pixi.tasks.pytest-validate-nightly]
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py"
+description = "Run nightly-build data validation tests (FK checks and dbt, excluding row counts) against live nightly-style outputs"
+
+[tool.pixi.tasks.pytest-validate-row-counts-nightly]
+cmd = "pytest --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/validate/row_counts_test.py"
+description = "Run nightly-build dbt row count checks as a separate stage against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-nightly]
 cmd = "true"
 depends-on = [
     "pytest-unit-nightly",
     "pytest-integration-nightly",
-    "pytest-data-validation-nightly",
+    "pytest-validate-nightly",
+    "pytest-validate-row-counts-nightly",
 ]
 description = "Run the nightly-build pytest stages using the nightly Dagster config"
 
@@ -394,7 +403,7 @@ depends-on = [
 description = "Run all CI tests and report test coverage"
 
 [tool.pixi.tasks.pytest-jupyter]
-cmd = "pytest --live-pudl-output test/integration/jupyter_notebooks_test.py"
+cmd = "pytest --live-pudl-output tests/integration/notebooks_test.py"
 description = "Test Jupyter notebooks"
 # Build the FERC 1 and PUDL DBs.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
@@ -404,7 +413,7 @@ cmd = """
 pytest \
     --save-unmapped-ids
     --dg-config $DG_FULL_CONFIG \
-    test/integration/glue_test.py
+    tests/integration/glue/glue_test.py
 """
 description = "Identify unmapped plant and utility IDs"
 
@@ -482,17 +491,17 @@ description = "Install skills from lockfile"
 
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
-metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
-pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
-pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
-pudl_deploy = "pudl.scripts.deploy:pudl_deploy"
-pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
-dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
+metadata_to_rst = "pudl.scripts.metadata_to_rst:main"
+pudl_check_fks = "pudl.scripts.pudl_check_fks:main"
+pudl_datastore = "pudl.scripts.pudl_datastore:main"
+pudl_deploy = "pudl.scripts.deploy:main"
+pudl_service_territories = "pudl.scripts.pudl_service_territories:main"
+dbt_helper = "pudl.scripts.dbt_helper:main"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
 pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
-zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
+zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -572,7 +581,7 @@ extend-select = ["NPY201"] # preview rule to easy migration to Numpy 2.0
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"] # Ignore unused imports
-"test/*" = ["D"]
+"tests/*" = ["D"]
 "migrations/*" = ["D", "Q"]
 
 [tool.ruff.lint.isort]
@@ -652,7 +661,7 @@ doctest_optionflags = [
 ]
 
 [tool.coverage.run]
-source = ["src/pudl/", "test/integration/", "test/unit/"]
+source = ["src/pudl/", "tests/integration/", "tests/unit/", "tests/validate/"]
 omit = ["src/pudl/*/ferceqr*.py", "src/pudl/_version.py"]
 relative_files = true
 
@@ -678,15 +687,16 @@ exclude_lines = [
 ]
 
 [tool.dagster]
-modules = [{ type = "module", name = "pudl.etl" }]
+modules = [{ type = "module", name = "pudl.definitions" }]
 
 [tool.dg]
 directory_type = "project"
 
 [tool.dg.project]
 root_module = "pudl"
+defs_module = "pudl.dagster"
 code_location_target_module = "pudl.definitions"
-registry_modules = ["pudl.etl"]
+registry_modules = ["pudl.dagster"]
 
 [tool.typos.default]
 # Ignore spellchecking all lines with # spellchecker:ignore
@@ -739,7 +749,7 @@ extend-exclude = [
     "migrations/",
     "notebooks/",
     "devtools/",
-    "test/",
+    "tests/",
     "src/pudl/transform/params/ferc1.py",
     "src/pudl/package_data/ferc1/*_categories.yaml",
 ]

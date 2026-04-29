@@ -178,7 +178,7 @@ For more options, see the `dbt selection syntax documentation
    There are a handful of data validation tests that have been implemented using
    `Dagster's asset checks <https://docs.dagster.io/guides/test/asset-checks>`__.
    Typically these tests weren't well suited to SQL, weren't performance bottlenecks,
-   and had already been implemented in Python. E.g. :func:`pudl.validate.no_null_rows`.
+   and had already been implemented in Python. E.g. :func:`pudl.validate.quality.no_null_rows`.
 
 
 ----------------------------------------
@@ -1012,7 +1012,7 @@ data to cover many different use cases of the macro.
 
 If the test is particularly weird and hard to get good debug
 info for, you can add custom debug handlers for your test type in
-:func:`pudl.dbt_wrapper.build_with_context`, which gives you access to the full
+:func:`pudl.validate.dbt.build_with_context`, which gives you access to the full
 power of Python.
 
 
