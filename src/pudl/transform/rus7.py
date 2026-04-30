@@ -677,7 +677,9 @@ _CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
     },
     outs={
         "core_rus7__entity_borrowers": AssetOut(io_manager_key="pudl_io_manager"),
-        "_core_rus7__changelog_pre_normalization_values": AssetOut(),
+        "_core_rus7__forensics_entity_resolution": AssetOut(
+            io_manager_key="pudl_io_manager"
+        ),
     },
 )
 def core_rus7__entity_borrowers(context, **clean_dfs):
@@ -704,8 +706,8 @@ def core_rus7__entity_borrowers(context, **clean_dfs):
     out_all = pd.concat(
         [df for harvested_col_name, df in _col_dfs.items()], axis="index"
     )
-    changelog = make_changelog(out_all, ["borrower_id_rus"])
-    return entity_df, changelog
+    forensics = make_changelog(out_all, ["borrower_id_rus"])
+    return entity_df, forensics
 
 
 finished_rus_assets = [

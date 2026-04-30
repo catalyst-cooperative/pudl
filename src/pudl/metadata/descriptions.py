@@ -71,7 +71,7 @@ TABLE_TYPE_FRAGMENTS: dict[str, TableTypeFragments] = {
     "scd": TableTypeFragments(
         "Slowly changing dimension (SCD) table", "describing attributes of"
     ),
-    "timeseries": TableTypeFragments("time series", "of"),
+    "forensics": TableTypeFragments("Forensic table", "of"),
 }
 """Standard descriptive text to appear in the Summary (first line) of resource descriptions.
 

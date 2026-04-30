@@ -1191,7 +1191,7 @@ class PudlResourceDescriptor(PudlMeta):
         """
 
         table_type_code: (
-            Literal["assn", "codes", "entity", "scd", "timeseries"] | None
+            Literal["assn", "codes", "entity", "scd", "timeseries", "forensics"] | None
         ) = None
         """Indicates the type of asset stored in this resource.
 

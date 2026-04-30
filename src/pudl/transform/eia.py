@@ -161,7 +161,7 @@ def occurrence_consistency(
     col_df = col_df.dropna()
 
     if len(col_df) == 0:
-        col_df["is_consistent"] = pd.NA
+        col_df["is_candidate"] = pd.NA
         col_df["consistent_rate"] = pd.NA
         col_df["entity_occurrences"] = pd.NA
         return col_df
@@ -193,7 +193,7 @@ def occurrence_consistency(
     col_df["consistent_rate"] = (
         col_df["record_occurrences"] / col_df["entity_occurrences"]
     )
-    col_df["is_consistent"] = col_df["consistent_rate"] > strictness
+    col_df["is_candidate"] = col_df["consistent_rate"] > strictness
     col_df = col_df.sort_values("consistent_rate", ascending=False)
     return col_df
 
@@ -241,7 +241,7 @@ def _lat_long(
     # grab the clean plants
     ll_clean_df = clean_df.dropna()
     # find the new clean plant records by selecting the True consistent records
-    ll_df = ll_df[ll_df["is_consistent"]].drop_duplicates(subset=entity_idx)
+    ll_df = ll_df[ll_df["is_candidate"]].drop_duplicates(subset=entity_idx)
     logger.debug(f"Clean {col} records: {len(ll_df)}")
     # add the newly cleaned records
     ll_clean_df = pd.concat([ll_clean_df, ll_df])
@@ -305,7 +305,7 @@ def _last_operating_date(
     # grab the clean plants
     op_clean_df = clean_df.dropna()
     # find the new clean plant records by selecting the True consistent records
-    op_df = op_df[op_df["is_consistent"]].drop_duplicates(subset=entity_idx)
+    op_df = op_df[op_df["is_candidate"]].drop_duplicates(subset=entity_idx)
     logger.info(f"Rescued dates for {col} records: {len(op_df)}")
     logger.info(
         f"Rescued last {col} for the following units ({entity_idx}): "
@@ -575,8 +575,8 @@ def harvest_entity_tables(  # noqa: C901
         )
 
         # pull the correct values out of the df and merge w/ the plant ids
-        col_correct_df = col_df[col_df["is_consistent"]].drop_duplicates(
-            subset=(cols_to_consit + ["is_consistent"])
+        col_correct_df = col_df[col_df["is_candidate"]].drop_duplicates(
+            subset=(cols_to_consit + ["is_candidate"])
         )
 
         # we need this to be an empty df w/ columns bc we are going to use it
@@ -622,7 +622,7 @@ def harvest_entity_tables(  # noqa: C901
             # save the column name in a new column and standardize the col name
             # this will make it easier to compare all the of col_df's
             col_df["column_name"] = col
-            col_df = col_df.rename(columns={col: "found_value"})
+            col_df = col_df.rename(columns={col: "record_value"})
             col_dfs[col] = col_df
         # this next section is used to print and test whether the harvested
         # records are consistent enough
@@ -635,7 +635,7 @@ def harvest_entity_tables(  # noqa: C901
         if total > 0:
             ratio = (
                 len(
-                    col_df[(col_df["is_consistent"])].drop_duplicates(
+                    col_df[(col_df["is_candidate"])].drop_duplicates(
                         subset=cols_to_consit
                     )
                 )

@@ -6,6 +6,7 @@ from pudl.metadata.resource_helpers import (
     HARVESTED_CORE_TABLES_RUS7,
     HARVESTED_CORE_TABLES_RUS12,
     HARVESTING_DETAIL_TEXT_RUS,
+    HARVESTING_FORENSIC_DETAIL_TEXT,
     core_to_out_harvested_resources,
 )
 
@@ -695,18 +696,13 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-}
-
-RESOURCE_METADATA_BASE_DRAFT = {
-    "_core_rus12__changelog_pre_entity_resolution": {
+    "_core_rus7__forensics_entity_resolution": {
         "description": {
             "additional_summary_text": (
                 "the statistics determining how we choose a single consistent value during entity resolution."
             ),
             "usage_warnings": ["harvesting_ingredients"],
-            # TODO: add a generic description for suggested use for this table into resource_helpers
-            # explaining things like: hey if you have a value in a core/out table you are feeling
-            # queazy about, filter this table by the column name and entity ID you care about.
+            "additional_details_text": HARVESTING_FORENSIC_DETAIL_TEXT,
         },
         "schema": {
             "fields": [
@@ -718,9 +714,12 @@ RESOURCE_METADATA_BASE_DRAFT = {
                 "entity_occurrences",
                 "record_occurrences",
                 "consistent_rate",
-                "is_consistent",
+                "is_candidate",
             ]
         },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
     },
 }
 

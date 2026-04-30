@@ -10249,10 +10249,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
         ),
     },
-}
-"""Field attributes by PUDL identifier (`field.name`)."""
-
-DRAFT_FIELDS = {
     "column_name": {
         "type": "string",
         "description": "The name of the column.",
@@ -10274,7 +10270,7 @@ DRAFT_FIELDS = {
     "record_occurrences": {
         "type": "integer",
         "description": (
-            "The number of times this particular record_value occurs across the pre-entity resolution "
+            "The number of times this particular ``record_value`` occurs across the pre-entity resolution "
             "tables in association with this particular entity."
         ),
     },
@@ -10285,17 +10281,20 @@ DRAFT_FIELDS = {
             "This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."
         ),
     },
-    "is_consistent": {
+    "is_candidate": {
         "type": "boolean",
         "description": (
-            "Does the record pass the consistency check? By default PUDL requires values "
-            "to be at least 70% consistent to pass this consistency check. There are "
-            "exceptions to the default 70% consistency check for columns like plant or "
-            "utility names when we always want a value - for those instances we choose the "
-            "most frequently occurring value regardless of how consistently it was reported."
+            "Is this record a candidate for being the canonical value based on the consistently? By "
+            "default PUDL requires values to be at least 70 percent consistent to pass this "
+            "consistency check. There are exceptions to the default 70 percent consistency check "
+            "for columns like plant or utility names when we always want a value - for those "
+            "instances we choose the most frequently occurring value regardless of how consistently "
+            "it was reported."
         ),
     },
 }
+"""Field attributes by PUDL identifier (`field.name`)."""
+
 
 FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "epacems": {

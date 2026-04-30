@@ -109,6 +109,11 @@ Naming convention: ``core_{source}__{asset_type}_{asset_name}``
 
     * ``out_ferc714__hourly_planning_area_demand``,
     * ``core_ferc1__yearly_plant_in_service``.
+  * ``forensics``: Forensic tables containing the input values used to choose
+    canonical values during entity resolution. These are not cleaned up tables - they
+    are meant for forensic purposed only. If you have a question about why a value is
+    reported in an ``scd``, ``entity`` or ``out`` table, you can find out all of the
+    inputs that were reported in the ``raw`` layer.
 
 Output layer
 ^^^^^^^^^^^^

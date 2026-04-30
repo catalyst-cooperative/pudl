@@ -4,6 +4,7 @@ from pudl.metadata.resource_helpers import (
     HARVESTED_CORE_TABLES_RUS7,
     HARVESTED_CORE_TABLES_RUS12,
     HARVESTING_DETAIL_TEXT_RUS,
+    HARVESTING_FORENSIC_DETAIL_TEXT,
     core_to_out_harvested_resources,
 )
 
@@ -809,6 +810,31 @@ RESOURCE_METADATA_BASE = {
                 "ending_balance",
             ],
             "primary_key": ["report_date", "borrower_id_rus", "non_utility_plant_item"],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "_core_rus12__forensics_entity_resolution": {
+        "description": {
+            "additional_summary_text": (
+                "the statistics determining how we choose a single consistent value during entity resolution."
+            ),
+            "usage_warnings": ["harvesting_ingredients"],
+            "additional_details_text": HARVESTING_FORENSIC_DETAIL_TEXT,
+        },
+        "schema": {
+            "fields": [
+                "borrower_id_rus",
+                "report_date",
+                "valid_until_date",
+                "column_name",
+                "record_value",
+                "entity_occurrences",
+                "record_occurrences",
+                "consistent_rate",
+                "is_candidate",
+            ]
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
