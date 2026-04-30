@@ -22,8 +22,15 @@
     ) }}
 {% endif %}
 SELECT
-    child_rows.*,
-    'missing_parent_key' AS failure_type
+    {% for column_name in fk_column_names %}
+    child_rows.{{ column_name }},
+    {% endfor %}
+    'missing_parent_key' AS failure_type,
+    child_rows.* EXCLUDE (
+        {% for column_name in fk_column_names %}
+        {{ column_name }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    )
 FROM {{ model }} AS child_rows
 ANTI JOIN {{ pk_table_name }} AS parent_rows
 ON
