@@ -6,7 +6,10 @@ WITH parent_table AS (
 ),
 child_table AS (
     SELECT * FROM (VALUES
-        (1, 'l1', 'r9', 'broken child')
+        (1, 'l1', 'r1', 'alpha child'),
+        (2, NULL, NULL, 'unassigned child'),
+        (3, 'l2', NULL, 'partial child'),
+        (4, 'l1', 'r9', 'broken child')
     ) AS t(child_id, child_left_key, child_right_key, child_name)
 ),
 observed_failures AS (
@@ -19,7 +22,7 @@ observed_failures AS (
 ),
 expected_failures AS (
     SELECT * FROM (VALUES
-        (1, 'l1', 'r9', 'broken child', 'missing_parent_key')
+        (4, 'l1', 'r9', 'broken child', 'missing_parent_key')
     ) AS t(
         child_id,
         child_left_key,

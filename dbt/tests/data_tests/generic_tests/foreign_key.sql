@@ -1,4 +1,12 @@
 {% test foreign_key(model, fk_column_names, pk_table_name, pk_column_names) %}
+{% if fk_column_names | length != pk_column_names | length %}
+    {{ exceptions.raise_compiler_error(
+        "foreign_key requires same number of child and parent key columns, got "
+        ~ (fk_column_names | length)
+        ~ " and "
+        ~ (pk_column_names | length)
+    ) }}
+{% endif %}
 -- As of 2026-04 we couldn't find a library that provided composite key foreign key checks.
 --
 -- So we're rolling our own.
