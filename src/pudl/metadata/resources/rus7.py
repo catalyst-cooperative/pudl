@@ -696,7 +696,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-    "_core_rus7__forensics_entity_resolution": {
+    "_core_rus7__forensics_entity_resolution_borrowers": {
         "description": {
             "additional_summary_text": (
                 "the statistics determining how we choose a single consistent value during entity resolution."

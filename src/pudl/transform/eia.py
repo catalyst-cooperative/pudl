@@ -35,7 +35,7 @@ from dagster import (
 )
 
 import pudl
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import convert_cols_dtypes, make_changelog
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
@@ -1238,15 +1238,8 @@ def harvested_entity_asset_factory(
         outs={
             f"core_eia__entity_{entity.value}": AssetOut(io_manager_key=io_manager_key),
             f"core_eia860__scd_{entity.value}": AssetOut(io_manager_key=io_manager_key),
-        },
-        config_schema={
-            "debug": Field(
-                bool,
-                default_value=False,
-                description=(
-                    "If True, allow inconsistent values in harvested columns and "
-                    "produce additional debugging output."
-                ),
+            f"_core_eia__forensics_entity_resolution_{entity.value}": AssetOut(
+                io_manager_key=io_manager_key
             ),
         },
         required_resource_keys={"etl_settings"},
@@ -1256,7 +1249,6 @@ def harvested_entity_asset_factory(
         """Harvesting IDs & consistent static attributes for EIA entity."""
         logger.info(f"Harvesting IDs & consistent static attributes for EIA {entity}")
 
-        debug = context.op_config["debug"]
         clean_dfs = {
             df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]).pipe(
                 convert_cols_dtypes, "eia"
@@ -1292,7 +1284,7 @@ def harvested_entity_asset_factory(
             entity,
             clean_dfs,
             special_case_strictness=special_case_strictness,
-            debug=debug,
+            debug=True,
         )
 
         if entity == EiaEntity.PLANTS:
@@ -1302,9 +1294,22 @@ def harvested_entity_asset_factory(
                 fix_balancing_authority_codes_with_state, plants_entity=entity_df
             )
 
+        # Take all of the column inputs and make them into one big forensics changelog
+        # table
+        logger.debug("Concatenating all of the column inputs for {entity.value}")
+        out_all = pd.concat(
+            [df for harvested_col_name, df in _col_dfs.items()], axis="index"
+        ).reset_index(drop=True)
+        logger.debug("Making changelog out of all forensics inputs for {entity.value}")
+        forensics = make_changelog(out_all, ENTITIES[entity.value]["id_cols"])
+
         return (
             Output(output_name=f"core_eia__entity_{entity.value}", value=entity_df),
             Output(output_name=f"core_eia860__scd_{entity.value}", value=annual_df),
+            Output(
+                output_name=f"_core_eia__forensics_entity_resolution_{entity.value}",
+                value=forensics,
+            ),
         )
 
     return harvested_entity

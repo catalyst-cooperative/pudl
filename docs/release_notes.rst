@@ -33,6 +33,9 @@ Documentation
 
 * Added new component to table descriptions showing the most recent data
   available. See issue :issue:`4586` and PR :pr:`4632`.
+* Added new ``forensics`` tables which can be used to see all input values before
+  PUDL chooses canonical values/golden records in the
+  :doc:`entity resolution process </methodology/entity_resolution>`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

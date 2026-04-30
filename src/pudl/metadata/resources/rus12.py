@@ -815,7 +815,7 @@ RESOURCE_METADATA_BASE = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "_core_rus12__forensics_entity_resolution": {
+    "_core_rus12__forensics_entity_resolution_borrowers": {
         "description": {
             "additional_summary_text": (
                 "the statistics determining how we choose a single consistent value during entity resolution."

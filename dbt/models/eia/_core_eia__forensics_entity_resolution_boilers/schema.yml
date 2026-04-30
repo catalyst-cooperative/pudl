@@ -2,9 +2,9 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: _core_rus7__forensics_entity_resolution
+      - name: _core_eia__forensics_entity_resolution_boilers
         columns:
-          - name: borrower_id_rus
+          - name: boiler_id
           - name: report_date
           - name: valid_until_date
           - name: column_name

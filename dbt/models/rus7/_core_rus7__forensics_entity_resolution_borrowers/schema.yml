@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_rus7__forensics_entity_resolution_borrowers
+        columns:
+          - name: borrower_id_rus
+          - name: report_date
+          - name: valid_until_date
+          - name: column_name
+          - name: record_value
+          - name: entity_occurrences
+          - name: record_occurrences
+          - name: consistent_rate
+          - name: is_candidate

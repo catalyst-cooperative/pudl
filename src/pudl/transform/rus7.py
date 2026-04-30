@@ -677,7 +677,7 @@ _CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
     },
     outs={
         "core_rus7__entity_borrowers": AssetOut(io_manager_key="pudl_io_manager"),
-        "_core_rus7__forensics_entity_resolution": AssetOut(
+        "_core_rus7__forensics_entity_resolution_borrowers": AssetOut(
             io_manager_key="pudl_io_manager"
         ),
     },
