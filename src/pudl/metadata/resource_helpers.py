@@ -82,9 +82,9 @@ All tables downstream of this one inherit the canonical values established
 here."""
 
 
-HARVESTING_FORENSIC_DETAIL_TEXT = """Forensic tables containing the input values used to
-choose canonical values during entity resolution. These are not cleaned up tables - they
-are meant for forensic purposed only. If you have a question about why a value is
+HARVESTING_FORENSIC_DETAIL_TEXT = """This is a forensic table containing the input values used to
+choose canonical values during entity resolution. It is not a cleaned up table - it
+is meant for forensic purposes only. If you have a question about why a value is
 reported in an ``scd``, ``entity`` or ``out`` table, you can find out all of the inputs
 that were used as ingredients to find the canonical value. You can filter by the
 column_name and the entity id to find all of the possible input values."""
