@@ -705,7 +705,7 @@ def core_rus7__entity_borrowers(context, **clean_dfs):
     )
     out_all = pd.concat(
         [df for harvested_col_name, df in _col_dfs.items()], axis="index"
-    )
+    ).reset_index(drop=True)
     forensics = make_changelog(out_all, ["borrower_id_rus"])
     return entity_df, forensics
 

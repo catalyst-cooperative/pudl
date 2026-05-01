@@ -483,10 +483,8 @@ def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
         cols_to_consit=["plant_id_eia"],
         strictness=0.7,
     )
-    # grab only the code that passed the consistency strictness test
-    ba_code_consistent = ba_code_consistent[
-        ba_code_consistent.balancing_authority_code_eia_is_consistent
-    ][
+    # grab only the code that is a candidate based on the consistency strictness test
+    ba_code_consistent = ba_code_consistent[ba_code_consistent.is_candidate][
         [
             "plant_id_eia",
             "balancing_authority_code_eia",
@@ -501,7 +499,7 @@ def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
         on=["plant_id_eia"],
         suffixes=("", "_consistent"),
     )
-    plants_w_ba_codes = plants[plants.balancing_authority_code_eia_consistent.notnull()]
+    plants_w_ba_codes = plants[plants.is_candidate.notnull()]
     logger.info(
         f"{len(plants_w_ba_codes) / len(plants):.1%} of plant records have consistently "
         "reported BA Codes"
