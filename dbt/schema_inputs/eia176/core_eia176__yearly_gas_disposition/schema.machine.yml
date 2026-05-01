@@ -1,0 +1,29 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia176__yearly_gas_disposition
+        columns:
+          - name: operator_id_eia
+          - name: report_year
+          - name: operating_state
+          - name: delivered_gas_heat_content_mmbtu_per_mcf
+          - name: operational_consumption_facility_space_heat_mcf
+          - name: operational_consumption_new_pipeline_fill_mcf
+          - name: operational_consumption_compressors_mcf
+          - name: operational_consumption_lng_vaporization_liquefaction_mcf
+          - name: operational_consumption_vehicle_fuel_mcf
+          - name: operational_consumption_other_mcf
+          - name: operational_consumption_other_detail
+          - name: operational_storage_underground_mcf
+          - name: operational_lng_storage_injections_mcf
+          - name: producer_lease_use_mcf
+          - name: producer_returned_for_repressuring_reinjection_mcf
+          - name: disposition_distribution_companies_mcf
+          - name: disposition_storage_operators_mcf
+          - name: disposition_other_pipelines_mcf
+          - name: disposition_out_of_state_mcf
+          - name: other_disposition_all_other_mcf
+          - name: total_disposition_mcf
+          - name: losses_mcf
+          - name: unaccounted_for_mcf

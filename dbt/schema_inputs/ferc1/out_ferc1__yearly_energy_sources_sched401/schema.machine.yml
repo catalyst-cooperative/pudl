@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_energy_sources_sched401
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: energy_source_type
+          - name: row_type_xbrl
+          - name: energy_mwh
+          - name: record_id

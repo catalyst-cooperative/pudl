@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia930__hourly_subregion_demand
+        columns:
+          - name: datetime_utc
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_subregion_code_eia
+          - name: demand_reported_mwh
+          - name: demand_imputed_pudl_mwh
+          - name: demand_imputed_pudl_mwh_imputation_code

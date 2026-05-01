@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia930__hourly_aggregated_demand
+        columns:
+          - name: datetime_utc
+          - name: aggregation_level
+          - name: aggregation_group
+          - name: demand_imputed_pudl_mwh

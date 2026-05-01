@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__entity_plants_pudl
+        columns:
+          - name: plant_id_pudl
+          - name: plant_name_pudl

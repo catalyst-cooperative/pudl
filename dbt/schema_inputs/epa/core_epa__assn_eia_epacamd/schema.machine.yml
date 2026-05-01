@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_epa__assn_eia_epacamd
+        columns:
+          - name: report_year
+          - name: plant_id_epa
+          - name: emissions_unit_id_epa
+          - name: generator_id_epa
+          - name: plant_id_eia
+          - name: boiler_id
+          - name: generator_id

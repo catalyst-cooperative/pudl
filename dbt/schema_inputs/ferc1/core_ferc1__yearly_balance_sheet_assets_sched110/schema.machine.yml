@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_balance_sheet_assets_sched110
+        columns:
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: utility_type
+          - name: record_id
+          - name: asset_type
+          - name: ending_balance
+          - name: starting_balance
+          - name: ferc_account
+          - name: balance
+          - name: row_type_xbrl

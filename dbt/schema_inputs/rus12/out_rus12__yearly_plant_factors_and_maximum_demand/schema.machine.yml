@@ -1,0 +1,17 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus12__yearly_plant_factors_and_maximum_demand
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
+          - name: plant_name_rus
+          - name: plant_type
+          - name: capacity_factor
+          - name: capacity_factor_running
+          - name: load_factor
+          - name: peak_gross_demand_mw
+          - name: peak_gross_demand_nameplate_mw

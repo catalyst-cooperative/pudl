@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_utility_plant_changes
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: utility_plant_group
+          - name: utility_plant_item
+          - name: retirements
+          - name: additions
+          - name: adjustments_and_transfers
+          - name: ending_balance
+          - name: is_total

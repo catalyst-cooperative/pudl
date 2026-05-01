@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__assn_utilities_plants
+        columns:
+          - name: utility_id_pudl
+          - name: plant_id_pudl

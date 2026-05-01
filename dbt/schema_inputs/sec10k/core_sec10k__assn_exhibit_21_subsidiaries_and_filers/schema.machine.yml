@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_sec10k__assn_exhibit_21_subsidiaries_and_filers
+        columns:
+          - name: subsidiary_company_id_sec10k
+          - name: central_index_key

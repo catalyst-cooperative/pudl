@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc714__hourly_estimated_state_demand
+        columns:
+          - name: state_id_fips
+          - name: datetime_utc
+          - name: demand_mwh
+          - name: scaled_demand_mwh

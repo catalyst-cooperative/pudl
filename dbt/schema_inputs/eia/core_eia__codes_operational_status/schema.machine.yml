@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__codes_operational_status
+        columns:
+          - name: code
+          - name: label
+          - name: description
+          - name: operational_status

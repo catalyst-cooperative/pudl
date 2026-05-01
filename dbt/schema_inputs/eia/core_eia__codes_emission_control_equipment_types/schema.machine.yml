@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__codes_emission_control_equipment_types
+        columns:
+          - name: code
+          - name: label
+          - name: description

@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eiaaeo__yearly_projected_electric_sales
+        columns:
+          - name: report_year
+          - name: electricity_market_module_region_eiaaeo
+          - name: model_case_eiaaeo
+          - name: projection_year
+          - name: customer_class
+          - name: sales_mwh

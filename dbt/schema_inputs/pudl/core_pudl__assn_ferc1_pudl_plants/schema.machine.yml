@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__assn_ferc1_pudl_plants
+        columns:
+          - name: utility_id_ferc1
+          - name: plant_name_ferc1
+          - name: plant_id_pudl

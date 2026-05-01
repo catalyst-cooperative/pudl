@@ -1,0 +1,18 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus12__yearly_depreciation_changes
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
+          - name: depreciation_and_amortization_group
+          - name: depreciation_and_amortization_item
+          - name: composite_depreciation_rate
+          - name: accruals
+          - name: retirements_less_net_salvage
+          - name: adjustments_and_transfers
+          - name: ending_balance
+          - name: is_total

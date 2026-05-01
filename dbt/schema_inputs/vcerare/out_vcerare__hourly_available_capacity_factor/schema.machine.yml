@@ -1,0 +1,17 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_vcerare__hourly_available_capacity_factor
+        columns:
+          - name: state
+          - name: place_name
+          - name: datetime_utc
+          - name: report_year
+          - name: hour_of_year
+          - name: county_id_fips
+          - name: latitude
+          - name: longitude
+          - name: capacity_factor_solar_pv
+          - name: capacity_factor_onshore_wind
+          - name: capacity_factor_offshore_wind

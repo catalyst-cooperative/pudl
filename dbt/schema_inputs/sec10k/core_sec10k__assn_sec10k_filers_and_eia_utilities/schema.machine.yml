@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_sec10k__assn_sec10k_filers_and_eia_utilities
+        columns:
+          - name: central_index_key
+          - name: utility_id_eia

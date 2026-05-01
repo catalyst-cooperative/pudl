@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_distributed_generation_tech
+        columns:
+          - name: capacity_mw
+          - name: estimated_or_actual_tech_data
+          - name: report_date
+          - name: state
+          - name: tech_class
+          - name: utility_id_eia
+          - name: data_maturity

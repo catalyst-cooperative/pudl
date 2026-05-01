@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_phmsagas__yearly_distribution_operators
+        columns:
+          - name: report_id
+          - name: report_date
+          - name: operator_id_phmsa
+          - name: operator_name_phmsa
+          - name: office_street_address
+          - name: office_city
+          - name: office_county
+          - name: office_zip
+          - name: office_state
+          - name: headquarters_street_address
+          - name: headquarters_city
+          - name: headquarters_county
+          - name: headquarters_state
+          - name: headquarters_zip
+          - name: additional_information

@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_demand_response_water_heater
+        columns:
+          - name: balancing_authority_code_eia
+          - name: report_date
+          - name: state
+          - name: utility_id_eia
+          - name: num_water_heaters
+          - name: data_maturity

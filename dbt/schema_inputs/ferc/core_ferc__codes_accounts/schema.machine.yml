@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc__codes_accounts
+        columns:
+          - name: ferc_account_id
+          - name: ferc_account_description

@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia923__monthly_generation_fuel
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: energy_source_code
+          - name: fuel_type_code_pudl
+          - name: fuel_type_code_agg
+          - name: prime_mover_code
+          - name: fuel_consumed_units
+          - name: fuel_consumed_for_electricity_units
+          - name: fuel_mmbtu_per_unit
+          - name: fuel_consumed_mmbtu
+          - name: fuel_consumed_for_electricity_mmbtu
+          - name: net_generation_mwh
+          - name: data_maturity

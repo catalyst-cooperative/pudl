@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus7__yearly_owed_by_customers
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
+          - name: amount_due_over_60_days
+          - name: amount_written_off_ytd

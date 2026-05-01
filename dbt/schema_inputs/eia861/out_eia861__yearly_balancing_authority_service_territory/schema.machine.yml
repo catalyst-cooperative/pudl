@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia861__yearly_balancing_authority_service_territory
+        columns:
+          - name: county_id_fips
+          - name: county_name_census
+          - name: population
+          - name: area_km2
+          - name: report_date
+          - name: balancing_authority_id_eia
+          - name: state
+          - name: county
+          - name: state_id_fips

@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_net_metering_misc
+        columns:
+          - name: balancing_authority_code_eia
+          - name: pv_current_flow_type
+          - name: report_date
+          - name: state
+          - name: utility_id_eia
+          - name: data_maturity

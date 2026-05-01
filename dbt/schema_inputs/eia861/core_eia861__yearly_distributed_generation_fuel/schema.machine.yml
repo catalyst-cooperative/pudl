@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_distributed_generation_fuel
+        columns:
+          - name: estimated_or_actual_fuel_data
+          - name: fuel_class
+          - name: fuel_pct
+          - name: report_date
+          - name: state
+          - name: utility_id_eia
+          - name: data_maturity

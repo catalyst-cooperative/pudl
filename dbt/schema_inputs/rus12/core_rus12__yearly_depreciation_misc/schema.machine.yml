@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_depreciation_misc
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: depreciation_and_amortization_item
+          - name: ending_balance

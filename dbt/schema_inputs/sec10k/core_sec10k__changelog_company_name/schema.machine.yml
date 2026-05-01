@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_sec10k__changelog_company_name
+        columns:
+          - name: central_index_key
+          - name: name_change_date
+          - name: company_name_old
+          - name: company_name

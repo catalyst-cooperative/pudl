@@ -1,0 +1,11 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_gridpathratoolkit__assn_generator_aggregation_group
+        columns:
+          - name: plant_id_eia
+          - name: generator_id
+          - name: aggregation_group
+          - name: capacity_mw
+          - name: include_generator

@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_income_statements_sched114
+        columns:
+          - name: record_id
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: utility_type
+          - name: income_type
+          - name: dollar_value
+          - name: balance
+          - name: ferc_account
+          - name: row_type_xbrl

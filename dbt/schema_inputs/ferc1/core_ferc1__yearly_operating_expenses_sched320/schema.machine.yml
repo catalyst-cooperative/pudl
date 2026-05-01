@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_operating_expenses_sched320
+        columns:
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: dollar_value
+          - name: expense_type
+          - name: record_id
+          - name: utility_type
+          - name: ferc_account
+          - name: row_type_xbrl

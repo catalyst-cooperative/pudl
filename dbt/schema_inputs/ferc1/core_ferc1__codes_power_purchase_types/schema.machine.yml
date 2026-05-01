@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__codes_power_purchase_types
+        columns:
+          - name: code
+          - name: label
+          - name: description

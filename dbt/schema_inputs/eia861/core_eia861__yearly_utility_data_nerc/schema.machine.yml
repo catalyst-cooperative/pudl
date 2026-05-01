@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_utility_data_nerc
+        columns:
+          - name: nerc_region
+          - name: nerc_regions_of_operation
+          - name: report_date
+          - name: state
+          - name: utility_id_eia
+          - name: data_maturity

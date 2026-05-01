@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_other_regulatory_assets_sched232
+        columns:
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: description
+          - name: additional_description
+          - name: ending_balance
+          - name: starting_balance
+          - name: debits
+          - name: credits_written_off_recovered
+          - name: account_detail

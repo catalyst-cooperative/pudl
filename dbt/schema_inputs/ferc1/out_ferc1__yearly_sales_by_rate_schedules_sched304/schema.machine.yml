@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_sales_by_rate_schedules_sched304
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: rate_schedule_type
+          - name: billing_status
+          - name: rate_schedule_description
+          - name: sales_mwh
+          - name: dollar_value
+          - name: avg_customers_per_month
+          - name: kwh_per_customer
+          - name: revenue_per_kwh
+          - name: record_id

@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_external_financial_risk_ratio
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: external_financial_risk_ratio

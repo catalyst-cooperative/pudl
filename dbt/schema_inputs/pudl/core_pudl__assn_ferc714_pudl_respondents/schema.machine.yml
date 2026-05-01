@@ -1,0 +1,7 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__assn_ferc714_pudl_respondents
+        columns:
+          - name: respondent_id_ferc714

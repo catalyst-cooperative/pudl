@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__entity_utilities_pudl
+        columns:
+          - name: utility_id_pudl
+          - name: utility_name_pudl

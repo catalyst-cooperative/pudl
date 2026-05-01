@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc714__hourly_planning_area_demand
+        columns:
+          - name: respondent_id_ferc714
+          - name: respondent_id_ferc714_csv
+          - name: respondent_id_ferc714_xbrl
+          - name: report_date
+          - name: datetime_utc
+          - name: timezone
+          - name: demand_mwh

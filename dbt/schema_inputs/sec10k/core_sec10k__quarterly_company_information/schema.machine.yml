@@ -1,0 +1,34 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_sec10k__quarterly_company_information
+        columns:
+          - name: filename_sec10k
+          - name: central_index_key
+          - name: filer_count
+          - name: company_name
+          - name: fiscal_year_end
+          - name: taxpayer_id_irs
+          - name: incorporation_state
+          - name: industry_name_sic
+          - name: industry_id_sic
+          - name: film_number
+          - name: sec10k_type
+          - name: sec_act
+          - name: filing_number_sec
+          - name: phone_number
+          - name: business_street_address
+          - name: business_street_address_2
+          - name: business_city
+          - name: business_state
+          - name: business_zip_code
+          - name: business_zip_code_4
+          - name: business_postal_code
+          - name: mail_street_address
+          - name: mail_street_address_2
+          - name: mail_city
+          - name: mail_state
+          - name: mail_zip_code
+          - name: mail_zip_code_4
+          - name: mail_postal_code

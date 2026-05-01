@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__codes_coalmine_types
+        columns:
+          - name: code
+          - name: label
+          - name: description

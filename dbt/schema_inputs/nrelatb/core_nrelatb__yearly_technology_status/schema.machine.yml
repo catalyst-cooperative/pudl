@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_nrelatb__yearly_technology_status
+        columns:
+          - name: report_year
+          - name: technology_description
+          - name: technology_description_detail_1
+          - name: technology_description_detail_2
+          - name: is_technology_mature
+          - name: is_default

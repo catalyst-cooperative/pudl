@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_detailed_balance_sheet_assets
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: xbrl_factoid
+          - name: utility_type
+          - name: plant_function
+          - name: plant_status
+          - name: ending_balance
+          - name: utility_type_other
+          - name: in_rate_base
+          - name: rate_base_category
+          - name: table_name

@@ -1,0 +1,18 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_utility_plant_summary_sched200
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: utility_type
+          - name: utility_type_other
+          - name: utility_plant_asset_type
+          - name: row_type_xbrl
+          - name: ending_balance
+          - name: record_id

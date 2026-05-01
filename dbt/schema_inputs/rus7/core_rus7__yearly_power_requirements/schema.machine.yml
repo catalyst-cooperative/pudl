@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_power_requirements
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: electric_sales_revenue
+          - name: transmission_revenue
+          - name: other_electric_revenue
+          - name: purchases_and_generation_cost
+          - name: electric_sales_mwh
+          - name: own_use_mwh
+          - name: purchased_mwh
+          - name: generated_mwh
+          - name: interchange_mwh
+          - name: peak_mw
+          - name: is_peak_coincident

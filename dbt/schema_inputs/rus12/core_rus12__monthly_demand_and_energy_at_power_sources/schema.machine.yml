@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__monthly_demand_and_energy_at_power_sources
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: energy_output_mwh
+          - name: peak_demand_mw
+          - name: peak_demand_date
+          - name: is_peak_coincident

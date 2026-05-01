@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_gridpathratoolkit__hourly_available_capacity_factor
+        columns:
+          - name: datetime_utc
+          - name: aggregation_group
+          - name: capacity_factor

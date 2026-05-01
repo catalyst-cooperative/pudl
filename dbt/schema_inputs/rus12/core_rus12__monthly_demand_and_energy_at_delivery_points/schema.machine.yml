@@ -1,0 +1,11 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__monthly_demand_and_energy_at_delivery_points
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: delivery_recipient
+          - name: delivered_demand_mw
+          - name: delivered_energy_mwh

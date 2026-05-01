@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__assn_boiler_stack_flue
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: boiler_id
+          - name: stack_id_eia
+          - name: flue_id_eia
+          - name: stack_flue_id_eia
+          - name: stack_flue_id_pudl

@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia930__hourly_net_generation_by_energy_source
+        columns:
+          - name: datetime_utc
+          - name: balancing_authority_code_eia
+          - name: generation_energy_source
+          - name: net_generation_reported_mwh
+          - name: net_generation_adjusted_mwh
+          - name: net_generation_imputed_eia_mwh

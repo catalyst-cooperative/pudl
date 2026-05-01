@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_customer_energy_efficiency_and_conservation_loans
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: loan_status
+          - name: actual_pct
+          - name: anticipated_pct
+          - name: ytd_dollars

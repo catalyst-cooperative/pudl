@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__entity_boilers
+        columns:
+          - name: plant_id_eia
+          - name: boiler_id
+          - name: boiler_manufacturer
+          - name: boiler_manufacturer_code

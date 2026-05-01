@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__codes_fuel_types_agg
+        columns:
+          - name: code
+          - name: description

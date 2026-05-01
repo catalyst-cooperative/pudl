@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_balancing_authority
+        columns:
+          - name: report_date
+          - name: balancing_authority_id_eia
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_name_eia

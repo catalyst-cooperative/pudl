@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_retained_earnings_sched118
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: record_id
+          - name: earnings_type
+          - name: starting_balance
+          - name: ending_balance
+          - name: balance
+          - name: ferc_account
+          - name: row_type_xbrl
+          - name: utility_type

@@ -1,0 +1,11 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__assn_boiler_cooling
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: boiler_id
+          - name: cooling_id_eia
+          - name: data_maturity

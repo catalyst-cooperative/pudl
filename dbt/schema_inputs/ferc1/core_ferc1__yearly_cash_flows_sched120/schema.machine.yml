@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_cash_flows_sched120
+        columns:
+          - name: record_id
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: amount_type
+          - name: amount
+          - name: balance
+          - name: row_type_xbrl

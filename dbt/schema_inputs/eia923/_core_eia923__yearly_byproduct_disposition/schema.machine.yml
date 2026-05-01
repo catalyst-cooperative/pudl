@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia923__yearly_byproduct_disposition
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: byproduct_description
+          - name: byproduct_units
+          - name: disposal_landfill_units
+          - name: disposal_offsite_units
+          - name: disposal_ponds_units
+          - name: sold_units
+          - name: stored_offsite_units
+          - name: stored_onsite_units
+          - name: used_offsite_units
+          - name: used_onsite_units
+          - name: total_disposal_units
+          - name: no_byproducts_to_report
+          - name: data_maturity

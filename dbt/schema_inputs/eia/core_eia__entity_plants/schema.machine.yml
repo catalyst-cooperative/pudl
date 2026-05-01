@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__entity_plants
+        columns:
+          - name: plant_id_eia
+          - name: plant_name_eia
+          - name: city
+          - name: county
+          - name: latitude
+          - name: longitude
+          - name: state
+          - name: street_address
+          - name: zip_code
+          - name: timezone

@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__assn_eia_pudl_plants
+        columns:
+          - name: plant_id_eia
+          - name: plant_name_eia
+          - name: plant_id_pudl

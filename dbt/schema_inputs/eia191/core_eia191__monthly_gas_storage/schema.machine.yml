@@ -1,0 +1,22 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia191__monthly_gas_storage
+        columns:
+          - name: storage_field_id_eia
+          - name: report_date
+          - name: state
+          - name: gas_field_id_eia
+          - name: reservoir_id_eia
+          - name: company_name
+          - name: field_name
+          - name: reservoir_name
+          - name: field_type
+          - name: county
+          - name: operational_status
+          - name: base_gas_mcf
+          - name: working_gas_capacity_mcf
+          - name: total_field_capacity_mcf
+          - name: maximum_daily_delivery_mcf
+          - name: region

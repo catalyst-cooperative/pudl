@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus7__yearly_transmission_and_distribution_mileage
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
+          - name: line_type
+          - name: miles
+          - name: is_total

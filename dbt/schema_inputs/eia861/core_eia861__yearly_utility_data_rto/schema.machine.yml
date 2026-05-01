@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_utility_data_rto
+        columns:
+          - name: nerc_region
+          - name: report_date
+          - name: rtos_of_operation
+          - name: state
+          - name: utility_id_eia
+          - name: data_maturity

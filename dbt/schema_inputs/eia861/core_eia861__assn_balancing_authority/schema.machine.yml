@@ -1,0 +1,10 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__assn_balancing_authority
+        columns:
+          - name: report_date
+          - name: balancing_authority_id_eia
+          - name: utility_id_eia
+          - name: state

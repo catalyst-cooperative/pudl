@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__codes_data_maturities
+        columns:
+          - name: code
+          - name: description

@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__entity_borrowers
+        columns:
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
