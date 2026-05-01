@@ -63,7 +63,7 @@ columns:
 
 For forensic purposes, PUDL also publishes tables which includes all values which are
 found in the original tables which we use to create these canonical values. These
-tables are all have ``changelog_pre_entity_resolution`` in their names.
+tables are all have ``forensics_entity_resolution`` in their names.
 
 Why A Canonical Record Is Necessary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

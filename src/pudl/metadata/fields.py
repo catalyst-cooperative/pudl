@@ -10284,7 +10284,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "is_candidate": {
         "type": "boolean",
         "description": (
-            "Is this record a candidate for being the canonical value? This is usually based on "
+            "Is this record a candidate for being the canonical value? This is based on "
             "``consistent_rate``. By "
             "default PUDL requires values to be at least 70 percent consistent to pass this "
             "consistency check. There are exceptions to the default 70 percent consistency check "

@@ -1,8 +1,8 @@
 """add rus and eia forensic tables
 
-Revision ID: aa4db017f27b
+Revision ID: 0a9951547512
 Revises: 4f252e9e2ce3
-Create Date: 2026-04-30 11:03:40.889022
+Create Date: 2026-05-01 12:13:27.795674
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'aa4db017f27b'
+revision = '0a9951547512'
 down_revision = '4f252e9e2ce3'
 branch_labels = None
 depends_on = None
@@ -27,7 +27,7 @@ def upgrade() -> None:
     sa.Column('entity_occurrences', sa.Integer(), nullable=True, comment='The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.'),
     sa.Column('record_occurrences', sa.Integer(), nullable=True, comment='The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.'),
     sa.Column('consistent_rate', sa.Float(), nullable=True, comment="What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."),
-    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value based on the consistently? By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.')
+    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.')
     )
     op.create_table('_core_rus12__forensics_entity_resolution_borrowers',
     sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
@@ -38,7 +38,7 @@ def upgrade() -> None:
     sa.Column('entity_occurrences', sa.Integer(), nullable=True, comment='The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.'),
     sa.Column('record_occurrences', sa.Integer(), nullable=True, comment='The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.'),
     sa.Column('consistent_rate', sa.Float(), nullable=True, comment="What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."),
-    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value based on the consistently? By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
+    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
     sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk__core_rus12__forensics_entity_resolution_borrowers_borrower_id_rus_core_rus7__entity_borrowers'))
     )
     op.create_table('_core_rus7__forensics_entity_resolution_borrowers',
@@ -50,7 +50,7 @@ def upgrade() -> None:
     sa.Column('entity_occurrences', sa.Integer(), nullable=True, comment='The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.'),
     sa.Column('record_occurrences', sa.Integer(), nullable=True, comment='The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.'),
     sa.Column('consistent_rate', sa.Float(), nullable=True, comment="What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."),
-    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value based on the consistently? By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
+    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
     sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk__core_rus7__forensics_entity_resolution_borrowers_borrower_id_rus_core_rus7__entity_borrowers'))
     )
     op.create_table('_core_eia__forensics_entity_resolution_utilities',
@@ -62,7 +62,7 @@ def upgrade() -> None:
     sa.Column('entity_occurrences', sa.Integer(), nullable=True, comment='The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.'),
     sa.Column('record_occurrences', sa.Integer(), nullable=True, comment='The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.'),
     sa.Column('consistent_rate', sa.Float(), nullable=True, comment="What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."),
-    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value based on the consistently? By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
+    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
     sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['core_eia860__scd_utilities.utility_id_eia', 'core_eia860__scd_utilities.report_date'], name=op.f('fk__core_eia__forensics_entity_resolution_utilities_utility_id_eia_core_eia860__scd_utilities'))
     )
     op.create_table('_core_eia__forensics_entity_resolution_plants',
@@ -74,7 +74,7 @@ def upgrade() -> None:
     sa.Column('entity_occurrences', sa.Integer(), nullable=True, comment='The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.'),
     sa.Column('record_occurrences', sa.Integer(), nullable=True, comment='The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.'),
     sa.Column('consistent_rate', sa.Float(), nullable=True, comment="What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."),
-    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value based on the consistently? By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
+    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
     sa.ForeignKeyConstraint(['plant_id_eia', 'report_date'], ['core_eia860__scd_plants.plant_id_eia', 'core_eia860__scd_plants.report_date'], name=op.f('fk__core_eia__forensics_entity_resolution_plants_plant_id_eia_core_eia860__scd_plants'))
     )
     op.create_table('_core_eia__forensics_entity_resolution_generators',
@@ -87,7 +87,7 @@ def upgrade() -> None:
     sa.Column('entity_occurrences', sa.Integer(), nullable=True, comment='The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.'),
     sa.Column('record_occurrences', sa.Integer(), nullable=True, comment='The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.'),
     sa.Column('consistent_rate', sa.Float(), nullable=True, comment="What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."),
-    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value based on the consistently? By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
+    sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
     sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['core_eia860__scd_generators.plant_id_eia', 'core_eia860__scd_generators.generator_id', 'core_eia860__scd_generators.report_date'], name=op.f('fk__core_eia__forensics_entity_resolution_generators_plant_id_eia_core_eia860__scd_generators'))
     )
     # ### end Alembic commands ###
