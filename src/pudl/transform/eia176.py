@@ -602,13 +602,12 @@ def core_eia176__yearly_company_characteristics(
     # Only reported 2005-2015; preserve null for years where the question wasn't asked
     df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].map({1.0: True})
 
-    n_before = len(df)
-    df = df.dropna(subset=["operating_state"])
-    n_dropped = n_before - len(df)
-    logger.info(
-        f"Dropped {n_dropped} rows with null operating_state from "
-        "core_eia176__yearly_company_characteristics."
+    null_operating_state = df["operating_state"].isnull().sum()
+    assert null_operating_state == 0, (
+        f"Expected 0 null operating_state values in "
+        f"core_eia176__yearly_company_characteristics, got {null_operating_state}."
     )
+    df = df.dropna(subset=["operating_state"])
 
     return df
 
