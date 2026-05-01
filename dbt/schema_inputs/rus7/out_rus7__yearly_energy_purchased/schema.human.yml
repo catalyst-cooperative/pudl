@@ -1,0 +1,30 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_rus7__yearly_energy_purchased
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_values_to_be_between:
+          arguments:
+            min_value: 0.0
+          row_condition: utility_name_eia != '*Adjustments'
+          config:
+            error_if: '>33'
+    - data_tests:
+      - dbt_expectations.expect_column_values_to_be_between:
+          arguments:
+            min_value: 0.0
+          row_condition: utility_name_eia != '*Adjustments'
+          config:
+            error_if: '>99'
+    - data_tests:
+      - dbt_expectations.expect_column_values_to_be_between:
+          arguments:
+            min_value: 0.0
+          row_condition: utility_name_eia != '*Adjustments'
+          config:
+            error_if: '>30'

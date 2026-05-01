@@ -1,0 +1,41 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_eia191__monthly_gas_storage
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - expect_sum_close_to_total_column:
+        arguments:
+          sum_columns:
+          - working_gas_capacity_mcf
+          - base_gas_mcf
+          total_column: total_field_capacity_mcf
+          discrepancy_threshold: 0.01
+          max_discrepancy_rate: 0.25
+        description: 'total_field_capacity_mcf is reported as design capacity (base
+          + working gas) but is not reliably additive: approximately 23% of records
+          have total_field_capacity_mcf != working_gas_capacity_mcf + base_gas_mcf.
+          This reflects loose EIA definitions and operator self-reporting practices.
+          The threshold is set just above the observed ~23% failure rate so regressions
+          are flagged but existing failures do not hard-fail.
+
+          '
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0

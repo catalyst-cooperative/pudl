@@ -1,0 +1,22 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_eia861__yearly_distribution_systems
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+        arguments:
+          column_A: distribution_circuits
+          column_B: circuits_with_voltage_optimization
+          or_equal: true
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0

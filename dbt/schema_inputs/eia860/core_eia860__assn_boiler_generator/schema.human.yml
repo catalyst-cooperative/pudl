@@ -1,0 +1,19 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null:
+        arguments:
+          row_conditions:
+            boiler_generator_assn_type_code: EXTRACT(year FROM report_date) BETWEEN
+              2009 AND 2012
+            steam_plant_type_code: EXTRACT(year FROM report_date) >= 2014
+            data_maturity: EXTRACT(year FROM report_date) >= 2009
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_eia860__assn_boiler_generator
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - expect_date_frequency_ratio:
+        arguments:
+          compare_model: source("pudl", "out_eia__yearly_generators")
+          multiplier: 1
+          date_column: report_date

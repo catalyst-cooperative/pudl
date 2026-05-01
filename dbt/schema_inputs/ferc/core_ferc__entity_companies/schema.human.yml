@@ -1,0 +1,11 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    columns:
+    - data_tests:
+      - unique
+      - dbt_expectations.expect_column_values_to_match_regex:
+          arguments:
+            regex: ^C\d{6}$
+            is_raw: true

@@ -1,0 +1,40 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_rus7__yearly_power_requirements_electric_sales
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          categorical_column: customer_class
+          value_column: sales_mwh
+          total_label: total
+          tolerance: 1
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          categorical_column: customer_class
+          value_column: revenue
+          total_label: total
+          tolerance: 10
+        config:
+          error_if: '>8472'
+        description: Check if revenue of customer classes sums to total revenue. Note
+          that this calculation is wrong for almost every borrower.
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          row_condition: sales_mwh > 0

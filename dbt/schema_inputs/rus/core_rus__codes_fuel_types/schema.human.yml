@@ -1,0 +1,4 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null

@@ -1,0 +1,11 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_ferc1__yearly_steam_plants_sched402
+          partition_expr: report_year
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_values_to_be_unique

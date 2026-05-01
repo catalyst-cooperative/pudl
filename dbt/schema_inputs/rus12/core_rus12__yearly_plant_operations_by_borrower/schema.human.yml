@@ -1,0 +1,92 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_rus12__yearly_plant_operations_by_borrower
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - dbt_utils.expression_is_true:
+        arguments:
+          expression: (operating_hours_in_service + operating_hours_on_standby + operating_hours_out_of_service_scheduled
+            + operating_hours_out_of_service_unscheduled) <= 8785
+        description: Plants shouldn't report more hours across all fields than there
+          are in a calendar year (8784 is a leap year, and we allow for rounding).
+    - dbt_utils.expression_is_true:
+        arguments:
+          expression: is_partly_owned_by_borrower IS FALSE
+        config:
+          where: 'is_full_ownership_portion IS TRUE
+
+            AND is_partly_owned_by_borrower IS NOT NULL
+
+            '
+        description: Partial ownership and full ownership are mutually exclusive.
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+      - dbt_expectations.expect_column_max_to_be_between:
+          arguments:
+            max_value: 100.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+      - dbt_expectations.expect_column_max_to_be_between:
+          arguments:
+            max_value: 0.0
+            row_condition: plant_type IN ('hydro', 'nuclear')
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+      - dbt_expectations.expect_column_max_to_be_between:
+          arguments:
+            max_value: 0.0
+            row_condition: plant_type IN ('hydro', 'nuclear')
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+      - dbt_expectations.expect_column_max_to_be_between:
+          arguments:
+            max_value: 0.0
+            row_condition: plant_type IN ('hydro', 'nuclear')
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+      - dbt_expectations.expect_column_max_to_be_between:
+          arguments:
+            max_value: 0.0
+            row_condition: plant_type IN ('hydro', 'nuclear')
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0

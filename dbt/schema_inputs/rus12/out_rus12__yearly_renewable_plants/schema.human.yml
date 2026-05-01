@@ -1,0 +1,71 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+        arguments:
+          column_A: invested
+          column_B: rus_funding
+          or_equal: true
+        config:
+          error_if: '>14'
+        description: Expect that RUS will generally not invest more than is invested
+          in a plant.
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_rus12__yearly_renewable_plants
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+      - dbt_expectations.expect_column_max_to_be_between:
+          arguments:
+            max_value: 100.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+      - dbt_expectations.expect_column_max_to_be_between:
+          arguments:
+            max_value: 100.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>1'
+          description: Expect opex investments per mwh to be negative. Investigate
+            IN0106 in 2021 as the only exception.
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+      - dbt_expectations.expect_column_max_to_be_between:
+          arguments:
+            max_value: 100.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
