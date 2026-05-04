@@ -1,0 +1,43 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - dbt_utils.expression_is_true:
+        arguments:
+          expression: debt_interest + debt_principal = debt_total
+        config:
+          error_if: '>78'
+        description: Examine ~80 cases where interest + principal != total
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_rus12__yearly_long_term_debt
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>32'
+          description: Investigate negative values.
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>21'
+          description: Investigate negative values.
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>5'
+          description: Investigate negative values.
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>21'
+          description: Investigate negative values.

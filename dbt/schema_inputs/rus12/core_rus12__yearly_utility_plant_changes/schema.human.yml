@@ -1,0 +1,86 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_rus12__yearly_utility_plant_changes
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          categorical_column: utility_plant_group
+          value_column: retirements
+          total_label: total
+        row_condition: utility_plant_group NOT IN ('electric_plant_in_service', 'utility_plant_in_service',
+          'total_utility_plant')
+        description: Check the totals for all of the utility_plant_group's that are
+          just the sum of the components.
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          categorical_column: utility_plant_group
+          value_column: additions
+          total_label: total
+        row_condition: utility_plant_group NOT IN ('electric_plant_in_service', 'utility_plant_in_service',
+          'total_utility_plant')
+        description: Check the totals for all of the utility_plant_group's that are
+          just the sum of the components.
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          categorical_column: utility_plant_group
+          value_column: adjustments_and_transfers
+          total_label: total
+        row_condition: utility_plant_group NOT IN ('electric_plant_in_service', 'utility_plant_in_service',
+          'total_utility_plant')
+        description: Check the totals for all of the utility_plant_group's that are
+          just the sum of the components.
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          categorical_column: utility_plant_group
+          value_column: ending_balance
+          total_label: total
+        row_condition: utility_plant_group NOT IN ('electric_plant_in_service', 'utility_plant_in_service',
+          'total_utility_plant')
+        description: Check the totals for all of the utility_plant_group's that are
+          just the sum of the components.
+    - dbt_utils.expression_is_true:
+        arguments:
+          expression: retirements + additions + adjustments_and_transfers <= ending_balance
+        description: Check that annual changes don't exceed ending balance.
+        config:
+          error_if: '>72'
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_values_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>21'
+          description: Check that most of the retirements are positive.
+    - data_tests:
+      - dbt_expectations.expect_column_values_to_be_between:
+          arguments:
+            min_value: 0.0
+          row_condition: utility_plant_item!='construction_work_in_progress'
+          config:
+            error_if: '>199'
+          description: Check that most of the additions are positive - expect construction_work_in_progress.
+            This is about 1% of the table.
+    - data_tests:
+      - dbt_expectations.expect_column_values_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>19'
+          description: Check that most of the ending balances are positive.

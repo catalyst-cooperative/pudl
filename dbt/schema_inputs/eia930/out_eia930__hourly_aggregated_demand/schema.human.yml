@@ -1,0 +1,8 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_eia930__hourly_aggregated_demand
+          partition_expr: EXTRACT(YEAR FROM datetime_utc)

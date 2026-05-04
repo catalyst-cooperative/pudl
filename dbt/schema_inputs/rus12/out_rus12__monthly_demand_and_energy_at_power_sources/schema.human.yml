@@ -1,0 +1,22 @@
+sources:
+- tables:
+  - data_tests:
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_rus12__monthly_demand_and_energy_at_power_sources
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - dbt_utils.expression_is_true:
+        arguments:
+          expression: date_trunc('month', report_date) >= date_trunc('month', peak_demand_date)
+            AND date_trunc('year', report_date) == date_trunc('year', peak_demand_date)
+        description: Expect peak demand date reported prior to report date but within
+          the same year.
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0

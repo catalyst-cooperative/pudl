@@ -1,0 +1,13 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_eia923__monthly_generation
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - expect_date_frequency_ratio:
+        arguments:
+          compare_model: source("pudl", "out_eia__yearly_generators")
+          multiplier: 12
+          date_column: report_date

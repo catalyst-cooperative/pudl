@@ -1,0 +1,23 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_rus7__yearly_power_requirements_electric_customers
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          - observation_period
+          categorical_column: customer_class
+          value_column: customers_num
+          total_label: total
+          tolerance: 0
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0

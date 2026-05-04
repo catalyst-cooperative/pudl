@@ -1,0 +1,13 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_sec10k__assn_sec10k_filers_and_eia_utilities
+          partition_expr: null
+    columns:
+    - data_tests:
+      - unique
+    - data_tests:
+      - unique

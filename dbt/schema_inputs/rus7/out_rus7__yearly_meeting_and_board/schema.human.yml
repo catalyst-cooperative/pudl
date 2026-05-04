@@ -1,0 +1,44 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - dbt_utils.expression_is_true:
+        arguments:
+          expression: date_trunc('month', report_date) >= date_trunc('month', last_annual_meeting_date)
+        config:
+          error_if: '>7'
+        description: Some utilities report meetings after the date range of the filing.
+    - expect_summed_columns_not_exceed_threshold:
+        arguments:
+          column_a: members_present_at_meeting_num
+          column_b: members_voting_by_proxy_or_mail_num
+          threshold_column: members_num
+          multiplier: 1
+        config:
+          error_if: '>2'
+        description: MO0066 reports two bad values for 2020 and 2021.
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_rus7__yearly_meeting_and_board
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0

@@ -1,0 +1,56 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_rus7__yearly_power_requirements
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>400'
+          description: Commonly violated (~5% of data).
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>6'
+          description: VA0039 reports 4 negative generations, two other companies
+            in 2006. Investigate.
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0

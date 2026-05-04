@@ -1,0 +1,34 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null:
+        arguments:
+          row_conditions:
+            all_known_leaks_scheduled_for_repair_main: EXTRACT(year FROM report_date)
+              <= 1983
+            services_efv_in_system: EXTRACT(year FROM report_date) BETWEEN 2010 AND
+              2022
+            services_efv_installed: EXTRACT(year FROM report_date) BETWEEN 2010 AND
+              2022
+            services_shutoff_valve_in_system: EXTRACT(year FROM report_date) BETWEEN
+              2017 AND 2022
+            services_shutoff_valve_installed: EXTRACT(year FROM report_date) BETWEEN
+              2017 AND 2022
+    - dbt_expectations.expect_compound_columns_to_be_unique:
+        arguments:
+          column_list:
+          - report_id
+          - operator_id_phmsa
+          - operating_state
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: _core_phmsagas__yearly_distribution_misc
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    columns:
+    - data_tests:
+      - expect_quantile_constraints:
+          description: Accept negative values in at most 17% of rows
+          arguments:
+            constraints:
+            - quantile: 0.17
+              min_value: 0

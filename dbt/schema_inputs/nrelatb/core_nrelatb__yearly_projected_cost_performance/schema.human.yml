@@ -1,0 +1,8 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_nrelatb__yearly_projected_cost_performance
+          partition_expr: report_year

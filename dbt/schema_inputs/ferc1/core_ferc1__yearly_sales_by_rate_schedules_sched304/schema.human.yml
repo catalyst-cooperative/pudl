@@ -1,0 +1,8 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_ferc1__yearly_sales_by_rate_schedules_sched304
+          partition_expr: report_year

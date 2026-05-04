@@ -1,0 +1,24 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_eia923__monthly_generation_fuel_nuclear
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - expect_nuclear_units_are_generators:
+        arguments:
+          generator_model: source('pudl', 'out_eia__yearly_generators')
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_values_to_be_in_set:
+          arguments:
+            value_set:
+            - nuclear
+            - oil
+    - data_tests:
+      - expect_column_fraction_with_condition:
+          arguments:
+            numerator_row_condition: fuel_type_code_pudl='nuclear'
+            min_fraction: 0.9999
+            max_fraction: 1.0

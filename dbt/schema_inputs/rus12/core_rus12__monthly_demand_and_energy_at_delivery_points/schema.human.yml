@@ -1,0 +1,16 @@
+sources:
+- tables:
+  - data_tests:
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: core_rus12__monthly_demand_and_energy_at_delivery_points
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0

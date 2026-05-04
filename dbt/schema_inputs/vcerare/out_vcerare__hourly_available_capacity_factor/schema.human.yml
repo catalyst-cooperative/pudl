@@ -1,0 +1,68 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_vcerare__hourly_available_capacity_factor
+          partition_expr: report_year
+    - expect_valid_hour_of_year
+    - dbt_expectations.expect_compound_columns_to_be_unique:
+        arguments:
+          column_list:
+          - county_id_fips
+          - datetime_utc
+          ignore_row_if: any_value_is_missing
+    columns:
+    - data_tests:
+      - not_null
+    - data_tests:
+      - not_null
+      - dbt_expectations.expect_column_values_to_not_be_in_set:
+          arguments:
+            value_set:
+            - bedford_city
+            - clifton_forge_city
+            - lake_hurron
+            - lake_st_clair
+      - dbt_expectations.expect_column_values_to_be_in_set:
+          arguments:
+            value_set:
+            - oglala lakota
+            row_condition: county_id_fips = '46012'
+    - data_tests:
+      - not_null
+      - dbt_expectations.expect_column_values_to_not_be_in_set:
+          arguments:
+            value_set:
+            - '{{ dbt_date.date(2020, 12, 31) }}'
+    - data_tests:
+      - not_null
+    - data_tests:
+      - not_null
+      - dbt_expectations.expect_column_max_to_be_between:
+          arguments:
+            min_value: 8760
+            max_value: 8760
+    - data_tests:
+      - not_null
+    - data_tests:
+      - not_null
+    - data_tests:
+      - not_null
+      - dbt_expectations.expect_column_values_to_be_between:
+          arguments:
+            min_value: 0.0
+            max_value: 1.1
+    - data_tests:
+      - not_null
+      - dbt_expectations.expect_column_values_to_be_between:
+          arguments:
+            min_value: 0.0
+            max_value: 1.0
+    - data_tests:
+      - not_null
+      - dbt_expectations.expect_column_values_to_be_between:
+          arguments:
+            min_value: 0.0
+            max_value: 1.0

@@ -12,7 +12,7 @@ import duckdb
 import pandas as pd
 import yaml
 from deepdiff import DeepDiff
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from pudl.dbt_wrapper import build_with_context, dagster_to_dbt_selection
 from pudl.logging_helpers import configure_root_logger, get_logger
@@ -84,7 +84,7 @@ class DbtTable(BaseModel):
     name: str
     description: str | None = None
     data_tests: list | None = None
-    columns: list[DbtColumn]
+    columns: list[DbtColumn] = Field(default_factory=list)
     meta: dict | None = None
     tags: list[str] | None = None
     config: dict | None = None  # only for models

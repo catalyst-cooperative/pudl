@@ -1,0 +1,122 @@
+sources:
+- tables:
+  - data_tests:
+    - expect_columns_not_all_null
+    - expect_columns_ratio:
+        arguments:
+          numerator_column: opex_report_month
+          denominator_column: opex_ytd
+          min_ratio: 0.05
+          max_ratio: 0.2
+        config:
+          error_if: '>46000'
+        description: Monthly spending should roughly equal 1/12 of the YTD budget
+          (5-20% range).
+    - expect_columns_ratio:
+        arguments:
+          numerator_column: opex_ytd
+          denominator_column: opex_ytd_budget
+          min_ratio: 0.75
+          max_ratio: 1.25
+        config:
+          error_if: '>42000'
+        description: Budgeted spending and YTD spending should be roughly equivalent.
+    - check_row_counts_per_partition:
+        arguments:
+          table_name: out_rus7__yearly_statement_of_operations
+          partition_expr: EXTRACT(YEAR FROM report_date)
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          categorical_column: opex_type
+          value_column: opex_report_month
+          subcomponents_list:
+          - admin
+          - customer_accounts
+          - customer_service
+          - distribution_maintenance
+          - distribution_operation
+          - power_production
+          - purchased_power
+          - regional_market
+          - sales
+          - transmission
+          total_label: total
+          tolerance: 10
+        row_condition: opex_group == 'opex'
+        description: Sum all opex expenses other than operating_revenue.
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          categorical_column: opex_type
+          value_column: opex_ytd
+          subcomponents_list:
+          - admin
+          - customer_accounts
+          - customer_service
+          - distribution_maintenance
+          - distribution_operation
+          - power_production
+          - purchased_power
+          - regional_market
+          - sales
+          - transmission
+          total_label: total
+          tolerance: 10
+        row_condition: opex_group == 'opex'
+        description: Sum all opex expenses other than operating_revenue.
+        config:
+          error_if: '>74'
+    - subcomponents_sum_to_total:
+        arguments:
+          group_by_columns:
+          - borrower_id_rus
+          - report_date
+          categorical_column: opex_type
+          value_column: opex_ytd_budget
+          subcomponents_list:
+          - admin
+          - customer_accounts
+          - customer_service
+          - distribution_maintenance
+          - distribution_operation
+          - power_production
+          - purchased_power
+          - regional_market
+          - sales
+          - transmission
+          total_label: total
+          tolerance: 10
+        row_condition: opex_group == 'opex'
+        description: Sum all opex expenses other than operating_revenue.
+        config:
+          error_if: '>70'
+    columns:
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>6750'
+          row_condition: opex_type != 'interest_charged_to_construction_credit' and
+            opex_group != 'patronage_capital_or_margins'
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>1600'
+          row_condition: opex_type != 'interest_charged_to_construction_credit' and
+            opex_group != 'patronage_capital_or_margins'
+    - data_tests:
+      - dbt_expectations.expect_column_min_to_be_between:
+          arguments:
+            min_value: 0.0
+          config:
+            error_if: '>810'
+          row_condition: opex_type != 'interest_charged_to_construction_credit' and
+            opex_group != 'patronage_capital_or_margins'
