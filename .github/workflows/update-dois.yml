@@ -34,7 +34,7 @@ jobs:
       - name: Run Zenodo DOI updater
         id: update
         run: |
-          pixi run update_zenodo_dois "${{ github.event.inputs.datasets }}"
+          pixi run update_zenodo_dois ${{ github.event.inputs.datasets }}
 
           # Check if any changes were made
           if git diff --quiet; then
