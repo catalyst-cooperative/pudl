@@ -1,14 +1,17 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_sec10k__quarterly_company_information
-          partition_expr: null
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_match_regex:
-          arguments:
-            regex: ^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$
-            is_raw: true
+  - name: pudl
+    tables:
+      - name: core_sec10k__quarterly_company_information
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_sec10k__quarterly_company_information
+                partition_expr: null
+        columns:
+          - name: fiscal_year_end
+            data_tests:
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  arguments:
+                    regex: ^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$
+                    is_raw: true

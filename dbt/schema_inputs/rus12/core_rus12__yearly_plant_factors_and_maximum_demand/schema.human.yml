@@ -1,37 +1,44 @@
 sources:
-- tables:
-  - data_tests:
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_rus12__yearly_plant_factors_and_maximum_demand
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-            max_value: 1.0
-          config:
-            error_if: '>13'
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-            max_value: 1.0
-          config:
-            error_if: '>121'
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-            max_value: 1.0
-          config:
-            error_if: '>2'
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_plant_factors_and_maximum_demand
+        data_tests:
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__yearly_plant_factors_and_maximum_demand
+                partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: capacity_factor
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
+                  config:
+                    error_if: ">13"
+          - name: capacity_factor_running
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
+                  config:
+                    error_if: ">121"
+          - name: load_factor
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
+                  config:
+                    error_if: ">2"
+          - name: peak_gross_demand_mw
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: peak_gross_demand_nameplate_mw
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0

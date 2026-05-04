@@ -1,4 +1,6 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
+  - name: pudl
+    tables:
+      - name: core_rus__codes_investment_types
+        data_tests:
+          - expect_columns_not_all_null

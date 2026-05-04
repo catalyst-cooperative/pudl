@@ -1,14 +1,17 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - dbt_expectations.expect_table_row_count_to_be_between:
-        description: Nightly builds and local ETL yield slightly different output
-        config:
-          enabled: '{{ target.name == ''etl-full''}}'
-        arguments:
-          min_value: 5691
-          max_value: 5696
-    columns:
-    - data_tests:
-      - unique
+  - name: pudl
+    tables:
+      - name: core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities
+        data_tests:
+          - expect_columns_not_all_null
+          - dbt_expectations.expect_table_row_count_to_be_between:
+              description: Nightly builds and local ETL yield slightly different output
+              config:
+                enabled: "{{ target.name == 'etl-full'}}"
+              arguments:
+                min_value: 5691
+                max_value: 5696
+        columns:
+          - name: subsidiary_company_id_sec10k
+            data_tests:
+              - unique

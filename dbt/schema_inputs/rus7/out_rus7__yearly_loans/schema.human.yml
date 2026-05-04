@@ -1,37 +1,43 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
-        arguments:
-          column_A: loan_original_amount
-          column_B: loan_balance
-          or_equal: true
-        config:
-          error_if: '>38'
-        description: The original amount of the loan guarantee should be greater than
-          or equal to the current balance of the loan.
-    - dbt_utils.expression_is_true:
-        arguments:
-          expression: date_trunc('year', report_date) <= date_trunc('year', loan_maturity_date)
-        config:
-          error_if: '>58'
-        description: The report date year should be before or equal to the loan maturity
-          date year.
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: out_rus7__yearly_loans
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-          config:
-            error_if: '>4'
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-          config:
-            error_if: '>1'
+  - name: pudl
+    tables:
+      - name: out_rus7__yearly_loans
+        data_tests:
+          - expect_columns_not_all_null
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+              arguments:
+                column_A: loan_original_amount
+                column_B: loan_balance
+                or_equal: true
+              config:
+                error_if: ">38"
+              description:
+                The original amount of the loan guarantee should be greater than
+                or equal to the current balance of the loan.
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: date_trunc('year', report_date) <= date_trunc('year', loan_maturity_date)
+              config:
+                error_if: ">58"
+              description:
+                The report date year should be before or equal to the loan maturity
+                date year.
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_rus7__yearly_loans
+                partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: loan_balance
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">4"
+          - name: loan_original_amount
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">1"

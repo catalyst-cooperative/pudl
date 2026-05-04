@@ -1,80 +1,91 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: out_rus12__yearly_depreciation_changes
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    - dbt_utils.expression_is_true:
-        arguments:
-          expression: accruals + retirements_less_net_salvage + adjustments_and_transfers
-            <= ending_balance
-          config:
-            error_if: '>18'
-            where: depreciation_and_amortization_item != 'retirement_work_in_progress'
-        description: Check that annual changes don't exceed ending balance.
-    - subcomponents_sum_to_total:
-        arguments:
-          group_by_columns:
-          - borrower_id_rus
-          - report_date
-          categorical_column: depreciation_and_amortization_group
-          value_column: accruals
-          total_label: total_depreciation
-        row_condition: depreciation_and_amortization_group='electric_plant_in_service'
-        description: Check the totals for all of the depreciation_and_amortization_group's
-          that are just the sum of the components.
-    - subcomponents_sum_to_total:
-        arguments:
-          group_by_columns:
-          - borrower_id_rus
-          - report_date
-          categorical_column: depreciation_and_amortization_group
-          value_column: retirements_less_net_salvage
-          total_label: total_depreciation
-        row_condition: depreciation_and_amortization_group='electric_plant_in_service'
-        description: Check the totals for all of the depreciation_and_amortization_group's
-          that are just the sum of the components.
-    - subcomponents_sum_to_total:
-        arguments:
-          group_by_columns:
-          - borrower_id_rus
-          - report_date
-          categorical_column: depreciation_and_amortization_group
-          value_column: adjustments_and_transfers
-          total_label: total_depreciation
-        row_condition: depreciation_and_amortization_group='electric_plant_in_service'
-        description: Check the totals for all of the depreciation_and_amortization_group's
-          that are just the sum of the components.
-    - subcomponents_sum_to_total:
-        arguments:
-          group_by_columns:
-          - borrower_id_rus
-          - report_date
-          categorical_column: depreciation_and_amortization_group
-          value_column: ending_balance
-          total_label: total_depreciation
-        row_condition: depreciation_and_amortization_group='electric_plant_in_service'
-        description: Check the totals for all of the depreciation_and_amortization_group's
-          that are just the sum of the components.
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-            max_value: 100.0
-          row_condition: depreciation_and_amortization_item !='retirement_work_in_progress'
-          config:
-            error_if: '>1'
-          description: Check that most of the composite_depreciation_rate's within
-            0-100.
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-          row_condition: depreciation_and_amortization_item !='retirement_work_in_progress'
-          config:
-            error_if: '>34'
-          description: Check that most of the ending_balance's are positive - excluding
-            the retirement_work_in_progress.
+  - name: pudl
+    tables:
+      - name: out_rus12__yearly_depreciation_changes
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_rus12__yearly_depreciation_changes
+                partition_expr: EXTRACT(YEAR FROM report_date)
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression:
+                  accruals + retirements_less_net_salvage + adjustments_and_transfers
+                  <= ending_balance
+                config:
+                  error_if: ">18"
+                  where: depreciation_and_amortization_item != 'retirement_work_in_progress'
+              description: Check that annual changes don't exceed ending balance.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: depreciation_and_amortization_group
+                value_column: accruals
+                total_label: total_depreciation
+              row_condition: depreciation_and_amortization_group='electric_plant_in_service'
+              description:
+                Check the totals for all of the depreciation_and_amortization_group's
+                that are just the sum of the components.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: depreciation_and_amortization_group
+                value_column: retirements_less_net_salvage
+                total_label: total_depreciation
+              row_condition: depreciation_and_amortization_group='electric_plant_in_service'
+              description:
+                Check the totals for all of the depreciation_and_amortization_group's
+                that are just the sum of the components.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: depreciation_and_amortization_group
+                value_column: adjustments_and_transfers
+                total_label: total_depreciation
+              row_condition: depreciation_and_amortization_group='electric_plant_in_service'
+              description:
+                Check the totals for all of the depreciation_and_amortization_group's
+                that are just the sum of the components.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: depreciation_and_amortization_group
+                value_column: ending_balance
+                total_label: total_depreciation
+              row_condition: depreciation_and_amortization_group='electric_plant_in_service'
+              description:
+                Check the totals for all of the depreciation_and_amortization_group's
+                that are just the sum of the components.
+        columns:
+          - name: composite_depreciation_rate
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 100.0
+                  row_condition: depreciation_and_amortization_item !='retirement_work_in_progress'
+                  config:
+                    error_if: ">1"
+                  description:
+                    Check that most of the composite_depreciation_rate's within
+                    0-100.
+          - name: ending_balance
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: depreciation_and_amortization_item !='retirement_work_in_progress'
+                  config:
+                    error_if: ">34"
+                  description:
+                    Check that most of the ending_balance's are positive - excluding
+                    the retirement_work_in_progress.

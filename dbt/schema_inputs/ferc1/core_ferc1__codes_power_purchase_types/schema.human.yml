@@ -1,8 +1,10 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_ferc1__codes_power_purchase_types
-          partition_expr: null
+  - name: pudl
+    tables:
+      - name: core_ferc1__codes_power_purchase_types
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_ferc1__codes_power_purchase_types
+                partition_expr: null

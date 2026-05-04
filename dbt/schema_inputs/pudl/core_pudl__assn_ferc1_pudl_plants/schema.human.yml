@@ -1,8 +1,10 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_pudl__assn_ferc1_pudl_plants
-          partition_expr: null
+  - name: pudl
+    tables:
+      - name: core_pudl__assn_ferc1_pudl_plants
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_pudl__assn_ferc1_pudl_plants
+                partition_expr: null

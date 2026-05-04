@@ -1,21 +1,26 @@
 sources:
-- tables:
-  - data_tests:
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_rus12__monthly_demand_and_energy_at_power_sources
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    - dbt_utils.expression_is_true:
-        arguments:
-          expression: date_trunc('month', report_date) >= date_trunc('month', peak_demand_date)
-            AND date_trunc('year', report_date) == date_trunc('year', peak_demand_date)
-        description: Expect peak demand date reported prior to report date.
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
+  - name: pudl
+    tables:
+      - name: core_rus12__monthly_demand_and_energy_at_power_sources
+        data_tests:
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__monthly_demand_and_energy_at_power_sources
+                partition_expr: EXTRACT(YEAR FROM report_date)
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression:
+                  date_trunc('month', report_date) >= date_trunc('month', peak_demand_date)
+                  AND date_trunc('year', report_date) == date_trunc('year', peak_demand_date)
+              description: Expect peak demand date reported prior to report date.
+        columns:
+          - name: energy_output_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: peak_demand_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0

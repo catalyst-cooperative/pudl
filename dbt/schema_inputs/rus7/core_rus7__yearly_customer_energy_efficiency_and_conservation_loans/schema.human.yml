@@ -1,27 +1,32 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_rus7__yearly_customer_energy_efficiency_and_conservation_loans
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-            max_value: 100.0
-          config:
-            error_if: '>1'
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-            max_value: 100.0
-          config:
-            error_if: '>2'
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_customer_energy_efficiency_and_conservation_loans
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_customer_energy_efficiency_and_conservation_loans
+                partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: actual_pct
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 100.0
+                  config:
+                    error_if: ">1"
+          - name: anticipated_pct
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 100.0
+                  config:
+                    error_if: ">2"
+          - name: ytd_dollars
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0

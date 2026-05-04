@@ -1,8 +1,10 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_eia861__assn_balancing_authority
-          partition_expr: EXTRACT(YEAR FROM report_date)
+  - name: pudl
+    tables:
+      - name: core_eia861__assn_balancing_authority
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia861__assn_balancing_authority
+                partition_expr: EXTRACT(YEAR FROM report_date)

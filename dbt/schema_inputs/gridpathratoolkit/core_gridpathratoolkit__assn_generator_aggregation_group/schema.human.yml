@@ -1,8 +1,10 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_gridpathratoolkit__assn_generator_aggregation_group
-          partition_expr: null
+  - name: pudl
+    tables:
+      - name: core_gridpathratoolkit__assn_generator_aggregation_group
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_gridpathratoolkit__assn_generator_aggregation_group
+                partition_expr: null
