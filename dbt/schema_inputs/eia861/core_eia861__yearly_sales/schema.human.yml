@@ -1,26 +1,31 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_eia861__yearly_sales
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-            row_condition: utility_id_eia != 99999
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-            row_condition: utility_id_eia != 99999
-            error_if: '>30'
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-            row_condition: utility_id_eia != 99999
-            error_if: '>300'
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_sales
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia861__yearly_sales
+                partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    row_condition: utility_id_eia != 99999
+          - name: sales_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    row_condition: utility_id_eia != 99999
+                    error_if: ">30"
+          - name: sales_revenue
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    row_condition: utility_id_eia != 99999
+                    error_if: ">300"

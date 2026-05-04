@@ -1,8 +1,10 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_eia930__hourly_net_generation_by_energy_source
-          partition_expr: EXTRACT(YEAR FROM datetime_utc)
+  - name: pudl
+    tables:
+      - name: core_eia930__hourly_net_generation_by_energy_source
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia930__hourly_net_generation_by_energy_source
+                partition_expr: EXTRACT(YEAR FROM datetime_utc)

@@ -1,17 +1,20 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_rus7__yearly_service_interruptions
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-            max_value: 525600
-          description: Expect SAIDI minutes don't exceed minutes in a year.
-          config:
-            error_if: '>2'
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_service_interruptions
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_service_interruptions
+                partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: saidi_minutes
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 525600
+                  description: Expect SAIDI minutes don't exceed minutes in a year.
+                  config:
+                    error_if: ">2"

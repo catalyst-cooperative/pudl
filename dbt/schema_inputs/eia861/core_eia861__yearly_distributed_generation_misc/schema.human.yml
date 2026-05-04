@@ -1,35 +1,42 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_eia861__yearly_distributed_generation_misc
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
-        arguments:
-          column_A: generators_number
-          column_B: generators_num_less_1_mw
-          or_equal: true
-          error_if: '>8'
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
-    - data_tests:
-      - dbt_expectations.expect_column_min_to_be_between:
-          arguments:
-            min_value: 0.0
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_distributed_generation_misc
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia861__yearly_distributed_generation_misc
+                partition_expr: EXTRACT(YEAR FROM report_date)
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+              arguments:
+                column_A: generators_number
+                column_B: generators_num_less_1_mw
+                or_equal: true
+                error_if: ">8"
+        columns:
+          - name: backup_capacity_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: distributed_generation_owned_capacity_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: generators_num_less_1_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: generators_number
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: total_capacity_less_1_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0

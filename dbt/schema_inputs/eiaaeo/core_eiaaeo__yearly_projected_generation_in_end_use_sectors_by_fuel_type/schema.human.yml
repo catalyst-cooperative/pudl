@@ -1,8 +1,10 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type
-          partition_expr: report_year
+  - name: pudl
+    tables:
+      - name: core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type
+                partition_expr: report_year

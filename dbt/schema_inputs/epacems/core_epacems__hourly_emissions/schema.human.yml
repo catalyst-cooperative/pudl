@@ -1,8 +1,10 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_epacems__hourly_emissions
-          partition_expr: year
+  - name: pudl
+    tables:
+      - name: core_epacems__hourly_emissions
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_epacems__hourly_emissions
+                partition_expr: year

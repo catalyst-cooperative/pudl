@@ -1,7 +1,9 @@
 sources:
-- tables:
-  - data_tests:
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: out_rus12__yearly_balance_sheet_liabilities
-          partition_expr: EXTRACT(YEAR FROM report_date)
+  - name: pudl
+    tables:
+      - name: out_rus12__yearly_balance_sheet_liabilities
+        data_tests:
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_rus12__yearly_balance_sheet_liabilities
+                partition_expr: EXTRACT(YEAR FROM report_date)

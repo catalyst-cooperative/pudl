@@ -1,13 +1,15 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: core_ferc714__hourly_planning_area_demand
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    - expect_consistent_years:
-        arguments:
-          datetime_column: datetime_utc
-          date_column: report_date
-          max_mismatch_ratio: 0.001
+  - name: pudl
+    tables:
+      - name: core_ferc714__hourly_planning_area_demand
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_ferc714__hourly_planning_area_demand
+                partition_expr: EXTRACT(YEAR FROM report_date)
+          - expect_consistent_years:
+              arguments:
+                datetime_column: datetime_utc
+                date_column: report_date
+                max_mismatch_ratio: 0.001

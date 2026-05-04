@@ -1,10 +1,13 @@
 sources:
-- tables:
-  - data_tests:
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: out_censusdp1tract__states
-          partition_expr: null
-    columns:
-    - data_tests:
-      - unique
+  - name: pudl
+    tables:
+      - name: out_censusdp1tract__states
+        data_tests:
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_censusdp1tract__states
+                partition_expr: null
+        columns:
+          - name: state_id_fips
+            data_tests:
+              - unique

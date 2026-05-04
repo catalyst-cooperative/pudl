@@ -1,23 +1,26 @@
 sources:
-- tables:
-  - data_tests:
-    - expect_columns_not_all_null
-    - check_row_counts_per_partition:
-        arguments:
-          table_name: out_eia860__yearly_ownership
-          partition_expr: EXTRACT(YEAR FROM report_date)
-    - expect_date_frequency_ratio:
-        arguments:
-          compare_model: source("pudl", "out_eia__yearly_generators")
-          multiplier: 1
-          date_column: report_date
-    - expect_complete_valid_ownership:
-        arguments:
-          n_acceptable_failures: 5
-    - expect_unique_utility_id_eia
-    columns:
-    - data_tests:
-      - dbt_expectations.expect_column_values_to_be_between:
-          arguments:
-            min_value: 0.0
-            max_value: 1.0
+  - name: pudl
+    tables:
+      - name: out_eia860__yearly_ownership
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_eia860__yearly_ownership
+                partition_expr: EXTRACT(YEAR FROM report_date)
+          - expect_date_frequency_ratio:
+              arguments:
+                compare_model: source("pudl", "out_eia__yearly_generators")
+                multiplier: 1
+                date_column: report_date
+          - expect_complete_valid_ownership:
+              arguments:
+                n_acceptable_failures: 5
+          - expect_unique_utility_id_eia
+        columns:
+          - name: fraction_owned
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
