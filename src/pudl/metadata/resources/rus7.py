@@ -399,7 +399,10 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
                 "fields": [["borrower_id_rus"]],
                 # We must remove all of the rus12 tables - otherwise
                 # these would get a FK relationship from this rus7 table
-                "exclude": ["core_rus12__entity_borrowers"]
+                "exclude": [
+                    "core_rus12__entity_borrowers",
+                    "_core_rus12__forensics_entity_resolution_borrowers",
+                ]
                 + HARVESTED_CORE_TABLES_RUS12
                 + [
                     f"out_{tbl.removeprefix('core_')}"

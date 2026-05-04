@@ -1,8 +1,8 @@
 """add rus and eia forensic tables
 
-Revision ID: 0a9951547512
+Revision ID: f98868d3f5cb
 Revises: 4f252e9e2ce3
-Create Date: 2026-05-01 12:13:27.795674
+Create Date: 2026-05-04 10:41:38.327948
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0a9951547512'
+revision = 'f98868d3f5cb'
 down_revision = '4f252e9e2ce3'
 branch_labels = None
 depends_on = None
@@ -39,7 +39,7 @@ def upgrade() -> None:
     sa.Column('record_occurrences', sa.Integer(), nullable=True, comment='The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.'),
     sa.Column('consistent_rate', sa.Float(), nullable=True, comment="What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."),
     sa.Column('is_candidate', sa.Boolean(), nullable=True, comment='Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.'),
-    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus7__entity_borrowers.borrower_id_rus'], name=op.f('fk__core_rus12__forensics_entity_resolution_borrowers_borrower_id_rus_core_rus7__entity_borrowers'))
+    sa.ForeignKeyConstraint(['borrower_id_rus'], ['core_rus12__entity_borrowers.borrower_id_rus'], name=op.f('fk__core_rus12__forensics_entity_resolution_borrowers_borrower_id_rus_core_rus12__entity_borrowers'))
     )
     op.create_table('_core_rus7__forensics_entity_resolution_borrowers',
     sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
