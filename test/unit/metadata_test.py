@@ -571,6 +571,10 @@ EXPECT_NO_AVAILABILITY = {
     "core_pudl__entity_utilities_pudl",
     "core_rus__codes_fuel_types",
     "core_rus__codes_investment_types",
+    "_core_eia__forensics_entity_resolution_boilers",
+    "_core_eia__forensics_entity_resolution_plants",
+    "_core_eia__forensics_entity_resolution_generators",
+    "_core_eia__forensics_entity_resolution_utilities",
 }
 
 
