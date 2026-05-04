@@ -103,6 +103,7 @@ Functions
    pudl.helpers.duckdb_relation_from_parquet
    pudl.helpers.duckdb_extract_zipped_csv
    pudl.helpers.normalize_year_fragments
+   pudl.helpers.make_changelog
    pudl.helpers.parse_address
    pudl.helpers.listify
 
@@ -1259,6 +1260,11 @@ Module Contents
 
    :raises ValueError: If the valid year range is too wide to apply the rolling-century
        logic, or if any resulting year falls outside the valid range.
+
+
+.. py:function:: make_changelog(df_all: pandas.DataFrame, idx: list[str])
+
+   Make a changelog table with unique instances of values over start report and max report date.
 
 
 .. py:function:: parse_address(addr: str)

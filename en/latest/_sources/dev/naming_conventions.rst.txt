@@ -109,6 +109,13 @@ Naming convention: ``core_{source}__{asset_type}_{asset_name}``
 
     * ``out_ferc714__hourly_planning_area_demand``,
     * ``core_ferc1__yearly_plant_in_service``.
+  * ``forensics``: Forensic tables contain information that can help characterize
+    and justify changes that were made by our data pipeline.
+    Currently all of our forensic tables concern the input data for the choice of
+    canonical values during entity resolution. These are not cleaned up tables - they
+    are meant for forensic purposes only, e.g., if you have a question about why a value
+    reported in an ``scd``, ``entity`` or ``out`` table differs from the value reported
+    in the ``raw`` layer or directly from the source.
 
 Output layer
 ^^^^^^^^^^^^

@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Entity Resolution &#8212; PUDL 2026.4.1.dev22 documentation</title>
+    <title>Entity Resolution &#8212; PUDL 2026.4.1.dev23 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=7e2f1a30"></script>
+    <script src="../_static/documentation_options.js?v=d76f6e56"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -577,8 +577,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev22 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev22 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev23 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -953,10 +953,11 @@ EIA spreadsheet.</p>
 <p>For each entity type, PUDL typically creates two related tables:</p>
 <ul class="simple">
 <li><p>A static entity table such as <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-eia-entity-plants"><span class="std std-ref">core_eia__entity_plants</span></a>, with one row per entity
-and attributes that are expected to be stable over time.</p></li>
+and attributes that are expected to be stable over time. These tables all have
+<code class="docutils literal notranslate"><span class="pre">entity</span></code> in their names.</p></li>
 <li><p>A yearly slowly changing dimension (SCD) table such as <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-eia860-scd-plants"><span class="std std-ref">core_eia860__scd_plants</span></a>,
 with one row per entity per report year and attributes that are expected to vary
-slightly over time.</p></li>
+slightly over time. These tables all have <code class="docutils literal notranslate"><span class="pre">scd</span></code> in their names.</p></li>
 </ul>
 <p>PUDL currently resolves four kinds of EIA entities, with these associated entity ID
 columns:</p>
@@ -966,6 +967,9 @@ columns:</p>
 <li><p>Boilers <code class="docutils literal notranslate"><span class="pre">(plant_id_eia,</span> <span class="pre">boiler_id)</span></code></p></li>
 <li><p>Generators <code class="docutils literal notranslate"><span class="pre">(plant_id_eia,</span> <span class="pre">generator_id)</span></code></p></li>
 </ul>
+<p>For forensic purposes, PUDL also publishes tables which includes all values which are
+found in the original tables which we use to create these canonical values. These
+tables are all have <code class="docutils literal notranslate"><span class="pre">forensics_entity_resolution</span></code> in their names.</p>
 </section>
 <section id="why-a-canonical-record-is-necessary">
 <h3>Why A Canonical Record Is Necessary<a class="headerlink" href="#why-a-canonical-record-is-necessary" title="Link to this heading">#</a></h3>

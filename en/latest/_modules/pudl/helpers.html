@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.4.1.dev22 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.4.1.dev23 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../_static/documentation_options.js?v=7e2f1a30"></script>
+    <script src="../../_static/documentation_options.js?v=d76f6e56"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev22 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev22 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev23 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -3608,6 +3608,42 @@ window.runMermaid = runMermaid;</script>
             <span class="sa">f</span><span class="s2">&quot;Year out of expected range (</span><span class="si">{</span><span class="n">min_valid_year</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">max_valid_year</span><span class="si">}</span><span class="s2">) in values: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">year</span></div>
+
+
+
+<div class="viewcode-block" id="make_changelog">
+<a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.make_changelog">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_changelog</span><span class="p">(</span><span class="n">df_all</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a changelog table with unique instances of values over start report and max report date.&quot;&quot;&quot;</span>
+    <span class="n">idx_no_date</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">idx</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;r&quot;</span><span class="p">]</span>
+    <span class="c1"># assign a max report_date column for use in the valid_until_date column</span>
+    <span class="n">df_all</span><span class="p">[</span><span class="s2">&quot;report_date_max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">idx_no_date</span><span class="p">)[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+        <span class="s2">&quot;max&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">df_changelog</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+        <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df_all</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+        <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">report_date_max_mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_changelog</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">df_changelog</span><span class="p">[</span><span class="s2">&quot;report_date_max&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">df_changelog</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">report_date_max_mask</span><span class="p">,</span> <span class="s2">&quot;valid_until_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_changelog</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">idx_no_date</span><span class="p">)[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;shift&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df_changelog</span><span class="o">.</span><span class="n">report_date_max</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># for all of the last month records, use the next month as the valid until date</span>
+    <span class="n">df_changelog</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">report_date_max_mask</span><span class="p">,</span> <span class="s2">&quot;valid_until_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_changelog</span><span class="o">.</span><span class="n">report_date</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_changelog</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span></div>
 
 
 

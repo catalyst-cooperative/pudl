@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.rus7 &#8212; PUDL 2026.4.1.dev22 documentation</title>
+    <title>pudl.transform.rus7 &#8212; PUDL 2026.4.1.dev23 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=7e2f1a30"></script>
+    <script src="../../../_static/documentation_options.js?v=d76f6e56"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -851,10 +851,11 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="sd">&quot;&quot;&quot;Transform the RUS7 tables.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetIn</span><span class="p">,</span> <span class="n">AssetOut</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">multi_asset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetIn</span><span class="p">,</span> <span class="n">AssetOut</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">multi_asset</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.transform.rus</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_changelog</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.enums</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">LOAN_STATUS_TYPES_RUS7</span><span class="p">,</span>
     <span class="n">LOAN_UNIT_TYPES_RUS7</span><span class="p">,</span>
@@ -1594,20 +1595,15 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span>
+<span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
         <span class="n">table_name</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_core_rus7__scd_borrowers&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">_CORE_RUS7_TABLES</span>
     <span class="p">},</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
-    <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
-            <span class="nb">bool</span><span class="p">,</span>
-            <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                <span class="s2">&quot;If True, allow inconsistent values in harvested columns and &quot;</span>
-                <span class="s2">&quot;produce additional debugging output.&quot;</span>
-            <span class="p">),</span>
+    <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;core_rus7__entity_borrowers&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;_core_rus7__forensics_entity_resolution_borrowers&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -1632,10 +1628,13 @@ window.runMermaid = runMermaid;</script>
         <span class="n">entity</span><span class="p">,</span>
         <span class="n">clean_dfs</span><span class="p">,</span>
         <span class="n">special_case_strictness</span><span class="o">=</span><span class="n">special_case_strictness</span><span class="p">,</span>
-        <span class="n">debug</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">],</span>
+        <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">entity_df</span></div>
+    <span class="n">out_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">harvested_col_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">_col_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">forensics</span> <span class="o">=</span> <span class="n">make_changelog</span><span class="p">(</span><span class="n">out_all</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">entity_df</span><span class="p">,</span> <span class="n">forensics</span></div>
 
 
 

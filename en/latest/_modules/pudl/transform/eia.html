@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia &#8212; PUDL 2026.4.1.dev22 documentation</title>
+    <title>pudl.transform.eia &#8212; PUDL 2026.4.1.dev23 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=7e2f1a30"></script>
+    <script src="../../../_static/documentation_options.js?v=d76f6e56"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev22 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev22 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -885,7 +885,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_cols_dtypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_cols_dtypes</span><span class="p">,</span> <span class="n">make_changelog</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">APPROXIMATE_TIMEZONES</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">get_pudl_dtypes</span>
@@ -1037,8 +1037,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">col_df</span> <span class="o">=</span> <span class="n">col_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">col_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">col_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_is_consistent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
-        <span class="n">col_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_consistent_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+        <span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;is_candidate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+        <span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;consistent_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
         <span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;entity_occurrences&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
         <span class="k">return</span> <span class="n">col_df</span>
     <span class="c1"># determine how many times each entity occurs in col_df</span>
@@ -1066,11 +1066,11 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># occurrences of the entities.</span>
     <span class="n">col_df</span> <span class="o">=</span> <span class="n">col_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">consist_df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">)</span>
     <span class="c1"># change all of the fully consistent records to True</span>
-    <span class="n">col_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_consistent_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;consistent_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;record_occurrences&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;entity_occurrences&quot;</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">col_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_is_consistent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_consistent_rate&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">strictness</span>
-    <span class="n">col_df</span> <span class="o">=</span> <span class="n">col_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_consistent_rate&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;is_candidate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;consistent_rate&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">strictness</span>
+    <span class="n">col_df</span> <span class="o">=</span> <span class="n">col_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;consistent_rate&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">col_df</span></div>
 
 
@@ -1120,7 +1120,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># grab the clean plants</span>
     <span class="n">ll_clean_df</span> <span class="o">=</span> <span class="n">clean_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
     <span class="c1"># find the new clean plant records by selecting the True consistent records</span>
-    <span class="n">ll_df</span> <span class="o">=</span> <span class="n">ll_df</span><span class="p">[</span><span class="n">ll_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_is_consistent&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">entity_idx</span><span class="p">)</span>
+    <span class="n">ll_df</span> <span class="o">=</span> <span class="n">ll_df</span><span class="p">[</span><span class="n">ll_df</span><span class="p">[</span><span class="s2">&quot;is_candidate&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">entity_idx</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clean </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> records: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ll_df</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="c1"># add the newly cleaned records</span>
     <span class="n">ll_clean_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ll_clean_df</span><span class="p">,</span> <span class="n">ll_df</span><span class="p">])</span>
@@ -1187,7 +1187,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># grab the clean plants</span>
     <span class="n">op_clean_df</span> <span class="o">=</span> <span class="n">clean_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
     <span class="c1"># find the new clean plant records by selecting the True consistent records</span>
-    <span class="n">op_df</span> <span class="o">=</span> <span class="n">op_df</span><span class="p">[</span><span class="n">op_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_is_consistent&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">entity_idx</span><span class="p">)</span>
+    <span class="n">op_df</span> <span class="o">=</span> <span class="n">op_df</span><span class="p">[</span><span class="n">op_df</span><span class="p">[</span><span class="s2">&quot;is_candidate&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">entity_idx</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rescued dates for </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> records: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">op_df</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;Rescued last </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> for the following units (</span><span class="si">{</span><span class="n">entity_idx</span><span class="si">}</span><span class="s2">): &quot;</span>
@@ -1472,8 +1472,8 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
         <span class="c1"># pull the correct values out of the df and merge w/ the plant ids</span>
-        <span class="n">col_correct_df</span> <span class="o">=</span> <span class="n">col_df</span><span class="p">[</span><span class="n">col_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_is_consistent&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
-            <span class="n">subset</span><span class="o">=</span><span class="p">(</span><span class="n">cols_to_consit</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_is_consistent&quot;</span><span class="p">])</span>
+        <span class="n">col_correct_df</span> <span class="o">=</span> <span class="n">col_df</span><span class="p">[</span><span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;is_candidate&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="p">(</span><span class="n">cols_to_consit</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;is_candidate&quot;</span><span class="p">])</span>
         <span class="p">)</span>
 
         <span class="c1"># we need this to be an empty df w/ columns bc we are going to use it</span>
@@ -1516,6 +1516,10 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="c1"># save the column name in a new column and standardize the col name</span>
+            <span class="c1"># this will make it easier to compare all the of col_df&#39;s</span>
+            <span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;column_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
+            <span class="n">col_df</span> <span class="o">=</span> <span class="n">col_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="s2">&quot;record_value&quot;</span><span class="p">})</span>
             <span class="n">col_dfs</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_df</span>
         <span class="c1"># this next section is used to print and test whether the harvested</span>
         <span class="c1"># records are consistent enough</span>
@@ -1528,7 +1532,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="nb">len</span><span class="p">(</span>
-                    <span class="n">col_df</span><span class="p">[(</span><span class="n">col_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_is_consistent&quot;</span><span class="p">])]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+                    <span class="n">col_df</span><span class="p">[(</span><span class="n">col_df</span><span class="p">[</span><span class="s2">&quot;is_candidate&quot;</span><span class="p">])]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
                         <span class="n">subset</span><span class="o">=</span><span class="n">cols_to_consit</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
@@ -2149,15 +2153,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
             <span class="sa">f</span><span class="s2">&quot;core_eia__entity_</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">),</span>
             <span class="sa">f</span><span class="s2">&quot;core_eia860__scd_</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">),</span>
-        <span class="p">},</span>
-        <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
-                <span class="nb">bool</span><span class="p">,</span>
-                <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;If True, allow inconsistent values in harvested columns and &quot;</span>
-                    <span class="s2">&quot;produce additional debugging output.&quot;</span>
-                <span class="p">),</span>
+            <span class="sa">f</span><span class="s2">&quot;_core_eia__forensics_entity_resolution_</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
+                <span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span>
             <span class="p">),</span>
         <span class="p">},</span>
         <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;etl_settings&quot;</span><span class="p">},</span>
@@ -2167,7 +2164,6 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Harvesting IDs &amp; consistent static attributes for EIA entity.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Harvesting IDs &amp; consistent static attributes for EIA </span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="n">debug</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span>
         <span class="n">clean_dfs</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">df_name</span><span class="p">:</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">clean_dfs</span><span class="p">[</span><span class="n">df_name</span><span class="p">])</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
                 <span class="n">convert_cols_dtypes</span><span class="p">,</span> <span class="s2">&quot;eia&quot;</span>
@@ -2203,7 +2199,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">entity</span><span class="p">,</span>
             <span class="n">clean_dfs</span><span class="p">,</span>
             <span class="n">special_case_strictness</span><span class="o">=</span><span class="n">special_case_strictness</span><span class="p">,</span>
-            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">entity</span> <span class="o">==</span> <span class="n">EiaEntity</span><span class="o">.</span><span class="n">PLANTS</span><span class="p">:</span>
@@ -2213,9 +2209,22 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">fix_balancing_authority_codes_with_state</span><span class="p">,</span> <span class="n">plants_entity</span><span class="o">=</span><span class="n">entity_df</span>
             <span class="p">)</span>
 
+        <span class="c1"># Take all of the column inputs and make them into one big forensics changelog</span>
+        <span class="c1"># table</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Concatenating all of the column inputs for </span><span class="si">{entity.value}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">out_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">harvested_col_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">_col_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Making changelog out of all forensics inputs for </span><span class="si">{entity.value}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">forensics</span> <span class="o">=</span> <span class="n">make_changelog</span><span class="p">(</span><span class="n">out_all</span><span class="p">,</span> <span class="n">ENTITIES</span><span class="p">[</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="p">][</span><span class="s2">&quot;id_cols&quot;</span><span class="p">])</span>
+
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">Output</span><span class="p">(</span><span class="n">output_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;core_eia__entity_</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">entity_df</span><span class="p">),</span>
             <span class="n">Output</span><span class="p">(</span><span class="n">output_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;core_eia860__scd_</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">annual_df</span><span class="p">),</span>
+            <span class="n">Output</span><span class="p">(</span>
+                <span class="n">output_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_core_eia__forensics_entity_resolution_</span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">value</span><span class="o">=</span><span class="n">forensics</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">harvested_entity</span></div>

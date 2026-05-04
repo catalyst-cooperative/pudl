@@ -1123,7 +1123,7 @@ Module Contents
 
 
       .. py:attribute:: table_type_code
-         :type:  Literal['assn', 'codes', 'entity', 'scd', 'timeseries'] | None
+         :type:  Literal['assn', 'codes', 'entity', 'scd', 'timeseries', 'forensics'] | None
          :value: None
 
 
