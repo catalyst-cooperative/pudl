@@ -32,8 +32,6 @@ The Public Utility Data Liberation Project (PUDL)
 .. |mastodon| image:: https://img.shields.io/mastodon/follow/110855618428885893?domain=https%3A%2F%2Fmastodon.energy&style=social&color=%23000000&link=https%3A%2F%2Fmastodon.energy%2F%40catalystcoop
    :target: https://mastodon.energy/@catalystcoop
    :alt: Follow Catalyst Cooperative on Mastodon
-.. |slack| image:: https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=fff
-   :target: https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ
 .. |linkedin| image:: https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white
    :target: https://linkedin.com/company/catalyst-cooperative/
    :alt: Follow Catalyst Cooperative on LinkedIn
@@ -50,9 +48,21 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://registry.opendata.aws/catalyst-cooperative-pudl/
    :alt: PUDL in the AWS Open Data Registry
 
-|repo-status|\ |pytest|\ |codecov|\ |docs|\ |oc|\ |ruff|\ |pre-commit-ci|
-|zenodo-doi|\ |office-hours|\ |mastodon|\ |linkedin|\ |bluesky|\ |kaggle|\ |slack|
-|youtube|\ |aws|
+|repo-status|
+|pytest|
+|codecov|
+|docs|
+|oc|
+|ruff|
+|pre-commit-ci|
+|zenodo-doi|
+|office-hours|
+|mastodon|
+|linkedin|
+|bluesky|
+|kaggle|
+|youtube|
+|aws|
 
 What is PUDL?
 -------------
