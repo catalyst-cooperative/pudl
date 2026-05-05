@@ -163,9 +163,6 @@ def convert_form(
     Returns:
         None
     """
-    datapackage_path = output_path / f"ferc{form.value}_xbrl_datapackage.json"
-    metadata_path = output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
-
     taxonomy_archive = datastore.get_taxonomy(form)
     # Process XBRL filings for each year requested
     filings_archives = [
@@ -180,12 +177,11 @@ def convert_form(
     with _suppress_arelle_message_spam():
         run_main(
             filings=filings_archives,
+            output_dir=output_path,
             sqlite_path=sqlite_path,
             duckdb_path=duckdb_path,
             taxonomy=taxonomy_archive,
             form_number=form.value,
-            metadata_path=metadata_path,
-            datapackage_path=datapackage_path,
             workers=workers,
             batch_size=batch_size,
             loglevel=loglevel,

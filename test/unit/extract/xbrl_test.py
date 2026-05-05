@@ -194,12 +194,11 @@ def test_convert_form(mocker):
         filings: list[str] = [f"filings_{year}_{form.value}" for year in settings.years]
         extractor_mock.assert_called_with(
             filings=filings,
+            output_dir=output_path,
             sqlite_path=output_path / f"ferc{form.value}_xbrl.sqlite",
             duckdb_path=output_path / f"ferc{form.value}_xbrl.duckdb",
             taxonomy=f"raw_archive_{form.value}",
             form_number=form.value,
-            metadata_path=output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json",
-            datapackage_path=output_path / f"ferc{form.value}_xbrl_datapackage.json",
             workers=5,
             batch_size=10,
             loglevel="INFO",
