@@ -9,6 +9,7 @@ from collections import defaultdict
 from collections.abc import Callable, Iterator
 from functools import lru_cache
 from pathlib import Path
+from pydantic import BaseModel, Field
 from typing import IO, Any, Protocol, Self
 
 import pandas as pd
@@ -466,6 +467,10 @@ class FercDbfExtractor:
         """Returns the connection string for the sqlite database."""
         db_path = str(Path(self.output_path) / self.DATABASE_NAME)
         return f"sqlite:///{db_path}"
+    
+    def get_datapackage_path(self) -> Path:
+        """Returns the path to the datapackage for this resource."""
+        return Path(self.output_path) / f"{self.DATASET}_dbf_datapackage.json"
 
     @classmethod
     def get_dagster_op(cls) -> Callable:
@@ -505,6 +510,39 @@ class FercDbfExtractor:
         self.create_sqlite_tables()
         self.load_table_data()
         self.postprocess()
+
+    def as_pydantic(self):
+        """Generate a pydantic model based on the database schema."""
+        resources = []
+        for table in self.sqlite_meta.sorted_tables():
+            resources.append(Resource(
+                path=self.get_db_path(),
+                name=table.name,
+                dialect=Dialect(table=table.name),
+                title="??",
+                description=table.description,
+                schema=Schema(
+                    fields=[
+                        Field(
+                            name=c.name,
+                            type=c.type,
+                        )
+                        for c in table.columns
+                    ]
+                )
+            ))
+        
+        return Datapackage(
+            name=f"{self.DATASET}-extracted-dbf",
+            title=f"{self.DATASET} data extracted from DBF filings",
+            resources=resources
+        )
+        package = create_model(
+            profile=(str, "tabular-data-package"),
+            name=(str, f"{self.DATASET}-extracted-dbf"),
+            title=(str,f"{self.DATASET} data extracted from DBF filings"),
+            resources=(list[Resource],resources)
+        )
 
     def delete_schema(self):
         """Drops all tables from the existing sqlite database."""
@@ -665,3 +703,44 @@ def deduplicate_by_year(
         .drop_duplicates(subset=pk_column, keep="last")
         .drop(columns="report_yr")
     )
+
+class Field(BaseModel):
+    """A generic field descriptor, as per Frictionless Data specs.
+
+    See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
+    """
+
+    name: str
+    type_: str = Field(alias="type", default="string")
+    format_: str = Field(alias="format", default="default")
+
+class Schema(BaseModel):
+    """A generic table schema, as per Frictionless Data specs.
+
+    See https://specs.frictionlessdata.io/table-schema/.
+    """
+
+    fields: list[Field]
+    primary_key: list[str]
+
+class Dialect(BaseModel):
+    """Dialect used for frictionless SQL resources."""
+
+    table: str
+
+class Resource(BaseModel):
+    path: str
+    profile: str = "tabular-data-resource"
+    name: str
+    dialect: Dialect
+    title: str
+    description: str
+    format_: str = Field(alias="format", default="sqlite")
+    mediatype: str = "application/vnd.sqlite3"
+    schema_: Schema = Field(alias="schema")
+
+class Datapackage(BaseModel):
+    profile: str = "tabular-data-package"
+    name: str
+    title: str
+    resources: list[Resource]
