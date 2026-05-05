@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pudl.scripts.dbt_helper import DbtColumn, DbtSchema, DbtSource, DbtTable
 
 
@@ -73,7 +75,18 @@ def merge_tables_by_name(
     return merged_tables
 
 
-def merge_schema(machine_schema: DbtSchema, human_schema: DbtSchema) -> DbtSchema:
+def _maybe_get_human_schema(human_path: Path) -> DbtSchema:
+    if not human_path.exists():
+        return DbtSchema(sources=[])
+    with human_path.open("r") as f:
+        if f.read().strip() == "":
+            return DbtSchema(sources=[])
+    return DbtSchema.from_yaml(human_path)
+
+
+def merge_schema(machine_path: Path, human_path: Path) -> DbtSchema:
+    machine_schema = DbtSchema.from_yaml(machine_path)
+    human_schema = _maybe_get_human_schema(human_path)
     merged_schema = machine_schema.model_copy(deep=False)
 
     if human_schema.sources is not None:
