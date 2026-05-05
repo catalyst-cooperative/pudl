@@ -2527,6 +2527,39 @@ def normalize_year_fragments(
     return year
 
 
+def make_changelog(df_all: pd.DataFrame, idx: list[str]):
+    """Make a changelog table with unique instances of values over start report and max report date."""
+    idx_no_date = [c for c in idx if c != "r"]
+    # assign a max report_date column for use in the valid_until_date column
+    df_all["report_date_max"] = df_all.groupby(idx_no_date)["report_date"].transform(
+        "max"
+    )
+
+    df_changelog = df_all.sort_values(
+        by=["report_date"], ascending=True
+    ).drop_duplicates(
+        subset=[c for c in df_all if c != "report_date"],
+        keep="first",
+    )
+
+    report_date_max_mask = (
+        df_changelog["report_date"] == df_changelog["report_date_max"]
+    )
+    df_changelog.loc[~report_date_max_mask, "valid_until_date"] = (
+        df_changelog.sort_values(idx, ascending=False)
+        .groupby(idx_no_date)["report_date"]
+        .transform("shift")
+        .fillna(df_changelog.report_date_max)
+    )
+
+    # for all of the last month records, use the next month as the valid until date
+    df_changelog.loc[report_date_max_mask, "valid_until_date"] = (
+        df_changelog.report_date + pd.DateOffset(months=1)
+    )
+
+    return df_changelog.sort_values(idx)
+
+
 def parse_address(addr: str):
     """Parse a U.S. address into components."""
     try:

@@ -4,6 +4,7 @@ from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resource_helpers import (
+    HARVESTING_FORENSIC_DETAIL_TEXT,
     canonical_harvested_details,
     inherits_harvested_values_details,
 )
@@ -1232,6 +1233,107 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
         "sources": ["eia860"],
         "etl_group": "static_eia",
+    },
+    "_core_eia__forensics_entity_resolution_boilers": {
+        "description": {
+            "additional_summary_text": (
+                "the statistics determining how we choose a single consistent value during entity resolution for boilers."
+            ),
+            "usage_warnings": ["harvesting_ingredients"],
+            "additional_details_text": HARVESTING_FORENSIC_DETAIL_TEXT,
+        },
+        "schema": {
+            "fields": [
+                "boiler_id",
+                "report_date",
+                "valid_until_date",
+                "column_name",
+                "record_value",
+                "entity_occurrences",
+                "record_occurrences",
+                "consistent_rate",
+                "is_candidate",
+            ]
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
+    },
+    "_core_eia__forensics_entity_resolution_generators": {
+        "description": {
+            "additional_summary_text": (
+                "the statistics determining how we choose a single consistent value during entity resolution for generators."
+            ),
+            "usage_warnings": ["harvesting_ingredients"],
+            "additional_details_text": HARVESTING_FORENSIC_DETAIL_TEXT,
+        },
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+                "valid_until_date",
+                "column_name",
+                "record_value",
+                "entity_occurrences",
+                "record_occurrences",
+                "consistent_rate",
+                "is_candidate",
+            ]
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
+    },
+    "_core_eia__forensics_entity_resolution_plants": {
+        "description": {
+            "additional_summary_text": (
+                "the statistics determining how we choose a single consistent value during entity resolution for plants."
+            ),
+            "usage_warnings": ["harvesting_ingredients"],
+            "additional_details_text": HARVESTING_FORENSIC_DETAIL_TEXT,
+        },
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
+                "valid_until_date",
+                "column_name",
+                "record_value",
+                "entity_occurrences",
+                "record_occurrences",
+                "consistent_rate",
+                "is_candidate",
+            ]
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
+    },
+    "_core_eia__forensics_entity_resolution_utilities": {
+        "description": {
+            "additional_summary_text": (
+                "the statistics determining how we choose a single consistent value during entity resolution for utilities."
+            ),
+            "usage_warnings": ["harvesting_ingredients"],
+            "additional_details_text": HARVESTING_FORENSIC_DETAIL_TEXT,
+        },
+        "schema": {
+            "fields": [
+                "utility_id_eia",
+                "report_date",
+                "valid_until_date",
+                "column_name",
+                "record_value",
+                "entity_occurrences",
+                "record_occurrences",
+                "consistent_rate",
+                "is_candidate",
+            ]
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
     },
 } | {
     # out_eia__yearly_generators and out_eia__monthly_generators are defined here
