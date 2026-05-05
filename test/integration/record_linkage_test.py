@@ -232,6 +232,7 @@ def _score_model(
     return ratio_correct
 
 
+@pytest.mark.order(1)
 def test_classify_plants_ferc1(mock_ferc1_plants_df):
     """Test the FERC inter-year plant linking model."""
     steam_plants = mock_ferc1_plants_df[

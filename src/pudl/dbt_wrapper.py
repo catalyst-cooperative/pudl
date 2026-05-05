@@ -2,7 +2,8 @@
 
 import io
 import json
-from contextlib import chdir, redirect_stdout
+import logging
+from contextlib import chdir, contextmanager, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
 
@@ -15,11 +16,26 @@ from dbt.contracts.graph.nodes import GenericTestNode
 
 import pudl.etl
 from pudl.logging_helpers import get_logger
-from pudl.workspace.setup import PUDL_ROOT_PATH, PudlPaths
+from pudl.workspace.setup import DBT_DIR, PUDL_ROOT_PATH, PudlPaths
 
 logger = get_logger(__name__)
 
-DBT_DIR: Path = PUDL_ROOT_PATH / "dbt"
+
+@contextmanager
+def _preserve_logging_propagation():
+    """Restore logging propagation settings after a dbt invocation.
+
+    Invoking dbt via dbtRunner triggers Dagster's logging initialization, which
+    resets ``logging.getLogger("dagster").propagate`` to ``False``. This context
+    manager saves and restores the setting so callers don't experience unexpected
+    side effects on the global logging configuration.
+    """
+    dagster_logger = logging.getLogger("dagster")
+    original_propagate = dagster_logger.propagate
+    try:
+        yield
+    finally:
+        dagster_logger.propagate = original_propagate
 
 
 class NodeContext(NamedTuple):
@@ -42,6 +58,17 @@ class BuildResult(NamedTuple):
     def format_failure_contexts(self) -> str:
         """Nice legible output for logs."""
         return "\n=====\n".join(ctx.pretty_print() for ctx in self.failure_contexts)
+
+
+def install_dbt_deps(dbt: dbtRunner | None = None) -> dbtRunner:
+    """Ensure dbt package dependencies are installed in the project directory."""
+    if dbt is None:
+        dbt = dbtRunner()
+
+    with chdir(DBT_DIR):
+        dbt.invoke(["deps"])
+
+    return dbt
 
 
 def __get_failed_nodes(results: RunExecutionResult) -> list[GenericTestNode]:
@@ -132,9 +159,9 @@ def build_with_context(
     cli_args = ["--target", dbt_target, "--select", node_selection]
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
-    dbt = dbtRunner()
+    dbt = install_dbt_deps()
 
-    with chdir(DBT_DIR):
+    with _preserve_logging_propagation(), chdir(DBT_DIR):
         dbt.invoke(["deps"])
         dbt.invoke(["seed"])
         build_output: dbtRunnerResult = dbt.invoke(["build"] + cli_args)
@@ -183,7 +210,7 @@ def dagster_to_dbt_selection(
 
     if manifest is None:
         manifest_path = PUDL_ROOT_PATH / "dbt" / "target" / "manifest.json"
-        with chdir(PUDL_ROOT_PATH / "dbt"):
+        with _preserve_logging_propagation(), chdir(PUDL_ROOT_PATH / "dbt"):
             dbt = dbtRunner()
             dbt.invoke(["parse"])
 

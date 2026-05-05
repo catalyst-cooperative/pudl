@@ -14,10 +14,10 @@ import yaml
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
-from pudl.dbt_wrapper import DBT_DIR, build_with_context, dagster_to_dbt_selection
+from pudl.dbt_wrapper import build_with_context, dagster_to_dbt_selection
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.workspace.setup import PudlPaths
+from pudl.workspace.setup import DBT_DIR, PudlPaths
 
 logger = get_logger(__name__)
 
@@ -720,7 +720,7 @@ def validate(
     }
 
     if dry_run:
-        logger.info(
+        click.echo(
             f"Dry run - would build with these params: {json.dumps(build_params)}"
         )
         return

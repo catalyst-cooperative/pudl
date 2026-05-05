@@ -1,9 +1,10 @@
 """Collection of Dagster resources for PUDL."""
 
-from dagster import ConfigurableResource, Field, resource
+import dagster as dg
+from dagster import ConfigurableResource
 
-from pudl.settings import DatasetsSettings, FercToSqliteSettings, create_dagster_config
-from pudl.workspace.datastore import Datastore
+from pudl.settings import EtlSettings
+from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
 
@@ -12,49 +13,63 @@ class RuntimeSettings(ConfigurableResource):
 
     xbrl_num_workers: None | int = None
     xbrl_batch_size: int = 50
+    xbrl_loglevel: str = "INFO"
 
 
-@resource(config_schema=create_dagster_config(DatasetsSettings()))
-def dataset_settings(init_context) -> DatasetsSettings:
-    """Dagster resource for parameterizing PUDL ETL assets.
+class PudlEtlSettingsResource(ConfigurableResource):
+    """Load validated PUDL ETL settings from a shared ETL YAML file."""
 
-    This resource allows us to specify the years we want to process for each datasource
-    in the Dagit UI.
+    etl_settings_path: str
+
+    def create_resource(self, context) -> EtlSettings:
+        """Create runtime ETL settings from the configured ETL settings file."""
+        del context  # Required by Dagster's hook signature; intentionally unused here.
+        return EtlSettings.from_yaml(self.etl_settings_path)
+
+
+class ZenodoDoiSettingsResource(ConfigurableResource):
+    """Load the canonical Zenodo DOI settings for Dagster-managed runs.
+
+    Two configuration paths are supported:
+
+    * **Inline defaults** (``zenodo_dois_path=None``): uses the canonical Zenodo DOIs
+      that are hardcoded as defaults in :class:`~pudl.workspace.datastore.ZenodoDoiSettings`.
+      This is the normal production path — no extra config file is needed.
+    * **Path override** (``zenodo_dois_path="..."``): loads DOIs from an external YAML
+      file, allowing deployments or tests to substitute different DOIs without modifying
+      the source code.
     """
-    return DatasetsSettings(**init_context.resource_config)
+
+    zenodo_dois_path: str | None = None
+
+    def create_resource(self, context) -> ZenodoDoiSettings:
+        """Create runtime DOI settings, optionally from an override YAML file."""
+        del context  # Required by Dagster's hook signature; intentionally unused here.
+        if self.zenodo_dois_path is None:
+            return ZenodoDoiSettings()
+        return ZenodoDoiSettings.from_yaml(self.zenodo_dois_path)
 
 
-@resource(config_schema=create_dagster_config(FercToSqliteSettings()))
-def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
-    """Dagster resource for parameterizing the ``ferc_to_sqlite`` graph.
-
-    This resource allows us to specify the years we want to process for each datasource
-    in the Dagit UI.
-    """
-    return FercToSqliteSettings(**init_context.resource_config)
-
-
-@resource(
-    config_schema={
-        "cloud_cache_path": Field(
-            str,
-            description="Load datastore resources from this GCS or S3 path.",
-            default_value="s3://pudl.catalyst.coop/zenodo",
-        ),
-        "use_local_cache": Field(
-            bool,
-            description="If enabled, the local file cache for datastore will be used.",
-            default_value=True,
-        ),
-    },
-)
-def datastore(init_context) -> Datastore:
+class DatastoreResource(ConfigurableResource):
     """Dagster resource to interact with Zenodo archives."""
-    ds_kwargs = {}
-    ds_kwargs["cloud_cache_path"] = init_context.resource_config["cloud_cache_path"]
 
-    if init_context.resource_config["use_local_cache"]:
-        # TODO(rousik): we could also just use PudlPaths().input_dir here, because
-        # it should be initialized to the right values.
-        ds_kwargs["local_cache_path"] = PudlPaths().input_dir
-    return Datastore(**ds_kwargs)
+    zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
+    cloud_cache_path: str = "s3://pudl.catalyst.coop/zenodo"
+    use_local_cache: bool = True
+
+    def create_resource(self, context) -> Datastore:
+        """Create a configured datastore runtime object."""
+        del context  # Required by Dagster's hook signature; intentionally unused here.
+        ds_kwargs = {
+            "cloud_cache_path": self.cloud_cache_path,
+            "zenodo_dois": self.zenodo_dois,
+        }
+
+        if self.use_local_cache:
+            ds_kwargs["local_cache_path"] = PudlPaths().input_dir  # type: ignore[call-arg]
+        return Datastore(**ds_kwargs)
+
+
+etl_settings = PudlEtlSettingsResource.configure_at_launch()
+zenodo_dois = ZenodoDoiSettingsResource()
+datastore = DatastoreResource(zenodo_dois=zenodo_dois)

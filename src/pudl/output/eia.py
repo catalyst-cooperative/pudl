@@ -483,16 +483,16 @@ def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
         cols_to_consit=["plant_id_eia"],
         strictness=0.7,
     )
-    # grab only the code that passed the consistency strictness test
-    ba_code_consistent = ba_code_consistent[
-        ba_code_consistent.balancing_authority_code_eia_is_consistent
-    ][
-        [
-            "plant_id_eia",
-            "balancing_authority_code_eia",
-            "balancing_authority_code_eia_consistent_rate",
+    # grab only the code that is a candidate based on the consistency strictness test
+    ba_code_consistent = (
+        ba_code_consistent[ba_code_consistent.is_candidate][
+            ["plant_id_eia", "balancing_authority_code_eia", "consistent_rate"]
         ]
-    ].drop_duplicates()
+        .rename(
+            columns={"consistent_rate": "balancing_authority_code_eia_consistent_rate"}
+        )
+        .drop_duplicates()
+    )
 
     plants = pd.merge(
         plants,

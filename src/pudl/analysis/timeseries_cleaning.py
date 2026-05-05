@@ -2011,7 +2011,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
         )
 
     @asset(
-        required_resource_keys={"dataset_settings"},
+        required_resource_keys={"etl_settings"},
         ins={
             "matrix": AssetIn(cleaned_timeseries_matrix_asset),
             "flags": AssetIn(flags_asset),
@@ -2118,7 +2118,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
         )
 
     @asset(
-        required_resource_keys={"dataset_settings"},
+        required_resource_keys={"etl_settings"},
         ins={
             "aligned_df": AssetIn(aligned_input_asset),
             "matrix": AssetIn(simulated_timeseries_matrix_asset),

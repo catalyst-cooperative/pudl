@@ -40,6 +40,7 @@ if os.environ.get("READTHEDOCS"):
 
 # The full version, including alpha/beta/rc tags
 release = importlib.metadata.version("catalystcoop.pudl")
+version_match = os.environ.get("PUDL_VERSION_MATCH", release)
 
 # -- Project information -----------------------------------------------------
 
@@ -211,7 +212,6 @@ html_icon = "_static/favicon.ico"
 html_theme_options = {
     "navigation_with_keys": True,
     "header_links_before_dropdown": 5,
-    "announcement": '<b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b>',
     "icon_links": [
         {
             "name": "GitHub",
@@ -222,7 +222,7 @@ html_theme_options = {
     ],
     "switcher": {
         "json_url": "https://docs.catalyst.coop/pudl/available_versions.json",
-        "version_match": "latest",
+        "version_match": version_match,
     },
     "navbar_start": ["navbar-logo", "version-switcher"],
     "secondary_sidebar_items": {

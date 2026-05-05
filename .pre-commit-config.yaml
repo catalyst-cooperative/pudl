@@ -31,14 +31,14 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.9
+    rev: v0.15.12
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.8.1
+    rev: v3.8.3
     hooks:
       - id: prettier
         types_or: [yaml]
@@ -62,7 +62,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.45.0
+    rev: v1.46.0
     hooks:
       - id: typos
         exclude: |
@@ -72,6 +72,7 @@ repos:
             |.*\.bib
             |.*\.csv
             |.*\.html
+            |.*\.json
             |src/pudl/package_data/ferc1/.*_categories\.yaml
           )$ | migrations/ | devtools/ | test/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
         args: [] # Make this read, not write
@@ -97,7 +98,7 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.94.2
+    rev: v3.95.2
     hooks:
       - id: trufflehog
         name: TruffleHog
@@ -153,6 +154,15 @@ repos:
         always_run: false
         entry: pixi run jupyter nbconvert --clear-output
 
+      - id: pixi-lock-update
+        name: pixi-lock-update
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        pass_filenames: false
+        always_run: true
+        entry: bash -c 'pixi install --quiet && git add pixi.lock'
+
       - id: unit-tests
         name: unit-tests
         stages: [pre-commit]
@@ -172,5 +182,13 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, shellcheck, trufflehog, detect-secrets]
+  skip:
+    [
+      detect-secrets,
+      nb-output-clear,
+      pixi-lock-update,
+      shellcheck,
+      trufflehog,
+      unit-tests,
+    ]
   submodules: false

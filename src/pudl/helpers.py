@@ -29,6 +29,7 @@ import pandas as pd
 import polars as pl
 import requests
 import sqlalchemy as sa
+import usaddress
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
 from pydantic import BaseModel, Field
@@ -2022,55 +2023,6 @@ def scale_by_ownership(
     return gens
 
 
-def get_dagster_execution_config(
-    num_workers: int = 0, tag_concurrency_limits: list[dict] = []
-):
-    """Get the dagster execution config for a given number of workers.
-
-    If num_workers is 0, then the dagster execution config will not include
-    any limits. With num_workers set to 1, we will use in-process serial
-    executor, otherwise multi-process executor with maximum of num_workers
-    will be used.
-
-    Args:
-        num_workers: The number of workers to use for the dagster execution config.
-            If 0, then the dagster execution config will not include a multiprocess
-            executor.
-        tag_concurrency_limits: A set of limits that are applied to steps with
-            particular tags. This is helpful for applying concurrency limits to
-            highly concurrent and memory intensive portions of the ETL like CEMS.
-
-            Dagster description: If a value is set, the limit is applied to
-            only that key-value pair. If no value is set, the limit is applied
-            across all values of that key. If the value is set to a dict with
-            ``applyLimitPerUniqueValue: true``, the limit will apply to the
-            number of unique values for that key. Note that these limits are
-            per run, not global.
-
-    Returns:
-        A dagster execution config.
-    """
-    if num_workers == 1:
-        return {
-            "execution": {
-                "config": {
-                    "in_process": {},
-                },
-            },
-        }
-
-    return {
-        "execution": {
-            "config": {
-                "multiprocess": {
-                    "max_concurrent": num_workers,
-                    "tag_concurrency_limits": tag_concurrency_limits,
-                },
-            },
-        },
-    }
-
-
 def assert_cols_areclose(
     df: pd.DataFrame,
     a_cols: list[str],
@@ -2573,3 +2525,83 @@ def normalize_year_fragments(
             f"Year out of expected range ({min_valid_year}-{max_valid_year}) in values: {bad}"
         )
     return year
+
+
+def make_changelog(df_all: pd.DataFrame, idx: list[str]):
+    """Make a changelog table with unique instances of values over start report and max report date."""
+    idx_no_date = [c for c in idx if c != "r"]
+    # assign a max report_date column for use in the valid_until_date column
+    df_all["report_date_max"] = df_all.groupby(idx_no_date)["report_date"].transform(
+        "max"
+    )
+
+    df_changelog = df_all.sort_values(
+        by=["report_date"], ascending=True
+    ).drop_duplicates(
+        subset=[c for c in df_all if c != "report_date"],
+        keep="first",
+    )
+
+    report_date_max_mask = (
+        df_changelog["report_date"] == df_changelog["report_date_max"]
+    )
+    df_changelog.loc[~report_date_max_mask, "valid_until_date"] = (
+        df_changelog.sort_values(idx, ascending=False)
+        .groupby(idx_no_date)["report_date"]
+        .transform("shift")
+        .fillna(df_changelog.report_date_max)
+    )
+
+    # for all of the last month records, use the next month as the valid until date
+    df_changelog.loc[report_date_max_mask, "valid_until_date"] = (
+        df_changelog.report_date + pd.DateOffset(months=1)
+    )
+
+    return df_changelog.sort_values(idx)
+
+
+def parse_address(addr: str):
+    """Parse a U.S. address into components."""
+    try:
+        if pd.isna(addr):
+            return (addr, None, None, None)
+        tagged, addr_type = usaddress.tag(addr)
+
+        parsed = defaultdict(str)
+        for key, val in tagged.items():
+            parsed[key] = val.strip() if val else None
+
+        # Concatenate street parts into one column
+        # Handle occupancy a special way, as both parts should only get parsed it
+        # the first exists.
+        occupancy = (
+            f"{parsed.get('OccupancyType')} {parsed.get('OccupancyIdentifier')}"
+            if pd.notna(parsed.get("OccupancyType"))
+            else None
+        )
+
+        street_parts = [
+            parsed.get("AddressNumber", ""),
+            parsed.get("StreetNamePreDirectional", ""),
+            parsed.get("StreetName", ""),
+            parsed.get("StreetNamePostType", ""),
+            parsed.get("StreetNamePostDirectional"),
+            parsed.get("OccupancyType", ""),
+            occupancy,  # Only add if occupancy type exists
+        ]
+        street_address = " ".join([p for p in street_parts if pd.notna(p)]).strip()
+
+        return (
+            None if street_address == "" else street_address,
+            parsed.get("PlaceName", None),
+            parsed.get("StateName", None),
+            parsed.get("ZipCode", None),
+        )
+    except usaddress.RepeatedLabelError:
+        logger.warning(f"Could not parse {addr}")
+        return (addr, None, None, None)
+
+
+def listify(x: Any) -> list[Any]:
+    """Listify an input that is sometimes a list and sometimes not."""
+    return x if isinstance(x, list) else [x]  # noqa: E731

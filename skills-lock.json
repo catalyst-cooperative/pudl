@@ -4,22 +4,20 @@
     "dagster-expert": {
       "source": "dagster-io/skills",
       "sourceType": "github",
-      "computedHash": "dc32f5b0fe71cd56f39cb56382d2c6cfb89b212241d17204db302952f372c3ea"
+      "skillPath": "skills/dagster-expert/SKILL.md",
+      "computedHash": "3fa97f744f589cbf97bae25c7fb499f19c7bdadfa696eee88a8118d0fbc0fb9a"
     },
     "dignified-python": {
       "source": "dagster-io/skills",
       "sourceType": "github",
-      "computedHash": "522e3f4f33436966a478f8ce94140439981392a91d661cf90b6035f6ebc1e35a"
+      "skillPath": "skills/dignified-python/SKILL.md",
+      "computedHash": "af77280f19bc321a9456d4695f13e6b9d9822766a0faeff2e198acea375fd5b3"
     },
     "pudl": {
-      "source": "catalyst-cooperative/skills",
+      "source": "catalyst-cooperative/agent-skills",
       "sourceType": "github",
-      "computedHash": "25277cd4a380c3f6f868db36064d083ae1978dee897a9d80dbb65cfa79e9bef8"
-    },
-    "pudl-dev": {
-      "source": "catalyst-cooperative/skills",
-      "sourceType": "github",
-      "computedHash": "489465af914d7bf5c7293e5b12ad3a784e107e9cb2c42c71aa3a52722c66b1a6"
+      "skillPath": "skills/pudl/SKILL.md",
+      "computedHash": "a7fafd4fc2d88199c107c89104c448b8b2fc5bb307c849f1866f057244873d8b"
     }
   }
 }

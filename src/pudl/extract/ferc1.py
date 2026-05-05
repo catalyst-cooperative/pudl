@@ -68,7 +68,7 @@ database online `here <https://data.catalyst.coop/ferc1_dbf/>`__.
 import json
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, TypedDict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -76,7 +76,6 @@ from dagster import (
     AssetKey,
     AssetSpec,
     asset,
-    build_init_resource_context,
     build_input_context,
 )
 
@@ -88,17 +87,36 @@ from pudl.extract.dbf import (
     deduplicate_by_year,
 )
 from pudl.io_managers import (
-    FercDBFSQLiteIOManager,
-    FercXBRLSQLiteIOManager,
+    FercDbfSQLiteConfigurableIOManager,
+    FercXbrlSQLiteConfigurableIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
 )
-from pudl.settings import DatasetsSettings, FercToSqliteSettings, GenericDatasetSettings
+from pudl.settings import (
+    DatasetsSettings,
+    EtlSettings,
+    FercDbfToSqliteSettings,
+    FercToSqliteSettings,
+)
+from pudl.workspace.datastore import ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
+FERC1_DBF_SQLITE_ASSET_KEY = AssetKey("raw_ferc1_dbf__sqlite")
+FERC1_XBRL_SQLITE_ASSET_KEY = AssetKey("raw_ferc1_xbrl__sqlite")
+
+RawFercTableName = str | list[str]
+
+
+class RawTableMapping(TypedDict):
+    """Mapping between normalized PUDL table and raw DBF/XBRL table names."""
+
+    dbf: RawFercTableName
+    xbrl: RawFercTableName
+
+
+TABLE_NAME_MAP_FERC1: dict[str, RawTableMapping] = {
     "core_ferc1__yearly_steam_plants_fuel_sched402": {
         "dbf": "f1_fuel",
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402",
@@ -171,6 +189,10 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_dacs_epda",
         "xbrl": "summary_of_depreciation_and_amortization_charges_section_a_336",
     },
+    "core_ferc1__yearly_depreciation_factors_sched336": {
+        "dbf": "f1_edcfu_epda",
+        "xbrl": "factors_used_in_estimating_depreciation_charges_section_c_336",
+    },
     "core_ferc1__yearly_depreciation_changes_sched219": {
         "dbf": "f1_accumdepr_prvsn",
         "xbrl": "accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219",
@@ -205,10 +227,24 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
         "dbf": "f1_othr_reg_liab",
         "xbrl": "other_regulatory_liabilities_account_254_278",
     },
+    "core_ferc1__yearly_identification_certification": {
+        "dbf": "f1_ident_attsttn",
+        "xbrl": [
+            "identification_001",
+            "corporate_officer_certification_001",
+        ],
+    },
+    "core_ferc1__yearly_other_regulatory_assets_sched232": {
+        "dbf": "f1_othr_reg_assets",
+        "xbrl": [
+            "other_regulatory_assets_account_182_3_232",
+            "other_regulatory_assets_account_182_3_totals_232",
+        ],
+    },
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
-XBRL_META_ONLY_FERC1 = {
+XBRL_META_ONLY_FERC1: dict[str, RawTableMapping] = {
     "nuclear_fuel_materials_ferc1": {
         "dbf": "f1_nuclear_fuel",
         "xbrl": "nuclear_fuel_materials_202",
@@ -238,9 +274,12 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 
     def get_settings(
         self, global_settings: FercToSqliteSettings
-    ) -> GenericDatasetSettings:
+    ) -> FercDbfToSqliteSettings:
         """Returns settings for FERC Form 1 DBF dataset."""
-        return global_settings.ferc1_dbf_to_sqlite_settings
+        settings = global_settings.ferc1_dbf_to_sqlite_settings
+        if settings is None:
+            raise ValueError("ferc1_dbf_to_sqlite_settings must be configured")
+        return settings
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Modifies schema before it's written to sqlite database.
@@ -290,7 +329,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         # are identified in the PUDL_RIDS map, others are still unknown.
         records = []
         for rid in missing_ids:
-            entry = {"respondent_id": rid}
+            entry: dict[str, int | str] = {"respondent_id": rid}
             known_name = self.PUDL_RIDS.get(rid, None)
             if known_name:
                 entry["respondent_name"] = f"{known_name} (PUDL determined)"
@@ -359,9 +398,10 @@ def create_raw_ferc1_assets() -> list[AssetSpec]:
     )
     dbf_table_names = tuple(set(flattened_dbfs))
     raw_ferc1_dbf_assets = [
-        AssetSpec(key=AssetKey(f"raw_ferc1_dbf__{table_name}")).with_io_manager_key(
-            "ferc1_dbf_sqlite_io_manager"
-        )
+        AssetSpec(
+            key=AssetKey(f"raw_ferc1_dbf__{table_name}"),
+            deps=[FERC1_DBF_SQLITE_ASSET_KEY],
+        ).with_io_manager_key("ferc1_dbf_sqlite_io_manager")
         for table_name in dbf_table_names
     ]
 
@@ -375,9 +415,10 @@ def create_raw_ferc1_assets() -> list[AssetSpec]:
     )
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc1_xbrl_assets = [
-        AssetSpec(key=AssetKey(f"raw_ferc1_xbrl__{table_name}")).with_io_manager_key(
-            "ferc1_xbrl_sqlite_io_manager"
-        )
+        AssetSpec(
+            key=AssetKey(f"raw_ferc1_xbrl__{table_name}"),
+            deps=[FERC1_XBRL_SQLITE_ASSET_KEY],
+        ).with_io_manager_key("ferc1_xbrl_sqlite_io_manager")
         for table_name in xbrl_table_names
     ]
     return raw_ferc1_dbf_assets + raw_ferc1_xbrl_assets
@@ -391,7 +432,7 @@ raw_ferc1_assets = create_raw_ferc1_assets()
 # asset name.
 
 
-@asset
+@asset(deps=[FERC1_XBRL_SQLITE_ASSET_KEY])
 def raw_ferc1_xbrl__metadata_json(
     context,
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -406,7 +447,10 @@ def raw_ferc1_xbrl__metadata_json(
         filings. If there is no instant/duration table, an empty list is returned
         instead.
     """
-    metadata_path = PudlPaths().output_dir / "ferc1_xbrl_taxonomy_metadata.json"
+    metadata_path = (
+        PudlPaths().output_dir  # type: ignore[call-arg]
+        / "ferc1_xbrl_taxonomy_metadata.json"
+    )
     with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 
@@ -442,7 +486,7 @@ def raw_ferc1_xbrl__metadata_json(
 # Ferc extraction functions for devtool notebook testing
 def extract_dbf_generic(
     table_names: list[str],
-    io_manager: FercDBFSQLiteIOManager,
+    io_manager: FercDbfSQLiteConfigurableIOManager,
     dataset_settings: DatasetsSettings,
 ) -> pd.DataFrame:
     """Combine multiple raw dbf tables into one.
@@ -461,7 +505,7 @@ def extract_dbf_generic(
         context = build_input_context(
             asset_key=AssetKey(table_name),
             upstream_output=None,
-            resources={"dataset_settings": dataset_settings},
+            resources={"etl_settings": EtlSettings(datasets=dataset_settings)},
         )
         tables.append(io_manager.load_input(context))
     return pd.concat(tables)
@@ -469,7 +513,7 @@ def extract_dbf_generic(
 
 def extract_xbrl_generic(
     table_names: list[str],
-    io_manager: FercXBRLSQLiteIOManager,
+    io_manager: FercXbrlSQLiteConfigurableIOManager,
     dataset_settings: DatasetsSettings,
     period: Literal["duration", "instant"],
 ) -> pd.DataFrame:
@@ -491,7 +535,7 @@ def extract_xbrl_generic(
         context = build_input_context(
             asset_key=AssetKey(full_xbrl_table_name),
             upstream_output=None,
-            resources={"dataset_settings": dataset_settings},
+            resources={"etl_settings": EtlSettings(datasets=dataset_settings)},
         )
         tables.append(io_manager.load_input(context))
     return pd.concat(tables)
@@ -514,10 +558,15 @@ def extract_dbf(dataset_settings: DatasetsSettings) -> dict[str, pd.DataFrame]:
     """
     ferc1_dbf_raw_dfs = {}
 
-    io_manager_init_context = build_init_resource_context(
-        resources={"dataset_settings": dataset_settings}
+    io_manager = ferc1_dbf_sqlite_io_manager.model_copy(
+        update={
+            "etl_settings": EtlSettings(
+                datasets=dataset_settings,
+                ferc_to_sqlite_settings=FercToSqliteSettings(),
+            ),
+            "zenodo_dois": ZenodoDoiSettings(),
+        },
     )
-    io_manager = ferc1_dbf_sqlite_io_manager(io_manager_init_context)
 
     for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
         dbf_table_or_tables = raw_table_mapping["dbf"]
@@ -550,10 +599,15 @@ def extract_xbrl(
     """
     ferc1_xbrl_raw_dfs = {}
 
-    io_manager_init_context = build_init_resource_context(
-        resources={"dataset_settings": dataset_settings}
+    io_manager = ferc1_xbrl_sqlite_io_manager.model_copy(
+        update={
+            "etl_settings": EtlSettings(
+                datasets=dataset_settings,
+                ferc_to_sqlite_settings=FercToSqliteSettings(),
+            ),
+            "zenodo_dois": ZenodoDoiSettings(),
+        },
     )
-    io_manager = ferc1_xbrl_sqlite_io_manager(io_manager_init_context)
 
     for table_name, raw_table_mapping in TABLE_NAME_MAP_FERC1.items():
         xbrl_table_or_tables = raw_table_mapping["xbrl"]
