@@ -67,7 +67,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021, 2022, 2023, 2024]
+    years: [2021, 2022, 2023, 2024, 2025]
   ferc6_dbf_to_sqlite_settings:
     years:
       [
@@ -94,7 +94,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021, 2022, 2023, 2024]
+    years: [2021, 2022, 2023, 2024, 2025]
   ferc60_dbf_to_sqlite_settings:
     years:
       [
@@ -115,7 +115,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021, 2022, 2023, 2024]
+    years: [2021, 2022, 2023, 2024, 2025]
   ferc714_xbrl_to_sqlite_settings:
     years: [2021, 2022, 2023, 2024]
 
@@ -222,7 +222,21 @@ datasets:
         ]
     eia191:
       years:
-        [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+        [
+          2014,
+          2015,
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025,
+          2026,
+        ]
     eia757a:
       years: [2012, 2014, 2017]
     eia923:
