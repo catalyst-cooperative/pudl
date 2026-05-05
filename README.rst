@@ -23,7 +23,7 @@ The Public Utility Data Liberation Project (PUDL)
 .. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
    :target: https://results.pre-commit.ci/latest/github/catalyst-cooperative/pudl/main
    :alt: pre-commit CI
-.. |zenodo-doi| image:: https://zenodo.org/badge/doi/10.5281/zenodo.3404014.svg
+.. |zenodo-doi| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3404014-1682D4?logo=zenodo&logoColor=white
    :target: https://doi.org/10.5281/zenodo.3404014
    :alt: Zenodo DOI
 .. |office-hours| image:: https://img.shields.io/badge/calend.ly-officehours-darkgreen
