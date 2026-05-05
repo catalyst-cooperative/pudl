@@ -3,7 +3,7 @@
 EIA Form 930 is reported in half-year increments. Each half-year has three
 separate pages, which are stored as separate CSVs:
 "balance", "interchange", and "subregion." See
-https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/eia930.html for
+https://docs.catalyst.coop/pudl/en/latest/data_sources/eia930.html for
 more information.
 
 We extract these CSVs into DuckDB, rename the columns as per the column map, and
