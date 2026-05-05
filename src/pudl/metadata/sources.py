@@ -114,7 +114,7 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "JSON",
         },
-        "working_partitions": {"years": sorted(set(range(2014, 2026)))},
+        "working_partitions": {"years": sorted(set(range(2014, 2027)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
@@ -583,7 +583,7 @@ SOURCES: dict[str, Any] = {
             # Years 1991-1995 use strange formats that need to be investigated further.
             # Years 1996-1999 come in split archives and full archives and we are going
             # to be using the aggregated archives (part=None).
-            "years": sorted(set(range(1996, 2025))),
+            "years": sorted(set(range(1996, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -613,7 +613,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # Years 2000-2020 are backed by DBF format.
             # Years 2021-present are backed by XBRL.
-            "years": sorted(set(range(2000, 2025))),
+            "years": sorted(set(range(2000, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -641,7 +641,7 @@ SOURCES: dict[str, Any] = {
         ),
         "concept_doi": "10.5281/zenodo.7126434",
         "working_partitions": {
-            "years": sorted(set(range(2006, 2025))),
+            "years": sorted(set(range(2006, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
