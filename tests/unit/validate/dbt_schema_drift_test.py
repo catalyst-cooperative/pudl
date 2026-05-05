@@ -3,8 +3,9 @@
 from collections import defaultdict
 from pathlib import Path
 
+from pudl.dbt_wrapper import DBT_DIR
 from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.scripts.dbt_helper import DbtSchema, _get_model_path, get_data_source
+from pudl.scripts.dbt_helper import DbtSchema, insert_data_source
 
 
 def generate_legible_output(
@@ -38,12 +39,6 @@ def generate_legible_output(
     return "\n\n".join(components)
 
 
-def get_schema_path(table_name) -> Path:
-    data_source = get_data_source(table_name)
-    model_path = _get_model_path(table_name, data_source)
-    return (model_path / "schema.yml").resolve()
-
-
 def test_dbt_schema_drift():
     """Verify that pudl and dbt catalog identical tables and fields.
 
@@ -62,7 +57,7 @@ def test_dbt_schema_drift():
     # check pudl -> dbt direction first, then clean up any dbt items
     # we didn't hit along the way
     for table_name in all_pudl_tables:
-        schema_path = get_schema_path(table_name)
+        schema_path = insert_data_source(DBT_DIR / "models", table_name) / "schema.yml"
         try:
             all_dbt_schema_paths.remove(schema_path)
         except KeyError:  # pragma: no cover

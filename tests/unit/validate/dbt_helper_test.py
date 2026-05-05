@@ -1,32 +1,31 @@
-import unittest
 from collections import namedtuple
-from dataclasses import dataclass
 from io import StringIO
+from pathlib import Path
 
 import pandas as pd
 import pytest
 from click.testing import CliRunner
 
-from pudl.scripts.dbt_helper import (
+from pudl.dbt_schema import (
     DbtColumn,
     DbtSchema,
     DbtSource,
     DbtTable,
+)
+from pudl.scripts.dbt_helper import (
     UpdateResult,
     _calculate_row_counts,
     _combine_row_counts,
     _extract_row_count_partitions,
     _get_existing_row_counts,
-    _get_local_table_path,
-    _get_model_path,
-    _schema_diff_summary,
-    get_data_source,
-    schema_has_removals_or_modifications,
+    insert_data_source,
     update_row_counts,
     update_table_schema,
     update_tables,
 )
 from pudl.workspace.setup import PudlPaths
+
+# Test helper machinery
 
 GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
 
@@ -84,20 +83,26 @@ def with_name(mock, name):
     return mock
 
 
-def test_get_data_source():
-    assert get_data_source("_core_eia__some_table_name") == "eia"
-    assert get_data_source("another_dude__omfg") == "dude"
+# dbt helper helpers
 
 
-def test__get_local_table_path(mocker):
-    mock_pudlpaths = mocker.Mock()
-    mocker.patch("pudl.scripts.dbt_helper.PudlPaths").return_value = mock_pudlpaths
-    _get_local_table_path(mocker.sentinel.table)
-    mock_pudlpaths.parquet_path.assert_called_once_with(mocker.sentinel.table)
+@pytest.mark.parametrize(
+    ("table_name", "expected_data_source"),
+    [("_core_eia__foo", "eia"), ("out_ferc__bar", "ferc")],
+)
+def test_insert_data_source(table_name: str, expected_data_source: str, tmp_path: Path):
+    observed = insert_data_source(tmp_path, table_name)
+    expected = tmp_path / expected_data_source / table_name
+    assert observed == expected
 
 
-def test__get_model_path():
-    assert "models" in str(_get_model_path("", ""))
+@pytest.mark.parametrize("table_name", ["out", "_a_b_c", "", "____"])
+def test_insert_data_source_invalid(table_name: str, tmp_path: Path):
+    with pytest.raises(ValueError):
+        insert_data_source(tmp_path, table_name)
+
+
+# row counts
 
 
 def test__get_existing_row_counts(mocker):
@@ -201,44 +206,44 @@ def test__extract_row_count_partitions(data_tests, expected):
 ROW_COUNT_TEST_CASES = [
     GivenExpect(
         given={
-            "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
-            "table_name": "foo",
+            "existing_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\n",
+            "table_name": "test_foo__table_name",
             "partition_expr": "report_year",
-            "new_counts_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
+            "new_counts_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\ntest_foo__table_name,2021,120\n",
             "clobber": True,
             "has_test": True,
             "should_write": True,
         },
         expect={
-            "expected_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
+            "expected_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\ntest_foo__table_name,2021,120\n",
             "result": UpdateResult(
                 success=True,
-                message="Successfully updated row counts for foo, partitioned by report_year.",
+                message="Successfully updated row counts for test_foo__table_name, partitioned by report_year.",
             ),
         },
     ),
     GivenExpect(
         given={
-            "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
-            "table_name": "foo",
+            "existing_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\n",
+            "table_name": "test_foo__table_name",
             "partition_expr": "report_year",
-            "new_counts_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
+            "new_counts_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\ntest_foo__table_name,2021,120\n",
             "clobber": False,
             "has_test": True,
             "should_write": False,
         },
         expect={
-            "expected_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
+            "expected_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\ntest_foo__table_name,2021,120\n",
             "result": UpdateResult(
                 success=False,
-                message="Row counts for foo already exist. Use clobber to overwrite.",
+                message="Row counts for test_foo__table_name already exist. Use clobber to overwrite.",
             ),
         },
     ),
     GivenExpect(
         given={
-            "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
-            "table_name": "foo",
+            "existing_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\n",
+            "table_name": "test_foo__table_name",
             "partition_expr": "report_year",
             "new_counts_csv": None,  # no new counts if test is missing
             "clobber": False,
@@ -246,17 +251,17 @@ ROW_COUNT_TEST_CASES = [
             "should_write": False,
         },
         expect={
-            "expected_csv": "table_name,partition,row_count\nfoo,2020,100\n",
+            "expected_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\n",
             "result": UpdateResult(
                 success=False,
-                message="Row counts exist for foo, but no row count test is defined. Use clobber to remove.",
+                message="Row counts exist for test_foo__table_name, but no row count test is defined. Use clobber to remove.",
             ),
         },
     ),
     GivenExpect(
         given={
-            "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
-            "table_name": "foo",
+            "existing_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\n",
+            "table_name": "test_foo__table_name",
             "partition_expr": "report_year",
             "new_counts_csv": None,  # no new counts if test is missing
             "clobber": False,
@@ -264,10 +269,10 @@ ROW_COUNT_TEST_CASES = [
             "should_write": False,
         },
         expect={
-            "expected_csv": "table_name,partition,row_count\nfoo,2020,100\n",
+            "expected_csv": "table_name,partition,row_count\ntest_foo__table_name,2020,100\n",
             "result": UpdateResult(
                 success=False,
-                message="Row counts exist for foo, but no row count test is defined. Use clobber to remove.",
+                message="Row counts exist for test_foo__table_name, but no row count test is defined. Use clobber to remove.",
             ),
         },
     ),
@@ -275,7 +280,7 @@ ROW_COUNT_TEST_CASES = [
 
 
 @pytest.mark.parametrize("case", ROW_COUNT_TEST_CASES)
-def test_update_row_counts(case, schema_factory, mocker):
+def test_update_row_counts(case, schema_factory, mocker, tmp_path):
     given = case.given
     expect = case.expect
 
@@ -298,17 +303,19 @@ def test_update_row_counts(case, schema_factory, mocker):
     )
     mocker.patch("pudl.scripts.dbt_helper._calculate_row_counts", return_value=new_df)
     mock_write = mocker.patch("pudl.scripts.dbt_helper._write_row_counts")
-    mock_model_path = mocker.patch("pudl.scripts.dbt_helper._get_model_path")
-    mock_model_path.return_value.__truediv__.return_value = "fake/schema.yml"
     mocker.patch("pudl.scripts.dbt_helper.DbtSchema.from_yaml", return_value=schema)
     mocker.patch(
         "pudl.scripts.dbt_helper._extract_row_count_partitions",
         return_value=[given["partition_expr"]] if given["has_test"] else [],
     )
 
+    # NOTE (2026-05-08): since we mock out the DbtSchema.from_yaml, and dbt_root
+    # is only used for reading the schema to check if there is a row count test
+    # to update, we can give any value for dbt_root here and the code won't
+    # care.
     result = update_row_counts(
         table_name=given["table_name"],
-        data_source="pudl",
+        dbt_root=tmp_path,
         clobber=given["clobber"],
     )
 
@@ -439,12 +446,6 @@ CALCULATE_ROW_COUNTS_CASES = [
 
 @pytest.mark.parametrize("case", CALCULATE_ROW_COUNTS_CASES)
 def test__calculate_row_counts_(case, mocker):
-    # Given
-    mocker.patch(
-        "pudl.scripts.dbt_helper._get_local_table_path",
-        return_value=case.given["mocked_path"],
-    )
-
     mock_sql = mocker.patch("pudl.scripts.dbt_helper.duckdb.sql")
     mock_sql.return_value.df.return_value = case.given["mocked_duckdb_df"]
 
@@ -574,720 +575,6 @@ GENERATE_QUANTILE_BOUNDS = [
         ],
     ),
 ]
-
-
-@dataclass
-class DbtSchemaMocks:
-    field: unittest.mock.Mock
-    resource: unittest.mock.Mock
-    pudl_package: unittest.mock.Mock
-    table_name: str
-    partition_expr: str
-    schema: DbtSchema
-    yaml: str
-    has_row_count_test: bool
-    load_method: str
-
-
-@pytest.fixture(
-    params=[
-        ("from_table_name", False),
-        ("from_yaml", False),
-        ("from_yaml", True),
-    ],
-    ids=[
-        "table_name__no_row_count_test",
-        "yaml__no_row_count_test",
-        "yaml__with_row_count_test",
-    ],
-)
-def dbt_schema_mocks(request, mocker):
-    """Set up mocks to check two ways of making the same basic schema: from metadata, and from yaml."""
-    load_method, has_row_count_test = request.param
-
-    field_name = str(mocker.sentinel.field_name)
-    table_name = str(mocker.sentinel.table_name)
-    partition_expr = str(mocker.sentinel.partition_expr)
-
-    mocked_field = mocker.Mock()
-    mocked_field.name = field_name
-    mocked_resource = mocker.Mock()
-    mocked_resource.schema.fields = [
-        mocked_field,
-    ]
-    mocked_ppkg = mocker.patch("pudl.scripts.dbt_helper.PUDL_PACKAGE")
-    mocked_ppkg.get_resource.return_value = mocked_resource
-
-    data_tests = (
-        [
-            {
-                "check_row_counts_per_partition": {
-                    "arguments": {
-                        "table_name": table_name,
-                        "partition_expr": partition_expr,
-                    }
-                }
-            }
-        ]
-        if has_row_count_test
-        else None
-    )
-
-    schema = DbtSchema(
-        version=2,
-        models=None,
-        sources=[
-            DbtSource(
-                name="pudl",
-                tables=[
-                    DbtTable(
-                        name=table_name,
-                        data_tests=data_tests,
-                        columns=[
-                            DbtColumn(
-                                name=field_name,
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        ],
-    )
-
-    yaml_tests = (
-        f"""\
-        data_tests:
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: {table_name}
-                partition_expr: {partition_expr}
-        """
-        if has_row_count_test
-        else ""
-    )
-
-    yaml = f"""\
-version: 2
-sources:
-  - name: pudl
-    tables:
-      - name: {table_name}
-{yaml_tests.rstrip()}
-        columns:
-          - name: {field_name}
-"""
-    return DbtSchemaMocks(
-        field=mocked_field,
-        resource=mocked_resource,
-        pudl_package=mocked_ppkg,
-        table_name=table_name,
-        partition_expr=partition_expr,
-        schema=schema,
-        yaml=yaml,
-        has_row_count_test=has_row_count_test,
-        load_method=load_method,
-    )
-
-
-def test_dbt_schema_loading(dbt_schema_mocks, mocker):
-    if dbt_schema_mocks.load_method == "from_table_name":
-        actual = DbtSchema.from_table_name(dbt_schema_mocks.table_name)
-    else:
-        mock_path = mocker.Mock()
-        mock_path.open.return_value = StringIO(dbt_schema_mocks.yaml)
-        actual = DbtSchema.from_yaml(mock_path)
-
-    assert actual == dbt_schema_mocks.schema
-    assert actual.model_dump(exclude_none=True) == dbt_schema_mocks.schema.model_dump(
-        exclude_none=True
-    )
-
-
-QUANTILE_TESTS = [
-    GivenExpect(
-        given=[
-            dict(
-                title="one entry, median",
-                low_q=0,
-                low_bound=1,
-                hi_q=0,
-                hi_bound=3,
-                **TEMPLATE,
-            )
-        ],
-        expect={
-            "data": [
-                {
-                    "expect_quantile_constraints": {
-                        "row_condition": "",
-                        "weight_column": "weight",
-                        "constraints": [
-                            {
-                                "quantile": 0,
-                                "min_value": 1,
-                                "max_value": 3,
-                            },
-                        ],
-                    },
-                }
-            ],
-        },
-    ),
-    GivenExpect(
-        given=[
-            dict(
-                title="two entries, median and tail (1)",
-                low_q=0,
-                low_bound=1,
-                hi_q=0,
-                hi_bound=3,
-                **TEMPLATE,
-            ),
-            dict(
-                title="two entries, median and tail (2)",
-                low_q=False,
-                low_bound=False,
-                hi_q=10,
-                hi_bound=11,
-                **TEMPLATE,
-            ),
-        ],
-        expect={
-            "data": [
-                {
-                    "expect_quantile_constraints": {
-                        "row_condition": "",
-                        "weight_column": "weight",
-                        "constraints": [
-                            {
-                                "quantile": 0,
-                                "min_value": 1,
-                                "max_value": 3,
-                            },
-                            {
-                                "quantile": 10,
-                                "max_value": 11,
-                            },
-                        ],
-                    },
-                }
-            ],
-        },
-    ),
-    GivenExpect(
-        given=[
-            {
-                "title": "two entries, differing query (1)",
-                "low_q": 0,
-                "low_bound": 1,
-                "hi_q": 0,
-                "hi_bound": 3,
-                "query": "a",
-                "data_col": "data",
-                "weight_col": "",
-            },
-            {
-                "title": "two entries, differing query (2)",
-                "low_q": 0,
-                "low_bound": 5,
-                "hi_q": 0,
-                "hi_bound": 7,
-                "query": "b",
-                "data_col": "data",
-                "weight_col": "",
-            },
-        ],
-        expect={
-            "data": [
-                {
-                    "expect_quantile_constraints": {
-                        "row_condition": "a",
-                        "constraints": [
-                            {
-                                "quantile": 0,
-                                "min_value": 1,
-                                "max_value": 3,
-                            },
-                        ],
-                    },
-                },
-                {
-                    "expect_quantile_constraints": {
-                        "row_condition": "b",
-                        "constraints": [
-                            {
-                                "quantile": 0,
-                                "min_value": 5,
-                                "max_value": 7,
-                            },
-                        ],
-                    },
-                },
-            ],
-        },
-    ),
-]
-
-
-@pytest.fixture
-def blank_schema():
-    return DbtSchema(
-        sources=[
-            DbtSource(
-                tables=[
-                    DbtTable(
-                        name="source-table",
-                        columns=[
-                            DbtColumn(
-                                name="source_column",
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        ],
-        models=[
-            DbtTable(
-                name="model-table",
-                columns=[
-                    DbtColumn(
-                        name="model_column",
-                    ),
-                ],
-            ),
-        ],
-    )
-
-
-def test_dbt_schema__add_source_tests(mocker, blank_schema):
-    # check sources
-    one_source_test = blank_schema.add_source_tests([mocker.sentinel.first_source_test])
-    assert (
-        mocker.sentinel.first_source_test
-        in one_source_test.sources[0].tables[0].data_tests
-    )
-
-    # make sure we don't clobber existing tests on add
-    two_source_tests = one_source_test.add_source_tests(
-        [mocker.sentinel.second_source_test]
-    )
-    assert (
-        mocker.sentinel.first_source_test
-        in two_source_tests.sources[0].tables[0].data_tests
-    )
-    assert (
-        mocker.sentinel.second_source_test
-        in two_source_tests.sources[0].tables[0].data_tests
-    )
-
-    # check models
-    one_model_test = blank_schema.add_source_tests(
-        [mocker.sentinel.first_model_test], model_name="model-table"
-    )
-    assert mocker.sentinel.first_model_test in one_model_test.models[0].data_tests
-
-    # make sure we don't clobber existing tests on add
-    two_model_tests = one_model_test.add_source_tests(
-        [mocker.sentinel.second_model_test], model_name="model-table"
-    )
-    assert mocker.sentinel.first_model_test in two_model_tests.models[0].data_tests
-    assert mocker.sentinel.second_model_test in two_model_tests.models[0].data_tests
-
-
-def test_dbt_schema__add_column_tests(mocker, blank_schema):
-    # check sources
-    one_source_test = blank_schema.add_column_tests(
-        {"source_column": [mocker.sentinel.first_source_test]}
-    )
-    assert (
-        mocker.sentinel.first_source_test
-        in one_source_test.sources[0].tables[0].columns[0].data_tests
-    )
-
-    # make sure we don't clobber existing tests on add
-    two_source_tests = one_source_test.add_column_tests(
-        {"source_column": [mocker.sentinel.second_source_test]}
-    )
-    assert (
-        mocker.sentinel.first_source_test
-        in two_source_tests.sources[0].tables[0].columns[0].data_tests
-    )
-    assert (
-        mocker.sentinel.second_source_test
-        in two_source_tests.sources[0].tables[0].columns[0].data_tests
-    )
-
-    # check models
-    one_model_test = blank_schema.add_column_tests(
-        {"model_column": [mocker.sentinel.first_model_test]}, model_name="model-table"
-    )
-    assert (
-        mocker.sentinel.first_model_test
-        in one_model_test.models[0].columns[0].data_tests
-    )
-
-    # make sure we don't clobber existing tests on add
-    two_model_tests = one_model_test.add_column_tests(
-        {"model_column": [mocker.sentinel.second_model_test]}, model_name="model-table"
-    )
-    assert (
-        mocker.sentinel.first_model_test
-        in two_model_tests.models[0].columns[0].data_tests
-    )
-    assert (
-        mocker.sentinel.second_model_test
-        in two_model_tests.models[0].columns[0].data_tests
-    )
-
-
-MERGE_METADATA_TEST_CASES = [
-    GivenExpect(
-        given={
-            "old_schema": {
-                "table_name": "test_table",
-                "columns": ["col1"],
-                "partition_expr": "year",
-                "add_row_count_test": True,
-            },
-            "new_schema": {
-                "table_name": "test_table",
-                "columns": ["col1"],
-                "partition_expr": None,
-                "add_row_count_test": False,
-            },
-        },
-        expect={
-            "data_tests": [
-                {
-                    "check_row_counts_per_partition": {
-                        "arguments": {
-                            "table_name": "test_table",
-                            "partition_expr": "year",
-                        }
-                    }
-                }
-            ],
-            "column_names": ["col1"],
-        },
-    ),
-    GivenExpect(
-        given={
-            "old_schema": {
-                "table_name": "test_table",
-                "columns": ["col1"],
-                "partition_expr": "old_expr",
-                "add_row_count_test": True,
-            },
-            "new_schema": {
-                "table_name": "test_table",
-                "columns": ["col1"],
-                "partition_expr": "new_expr",
-                "add_row_count_test": True,
-            },
-        },
-        expect={
-            "data_tests": [
-                {
-                    "check_row_counts_per_partition": {
-                        "arguments": {
-                            "table_name": "test_table",
-                            "partition_expr": "new_expr",
-                        }
-                    }
-                }
-            ],
-            "column_names": ["col1"],
-        },
-    ),
-    GivenExpect(
-        given={
-            "old_schema": {
-                "table_name": "test_table",
-                "columns": ["col1", "col2"],
-                "partition_expr": "year",
-                "add_row_count_test": False,
-            },
-            "new_schema": {
-                "table_name": "test_table",
-                "columns": ["col1", "col3"],
-                "partition_expr": None,
-                "add_row_count_test": False,
-            },
-        },
-        expect={
-            "data_tests": None,
-            "column_names": ["col1", "col3"],
-        },
-    ),
-]
-
-
-@pytest.mark.parametrize("case", MERGE_METADATA_TEST_CASES)
-def test_dbt_schema__merge_metadata_from(case, schema_factory):
-    old_schema_args = case.given["old_schema"]
-    new_schema_args = case.given["new_schema"]
-
-    old_schema = schema_factory(**old_schema_args)
-    new_schema = schema_factory(**new_schema_args)
-
-    merged = new_schema.merge_metadata_from(old_schema)
-
-    merged_table = merged.sources[0].tables[0]
-
-    assert merged_table.data_tests == case.expect["data_tests"]
-
-    expected_column_names = case.expect["column_names"]
-    actual_column_names = [col.name for col in merged_table.columns]
-    assert actual_column_names == expected_column_names
-
-
-@pytest.mark.parametrize(
-    "old, new, expected",
-    [
-        pytest.param(
-            {"description": "x"},
-            {"description": "x", "extra": "added"},
-            False,
-            id="Add only",
-        ),
-        pytest.param(
-            {"description": "x"},
-            {"description": "y"},
-            True,
-            id="Scalar mod",
-        ),
-        pytest.param(
-            {"columns": {"col_a": {}}},
-            {"columns": {}},
-            False,
-            id="Removed column only",
-        ),
-        pytest.param(
-            {"columns": {"col_a": {}, "col_b": {}, "col_c": {}}},
-            {"columns": {}},
-            False,
-            id="Multiple removed empty columns",
-        ),
-        pytest.param(
-            {"columns": {"col_old": {}}},
-            {"columns": {"col_new": {}}},
-            False,
-            id="Empty column rename (or add and remove different empty columns) ignored",
-        ),
-        pytest.param(
-            {"columns": {"col_a": {"tests": ["not_null"]}}},
-            {"columns": {}},
-            True,
-            id="Removed column with test(s)",
-        ),
-        pytest.param(
-            {"columns": {"col_b": {"tags": ["a"]}}},
-            {"columns": {"col_b": {"tags": ["b"]}}},
-            True,
-            id="Nested mod",
-        ),
-        pytest.param(
-            {},
-            {},
-            False,
-            id="Empty",
-        ),
-        pytest.param(
-            {"meta": {}},
-            {"meta": {"notes": "foo"}},
-            False,
-            id="Add in nested key",
-        ),
-        pytest.param(
-            {"meta": {"notes": "foo"}},
-            {"meta": {"notes": "bar"}},
-            True,
-            id="Nested old",
-        ),
-    ],
-)
-def test_schema_has_removals_or_modifications(old, new, expected):
-    assert schema_has_removals_or_modifications(old, new) == expected
-
-
-def test_complex_schema_diff_output():
-    old_schema = DbtSchema(
-        version=1,
-        sources=[
-            DbtSource(
-                name="source1",
-                tables=[
-                    DbtTable(
-                        name="table1",
-                        description="desc",
-                        columns=[],
-                    )
-                ],
-            )
-        ],
-        models=[
-            DbtTable(name="model1", description="old", columns=[]),
-        ],
-    )
-
-    new_schema = DbtSchema(
-        version=2,
-        sources=[
-            DbtSource(
-                name="source1",
-                tables=[
-                    DbtTable(
-                        name="table1",
-                        description="updated",
-                        columns=[],
-                    )
-                ],
-            ),
-            DbtSource(
-                name="source2",
-                tables=[
-                    DbtTable(
-                        name="new_table",
-                        description="new",
-                        columns=[],
-                    )
-                ],
-            ),
-        ],
-        models=[
-            DbtTable(name="model1", description="new", columns=[]),
-            DbtTable(name="model2", description="added", columns=[]),
-        ],
-    )
-
-    output = _schema_diff_summary(old_schema, new_schema)
-    expected = """--- old_schema
-+++ new_schema
-@@ -1,12 +1,20 @@
--version: 1
-+version: 2
- sources:
-   - name: source1
-     tables:
-       - name: table1
--        description: desc
-+        description: updated
-+        columns: []
-+  - name: source2
-+    tables:
-+      - name: new_table
-+        description: new
-         columns: []
- models:
-   - name: model1
--    description: old
-+    description: new
-+    columns: []
-+  - name: model2
-+    description: added
-     columns: []
-"""
-    assert [line.strip() for line in expected.strip().split("\n")] == [
-        line.strip() for line in output
-    ]
-
-
-UPDATE_TABLE_SCHEMA_CASES = [
-    # add column and metadata, no clobber -> success
-    GivenExpect(
-        given={
-            "existing_columns": ["col_new"],
-            "removed_columns_have_metadata": False,
-            "clobber": False,
-        },
-        expect={"success": True},
-    ),
-    # add column and metadata, clobber -> success
-    GivenExpect(
-        given={
-            "existing_columns": ["col_new"],
-            "removed_columns_have_metadata": False,
-            "clobber": True,
-        },
-        expect={"success": True},
-    ),
-    # remove column with no metadata, no clobber -> success
-    GivenExpect(
-        given={
-            "existing_columns": [],
-            "removed_columns_have_metadata": False,
-            "clobber": False,
-        },
-        expect={"success": True},
-    ),
-    # remove column with no metadata, clobber -> success
-    GivenExpect(
-        given={
-            "existing_columns": [],
-            "removed_columns_have_metadata": False,
-            "clobber": True,
-        },
-        expect={"success": True},
-    ),
-    # remove column with metadata, no clobber -> fail
-    GivenExpect(
-        given={
-            "existing_columns": [],
-            "removed_columns_have_metadata": True,
-            "clobber": False,
-        },
-        expect={"success": False},
-    ),
-    # remove column with metadata, clobber -> success
-    GivenExpect(
-        given={
-            "existing_columns": [],
-            "removed_columns_have_metadata": True,
-            "clobber": True,
-        },
-        expect={"success": True},
-    ),
-]
-
-
-@pytest.mark.parametrize("case", UPDATE_TABLE_SCHEMA_CASES)
-def test_update_table_schema(case, mocker):
-    table_name = "my_table"
-    data_source = "pudl"
-    clobber = case.given["clobber"]
-
-    # Patch filesystem and DBT methods
-    mocker.patch("pathlib.Path.exists", return_value=not clobber)
-    mocker.patch("pathlib.Path.mkdir")
-    mock_schema = mocker.MagicMock()
-    mock_schema.model_dump.return_value = {"columns": case.given["existing_columns"]}
-    mock_schema.merge_metadata_from.return_value = mock_schema
-
-    mocker.patch(
-        "pudl.scripts.dbt_helper.DbtSchema.from_table_name", return_value=mock_schema
-    )
-    mocker.patch(
-        "pudl.scripts.dbt_helper.DbtSchema.from_yaml", return_value=mock_schema
-    )
-
-    # Mock DeepDiff depending on metadata removal
-    if case.given["removed_columns_have_metadata"]:
-        mocker.patch(
-            "pudl.scripts.dbt_helper.DeepDiff",
-            return_value={
-                "dictionary_item_removed": {
-                    "root['columns']['col_a']",
-                    "root['columns']['col_a']['description']",
-                }
-            },
-        )
-    else:
-        mocker.patch("pudl.scripts.dbt_helper.DeepDiff", return_value={})
-
-    mocker.patch("pudl.scripts.dbt_helper._log_schema_diff")  # suppress logging
-
-    result = update_table_schema(table_name, data_source, clobber=clobber)
-    assert result.success == case.expect["success"]
 
 
 @pytest.mark.parametrize(
@@ -1476,3 +763,77 @@ sources:
         observed_row_counts.set_index(index).sort_index(),
         expected_row_counts.set_index(index).sort_index(),
     )
+
+
+# update-tables --schema
+
+PUDL_TABLE = "core_pudl__codes_datasources"
+
+
+def test_update_schema_no_human(tmp_path):
+    schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
+    schema_inputs_path.mkdir(parents=True)
+    output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
+    output_path.mkdir(parents=True)
+
+    update_table_schema(PUDL_TABLE, tmp_path)
+
+    observed_schema = DbtSchema.from_yaml(output_path / "schema.yml")
+    expected_schema = DbtSchema.from_table_name(PUDL_TABLE)
+
+    assert observed_schema == expected_schema
+
+
+def test_update_schema_empty_human(tmp_path):
+    schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
+    schema_inputs_path.mkdir(parents=True)
+    (schema_inputs_path / "schema.human.yml").touch()
+
+    output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
+    output_path.mkdir(parents=True)
+
+    update_table_schema(PUDL_TABLE, tmp_path)
+
+    observed_schema = DbtSchema.from_yaml(output_path / "schema.yml")
+    expected_schema = DbtSchema.from_table_name(PUDL_TABLE)
+
+    assert observed_schema == expected_schema
+
+
+def test_update_schema(tmp_path):
+    schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
+    schema_inputs_path.mkdir(parents=True)
+
+    human_yaml = f"""
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: {PUDL_TABLE}
+        data_tests:
+          - fake_table_test:
+              arguments:
+                arg: true
+        columns:
+          - name: datasource
+            data_tests:
+              - fake_column_test:
+                  arguments:
+                    - arg: true
+    """
+    with (schema_inputs_path / "schema.human.yml").open("w") as f:
+        f.write(human_yaml)
+
+    output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
+    output_path.mkdir(parents=True)
+
+    update_table_schema(PUDL_TABLE, tmp_path)
+
+    observed_schema = DbtSchema.from_yaml(output_path / "schema.yml")
+    expected_table = DbtTable.from_table_name(PUDL_TABLE)
+    expected_table.data_tests = [{"fake_table_test": {"arguments": {"arg": True}}}]
+    expected_table.columns[0].data_tests = [
+        {"fake_column_test": {"arguments": [{"arg": True}]}}
+    ]
+    expected_schema = DbtSchema(sources=[DbtSource(tables=[expected_table])])
+    assert observed_schema == expected_schema

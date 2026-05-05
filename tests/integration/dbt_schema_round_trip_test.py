@@ -4,7 +4,7 @@ from pathlib import Path
 import deepdiff
 import pytest
 
-from pudl.dbt_schema import merge_schema
+from pudl.dbt_schema import merge_schema_paths
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.scripts.dbt_helper import DbtSchema
 
@@ -28,7 +28,7 @@ def test_merge_schema_roundtrip(resource_name):
     human_path = next(
         dbt_dir.glob(f"schema_inputs/**/{resource_name}/schema.human.yml")
     )
-    merged = merge_schema(machine_path, human_path)
+    merged = merge_schema_paths(machine_path, human_path)
     try:
         assert merged == reference
     except AssertionError:
