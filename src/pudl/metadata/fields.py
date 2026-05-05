@@ -1698,6 +1698,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether limited on-site fuel storage is a factor that limits the generator's ability to switch between oil and natural gas."
         ),
     },
+    "has_alternative_fuel_fleet": {
+        "type": "boolean",
+        "description": "Whether the company operated a fleet of alternative-fuel vehicles during the report year.",
+    },
     "debt_ending_balance": {
         "type": "number",
         "description": (
@@ -4313,11 +4317,47 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Continuous Emissions Monitoring System."
         ),
     },
+    "is_distribution_company_cooperative": {
+        "type": "boolean",
+        "description": "Whether the company is a cooperative distribution company.",
+    },
+    "is_distribution_company_investor_owned": {
+        "type": "boolean",
+        "description": "Whether the company is an investor-owned distribution company.",
+    },
+    "is_distribution_company_municipally_owned": {
+        "type": "boolean",
+        "description": "Whether the company is a municipally-owned distribution company.",
+    },
+    "is_distribution_company_privately_owned": {
+        "type": "boolean",
+        "description": "Whether the company is a privately-owned distribution company.",
+    },
+    "is_gatherer": {
+        "type": "boolean",
+        "description": "Whether the company operates as a natural gas gatherer.",
+    },
     "is_generation_only": {
         "type": "boolean",
         "description": (
             "Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand."
         ),
+    },
+    "is_interstate_pipeline": {
+        "type": "boolean",
+        "description": "Whether the company operates an interstate natural gas pipeline.",
+    },
+    "is_intrastate_pipeline": {
+        "type": "boolean",
+        "description": "Whether the company operates an intrastate natural gas pipeline.",
+    },
+    "is_liquid_natural_gas_marine_terminal": {
+        "type": "boolean",
+        "description": "Whether the company operates a liquefied natural gas marine terminal.",
+    },
+    "is_liquid_natural_gas_peak_facility_operator": {
+        "type": "boolean",
+        "description": "Whether the company operates a liquefied natural gas peak-shaving facility.",
     },
     "is_loan_guarantee": {
         "type": "boolean",
@@ -4325,6 +4365,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates a third-party loan that the reporting utility (referred as a borrower) "
             "has co-signed, taking on responsibility for repayment if the primary borrower defaults."
         ),
+    },
+    "is_other_ownership": {
+        "type": "boolean",
+        "description": "Whether the company reported an ownership type other than investor-owned, cooperative, municipal, or private.",
+    },
+    "is_producer": {
+        "type": "boolean",
+        "description": "Whether the company operates as a natural gas producer.",
+    },
+    "is_public_compressed_natural_gas_fueling_station": {
+        "type": "boolean",
+        "description": "Whether the company operates a public compressed natural gas (CNG) fueling station.",
+    },
+    "is_public_lng_fueling_station": {
+        "type": "boolean",
+        "description": "Whether the company operates a public liquefied natural gas (LNG) fueling station.",
+    },
+    "is_storage_operator": {
+        "type": "boolean",
+        "description": "Whether the company operates natural gas storage facilities.",
+    },
+    "is_synthetic_natural_gas_plant_operator": {
+        "type": "boolean",
+        "description": "Whether the company operates a synthetic natural gas production plant.",
     },
     "iso_rto_code": {
         "type": "string",
@@ -5703,6 +5767,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Planned effective date that the generator is scheduled to enter commercial operation after any other planned modification is complete."
         ),
+    },
+    "other_ownership_description": {
+        "type": "string",
+        "description": "Free-text description of ownership type when 'other' ownership is indicated.",
     },
     "other_planned_modifications": {
         "type": "boolean",
@@ -10398,6 +10466,15 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
+    "core_eia176__yearly_company_characteristics": {
+        # The raw RP4 table contains non-US codes (FX, OO, BL, MX) attached to
+        # adjustment placeholder records (operator IDs like 17699999XX). Their meaning
+        # is unconfirmed; EIA was contacted for clarification. The enum constraint is
+        # omitted until that is resolved. See: https://github.com/catalyst-cooperative/pudl/issues/4729
+        "operating_state": {
+            "description": "State that the operator is reporting for.",
+        },
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
             "description": "State that the operator is reporting for.",

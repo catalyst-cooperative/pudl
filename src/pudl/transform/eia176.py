@@ -11,7 +11,7 @@ from dagster import (
     multi_asset,
 )
 
-from pudl.helpers import simplify_columns
+from pudl.helpers import simplify_columns, simplify_strings
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
@@ -528,6 +528,86 @@ def core_eia176__yearly_gas_disposition(
     ] = df.loc[
         (df.operator_id_eia == "17617106KS") & (df.report_year == 2008), "losses_mcf"
     ].abs()
+
+    return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_company_characteristics(
+    raw_eia176__operation_types_and_sector_items: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce annual company-level operational and ownership characteristics (EIA-176).
+
+    Combines boolean operation-type and ownership-type columns from
+    ``raw_eia176__operation_types_and_sector_items`` with the alternative fuel fleet
+    indicator from ``_core_eia176__yearly_company_data``.
+
+    One row per ``(report_year, operator_id_eia)``.
+
+    Processing:
+
+    * Select all ``is_*`` boolean columns and ``other_ownership_description`` from the
+      raw operation types table. The ``operating_state`` column in that table already
+      contains two-letter postal codes.
+    * Left-join ``alternative_fuel_fleet_1_yes_0_no`` from the company data table.
+    * Convert ``"X"``-encoded columns to boolean (``True`` where marked, ``False``
+      otherwise).
+    * Replace the ``1.0`` float artifact in ``other_ownership_description`` (present
+      in 2012–2015 LNG terminal records) with ``pd.NA``, then apply
+      ``simplify_strings()``.
+    * Drop rows with null ``operating_state``.
+
+    Args:
+        raw_eia176__operation_types_and_sector_items: Raw EIA-176 RP4 table; primary
+            source for all ``is_*`` columns and ``operating_state``.
+        _core_eia176__yearly_company_data: Wide company-level EIA-176 data; provides
+            ``alternative_fuel_fleet_1_yes_0_no``.
+    """
+    pk = ["report_year", "operator_id_eia"]
+    is_cols = [
+        c
+        for c in raw_eia176__operation_types_and_sector_items.columns
+        if c.startswith("is_")
+    ]
+
+    df = raw_eia176__operation_types_and_sector_items[
+        pk + ["operating_state"] + is_cols + ["other_ownership_description"]
+    ].merge(
+        _core_eia176__yearly_company_data[pk + ["alternative_fuel_fleet_1_yes_0_no"]],
+        on=pk,
+        how="left",
+        validate="1:1",
+    )
+
+    for col in is_cols:
+        df[col] = df[col].eq("X")
+
+    # is_other_ownership_2 appears only in 2016 (27 rows) and never co-occurs with
+    # is_other_ownership — merge them into a single column then drop the duplicate.
+    df["is_other_ownership"] = df["is_other_ownership"] | df["is_other_ownership_2"]
+    df = df.drop(columns=["is_other_ownership_2"])
+
+    # 1.0 float artifact in 2012-2015 LNG terminal records — not a meaningful value
+    df["other_ownership_description"] = df["other_ownership_description"].where(
+        df["other_ownership_description"].apply(
+            lambda x: isinstance(x, str) or pd.isna(x)
+        )
+    )
+    df = simplify_strings(df, ["other_ownership_description"])
+
+    df = df.rename(
+        columns={"alternative_fuel_fleet_1_yes_0_no": "has_alternative_fuel_fleet"}
+    )
+    # Only reported 2005-2015; preserve null for years where the question wasn't asked
+    df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].map({1.0: True})
+
+    null_operating_state = df["operating_state"].isnull().sum()
+    assert null_operating_state == 0, (
+        f"Expected 0 null operating_state values in "
+        f"core_eia176__yearly_company_characteristics, got {null_operating_state}."
+    )
+    df = df.dropna(subset=["operating_state"])
 
     return df
 
