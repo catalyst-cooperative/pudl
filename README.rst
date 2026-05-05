@@ -4,19 +4,19 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. readme-intro
 
-.. |repo-status| image:: https://www.repostatus.org/badges/latest/active.svg
+.. |repo-status| image:: https://img.shields.io/badge/repo%20status-active-success
    :target: https://www.repostatus.org/#active
    :alt: Project Status: Active
-.. |pytest| image:: https://github.com/catalyst-cooperative/pudl/workflows/pytest/badge.svg
+.. |pytest| image:: https://img.shields.io/github/actions/workflow/status/catalyst-cooperative/pudl/pytest.yml?branch=main&label=pytest
    :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Apytest
    :alt: PyTest Status
 .. |codecov| image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
-.. |docs| image:: https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-docs.yml/badge.svg
+.. |docs| image:: https://img.shields.io/github/actions/workflow/status/catalyst-cooperative/pudl/build-deploy-docs.yml?branch=main&label=docs
    :target: https://docs.catalyst.coop/pudl/en/latest
    :alt: Docs Build Status
-.. |oc| image:: https://opencollective.com/pudl/tiers/badge.svg
+.. |oc| image:: https://img.shields.io/badge/Open%20Collective-donate-3385FF?logo=opencollective&logoColor=white
    :target: https://opencollective.com/pudl
 .. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
    :target: https://github.com/astral-sh/ruff
