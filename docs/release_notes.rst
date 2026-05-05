@@ -449,7 +449,7 @@ FERC EQR
   :pr:`4967`. Also, note that the actual FERC EQR data is available on `PUDL
   Viewer <https://data.catalyst.coop/search?q=ferceqr>`__ as well as `on S3 for
   direct download
-  <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#ferc-eqr-experimental>`__
+  <https://docs.catalyst.coop/pudl/en/nightly/data_access.html#ferc-eqr-experimental>`__
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^

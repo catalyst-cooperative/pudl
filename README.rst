@@ -4,27 +4,27 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. readme-intro
 
-.. |repo-status| image:: https://www.repostatus.org/badges/latest/active.svg
+.. |repo-status| image:: https://img.shields.io/badge/repo%20status-active-success
    :target: https://www.repostatus.org/#active
    :alt: Project Status: Active
-.. |pytest| image:: https://github.com/catalyst-cooperative/pudl/workflows/pytest/badge.svg
+.. |pytest| image:: https://img.shields.io/github/actions/workflow/status/catalyst-cooperative/pudl/pytest.yml?branch=main&label=pytest
    :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Apytest
    :alt: PyTest Status
 .. |codecov| image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
-.. |rtd| image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
-   :target: https://catalystcoop-pudl.readthedocs.io/en/nightly/
-   :alt: Read the Docs Build Status
-.. |oc| image:: https://opencollective.com/pudl/tiers/badge.svg
+.. |docs| image:: https://img.shields.io/github/actions/workflow/status/catalyst-cooperative/pudl/build-deploy-docs.yml?branch=main&label=docs
+   :target: https://docs.catalyst.coop/pudl/en/latest
+   :alt: Docs Build Status
+.. |oc| image:: https://img.shields.io/badge/Open%20Collective-donate-3385FF?logo=opencollective&logoColor=white
    :target: https://opencollective.com/pudl
-.. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+.. |ruff| image:: https://img.shields.io/badge/lint-ruff-46A758?logo=ruff&logoColor=white
    :target: https://github.com/astral-sh/ruff
 .. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
    :target: https://results.pre-commit.ci/latest/github/catalyst-cooperative/pudl/main
    :alt: pre-commit CI
-.. |zenodo-doi| image:: https://zenodo.org/badge/80646423.svg
-   :target: https://zenodo.org/badge/latestdoi/80646423
+.. |zenodo-doi| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.3404014-1682D4?logo=zenodo&logoColor=white
+   :target: https://doi.org/10.5281/zenodo.3404014
    :alt: Zenodo DOI
 .. |office-hours| image:: https://img.shields.io/badge/calend.ly-officehours-darkgreen
    :target: https://calend.ly/catalyst-cooperative/pudl-office-hours
@@ -32,8 +32,6 @@ The Public Utility Data Liberation Project (PUDL)
 .. |mastodon| image:: https://img.shields.io/mastodon/follow/110855618428885893?domain=https%3A%2F%2Fmastodon.energy&style=social&color=%23000000&link=https%3A%2F%2Fmastodon.energy%2F%40catalystcoop
    :target: https://mastodon.energy/@catalystcoop
    :alt: Follow Catalyst Cooperative on Mastodon
-.. |slack| image:: https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=fff
-   :target: https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ
 .. |linkedin| image:: https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white
    :target: https://linkedin.com/company/catalyst-cooperative/
    :alt: Follow Catalyst Cooperative on LinkedIn
@@ -50,8 +48,20 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://registry.opendata.aws/catalyst-cooperative-pudl/
    :alt: PUDL in the AWS Open Data Registry
 
-|repo-status| |pytest| |codecov| |rtd| |oc| |ruff| |pre-commit-ci|
-|zenodo-doi| |office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |slack| |youtube|
+|repo-status|
+|pytest|
+|codecov|
+|docs|
+|oc|
+|ruff|
+|pre-commit-ci|
+|zenodo-doi|
+|office-hours|
+|mastodon|
+|linkedin|
+|bluesky|
+|kaggle|
+|youtube|
 |aws|
 
 What is PUDL?
@@ -88,7 +98,7 @@ publishes data or deletes old files, the data processing pipeline will still hav
 to the original inputs. Each of the data inputs may have several different versions
 archived, and all are assigned a unique DOI (digital object identifier) and made
 available through Zenodo's REST API.  You can read more about the Raw Data Archives in
-the `docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/#raw-data-archives>`__.
+the `docs <https://docs.catalyst.coop/pudl/en/nightly/#raw-data-archives>`__.
 
 Data Pipeline
 ^^^^^^^^^^^^^
@@ -98,7 +108,7 @@ Parquet <https://parquet.apache.org/>`__ files, with some accompanying metadata 
 JSON.  Each release of the PUDL software contains a set of DOIs indicating which
 versions of the raw inputs it processes. This helps ensure that the outputs are
 replicable. You can read more about our ETL (extract, transform, load) process in the
-`PUDL documentation <https://catalystcoop-pudl.readthedocs.io/en/nightly/#the-etl-process>`__.
+`PUDL documentation <https://docs.catalyst.coop/pudl/en/nightly/#the-etl-process>`__.
 
 Data Warehouse
 ^^^^^^^^^^^^^^
@@ -108,7 +118,7 @@ archived so that users can access the data without having to install and run our
 processing system. These outputs contain hundreds of tables and comprise a small
 file-based data warehouse that can be used for a variety of energy system analyses.
 Learn more about `how to access the PUDL data
-<https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html>`__.
+<https://docs.catalyst.coop/pudl/en/nightly/data_access.html>`__.
 
 What data is available?
 -----------------------
@@ -117,33 +127,33 @@ PUDL currently integrates data from:
 
 * **EIA Form 176** (a few tables -- work in progress):
   - `Source Docs <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia176.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/eia176.html>`__
 * **EIA Form 860**:
   - `Source Docs <https://www.eia.gov/electricity/data/eia860/>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia860.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/eia860.html>`__
 * **EIA Form 860m**:
   - `Source Docs <https://www.eia.gov/electricity/data/eia860m/>`__
 * **EIA Form 861**:
   - `Source Docs <https://www.eia.gov/electricity/data/eia861/>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia861.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/eia861.html>`__
 * **EIA Form 923**:
   - `Source Docs <https://www.eia.gov/electricity/data/eia923/>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia923.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/eia923.html>`__
 * **EIA Form 930**:
   - `Source Docs <https://www.eia.gov/electricity/gridmonitor/>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia930.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/eia930.html>`__
 * **EIA Annual Energy Outlook (AEO)** (a few tables):
   - `Source Docs <https://www.eia.gov/outlooks/aeo/>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eiaaeo.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/eiaaeo.html>`__
 * **EPA Continuous Emissions Monitoring System (CEMS)**:
   - `Source Docs <https://campd.epa.gov/>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/epacems.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/epacems.html>`__
 * **FERC Form 1** (dozens of fully processed tables, plus raw data converted to SQLite):
   - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/ferc1.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/ferc1.html>`__
 * **FERC Form 714** (a few fully processed tables):
   - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/ferc714.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/ferc714.html>`__
 * **FERC Form 2** (raw data converted to SQLite):
   - `Source Docs <https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data>`__
 * **FERC Form 6** (raw data converted to SQLite):
@@ -152,13 +162,13 @@ PUDL currently integrates data from:
   - `Source Docs <https://www.ferc.gov/form-60-annual-report-centralized-service-companies>`__
 * **NREL Annual Technology Baseline (ATB) for Electricity**:
   - `Source Docs <https://atb.nrel.gov/electricity/2024/data>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/nrelatb.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/nrelatb.html>`__
 * **GridPath Resource Adequacy Toolkit** (partial):
   - `Source Docs <https://gridlab.org/gridpathratoolkit/>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/gridpathratoolkit.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/gridpathratoolkit.html>`__
 * **US Census Demographic Profile 1 Geodatabase**:
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
-  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/censusdp1tract.html>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/censusdp1tract.html>`__
 
 High Priority Target Datasets
 -----------------------------
@@ -179,22 +189,22 @@ How do I access the data?
 -------------------------
 
 For details on how to access PUDL data, see the `data access documentation
-<https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html>`__. A quick
+<https://docs.catalyst.coop/pudl/en/nightly/data_access.html>`__. A quick
 summary:
 
 * `PUDL Data Viewer <https://data.catalyst.coop>`__ provides search, live preview,
   and CSV export for our processed data. Currently it doesn't provide access to
   the *raw* FERC data, but we are working on adding the FERC databases ASAP.
-* `Kaggle <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-kaggle>`__
+* `Kaggle <https://docs.catalyst.coop/pudl/en/nightly/data_access.html#access-kaggle>`__
   provides easy Jupyter notebook access to the PUDL data, updated weekly:
   https://www.kaggle.com/datasets/catalystcooperative/pudl-project
-* `Cloud storage <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-cloud>`__
+* `Cloud storage <https://docs.catalyst.coop/pudl/en/nightly/data_access.html#access-cloud>`__
   is populated by our nightly data builds, and is free to access thanks to the `AWS
   Open Data Registry <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__.
-* `Zenodo <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-zenodo>`__
+* `Zenodo <https://docs.catalyst.coop/pudl/en/nightly/data_access.html#access-zenodo>`__
   provides stable long-term access to our versioned data releases with a citeable DOI:
   https://doi.org/10.5281/zenodo.3653158
-* `The PUDL Development Environment <https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/dev_setup.html>`__
+* `The PUDL Development Environment <https://docs.catalyst.coop/pudl/en/nightly/dev/dev_setup.html>`__
   lets you run the PUDL data processing pipeline locally.
 
 Organizations using PUDL
@@ -223,8 +233,8 @@ Contributing to PUDL
 
 Find PUDL useful? Want to help make it better? There are lots of ways to help!
 
-* Check out our `contribution guide <https://catalystcoop-pudl.readthedocs.io/en/nightly/CONTRIBUTING.html>`__
-  including our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/nightly/code_of_conduct.html>`__.
+* Check out our `contribution guide <https://docs.catalyst.coop/pudl/en/nightly/CONTRIBUTING.html>`__
+  including our `Code of Conduct <https://docs.catalyst.coop/pudl/en/nightly/code_of_conduct.html>`__.
 * You can file a bug report, make a feature request, or ask questions in the
   `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * Feel free to fork the project and make a pull request with new code, better
