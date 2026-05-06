@@ -62,6 +62,11 @@ sources:
               - not_null
           - name: other_ownership_description
           - name: has_alternative_fuel_fleet
+          - name: alternative_fleet_size
+          - name: customer_choice_residential_eligible
+          - name: customer_choice_residential_participating
+          - name: has_sales_or_acquisitions
+          - name: natural_gas_pump_price
           - name: is_public_compressed_natural_gas_fueling_station
             data_tests:
               - not_null
