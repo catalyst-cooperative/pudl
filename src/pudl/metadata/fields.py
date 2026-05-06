@@ -343,6 +343,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether the utility plants to operate alternative-fueled vehicles this coming year."
         ),
     },
+    "alternative_fleet_size": {
+        "type": "integer",
+        "description": (
+            "Number of alternative-fuel vehicles in the company's fleet "
+            "(EIA Form 176 Part 3, Line B)."
+        ),
+    },
     "alternative_fuel_vehicle_activity": {
         "type": "boolean",
         "description": (
@@ -1466,6 +1473,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The most recently updated effective date on which the generator is scheduled to start operation"
         ),
     },
+    "customer_choice_residential_eligible": {
+        "type": "integer",
+        "description": (
+            "Number of residential customers eligible for customer choice programs "
+            "(EIA Form 176 Part 3, Line C)."
+        ),
+    },
+    "customer_choice_residential_participating": {
+        "type": "integer",
+        "description": (
+            "Number of residential customers participating in customer choice programs "
+            "(EIA Form 176 Part 3, Line C)."
+        ),
+    },
     "customer_class": {
         "type": "string",
         "description": (
@@ -1701,6 +1722,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "has_alternative_fuel_fleet": {
         "type": "boolean",
         "description": "Whether the company operated a fleet of alternative-fuel vehicles during the report year.",
+    },
+    "has_sales_or_acquisitions": {
+        "type": "boolean",
+        "description": (
+            "Whether the company completed sales or acquisitions of natural gas "
+            "distribution assets during the report year "
+            "(EIA Form 176 Part 3, Line D)."
+        ),
     },
     "debt_ending_balance": {
         "type": "number",
@@ -4947,6 +4976,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The name of the owner or operator of natural gas pipeline that connects directly to this facility or that connects to a lateral pipeline owned by this facility."
         ),
+    },
+    "natural_gas_pump_price": {
+        "type": "number",
+        "description": (
+            "Price of natural gas at public fueling stations operated by the company "
+            "(EIA Form 176 Part 3, Line E). Reported 2014-2016 only."
+        ),
+        "unit": "USD_per_Mcf",
     },
     "natural_gas_storage": {
         "type": "boolean",
@@ -10422,12 +10459,11 @@ elements which should be overridden need to be specified.
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_company_characteristics": {
-        # The raw RP4 table contains non-US codes (FX, OO, BL, MX) attached to
-        # adjustment placeholder records (operator IDs like 17699999XX). Their meaning
-        # is unconfirmed; EIA was contacted for clarification. The enum constraint is
-        # omitted until that is resolved. See: https://github.com/catalyst-cooperative/pudl/issues/4729
+        # Non-US codes (FX, OO, BL, MX) are dropped in transform before this constraint
+        # is checked — they represent national-level adjustment records, not state data.
         "operating_state": {
             "description": "State that the operator is reporting for.",
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
         },
     },
     "core_eia176__yearly_gas_disposition_by_consumer": {

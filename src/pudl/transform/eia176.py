@@ -22,6 +22,11 @@ DROP_OPERATING_STATES = (
     "other",
 )
 
+# Non-US operating_state codes in the RP4 table. Per EIA (2026-05-05):
+#   FX = Gulf of America, MX = Mexico, BL = Brazil, OO = countries without FIPS codes
+# These are national-level adjustment records and should be excluded.
+NATIONAL_ADJUSTMENT_STATE_CODES = frozenset({"BL", "FX", "MX", "OO"})
+
 
 @multi_asset(
     outs={
@@ -540,8 +545,8 @@ def core_eia176__yearly_company_characteristics(
     """Produce annual company-level operational and ownership characteristics (EIA-176).
 
     Combines boolean operation-type and ownership-type columns from
-    ``raw_eia176__operation_types_and_sector_items`` with the alternative fuel fleet
-    indicator from ``_core_eia176__yearly_company_data``.
+    ``raw_eia176__operation_types_and_sector_items`` with numeric and boolean fields
+    from ``_core_eia176__yearly_company_data``.
 
     One row per ``(report_year, operator_id_eia)``.
 
@@ -550,19 +555,21 @@ def core_eia176__yearly_company_characteristics(
     * Select all ``is_*`` boolean columns and ``other_ownership_description`` from the
       raw operation types table. The ``operating_state`` column in that table already
       contains two-letter postal codes.
-    * Left-join ``alternative_fuel_fleet_1_yes_0_no`` from the company data table.
+    * Left-join company-level numeric and boolean fields from the company data table.
+    * Drop national-level adjustment records (operating_state in
+      ``NATIONAL_ADJUSTMENT_STATE_CODES``): these represent cross-border totals, not
+      state-level operator data.
     * Convert ``"X"``-encoded columns to boolean (``True`` where marked, ``False``
       otherwise).
     * Replace the ``1.0`` float artifact in ``other_ownership_description`` (present
-      in 2012–2015 LNG terminal records) with ``pd.NA``, then apply
+      in 2012-2015 LNG terminal records) with ``pd.NA``, then apply
       ``simplify_strings()``.
-    * Drop rows with null ``operating_state``.
 
     Args:
         raw_eia176__operation_types_and_sector_items: Raw EIA-176 RP4 table; primary
             source for all ``is_*`` columns and ``operating_state``.
         _core_eia176__yearly_company_data: Wide company-level EIA-176 data; provides
-            ``alternative_fuel_fleet_1_yes_0_no``.
+            numeric and boolean company fields.
     """
     pk = ["report_year", "operator_id_eia"]
     is_cols = [
@@ -571,14 +578,35 @@ def core_eia176__yearly_company_characteristics(
         if c.startswith("is_")
     ]
 
+    company_cols = [
+        "alternative_fuel_fleet_1_yes_0_no",
+        "alternative_fleet_size",
+        "customer_choice_residential_eligible",
+        "customer_choice_residential_participating",
+        "sales_acquisitions_1_yes_0_no",
+        "natural_gas_pump_price",
+    ]
+    available_company_cols = [
+        c for c in company_cols if c in _core_eia176__yearly_company_data.columns
+    ]
+
     df = raw_eia176__operation_types_and_sector_items[
         pk + ["operating_state"] + is_cols + ["other_ownership_description"]
     ].merge(
-        _core_eia176__yearly_company_data[pk + ["alternative_fuel_fleet_1_yes_0_no"]],
+        _core_eia176__yearly_company_data[pk + available_company_cols],
         on=pk,
         how="left",
         validate="1:1",
     )
+
+    # Drop national-level adjustment records — see NATIONAL_ADJUSTMENT_STATE_CODES
+    n_national = df["operating_state"].isin(NATIONAL_ADJUSTMENT_STATE_CODES).sum()
+    logger.info(
+        f"Dropping {n_national} national-level adjustment records from "
+        f"core_eia176__yearly_company_characteristics "
+        f"(operating_state in {sorted(NATIONAL_ADJUSTMENT_STATE_CODES)})."
+    )
+    df = df[~df["operating_state"].isin(NATIONAL_ADJUSTMENT_STATE_CODES)]
 
     for col in is_cols:
         df[col] = df[col].eq("X")
@@ -601,6 +629,20 @@ def core_eia176__yearly_company_characteristics(
     )
     # Only reported 2005-2015; preserve null for years where the question wasn't asked
     df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].map({1.0: True})
+
+    if "sales_acquisitions_1_yes_0_no" in df.columns:
+        df["has_sales_or_acquisitions"] = df["sales_acquisitions_1_yes_0_no"].map(
+            {1.0: True, 0.0: False}
+        )
+        df = df.drop(columns=["sales_acquisitions_1_yes_0_no"])
+
+    for col in [
+        "alternative_fleet_size",
+        "customer_choice_residential_eligible",
+        "customer_choice_residential_participating",
+    ]:
+        if col in df.columns:
+            df[col] = df[col].astype(pd.Int64Dtype())
 
     null_operating_state = df["operating_state"].isnull().sum()
     assert null_operating_state == 0, (

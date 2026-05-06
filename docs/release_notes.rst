@@ -18,9 +18,14 @@ EIA-176
 ~~~~~~~
 
 * Added :ref:`core_eia176__yearly_company_characteristics` with company operation
-  type, ownership type, and alternative fuel fleet fields from EIA Form 176 Part 3.
-  The raw ``is_other_ownership`` and ``is_other_ownership_2`` fields (which never
-  co-occur) are merged into a single ``is_other_ownership`` boolean.
+  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
+  (Lines A-F). Includes ``alternative_fleet_size``,
+  ``customer_choice_residential_eligible``,
+  ``customer_choice_residential_participating``, ``has_sales_or_acquisitions``, and
+  ``natural_gas_pump_price`` (2014-2016 only). National-level adjustment records
+  (operating_state FX, MX, BL, OO) are excluded. The raw ``is_other_ownership`` and
+  ``is_other_ownership_2`` fields (which never co-occur) are merged into a single
+  ``is_other_ownership`` boolean.
   See :issue:`4697` and :pr:`5197`.
 
 FERC 1
