@@ -20,7 +20,7 @@ from pathlib import Path
 import pandas as pd
 from dagster import AssetsDefinition, Output, asset
 
-import pudl
+import pudl.logging_helpers
 from pudl.settings import DataSource
 from pudl.workspace.datastore import Datastore
 

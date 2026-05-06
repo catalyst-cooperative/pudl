@@ -4,8 +4,8 @@ from importlib import resources
 
 import pandas as pd
 
-import pudl
 import pudl.analysis.plant_parts_eia
+import pudl.helpers
 
 GENS_MEGA = pd.DataFrame(
     {

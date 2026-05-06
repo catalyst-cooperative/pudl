@@ -5,7 +5,7 @@ from typing import Literal
 
 import pandas as pd
 
-import pudl
+import pudl.logging_helpers
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)

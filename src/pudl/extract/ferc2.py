@@ -15,7 +15,7 @@ from typing import Any, Self
 import pandas as pd
 import sqlalchemy as sa
 
-import pudl
+import pudl.logging_helpers
 from pudl.extract.dbf import (
     FercDbfExtractor,
     PartitionedDataFrame,

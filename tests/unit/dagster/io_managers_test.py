@@ -27,8 +27,7 @@ from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenanceRecord,
 )
-from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import Package, Resource
+from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.settings import (
     DatasetsSettings,
     EtlSettings,

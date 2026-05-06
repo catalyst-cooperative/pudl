@@ -14,7 +14,7 @@ from tempfile import TemporaryDirectory
 
 from dagster import Field, asset
 
-import pudl
+import pudl.logging_helpers
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
 

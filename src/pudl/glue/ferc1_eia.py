@@ -34,7 +34,8 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
 from pudl.dagster.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,

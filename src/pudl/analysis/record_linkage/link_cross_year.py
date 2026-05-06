@@ -13,7 +13,7 @@ from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from sklearn.metrics import pairwise_distances_chunked
 from sklearn.neighbors import NearestNeighbors
 
-import pudl
+import pudl.logging_helpers
 from pudl.analysis.ml_tools import experiment_tracking
 from pudl.analysis.record_linkage.embed_dataframe import FeatureMatrix
 

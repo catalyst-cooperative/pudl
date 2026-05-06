@@ -1,6 +1,8 @@
 """Integration tests for CSV-based extractors."""
 
-import pudl
+import pudl.extract.eia176
+import pudl.extract.eia191
+import pudl.extract.eia757a
 
 
 class TestCsvExtractor:

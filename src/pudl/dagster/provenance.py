@@ -18,7 +18,7 @@ from typing import Any, Literal
 import dagster as dg
 from pydantic import BaseModel
 
-import pudl
+import pudl.logging_helpers
 from pudl.settings import FercToSqliteSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)

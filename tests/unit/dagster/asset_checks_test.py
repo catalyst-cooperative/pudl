@@ -43,7 +43,7 @@ from pudl.dagster.asset_checks import (
     group_mean_continuity_check,
 )
 from pudl.helpers import ParquetData
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 
 
 @pytest.mark.parametrize(

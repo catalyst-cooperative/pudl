@@ -5,7 +5,7 @@ from typing import Literal
 import pandas as pd
 import pytest
 
-import pudl
+import pudl.extract.ferc1
 from pudl.settings import DatasetsSettings, Ferc1Settings
 
 

@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 import pytest
 
-import pudl
+import pudl.helpers
 from pudl.analysis.plant_parts_eia import (
     IDX_OWN_TO_ADD,
     IDX_TO_ADD,

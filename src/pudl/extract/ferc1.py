@@ -80,7 +80,7 @@ from dagster import (
     build_input_context,
 )
 
-import pudl
+import pudl.logging_helpers
 from pudl.dagster.io_managers import (
     FercDbfSqliteConfigurableIOManager,
     FercXbrlSqliteConfigurableIOManager,
