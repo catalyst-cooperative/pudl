@@ -31,8 +31,8 @@ function run_ferceqr_etl() {
         authenticate_gcp &&
         dagster dev &
 
-    # Kick off the ferceqr_etl job asynchronously
-    dagster job backfill --noprompt -j ferceqr_etl --location pudl.etl
+    # Kick off the ferceqr job asynchronously
+    dagster job backfill --noprompt -j ferceqr --location pudl.etl
     # Wait for a file called 'SUCCESS' or 'FAILURE' to be created in PUDL_OUTPUT indicating completion
     # Timeout after 6 hours if file still doesn't exist
     inotifywait -e create -t 21600 --include 'SUCCESS|FAILURE' "$PUDL_OUTPUT"

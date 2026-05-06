@@ -4,15 +4,17 @@
 Nightly Data Builds
 ===============================================================================
 
-The complete ETL and tests are run each night on a Google Compute Engine (GCE) instance
+The complete ETL and tests are run each night on a Google Batch-managed VM
 to ensure that any new changes merged into ``main`` are fully tested. These complete
 builds also enable continuous deployment of PUDL's data outputs. If no changes have been
 merged into ``main`` since the last time the builds ran, the builds are skipped.
 
 The builds are kicked off by the ``build-deploy-pudl`` GitHub Action, which builds and
 pushes a Docker image with PUDL installed to `Docker Hub <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
-and deploys the image as a container to a GCE instance. The container runs the ETL and
-tests, then copies the outputs to a public AWS S3 bucket for distribution.
+and then launches a Google Batch job using that image. Inside the container,
+``docker/gcp_pudl_etl.sh`` runs the ETL and tests, saves the raw build outputs to
+``gs://builds.catalyst.coop``, and if successful publishes the distributable outputs to
+our public cloud buckets.
 
 Breaking the Builds
 -------------------
@@ -21,12 +23,20 @@ tests. When they pass, we consider the results fit for public consumption.  The 
 are expected to pass. If they don't then someone needs to take responsibility for
 getting them working again with some urgency.
 
-Because of how long the full build & tests take, we don't typically run them
-individually before merging every PR into ``main``. However, running ``make nuke``
-(roughly equivalent to the full builds) is recommended when you've added a new year of
-data or made other changes that would be expected to break the data validations, so that
-the appropriate changes can be made prior to those changes hitting ``main`` and the
-nightly builds.
+Because of how long the full build and tests take, we don't typically run them
+individually before merging every PR into ``main``. However, if you've added a new year
+of data or made changes that are likely to affect the full ETL or data validations, it
+is often worth running a full local build that resembles the nightly builds:
+
+.. code-block:: console
+
+   $ pixi run pudl-with-ferc-to-sqlite
+   $ pixi run pytest-nightly
+
+For local development, we recommend ``pixi run pudl-with-ferc-to-sqlite`` rather than
+``pixi run pudl-with-ferc-to-sqlite-nightly``. The nightly ETL task uses the same asset
+graph and datasets, but it is tuned for the higher-resource nightly build environment
+and enables more verbose logging.
 
 If your PR causes the build to fail, you are probably the best person to fix the
 problem, since you already have context on all of the changes that went into it.
@@ -59,55 +69,49 @@ occurred:
 The GitHub Action
 -----------------
 The ``build-deploy-pudl`` GitHub action contains the main coordination logic for
-the Nightly Data Builds. The action is triggered every night and when new tags are
-pushed to the PUDL repository. This way, new data outputs are automatically updated
-on code releases, and PUDL's code and data are tested every night. The action is
-modeled after an `example from the setup-gcloud GitHub action repository <https://github.com/google-github-actions/setup-gcloud/tree/main/example-workflows/gce>`__.
+the Nightly Data Builds. The action is triggered every night and when new versioned
+release tags are pushed to the PUDL repository. This way, new data outputs are
+automatically updated for releases, and PUDL's code and data are tested every night.
 
 The ``gcloud`` command in ``build-deploy-pudl`` requires certain Google Cloud
-Platform (GCP) permissions to start and update the GCE instance. We use Workflow
+Platform (GCP) permissions to start and update the Google Batch VM. We use Workflow
 Identity Federation to authenticate the GitHub Action with GCP in the GitHub Action
 workflow.
 
 Deployment Action
 -----------------
-The ``deploy-pudl`` action separates deployment from the build process. This action
-takes a git tag as an input and will find build outputs, and determine the deployment
-type (stable or nightly) from the tag. It will then upload outputs from the build to
-GCS and S3, update the git branch associated with the deployment type, and trigger
-a zenodo release. This action can also take an optional ``staging`` flag will upload
-outputs to a dedicated staging area, and will not update the git branch or trigger a
-zenodo release.
+The experimental ``deploy-pudl`` action separates deployment from the build process.
+This action takes a git tag that has already been built as an input and will find the
+corresponding build outputs and determine the deployment type (``stable`` or
+``nightly``) from the tag. It will then upload outputs from the build to GCS and S3,
+update the git branch associated with the deployment type, and trigger a zenodo release.
+This action can also take an optional ``staging`` flag will upload outputs to a
+dedicated staging area, and will not update the git branch or trigger a Zenodo release.
 
 Eventually, the deployment functionality will be removed from the ``build-deploy-pudl``
 action and it will instead trigger this action at the end of a successful build.
 
 Google Compute Engine
 ---------------------
-The PUDL image is deployed on a `Container Optimized GCE
-<https://cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits>`__
-instance, a type of virtual machine (VM) built to run containers.
-
 We use ephemeral VMs created with `Google Batch <https://cloud.google.com/batch/docs>`__
 to run the nightly builds. Once the build has finished -- successfully or not -- the VM
-is shut down.  The build VMs use the ``e2-highmem-8`` machine type (8 CPUs and 64GB of
-RAM) to accommodate the PUDL ETL's memory-intensive steps. Currently, these VMs do not
-have swap space enabled, so if they run out of memory, the build will immediately
+shuts itself down. The build VMs use the ``e2-highmem-8`` machine type (8 CPUs and 64GB
+of RAM) to accommodate the PUDL ETL's memory-intensive steps. Currently, these VMs do
+not have swap space enabled, so if they run out of memory, the build will immediately
 terminate.
 
 The ``deploy-pudl-vm-service-account`` service account has permissions to:
 
 1. Write logs to Cloud Logging.
-2. Start and stop the VM so the container can shut the instance off when the ETL
-   is complete, so Catalyst does not incur unnecessary charges.
-3. Bill the ``catalyst-cooperative-pudl`` project for egress fees from accessing
-   the ``zenodo-cache.catalyst.coop`` bucket. Note: The ``catalyst-cooperative-pudl``
-   won't be charged anything because the data stays within Google's network.
+2. Start and stop the VM so the container can shut the instance off when the ETL is
+   complete, so Catalyst does not incur unnecessary charges.
+3. Bill the ``catalyst-cooperative-pudl`` project for egress fees from accessing the
+   ``zenodo-cache.catalyst.coop`` bucket. Note: The ``catalyst-cooperative-pudl`` won't
+   be charged anything because the data stays within Google's network.
 4. Write logs and build outputs to the ``gs://builds.catalyst.coop``,
-   ``gs://pudl.catalyst.coop`` and ``s3://pudl.catalyst.coop`` buckets.
-   Egress and storage costs for the S3 bucket are covered by
-   `Amazon Web Services's Open Data Sponsorship Program
-   <https://aws.amazon.com/opendata/open-data-sponsorship-program/>`__.
+   ``gs://pudl.catalyst.coop`` and ``s3://pudl.catalyst.coop`` buckets. Egress and
+   storage costs for the S3 bucket are covered by `Amazon Web Services's Open Data
+   Sponsorship Program <https://aws.amazon.com/opendata/open-data-sponsorship-program/>`__.
 
 Build outputs and logs are saved to the ``gs://builds.catalyst.coop`` bucket so you can
 access them later. Build logs and outputs are retained for 30 days and then deleted
@@ -120,16 +124,26 @@ are configured to run the ``docker/gcp_pudl_etl.sh`` script. This script:
 
 1. Notifies the ``pudl-deployments`` Slack channel that a deployment has started.
    Note: if the container is manually stopped, slack will not be notified.
-2. Runs the ETL and full test suite.
-3. Copies the outputs and logs to a directory in the ``gs://builds.catalyst.coop``
+2. Runs ``pixi run pudl-with-ferc-to-sqlite-nightly``.
+3. Runs ``pixi run pytest-unit-nightly``, ``pixi run pytest-integration-nightly``,
+   and ``pixi run pytest-data-validation-nightly`` as separate stages.
+4. Copies the outputs and logs to a directory in the ``gs://builds.catalyst.coop``
    bucket. The directory is named using the git SHA of the commit that launched the
    build.
-4. Copies the outputs to the ``gs://pudl.catalyst.coop`` and ``s3://pudl.catalyst.coop``
+5. Copies the outputs to the ``gs://pudl.catalyst.coop`` and ``s3://pudl.catalyst.coop``
    buckets if the ETL and test suite run successfully.
-5. Notifies the ``pudl-deployments`` Slack channel with the final build status.
+6. Notifies the ``pudl-deployments`` Slack channel with the final build status,
+   including per-stage status and durations.
 
-The ``gcp_pudl_etl.sh script`` is only intended to run on a GCE VM with adequate
-permissions.
+The ``gcp_pudl_etl.sh script`` is only intended to run on a Google Batch VM with
+adequate permissions.
+
+The nightly ETL task, nightly pytest tasks, and the nightly build script all share the
+same ``DG_NIGHTLY_CONFIG`` environment variable, which points at
+``src/pudl/package_data/settings/dg_nightly.yml`` relative to the repository root.
+Using a repo-relative path avoids a second hard-coded config path for the container and
+keeps the nightly build behavior centralized in pixi while still allowing local runs to
+reuse the nightly pytest commands.
 
 How to access the nightly build outputs from AWS
 ------------------------------------------------
@@ -169,14 +183,14 @@ command, which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
-   gcloud cp s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip ./
+   gcloud storage cp s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip ./
 
 If you wanted to download all of the build outputs (more than 25GB!) you can use a
 recursive copy:
 
 .. code::
 
-   gcloud cp --recursive s3://pudl.catalyst.coop/nightly/ ./
+   gcloud storage cp --recursive s3://pudl.catalyst.coop/nightly/ ./
 
 How to access the nightly build outputs and logs (for the Catalyst team only)
 -----------------------------------------------------------------------------
@@ -237,7 +251,7 @@ like this:
 
     gcloud storage ls --long --readable-sizes gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main
 
-       6.60MiB  2024-11-15T13:28:20Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/2024-11-15-0603-60f488239-main-pudl-etl.log
+      6.60MiB  2024-11-15T13:28:20Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/2024-11-15-0603-60f488239-main.log
      804.57MiB  2024-11-15T12:40:35Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/censusdp1tract.sqlite
      759.32MiB  2024-11-15T12:41:01Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc1_dbf.sqlite
        1.19GiB  2024-11-15T12:41:12Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc1_xbrl.sqlite

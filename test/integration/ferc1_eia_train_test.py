@@ -19,7 +19,6 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-import sqlalchemy as sa
 
 from pudl.analysis.record_linkage.eia_ferc1_inputs import (
     restrict_train_connections_on_date_range,
@@ -116,6 +115,7 @@ def eia_ferc1_training_data() -> pd.DataFrame:
         ),
     ],
 )
+@pytest.mark.usefixtures("prebuilt_outputs")
 def test_validate_override_fixes(
     eia_ferc1_training_data: pd.DataFrame,
     verified: list[str],
@@ -124,9 +124,8 @@ def test_validate_override_fixes(
     record_id_ferc1: list[str],
     utility_id_pudl_ferc1: list[int],
     expectation,
-    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
 ) -> None:
-    """Test the validate override fixes function."""
+    """Validate override fixes against the prebuilt integration outputs."""
     # Get data tables with only the columns needed by validate_override_fixes
     # to reduce memory usage during testing
     plant_parts_eia = get_parquet_table(
@@ -164,10 +163,9 @@ def test_validate_override_fixes(
         )
 
 
-def test_generate_all_override_spreadsheets(
-    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
-):
-    """Test the genation of the override spreadsheet for mapping FERC-EIA records."""
+@pytest.mark.usefixtures("prebuilt_outputs")
+def test_generate_all_override_spreadsheets():
+    """Generate override spreadsheets from the prebuilt integration outputs."""
     # Get data tables directly
     plant_parts_eia = get_parquet_table("out_eia__yearly_plant_parts")
     eia_ferc1 = get_parquet_table("out_pudl__yearly_assn_eia_ferc1_plant_parts")

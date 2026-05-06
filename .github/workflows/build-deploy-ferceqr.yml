@@ -11,6 +11,8 @@ env:
   GCS_LOGS_BUCKET: gs://builds.catalyst.coop/ferceqr_logs
   S3_OUTPUT_BUCKET: s3://pudl.catalyst.coop/ferceqr
   BATCH_JOB_JSON: batch_job.json
+  BUILD_ID: ""
+  BATCH_JOB_ID: ""
 
 jobs:
   build_and_deploy_eqr:

@@ -9,9 +9,5 @@ See https://docs.dagster.io/getting-started/concepts#code-location for more cont
 import dagster as dg
 
 import pudl.etl
-import pudl.ferc_to_sqlite
 
-defs: dg.Definitions = dg.Definitions.merge(
-    pudl.etl.defs,
-    pudl.ferc_to_sqlite.defs,
-)
+defs: dg.Definitions = pudl.etl.defs

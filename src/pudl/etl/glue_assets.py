@@ -24,7 +24,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
         if "core_epa__assn_eia_epacamd" not in table_name
     },
     can_subset=True,
-    required_resource_keys={"datastore", "dataset_settings"},
+    required_resource_keys={"datastore", "etl_settings"},
 )
 def create_glue_tables(context):
     """Extract, transform and load CSVs for the FERC-EIA Glue tables.
@@ -40,7 +40,7 @@ def create_glue_tables(context):
     """
     # TODO 2024-09-23: double check if these settings are actually
     # doing anything for the FERC-EIA glue... doesn't look like it.
-    dataset_settings = context.resources.dataset_settings
+    dataset_settings = context.resources.etl_settings.dataset_settings
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
         ferc1=dataset_settings.glue.ferc1,
@@ -88,7 +88,7 @@ def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
     return pd.concat(year_matches, ignore_index=True)
 
 
-@asset(required_resource_keys={"dataset_settings"}, io_manager_key="pudl_io_manager")
+@asset(required_resource_keys={"etl_settings"}, io_manager_key="pudl_io_manager")
 def core_epa__assn_eia_epacamd(
     context,
     raw_pudl__assn_eia_epacamd: pd.DataFrame,
@@ -192,7 +192,7 @@ def core_epa__assn_eia_epacamd(
         .dropna(subset=["plant_id_eia"])
         .pipe(correct_epa_eia_plant_id_mapping)
     )
-    dataset_settings = context.resources.dataset_settings
+    dataset_settings = context.resources.etl_settings.dataset_settings
     processing_all_eia_years = (
         dataset_settings.eia.eia860.years
         == dataset_settings.eia.eia860.data_source.working_partitions["years"]

@@ -49,12 +49,12 @@ def _read_static_encoding_tables(
         for table_name in Package.get_etl_group_tables("static_pudl")
     },
     can_subset=True,
-    required_resource_keys={"dataset_settings", "datastore"},
+    required_resource_keys={"etl_settings", "datastore"},
 )
 def static_pudl_tables(context):
     """Read static tables compiled as part of PUDL and not from any agency dataset."""
     ds = context.resources.datastore
-    dataset_settings = context.resources.dataset_settings
+    dataset_settings = context.resources.etl_settings.dataset_settings
 
     static_pudl_tables_dict = {
         "core_pudl__codes_subdivisions": POLITICAL_SUBDIVISIONS,

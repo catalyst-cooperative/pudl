@@ -1,6 +1,6 @@
 ---
 ###########################################################################
-# Settings for ferc_to_sqlite script
+# Settings for FERC-to-SQLite extraction
 ###########################################################################
 ferc_to_sqlite_settings:
   ferc1_dbf_to_sqlite_settings:
@@ -120,7 +120,7 @@ ferc_to_sqlite_settings:
     years: [2021, 2022, 2023, 2024]
 
 ###########################################################################
-# Settings for pudl_etl script
+# Settings for the main PUDL ETL
 ###########################################################################
 name: pudl-full
 title: PUDL Full ETL

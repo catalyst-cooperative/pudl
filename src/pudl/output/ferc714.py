@@ -347,7 +347,7 @@ def filled_service_territory_eia861(
 
 @asset(
     compute_kind="Python",
-    required_resource_keys={"dataset_settings"},
+    required_resource_keys={"etl_settings"},
 )
 def _out_ferc714__annualized_respondents(
     context,
@@ -366,7 +366,7 @@ def _out_ferc714__annualized_respondents(
     if "report_date" in core_ferc714__respondent_id.columns:
         raise AssertionError("report_date already present, can't be added again!")
 
-    ferc714_settings = context.resources.dataset_settings.ferc714
+    ferc714_settings = context.resources.etl_settings.dataset_settings.ferc714
     report_dates = pd.DataFrame(
         {"report_date": pd.to_datetime(sorted(ferc714_settings.years), format="%Y")}
     )
@@ -692,7 +692,9 @@ def out_ferc714__summarized_demand(
 imputed_hourly_planning_area_demand_assets = impute_timeseries_asset_factory(
     input_asset_name="core_ferc714__hourly_planning_area_demand",
     output_asset_name="out_ferc714__hourly_planning_area_demand",
-    years_from_context=lambda context: context.resources.dataset_settings.ferc714.years,
+    years_from_context=lambda context: (
+        context.resources.etl_settings.dataset_settings.ferc714.years
+    ),
     value_col="demand_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="respondent_id_ferc714",

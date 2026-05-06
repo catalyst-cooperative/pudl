@@ -54,10 +54,12 @@ def raw_sec10k_asset_factory(table) -> dg.AssetsDefinition:
     @dg.asset(
         group_name="raw_sec10k",
         name=table,
-        required_resource_keys={"datastore", "dataset_settings"},
+        required_resource_keys={"datastore", "etl_settings"},
     )
     def sec10k_asset(context) -> pd.DataFrame:
-        sec10k_settings: Sec10kSettings = context.resources.dataset_settings.sec10k
+        sec10k_settings: Sec10kSettings = (
+            context.resources.etl_settings.dataset_settings.sec10k
+        )
         ds: Datastore = context.resources.datastore
         if table in sec10k_settings.tables:
             return extract(ds=ds, table=table, years=sec10k_settings.years)

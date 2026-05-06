@@ -1,4 +1,4 @@
-"""Define tooling for monitoring the ferceqr_etl job during batch builds.
+"""Define tooling for monitoring the ferceqr job during batch builds.
 
 In this module we define a Dagster Sensor that will monitor the status of
 a ``ferceqr`` backfill. This sensor will only run if the environment variable

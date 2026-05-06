@@ -11,6 +11,7 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from importlib.metadata import version
+from importlib.resources.abc import Traversable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
@@ -39,6 +40,13 @@ ZenodoDoi = Annotated[
         strict=True, min_length=16, pattern=r"(10\.5072|10\.5281)/zenodo.([\d]+)"
     ),
 ]
+
+
+def get_zenodo_dois_path() -> Traversable:
+    """Return the canonical packaged Zenodo DOI settings path."""
+    return importlib.resources.files("pudl.package_data.settings").joinpath(
+        "zenodo_dois.yml"
+    )
 
 
 class ChecksumMismatchError(ValueError):
@@ -221,15 +229,20 @@ class ZenodoDoiSettings(BaseSettings):
                 is provided, it will be merged with defaults from the YAML file.
         """
         # Load defaults from YAML file
-        default_path = (
-            importlib.resources.files("pudl.package_data.settings") / "zenodo_dois.yml"
-        )
+        default_path = get_zenodo_dois_path()
         with default_path.open() as f:
             yaml_data = yaml.safe_load(f)
 
         # Merge provided data with defaults (provided data takes precedence)
         yaml_data.update(data)
         super().__init__(**yaml_data)
+
+    def get_doi(self, dataset: str) -> ZenodoDoi:
+        """Look up configured DOI by dataset.
+
+        Throws a KeyError if dataset not configured.
+        """
+        return dict(self)[dataset]
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> "ZenodoDoiSettings":
@@ -359,6 +372,7 @@ class Datastore:
         local_cache_path: str | Path | UPath | None = None,
         cloud_cache_path: str | UPath | None = "s3://pudl.catalyst.coop/zenodo",
         timeout: float = 15.0,
+        zenodo_dois: ZenodoDoiSettings | None = None,
     ):
         """Datastore manages input data retrieval for PUDL datasets.
 
@@ -376,6 +390,8 @@ class Datastore:
                 {gs,s3}://bucket[/path_prefix]
             timeout: connection timeouts (in seconds) to use when connecting to Zenodo
                 servers.
+            zenodo_dois: canonical DOI settings to use when resolving dataset
+                versions. If not provided, defaults are loaded from packaged settings.
 
         Raises:
             ValueError: if neither local_cache_path nor cloud_cache_path is provided.
@@ -431,7 +447,19 @@ class Datastore:
                     f"Falling back to Zenodo if necessary. Error was: {e}"
                 )
 
-        self._zenodo_fetcher = ZenodoFetcher(timeout=timeout)
+        self._zenodo_fetcher = ZenodoFetcher(
+            zenodo_dois=zenodo_dois,
+            timeout=timeout,
+        )
+
+    @property
+    def zenodo_dois(self) -> ZenodoDoiSettings:
+        """Expose the DOI settings used by this datastore instance."""
+        return self._zenodo_fetcher.zenodo_dois
+
+    def get_doi(self, dataset: str) -> ZenodoDoi:
+        """Return the configured DOI for a dataset."""
+        return self._zenodo_fetcher.get_doi(dataset)
 
     def get_known_datasets(self) -> list[str]:
         """Returns list of supported datasets."""

@@ -387,7 +387,7 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
 
     @op(
         out=DynamicOut(),
-        required_resource_keys={"dataset_settings"},
+        required_resource_keys={"etl_settings"},
         name=f"{name}_partitions_from_settings",
     )
     def partitions_from_settings(context) -> DynamicOutput:
@@ -402,9 +402,9 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
             https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
         """
         if "eia" in name:  # Account for nested settings if EIA
-            partition_settings = context.resources.dataset_settings.eia
+            partition_settings = context.resources.etl_settings.dataset_settings.eia
         else:
-            partition_settings = context.resources.dataset_settings
+            partition_settings = context.resources.etl_settings.dataset_settings
         # Get year/year_quarter/half_year partition
         data_settings = getattr(partition_settings, name)  # Get dataset settings
 

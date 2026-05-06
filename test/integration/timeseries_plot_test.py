@@ -1,6 +1,7 @@
 """Test timeseries plotting functions."""
 
 import pandas as pd
+import pytest
 
 from pudl.analysis.timeseries_evaluation import (
     plot_correlation,
@@ -8,8 +9,9 @@ from pudl.analysis.timeseries_evaluation import (
 )
 
 
-def test_plot_imputation(pudl_io_manager, mocker, asset_value_loader):
-    """Test that plot function doesn't error."""
+@pytest.mark.usefixtures("prebuilt_outputs")
+def test_plot_imputation(mocker, asset_value_loader):
+    """Smoke test plot_imputation against the prebuilt integration outputs."""
     mocker.patch("pudl.analysis.timeseries_evaluation.plt.show")
     eia930_sub = asset_value_loader.load_asset_value(
         "out_eia930__hourly_subregion_demand"
@@ -33,8 +35,9 @@ def test_plot_imputation(pudl_io_manager, mocker, asset_value_loader):
     )
 
 
-def test_plot_correlation(pudl_io_manager, mocker, asset_value_loader):
-    """Test that plot function doesn't error."""
+@pytest.mark.usefixtures("prebuilt_outputs")
+def test_plot_correlation(mocker, asset_value_loader):
+    """Smoke test plot_correlation against the prebuilt integration outputs."""
     mocker.patch("pudl.analysis.timeseries_evaluation.plt.show")
     eia930_sub = asset_value_loader.load_asset_value(
         "out_eia930__hourly_subregion_demand"

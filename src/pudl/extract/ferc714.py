@@ -14,6 +14,8 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+FERC714_XBRL_SQLITE_ASSET_KEY = AssetKey("raw_ferc714_xbrl__sqlite")
+
 FERC714_CSV_ENCODING: OrderedDict[str, dict[str, str]] = OrderedDict(
     {
         "yearly_id_certification": {
@@ -93,7 +95,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
 
     @asset(
         name=f"raw_ferc714_csv__{table_name}",
-        required_resource_keys={"datastore", "dataset_settings"},
+        required_resource_keys={"datastore", "etl_settings"},
         compute_kind="pandas",
     )
     def _extract_raw_ferc714_csv(context):
@@ -103,7 +105,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
             context: dagster keyword that provides access to resources and config.
         """
         ds = context.resources.datastore
-        ferc714_settings = context.resources.dataset_settings.ferc714
+        ferc714_settings = context.resources.etl_settings.dataset_settings.ferc714
         years = ", ".join(map(str, ferc714_settings.csv_years))
 
         logger.info(
@@ -124,7 +126,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
     return _extract_raw_ferc714_csv
 
 
-@asset
+@asset(deps=[FERC714_XBRL_SQLITE_ASSET_KEY])
 def raw_ferc714_xbrl__metadata_json(
     context,
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -191,9 +193,10 @@ def create_raw_ferc714_xbrl_assets() -> list[AssetSpec]:
     )
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc714_xbrl_assets = [
-        AssetSpec(key=AssetKey(f"raw_ferc714_xbrl__{table_name}")).with_io_manager_key(
-            "ferc714_xbrl_sqlite_io_manager"
-        )
+        AssetSpec(
+            key=AssetKey(f"raw_ferc714_xbrl__{table_name}"),
+            deps=[FERC714_XBRL_SQLITE_ASSET_KEY],
+        ).with_io_manager_key("ferc714_xbrl_sqlite_io_manager")
         for table_name in xbrl_table_names
     ]
     return raw_ferc714_xbrl_assets

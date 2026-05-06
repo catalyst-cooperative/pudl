@@ -1,4 +1,4 @@
-FROM ghcr.io/prefix-dev/pixi:0.67.0-noble
+FROM ghcr.io/prefix-dev/pixi:0.67.2-noble
 
 # The pixi base image uses 'ubuntu' as the non-root user (UID 1000)
 ENV PIXI_USER=ubuntu

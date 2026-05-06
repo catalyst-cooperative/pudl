@@ -104,7 +104,7 @@ raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
         for table_name in sorted(RAW_EIA860_TABLE_NAMES)
     },
     can_subset=True,
-    required_resource_keys={"datastore", "dataset_settings"},
+    required_resource_keys={"datastore", "etl_settings"},
 )
 def extract_eia860(context, raw_eia860__all_dfs):
     """Extract raw EIA data from excel sheets into dataframes.
@@ -115,7 +115,7 @@ def extract_eia860(context, raw_eia860__all_dfs):
     Returns:
         A tuple of extracted EIA dataframes.
     """
-    eia_settings = context.resources.dataset_settings.eia
+    eia_settings = context.resources.etl_settings.dataset_settings.eia
     ds = context.resources.datastore
     selected_outputs = set(context.selected_output_names)
 

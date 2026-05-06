@@ -15,16 +15,8 @@ from pudl.logging_helpers import get_logger
 logger = get_logger(__name__)
 
 
-@pytest.mark.order(2)
 def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
-    """Attempt to access the DBF based FERC 1 SQLite DB fixture.
-
-    This test is marked with order(2) to ensure that it is explicitly run before the
-    main PUDL ETL test, and is the first attempt to make use of the conceptually related
-    FERC Form 1 DBF DB engine & taxonomy fixtures. This means that if they fail, the
-    failure will be more clearly associated with the fixture, and not some random
-    downstream test that just happened to run first.
-    """
+    """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
     assert isinstance(ferc1_engine_dbf, sa.Engine)
     assert "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
 
@@ -38,6 +30,7 @@ def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
         pytest.param(Ferc60DbfExtractor, id="ferc60"),
     ],
 )
+@pytest.mark.order(1)
 def test_ferc_schema(ferc_to_sqlite_settings, pudl_datastore_fixture, extractor_class):
     """Check to make sure we aren't missing any old FERC Form N tables or fields.
 

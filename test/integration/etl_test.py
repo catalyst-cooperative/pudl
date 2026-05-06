@@ -1,41 +1,47 @@
 """PyTest based testing of the FERC Database & PUDL data package initializations.
 
-This module also contains fixtures for returning connections to the databases. These
-connections can be either to the live databases for post-ETL testing or to new temporary
-databases, which are created from scratch and dropped after the tests have completed.
+Database connections are provided by session-scoped fixtures in ``conftest.py``. The
+``prebuilt_outputs`` fixture builds all integration databases via ``dg launch``
+before these tests run.
 """
 
 import logging
+from typing import Literal
 
+import pandas as pd
 import pytest
 import sqlalchemy as sa
-from dagster import build_init_resource_context
+from sqlalchemy.engine.reflection import Inspector
 
 import pudl
-from pudl.etl.check_foreign_keys import check_foreign_keys
-from pudl.resources import dataset_settings
+from pudl.settings import DatasetsSettings, Ferc1Settings
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.order(3)
-def test_pudl_engine(
-    pudl_engine: sa.Engine,
-    check_foreign_keys_flag: bool,
-):
-    """Get pudl_engine and do basic inspection.
+@pytest.mark.order(2)
+def test_pudl_engine(pudl_engine: sa.Engine):
+    """Verify that key PUDL tables exist and are populated.
 
-    By default the foreign key checks are not enabled in pudl.sqlite. This test will
-    check if there are any foreign key errors if check_foreign_keys is True.
+    Foreign key validation lives in a separate data-validation test so the nightly
+    build can report it independently from the rest of the integration suite.
     """
     assert isinstance(pudl_engine, sa.Engine)
-    insp = sa.inspect(pudl_engine)
-    assert "core_pudl__entity_plants_pudl" in insp.get_table_names()
-    assert "core_pudl__entity_utilities_pudl" in insp.get_table_names()
+    insp: Inspector = sa.inspect(pudl_engine)
+    required_tables = (
+        "core_pudl__entity_plants_pudl",
+        "core_pudl__entity_utilities_pudl",
+    )
 
-    if check_foreign_keys_flag:
-        # Raises ForeignKeyErrors if there are any
-        check_foreign_keys(pudl_engine)
+    for table_name in required_tables:
+        assert table_name in insp.get_table_names()
+
+    with pudl_engine.connect() as connection:
+        for table_name in required_tables:
+            first_row: int | None = connection.execute(
+                sa.select(sa.literal(1)).select_from(sa.table(table_name)).limit(1)
+            ).scalar()
+            assert first_row is not None, f"Expected {table_name} to contain data."
 
 
 class TestCsvExtractor:
@@ -157,35 +163,25 @@ class TestExcelExtractor:
 class TestFerc1ExtractDebugFunctions:
     """Verify the ferc1 extraction debug functions are working properly."""
 
-    def test_extract_dbf(self, ferc1_engine_dbf: sa.Engine):
+    @pytest.mark.usefixtures("ferc1_engine_dbf")
+    def test_extract_dbf(self):
         """Test extract_dbf."""
-        years = [2020, 2021]  # add desired years here
-        configured_dataset_settings = {"ferc1": {"years": years}}
-
-        dataset_init_context = build_init_resource_context(
-            config=configured_dataset_settings
+        ferc1_dbf_raw_dfs: dict[str, pd.DataFrame] = pudl.extract.ferc1.extract_dbf(
+            dataset_settings=DatasetsSettings(ferc1=Ferc1Settings(years=[2020, 2021]))
         )
-        configured_dataset_settings = dataset_settings(dataset_init_context)
-
-        ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(configured_dataset_settings)
 
         for table_name, df in ferc1_dbf_raw_dfs.items():
             assert (df.report_year >= 2020).all() and (df.report_year < 2022).all(), (
                 f"Unexpected years found in table: {table_name}"
             )
 
-    def test_extract_xbrl(self, ferc1_engine_xbrl: sa.Engine):
+    @pytest.mark.usefixtures("ferc1_engine_xbrl")
+    def test_extract_xbrl(self):
         """Test extract_xbrl."""
-        years = [2021]  # add desired years here
-        configured_dataset_settings = {"ferc1": {"years": years}}
-
-        dataset_init_context = build_init_resource_context(
-            config=configured_dataset_settings
-        )
-        configured_dataset_settings = dataset_settings(dataset_init_context)
-
-        ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
-            configured_dataset_settings
+        ferc1_xbrl_raw_dfs: dict[
+            str, dict[Literal["duration", "instant"], pd.DataFrame]
+        ] = pudl.extract.ferc1.extract_xbrl(
+            dataset_settings=DatasetsSettings(ferc1=Ferc1Settings(years=[2021]))
         )
 
         for table_name, xbrl_tables in ferc1_xbrl_raw_dfs.items():

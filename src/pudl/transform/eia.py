@@ -35,7 +35,7 @@ from dagster import (
 )
 
 import pudl
-from pudl.helpers import convert_cols_dtypes
+from pudl.helpers import convert_cols_dtypes, make_changelog
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
@@ -161,8 +161,8 @@ def occurrence_consistency(
     col_df = col_df.dropna()
 
     if len(col_df) == 0:
-        col_df[f"{col}_is_consistent"] = pd.NA
-        col_df[f"{col}_consistent_rate"] = pd.NA
+        col_df["is_candidate"] = pd.NA
+        col_df["consistent_rate"] = pd.NA
         col_df["entity_occurrences"] = pd.NA
         return col_df
     # determine how many times each entity occurs in col_df
@@ -190,11 +190,11 @@ def occurrence_consistency(
     # occurrences of the entities.
     col_df = col_df.merge(consist_df, how="outer")
     # change all of the fully consistent records to True
-    col_df[f"{col}_consistent_rate"] = (
+    col_df["consistent_rate"] = (
         col_df["record_occurrences"] / col_df["entity_occurrences"]
     )
-    col_df[f"{col}_is_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
-    col_df = col_df.sort_values(f"{col}_consistent_rate", ascending=False)
+    col_df["is_candidate"] = col_df["consistent_rate"] > strictness
+    col_df = col_df.sort_values("consistent_rate", ascending=False)
     return col_df
 
 
@@ -241,7 +241,7 @@ def _lat_long(
     # grab the clean plants
     ll_clean_df = clean_df.dropna()
     # find the new clean plant records by selecting the True consistent records
-    ll_df = ll_df[ll_df[f"{col}_is_consistent"]].drop_duplicates(subset=entity_idx)
+    ll_df = ll_df[ll_df["is_candidate"]].drop_duplicates(subset=entity_idx)
     logger.debug(f"Clean {col} records: {len(ll_df)}")
     # add the newly cleaned records
     ll_clean_df = pd.concat([ll_clean_df, ll_df])
@@ -305,7 +305,7 @@ def _last_operating_date(
     # grab the clean plants
     op_clean_df = clean_df.dropna()
     # find the new clean plant records by selecting the True consistent records
-    op_df = op_df[op_df[f"{col}_is_consistent"]].drop_duplicates(subset=entity_idx)
+    op_df = op_df[op_df["is_candidate"]].drop_duplicates(subset=entity_idx)
     logger.info(f"Rescued dates for {col} records: {len(op_df)}")
     logger.info(
         f"Rescued last {col} for the following units ({entity_idx}): "
@@ -575,8 +575,8 @@ def harvest_entity_tables(  # noqa: C901
         )
 
         # pull the correct values out of the df and merge w/ the plant ids
-        col_correct_df = col_df[col_df[f"{col}_is_consistent"]].drop_duplicates(
-            subset=(cols_to_consit + [f"{col}_is_consistent"])
+        col_correct_df = col_df[col_df["is_candidate"]].drop_duplicates(
+            subset=(cols_to_consit + ["is_candidate"])
         )
 
         # we need this to be an empty df w/ columns bc we are going to use it
@@ -619,6 +619,10 @@ def harvest_entity_tables(  # noqa: C901
                 )
 
         if debug:
+            # save the column name in a new column and standardize the col name
+            # this will make it easier to compare all the of col_df's
+            col_df["column_name"] = col
+            col_df = col_df.rename(columns={col: "record_value"})
             col_dfs[col] = col_df
         # this next section is used to print and test whether the harvested
         # records are consistent enough
@@ -631,7 +635,7 @@ def harvest_entity_tables(  # noqa: C901
         if total > 0:
             ratio = (
                 len(
-                    col_df[(col_df[f"{col}_is_consistent"])].drop_duplicates(
+                    col_df[(col_df["is_candidate"])].drop_duplicates(
                         subset=cols_to_consit
                     )
                 )
@@ -691,7 +695,7 @@ def harvest_entity_tables(  # noqa: C901
             ),
         ),
     },
-    required_resource_keys={"dataset_settings"},
+    required_resource_keys={"etl_settings"},
     io_manager_key="pudl_io_manager",
 )
 def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
@@ -729,7 +733,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         AssertionError: If all generators do not end up with the same unit_id each year.
     """
     debug = context.op_config["debug"]
-    eia_settings = context.resources.dataset_settings.eia
+    eia_settings = context.resources.etl_settings.dataset_settings.eia
 
     # Do some final data formatting and assign appropriate types:
     clean_dfs = {
@@ -1234,25 +1238,17 @@ def harvested_entity_asset_factory(
         outs={
             f"core_eia__entity_{entity.value}": AssetOut(io_manager_key=io_manager_key),
             f"core_eia860__scd_{entity.value}": AssetOut(io_manager_key=io_manager_key),
-        },
-        config_schema={
-            "debug": Field(
-                bool,
-                default_value=False,
-                description=(
-                    "If True, allow inconsistent values in harvested columns and "
-                    "produce additional debugging output."
-                ),
+            f"_core_eia__forensics_entity_resolution_{entity.value}": AssetOut(
+                io_manager_key=io_manager_key
             ),
         },
-        required_resource_keys={"dataset_settings"},
+        required_resource_keys={"etl_settings"},
         name=f"harvested_{entity.value}_eia",
     )
     def harvested_entity(context, **clean_dfs):
         """Harvesting IDs & consistent static attributes for EIA entity."""
         logger.info(f"Harvesting IDs & consistent static attributes for EIA {entity}")
 
-        debug = context.op_config["debug"]
         clean_dfs = {
             df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]).pipe(
                 convert_cols_dtypes, "eia"
@@ -1276,7 +1272,7 @@ def harvested_entity_asset_factory(
         # the longitude column is very different in the ytd 860M data (it appears
         # to have an additional decimal point) bc it shows up in the generator
         # table but it is a plant level data point, it mucks up the consistency
-        eia_settings = context.resources.dataset_settings.eia
+        eia_settings = context.resources.etl_settings.dataset_settings.eia
         special_case_strictness = {
             "plant_name_eia": 0,
             "utility_name_eia": 0,
@@ -1288,7 +1284,7 @@ def harvested_entity_asset_factory(
             entity,
             clean_dfs,
             special_case_strictness=special_case_strictness,
-            debug=debug,
+            debug=True,
         )
 
         if entity == EiaEntity.PLANTS:
@@ -1298,9 +1294,22 @@ def harvested_entity_asset_factory(
                 fix_balancing_authority_codes_with_state, plants_entity=entity_df
             )
 
+        # Take all of the column inputs and make them into one big forensics changelog
+        # table
+        logger.debug("Concatenating all of the column inputs for {entity.value}")
+        out_all = pd.concat(
+            [df for harvested_col_name, df in _col_dfs.items()], axis="index"
+        ).reset_index(drop=True)
+        logger.debug("Making changelog out of all forensics inputs for {entity.value}")
+        forensics = make_changelog(out_all, ENTITIES[entity.value]["id_cols"])
+
         return (
             Output(output_name=f"core_eia__entity_{entity.value}", value=entity_df),
             Output(output_name=f"core_eia860__scd_{entity.value}", value=annual_df),
+            Output(
+                output_name=f"_core_eia__forensics_entity_resolution_{entity.value}",
+                value=forensics,
+            ),
         )
 
     return harvested_entity
