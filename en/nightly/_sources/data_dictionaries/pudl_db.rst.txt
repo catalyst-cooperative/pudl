@@ -2578,7 +2578,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -2751,7 +2751,7 @@ Usage Warnings
 
 * Time of fuel deliveries is not necessarily connected with time of fuel consumption.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains estimated values.
 
@@ -2988,7 +2988,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -3136,7 +3136,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -3314,7 +3314,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -3489,7 +3489,7 @@ Usage Warnings
 
 * Time of fuel deliveries is not necessarily connected with time of fuel consumption.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -3671,7 +3671,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -3823,7 +3823,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -4144,7 +4144,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -4319,7 +4319,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -4494,7 +4494,7 @@ Usage Warnings
 
 * Time of fuel deliveries is not necessarily connected with time of fuel consumption.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -4676,7 +4676,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -4828,7 +4828,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -5151,7 +5151,7 @@ Usage Warnings
 
 * Date column arbitrarily uses the first of the month.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -5323,7 +5323,7 @@ Usage Warnings
 
 * A small number of respondents only report annual fuel consumption, and all of it is reported in December.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -5860,7 +5860,7 @@ Usage Warnings
 
 * Not all columns are originally reported in or calculable from the input tables. Expect nulls.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -6476,7 +6476,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -6906,7 +6906,7 @@ Usage Warnings
 
 * Not all columns are originally reported in or calculable from the input tables. Expect nulls.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -7373,7 +7373,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -7586,7 +7586,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -7845,7 +7845,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -8110,7 +8110,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -8298,7 +8298,7 @@ Usage Warnings
 
 * FERC does not restrict respondents to report unique and non-duplicative plant records. There are sporadic instances of respondents reporting portions of plants and then the total plant (ex: unit 1, unit 2 and total). Use caution when aggregating.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -8638,7 +8638,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -8766,7 +8766,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -8894,7 +8894,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -9013,7 +9013,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -9150,7 +9150,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -9291,7 +9291,7 @@ Usage Warnings
 
 * The rate and percentage (pct) columns are reported either as values between 0-1 or 0-100. It is often consistent within a given utility-year but use caution when comparing value across different utilities and even the same utility filing in a different year.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -9434,7 +9434,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -9565,7 +9565,7 @@ Usage Warnings
 
 * The data from these xbrl_factoid tables contains nested totals and subtotals - making aggregations difficult. We used FERC 1's reported calculations to determine the most granular, non-duplicative records. The reported calculations are not always perfect - we've corrected many of them, but errors could still exist.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -9714,7 +9714,7 @@ Usage Warnings
 
 * The data from these xbrl_factoid tables contains nested totals and subtotals - making aggregations difficult. We used FERC 1's reported calculations to determine the most granular, non-duplicative records. The reported calculations are not always perfect - we've corrected many of them, but errors could still exist.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -9852,7 +9852,7 @@ Usage Warnings
 
 * The data from these xbrl_factoid tables contains nested totals and subtotals - making aggregations difficult. We used FERC 1's reported calculations to determine the most granular, non-duplicative records. The reported calculations are not always perfect - we've corrected many of them, but errors could still exist.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -9998,7 +9998,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -10123,7 +10123,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -10250,7 +10250,7 @@ Usage Warnings
 
 * FERC does not restrict respondents to report unique and non-duplicative plant records. There are sporadic instances of respondents reporting portions of plants and then the total plant (ex: unit 1, unit 2 and total). Use caution when aggregating.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -10477,7 +10477,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -10602,7 +10602,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -10724,7 +10724,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -10863,7 +10863,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -10990,7 +10990,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -11112,7 +11112,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -11261,7 +11261,7 @@ Usage Warnings
 
 * FERC does not restrict respondents to report unique and non-duplicative plant records. There are sporadic instances of respondents reporting portions of plants and then the total plant (ex: unit 1, unit 2 and total). Use caution when aggregating.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -11501,7 +11501,7 @@ Usage Warnings
 
 * Contains columns which may appear categorical, but are actually free text.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -11664,7 +11664,7 @@ Usage Warnings
 
 * The data from these xbrl_factoid tables contains nested totals and subtotals - making aggregations difficult. We used FERC 1's reported calculations to determine the most granular, non-duplicative records. The reported calculations are not always perfect - we've corrected many of them, but errors could still exist.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -11824,7 +11824,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -11958,7 +11958,7 @@ Usage Warnings
 
 * Units of revenue_per_kwh are suspected to include a mix of dollars and possibly cents.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -12149,7 +12149,7 @@ Usage Warnings
 
 * FERC does not restrict respondents to report unique and non-duplicative plant records. There are sporadic instances of respondents reporting portions of plants and then the total plant (ex: unit 1, unit 2 and total). Use caution when aggregating.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -12327,7 +12327,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -12479,7 +12479,7 @@ Usage Warnings
 
 * The ``fuel_type_code_pudl`` is inferred from a free-form string field.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -12628,7 +12628,7 @@ Usage Warnings
 
 * FERC does not restrict respondents to report unique and non-duplicative plant records. There are sporadic instances of respondents reporting portions of plants and then the total plant (ex: unit 1, unit 2 and total). Use caution when aggregating.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -12887,7 +12887,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -13051,7 +13051,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -13173,7 +13173,7 @@ Usage Warnings
 
 * Contains information from multiple raw inputs.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -13323,7 +13323,7 @@ Usage Warnings
 
 * Contains information from multiple raw inputs.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -13446,7 +13446,7 @@ Usage Warnings
 
 * The datetime_utc timestamps have been cleaned due to inconsistent datetime reporting. See :ref:`core_ferc714__hourly_planning_area_demand` for additional details.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -13568,7 +13568,7 @@ Usage Warnings
 
 * Contains information from multiple raw inputs.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -13694,7 +13694,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -13932,11 +13932,11 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -21507,7 +21507,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -21886,7 +21886,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 
 
@@ -22033,7 +22033,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -23157,7 +23157,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -23386,7 +23386,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -32286,7 +32286,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -32401,7 +32401,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -32564,7 +32564,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -32697,7 +32697,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
 
 * Contains information from multiple raw inputs.
 
@@ -33904,7 +33904,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -33999,7 +33999,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -34115,7 +34115,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -34231,7 +34231,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -34338,7 +34338,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -34463,7 +34463,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -34592,7 +34592,7 @@ Usage Warnings
 
 * The rate and percentage (pct) columns are reported either as values between 0-1 or 0-100. It is often consistent within a given utility-year but use caution when comparing value across different utilities and even the same utility filing in a different year.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -34723,7 +34723,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -34845,7 +34845,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -34958,7 +34958,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -35073,7 +35073,7 @@ Usage Warnings
 
 * FERC does not restrict respondents to report unique and non-duplicative plant records. There are sporadic instances of respondents reporting portions of plants and then the total plant (ex: unit 1, unit 2 and total). Use caution when aggregating.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -35279,7 +35279,7 @@ Usage Warnings
 
 * Contains columns which may appear categorical, but are actually free text.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -35455,7 +35455,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -35568,7 +35568,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -35678,7 +35678,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -35805,7 +35805,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -35920,7 +35920,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -36033,7 +36033,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -36170,7 +36170,7 @@ Usage Warnings
 
 * FERC does not restrict respondents to report unique and non-duplicative plant records. There are sporadic instances of respondents reporting portions of plants and then the total plant (ex: unit 1, unit 2 and total). Use caution when aggregating.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -36389,7 +36389,7 @@ Usage Warnings
 
 * Contains columns which may appear categorical, but are actually free text.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -36540,7 +36540,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -36662,7 +36662,7 @@ Usage Warnings
 
 * Units of revenue_per_kwh are suspected to include a mix of dollars and possibly cents.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -36841,7 +36841,7 @@ Usage Warnings
 
 * FERC does not restrict respondents to report unique and non-duplicative plant records. There are sporadic instances of respondents reporting portions of plants and then the total plant (ex: unit 1, unit 2 and total). Use caution when aggregating.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -36998,7 +36998,7 @@ Usage Warnings
 
 * The ``fuel_type_code_pudl`` is inferred from a free-form string field.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -37126,7 +37126,7 @@ Usage Warnings
 
 * FERC does not restrict respondents to report unique and non-duplicative plant records. There are sporadic instances of respondents reporting portions of plants and then the total plant (ex: unit 1, unit 2 and total). Use caution when aggregating.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -37331,7 +37331,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -37483,7 +37483,7 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -37593,7 +37593,7 @@ Usage Warnings
 
 * The datetime_utc timestamps have been cleaned due to inconsistent datetime reporting. See below for additional details.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -37713,7 +37713,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -37816,7 +37816,7 @@ Usage Warnings
 
 * There is a small handful of respondents (~11) that report more than 10 years and an even smaller handful that report less than 10 (~9).
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -37927,7 +37927,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -38023,7 +38023,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -38139,7 +38139,7 @@ Usage Warnings
 
 * This table is experimental and/or a work in progress and may change in the future.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -38332,7 +38332,7 @@ Usage Warnings
 
 * This table is experimental and/or a work in progress and may change in the future.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -38471,7 +38471,7 @@ Usage Warnings
 
 * This table is experimental and/or a work in progress and may change in the future.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -38586,7 +38586,7 @@ Usage Warnings
 
 * This table is experimental and/or a work in progress and may change in the future.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -39685,7 +39685,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -39775,7 +39775,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -39877,7 +39877,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -39979,7 +39979,7 @@ Usage Warnings
 ^^^^^^^^^^^^^^
 
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -40068,7 +40068,7 @@ Usage Warnings
 
 * Contains information from multiple raw inputs.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -40157,7 +40157,7 @@ Usage Warnings
 
 * Contains information from multiple raw inputs.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 
 
@@ -40252,7 +40252,7 @@ Usage Warnings
 
 * Contains information from multiple raw inputs.
 
-* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+* FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
 
 Access methods
 ^^^^^^^^^^^^^^^
@@ -48386,6 +48386,505 @@ Columns
     - date
     - Date of most recent test for sulfur dioxide removal efficiency.
 
+.. _i_core_eia__forensics_entity_resolution_boilers:
+
+-------------------------------------------------------------------------------
+_core_eia__forensics_entity_resolution_boilers
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_eia__forensics_entity_resolution_boilers>`__
+
+Forensic table of the statistics determining how we choose a single consistent value during entity resolution for boilers.
+
+
+
+Processing:
+  Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
+
+Source:
+  EIA -- Mix of multiple EIA Forms
+
+Primary key:
+  This table has no primary key.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* This table is meant for forensic purposes only. It contains all values which were used to choose canonical or golden-record. See `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+
+* Contains information from multiple raw inputs.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This is a forensic table containing the input values used to
+choose canonical values during entity resolution. It is not a cleaned up table - it
+is meant for forensic purposes only. If you have a question about why a value is
+reported in an ``scd``, ``entity`` or ``out`` table, you can find out all of the inputs
+that were used as ingredients to find the canonical value. You can filter by the
+column_name and the entity id to find all of the possible input values.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/_core_eia__forensics_entity_resolution_boilers>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_boilers.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_boilers.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_boilers.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_boilers.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_boilers.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - boiler_id
+    - string
+    - Alphanumeric boiler ID.
+  * - column_name
+    - string
+    - The name of the column.
+  * - consistent_rate
+    - number
+    - What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``.
+  * - entity_occurrences
+    - integer
+    - The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.
+  * - is_candidate
+    - boolean
+    - Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.
+  * - record_occurrences
+    - integer
+    - The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.
+  * - record_value
+    - string
+    - The original values found in PUDL _core table records that were used as ingredients to the entity resolution process.
+  * - report_date
+    - date
+    - Date reported.
+  * - valid_until_date
+    - date
+    - The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_until_date.
+
+.. _i_core_eia__forensics_entity_resolution_generators:
+
+-------------------------------------------------------------------------------
+_core_eia__forensics_entity_resolution_generators
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_eia__forensics_entity_resolution_generators>`__
+
+Forensic table of the statistics determining how we choose a single consistent value during entity resolution for generators.
+
+
+
+Processing:
+  Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
+
+Source:
+  EIA -- Mix of multiple EIA Forms
+
+Primary key:
+  This table has no primary key.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* This table is meant for forensic purposes only. It contains all values which were used to choose canonical or golden-record. See `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+
+* Contains information from multiple raw inputs.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This is a forensic table containing the input values used to
+choose canonical values during entity resolution. It is not a cleaned up table - it
+is meant for forensic purposes only. If you have a question about why a value is
+reported in an ``scd``, ``entity`` or ``out`` table, you can find out all of the inputs
+that were used as ingredients to find the canonical value. You can filter by the
+column_name and the entity id to find all of the possible input values.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/_core_eia__forensics_entity_resolution_generators>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_generators.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_generators.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_generators.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_generators.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_generators.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - column_name
+    - string
+    - The name of the column.
+  * - consistent_rate
+    - number
+    - What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``.
+  * - entity_occurrences
+    - integer
+    - The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.
+  * - generator_id
+    - string
+    - Generator ID is usually numeric, but sometimes includes letters. Make sure you treat it as a string!
+  * - is_candidate
+    - boolean
+    - Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.
+  * - plant_id_eia
+    - integer
+    - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
+  * - record_occurrences
+    - integer
+    - The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.
+  * - record_value
+    - string
+    - The original values found in PUDL _core table records that were used as ingredients to the entity resolution process.
+  * - report_date
+    - date
+    - Date reported.
+  * - valid_until_date
+    - date
+    - The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_until_date.
+
+.. _i_core_eia__forensics_entity_resolution_plants:
+
+-------------------------------------------------------------------------------
+_core_eia__forensics_entity_resolution_plants
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_eia__forensics_entity_resolution_plants>`__
+
+Forensic table of the statistics determining how we choose a single consistent value during entity resolution for plants.
+
+
+
+Processing:
+  Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
+
+Source:
+  EIA -- Mix of multiple EIA Forms
+
+Primary key:
+  This table has no primary key.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* This table is meant for forensic purposes only. It contains all values which were used to choose canonical or golden-record. See `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+
+* Contains information from multiple raw inputs.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This is a forensic table containing the input values used to
+choose canonical values during entity resolution. It is not a cleaned up table - it
+is meant for forensic purposes only. If you have a question about why a value is
+reported in an ``scd``, ``entity`` or ``out`` table, you can find out all of the inputs
+that were used as ingredients to find the canonical value. You can filter by the
+column_name and the entity id to find all of the possible input values.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/_core_eia__forensics_entity_resolution_plants>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_plants.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_plants.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_plants.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_plants.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_plants.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - column_name
+    - string
+    - The name of the column.
+  * - consistent_rate
+    - number
+    - What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``.
+  * - entity_occurrences
+    - integer
+    - The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.
+  * - is_candidate
+    - boolean
+    - Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.
+  * - plant_id_eia
+    - integer
+    - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
+  * - record_occurrences
+    - integer
+    - The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.
+  * - record_value
+    - string
+    - The original values found in PUDL _core table records that were used as ingredients to the entity resolution process.
+  * - report_date
+    - date
+    - Date reported.
+  * - valid_until_date
+    - date
+    - The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_until_date.
+
+.. _i_core_eia__forensics_entity_resolution_utilities:
+
+-------------------------------------------------------------------------------
+_core_eia__forensics_entity_resolution_utilities
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_eia__forensics_entity_resolution_utilities>`__
+
+Forensic table of the statistics determining how we choose a single consistent value during entity resolution for utilities.
+
+
+
+Processing:
+  Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
+
+Source:
+  EIA -- Mix of multiple EIA Forms
+
+Primary key:
+  This table has no primary key.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* This table is meant for forensic purposes only. It contains all values which were used to choose canonical or golden-record. See `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+
+* Contains information from multiple raw inputs.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This is a forensic table containing the input values used to
+choose canonical values during entity resolution. It is not a cleaned up table - it
+is meant for forensic purposes only. If you have a question about why a value is
+reported in an ``scd``, ``entity`` or ``out`` table, you can find out all of the inputs
+that were used as ingredients to find the canonical value. You can filter by the
+column_name and the entity id to find all of the possible input values.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/_core_eia__forensics_entity_resolution_utilities>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_utilities.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_utilities.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_utilities.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_utilities.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_eia__forensics_entity_resolution_utilities.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - column_name
+    - string
+    - The name of the column.
+  * - consistent_rate
+    - number
+    - What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``.
+  * - entity_occurrences
+    - integer
+    - The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.
+  * - is_candidate
+    - boolean
+    - Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.
+  * - record_occurrences
+    - integer
+    - The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.
+  * - record_value
+    - string
+    - The original values found in PUDL _core table records that were used as ingredients to the entity resolution process.
+  * - report_date
+    - date
+    - Date reported.
+  * - utility_id_eia
+    - integer
+    - The EIA Utility Identification number.
+  * - valid_until_date
+    - date
+    - The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_until_date.
+
 .. _i_core_phmsagas__yearly_distribution_by_install_decade:
 
 -------------------------------------------------------------------------------
@@ -49231,3 +49730,253 @@ Columns
   * - unaccounted_for_gas_fraction
     - number
     - Unaccounted for gas as a fraction of total consumption for the 12 months ending June 30 of the reporting year. Calculated as follows: Take the sum of: (purchased gas + produced gas) minus (customer use + company use + appropriate adjustments). Then divide by the sum of (customer use + company use + appropriate adjustments). Prior to 2017, this field was calculated with a different deonominator (purchased gas + produced gas). The time period between 2010-2017 having this different calculation method ensured that there was no records that had a negative fraction. For all the other reporting years there are known and expected negative values in this column.
+
+.. _i_core_rus12__forensics_entity_resolution_borrowers:
+
+-------------------------------------------------------------------------------
+_core_rus12__forensics_entity_resolution_borrowers
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_rus12__forensics_entity_resolution_borrowers>`__
+
+Forensic table of the statistics determining how we choose a single consistent value during entity resolution.
+
+
+Most-recent data:
+  2021
+
+
+Processing:
+  Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
+
+Source:
+  USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply
+
+Primary key:
+  This table has no primary key.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* This table is meant for forensic purposes only. It contains all values which were used to choose canonical or golden-record. See `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This is a forensic table containing the input values used to
+choose canonical values during entity resolution. It is not a cleaned up table - it
+is meant for forensic purposes only. If you have a question about why a value is
+reported in an ``scd``, ``entity`` or ``out`` table, you can find out all of the inputs
+that were used as ingredients to find the canonical value. You can filter by the
+column_name and the entity id to find all of the possible input values.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/_core_rus12__forensics_entity_resolution_borrowers>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_rus12__forensics_entity_resolution_borrowers.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_rus12__forensics_entity_resolution_borrowers.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_rus12__forensics_entity_resolution_borrowers.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_rus12__forensics_entity_resolution_borrowers.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_rus12__forensics_entity_resolution_borrowers.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - column_name
+    - string
+    - The name of the column.
+  * - consistent_rate
+    - number
+    - What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``.
+  * - entity_occurrences
+    - integer
+    - The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.
+  * - is_candidate
+    - boolean
+    - Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.
+  * - record_occurrences
+    - integer
+    - The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.
+  * - record_value
+    - string
+    - The original values found in PUDL _core table records that were used as ingredients to the entity resolution process.
+  * - report_date
+    - date
+    - Date reported.
+  * - valid_until_date
+    - date
+    - The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_until_date.
+
+.. _i_core_rus7__forensics_entity_resolution_borrowers:
+
+-------------------------------------------------------------------------------
+_core_rus7__forensics_entity_resolution_borrowers
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_rus7__forensics_entity_resolution_borrowers>`__
+
+Forensic table of the statistics determining how we choose a single consistent value during entity resolution.
+
+
+Most-recent data:
+  2021
+
+
+Processing:
+  Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
+
+Source:
+  USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution
+
+Primary key:
+  This table has no primary key.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* This table is meant for forensic purposes only. It contains all values which were used to choose canonical or golden-record. See `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+This is a forensic table containing the input values used to
+choose canonical values during entity resolution. It is not a cleaned up table - it
+is meant for forensic purposes only. If you have a question about why a value is
+reported in an ``scd``, ``entity`` or ``out`` table, you can find out all of the inputs
+that were used as ingredients to find the canonical value. You can filter by the
+column_name and the entity id to find all of the possible input values.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/_core_rus7__forensics_entity_resolution_borrowers>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_rus7__forensics_entity_resolution_borrowers.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_rus7__forensics_entity_resolution_borrowers.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_rus7__forensics_entity_resolution_borrowers.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_rus7__forensics_entity_resolution_borrowers.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/_core_rus7__forensics_entity_resolution_borrowers.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - borrower_id_rus
+    - string
+    - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
+  * - column_name
+    - string
+    - The name of the column.
+  * - consistent_rate
+    - number
+    - What portion of the entity's records were reported with this particular ``record_value``. This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``.
+  * - entity_occurrences
+    - integer
+    - The number of times this entity - aka this particular utility, plant, etc - occurs across the pre-entity resolution tables.
+  * - is_candidate
+    - boolean
+    - Is this record a candidate for being the canonical value? This is based on ``consistent_rate``. By default PUDL requires values to be at least 70 percent consistent to pass this consistency check. There are exceptions to the default 70 percent consistency check for columns like plant or utility names when we always want a value - for those instances we choose the most frequently occurring value regardless of how consistently it was reported.
+  * - record_occurrences
+    - integer
+    - The number of times this particular ``record_value`` occurs across the pre-entity resolution tables in association with this particular entity.
+  * - record_value
+    - string
+    - The original values found in PUDL _core table records that were used as ingredients to the entity resolution process.
+  * - report_date
+    - date
+    - Date reported.
+  * - valid_until_date
+    - date
+    - The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_until_date.

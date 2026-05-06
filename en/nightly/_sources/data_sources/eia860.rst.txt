@@ -107,6 +107,18 @@ multiple tables.
 
    * - Data Dictionary
      - Browse Online
+   * - :ref:`i_core_eia__forensics_entity_resolution_boilers`
+     - https://data.catalyst.coop/preview/pudl/_core_eia__forensics_entity_resolution_boilers
+   
+   * - :ref:`i_core_eia__forensics_entity_resolution_generators`
+     - https://data.catalyst.coop/preview/pudl/_core_eia__forensics_entity_resolution_generators
+   
+   * - :ref:`i_core_eia__forensics_entity_resolution_plants`
+     - https://data.catalyst.coop/preview/pudl/_core_eia__forensics_entity_resolution_plants
+   
+   * - :ref:`i_core_eia__forensics_entity_resolution_utilities`
+     - https://data.catalyst.coop/preview/pudl/_core_eia__forensics_entity_resolution_utilities
+   
    * - :ref:`core_eia__entity_boilers`
      - https://data.catalyst.coop/preview/pudl/core_eia__entity_boilers
    

@@ -37,6 +37,9 @@ PUDL Database Tables
 
    * - Data Dictionary
      - Browse Online
+   * - :ref:`i_core_rus12__forensics_entity_resolution_borrowers`
+     - https://data.catalyst.coop/preview/pudl/_core_rus12__forensics_entity_resolution_borrowers
+   
    * - :ref:`core_rus12__entity_borrowers`
      - https://data.catalyst.coop/preview/pudl/core_rus12__entity_borrowers
    
