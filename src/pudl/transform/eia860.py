@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from dagster import asset, asset_check
 
-import pudl
 import pudl.helpers
 import pudl.logging_helpers
 from pudl.helpers import drop_records_with_null_in_column
@@ -12,6 +11,7 @@ from pudl.metadata.classes import PUDL_PACKAGE, DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.settings import Eia860Settings
 from pudl.transform.eia861 import clean_nerc
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -111,9 +111,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
             own_df.report_date.isin(
                 [
                     f"{year}-01-01"
-                    for year in range(
-                        2018, max(pudl.settings.Eia860Settings().years) + 1
-                    )
+                    for year in range(2018, max(Eia860Settings().years) + 1)
                 ]
             )
         )

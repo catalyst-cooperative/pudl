@@ -20,7 +20,6 @@ import os
 
 import dagster as dg
 
-import pudl
 import pudl.analysis
 import pudl.extract
 import pudl.output
