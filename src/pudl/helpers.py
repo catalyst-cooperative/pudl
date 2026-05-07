@@ -2529,7 +2529,7 @@ def normalize_year_fragments(
 
 def make_changelog(df_all: pd.DataFrame, idx: list[str]):
     """Make a changelog table with unique instances of values over start report and max report date."""
-    idx_no_date = [c for c in idx if c != "r"]
+    idx_no_date = [c for c in idx if c != "report_date"]
     # assign a max report_date column for use in the valid_until_date column
     df_all["report_date_max"] = df_all.groupby(idx_no_date)["report_date"].transform(
         "max"
