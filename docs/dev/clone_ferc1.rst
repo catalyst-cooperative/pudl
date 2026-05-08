@@ -101,8 +101,8 @@ FERC SQLite provenance compatibility
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PUDL records provenance metadata when FERC SQLite assets are materialized, including
-the Zenodo DOI and the years extracted. 
-Before downstream ``pudl`` assets use those databases, 
+the Zenodo DOI and the years extracted.
+Before downstream ``pudl`` assets use those databases,
 PUDL checks the metadata to make sure they are compatible with the current run.
 This helps avoid scenarios where the FERC databases were built with old inputs
 or don't have all the years needed by the current run.
@@ -113,7 +113,8 @@ Incompatible provenance metadata
 The provenance check looks at two things:
 
 * Whether the Zenodo DOI changed for a FERC dataset. This would mean that the
-  raw input data used to build the existing SQLite DB is different from what is expected.
+  raw input data used to build the existing SQLite DB is different from what is
+  expected.
 * Whether the current ETL config requests years of FERC data that are not present in the
   existing SQLite DB.
 
@@ -121,7 +122,7 @@ When either of these criteria aren't met, Dagster raises an error telling you to
 the FERC SQLite assets.
 
 Regenerating FERC SQLite assets
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To rebuild FERC SQLite databases so they match the current input data and configuration,
 rerun the raw FERC conversion step:
