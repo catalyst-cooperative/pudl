@@ -34,7 +34,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_eia176__yearly_liquefied_natural_gas_inventory": {
         "description": {
-            "additional_summary_text": "An operator's LNG storage volume and capacity",
+            "additional_summary_text": "an operator's LNG storage volume and capacity.",
             "additional_source_text": "(Part 5, Lines 8.0-8.2)",
         },
         "schema": {
