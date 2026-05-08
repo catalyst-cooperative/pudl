@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.settings &#8212; PUDL 2026.4.1.dev25 documentation</title>
+    <title>pudl.settings &#8212; PUDL 2026.4.1.dev26 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=960c5b80"></script>
+    <script src="../../../_static/documentation_options.js?v=b6bdc16b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev26 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -931,6 +931,12 @@
 <dt class="sig sig-object py" id="pudl.settings.XbrlFormNumber.FORM714">
 <span class="sig-name descname"><span class="pre">FORM714</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">714</span></span><a class="reference internal" href="../../../_modules/pudl/settings.html#XbrlFormNumber.FORM714"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.settings.XbrlFormNumber.FORM714" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.settings.XbrlFormNumber.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/settings.html#XbrlFormNumber.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.settings.XbrlFormNumber.__str__" title="Link to this definition">#</a></dt>
+<dd><p>Format this as <code class="docutils literal notranslate"><span class="pre">fercX</span></code>, the way we use it everywhere else.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -2051,14 +2057,14 @@ against this base rather than the looser <a class="reference internal" href="#pu
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.settings.FercToSqliteSettings.get_dataset_settings">
-<span class="sig-name descname"><span class="pre">get_dataset_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'dbf'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'xbrl'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.settings.FercGenericXbrlToSqliteSettings" title="pudl.settings.FercGenericXbrlToSqliteSettings"><span class="pre">FercGenericXbrlToSqliteSettings</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/settings.html#FercToSqliteSettings.get_dataset_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.settings.FercToSqliteSettings.get_dataset_settings" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_dataset_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pudl.settings.XbrlFormNumber" title="pudl.settings.XbrlFormNumber"><span class="pre">XbrlFormNumber</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'dbf'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'xbrl'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.settings.FercGenericXbrlToSqliteSettings" title="pudl.settings.FercGenericXbrlToSqliteSettings"><span class="pre">FercGenericXbrlToSqliteSettings</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/settings.html#FercToSqliteSettings.get_dataset_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.settings.FercToSqliteSettings.get_dataset_settings" title="Link to this definition">#</a></dt>
 <dd><p>Look up extraction settings by dataset (<code class="docutils literal notranslate"><span class="pre">fercX</span></code>) and data format (<code class="docutils literal notranslate"><span class="pre">dbf</span></code> or <code class="docutils literal notranslate"><span class="pre">xbrl</span></code>).</p>
 <p>Throws a KeyError if dataset/format is not configured.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.settings.FercToSqliteSettings.get_dataset_years">
-<span class="sig-name descname"><span class="pre">get_dataset_years</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'dbf'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'xbrl'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/pudl/settings.html#FercToSqliteSettings.get_dataset_years"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.settings.FercToSqliteSettings.get_dataset_years" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_dataset_years</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pudl.settings.XbrlFormNumber" title="pudl.settings.XbrlFormNumber"><span class="pre">XbrlFormNumber</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'dbf'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'xbrl'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/pudl/settings.html#FercToSqliteSettings.get_dataset_years"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.settings.FercToSqliteSettings.get_dataset_years" title="Link to this definition">#</a></dt>
 <dd><p>Look up extraction <em>years</em> by dataset (<code class="docutils literal notranslate"><span class="pre">fercX</span></code>) and data format (<code class="docutils literal notranslate"><span class="pre">dbf</span></code> or <code class="docutils literal notranslate"><span class="pre">xbrl</span></code>).</p>
 </dd></dl>
 
@@ -2205,6 +2211,7 @@ XBRL to SQLite settings.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.XbrlFormNumber.FORM6"><code class="docutils literal notranslate"><span class="pre">XbrlFormNumber.FORM6</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.XbrlFormNumber.FORM60"><code class="docutils literal notranslate"><span class="pre">XbrlFormNumber.FORM60</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.XbrlFormNumber.FORM714"><code class="docutils literal notranslate"><span class="pre">XbrlFormNumber.FORM714</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.XbrlFormNumber.__str__"><code class="docutils literal notranslate"><span class="pre">XbrlFormNumber.__str__()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.FrozenBaseModel"><code class="docutils literal notranslate"><span class="pre">FrozenBaseModel</span></code></a><ul class="nav section-nav flex-column">

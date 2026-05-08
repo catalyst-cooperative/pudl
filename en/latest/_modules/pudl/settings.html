@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.settings &#8212; PUDL 2026.4.1.dev25 documentation</title>
+    <title>pudl.settings &#8212; PUDL 2026.4.1.dev26 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../_static/documentation_options.js?v=960c5b80"></script>
+    <script src="../../_static/documentation_options.js?v=b6bdc16b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev26 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -910,6 +910,13 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="XbrlFormNumber.FORM714">
 <a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.XbrlFormNumber.FORM714">[docs]</a>
     <span class="n">FORM714</span> <span class="o">=</span> <span class="mi">714</span></div>
+
+
+<div class="viewcode-block" id="XbrlFormNumber.__str__">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.XbrlFormNumber.__str__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format this as ``fercX``, the way we use it everywhere else.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ferc</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span></div>
 </div>
 
 
@@ -2237,7 +2244,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercToSqliteSettings.get_dataset_settings">
 <a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.FercToSqliteSettings.get_dataset_settings">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_settings</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">,</span> <span class="s2">&quot;xbrl&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">XbrlFormNumber</span><span class="p">,</span> <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">,</span> <span class="s2">&quot;xbrl&quot;</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercGenericXbrlToSqliteSettings</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).</span>
 
@@ -2250,7 +2257,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercToSqliteSettings.get_dataset_years">
 <a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.FercToSqliteSettings.get_dataset_years">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_years</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">,</span> <span class="s2">&quot;xbrl&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">XbrlFormNumber</span><span class="p">,</span> <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">,</span> <span class="s2">&quot;xbrl&quot;</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).&quot;&quot;&quot;</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset_settings</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="n">data_format</span><span class="p">)</span>

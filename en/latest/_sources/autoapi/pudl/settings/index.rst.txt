@@ -115,6 +115,12 @@ Module Contents
 
 
 
+   .. py:method:: __str__()
+
+      Format this as ``fercX``, the way we use it everywhere else.
+
+
+
 .. py:class:: FrozenBaseModel(/, **data: Any)
 
    Bases: :py:obj:`pydantic.BaseModel`
@@ -1328,7 +1334,7 @@ Module Contents
 
 
 
-   .. py:method:: get_dataset_settings(dataset: str, data_format: Literal['dbf', 'xbrl']) -> FercGenericXbrlToSqliteSettings
+   .. py:method:: get_dataset_settings(dataset: str | XbrlFormNumber, data_format: Literal['dbf', 'xbrl']) -> FercGenericXbrlToSqliteSettings
 
       Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
@@ -1336,7 +1342,7 @@ Module Contents
 
 
 
-   .. py:method:: get_dataset_years(dataset: str, data_format: Literal['dbf', 'xbrl']) -> list[int]
+   .. py:method:: get_dataset_years(dataset: str | XbrlFormNumber, data_format: Literal['dbf', 'xbrl']) -> list[int]
 
       Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
