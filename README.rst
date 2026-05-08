@@ -7,13 +7,13 @@ The Public Utility Data Liberation Project (PUDL)
 .. |repo-status| image:: https://img.shields.io/badge/repo%20status-active-success
    :target: https://www.repostatus.org/#active
    :alt: Project Status: Active
-.. |pytest| image:: https://img.shields.io/github/actions/workflow/status/catalyst-cooperative/pudl/pytest.yml?branch=main&label=pytest
+.. |pytest| image:: https://img.shields.io/github/actions/workflow/status/catalyst-cooperative/pudl/pytest.yml?event=merge_group&label=pytest
    :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Apytest
    :alt: PyTest Status
 .. |codecov| image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
-.. |docs| image:: https://img.shields.io/github/actions/workflow/status/catalyst-cooperative/pudl/build-deploy-docs.yml?branch=main&label=docs
+.. |docs| image:: https://img.shields.io/github/actions/workflow/status/catalyst-cooperative/pudl/build-deploy-docs.yml?branch=main&event=push&label=docs
    :target: https://docs.catalyst.coop/pudl/en/latest
    :alt: Docs Build Status
 .. |oc| image:: https://img.shields.io/badge/Open%20Collective-donate-3385FF?logo=opencollective&logoColor=white
