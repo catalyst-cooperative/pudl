@@ -87,6 +87,90 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MMBTU_per_Mcf",
         "type": "number",
     },
+    "natural_gas_production_mcf": {
+        "description": (
+            "Volume of natural gas produced within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "synthetic_gas_production_mcf": {
+        "description": (
+            "Volume of synthetic gas produced within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "underground_storage_withdrawals_mcf": {
+        "description": (
+            "Volume of gas withdrawn from underground storage within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "lng_storage_withdrawals_mcf": {
+        "description": (
+            "Volume of gas withdrawn from liquefied natural gas storage within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "above_ground_storage_withdrawals_mcf": {
+        "description": (
+            "Volume of gas withdrawn from above-ground storage within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "receipts_from_state_or_us_border_mcf": {
+        "description": (
+            "Total volume of gas received from, across, or at the state line or U.S. border. This is reported as an aggregate total in this table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "total_citygate_receipts_mcf": {
+        "description": (
+            "Total volume of gas received at citygates for redelivery or delivery to consumers within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "citygate_receipts_sales_customers_mcf": {
+        "description": (
+            "Volume of gas received at citygates for delivery to sales customers within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "citygate_receipts_transportation_customers_mcf": {
+        "description": (
+            "Volume of gas received at citygates for delivery to transportation customers within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "other_receipts_mcf": {
+        "description": (
+            "Volume of other gas receipts within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "supplemental_gaseous_fuels_mcf": {
+        "description": (
+            "Total volume of supplemental gaseous fuels received or produced within the report state. This is reported as an aggregate total in this table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "total_supply_mcf": {
+        "description": (
+            "Total gas supply within the report state, as reported by the operator. This is the sum of Part 4 Lines 1.0 through 6.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
     "operational_consumption_facility_space_heat_mcf": {
         "description": (
             "Volume of natural gas consumed as fuel for space heat of the operator's own facilities within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."

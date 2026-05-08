@@ -357,6 +357,146 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
 
 @asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_supply(
+    _core_eia176__yearly_company_data: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0)."""
+    primary_key = ["operator_id_eia", "report_year"]
+    extras = ["operating_state"]
+    keep = [
+        # 1.0
+        "production_volume",
+        "synthetic_production_volume",
+        # 2.0
+        "underground_storage_withdrawals_volume",
+        "lng_storage_withdrawals_volume",
+        "above_ground_storage_withdrawals_volume",
+        # 3.0
+        "receipts_from_state_or_us_border_volume",
+        # 4.0
+        "receipts_at_citygate_volume",
+        "receipts_at_citygate_delivered_to_sales_customers_volume",
+        "receipts_at_citygate_delivered_to_transportation_customers_volume",
+        # 5.0
+        "other_receipts_volume",
+        # 6.0
+        "supplemental_gaseous_fuels_volume",
+        # 7.0
+        "total_supply_volume",
+    ]
+
+    df = _core_eia176__yearly_company_data.filter([*primary_key, *extras, *keep])
+
+    df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
+    df = df.dropna(subset=["operating_state"])
+    df = df.rename(
+        columns={
+            "production_volume": "natural_gas_production_mcf",
+            "synthetic_production_volume": "synthetic_gas_production_mcf",
+            "underground_storage_withdrawals_volume": (
+                "underground_storage_withdrawals_mcf"
+            ),
+            "lng_storage_withdrawals_volume": "lng_storage_withdrawals_mcf",
+            "above_ground_storage_withdrawals_volume": (
+                "above_ground_storage_withdrawals_mcf"
+            ),
+            "receipts_from_state_or_us_border_volume": (
+                "receipts_from_state_or_us_border_mcf"
+            ),
+            "receipts_at_citygate_volume": "total_citygate_receipts_mcf",
+            "receipts_at_citygate_delivered_to_sales_customers_volume": (
+                "citygate_receipts_sales_customers_mcf"
+            ),
+            "receipts_at_citygate_delivered_to_transportation_customers_volume": (
+                "citygate_receipts_transportation_customers_mcf"
+            ),
+            "other_receipts_volume": "other_receipts_mcf",
+            "supplemental_gaseous_fuels_volume": "supplemental_gaseous_fuels_mcf",
+            "total_supply_volume": "total_supply_mcf",
+        }
+    )
+
+    supply_cols = [col for col in df.columns if col.endswith("_mcf")]
+    df = df.dropna(subset=supply_cols, how="all")
+
+    line_3_mismatches = _compare_eia176_continuation_line_total(
+        df=df,
+        raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
+        line=300,
+        value_col="receipts_from_state_or_us_border_mcf",
+        continuation_col="continuation_receipts_from_state_or_us_border_mcf",
+    )
+    assert len(line_3_mismatches) <= 2, "More than 2 line 3.0 receipts mismatches"
+
+    line_6_mismatches = _compare_eia176_continuation_line_total(
+        df=df,
+        raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
+        line=600,
+        value_col="supplemental_gaseous_fuels_mcf",
+        continuation_col="continuation_supplemental_gaseous_fuels_mcf",
+    )
+    assert line_6_mismatches.empty, (
+        "Found line 6.0 supplemental gaseous fuels mismatches"
+    )
+
+    return df
+
+
+@asset_check(asset=core_eia176__yearly_gas_supply, blocking=True)
+def validate_core_eia176__yearly_gas_supply_primary_key(
+    core_eia176__yearly_gas_supply: pd.DataFrame,
+) -> AssetCheckResult:
+    """Validate that EIA-176 gas supply records are unique by operator and year."""
+    primary_key = ["operator_id_eia", "report_year"]
+    duplicate_records = core_eia176__yearly_gas_supply[
+        core_eia176__yearly_gas_supply.duplicated(subset=primary_key, keep=False)
+    ]
+    return AssetCheckResult(
+        passed=duplicate_records.empty,
+        metadata={"duplicate_records": len(duplicate_records)},
+    )
+
+
+def _compare_eia176_continuation_line_total(
+    df: pd.DataFrame,
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    *,
+    line: int,
+    value_col: str,
+    continuation_col: str,
+) -> pd.DataFrame:
+    """Compare a wide EIA-176 value column against summed continuation-line values."""
+    primary_key = ["operator_id_eia", "report_year"]
+    continuation_values = (
+        raw_eia176__continuation_text_lines.groupby([*primary_key, "line"])
+        .agg({"volume_mcf": "sum"})
+        .reset_index()
+    )
+    continuation_values = (
+        continuation_values.pivot(
+            index=primary_key,
+            columns="line",
+            values="volume_mcf",
+        )
+        .reset_index()
+        .filter([*primary_key, line])
+        .rename(columns={line: continuation_col})
+    )
+
+    comparison = df.filter([*primary_key, "operating_state", value_col]).merge(
+        continuation_values,
+        how="left",
+        validate="1:1",
+    )
+    mismatch = (comparison[value_col] != comparison[continuation_col]) & (
+        comparison[value_col].notna() | comparison[continuation_col].notna()
+    )
+    return comparison.loc[mismatch]
+
+
+@asset(io_manager_key="pudl_io_manager")
 def core_eia176__yearly_gas_disposition(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,

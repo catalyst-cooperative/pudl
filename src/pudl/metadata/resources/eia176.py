@@ -3,6 +3,45 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_eia176__yearly_gas_supply": {
+        "description": {
+            "additional_summary_text": (
+                "a company's natural and supplemental gas supply for the report state."
+            ),
+            "additional_source_text": "(Part 4, Lines 1.0-7.0)",
+            "additional_details_text": """Line 3.0 receipts from the state or U.S. border and Line 6.0
+supplemental gaseous fuels are reported as aggregate totals in this table. The original
+granular continuation-line records contain additional counterparty and fuel-type details,
+but they are not yet included in PUDL.
+            """,
+        },
+        "schema": {
+            "fields": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "natural_gas_production_mcf",
+                "synthetic_gas_production_mcf",
+                "underground_storage_withdrawals_mcf",
+                "lng_storage_withdrawals_mcf",
+                "above_ground_storage_withdrawals_mcf",
+                "receipts_from_state_or_us_border_mcf",
+                "total_citygate_receipts_mcf",
+                "citygate_receipts_sales_customers_mcf",
+                "citygate_receipts_transportation_customers_mcf",
+                "other_receipts_mcf",
+                "supplemental_gaseous_fuels_mcf",
+                "total_supply_mcf",
+            ],
+            "primary_key": [
+                "operator_id_eia",
+                "report_year",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia176"],
+        "etl_group": "eia176",
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "description": {
             "additional_summary_text": (
