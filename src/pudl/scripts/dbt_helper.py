@@ -180,27 +180,22 @@ def update_table_schema(
     dbt_root: Path,
 ) -> UpdateResult:
     """Generate and write out a schema.yaml file defining a new or updated table."""
-    machine_path = (
-        insert_data_source(dbt_root / "schema_inputs", table_name)
-        / "schema.machine.yml"
-    )
+    schema_inputs = insert_data_source(dbt_root / "schema_inputs", table_name)
+    schema_inputs.mkdir(parents=True, exist_ok=True)
 
-    machine_schema = DbtSchema.from_table_name(table_name)
     # TODO: does it make sense to persist this machine-generated schema?
     # pros: maybe easier to read for a human: "merge these two files" vs. "merge my file on top of *nebulous thing that only exists in memory*"
     # cons: this persisted file is never actually used, when we merge we want to use whatever's *most* up to date i.e. DbtSchema.from_table_name
+    machine_path = schema_inputs / "schema.machine.yml"
+    machine_schema = DbtSchema.from_table_name(table_name)
     machine_schema.to_yaml(machine_path)
-    human_path = (
-        insert_data_source(dbt_root / "schema_inputs", table_name) / "schema.human.yml"
-    )
+
+    human_path = schema_inputs / "schema.human.yml"
     merged_schema = merge_schema_paths(machine_path, human_path)
 
-    machine_path = (
-        insert_data_source(dbt_root / "schema_inputs", table_name)
-        / "schema.machine.yml"
-    )
-    merged_path = insert_data_source(dbt_root / "models", table_name) / "schema.yml"
-
+    model_outputs = insert_data_source(dbt_root / "models", table_name)
+    model_outputs.mkdir(parents=True, exist_ok=True)
+    merged_path = model_outputs / "schema.yml"
     merged_schema.to_yaml(merged_path)
 
     return UpdateResult(
