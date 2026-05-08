@@ -5,7 +5,7 @@ from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
-from pudl.helpers import cleanstrings_snake
+from pudl.helpers import cleanstrings_snake, multi_index_stack
 from pudl.metadata.enums import (
     DEPRECIATION_CHANGES_GROUP_RUS12,
     DEPRECIATION_CHANGES_ITEMS_RUS12,
@@ -173,7 +173,7 @@ def _core_rus12__yearly_lines_stations_labor_materials_cost(
     df = rus.early_transform(raw_df=raw_rus12__lines_and_stations_labor_materials)
 
     data_cols = ["cost"]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -249,7 +249,7 @@ def _core_rus12__yearly_sources_and_distribution_by_plant_type(
     data_cols = ["capacity_kw", "cost", "plant_num", "net_energy_received_mwh"]
 
     # Stack by plant type
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -303,7 +303,7 @@ def _core_rus12__yearly_sources_and_distribution(
 
     # Stack by cost and mwh
     data_cols = ["cost", "net_energy_received_mwh"]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -353,7 +353,7 @@ def _core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operatio
         "cost_of_electric_service",
         "net_patronage_capital_or_margins",
     ]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -401,7 +401,7 @@ def _core_rus12__yearly_plant_costs(
             else ["cost", "cost_per_mwh"]
         )
         pattern = rf"^(capex|opex|total)_(.+)_({'|'.join(data_cols)})$"
-        df = rus.multi_index_stack(
+        df = multi_index_stack(
             df,
             idx_ish=[
                 "report_date",
@@ -650,7 +650,7 @@ def _core_rus12__monthly_demand_and_energy_at_delivery_points(
         "peak",
         "total",
     ]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -705,7 +705,7 @@ def _core_rus12__monthly_demand_and_energy_at_power_sources(
         "dec",
         "annual",
     ]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -811,7 +811,7 @@ def _core_rus12__yearly_utility_plant_changes(
         "adjustments_and_transfers",
         "ending_balance",
     ]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -837,7 +837,7 @@ def _core_rus12__yearly_non_utility_plant_changes(raw_rus12__non_utility_plant):
         "adjustments_and_transfers",
         "ending_balance",
     ]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -862,7 +862,7 @@ def _core_rus12__yearly_depreciation_changes(
         "adjustments_and_transfers",
         "ending_balance",
     ]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -889,7 +889,7 @@ def _core_rus12__yearly_depreciation_misc(
     """Transform the miscellaneous depreciation ending balance table."""
     df = rus.early_transform(raw_df=raw_rus12__depreciation)
     data_cols = ["ending_balance"]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,

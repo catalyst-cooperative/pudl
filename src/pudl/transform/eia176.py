@@ -11,7 +11,7 @@ from dagster import (
     multi_asset,
 )
 
-from pudl.helpers import simplify_columns
+from pudl.helpers import multi_index_stack, simplify_columns
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
@@ -566,34 +566,18 @@ def core_eia176__yearly_liquefied_natural_gas_inventory(
 
     id_cols = pk + other
 
-    df = pd.concat(
-        [
-            df[
-                id_cols
-                + ["lng_facility_year_end_volume", "lng_facility_year_end_capacity"]
-            ]
-            .assign(facility_type="lng_terminal")
-            .rename(
-                columns={
-                    "lng_facility_year_end_volume": "volume_mcf",
-                    "lng_facility_year_end_capacity": "capacity_mmcfd",
-                }
-            ),
-            df[
-                id_cols
-                + [
-                    "marine_terminal_facility_year_end_volume",
-                    "marine_terminal_facility_year_end_capacity",
-                ]
-            ]
-            .assign(facility_type="marine_terminal")
-            .rename(
-                columns={
-                    "marine_terminal_facility_year_end_volume": "volume_mcf",
-                    "marine_terminal_facility_year_end_capacity": "capacity_mmcfd",
-                }
-            ),
-        ]
+    data_cols = ["year_end_volume", "year_end_capacity"]
+    df = multi_index_stack(
+        df,
+        idx_ish=id_cols,
+        data_cols=data_cols,
+        pattern=rf"^(marine_terminal_facility|lng_facility)_({'|'.join(data_cols)})$",
+        match_names=["facility_type", "data_cols"],
+        unstack_level=["facility_type"],
+        expected_dropped_cols=1,
+    )
+    df = df.rename(
+        columns={"year_end_volume": "volume_mcf", "year_end_capacity": "capacity_mmcfd"}
     )
     df = df.dropna(subset=["volume_mcf", "capacity_mmcfd"], how="all")
 

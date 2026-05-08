@@ -5,6 +5,7 @@ from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
+from pudl.helpers import multi_index_stack
 from pudl.metadata.enums import (
     LOAN_STATUS_TYPES_RUS7,
     LOAN_UNIT_TYPES_RUS7,
@@ -105,7 +106,7 @@ def _core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     rus.early_check_pk(df)
     # Multi-Stack
     data_cols = ["customers_num", "savings_mmbtu", "invested"]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -164,7 +165,7 @@ def _core_rus7__yearly_power_requirements_electric_sales(
     df = _core_rus7__power_requirements
     # Multi-Stack
     data_cols = ["sales_kwh", "revenue"]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -195,7 +196,7 @@ def _core_rus7__yearly_power_requirements_electric_customers(
     df = _core_rus7__power_requirements
     # Multi-Stack
     data_cols = ["customers_num"]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -321,7 +322,7 @@ def _core_rus7__yearly_statement_of_operations(
     ]
     periods = ["opex_ytd", "opex_ytd_budget", "opex_report_month"]
     pattern = rf"^({'|'.join(statement_groups)})_(.+)_({'|'.join(periods)})$"
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=periods,
@@ -368,7 +369,7 @@ def _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pd.DataFrame):
     pattern = (
         rf"^({'|'.join(LOAN_STATUS_TYPES_RUS7)})_({'|'.join(LOAN_UNIT_TYPES_RUS7)})$"
     )
-    df_loan_program_debt = rus.multi_index_stack(
+    df_loan_program_debt = multi_index_stack(
         df_loan_program_debt,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=LOAN_UNIT_TYPES_RUS7,
@@ -398,7 +399,7 @@ def _core_rus7__yearly_service_interruptions(
     rus.early_check_pk(df)
 
     pattern = rf"^({'|'.join(SERVICE_INTERRUPTION_TYPES_RUS7)})_({'|'.join(SERVICE_INTERRUPTION_PERIODS_RUS7)})_(saidi_minutes)$"
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols="saidi_minutes",
@@ -430,7 +431,7 @@ def _core_rus7__transmission_and_distribution(
 
     # Stack the services table
     pattern = rf"^(services)_({'|'.join(SERVICE_STATUS_RUS7)})$"
-    services_df = rus.multi_index_stack(
+    services_df = multi_index_stack(
         services_df,
         idx_ish=id_cols,
         data_cols="services",
@@ -442,7 +443,7 @@ def _core_rus7__transmission_and_distribution(
 
     # Stack the mileage dataframe
     pattern = rf"^({'|'.join(TRANSMISSION_DISTRIBUTION_TYPES_RUS7)})_(?:length|energized)_(miles)$"
-    miles_df = rus.multi_index_stack(
+    miles_df = multi_index_stack(
         miles_df,
         idx_ish=id_cols,
         data_cols="miles",
@@ -624,7 +625,7 @@ def _core_rus7__yearly_materials_and_supplies(
         "electric_materials",
         "other_materials",
     ]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -648,7 +649,7 @@ def _core_rus7__yearly_utility_plant_changes(
         "adjustments_and_transfers",
         "ending_balance",
     ]
-    df = rus.multi_index_stack(
+    df = multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
