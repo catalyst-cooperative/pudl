@@ -73,7 +73,7 @@ jobs:
           as well as s3://pudl.catalyst.coop/'${{ github.ref_name }}'.
 
           ## Changes:
-          See [Release Notes](https://catalystcoop-pudl.readthedocs.io/en/latest/release_notes.html) for details." \
+          See [Release Notes](https://docs.catalyst.coop/pudl/en/latest/release_notes.html) for details." \
               --repo '${{ github.repository }}'
       - name: Attach conda package to GitHub Release
         env:
