@@ -18,8 +18,6 @@ The Public Utility Data Liberation Project (PUDL)
    :alt: Docs Build Status
 .. |oc| image:: https://img.shields.io/badge/Open%20Collective-donate-3385FF?logo=opencollective&logoColor=white
    :target: https://opencollective.com/pudl
-.. |ruff| image:: https://img.shields.io/badge/lint-ruff-46A758?logo=ruff&logoColor=white
-   :target: https://github.com/astral-sh/ruff
 .. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
    :target: https://results.pre-commit.ci/latest/github/catalyst-cooperative/pudl/main
    :alt: pre-commit CI
