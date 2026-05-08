@@ -207,11 +207,30 @@ Cloning the FERC databases
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The raw FERC SQLite databases are part of the ``raw_ferc_to_sqlite`` asset group.  If
-you only need those outputs, select the ``ferc_to_sqlite`` job and hit ``Materialize
-All``, or you can select the specific FERC Form you actually need. If you want to run
+you only need those outputs, select the ``ferc_to_sqlite`` job and hit "Materialize
+All", or you can select the specific FERC Form you actually need. If you want to run
 the whole ETL from scratch, use the ``pudl_with_ferc_to_sqlite`` job. The ``pudl`` job
 is intended for day-to-day development once compatible raw FERC outputs have been
 materialized locally. See :doc:`/dev/clone_ferc1` for more background on this process.
+
+PUDL checks that your existing FERC SQLite databases are compatible with the current run
+configuration before downstream assets read them. Incompatible databases usually mean
+the FERC SQLite assets need to be rematerialized. This will happen when:
+
+* The configured Zenodo DOI for a FERC dataset changed.
+* The set of FERC years requested by your current ETL config includes years that are
+  missing from the existing FERC SQLite database.
+
+When this happens, refresh the FERC databases by materializing ``ferc_to_sqlite`` again,
+then rerun the ``pudl`` job or selected downstream assets. You can also choose to
+materialize only the FERC Form 1 and Form 714 databases in the Dagster UI, since those
+are the only ones that feed directly into the PUDL ETL.
+
+If you intentionally want to skip this compatibility check (for example, when using
+prebuilt FERC SQLite files downloaded from nightly outputs), set
+``PUDL_SKIP_FERC_SQLITE_PROVENANCE=1`` in your shell before running the ETL. This bypass
+is intended for development workflows and can lead to downstream failures if the
+FERC databases are stale.
 
 Running the PUDL ETL
 ^^^^^^^^^^^^^^^^^^^^

@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Running the ETL Pipeline &#8212; PUDL 2026.4.1.dev26 documentation</title>
+    <title>Running the ETL Pipeline &#8212; PUDL 2026.4.1.dev27 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=b6bdc16b"></script>
+    <script src="../_static/documentation_options.js?v=1ffdb50d"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev26 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev26 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev27 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -907,11 +907,28 @@ details on how to use the UI.</p>
 <section id="cloning-the-ferc-databases">
 <h3>Cloning the FERC databases<a class="headerlink" href="#cloning-the-ferc-databases" title="Link to this heading">#</a></h3>
 <p>The raw FERC SQLite databases are part of the <code class="docutils literal notranslate"><span class="pre">raw_ferc_to_sqlite</span></code> asset group.  If
-you only need those outputs, select the <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> job and hit <code class="docutils literal notranslate"><span class="pre">Materialize</span>
-<span class="pre">All</span></code>, or you can select the specific FERC Form you actually need. If you want to run
+you only need those outputs, select the <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> job and hit “Materialize
+All”, or you can select the specific FERC Form you actually need. If you want to run
 the whole ETL from scratch, use the <code class="docutils literal notranslate"><span class="pre">pudl_with_ferc_to_sqlite</span></code> job. The <code class="docutils literal notranslate"><span class="pre">pudl</span></code> job
 is intended for day-to-day development once compatible raw FERC outputs have been
 materialized locally. See <a class="reference internal" href="clone_ferc1.html"><span class="doc">Converting raw FERC data to SQLite</span></a> for more background on this process.</p>
+<p>PUDL checks that your existing FERC SQLite databases are compatible with the current run
+configuration before downstream assets read them. Incompatible databases usually mean
+the FERC SQLite assets need to be rematerialized. This will happen when:</p>
+<ul class="simple">
+<li><p>The configured Zenodo DOI for a FERC dataset changed.</p></li>
+<li><p>The set of FERC years requested by your current ETL config includes years that are
+missing from the existing FERC SQLite database.</p></li>
+</ul>
+<p>When this happens, refresh the FERC databases by materializing <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> again,
+then rerun the <code class="docutils literal notranslate"><span class="pre">pudl</span></code> job or selected downstream assets. You can also choose to
+materialize only the FERC Form 1 and Form 714 databases in the Dagster UI, since those
+are the only ones that feed directly into the PUDL ETL.</p>
+<p>If you intentionally want to skip this compatibility check (for example, when using
+prebuilt FERC SQLite files downloaded from nightly outputs), set
+<code class="docutils literal notranslate"><span class="pre">PUDL_SKIP_FERC_SQLITE_PROVENANCE=1</span></code> in your shell before running the ETL. This bypass
+is intended for development workflows and can lead to downstream failures if the
+FERC databases are stale.</p>
 </section>
 <section id="running-the-pudl-etl">
 <h3>Running the PUDL ETL<a class="headerlink" href="#running-the-pudl-etl" title="Link to this heading">#</a></h3>

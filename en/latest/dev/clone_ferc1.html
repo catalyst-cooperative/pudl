@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Converting raw FERC data to SQLite &#8212; PUDL 2026.4.1.dev26 documentation</title>
+    <title>Converting raw FERC data to SQLite &#8212; PUDL 2026.4.1.dev27 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=b6bdc16b"></script>
+    <script src="../_static/documentation_options.js?v=1ffdb50d"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -577,8 +577,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev26 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev26 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev27 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev27 documentation - Home"/>
   
   
 </a></div>
@@ -1252,6 +1252,61 @@ for all available FERC Data, which includes Forms 1, 2, 6, 60 and 714. You can a
 choose to materialize any combination of form an format (DBF or XBRL). Note that the
 earlier FERC 714 data (2006-2020) is distributed as CSVs, and PUDL does not yet load
 all available tables.</p>
+<section id="ferc-sqlite-provenance-compatibility">
+<h2>FERC SQLite provenance compatibility<a class="headerlink" href="#ferc-sqlite-provenance-compatibility" title="Link to this heading">#</a></h2>
+<p>PUDL records provenance metadata when FERC SQLite assets are materialized, including
+the Zenodo DOI and the years extracted.
+Before downstream <code class="docutils literal notranslate"><span class="pre">pudl</span></code> assets use those databases,
+PUDL checks the metadata to make sure they are compatible with the current run.
+This helps avoid scenarios where the FERC databases were built with old inputs
+or don’t have all the years needed by the current run.</p>
+<section id="incompatible-provenance-metadata">
+<h3>Incompatible provenance metadata<a class="headerlink" href="#incompatible-provenance-metadata" title="Link to this heading">#</a></h3>
+<p>The provenance check looks at two things:</p>
+<ul class="simple">
+<li><p>Whether the Zenodo DOI changed for a FERC dataset. This would mean that the
+raw input data used to build the existing SQLite DB is different from what is
+expected.</p></li>
+<li><p>Whether the current ETL config requests years of FERC data that are not present in the
+existing SQLite DB.</p></li>
+</ul>
+<p>When either of these criteria aren’t met, Dagster raises an error telling you to refresh
+the FERC SQLite assets.</p>
+</section>
+<section id="regenerating-ferc-sqlite-assets">
+<h3>Regenerating FERC SQLite assets<a class="headerlink" href="#regenerating-ferc-sqlite-assets" title="Link to this heading">#</a></h3>
+<p>To rebuild FERC SQLite databases so they match the current input data and configuration,
+rerun the raw FERC conversion step:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Our<span class="w"> </span>task<span class="w"> </span>shortcut
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>ferc-to-sqlite
+<span class="gp"># </span>Equivalent<span class="w"> </span>to
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>ferc_to_sqlite<span class="w"> </span>--config<span class="w"> </span>src/pudl/package_data/settings/dg_full.yml
+</pre></div>
+</div>
+<p>You can also materialize just the specific FERC SQLite assets that are out of date,
+either in the Dagster UI or using the command line:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span>raw_ferc1_xbrl__sqlite<span class="w"> </span>--config<span class="w"> </span>src/pudl/package_data/settings/dg_full.yml
+</pre></div>
+</div>
+<p>After the FERC databases are refreshed, rerun the <code class="docutils literal notranslate"><span class="pre">pudl</span></code> job or selected downstream
+assets.</p>
+</section>
+<section id="bypassing-provenance-checks-for-development">
+<h3>Bypassing provenance checks for development<a class="headerlink" href="#bypassing-provenance-checks-for-development" title="Link to this heading">#</a></h3>
+<p>If you need to use externally-downloaded FERC SQLite databases (for example, from
+nightly build outputs), you can bypass compatibility checks by setting:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PUDL_SKIP_FERC_SQLITE_PROVENANCE</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Truthy values <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">true</span></code>, and <code class="docutils literal notranslate"><span class="pre">yes</span></code> are accepted.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Skipping provenance checks is a development escape hatch. It can cause runtime
+failures or incorrect results if your local prerequisites do not actually match the
+current ETL configuration.</p>
+</div>
+</section>
+</section>
 </section>
 
 
@@ -1292,6 +1347,23 @@ all available tables.</p>
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-sqlite-provenance-compatibility">FERC SQLite provenance compatibility</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#incompatible-provenance-metadata">Incompatible provenance metadata</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regenerating-ferc-sqlite-assets">Regenerating FERC SQLite assets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bypassing-provenance-checks-for-development">Bypassing provenance checks for development</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
 
