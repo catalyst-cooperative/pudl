@@ -234,7 +234,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Daily deliverability capacity of a liquefied natural gas storage facility "
             "at the end of the report year."
         ),
-        "unit": "MMcf/d",
+        "unit": "MMcf_per_day",
     },
     "operator_id_eia": {
         "type": "string",
