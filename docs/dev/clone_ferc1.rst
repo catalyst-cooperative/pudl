@@ -101,8 +101,8 @@ FERC SQLite provenance compatibility
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PUDL records provenance metadata when FERC SQLite assets are materialized, including
-the Zenodo DOI and the years extracted. 
-Before downstream ``pudl`` assets use those databases, 
+the Zenodo DOI and the years extracted.
+Before downstream ``pudl`` assets use those databases,
 PUDL checks the metadata to make sure they are compatible with the current run.
 This helps avoid scenarios where the FERC databases were built with old inputs
 or don't have all the years needed by the current run.
