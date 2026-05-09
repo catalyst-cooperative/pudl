@@ -14,8 +14,8 @@ import os
 import dagster as dg
 import pandas as pd
 
+from pudl.dagster.assets.deploy.ferceqr import FERCEQR_TRANSFORM_ASSETS
 from pudl.dagster.partitions import ferceqr_year_quarters
-from pudl.deploy.ferceqr import FERCEQR_TRANSFORM_ASSETS
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)

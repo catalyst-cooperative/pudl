@@ -86,9 +86,16 @@ class DatastoreResource(dg.ConfigurableResource):
 
 
 class FercEqrExtractSettings(dg.ConfigurableResource):
-    """Configure which archived FERC EQR filings are available for extraction."""
+    """Configure which archived FERC EQR filings are available for extraction.
 
-    ferceqr_archive_uri: str = "gs://archives.catalyst.coop/ferceqr/published"
+    The default value of ``ferceqr_archive_uri`` points to the published archive of FERC
+    EQR filings on GCS which is what we use in production. For testing or development,
+    this can be overridden to point to a local path with a subset of the archive.
+    """
+
+    ferceqr_archive_uri: str = os.getenv(
+        "FERCEQR_ARCHIVE_PATH", default="gs://archives.catalyst.coop/ferceqr/published"
+    )
 
     @property
     def ferceqr_archive_path(self) -> UPath:
@@ -100,11 +107,7 @@ pudl_etl_settings_resource = PudlEtlSettingsResource.configure_at_launch()
 zenodo_doi_settings_resource = ZenodoDoiSettingsResource()
 datastore_resource = DatastoreResource(zenodo_dois=zenodo_doi_settings_resource)
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()
-ferceqr_extract_settings = FercEqrExtractSettings(
-    ferceqr_archive_uri=os.getenv(
-        "FERCEQR_ARCHIVE_PATH", "gs://archives.catalyst.coop/ferceqr/published"
-    )
-)
+ferceqr_extract_settings = FercEqrExtractSettings()
 
 default_resources: dict[str, Any] = {
     "datastore": datastore_resource,

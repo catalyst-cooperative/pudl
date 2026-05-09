@@ -22,8 +22,8 @@ import dagster as dg
 
 import pudl
 from pudl.dagster.assets.core import eiaapi_electricity, glue, static
+from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 from pudl.dagster.assets.raw import ferc_to_sqlite
-from pudl.deploy import ferceqr
 
 raw_module_groups = {
     "raw_ferc_to_sqlite": [ferc_to_sqlite],
@@ -107,7 +107,7 @@ out_module_groups = {
 }
 
 ferceqr_deployment_assets = (
-    {"ferceqr_deployment": [ferceqr]} if os.getenv("FERCEQR_BUILD", None) else {}
+    {"ferceqr_deployment": [deploy_ferceqr]} if os.getenv("FERCEQR_BUILD", None) else {}
 )
 
 all_asset_modules = (
