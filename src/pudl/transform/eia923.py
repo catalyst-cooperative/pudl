@@ -1367,7 +1367,9 @@ def _core_eia923__monthly_cooling_system_information(
 @asset_check(asset=_core_eia923__monthly_cooling_system_information, blocking=True)
 def cooling_system_information_continuity(csi):
     """Check to see if columns vary as slowly as expected."""
-    return pudl.validate.group_mean_continuity_check(
+    from pudl.dagster.asset_checks import group_mean_continuity_check
+
+    return group_mean_continuity_check(
         df=csi,
         thresholds={
             "annual_average_consumption_rate_gallons_per_minute": 0.1,
@@ -1714,7 +1716,9 @@ def _core_eia923__yearly_fgd_operation_maintenance(
 @asset_check(asset=_core_eia923__yearly_fgd_operation_maintenance, blocking=True)
 def fgd_continuity_check(fgd):
     """Check to see if columns vary as slowly as expected."""
-    return pudl.validate.group_mean_continuity_check(
+    from pudl.dagster.asset_checks import group_mean_continuity_check
+
+    return group_mean_continuity_check(
         df=fgd,
         thresholds={
             "fgd_electricity_consumption_mwh": 0.3,
@@ -1848,7 +1852,9 @@ def _core_eia923__yearly_byproduct_disposition(
 @asset_check(asset=_core_eia923__yearly_byproduct_disposition, blocking=True)
 def disposition_continuity_check(bpd):
     """Check to see if columns vary as slowly as expected."""
-    return pudl.validate.group_mean_continuity_check(
+    from pudl.dagster.asset_checks import group_mean_continuity_check
+
+    return group_mean_continuity_check(
         df=bpd,
         thresholds={
             "disposal_landfill_units": 0.4,

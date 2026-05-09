@@ -7,7 +7,6 @@ from typing import Any, ClassVar, Literal, Self
 
 import pandas as pd
 import yaml
-from dagster import StaticPartitionsDefinition
 from pydantic import (
     AnyHttpUrl,
     BaseModel,
@@ -24,9 +23,6 @@ from pudl.metadata.classes import DataSource
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 
 logger = pudl.logging_helpers.get_logger(__name__)
-ferceqr_year_quarters: StaticPartitionsDefinition = StaticPartitionsDefinition(
-    DataSource.from_id("ferceqr").working_partitions["year_quarters"]
-)
 
 
 @unique
@@ -387,7 +383,7 @@ class EiaAeoSettings(GenericDatasetSettings):
     """The list of years to validate."""
 
 
-class VCERareSettings(GenericDatasetSettings):
+class VceRareSettings(GenericDatasetSettings):
     """An immutable pydantic model to validate VCE RARE Power Dataset settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("vcerare")
@@ -417,7 +413,7 @@ class GlueSettings(FrozenBaseModel):
 
 
 @unique
-class GPRATKTechType(StrEnum):
+class GridPathRaToolkitTechType(StrEnum):
     """Enum to constrain GridPath RA Toolkit technology types."""
 
     WIND = auto()
@@ -427,7 +423,7 @@ class GPRATKTechType(StrEnum):
 
 
 @unique
-class GPRATKProcLevel(StrEnum):
+class GridPathRaToolkitProcLevel(StrEnum):
     """Enum to constraint GridPath RA Toolkit processing levels."""
 
     EXTENDED = auto()
@@ -436,7 +432,7 @@ class GPRATKProcLevel(StrEnum):
     # ORIGINAL = auto()
 
 
-class GridPathRAToolkitSettings(GenericDatasetSettings):
+class GridPathRaToolkitSettings(GenericDatasetSettings):
     """An immutable pydantic model to validate GridPath RA Toolkit settings.
 
     Note that the default values for technology_types, processing_levels, and
@@ -459,7 +455,7 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
     def allowed_technology_types(cls, v: list[str]) -> list[str]:
         """Ensure that technology types are valid."""
         for tech_type in v:
-            if tech_type not in GPRATKTechType:
+            if tech_type not in GridPathRaToolkitTechType:
                 raise ValueError(f"{tech_type} is not a valid technology type.")
         return v
 
@@ -468,7 +464,7 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
     def allowed_processing_levels(cls, v: list[str]) -> list[str]:
         """Ensure that processing levels are valid."""
         for proc_level in v:
-            if proc_level not in GPRATKProcLevel:
+            if proc_level not in GridPathRaToolkitProcLevel:
                 raise ValueError(f"{proc_level} is not a valid processing level.")
         return v
 
@@ -574,11 +570,11 @@ class DatasetsSettings(FrozenBaseModel):
     ferc1: Ferc1Settings | None = None
     ferc714: Ferc714Settings | None = None
     glue: GlueSettings | None = None
-    gridpathratoolkit: GridPathRAToolkitSettings | None = None
+    gridpathratoolkit: GridPathRaToolkitSettings | None = None
     nrelatb: NrelAtbSettings | None = None
     phmsagas: PhmsaGasSettings | None = None
     sec10k: Sec10kSettings | None = None
-    vcerare: VCERareSettings | None = None
+    vcerare: VceRareSettings | None = None
     censuspep: CensusPepSettings | None = None
     rus7: Rus7Settings | None = None
     rus12: Rus12Settings | None = None
@@ -600,12 +596,12 @@ class DatasetsSettings(FrozenBaseModel):
             data["ferc1"] = Ferc1Settings()
             data["ferc714"] = Ferc714Settings()
             data["glue"] = GlueSettings()
-            data["gridpathratoolkit"] = GridPathRAToolkitSettings()
+            data["gridpathratoolkit"] = GridPathRaToolkitSettings()
             data["nrelatb"] = NrelAtbSettings()
             data["phmsagas"] = PhmsaGasSettings()
             data["rus7"] = Rus7Settings()
             data["sec10k"] = Sec10kSettings()
-            data["vcerare"] = VCERareSettings()
+            data["vcerare"] = VceRareSettings()
             data["censuspep"] = CensusPepSettings()
             data["rus12"] = Rus12Settings()
 

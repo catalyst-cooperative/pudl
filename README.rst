@@ -49,10 +49,9 @@ The Public Utility Data Liberation Project (PUDL)
 |repo-status|
 |pytest|
 |codecov|
+|pre-commit-ci|
 |docs|
 |oc|
-|ruff|
-|pre-commit-ci|
 |zenodo-doi|
 |office-hours|
 |mastodon|

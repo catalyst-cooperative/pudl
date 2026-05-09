@@ -15,8 +15,8 @@ from dagster import (
 )
 
 import pudl
-import pudl.validate as pv
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.validate import quality as pv
 
 DEFAULT_GENS_COLS = [
     "plant_id_eia",
@@ -280,11 +280,12 @@ def mcoe_asset_check_factory(spec: McoeCheckSpec) -> AssetChecksDefinition:
                 max_null_fraction=spec.max_null_fraction,
             )
         except pv.ExcessiveNullRowsError as exc:
+            null_row_count = len(exc.null_rows)
             return AssetCheckResult(
                 passed=False,
-                metadata={"excessively_null_row_count": sum(exc.null_rows)},
+                metadata={"excessively_null_row_count": null_row_count},
                 description=(
-                    f"{spec.asset} has {sum(exc.null_rows)} excessively null rows!"
+                    f"{spec.asset} has {null_row_count} excessively null rows!"
                 ),
             )
         return AssetCheckResult(
