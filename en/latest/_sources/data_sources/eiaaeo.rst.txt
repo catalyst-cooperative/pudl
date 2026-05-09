@@ -14,9 +14,9 @@ EIA Annual Energy Outlook (AEO)
    * - Source Format
      - JSON
    * - Download Size
-     - 449 MB
+     - 476 MB
    * - Temporal Coverage
-     - 2023-2025
+     - 2023-2026
    * - PUDL Code
      - ``eiaaeo``
    * - Unprocessed Source Data Archive

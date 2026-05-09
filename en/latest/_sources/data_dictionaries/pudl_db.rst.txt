@@ -32890,7 +32890,7 @@ Annual time series of projected electricity sales by region and customer class.
 
 
 Most-recent data:
-  2025
+  2026
 
 
 Processing:
@@ -32985,7 +32985,7 @@ Annual time series of projected energy use for commercial, electric power, indus
 
 
 Most-recent data:
-  2025
+  2026
 
 
 Processing:
@@ -33121,7 +33121,7 @@ Annual time series of projected fuel prices for the electric power sector, inclu
 
 
 Most-recent data:
-  2025
+  2026
 
 
 Processing:
@@ -33222,7 +33222,7 @@ Annual time series of projected generation capacity & total generation in the el
 
 
 Most-recent data:
-  2025
+  2026
 
 
 Processing:
@@ -33329,7 +33329,7 @@ Annual time series of projected generation capacity and total generation in the 
 
 
 Most-recent data:
-  2025
+  2026
 
 
 Processing:
