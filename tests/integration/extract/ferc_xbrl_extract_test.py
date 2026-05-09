@@ -10,13 +10,11 @@ import pytest
 import sqlalchemy as sa
 
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-from pudl.settings import FercToSqliteSettings
+from pudl.settings import FercToSqliteSettings, XbrlFormNumber
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
 from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
-
-FERC_FORMS = [1, 2, 6, 60, 714]
 
 
 def _get_tables(conn) -> set[str]:
@@ -40,17 +38,17 @@ def test_sqlite_duckdb_equivalence(
     ferc_to_sqlite_settings: FercToSqliteSettings,
 ):
     """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
-    for form in FERC_FORMS:
-        if not ferc_to_sqlite_settings.__getattribute__(
-            f"ferc{form}_xbrl_to_sqlite_settings"
-        ).years:
+    for form in XbrlFormNumber:
+        if not ferc_to_sqlite_settings.get_dataset_years(
+            dataset=form, data_format="xbrl"
+        ):
             logger.info(
-                f"Skipping FERC Form {form} sqlite vs duckdb equivalence test: no years configured."
+                f"Skipping {form} sqlite vs duckdb equivalence test: no years configured."
             )
             continue
-        logger.info(f"Comparing FERC Form {form} SQLite vs. DuckDB outputs...")
-        sqlite_path = PudlPaths().sqlite_db_path(f"ferc{form}_xbrl")
-        duckdb_path = PudlPaths().duckdb_db_path(f"ferc{form}_xbrl")
+        logger.info(f"Comparing {form} SQLite vs. DuckDB outputs...")
+        sqlite_path = PudlPaths().sqlite_db_path(f"{form}_xbrl")
+        duckdb_path = PudlPaths().duckdb_db_path(f"{form}_xbrl")
 
         with (
             duckdb.connect(sqlite_path) as sqlite_conn,
