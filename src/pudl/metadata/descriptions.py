@@ -45,7 +45,7 @@ LAYER_DESCRIPTIONS: dict = {
 }
 """Standard descriptive text to appear in the Processing section of resource descriptions."""
 
-# TODO: add link to https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/{datasource_name}.html
+# TODO: add link to https://docs.catalyst.coop/pudl/en/latest/data_sources/{datasource_name}.html
 # if we have a data_sources page for it.
 SOURCE_DESCRIPTIONS: dict = {
     source_name: SOURCES[source_name]["title"] for source_name in SOURCES
