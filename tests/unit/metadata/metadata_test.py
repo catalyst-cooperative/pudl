@@ -12,8 +12,8 @@ import polars as pl
 import pytest
 from shapely import Point
 
-from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import (
+    PUDL_PACKAGE,
     DataSource,
     Field,
     Package,

@@ -8,7 +8,7 @@ This code is for use analyzing EIA Form 860 data.
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
-import pudl
+import pudl.extract.eia860m
 import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory

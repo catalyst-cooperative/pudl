@@ -3,7 +3,7 @@
 import pandas as pd
 from dagster import asset
 
-import pudl
+import pudl.helpers
 from pudl.metadata.codes import CODE_METADATA
 
 

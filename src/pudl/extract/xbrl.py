@@ -11,7 +11,7 @@ from pathlib import Path
 from dagster import op
 from ferc_xbrl_extractor.cli import run_main
 
-import pudl
+import pudl.logging_helpers
 from pudl.dagster.resources import FercXbrlRuntimeSettings
 from pudl.settings import FercGenericXbrlToSqliteSettings, XbrlFormNumber
 from pudl.workspace.datastore import Datastore

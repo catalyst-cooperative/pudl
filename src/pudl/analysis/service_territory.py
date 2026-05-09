@@ -16,7 +16,7 @@ import pandas as pd
 from dagster import AssetsDefinition, Field, asset
 from matplotlib import pyplot as plt
 
-import pudl
+import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

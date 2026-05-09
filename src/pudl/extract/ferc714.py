@@ -9,7 +9,7 @@ from typing import Any
 import pandas as pd
 from dagster import AssetKey, AssetsDefinition, AssetSpec, asset
 
-import pudl
+import pudl.logging_helpers
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)

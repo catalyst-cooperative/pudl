@@ -18,8 +18,13 @@ from pybtex.plugin import register_plugin
 from pybtex.style.formatting.plain import Style as PlainStyle
 from pybtex.style.sorting import BaseSortingStyle
 
-from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import CodeMetadata, DataSource, Package, Resource
+from pudl.metadata.classes import (
+    PUDL_PACKAGE,
+    CodeMetadata,
+    DataSource,
+    Package,
+    Resource,
+)
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.workspace.datastore import Datastore

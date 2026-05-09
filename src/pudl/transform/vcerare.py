@@ -10,7 +10,7 @@ from dagster import (
     asset,
 )
 
-import pudl
+import pudl.logging_helpers
 from pudl.helpers import (
     ParquetData,
     cleanstrings_snake,

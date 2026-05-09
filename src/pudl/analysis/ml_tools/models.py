@@ -54,7 +54,7 @@ from dagster import (
     graph_asset,
 )
 
-import pudl
+import pudl.logging_helpers
 
 from . import experiment_tracking
 

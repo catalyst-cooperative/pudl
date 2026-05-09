@@ -20,8 +20,9 @@ from dagster import (
     materialize_to_memory,
 )
 
-import pudl
-from pudl.dagster import build_defs, resources
+import pudl.dagster.resources as resources
+import pudl.logging_helpers
+from pudl.dagster.build import build_defs
 from pudl.dagster.io_managers import (
     PudlMixedFormatIOManager,
     _FercSqliteConfigurableIOManagerBase,
@@ -32,7 +33,7 @@ from pudl.dagster.io_managers import (
 )
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.settings import (
     DatasetsSettings,
     EtlSettings,

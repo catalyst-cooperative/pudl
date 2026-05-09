@@ -8,7 +8,7 @@ databases, rather than the downstream transforms that consume them.
 
 import dagster as dg
 
-import pudl
+import pudl.logging_helpers
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenanceRecord,

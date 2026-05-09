@@ -34,8 +34,7 @@ from pandera.errors import SchemaErrors
 from pudl.dagster.assets import all_asset_modules, asset_keys
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
-from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import Package, Resource
+from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:

@@ -20,7 +20,10 @@ import os
 
 import dagster as dg
 
-import pudl
+import pudl.analysis
+import pudl.extract
+import pudl.output
+import pudl.transform
 from pudl.dagster.assets.core import eiaapi_electricity, glue, static
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 from pudl.dagster.assets.raw import ferc_to_sqlite

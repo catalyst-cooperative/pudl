@@ -1,6 +1,7 @@
 """Integration tests for Excel-based extractors."""
 
-import pudl
+import pudl.extract.eia860
+import pudl.extract.eia923
 
 
 class TestExcelExtractor:

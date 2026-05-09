@@ -14,7 +14,6 @@ from dbt.artifacts.schemas.run import RunExecutionResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
-import pudl.dagster
 from pudl.logging_helpers import get_logger
 from pudl.workspace.setup import DBT_DIR, PUDL_ROOT_PATH, PudlPaths
 
@@ -188,7 +187,7 @@ def build_with_context(
 
 
 def dagster_to_dbt_selection(
-    selection: str, defs: dg.Definitions | None = None, manifest=None
+    selection: str, defs: dg.Definitions, manifest=None
 ) -> str:
     """Translate dagster asset selection to db node selection.
 
@@ -200,9 +199,6 @@ def dagster_to_dbt_selection(
     * turn asset keys into node names
     * turn node names into selection string
     """
-    if defs is None:
-        defs = pudl.dagster.defs
-
     asset_keys = dg.AssetSelection.from_string(selection).resolve(
         defs.resolve_asset_graph()
     )

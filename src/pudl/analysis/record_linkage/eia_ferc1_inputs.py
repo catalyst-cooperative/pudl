@@ -5,7 +5,9 @@ from typing import Literal
 
 import pandas as pd
 
-import pudl
+import pudl.analysis.plant_parts_eia
+import pudl.helpers
+import pudl.logging_helpers
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
 
 logger = pudl.logging_helpers.get_logger(__name__)

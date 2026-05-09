@@ -36,7 +36,7 @@ from packaging import version
 from pydantic import model_validator
 from sqlalchemy.exc import IntegrityError
 
-import pudl
+import pudl.logging_helpers
 from pudl.dagster.provenance import (
     FercSqliteProvenance,
     assert_ferc_sqlite_compatible,

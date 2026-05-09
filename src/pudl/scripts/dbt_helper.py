@@ -15,6 +15,7 @@ import yaml
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
+from pudl.dagster.build import build_defs
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.validate.dbt import DBT_DIR, build_with_context, dagster_to_dbt_selection
@@ -710,7 +711,7 @@ def validate(
         node_selection = select
     else:
         if asset_select is not None:
-            node_selection = dagster_to_dbt_selection(asset_select)
+            node_selection = dagster_to_dbt_selection(asset_select, build_defs())
         else:
             node_selection = "*"
 
