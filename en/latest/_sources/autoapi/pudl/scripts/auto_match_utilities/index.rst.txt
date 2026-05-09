@@ -100,7 +100,7 @@ Module Contents
    Write the updated matching spreadsheet to disk.
 
 
-.. py:function:: main(test_run: bool)
+.. py:function:: main(test_run: bool) -> int
 
    Match EIA and FERC utilities based on utility name alone.
 

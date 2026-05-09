@@ -1,0 +1,38 @@
+pudl.scripts.pudl_check_fks
+===========================
+
+.. py:module:: pudl.scripts.pudl_check_fks
+
+.. autoapi-nested-parse::
+
+   Check that foreign key constraints in the PUDL database are respected.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_check_fks.main
+
+
+Module Contents
+---------------
+
+.. py:function:: main(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path) -> int
+
+   Check that foreign key constraints in the PUDL database are respected.
+
+   Dagster manages the dependencies between various assets in our ETL pipeline,
+   attempting to materialize tables only after their upstream dependencies have been
+   satisfied. However, this order is non deterministic because they are executed in
+   parallel, and doesn't necessarily correspond to the foreign-key constraints within
+   the database, so durint the ETL we disable foreign key constraints within
+   ``pudl.sqlite``.
+
+   However, we still expect foreign key constraints to be satisfied once all of the
+   tables have been loaded, so we check that they are valid after the ETL has
+   completed. This script runs the same check.
+
+

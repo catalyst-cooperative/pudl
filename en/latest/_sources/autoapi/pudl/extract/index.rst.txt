@@ -22,6 +22,7 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
+   /autoapi/pudl/extract/censusdp1tract/index
    /autoapi/pudl/extract/censuspep/index
    /autoapi/pudl/extract/csv/index
    /autoapi/pudl/extract/dbf/index

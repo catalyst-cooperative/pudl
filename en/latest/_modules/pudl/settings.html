@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.settings &#8212; PUDL 2026.4.1.dev28 documentation</title>
+    <title>pudl.settings &#8212; PUDL 2026.4.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../_static/documentation_options.js?v=bd8a444a"></script>
+    <script src="../../_static/documentation_options.js?v=14ca302c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev28 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev28 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -857,7 +857,6 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">StaticPartitionsDefinition</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AnyHttpUrl</span><span class="p">,</span>
     <span class="n">BaseModel</span><span class="p">,</span>
@@ -876,12 +875,6 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.logger">[docs]</a>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ferceqr_year_quarters">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.ferceqr_year_quarters">[docs]</a>
-<span class="n">ferceqr_year_quarters</span><span class="p">:</span> <span class="n">StaticPartitionsDefinition</span> <span class="o">=</span> <span class="n">StaticPartitionsDefinition</span><span class="p">(</span>
-    <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;year_quarters&quot;</span><span class="p">]</span>
-<span class="p">)</span></div>
 
 
 
@@ -1465,23 +1458,23 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="VCERareSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.VCERareSettings">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">VCERareSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
+<div class="viewcode-block" id="VceRareSettings">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.VceRareSettings">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VceRareSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate VCE RARE Power Dataset settings.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="VCERareSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.VCERareSettings.data_source">[docs]</a>
+<div class="viewcode-block" id="VceRareSettings.data_source">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.VceRareSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;vcerare&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VCERareSettings.years">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.VCERareSettings.years">[docs]</a>
+<div class="viewcode-block" id="VceRareSettings.years">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.VceRareSettings.years">[docs]</a>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of years to validate.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="VCERareSettings.fips">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.VCERareSettings.fips">[docs]</a>
+<div class="viewcode-block" id="VceRareSettings.fips">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.VceRareSettings.fips">[docs]</a>
     <span class="n">fips</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Include FIPS codes in VCE RARE Power Dataset.&quot;&quot;&quot;</span></div>
@@ -1525,17 +1518,17 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@unique</span>
-<div class="viewcode-block" id="GPRATKTechType">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GPRATKTechType">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GPRATKTechType</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<div class="viewcode-block" id="GridPathRaToolkitTechType">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitTechType">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GridPathRaToolkitTechType</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enum to constrain GridPath RA Toolkit technology types.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="GPRATKTechType.WIND">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GPRATKTechType.WIND">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitTechType.WIND">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitTechType.WIND">[docs]</a>
     <span class="n">WIND</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="GPRATKTechType.SOLAR">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GPRATKTechType.SOLAR">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitTechType.SOLAR">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitTechType.SOLAR">[docs]</a>
     <span class="n">SOLAR</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 </div>
 
@@ -1544,13 +1537,13 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@unique</span>
-<div class="viewcode-block" id="GPRATKProcLevel">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GPRATKProcLevel">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GPRATKProcLevel</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<div class="viewcode-block" id="GridPathRaToolkitProcLevel">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitProcLevel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GridPathRaToolkitProcLevel</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enum to constraint GridPath RA Toolkit processing levels.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="GPRATKProcLevel.EXTENDED">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GPRATKProcLevel.EXTENDED">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitProcLevel.EXTENDED">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitProcLevel.EXTENDED">[docs]</a>
     <span class="n">EXTENDED</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 </div>
 
@@ -1559,36 +1552,36 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># ORIGINAL = auto()</span>
 
 
-<div class="viewcode-block" id="GridPathRAToolkitSettings">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRAToolkitSettings">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">GridPathRAToolkitSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
+<div class="viewcode-block" id="GridPathRaToolkitSettings">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitSettings">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GridPathRaToolkitSettings</span><span class="p">(</span><span class="n">GenericDatasetSettings</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An immutable pydantic model to validate GridPath RA Toolkit settings.</span>
 
 <span class="sd">    Note that the default values for technology_types, processing_levels, and</span>
 <span class="sd">    daily_weather are such that by default, all working partitions will be included.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="GridPathRAToolkitSettings.data_source">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRAToolkitSettings.data_source">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitSettings.data_source">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitSettings.data_source">[docs]</a>
     <span class="n">data_source</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DataSource</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;gridpathratoolkit&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="GridPathRAToolkitSettings.technology_types">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRAToolkitSettings.technology_types">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitSettings.technology_types">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitSettings.technology_types">[docs]</a>
     <span class="n">technology_types</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;wind&quot;</span><span class="p">,</span> <span class="s2">&quot;solar&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="GridPathRAToolkitSettings.processing_levels">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRAToolkitSettings.processing_levels">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitSettings.processing_levels">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitSettings.processing_levels">[docs]</a>
     <span class="n">processing_levels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;extended&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="GridPathRAToolkitSettings.daily_weather">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRAToolkitSettings.daily_weather">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitSettings.daily_weather">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitSettings.daily_weather">[docs]</a>
     <span class="n">daily_weather</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;technology_types&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_levels&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="GridPathRAToolkitSettings.deduplicate_list">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRAToolkitSettings.deduplicate_list">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitSettings.deduplicate_list">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitSettings.deduplicate_list">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">deduplicate_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Deduplicate technology type and processing level values.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
@@ -1596,31 +1589,31 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;technology_types&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="GridPathRAToolkitSettings.allowed_technology_types">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRAToolkitSettings.allowed_technology_types">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitSettings.allowed_technology_types">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitSettings.allowed_technology_types">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allowed_technology_types</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that technology types are valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">tech_type</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">tech_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GPRATKTechType</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tech_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GridPathRaToolkitTechType</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tech_type</span><span class="si">}</span><span class="s2"> is not a valid technology type.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">v</span></div>
 
 
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;processing_levels&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="GridPathRAToolkitSettings.allowed_processing_levels">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRAToolkitSettings.allowed_processing_levels">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitSettings.allowed_processing_levels">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitSettings.allowed_processing_levels">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allowed_processing_levels</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that processing levels are valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">proc_level</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">proc_level</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GPRATKProcLevel</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">proc_level</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GridPathRaToolkitProcLevel</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proc_level</span><span class="si">}</span><span class="s2"> is not a valid processing level.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">v</span></div>
 
 
     <span class="nd">@property</span>
-<div class="viewcode-block" id="GridPathRAToolkitSettings.parts">
-<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRAToolkitSettings.parts">[docs]</a>
+<div class="viewcode-block" id="GridPathRaToolkitSettings.parts">
+<a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitSettings.parts">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">parts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct parts from selected technologies, processing levels, and daily weather.&quot;&quot;&quot;</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1797,7 +1790,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="DatasetsSettings.gridpathratoolkit">
 <a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.DatasetsSettings.gridpathratoolkit">[docs]</a>
-    <span class="n">gridpathratoolkit</span><span class="p">:</span> <span class="n">GridPathRAToolkitSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">gridpathratoolkit</span><span class="p">:</span> <span class="n">GridPathRaToolkitSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.nrelatb">
 <a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.DatasetsSettings.nrelatb">[docs]</a>
@@ -1813,7 +1806,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="DatasetsSettings.vcerare">
 <a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.DatasetsSettings.vcerare">[docs]</a>
-    <span class="n">vcerare</span><span class="p">:</span> <span class="n">VCERareSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">vcerare</span><span class="p">:</span> <span class="n">VceRareSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DatasetsSettings.censuspep">
 <a class="viewcode-back" href="../../autoapi/pudl/settings/index.html#pudl.settings.DatasetsSettings.censuspep">[docs]</a>
@@ -1847,12 +1840,12 @@ window.runMermaid = runMermaid;</script>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ferc1Settings</span><span class="p">()</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;ferc714&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Ferc714Settings</span><span class="p">()</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;glue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GlueSettings</span><span class="p">()</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;gridpathratoolkit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GridPathRAToolkitSettings</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;gridpathratoolkit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GridPathRaToolkitSettings</span><span class="p">()</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;nrelatb&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">NrelAtbSettings</span><span class="p">()</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PhmsaGasSettings</span><span class="p">()</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rus7Settings</span><span class="p">()</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Sec10kSettings</span><span class="p">()</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vcerare&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VCERareSettings</span><span class="p">()</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vcerare&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VceRareSettings</span><span class="p">()</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;censuspep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CensusPepSettings</span><span class="p">()</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rus12Settings</span><span class="p">()</span>
 

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.workspace.datastore &#8212; PUDL 2026.4.1.dev28 documentation</title>
+    <title>pudl.workspace.datastore &#8212; PUDL 2026.4.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=bd8a444a"></script>
+    <script src="../../../_static/documentation_options.js?v=14ca302c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev28 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev28 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -854,9 +854,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
@@ -866,7 +864,6 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Self</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">frictionless</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
@@ -880,7 +877,6 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">retry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace</span><span class="w"> </span><span class="kn">import</span> <span class="n">resource_cache</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.resource_cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlResourceKey</span><span class="p">,</span> <span class="n">UPathCache</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.logger">[docs]</a>
@@ -1654,31 +1650,10 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="print_partitions">
-<a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.print_partitions">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">print_partitions</span><span class="p">(</span><span class="n">dstore</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">,</span> <span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prints known partition keys and its values for each of the datasets.&quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">single_ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
-        <span class="n">partitions</span> <span class="o">=</span> <span class="n">dstore</span><span class="o">.</span><span class="n">get_datapackage_descriptor</span><span class="p">(</span><span class="n">single_ds</span><span class="p">)</span><span class="o">.</span><span class="n">get_partitions</span><span class="p">()</span>
-
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Partitions for </span><span class="si">{</span><span class="n">single_ds</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">ZenodoFetcher</span><span class="p">()</span><span class="o">.</span><span class="n">get_doi</span><span class="p">(</span><span class="n">single_ds</span><span class="p">)</span><span class="si">}</span><span class="s2">):&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">partition_key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">partitions</span><span class="p">):</span>
-            <span class="c1"># try-except required because ferc2 has parts with heterogenous types that</span>
-            <span class="c1"># therefore can&#39;t be sorted: [1, 2, None]</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">parts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">partitions</span><span class="p">[</span><span class="n">partition_key</span><span class="p">])</span>
-            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-                <span class="n">parts</span> <span class="o">=</span> <span class="n">partitions</span><span class="p">[</span><span class="n">partition_key</span><span class="p">]</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">partition_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">parts</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">partitions</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  -- no known partitions --&quot;</span><span class="p">)</span></div>
-
-
-
 <div class="viewcode-block" id="validate_cache">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.validate_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_cache</span><span class="p">(</span>
-    <span class="n">dstore</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">,</span> <span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">partition</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="n">dstore</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">,</span> <span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">partition</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate elements in the datastore cache.</span>
 
@@ -1726,177 +1701,6 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="n">cloud_cache_path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">bypass_local_cache</span><span class="p">:</span>
                 <span class="n">dstore</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span></div>
 
-
-
-<div class="viewcode-block" id="_parse_key_values">
-<a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore._parse_key_values">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_parse_key_values</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">param</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Option</span><span class="p">,</span>
-    <span class="n">values</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse key-value pairs into a Python dictionary.</span>
-
-<span class="sd">    Transforms a command line argument of the form: k1=v1,k2=v2,k3=v3...</span>
-<span class="sd">    into: {k1:v1, k2:v2, k3:v3, ...}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">out_dict</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">key_value</span> <span class="ow">in</span> <span class="n">val</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
-            <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">key_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
-            <span class="n">out_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-    <span class="k">return</span> <span class="n">out_dict</span></div>
-
-
-
-<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
-    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]},</span>
-<span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--dataset&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">(</span><span class="n">ZenodoFetcher</span><span class="p">()</span><span class="o">.</span><span class="n">get_known_datasets</span><span class="p">()),</span>
-    <span class="n">default</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ZenodoFetcher</span><span class="p">()</span><span class="o">.</span><span class="n">get_known_datasets</span><span class="p">()),</span>
-    <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Specifies what dataset to work with. The default is to download all datasets. &quot;</span>
-        <span class="s2">&quot;Note that downloading all datasets may take hours depending on network speed. &quot;</span>
-        <span class="s2">&quot;This option may be applied multiple times to specify multiple datasets.&quot;</span>
-    <span class="p">),</span>
-<span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--validate&quot;</span><span class="p">,</span>
-    <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Validate the contents of locally cached data, but don&#39;t download anything.&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--list-partitions&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;List the available partition keys and values for each dataset specified &quot;</span>
-        <span class="s2">&quot;using the --dataset argument, or all datasets if --dataset is not used.&quot;</span>
-    <span class="p">),</span>
-    <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--partition&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
-    <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Only operate on dataset partitions matching these conditions. The argument &quot;</span>
-        <span class="s2">&quot;should have the form: key1=val1,key2=val2,... Conditions are combined with &quot;</span>
-        <span class="s2">&quot;a boolean AND, functionally meaning each key can only appear once. &quot;</span>
-        <span class="s2">&quot;If a key is repeated, only the last value is used. &quot;</span>
-        <span class="s2">&quot;So state=ca,year=2022 will retrieve all California data for 2022, and &quot;</span>
-        <span class="s2">&quot;state=ca,year=2021,year=2022 will also retrieve California data for 2022, &quot;</span>
-        <span class="s2">&quot;while state=ca by itself will retrieve all years of California data.&quot;</span>
-    <span class="p">),</span>
-    <span class="n">callback</span><span class="o">=</span><span class="n">_parse_key_values</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--bypass-local-cache&quot;</span><span class="p">,</span>
-    <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;If enabled, locally cached data will not be used. Instead, a new copy will be &quot;</span>
-        <span class="s2">&quot;downloaded from Zenodo or the cloud cache if specified.&quot;</span>
-    <span class="p">),</span>
-<span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--cloud-cache-path&quot;</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;s3://pudl.catalyst.coop/zenodo&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Load cached inputs from cloud object storage (S3 or GCS) . This is typically &quot;</span>
-        <span class="s2">&quot;much faster and more reliable than downloading from Zenodo directly. By &quot;</span>
-        <span class="s2">&quot;default we read from the cache in PUDL&#39;s free, public AWS Open Data Registry &quot;</span>
-        <span class="s2">&quot;bucket.&quot;</span>
-    <span class="p">),</span>
-<span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--logfile&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If specified, write logs to this file.&quot;</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
-        <span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">resolve_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">path_type</span><span class="o">=</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
-    <span class="p">),</span>
-<span class="p">)</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--loglevel&quot;</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">),</span>
-<span class="p">)</span>
-<div class="viewcode-block" id="pudl_datastore">
-<a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.pudl_datastore">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">pudl_datastore</span><span class="p">(</span>
-    <span class="n">dataset</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">list_partitions</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">partition</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">],</span>
-    <span class="n">cloud_cache_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">bypass_local_cache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">logfile</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
-    <span class="n">loglevel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manage the raw data inputs to the PUDL data processing pipeline.</span>
-
-<span class="sd">    Download all the raw FERC Form 2 data:</span>
-
-<span class="sd">    pudl_datastore --dataset ferc2</span>
-
-<span class="sd">    Download the raw FERC Form 2 data only for 2021</span>
-
-<span class="sd">    pudl_datastore --dataset ferc2 --partition year=2021</span>
-
-<span class="sd">    Re-download the raw FERC Form 2 data for 2021 even if you already have it:</span>
-
-<span class="sd">    pudl_datastore --dataset ferc2 --partition year=2021 --bypass-local-cache</span>
-
-<span class="sd">    Validate all California EPA CEMS data in the local datastore:</span>
-
-<span class="sd">    pudl_datastore --dataset epacems --validate --partition state=ca</span>
-
-<span class="sd">    List the available partitions in the EIA-860 and EIA-923 datasets:</span>
-
-<span class="sd">    pudl_datastore --dataset eia860 --dataset eia923 --list-partitions</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">configure_root_logger</span><span class="p">(</span><span class="n">logfile</span><span class="o">=</span><span class="n">logfile</span><span class="p">,</span> <span class="n">loglevel</span><span class="o">=</span><span class="n">loglevel</span><span class="p">)</span>
-
-    <span class="n">cache_path</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">bypass_local_cache</span><span class="p">:</span>
-        <span class="n">cache_path</span> <span class="o">=</span> <span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">input_dir</span>
-
-    <span class="n">dstore</span> <span class="o">=</span> <span class="n">Datastore</span><span class="p">(</span>
-        <span class="n">cloud_cache_path</span><span class="o">=</span><span class="n">cloud_cache_path</span><span class="p">,</span>
-        <span class="n">local_cache_path</span><span class="o">=</span><span class="n">cache_path</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">partition</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Only considering resource partitions: </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">list_partitions</span><span class="p">:</span>
-        <span class="n">print_partitions</span><span class="p">(</span><span class="n">dstore</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">validate</span><span class="p">:</span>
-        <span class="n">validate_cache</span><span class="p">(</span><span class="n">dstore</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">partition</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">fetch_resources</span><span class="p">(</span>
-            <span class="n">dstore</span><span class="o">=</span><span class="n">dstore</span><span class="p">,</span>
-            <span class="n">datasets</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
-            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-            <span class="n">cloud_cache_path</span><span class="o">=</span><span class="n">cloud_cache_path</span><span class="p">,</span>
-            <span class="n">bypass_local_cache</span><span class="o">=</span><span class="n">bypass_local_cache</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="mi">0</span></div>
-
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">pudl_datastore</span><span class="p">())</span>
 </pre></div>
 
                 </article>

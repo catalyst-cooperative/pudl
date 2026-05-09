@@ -39,7 +39,6 @@ Functions
    pudl.analysis.service_territory.service_territory_asset_factory
    pudl.analysis.service_territory.plot_historical_territory
    pudl.analysis.service_territory.plot_all_territories
-   pudl.analysis.service_territory.pudl_service_territories
 
 
 Module Contents
@@ -238,21 +237,5 @@ Module Contents
    :param alpha: Transparency to use for the planning areas.
 
    :returns: matplotlib.axes.Axes
-
-
-.. py:function:: pudl_service_territories(entity_type: Literal['utility', 'balancing_authority'], dissolve: bool, output_dir: pathlib.Path, limit_by_state: bool, years: list[int], logfile: pathlib.Path, loglevel: str)
-
-   Compile historical utility and balancing area service territory geometries.
-
-   This script produces GeoParquet files describing the historical service territories
-   of utilities and balancing authorities based on data reported in the EIA Form 861
-   and county geometries from the US Census DP1 geodatabase.
-
-   See: https://geoparquet.org/ for more on the GeoParquet file format.
-
-   Usage examples:
-
-   pudl_service_territories --entity-type balancing_authority --dissolve --limit-by-state
-   pudl_service_territories --entity-type utility
 
 
