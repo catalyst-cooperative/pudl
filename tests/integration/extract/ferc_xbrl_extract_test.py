@@ -10,13 +10,7 @@ import pytest
 import sqlalchemy as sa
 
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-<<<<<<< HEAD
-from pudl.settings import FercToSqliteDataConfig, XbrlFormNumber
-||||||| parent of 79fce47f3 (Remove pudl_data_config and ferc_to_sqlite_data_config fixtures)
-from pudl.settings import FercToSqliteDataConfig
-=======
-from pudl.settings import GlobalDataConfig
->>>>>>> 79fce47f3 (Remove pudl_data_config and ferc_to_sqlite_data_config fixtures)
+from pudl.settings import GlobalDataConfig, XbrlFormNumber
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
 from pudl.workspace.setup import PudlPaths
 
@@ -44,20 +38,10 @@ def test_sqlite_duckdb_equivalence(
     global_data_config: GlobalDataConfig,
 ):
     """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
-<<<<<<< HEAD
     for form in XbrlFormNumber:
-        if not ferc_to_sqlite_data_config.get_dataset_years(
+        if not global_data_config.ferc_to_sqlite.get_dataset_years(
             dataset=form, data_format="xbrl"
         ):
-||||||| parent of 79fce47f3 (Remove pudl_data_config and ferc_to_sqlite_data_config fixtures)
-    for form in FERC_FORMS:
-        if not ferc_to_sqlite_data_config.__getattribute__(f"ferc{form}_xbrl").years:
-=======
-    for form in FERC_FORMS:
-        if not global_data_config.ferc_to_sqlite.__getattribute__(
-            f"ferc{form}_xbrl"
-        ).years:
->>>>>>> 79fce47f3 (Remove pudl_data_config and ferc_to_sqlite_data_config fixtures)
             logger.info(
                 f"Skipping {form} sqlite vs duckdb equivalence test: no years configured."
             )
