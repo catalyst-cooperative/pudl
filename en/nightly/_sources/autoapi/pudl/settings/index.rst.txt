@@ -15,7 +15,6 @@ Attributes
 .. autoapisummary::
 
    pudl.settings.logger
-   pudl.settings.ferceqr_year_quarters
 
 
 Classes
@@ -41,12 +40,12 @@ Classes
    pudl.settings.Eia191Settings
    pudl.settings.Eia176Settings
    pudl.settings.EiaAeoSettings
-   pudl.settings.VCERareSettings
+   pudl.settings.VceRareSettings
    pudl.settings.CensusPepSettings
    pudl.settings.GlueSettings
-   pudl.settings.GPRATKTechType
-   pudl.settings.GPRATKProcLevel
-   pudl.settings.GridPathRAToolkitSettings
+   pudl.settings.GridPathRaToolkitTechType
+   pudl.settings.GridPathRaToolkitProcLevel
+   pudl.settings.GridPathRaToolkitSettings
    pudl.settings.EiaSettings
    pudl.settings.Rus7Settings
    pudl.settings.Rus12Settings
@@ -79,9 +78,6 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:data:: ferceqr_year_quarters
-   :type:  dagster.StaticPartitionsDefinition
-
 .. py:class:: XbrlFormNumber(*args, **kwds)
 
    Bases: :py:obj:`enum.Enum`
@@ -112,6 +108,12 @@ Module Contents
 
    .. py:attribute:: FORM714
       :value: 714
+
+
+
+   .. py:method:: __str__()
+
+      Format this as ``fercX``, the way we use it everywhere else.
 
 
 
@@ -594,7 +596,7 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: VCERareSettings(/, **data: Any)
+.. py:class:: VceRareSettings(/, **data: Any)
 
    Bases: :py:obj:`GenericDatasetSettings`
 
@@ -666,7 +668,7 @@ Module Contents
       Include ferc1 in glue settings.
 
 
-.. py:class:: GPRATKTechType
+.. py:class:: GridPathRaToolkitTechType
 
    Bases: :py:obj:`enum.StrEnum`
 
@@ -680,7 +682,7 @@ Module Contents
    .. py:attribute:: SOLAR
 
 
-.. py:class:: GPRATKProcLevel
+.. py:class:: GridPathRaToolkitProcLevel
 
    Bases: :py:obj:`enum.StrEnum`
 
@@ -691,7 +693,7 @@ Module Contents
    .. py:attribute:: EXTENDED
 
 
-.. py:class:: GridPathRAToolkitSettings(/, **data: Any)
+.. py:class:: GridPathRaToolkitSettings(/, **data: Any)
 
    Bases: :py:obj:`GenericDatasetSettings`
 
@@ -923,7 +925,7 @@ Module Contents
 
 
    .. py:attribute:: gridpathratoolkit
-      :type:  GridPathRAToolkitSettings | None
+      :type:  GridPathRaToolkitSettings | None
       :value: None
 
 
@@ -947,7 +949,7 @@ Module Contents
 
 
    .. py:attribute:: vcerare
-      :type:  VCERareSettings | None
+      :type:  VceRareSettings | None
       :value: None
 
 
@@ -1328,7 +1330,7 @@ Module Contents
 
 
 
-   .. py:method:: get_dataset_settings(dataset: str, data_format: Literal['dbf', 'xbrl']) -> FercGenericXbrlToSqliteSettings
+   .. py:method:: get_dataset_settings(dataset: str | XbrlFormNumber, data_format: Literal['dbf', 'xbrl']) -> FercGenericXbrlToSqliteSettings
 
       Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
@@ -1336,7 +1338,7 @@ Module Contents
 
 
 
-   .. py:method:: get_dataset_years(dataset: str, data_format: Literal['dbf', 'xbrl']) -> list[int]
+   .. py:method:: get_dataset_years(dataset: str | XbrlFormNumber, data_format: Literal['dbf', 'xbrl']) -> list[int]
 
       Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 

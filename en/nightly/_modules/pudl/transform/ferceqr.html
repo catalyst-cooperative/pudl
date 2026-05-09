@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferceqr &#8212; PUDL 2026.4.1.dev25 documentation</title>
+    <title>pudl.transform.ferceqr &#8212; PUDL 2026.4.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=960c5b80"></script>
+    <script src="../../../_static/documentation_options.js?v=14ca302c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -877,6 +877,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ParquetData</span><span class="p">,</span>
     <span class="n">duckdb_relation_from_parquet</span><span class="p">,</span>
@@ -884,7 +885,6 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resource</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.logger">[docs]</a>

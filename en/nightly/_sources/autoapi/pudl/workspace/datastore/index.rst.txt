@@ -43,11 +43,8 @@ Functions
 .. autoapisummary::
 
    pudl.workspace.datastore.get_zenodo_dois_path
-   pudl.workspace.datastore.print_partitions
    pudl.workspace.datastore.validate_cache
    pudl.workspace.datastore.fetch_resources
-   pudl.workspace.datastore._parse_key_values
-   pudl.workspace.datastore.pudl_datastore
 
 
 Module Contents
@@ -441,12 +438,7 @@ Module Contents
 
 
 
-.. py:function:: print_partitions(dstore: Datastore, datasets: list[str]) -> None
-
-   Prints known partition keys and its values for each of the datasets.
-
-
-.. py:function:: validate_cache(dstore: Datastore, datasets: list[str], partition: dict[str, str]) -> None
+.. py:function:: validate_cache(dstore: Datastore, datasets: list[str], partition: dict[str, int | str]) -> None
 
    Validate elements in the datastore cache.
 
@@ -456,38 +448,5 @@ Module Contents
 .. py:function:: fetch_resources(dstore: Datastore, datasets: list[str], partition: dict[str, int | str], cloud_cache_path: str, bypass_local_cache: bool) -> None
 
    Retrieve all matching resources and store them in the cache.
-
-
-.. py:function:: _parse_key_values(ctx: click.core.Context, param: click.Option, values: str) -> dict[str, str]
-
-   Parse key-value pairs into a Python dictionary.
-
-   Transforms a command line argument of the form: k1=v1,k2=v2,k3=v3...
-   into: {k1:v1, k2:v2, k3:v3, ...}
-
-
-.. py:function:: pudl_datastore(dataset: list[str], validate: bool, list_partitions: bool, partition: dict[str, int | str], cloud_cache_path: str, bypass_local_cache: bool, logfile: pathlib.Path, loglevel: str)
-
-   Manage the raw data inputs to the PUDL data processing pipeline.
-
-   Download all the raw FERC Form 2 data:
-
-   pudl_datastore --dataset ferc2
-
-   Download the raw FERC Form 2 data only for 2021
-
-   pudl_datastore --dataset ferc2 --partition year=2021
-
-   Re-download the raw FERC Form 2 data for 2021 even if you already have it:
-
-   pudl_datastore --dataset ferc2 --partition year=2021 --bypass-local-cache
-
-   Validate all California EPA CEMS data in the local datastore:
-
-   pudl_datastore --dataset epacems --validate --partition state=ca
-
-   List the available partitions in the EIA-860 and EIA-923 datasets:
-
-   pudl_datastore --dataset eia860 --dataset eia923 --list-partitions
 
 

@@ -1,0 +1,38 @@
+pudl.dagster
+============
+
+.. py:module:: pudl.dagster
+
+.. autoapi-nested-parse::
+
+   Canonical Dagster orchestration package for PUDL.
+
+   This package is the main import surface for the Dagster objects that make up the PUDL
+   code location. It should expose the assembled ``Definitions`` object along with the
+   default assets, asset checks, jobs, resources, and sensors that other modules or tools
+   need to load. Keep this module focused on package-level exports and lazy import wiring
+   rather than the implementation details of individual Dagster abstractions.
+
+   For the underlying Dagster concept, see
+   https://docs.dagster.io/getting-started/concepts#definitions
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/dagster/asset_checks/index
+   /autoapi/pudl/dagster/assets/index
+   /autoapi/pudl/dagster/build/index
+   /autoapi/pudl/dagster/config/index
+   /autoapi/pudl/dagster/io_managers/index
+   /autoapi/pudl/dagster/jobs/index
+   /autoapi/pudl/dagster/partitions/index
+   /autoapi/pudl/dagster/provenance/index
+   /autoapi/pudl/dagster/resources/index
+   /autoapi/pudl/dagster/sensors/index
+
+

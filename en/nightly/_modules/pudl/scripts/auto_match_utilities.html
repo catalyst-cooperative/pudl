@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.auto_match_utilities &#8212; PUDL 2026.4.1.dev25 documentation</title>
+    <title>pudl.scripts.auto_match_utilities &#8212; PUDL 2026.4.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=960c5b80"></script>
+    <script src="../../../_static/documentation_options.js?v=14ca302c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -851,6 +851,7 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="sd">&quot;&quot;&quot;A CLI tool for matching FERC and EIA utilities.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
@@ -1148,7 +1149,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html#pudl.scripts.auto_match_utilities.main">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">test_run</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">test_run</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Match EIA and FERC utilities based on utility name alone.&quot;&quot;&quot;</span>
     <span class="c1"># Read in the data, keeping only utility IDs and name</span>
     <span class="n">eia_df</span> <span class="o">=</span> <span class="n">get_parquet_table</span><span class="p">(</span>
@@ -1211,12 +1212,14 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">updated_spreadsheet</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="n">write_updated_matches</span><span class="p">(</span><span class="n">test_run</span><span class="o">=</span><span class="n">test_run</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="n">updated_spreadsheet</span><span class="p">)</span></div>
+        <span class="n">write_updated_matches</span><span class="p">(</span><span class="n">test_run</span><span class="o">=</span><span class="n">test_run</span><span class="p">,</span> <span class="n">dataframe</span><span class="o">=</span><span class="n">updated_spreadsheet</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span></div>
 
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">main</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 
                 </article>

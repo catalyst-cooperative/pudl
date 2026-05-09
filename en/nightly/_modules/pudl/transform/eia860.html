@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia860 &#8212; PUDL 2026.4.1.dev25 documentation</title>
+    <title>pudl.transform.eia860 &#8212; PUDL 2026.4.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=960c5b80"></script>
+    <script src="../../../_static/documentation_options.js?v=14ca302c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -2286,7 +2286,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    discontinuities that are worth investigating, but we&#39;re punting on that</span>
 <span class="sd">    investigation since we&#39;re out of time.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pudl</span><span class="o">.</span><span class="n">validate</span><span class="o">.</span><span class="n">group_mean_continuity_check</span><span class="p">(</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.asset_checks</span><span class="w"> </span><span class="kn">import</span> <span class="n">group_mean_continuity_check</span>
+
+    <span class="k">return</span> <span class="n">group_mean_continuity_check</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">cooling_equipment</span><span class="p">,</span>
         <span class="n">thresholds</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;intake_rate_100pct_gallons_per_minute&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
@@ -2414,7 +2416,9 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia860/index.html#pudl.transform.eia860.fgd_equipment_continuity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fgd_equipment_continuity</span><span class="p">(</span><span class="n">fgd</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check to see if columns vary as slowly as expected.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pudl</span><span class="o">.</span><span class="n">validate</span><span class="o">.</span><span class="n">group_mean_continuity_check</span><span class="p">(</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.asset_checks</span><span class="w"> </span><span class="kn">import</span> <span class="n">group_mean_continuity_check</span>
+
+    <span class="k">return</span> <span class="n">group_mean_continuity_check</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">fgd</span><span class="p">,</span>
         <span class="n">thresholds</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;flue_gas_exit_rate_cubic_feet_per_minute&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>

@@ -17,22 +17,16 @@ Submodules
 
    /autoapi/pudl/_version/index
    /autoapi/pudl/analysis/index
-   /autoapi/pudl/convert/index
-   /autoapi/pudl/dbt_wrapper/index
+   /autoapi/pudl/dagster/index
    /autoapi/pudl/definitions/index
-   /autoapi/pudl/defs/index
    /autoapi/pudl/deploy/index
-   /autoapi/pudl/etl/index
    /autoapi/pudl/extract/index
-   /autoapi/pudl/ferc_sqlite_provenance/index
    /autoapi/pudl/glue/index
    /autoapi/pudl/helpers/index
-   /autoapi/pudl/io_managers/index
    /autoapi/pudl/logging_helpers/index
    /autoapi/pudl/metadata/index
    /autoapi/pudl/output/index
    /autoapi/pudl/package_data/index
-   /autoapi/pudl/resources/index
    /autoapi/pudl/scripts/index
    /autoapi/pudl/settings/index
    /autoapi/pudl/transform/index

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.resource_description &#8212; PUDL 2026.4.1.dev25 documentation</title>
+    <title>pudl.scripts.resource_description &#8212; PUDL 2026.4.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=960c5b80"></script>
+    <script src="../../../_static/documentation_options.js?v=14ca302c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -855,8 +855,6 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlResourceDescriptor</span><span class="p">,</span> <span class="n">Resource</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.descriptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResourceDescriptionBuilder</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">RESOURCE_METADATA</span>
 
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
@@ -870,7 +868,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/resource_description/index.html#pudl.scripts.resource_description.main">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute and display the description components for a resource.</span>
 
 <span class="sd">    These components are used to build the full resource description which goes into the</span>
@@ -880,9 +878,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    :mod:`pudl.metadata.resources` but don&#39;t yet have public documentation written.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.descriptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResourceDescriptionBuilder</span>  <span class="c1"># noqa: PLC0415</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">RESOURCE_METADATA</span>  <span class="c1"># noqa: PLC0415</span>
+
     <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RESOURCE_METADATA</span><span class="p">:</span>
         <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No table </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="k">return</span> <span class="mi">1</span>
     <span class="n">resolved</span> <span class="o">=</span> <span class="n">ResourceDescriptionBuilder</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">Resource</span><span class="o">.</span><span class="n">_resolve_references_from_resource_descriptor</span><span class="p">(</span>
@@ -890,7 +892,8 @@ window.runMermaid = runMermaid;</script>
         <span class="p">),</span>
     <span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
     <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;Table found:&quot;</span><span class="p">)</span>
-    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">resolved</span><span class="o">.</span><span class="n">summarize</span><span class="p">())</span></div>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">resolved</span><span class="o">.</span><span class="n">summarize</span><span class="p">())</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
 
 
 

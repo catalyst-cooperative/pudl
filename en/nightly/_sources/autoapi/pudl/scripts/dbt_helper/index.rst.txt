@@ -16,6 +16,7 @@ Attributes
 
    pudl.scripts.dbt_helper.logger
    pudl.scripts.dbt_helper.ALL_TABLES
+   pudl.scripts.dbt_helper.dbt_helper
 
 
 Classes
@@ -54,7 +55,7 @@ Functions
    pudl.scripts.dbt_helper._extract_row_count_partitions
    pudl.scripts.dbt_helper.update_tables
    pudl.scripts.dbt_helper.validate
-   pudl.scripts.dbt_helper.dbt_helper
+   pudl.scripts.dbt_helper.main
 
 
 Module Contents
@@ -422,7 +423,7 @@ Module Contents
 
 
 
-.. py:function:: dbt_helper()
+.. py:function:: main() -> int
 
    Script for auto-generating dbt configuration and migrating existing tests.
 
@@ -438,4 +439,6 @@ Module Contents
 
    Run ``dbt_helper {command} --help`` for detailed usage on each command.
 
+
+.. py:data:: dbt_helper
 

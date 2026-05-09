@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferceqr &#8212; PUDL 2026.4.1.dev25 documentation</title>
+    <title>pudl.extract.ferceqr &#8212; PUDL 2026.4.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=960c5b80"></script>
+    <script src="../../../_static/documentation_options.js?v=14ca302c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -861,34 +861,14 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">duckdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DuckDBPyConnection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">upath</span><span class="w"> </span><span class="kn">import</span> <span class="n">UPath</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">FercEqrExtractSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">persist_table_as_parquet</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.logger">[docs]</a>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;catalystcoop.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="ExtractSettings">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.ExtractSettings">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ExtractSettings</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dagster resource which defines which EQR data to extract and configuration for raw archive.&quot;&quot;&quot;</span>
-
-    <span class="c1">#: Valid fsspec compatible path pointing to directory of archived EQR filings</span>
-<div class="viewcode-block" id="ExtractSettings.ferceqr_archive_uri">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.ExtractSettings.ferceqr_archive_uri">[docs]</a>
-    <span class="n">ferceqr_archive_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gs://archives.catalyst.coop/ferceqr/published&quot;</span></div>
-
-
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="ExtractSettings.ferceqr_archive_path">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.ExtractSettings.ferceqr_archive_path">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">ferceqr_archive_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return UPath pointing to archive base path.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">UPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ferceqr_archive_uri</span><span class="p">)</span></div>
-</div>
 
 
 
@@ -1073,7 +1053,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.extract_ferceqr">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_ferceqr</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
-    <span class="n">ferceqr_extract_settings</span><span class="p">:</span> <span class="n">ExtractSettings</span> <span class="o">=</span> <span class="n">ExtractSettings</span><span class="p">(),</span>
+    <span class="n">ferceqr_extract_settings</span><span class="p">:</span> <span class="n">FercEqrExtractSettings</span> <span class="o">=</span> <span class="n">FercEqrExtractSettings</span><span class="p">(),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract year quarter from CSVs and load to parquet files.</span>
 

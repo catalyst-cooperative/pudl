@@ -9,15 +9,6 @@ pudl.scripts.generate_pudl_duckdb
 
 
 
-Attributes
-----------
-
-.. autoapisummary::
-
-   pudl.scripts.generate_pudl_duckdb.NORMAL_TABLES
-   pudl.scripts.generate_pudl_duckdb.PARTITIONED_TABLES
-
-
 Functions
 ---------
 
@@ -29,11 +20,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:data:: NORMAL_TABLES
-
-.. py:data:: PARTITIONED_TABLES
-
-.. py:function:: main()
+.. py:function:: main() -> int
 
    Create duckdb file.
 

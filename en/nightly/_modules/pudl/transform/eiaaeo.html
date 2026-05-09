@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eiaaeo &#8212; PUDL 2026.4.1.dev25 documentation</title>
+    <title>pudl.transform.eiaaeo &#8212; PUDL 2026.4.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=960c5b80"></script>
+    <script src="../../../_static/documentation_options.js?v=14ca302c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -1517,8 +1517,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Projected fuel cost for the electric power sector.</span>
 
-<span class="sd">    Includes 2022 US dollars per million BTU and nominal US dollars per million</span>
-<span class="sd">    BTU.</span>
+<span class="sd">    Includes 2022, 2024, 2025, and nominal US dollars per million BTU.</span>
 
 <span class="sd">    In future report years, the base year for the real cost will change, so we</span>
 <span class="sd">    store that base year as well.</span>
@@ -1530,7 +1529,12 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;electricity&quot;</span><span class="p">}</span>
     <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;fuel_prices&quot;</span><span class="p">}</span>
-    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;2024_mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;2022_mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;nom_mmbtu&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span>
+        <span class="s2">&quot;2025_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2024_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2022_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nom_mmbtu&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
     <span class="c1"># turn variable_name into `nominal_fuel_prices` and `real_fuel_prices` based on unit</span>
     <span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span>
 
@@ -1591,7 +1595,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="BASE_AEO_CATEGORIES">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.BASE_AEO_CATEGORIES">[docs]</a>
 <span class="n">BASE_AEO_CATEGORIES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
     <span class="s2">&quot;projection_year&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
     <span class="s2">&quot;electricity_market_module_region_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span>
 <span class="p">}</span></div>

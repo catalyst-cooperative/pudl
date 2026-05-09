@@ -417,7 +417,7 @@ From Zenodo you can download individual SQLite databases and a zipfile containin
 the Parquet files bundled together.
 
 The documentation for the latest such stable build is `here
-<https://catalystcoop-pudl.readthedocs.io/en/stable/>`__. You can access the
+<https://docs.catalyst.coop/pudl/en/stable/>`__. You can access the
 documentation for a specific version by hovering over the version selector at the bottom
 left of the page.
 
