@@ -8,8 +8,21 @@ pudl.definitions
    Stable Dagster code location module for dg-compatible loading.
 
    This module stays lightweight on purpose. The canonical Dagster assembly lives in
-   ``pudl.dagster`` and this module remains the stable top-level entrypoint configured for
-   ``dg``.
+   ``pudl.dagster.build`` and this module remains the stable top-level entrypoint
+   configured for ``dg``.
 
 
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.definitions.defs
+
+
+Module Contents
+---------------
+
+.. py:data:: defs
 
