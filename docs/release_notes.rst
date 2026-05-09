@@ -14,6 +14,8 @@ Enhancements
 New Data
 ^^^^^^^^
 
+* Added 2026 Projections from EIA AEO. See issue :issue:`5182` and PR :pr:`5198`.
+
 FERC 1
 ~~~~~~
 
