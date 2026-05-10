@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia923 &#8212; PUDL 2026.4.1.dev29 documentation</title>
+    <title>pudl.transform.eia923 &#8212; PUDL 2026.4.1.dev31 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=14ca302c"></script>
+    <script src="../../../_static/documentation_options.js?v=fae604c2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev31 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev31 documentation - Home"/>
   
   
 </a></div>
@@ -860,9 +860,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">multi_asset</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl.helpers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_col_to_bool</span><span class="p">,</span> <span class="n">normalize_year_fragments</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.codes</span><span class="w"> </span><span class="kn">import</span> <span class="n">CODE_METADATA</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidRows</span><span class="p">,</span> <span class="n">drop_invalid_rows</span>

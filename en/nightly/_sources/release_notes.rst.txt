@@ -45,6 +45,13 @@ New Data Tests & Validations
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+* Previously-deprecated ``pudl.extract.ferc1.extract_dbf``,
+  ``pudl.extract.ferc1.extract_xbrl``
+  ``pudl.extract.ferc1.extract_xbrl_generic``,
+  ``pudl.extract.ferc1.extract_dbf_generic`` have been
+  removed. The extraction logic is now covered by the
+  :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
+  :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
 
 * Fixed a :class:`TypeError` in MCOE asset checks where ``sum(exc.null_rows)`` iterated
   over a DataFrame's column names as strings instead of counting rows. Replaced with

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.validate.dbt &#8212; PUDL 2026.4.1.dev29 documentation</title>
+    <title>pudl.validate.dbt &#8212; PUDL 2026.4.1.dev31 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=14ca302c"></script>
+    <script src="../../../_static/documentation_options.js?v=fae604c2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev31 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev31 documentation - Home"/>
   
   
 </a></div>
@@ -864,7 +864,6 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dbt.cli.main</span><span class="w"> </span><span class="kn">import</span> <span class="n">dbtRunner</span><span class="p">,</span> <span class="n">dbtRunnerResult</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dbt.contracts.graph.nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericTestNode</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">pudl.dagster</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">DBT_DIR</span><span class="p">,</span> <span class="n">PUDL_ROOT_PATH</span><span class="p">,</span> <span class="n">PudlPaths</span>
 
@@ -1085,7 +1084,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="dagster_to_dbt_selection">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.dagster_to_dbt_selection">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dagster_to_dbt_selection</span><span class="p">(</span>
-    <span class="n">selection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">defs</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">Definitions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">manifest</span><span class="o">=</span><span class="kc">None</span>
+    <span class="n">selection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">defs</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">Definitions</span><span class="p">,</span> <span class="n">manifest</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Translate dagster asset selection to db node selection.</span>
 
@@ -1097,9 +1096,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    * turn asset keys into node names</span>
 <span class="sd">    * turn node names into selection string</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">defs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">defs</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">dagster</span><span class="o">.</span><span class="n">defs</span>
-
     <span class="n">asset_keys</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span>
         <span class="n">defs</span><span class="o">.</span><span class="n">resolve_asset_graph</span><span class="p">()</span>
     <span class="p">)</span>

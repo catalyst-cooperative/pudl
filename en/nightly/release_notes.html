@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>PUDL Release Notes &#8212; PUDL 2026.4.1.dev29 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.4.1.dev31 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="_static/documentation_options.js?v=14ca302c"></script>
+    <script src="_static/documentation_options.js?v=fae604c2"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -140,8 +140,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev31 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev31 documentation - Home"/>
   
   
 </a></div>
@@ -454,6 +454,13 @@ PUDL chooses canonical values/golden records in the
 <section id="bug-fixes-data-cleaning">
 <h3>Bug Fixes &amp; Data Cleaning<a class="headerlink" href="#bug-fixes-data-cleaning" title="Link to this heading">#</a></h3>
 <ul class="simple">
+<li><p>Previously-deprecated <code class="docutils literal notranslate"><span class="pre">pudl.extract.ferc1.extract_dbf</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pudl.extract.ferc1.extract_xbrl</span></code>
+<code class="docutils literal notranslate"><span class="pre">pudl.extract.ferc1.extract_xbrl_generic</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pudl.extract.ferc1.extract_dbf_generic</span></code> have been
+removed. The extraction logic is now covered by the
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.io_managers.ferc1_xbrl_sqlite_io_manager</span></code> and
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.io_managers.ferc1_dbf_sqlite_io_manager</span></code> IO Managers.</p></li>
 <li><p>Fixed a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeError</span></code></a> in MCOE asset checks where <code class="docutils literal notranslate"><span class="pre">sum(exc.null_rows)</span></code> iterated
 over a DataFrame’s column names as strings instead of counting rows. Replaced with
 <code class="docutils literal notranslate"><span class="pre">len(exc.null_rows)</span></code>. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5124">#5124</a>.</p></li>

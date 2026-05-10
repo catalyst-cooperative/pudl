@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferc1 &#8212; PUDL 2026.4.1.dev29 documentation</title>
+    <title>pudl.extract.ferc1 &#8212; PUDL 2026.4.1.dev31 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../../_static/documentation_options.js?v=14ca302c"></script>
+    <script src="../../../../_static/documentation_options.js?v=fae604c2"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev29 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev31 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev31 documentation - Home"/>
   
   
 </a></div>
@@ -851,18 +851,6 @@ database online <a class="reference external" href="https://data.catalyst.coop/f
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferc1.raw_ferc1_xbrl__metadata_json" title="pudl.extract.ferc1.raw_ferc1_xbrl__metadata_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_ferc1_xbrl__metadata_json</span></code></a>(→ dict[str, dict[str, ...)</p></td>
 <td><p>Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferc1.extract_dbf_generic" title="pudl.extract.ferc1.extract_dbf_generic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_dbf_generic</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Combine multiple raw dbf tables into one.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferc1.extract_xbrl_generic" title="pudl.extract.ferc1.extract_xbrl_generic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_xbrl_generic</span></code></a>(→ pandas.DataFrame)</p></td>
-<td><p>Combine multiple raw dbf tables into one.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.ferc1.extract_dbf" title="pudl.extract.ferc1.extract_dbf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_dbf</span></code></a>(→ dict[str, pandas.DataFrame])</p></td>
-<td><p>Coordinates the extraction of all FERC Form 1 tables into PUDL.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.ferc1.extract_xbrl" title="pudl.extract.ferc1.extract_xbrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_xbrl</span></code></a>(→ dict[str, dict[Literal[, ], ...)</p></td>
-<td><p>Coordinates the extraction of all FERC Form 1 tables into PUDL from XBRL data.</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -1034,82 +1022,6 @@ instead.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.extract.ferc1.extract_dbf_generic">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.ferc1.</span></span><span class="sig-name descname"><span class="pre">extract_dbf_generic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager" title="pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager"><span class="pre">pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.DatasetsSettings" title="pudl.settings.DatasetsSettings"><span class="pre">pudl.settings.DatasetsSettings</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/ferc1.html#extract_dbf_generic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferc1.extract_dbf_generic" title="Link to this definition">#</a></dt>
-<dd><p>Combine multiple raw dbf tables into one.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>table_names</strong> – The name of the raw dbf tables you want to combine
-under dbf. These are the tables you want to combine.</p></li>
-<li><p><strong>io_manager</strong> – IO Manager that reads tables out of <code class="docutils literal notranslate"><span class="pre">ferc1_dbf.sqlite</span></code>.</p></li>
-<li><p><strong>dataset_settings</strong> – object containing desired years to extract.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Concatenation of all tables in table_names as a dataframe.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.extract.ferc1.extract_xbrl_generic">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.ferc1.</span></span><span class="sig-name descname"><span class="pre">extract_xbrl_generic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager" title="pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager"><span class="pre">pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.DatasetsSettings" title="pudl.settings.DatasetsSettings"><span class="pre">pudl.settings.DatasetsSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'duration'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'instant'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/ferc1.html#extract_xbrl_generic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferc1.extract_xbrl_generic" title="Link to this definition">#</a></dt>
-<dd><p>Combine multiple raw dbf tables into one.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>table_names</strong> – The name of the raw dbf tables you want to combine
-under xbrl. These are the tables you want to combine.</p></li>
-<li><p><strong>io_manager</strong> – IO Manager that reads tables out of <code class="docutils literal notranslate"><span class="pre">ferc1_xbrl.sqlite</span></code>.</p></li>
-<li><p><strong>dataset_settings</strong> – object containing desired years to extract.</p></li>
-<li><p><strong>period</strong> – Either duration or instant, specific to xbrl data.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Concatenation of all tables in table_names as a dataframe.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.extract.ferc1.extract_dbf">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.ferc1.</span></span><span class="sig-name descname"><span class="pre">extract_dbf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.DatasetsSettings" title="pudl.settings.DatasetsSettings"><span class="pre">pudl.settings.DatasetsSettings</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/ferc1.html#extract_dbf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferc1.extract_dbf" title="Link to this definition">#</a></dt>
-<dd><p>Coordinates the extraction of all FERC Form 1 tables into PUDL.</p>
-<p>This function is not used in the dagster ETL and is only intended
-to be used in notebooks for debugging the FERC Form 1 transforms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dataset_settings</strong> – object containing desired years to extract.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary of DataFrames, with the names of PUDL database tables as the keys.
-These are the raw unprocessed dataframes, reflecting the data as it is in the
-FERC Form 1 DB, for passing off to the data tidying and cleaning functions found
-in the <a class="reference internal" href="../../transform/ferc1/index.html#module-pudl.transform.ferc1" title="pudl.transform.ferc1"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.transform.ferc1</span></code></a> module.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.extract.ferc1.extract_xbrl">
-<span class="sig-prename descclassname"><span class="pre">pudl.extract.ferc1.</span></span><span class="sig-name descname"><span class="pre">extract_xbrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.DatasetsSettings" title="pudl.settings.DatasetsSettings"><span class="pre">pudl.settings.DatasetsSettings</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'duration'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'instant'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><span class="pre">pandas.DataFrame</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/ferc1.html#extract_xbrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferc1.extract_xbrl" title="Link to this definition">#</a></dt>
-<dd><p>Coordinates the extraction of all FERC Form 1 tables into PUDL from XBRL data.</p>
-<p>This function is not used in the dagster ETL and is only intended
-to be used in notebooks for debugging the FERC Form 1 transforms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dataset_settings</strong> – object containing desired years to extract.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A dictionary where keys are the names of the PUDL database tables, values are
-dictionaries of DataFrames corresponding to the instant and duration tables from
-the XBRL derived FERC 1 database.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 </section>
 
@@ -1190,10 +1102,6 @@ the XBRL derived FERC 1 database.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc1.create_raw_ferc1_assets"><code class="docutils literal notranslate"><span class="pre">create_raw_ferc1_assets()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc1.raw_ferc1_assets"><code class="docutils literal notranslate"><span class="pre">raw_ferc1_assets</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc1.raw_ferc1_xbrl__metadata_json"><code class="docutils literal notranslate"><span class="pre">raw_ferc1_xbrl__metadata_json()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc1.extract_dbf_generic"><code class="docutils literal notranslate"><span class="pre">extract_dbf_generic()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc1.extract_xbrl_generic"><code class="docutils literal notranslate"><span class="pre">extract_xbrl_generic()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc1.extract_dbf"><code class="docutils literal notranslate"><span class="pre">extract_dbf()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc1.extract_xbrl"><code class="docutils literal notranslate"><span class="pre">extract_xbrl()</span></code></a></li>
 </ul>
 </li>
 </ul>

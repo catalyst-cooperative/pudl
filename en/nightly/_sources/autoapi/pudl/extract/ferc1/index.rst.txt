@@ -103,10 +103,6 @@ Functions
 
    pudl.extract.ferc1.create_raw_ferc1_assets
    pudl.extract.ferc1.raw_ferc1_xbrl__metadata_json
-   pudl.extract.ferc1.extract_dbf_generic
-   pudl.extract.ferc1.extract_xbrl_generic
-   pudl.extract.ferc1.extract_dbf
-   pudl.extract.ferc1.extract_xbrl
 
 
 Module Contents
@@ -253,59 +249,5 @@ Module Contents
              structure, with each row annotating a separate XBRL concept from the FERC 1
              filings. If there is no instant/duration table, an empty list is returned
              instead.
-
-
-.. py:function:: extract_dbf_generic(table_names: list[str], io_manager: pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager, dataset_settings: pudl.settings.DatasetsSettings) -> pandas.DataFrame
-
-   Combine multiple raw dbf tables into one.
-
-   :param table_names: The name of the raw dbf tables you want to combine
-                       under dbf. These are the tables you want to combine.
-   :param io_manager: IO Manager that reads tables out of ``ferc1_dbf.sqlite``.
-   :param dataset_settings: object containing desired years to extract.
-
-   :returns: Concatenation of all tables in table_names as a dataframe.
-
-
-.. py:function:: extract_xbrl_generic(table_names: list[str], io_manager: pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager, dataset_settings: pudl.settings.DatasetsSettings, period: Literal['duration', 'instant']) -> pandas.DataFrame
-
-   Combine multiple raw dbf tables into one.
-
-   :param table_names: The name of the raw dbf tables you want to combine
-                       under xbrl. These are the tables you want to combine.
-   :param io_manager: IO Manager that reads tables out of ``ferc1_xbrl.sqlite``.
-   :param dataset_settings: object containing desired years to extract.
-   :param period: Either duration or instant, specific to xbrl data.
-
-   :returns: Concatenation of all tables in table_names as a dataframe.
-
-
-.. py:function:: extract_dbf(dataset_settings: pudl.settings.DatasetsSettings) -> dict[str, pandas.DataFrame]
-
-   Coordinates the extraction of all FERC Form 1 tables into PUDL.
-
-   This function is not used in the dagster ETL and is only intended
-   to be used in notebooks for debugging the FERC Form 1 transforms.
-
-   :param dataset_settings: object containing desired years to extract.
-
-   :returns: A dictionary of DataFrames, with the names of PUDL database tables as the keys.
-             These are the raw unprocessed dataframes, reflecting the data as it is in the
-             FERC Form 1 DB, for passing off to the data tidying and cleaning functions found
-             in the :mod:`pudl.transform.ferc1` module.
-
-
-.. py:function:: extract_xbrl(dataset_settings: pudl.settings.DatasetsSettings) -> dict[str, dict[Literal['duration', 'instant'], pandas.DataFrame]]
-
-   Coordinates the extraction of all FERC Form 1 tables into PUDL from XBRL data.
-
-   This function is not used in the dagster ETL and is only intended
-   to be used in notebooks for debugging the FERC Form 1 transforms.
-
-   :param dataset_settings: object containing desired years to extract.
-
-   :returns: A dictionary where keys are the names of the PUDL database tables, values are
-             dictionaries of DataFrames corresponding to the instant and duration tables from
-             the XBRL derived FERC 1 database.
 
 

@@ -141,7 +141,7 @@ Module Contents
    * print out test failure context
 
 
-.. py:function:: dagster_to_dbt_selection(selection: str, defs: dagster.Definitions | None = None, manifest=None) -> str
+.. py:function:: dagster_to_dbt_selection(selection: str, defs: dagster.Definitions, manifest=None) -> str
 
    Translate dagster asset selection to db node selection.
 
