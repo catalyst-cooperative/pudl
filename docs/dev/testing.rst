@@ -35,15 +35,15 @@ test coverage.
 -------------------------------------------------------------------------------
 Software Tests
 -------------------------------------------------------------------------------
-Our ``pytest`` based software tests are all stored under the ``test/``
+Our ``pytest`` based software tests are all stored under the ``tests/``
 directory in the main repository. They are organized into 2 main categories
 each with its own subdirectory:
 
-* **Software Unit Tests** (``test/unit/``) can be run in seconds and don't
+* **Software Unit Tests** (``tests/unit/``) can be run in seconds and don't
   require any external data. They test the basic functionality of various
   functions and classes, often using minimal inline data structures that are
   specified in the test modules themselves.
-* **Software Integration Tests** (``test/integration/``) test larger
+* **Software Integration Tests** (``tests/integration/``) test larger
    collections of functionality including the interactions between different
    parts of the overall software system and in some cases interactions with
    external systems requiring network connectivity. They run a Dagster-managed
@@ -76,7 +76,7 @@ datastore instead by using our custom ``--temp-pudl-input`` with ``pytest``:
 
 .. code-block:: console
 
-   $ pixi run pytest --temp-pudl-input test/integration
+   $ pixi run pytest --temp-pudl-input tests/integration
 
 .. seealso::
 
@@ -106,19 +106,19 @@ To run the software unit tests with ``pytest`` directly:
 
 .. code-block:: console
 
-   $ pixi run pytest test/unit
+   $ pixi run pytest tests/unit
 
 To run only the unit tests for the Excel spreadsheet extraction module:
 
 .. code-block:: console
 
-   $ pixi run pytest test/unit/extract/excel_test.py
+   $ pixi run pytest tests/unit/extract/excel_test.py
 
 To run only the unit tests defined by a single test class within that module:
 
 .. code-block:: console
 
-   $ pixi run pytest test/unit/extract/excel_test.py::TestGenericExtractor
+   $ pixi run pytest tests/unit/extract/excel_test.py::TestGenericExtractor
 
 Custom PUDL pytest flags
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -149,14 +149,14 @@ of that database. For example, the EPA CEMS specific tests:
 
 .. code-block:: console
 
-   $ pixi run pytest --live-pudl-output test/integration/epacems_test.py
+   $ pixi run pytest --live-pudl-output tests/integration/epacems_test.py
 
 Foreign key checks and dbt validations can be selected separately from the rest of the
 integration suite by running the dedicated validation module directly. For example:
 
 .. code-block:: console
 
-   $ pixi run pytest --live-pudl-output test/integration/data_validation_test.py
+   $ pixi run pytest --live-pudl-output tests/validate/data_test.py
 
 Assuming you do want to run the ETL and build new databases as part of the test you're
 running, the contents of that database are determined by the Dagster config file passed
@@ -171,7 +171,7 @@ tasks we've defined for the nightly builds, which use
 .. code-block:: console
 
    $ pixi run pytest-integration-nightly
-   $ pixi run pytest-data-validation-nightly
+   $ pixi run pytest-validate-nightly
 
 .. note::
 
@@ -186,10 +186,21 @@ every time. Because downloading data directly from Zenodo can be slow and unreli
 by default we download from a cached copy in Amazon's S3 storage, in a free bucket
 provided by the AWS Open Data Registry at ``s3://pudl.catalyst.coop/zenodo``.
 
-You can also force the tests to download of a fresh copy of the data to use just once,
+You can also force the tests to download a fresh copy of the data to use just once,
 even if you already have a local copy, which is useful when you are testing the
 datastore functionality specifically.
 
+The tests that most directly exercise the datastore download path are the CSV and Excel
+extractor tests (which read archived data files via ``pudl_datastore_fixture``) and the
+Zenodo datapackage tests (which verify that datapackage descriptors are reachable):
+
 .. code-block:: console
 
-   $ pixi run pytest --temp-pudl-input test/integration/etl_test.py
+   $ pixi run pytest --temp-pudl-input \
+       tests/integration/extract/csv_test.py \
+       tests/integration/extract/excel_test.py \
+       tests/integration/workspace/zenodo_datapackage_test.py
+
+The FERC extractor tests (``ferc1_test.py``, ``ferc_dbf_extract_test.py``) also use the
+datastore but additionally require building a FERC SQLite database, so they are more
+heavyweight and slower to run.

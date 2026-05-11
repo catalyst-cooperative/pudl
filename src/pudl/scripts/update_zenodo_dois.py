@@ -92,22 +92,25 @@ def update_yaml_dois(yaml_file: Path, datasets: tuple[str, ...]) -> dict[str, di
     "datasets",
     nargs=-1,
 )
-def main(datasets: tuple[str, ...]):  # pragma: no cover
+def main(datasets: tuple[str, ...]) -> int:  # pragma: no cover
     """Auto-update Zenodo DOIs to the latest value."""
+    # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
+
     if not datasets:  # If no datasets to update
-        logger.warn("No datasets provided, nothing will be updated.")
-        sys.exit(0)
+        logger.warning("No datasets provided, nothing will be updated.")
+        return 0
 
     yaml_file = get_zenodo_dois_path()
     if not yaml_file.exists():
-        logger.warn(f"❌ File not found: {yaml_file}")
-        sys.exit(1)
+        logger.warning(f"❌ File not found: {yaml_file}")
+        return 1
 
     logger.info(
         f"Checking {yaml_file} for newer Zenodo record versions {'of ' + ', '.join(datasets) if datasets else ''}"
     )
 
     update_yaml_dois(yaml_file, datasets)
+    return 0
 
 
 if __name__ == "__main__":

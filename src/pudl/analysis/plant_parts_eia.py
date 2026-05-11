@@ -173,7 +173,8 @@ import numpy as np
 import pandas as pd
 from dagster import AssetIn, AssetKey, AssetsDefinition, asset
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
 from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)

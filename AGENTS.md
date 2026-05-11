@@ -34,24 +34,41 @@ Key directories under `src/pudl/`:
 - `extract/` — one module per data source; reads raw inputs via the datastore and
   produces lightly-typed DataFrames
 - `transform/` — one module per data source; cleans, normalizes, and validates data
-- `etl/` — Dagster asset and job definitions, organized by data source; top-level
-  `defs` object and all jobs live in `pudl.etl`
+- `dagster/` — all Dagster orchestration code; the canonical home for everything
+  Dagster-specific. Sub-structure:
+  - `dagster/asset_checks.py` — asset-check definitions, factories, and helpers
+  - `dagster/assets/` — oddball asset definitions that don't fit the per-source layout;
+    `assets/core/` for processed assets, `assets/raw/` for raw-extraction assets
+  - `dagster/build.py` — assembles the `dagster.Definitions` object
+  - `dagster/config.py` — reusable Dagster run-config fragments and helpers
+  - `dagster/io_managers.py` — IO managers for SQLite, Parquet, and FERC SQLite reads
+  - `dagster/jobs.py` — named Dagster jobs (`pudl`, `ferc_to_sqlite`, `ferceqr`)
+  - `dagster/partitions.py` — shared partition definitions
+  - `dagster/provenance.py` — FERC SQLite fingerprinting and compatibility checks
+  - `dagster/resources.py` — `ConfigurableResource` definitions and default resource map
+  - `dagster/sensors.py` — sensor-based automation (e.g. the FERC EQR sensor)
+- `deploy/` — post-ETL deployment logic: publishing outputs to GCS/S3, updating
+  `nightly`/`stable` git branches, triggering Zenodo releases, applying GCS holds,
+  and redeploying the PUDL Viewer Cloud Run service. `ferceqr.py` contains Dagster
+  assets specific to the FERC EQR batch pipeline; `pudl.py` covers full PUDL builds.
+- `scripts/` — all CLI entry points as thin wrappers; one module per script, each
+  exposing a `main` Click command. Registered in `[project.scripts]` in `pyproject.toml`
 - `metadata/` — table and column metadata (`classes.py`, `fields.py`, `resources.py`);
   "Resources" are tables, "Fields" are columns
 - `glue/` — entity resolution tables that link IDs across data sources
 - `analysis/` — higher-level analytical assets built on top of the core ETL outputs
 - `helpers.py` — shared utility functions; check here before writing new helpers
-- `io_managers.py` — Dagster IO managers for SQLite, Parquet, and FERC SQLite reads
 - `settings.py` — Pydantic settings models for all datasets and ETL configuration
-- `resources.py` — Dagster resources (`etl_settings`, `datastore`, `zenodo_dois`, etc.)
-- `ferc_sqlite_provenance.py` — fingerprinting and compatibility checks for FERC SQLite
-  databases across separate job runs
+- `validate.py` — data validation helpers that need to be accessible outside Dagster
+  (foreign key checks, continuity checks)
+- `definitions.py` — stable `dg`-compatible entry point; re-exports `defs` from
+  `pudl.dagster`
 
 Other important directories:
 
 - `dbt/` — dbt models used for data validation only (not transformation)
-- `test/unit/` — fast unit tests; run these during development
-- `test/integration/` — slow integration tests; do not run interactively
+- `tests/unit/` — fast unit tests; run these during development
+- `tests/integration/` — slow integration tests; do not run interactively
 - `docs/` — Sphinx documentation source (reStructuredText)
 - `src/pudl/package_data/settings/` — packaged Dagster run config YAML files
   (`dg_fast.yml`, `dg_full.yml`, `dg_pytest.yml`, `dg_nightly.yml`)
@@ -149,7 +166,7 @@ produces cleaner output.
 
 ```bash
 rg "class FercDbfExtractor" src/          # basic search
-rg -t py "FercSQLiteProvenance" src/      # restrict to Python files
+rg -t py "FercSqliteProvenance" src/      # restrict to Python files
 rg -C 3 "assert_ferc_sqlite_compatible" src/  # show 3 lines of context
 rg '"plant_id_eia"' src/pudl/metadata/    # find a field/column definition in metadata
 ```
@@ -241,25 +258,25 @@ coverage collection and avoid spurious failures.
 
 ### Unit tests
 
-Unit tests live under `test/unit/`, take up to 2 minutes, and run automatically via the
+Unit tests live under `tests/unit/`, take up to 2 minutes, and run automatically via the
 pre-commit hook on every commit.
 
 ```bash
 pixi run pytest-unit                                                           # all unit tests
-pixi run pytest --no-cov test/unit/path/to/test_file.py                        # single file
-pixi run pytest --no-cov test/unit/extract/excel_test.py::TestGenericExtractor # single class
+pixi run pytest --no-cov tests/unit/path/to/test_file.py                        # single file
+pixi run pytest --no-cov tests/unit/extract/excel_test.py::TestGenericExtractor # single class
 ```
 
 ### Integration tests
 
-Integration tests live under `test/integration/` and take up to 60 minutes. They use a
+Integration tests live under `tests/integration/` and take up to 60 minutes. They use a
 `prebuilt_outputs` fixture that runs the full ETL via `dg launch` as a subprocess with
 `dg_pytest.yml` as the default config. Do not run them interactively during development.
 
 ```bash
 pixi run pytest-integration                                    # full integration suite
 pixi run pytest-ci                                             # docs + unit + integration + dbt + coverage
-pixi run pytest --no-cov --live-pudl-output test/integration   # using existing local outputs
+pixi run pytest --no-cov --live-pudl-output tests/integration   # using existing local outputs
 ```
 
 ### Custom pytest flags
@@ -286,9 +303,7 @@ Use pytest-mock (`mocker`). Avoid `unittest` and `monkeypatch`.
 ## Code style
 
 **Acronyms in compound class names**: In compound class names that contain multiple
-acronyms, capitalize acronyms as words: e.g. `FercDbf`, `FercXbrl`, `SQLite` (SQLite
-is a special case — all SQL letters are capitalized because the L participates in both
-the acronym and the word "Lite").
+acronyms, capitalize acronyms as words: e.g. `FercDbf`, `FercXbrl`.
 
 **Line length**: limit lines to 88 characters. Do not artificially restrict to 80.
 
@@ -475,7 +490,7 @@ pixi run ...
 environment when running commands, avoiding unexpected dependency resolution:
 
 ```bash
-pixi run --frozen pytest --no-cov test/unit
+pixi run --frozen pytest --no-cov tests/unit
 pixi run --frozen dg check defs --verbose
 ```
 

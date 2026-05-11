@@ -16,7 +16,7 @@ import sqlalchemy as sa
 from dagster import op
 from dbfread import DBF, FieldParser
 
-import pudl
+import pudl.helpers
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
 from pudl.settings import FercDbfToSqliteSettings, FercToSqliteSettings
