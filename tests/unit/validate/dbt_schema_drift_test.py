@@ -3,9 +3,9 @@
 from collections import defaultdict
 from pathlib import Path
 
-from pudl.dbt_wrapper import DBT_DIR
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.scripts.dbt_helper import DbtSchema, insert_data_source
+from pudl.validate.dbt import DBT_DIR
 
 
 def generate_legible_output(
