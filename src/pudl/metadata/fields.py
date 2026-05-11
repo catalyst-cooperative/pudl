@@ -166,7 +166,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "total_supply_mcf": {
         "description": (
-            "Total gas supply within the report state, as reported by the operator. This is the sum of Part 4 Lines 1.0 through 6.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            "Total gas supply within the report state, as reported by the operator. "
+            "This is the sum of Part 4 Lines 1.0 through 6.0. In some historical "
+            "records, this reported total is missing or differs from the sum of its "
+            "reported components. Reference conditions for measurement are 14.73 "
+            "psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",

@@ -421,6 +421,15 @@ def core_eia176__yearly_gas_supply(
     supply_cols = [col for col in df.columns if col.endswith("_mcf")]
     df = df.dropna(subset=supply_cols, how="all")
 
+    # Validation
+
+    total_supply_mismatches = _find_eia176_total_supply_mismatches(df)
+    max_total_supply_mismatches = 215
+    assert len(total_supply_mismatches) <= max_total_supply_mismatches, (
+        f"Found {len(total_supply_mismatches)} mismatched total supply records, "
+        f"expected no more than {max_total_supply_mismatches}."
+    )
+
     line_3_mismatches = _compare_eia176_continuation_line_total(
         df=df,
         raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
@@ -456,6 +465,40 @@ def validate_core_eia176__yearly_gas_supply_primary_key(
     return AssetCheckResult(
         passed=duplicate_records.empty,
         metadata={"duplicate_records": len(duplicate_records)},
+    )
+
+
+def _find_eia176_total_supply_mismatches(df: pd.DataFrame) -> pd.DataFrame:
+    """Find EIA-176 records whose reported total supply does not match components."""
+    total_supply_components = [
+        "natural_gas_production_mcf",
+        "synthetic_gas_production_mcf",
+        "underground_storage_withdrawals_mcf",
+        "lng_storage_withdrawals_mcf",
+        "above_ground_storage_withdrawals_mcf",
+        "receipts_from_state_or_us_border_mcf",
+        "other_receipts_mcf",
+        "supplemental_gaseous_fuels_mcf",
+    ]
+    citygate_receipts_mcf = df["total_citygate_receipts_mcf"].fillna(
+        df[
+            [
+                "citygate_receipts_sales_customers_mcf",
+                "citygate_receipts_transportation_customers_mcf",
+            ]
+        ]
+        .fillna(0)
+        .sum(axis=1)
+    )
+    calculated_total_supply_mcf = (
+        df[total_supply_components].fillna(0).sum(axis=1) + citygate_receipts_mcf
+    )
+    total_supply_diff_mcf = calculated_total_supply_mcf - df["total_supply_mcf"]
+    mismatched = df["total_supply_mcf"].notna() & (total_supply_diff_mcf.abs() > 0.01)
+
+    return df.loc[mismatched].assign(
+        calculated_total_supply_mcf=calculated_total_supply_mcf[mismatched],
+        total_supply_diff_mcf=total_supply_diff_mcf[mismatched],
     )
 
 
