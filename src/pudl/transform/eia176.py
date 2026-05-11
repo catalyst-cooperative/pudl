@@ -576,8 +576,17 @@ def core_eia176__yearly_liquefied_natural_gas_inventory(
         unstack_level=["facility_type"],
         expected_dropped_cols=1,
     )
+    df["facility_type"] = df["facility_type"].replace(
+        {
+            "lng_facility": "lng_terminal",
+            "marine_terminal_facility": "marine_terminal",
+        }
+    )
     df = df.rename(
-        columns={"year_end_volume": "volume_mcf", "year_end_capacity": "capacity_mmcfd"}
+        columns={
+            "year_end_volume": "volume_mcf",
+            "year_end_capacity": "capacity_mmcfd",
+        }
     )
     df = df.dropna(subset=["volume_mcf", "capacity_mmcfd"], how="all")
 
