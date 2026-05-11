@@ -11,6 +11,9 @@ v2026.5.0 (unreleased)
 Enhancements
 ^^^^^^^^^^^^
 
+* Started distributing the XBRL-derived datasets for FERC Forms 1, 2, 6, 60, and 714
+  as collections of parquet files. See PR :pr:`5232`.
+
 New Data
 ^^^^^^^^
 
