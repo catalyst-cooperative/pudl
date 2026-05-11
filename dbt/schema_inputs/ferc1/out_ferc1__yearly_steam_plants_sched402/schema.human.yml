@@ -116,7 +116,14 @@ sources:
               - dbt_expectations.expect_column_values_to_be_unique
 models:
   - name: validate_ferc1__yearly_steam_plants_sched402
+    description: >
+      This is a validation model which takes the above table as input and computes
+      values more convenient for testing, including:
+
+      - capacity ratios; not currently tested
     columns:
+      - name: report_year
+      - name: plant_capability_mw
       - name: capacity_factor
         data_tests:
           - expect_quantile_constraints:
