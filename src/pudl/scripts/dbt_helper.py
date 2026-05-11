@@ -12,7 +12,7 @@ import duckdb
 import pandas as pd
 
 from pudl.dagster.build import build_defs
-from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema_paths
+from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.validate.dbt import DBT_DIR, build_with_context, dagster_to_dbt_selection
@@ -180,19 +180,23 @@ def update_table_schema(
     dbt_root: Path,
 ) -> UpdateResult:
     """Generate and write out a schema.yaml file defining a new or updated table."""
+
+    def _maybe_get_human_schema(human_path: Path) -> DbtSchema:
+        if not human_path.exists():
+            return DbtSchema()
+        with human_path.open("r") as f:
+            if f.read().strip() == "":
+                return DbtSchema()
+        return DbtSchema.from_yaml(human_path)
+
     schema_inputs = insert_data_source(dbt_root / "schema_inputs", table_name)
     schema_inputs.mkdir(parents=True, exist_ok=True)
-
-    # TODO: does it make sense to persist this machine-generated schema?
-    # pros: maybe easier to read for a human: "merge these two files" vs. "merge my file on top of *nebulous thing that only exists in memory*"
-    # cons: this persisted file is never actually used, when we merge we want to use whatever's *most* up to date i.e. DbtSchema.from_table_name
-    machine_path = schema_inputs / "schema.machine.yml"
-    machine_schema = DbtSchema.from_table_name(table_name)
-    machine_schema.to_yaml(machine_path)
-
     human_path = schema_inputs / "schema.human.yml"
-    merged_schema = merge_schema_paths(machine_path, human_path)
+    human_schema = _maybe_get_human_schema(human_path)
 
+    machine_schema = DbtSchema.from_table_name(table_name)
+
+    merged_schema = merge_schema(machine_schema, human_schema)
     model_outputs = insert_data_source(dbt_root / "models", table_name)
     model_outputs.mkdir(parents=True, exist_ok=True)
     merged_path = model_outputs / "schema.yml"

@@ -1,5 +1,10 @@
-"""Merge machine-generated dbt schema files with sparse human overlays."""
+"""Define dbt schema types and merging logic.
 
+We generate dbt schema.yml files by translating our metadata into schema.yml
+format, then applying human-sourced patches to the auto-generated schemas.
+"""
+
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -119,81 +124,86 @@ class DbtSchema(BaseModel):
             yaml_output = _prettier_yaml_dumps(self.model_dump(exclude_none=True))
             schema_file.write(yaml_output)
 
+    def validate_humanity(self):
+        """Make sure the human schema matches expectations.
 
-def merge_schema_paths(machine_path: Path, human_path: Path) -> DbtSchema:
-    """Merge persisted machine/human schemas."""
+        We expect that any source tables only have data tests or column-level data tests as human overrides.
+        We allow the 'name' field so we can match human tables/columns with machine ones.
 
-    def _maybe_get_human_schema(human_path: Path) -> DbtSchema:
-        if not human_path.exists():
-            return DbtSchema()
-        with human_path.open("r") as f:
-            if f.read().strip() == "":
-                return DbtSchema()
-        return DbtSchema.from_yaml(human_path)
-
-    human_schema = _maybe_get_human_schema(human_path)
-    machine_schema = DbtSchema.from_yaml(machine_path)
-    return merge_schema(machine_schema, human_schema)
+        We do not have any expectations about model definitions since those are human-only.
+        """
+        table_whitelist = {"name", "data_tests", "columns"}
+        column_whitelist = {"name", "data_tests"}
+        for source in self.sources or []:
+            for table in source.tables or []:
+                existing_keys = set(table.model_dump(exclude_defaults=True).keys())
+                invalid_keys = existing_keys - table_whitelist
+                assert len(invalid_keys) == 0, (
+                    f"Found {invalid_keys=} in human version of {table.name}"
+                )
+                for column in table.columns or []:
+                    existing_colkeys = set(
+                        column.model_dump(exclude_defaults=True).keys()
+                    )
+                    invalid_colkeys = existing_colkeys - column_whitelist
+                    assert len(invalid_colkeys) == 0, (
+                        f"Found {invalid_colkeys=} in human version of {table.name}:{column.name}"
+                    )
 
 
 def merge_schema(machine_schema: DbtSchema, human_schema: DbtSchema) -> DbtSchema:
-    """Merge a machine schema file with a human overlay schema file.
+    """Apply human-schema as patch to machine-schema.
 
-    The machine schema defines the full dbt structure. The human schema is a
-    sparse overlay whose matching entries patch the machine schema
-    while preserving the machine inventory and ordering.
+    If merged sources are empty list, pass None so we don't serialize them.
     """
-    merged_sources = None
-    if machine_schema.sources is not None:
-        merged_sources = merge_sources(
-            machine_schema.sources, human_schema.sources or []
-        )
-    elif human_schema.sources is not None:
-        merged_sources = [
-            source.model_copy(deep=True) for source in human_schema.sources
-        ]
-
-    if machine_schema.models:
-        merged_models = merge_tables_by_name(
-            machine_schema.models, human_schema.models or []
-        )
-    else:
-        merged_models = (
-            [model.model_copy(deep=True) for model in human_schema.models]
-            if human_schema.models is not None
-            else machine_schema.models
-        )
-
-    return DbtSchema(sources=merged_sources, models=merged_models)
+    human_schema.validate_humanity()
+    merged_sources = merge_sources_by_name(
+        machine_schema.sources or [], human_schema.sources or []
+    )
+    # NOTE 2026-05-11: all models are human-generated.
+    return DbtSchema(sources=merged_sources or None, models=human_schema.models)
 
 
-def merge_sources(
-    machine_sources: list[DbtSource], human_sources: list[DbtSource]
-) -> list[DbtSource]:
-    """Apply human source overlays to the matching machine sources.
+def merge_by_name(
+    machine_elements: list,
+    human_elements: list,
+    merger: Callable,
+    element_factory: Callable,
+) -> list:
+    """Merge two lists of dbt elements, matching by name.
 
-    The merged result keeps the machine source list as the canonical inventory.
-    Human sources behave as sparse patches that can update the tables contained
-    in matching machine sources.
+    Args:
+        machine_elements: can be empty list.
+        human_elements: can also be empty list.
+        merger: this takes two elements of the same dbt type (source, table,
+            column) and returns a third element that is the merged version.
+        element_factory: this takes the element name and returns an empty instance - used if e.g. the human element doesn't exist.
     """
-    for human_source in human_sources:
-        {source.name: source for source in machine_sources}[human_source.name]
-
-    human_sources_by_name = {source.name: source for source in human_sources}
+    human_elements_by_name = {element.name: element for element in human_elements}
 
     return [
-        merge_source(machine_source, human_sources_by_name[machine_source.name])
-        if machine_source.name in human_sources_by_name
-        else machine_source.model_copy(deep=True)
-        for machine_source in machine_sources
+        merger(
+            machine_element,
+            human_elements_by_name.get(
+                machine_element.name, element_factory(name=machine_element.name)
+            ),
+        )
+        for machine_element in machine_elements
     ]
 
 
-def merge_source(machine_source: DbtSource, human_source: DbtSource) -> DbtSource:
-    """Apply a human source overlay onto a machine-generated source.
+def merge_sources_by_name(
+    machine_sources: list[DbtSource], human_sources: list[DbtSource]
+) -> list[DbtSource]:
+    """Match machine/human sources by name, then merge them."""
+    return merge_by_name(machine_sources, human_sources, merge_source, DbtSource)
 
-    The machine source supplies the canonical structure and ordering. The human
-    source acts as a sparse patch that can update the matching machine tables.
+
+def merge_source(machine_source: DbtSource, human_source: DbtSource) -> DbtSource:
+    """Apply human source def as patch on top of machine source.
+
+    * make a deep-copy to avoid aliasing issues
+    * merge the tables
     """
     return machine_source.model_copy(
         deep=True,
@@ -208,76 +218,49 @@ def merge_source(machine_source: DbtSource, human_source: DbtSource) -> DbtSourc
 def merge_tables_by_name(
     machine_tables: list[DbtTable], human_tables: list[DbtTable]
 ) -> list[DbtTable]:
-    """Apply human table overlays to the matching machine tables.
-
-    The merged result preserves the machine table list and order. Only tables
-    present in the human overlay are considered for merging.
-    """
-    for human_table in human_tables:
-        {table.name: table for table in machine_tables}[human_table.name]
-
-    human_tables_by_name = {table.name: table for table in human_tables}
-
-    return [
-        merge_table(machine_table, human_tables_by_name[machine_table.name])
-        if machine_table.name in human_tables_by_name
-        else machine_table.model_copy(deep=True)
-        for machine_table in machine_tables
-    ]
+    """Match machine/human tables by name, then merge them."""
+    return merge_by_name(machine_tables, human_tables, merge_table, DbtTable)
 
 
 def merge_table(machine_table: DbtTable, human_table: DbtTable) -> DbtTable:
-    """Apply a human table overlay onto a machine-generated table.
+    """Apply human table def as patch on machine table def.
 
-    The machine table supplies the canonical structure and ordering. The human
-    table acts as a sparse patch that can add tests and column metadata for the
-    corresponding machine table.
+    * make a deep-copy to avoid aliasing issues
+    * merge the data tests
+    * merge the columns
     """
+    merged_data_tests = (machine_table.data_tests or []) + (
+        human_table.data_tests or []
+    )
     return machine_table.model_copy(
         deep=True,
         update={
-            "data_tests": (machine_table.data_tests or [])
-            + (human_table.data_tests or []),
-            "columns": merge_columns(
+            "data_tests": merged_data_tests or None,
+            "columns": merge_columns_by_name(
                 machine_table.columns or [], human_table.columns or []
             ),
         },
     )
 
 
-def merge_columns(
+def merge_columns_by_name(
     machine_columns: list[DbtColumn], human_columns: list[DbtColumn]
 ) -> list[DbtColumn]:
-    """Apply human column overlays to the matching machine columns.
-
-    The merged result preserves the machine column list and order. Only columns
-    named in the human overlay are examined, and only matching machine columns
-    are updated.
-    """
-    for human_column in human_columns:
-        {column.name: column for column in machine_columns}[human_column.name]
-
-    human_columns_by_name = {column.name: column for column in human_columns}
-
-    return [
-        merge_column(machine_column, human_columns_by_name[machine_column.name])
-        if machine_column.name in human_columns_by_name
-        else machine_column.model_copy(deep=True)
-        for machine_column in machine_columns
-    ]
+    """Match machine/human columns by name, then merge them."""
+    return merge_by_name(machine_columns, human_columns, merge_column, DbtColumn)
 
 
 def merge_column(machine_column: DbtColumn, human_column: DbtColumn) -> DbtColumn:
-    """Apply a human column overlay onto a machine-generated column.
+    """Apply human column def as patch on machine column def.
 
-    The machine column supplies the canonical structure and ordering. The human
-    column acts as a sparse patch that can add tests for the corresponding
-    machine column.
+    * make a deep-copy to avoid aliasing issues
+    * merge the data tests
+    * don't update anything else like descriptions etc.
     """
+    merged_data_tests = (machine_column.data_tests or []) + (
+        human_column.data_tests or []
+    )
     return machine_column.model_copy(
         deep=True,
-        update={
-            "data_tests": (machine_column.data_tests or [])
-            + (human_column.data_tests or [])
-        },
+        update={"data_tests": merged_data_tests or None},
     )
