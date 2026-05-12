@@ -362,7 +362,7 @@ def save_unmapped_ids(request) -> bool:
 
 @pytest.fixture(scope="session")
 def global_data_config(global_data_config_path: Path) -> GlobalDataConfig:
-    """Read ETL settings referenced by Dagster integration config."""
+    """Read global data config referenced by Dagster integration config."""
     return GlobalDataConfig.from_yaml(str(global_data_config_path))
 
 
@@ -395,13 +395,13 @@ def global_data_config_path(dg_config_path: Path, test_dir: Path) -> Path:
 
 @pytest.fixture(scope="session")
 def dbt_target(global_data_config_path: Path) -> str:
-    """Infer the dbt target name from the ETL settings used for the test run."""
+    """Infer the dbt target name from the data config used for the test run."""
     if global_data_config_path.name == "etl_full.yml":
         return "etl-full"
     if global_data_config_path.name == "etl_fast.yml":
         return "etl-fast"
 
-    raise ValueError(f"Unexpected ETL settings file: {global_data_config_path}")
+    raise ValueError(f"Unexpected data config file: {global_data_config_path}")
 
 
 @pytest.fixture(scope="session")

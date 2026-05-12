@@ -344,10 +344,10 @@ class TestGlobalConfig:
 
 
 class TestGlobalDataConfigResource:
-    """Test the ETL settings Dagster resource."""
+    """Test the Global Data Config Dagster resource."""
 
     def test_invalid_field_type(self: Self):
-        """Test an error is thrown when the ETL settings path has the wrong type."""
+        """Test an error is thrown when the global data config path has the wrong type."""
         init_context: UnboundInitResourceContext = build_init_resource_context(
             config={"global_data_config_path": 2021}
         )
@@ -355,7 +355,7 @@ class TestGlobalDataConfigResource:
             _ = GlobalDataConfigResource.from_resource_context(init_context)
 
     def test_loads_from_file(self: Self):
-        """Test that ETL settings are loaded from the shared ETL settings file."""
+        """Test that data config is loaded from the shared global data config file."""
         with importlib.resources.as_file(
             importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
         ) as path:
