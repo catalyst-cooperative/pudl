@@ -132,22 +132,34 @@ class DbtSchema(BaseModel):
 
         We do not have any expectations about model definitions since those are human-only.
         """
-        table_whitelist = {"name", "data_tests", "columns"}
-        column_whitelist = {"name", "data_tests"}
+
+        def enforce_whitelist(
+            model: DbtSource | DbtTable | DbtColumn,
+            whitelist: set[str],
+            model_name: str,
+        ) -> None:
+            """Assert that only whitelisted keys are defined on this model."""
+            existing_keys = set(model.model_dump(exclude_defaults=True).keys())
+            invalid_keys = existing_keys - whitelist
+            assert len(invalid_keys) == 0, (
+                f"Found {invalid_keys=} in human {model_name}"
+            )
+
         for source in self.sources or []:
+            enforce_whitelist(
+                source, whitelist={"name", "tables"}, model_name=f"source:{source.name}"
+            )
             for table in source.tables or []:
-                existing_keys = set(table.model_dump(exclude_defaults=True).keys())
-                invalid_keys = existing_keys - table_whitelist
-                assert len(invalid_keys) == 0, (
-                    f"Found {invalid_keys=} in human version of {table.name}"
+                enforce_whitelist(
+                    table,
+                    whitelist={"name", "data_tests", "columns"},
+                    model_name=f"source:{source.name}.{table.name}",
                 )
                 for column in table.columns or []:
-                    existing_colkeys = set(
-                        column.model_dump(exclude_defaults=True).keys()
-                    )
-                    invalid_colkeys = existing_colkeys - column_whitelist
-                    assert len(invalid_colkeys) == 0, (
-                        f"Found {invalid_colkeys=} in human version of {table.name}:{column.name}"
+                    enforce_whitelist(
+                        column,
+                        whitelist={"name", "data_tests"},
+                        model_name=f"source:{source.name}.{table.name}.{column.name}",
                     )
 
 

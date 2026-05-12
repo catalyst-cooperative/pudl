@@ -179,3 +179,70 @@ def test_merge_schema_raises_for_unmatched_human_overlay(
             _schema_from_yaml(machine_yaml),
             _schema_from_yaml(human_yaml),
         )
+
+
+def test_validate_humanity():
+    schema_yaml = """
+        version: 2
+        sources:
+          - name: pudl
+            tables:
+              - name: plants
+                data_tests:
+                  - fake_table_test
+                columns:
+                  - name: utility_id_eia
+                    data_tests:
+                      - fake_column_test
+        models:
+          - name: test_model
+            description: some test model"""
+    _schema_from_yaml(schema_yaml).validate_humanity()
+
+
+@pytest.mark.parametrize(
+    ["schema_yaml", "match"],
+    [
+        pytest.param(
+            """
+            version: 2
+            sources:
+              - name: pudl
+                description: misguided override
+            """,
+            "{'description'} in human source:pudl",
+            id="source-description",
+        ),
+        pytest.param(
+            """
+            version: 2
+            sources:
+              - name: pudl
+                tables:
+                  - name: fake_table
+                    tags:
+                      - foo
+            """,
+            "{'tags'} in human source:pudl.fake_table",
+            id="table-tags",
+        ),
+        pytest.param(
+            """
+            version: 2
+            sources:
+              - name: pudl
+                tables:
+                  - name: fake_table
+                    columns:
+                      - name: fake_column
+                        meta:
+                          fake: metadata
+            """,
+            "{'meta'} in human source:pudl.fake_table.fake_column",
+            id="table-tags",
+        ),
+    ],
+)
+def test_validate_humanity_invalid(schema_yaml, match):
+    with pytest.raises(AssertionError, match=match):
+        _schema_from_yaml(schema_yaml).validate_humanity()
