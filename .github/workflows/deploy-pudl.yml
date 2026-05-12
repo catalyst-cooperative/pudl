@@ -13,8 +13,19 @@ on:
         default: true
         type: boolean
 
+  workflow_run:
+    workflows: ["build-pudl"]
+    branches:
+      - main
+    types:
+      - completed
+
 jobs:
   deploy_pudl:
+    # Only run if manually triggered or build workflow was successful
+    if: >
+      github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
     permissions:
       contents: write
       id-token: write
@@ -70,6 +81,18 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v3
 
+      - name: Use manually supplied tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "GIT_TAG=${{ inputs.git_tag }}" >> $GITHUB_ENV
+
+      - name: Find matching release tag
+        if: github.event_name == 'workflow_run'
+        run: |
+          git fetch --tags
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          echo "GIT_TAG=$(git tag --points-at "$SHA") >> $GITHUB_ENV
+
       - name: Make GCP Batch config file
         run: |-
           ./devtools/generate_batch_config.py \
@@ -77,7 +100,7 @@ jobs:
             --container-command "pixi" \
             --container-arg="run" \
             --container-arg="pudl_deploy" \
-            --container-arg="${{ inputs.git_tag }}" \
+            --container-arg="${{ env.GIT_TAG }}" \
             --container-arg="--staging" \
             --container-arg="${{ inputs.staging }}" \
             --container-env GITHUB_TOKEN=${{ secrets.PUDL_BOT_PAT }} \
