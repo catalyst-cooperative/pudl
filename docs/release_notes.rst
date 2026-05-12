@@ -89,6 +89,11 @@ Quality of Life Improvements
 * **Renamed the** ``docker/`` **directory to** ``builds/`` to better reflect that it
   contains all production build scripts and infrastructure, not just Docker-related
   files. See PR :pr:`5124`.
+* Updated ``dbt_helper update-tables --schema`` to ingest "human schema input
+  files" (at ``dbt/schema_inputs/**/schema.human.yml``) and generate the actual
+  dbt-visible schema files automatically. This gives us clear separation between
+  human and machine-generated schemas and allows us to add more machine-generated
+  checks. See issue :issue:`5208` and PRs :pr:`5207` and :pr:`5228`.
 
 Major Dagster Project Refactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
