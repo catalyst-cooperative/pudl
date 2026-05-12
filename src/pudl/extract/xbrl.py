@@ -168,10 +168,7 @@ def convert_form(
     Returns:
         None
     """
-    datapackage_path = output_path / f"{form}_xbrl_datapackage.json"
-    metadata_path = output_path / f"{form}_xbrl_taxonomy_metadata.json"
-
-    taxonomy_archive: BytesIO = datastore.get_taxonomy(form)
+    taxonomy_archive = datastore.get_taxonomy(form)
     # Process XBRL filings for each year requested
     filings_archives: list[BytesIO] = [
         datastore.get_filings(year, form) for year in form_data_config.years
@@ -189,8 +186,7 @@ def convert_form(
             duckdb_path=duckdb_path,
             taxonomy=taxonomy_archive,
             form_number=form.value,
-            metadata_path=metadata_path,
-            datapackage_path=datapackage_path,
+            output_dir=output_path,
             workers=workers,
             batch_size=batch_size,
             loglevel=loglevel,
