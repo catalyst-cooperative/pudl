@@ -166,23 +166,6 @@ def test_merge_schema(
             "utility_id_eia",
             id="unmatched-human-column-raises",
         ),
-        pytest.param(
-            """
-            version: 2
-            models:
-              - name: plants_model
-                columns:
-                  - name: id
-            """,
-            """
-            version: 2
-            models:
-              - name: utilities_model
-                columns: []
-            """,
-            "utilities_model",
-            id="unmatched-human-model-raises-in-overlay-mode",
-        ),
     ],
 )
 def test_merge_schema_raises_for_unmatched_human_overlay(

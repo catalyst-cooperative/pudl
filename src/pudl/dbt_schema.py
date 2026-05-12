@@ -180,6 +180,11 @@ def merge_by_name(
         element_factory: this takes the element name and returns an empty instance - used if e.g. the human element doesn't exist.
     """
     human_elements_by_name = {element.name: element for element in human_elements}
+    machine_names = {element.name for element in machine_elements}
+    if extras := (set(human_elements_by_name.keys()) - machine_names):
+        raise KeyError(
+            f"Unmatched {element_factory.__name__} keys not found in machine schema: {extras}"
+        )
 
     return [
         merger(
