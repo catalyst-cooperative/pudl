@@ -25,6 +25,7 @@ def test_merge_schema_roundtrip(resource_name):
     try:
         assert merged == reference
     except AssertionError:
+        # 2026-05 TODO: remove this warn and fail for real once we believe the ordering is stable
         warnings.warn(
             f"{resource_name} strict diff failed, trying order-insensitive",
             stacklevel=1,

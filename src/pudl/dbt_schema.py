@@ -127,46 +127,46 @@ class DbtSchema(BaseModel):
     def validate_humanity(self):
         """Make sure the human schema matches expectations.
 
-        We expect that any source tables only have data tests or column-level data tests as human overrides.
+        We expect that all human overrides on source tables are data tests or column-level data tests.
         We allow the 'name' field so we can match human tables/columns with machine ones.
 
         We do not have any expectations about model definitions since those are human-only.
         """
 
-        def enforce_whitelist(
+        def enforce_allowlist(
             model: DbtSource | DbtTable | DbtColumn,
-            whitelist: set[str],
+            allowlist: set[str],
             model_name: str,
         ) -> None:
-            """Assert that only whitelisted keys are defined on this model."""
+            """Assert that all keys defined on this model are expressly allowed."""
             existing_keys = set(model.model_dump(exclude_defaults=True).keys())
-            invalid_keys = existing_keys - whitelist
+            invalid_keys = existing_keys - allowlist
             assert len(invalid_keys) == 0, (
                 f"Found {invalid_keys=} in human {model_name}"
             )
 
         for source in self.sources or []:
-            enforce_whitelist(
-                source, whitelist={"name", "tables"}, model_name=f"source:{source.name}"
+            enforce_allowlist(
+                source, allowlist={"name", "tables"}, model_name=f"source:{source.name}"
             )
             for table in source.tables or []:
-                enforce_whitelist(
+                enforce_allowlist(
                     table,
-                    whitelist={"name", "data_tests", "columns"},
+                    allowlist={"name", "data_tests", "columns"},
                     model_name=f"source:{source.name}.{table.name}",
                 )
                 for column in table.columns or []:
-                    enforce_whitelist(
+                    enforce_allowlist(
                         column,
-                        whitelist={"name", "data_tests"},
+                        allowlist={"name", "data_tests"},
                         model_name=f"source:{source.name}.{table.name}.{column.name}",
                     )
 
 
 def merge_schema(machine_schema: DbtSchema, human_schema: DbtSchema) -> DbtSchema:
-    """Apply human-schema as patch to machine-schema.
+    """Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema.
 
-    If merged sources are empty list, pass None so we don't serialize them.
+    Empty merged sources will be stored in the DbtSchema model as None to avoid serializing them.
     """
     human_schema.validate_humanity()
     merged_sources = merge_sources_by_name(
@@ -182,14 +182,14 @@ def merge_by_name(
     merger: Callable,
     element_factory: Callable,
 ) -> list:
-    """Merge two lists of dbt elements, matching by name.
+    """Perform a generic merge of two lists of dbt elements, matching by name.
 
     Args:
         machine_elements: can be empty list.
-        human_elements: can also be empty list.
-        merger: this takes two elements of the same dbt type (source, table,
-            column) and returns a third element that is the merged version.
-        element_factory: this takes the element name and returns an empty instance - used if e.g. the human element doesn't exist.
+        human_elements: can be empty list.
+        merger: callable that takes two elements of the same dbt type (source, table,
+            column) and returns a new element that is the merged version.
+        element_factory: callable that takes the element name and returns an empty instance - used if e.g. the human element doesn't exist.
     """
     human_elements_by_name = {element.name: element for element in human_elements}
     machine_names = {element.name for element in machine_elements}
@@ -217,10 +217,10 @@ def merge_sources_by_name(
 
 
 def merge_source(machine_source: DbtSource, human_source: DbtSource) -> DbtSource:
-    """Apply human source def as patch on top of machine source.
+    """Merge two DbtSources by applying human-source as a patch on top of machine-source.
 
-    * make a deep-copy to avoid aliasing issues
-    * merge the tables
+    Returns a deep copy of the machine source to avoid aliasing,
+    updating with tables as the merge of the tables of the machine and human sources.
     """
     return machine_source.model_copy(
         deep=True,
@@ -240,11 +240,10 @@ def merge_tables_by_name(
 
 
 def merge_table(machine_table: DbtTable, human_table: DbtTable) -> DbtTable:
-    """Apply human table def as patch on machine table def.
+    """Merge two DbtTables by applying human-table as a patch on top of machine-table.
 
-    * make a deep-copy to avoid aliasing issues
-    * merge the data tests
-    * merge the columns
+    Returns a deep copy of the machine table to avoid aliasing,
+    updating with columns and table-level data tests as the merge of the respective machine and human data.
     """
     merged_data_tests = (machine_table.data_tests or []) + (
         human_table.data_tests or []
@@ -268,11 +267,12 @@ def merge_columns_by_name(
 
 
 def merge_column(machine_column: DbtColumn, human_column: DbtColumn) -> DbtColumn:
-    """Apply human column def as patch on machine column def.
+    """Merge two DbtColumns by applying human-column as a patch on top of machine-column.
 
-    * make a deep-copy to avoid aliasing issues
-    * merge the data tests
-    * don't update anything else like descriptions etc.
+    Returns a deep copy of the machine column to avoid aliasing,
+    updating with data tests as the merge of the data tests of the machine and human columns.
+
+    Does **not** update any other attributes (descriptions, etc.).
     """
     merged_data_tests = (machine_column.data_tests or []) + (
         human_column.data_tests or []

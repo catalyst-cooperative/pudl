@@ -29,6 +29,7 @@ def insert_data_source(parent_dir: Path, table_name: str) -> Path:
 
     Table name must have <layer>_<source>__<...> format.
     """
+    # 2026-05 TODO: consider using pudl.metadata.description machinery here instead of a regex
     match = re.match(r"_?([a-zA-Z0-9]+)_([a-zA-Z0-9]+)__", table_name)
     if not match:
         raise ValueError(f"{table_name} has no data source segment.")
@@ -176,6 +177,10 @@ def update_row_counts(
 
 
 def maybe_schema_from_path(path: Path) -> DbtSchema:
+    """Load DbtSchema that may or may not be located at specified path.
+
+    If file is empty or does not exist, returns blank schema.
+    """
     if not path.exists():
         return DbtSchema()
     with path.open("r") as f:
@@ -188,7 +193,11 @@ def update_table_schema(
     table_name: str,
     dbt_root: Path,
 ) -> UpdateResult:
-    """Generate and write out a schema.yaml file defining a new or updated table."""
+    """Generate and write out a schema.yaml file defining a new or updated table for dbt.
+
+    Incorporates handwritten models and data tests in corresponding schema.human.yml files,
+    if present.
+    """
     schema_inputs = insert_data_source(dbt_root / "schema_inputs", table_name)
     schema_inputs.mkdir(parents=True, exist_ok=True)
     human_path = schema_inputs / "schema.human.yml"

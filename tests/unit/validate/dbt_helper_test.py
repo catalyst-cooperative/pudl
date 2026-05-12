@@ -91,7 +91,7 @@ def with_name(mock, name):
     [("_core_eia__foo", "eia"), ("out_ferc__bar", "ferc")],
 )
 def test_insert_data_source(table_name: str, expected_data_source: str, tmp_path: Path):
-    """Test regex."""
+    """Test that our regex can correctly extract source names from normal-looking table names."""
     observed = insert_data_source(tmp_path, table_name)
     expected = tmp_path / expected_data_source / table_name
     assert observed == expected
@@ -99,7 +99,7 @@ def test_insert_data_source(table_name: str, expected_data_source: str, tmp_path
 
 @pytest.mark.parametrize("table_name", ["out", "_a_b_c", "", "____"])
 def test_insert_data_source_invalid(table_name: str, tmp_path: Path):
-    """Test regex failures."""
+    """Test that our regex fails on bogus table names."""
     with pytest.raises(ValueError):
         insert_data_source(tmp_path, table_name)
 
@@ -775,6 +775,7 @@ PUDL_TABLE = "core_pudl__codes_datasources"
 
 
 def test_update_schema_no_human(tmp_path):
+    """Make sure we handle schema updates properly when there is no human-coded file."""
     schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
     schema_inputs_path.mkdir(parents=True)
     output_path = tmp_path / "models" / "pudl" / PUDL_TABLE
@@ -789,6 +790,7 @@ def test_update_schema_no_human(tmp_path):
 
 
 def test_update_schema_empty_human(tmp_path):
+    """Make sure we handle schema updates properly when the human-coded file is empty."""
     schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
     schema_inputs_path.mkdir(parents=True)
     (schema_inputs_path / "schema.human.yml").touch()
@@ -805,6 +807,7 @@ def test_update_schema_empty_human(tmp_path):
 
 
 def test_update_schema(tmp_path):
+    """Make sure we handle schema updates properly when the human-coded file has something normal in it."""
     schema_inputs_path = tmp_path / "schema_inputs" / "pudl" / PUDL_TABLE
     schema_inputs_path.mkdir(parents=True)
 

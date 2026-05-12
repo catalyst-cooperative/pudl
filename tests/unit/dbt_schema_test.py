@@ -17,6 +17,7 @@ def _schema_from_yaml(schema_yaml: str) -> DbtSchema:
     "machine_yaml,human_yaml,expected_yaml",
     [
         pytest.param(
+            # machine_yaml
             """
             version: 2
             sources:
@@ -30,6 +31,7 @@ def _schema_from_yaml(schema_yaml: str) -> DbtSchema:
                         data_tests:
                           - machine_column: test
             """,
+            # human_yaml
             """
             version: 2
             sources:
@@ -43,6 +45,7 @@ def _schema_from_yaml(schema_yaml: str) -> DbtSchema:
                         data_tests:
                           - human_column: test
             """,
+            # expected_yaml
             """
             version: 2
             sources:
@@ -61,9 +64,11 @@ def _schema_from_yaml(schema_yaml: str) -> DbtSchema:
             id="matching-human-tests-append-after-machine-tests",
         ),
         pytest.param(
+            # machine_yaml
             """
             version: 2
             """,
+            # human_yaml
             """
             version: 2
             models:
@@ -75,6 +80,7 @@ def _schema_from_yaml(schema_yaml: str) -> DbtSchema:
                     data_tests:
                       - human_column: test
             """,
+            # expected_yaml
             """
             version: 2
             models:
@@ -95,7 +101,7 @@ def test_merge_schema(
     human_yaml: str,
     expected_yaml: str,
 ) -> None:
-    """Merge machine and human schema objects into expected reference schema."""
+    """Check that merged machine and human schemas observe the expected ordering and full/empty constraints."""
     assert merge_schema(
         _schema_from_yaml(machine_yaml),
         _schema_from_yaml(human_yaml),
@@ -168,7 +174,7 @@ def test_merge_schema_raises_for_unmatched_human_overlay(
     human_yaml: str,
     missing_name: str,
 ) -> None:
-    """Raise when human overlay references machine-missing entities."""
+    """Check that we raise the expected error when a human schema references structures missing from the machine copy."""
     with pytest.raises(KeyError, match=missing_name):
         merge_schema(
             _schema_from_yaml(machine_yaml),
@@ -177,6 +183,7 @@ def test_merge_schema_raises_for_unmatched_human_overlay(
 
 
 def test_validate_humanity():
+    """Pass humanity check when structures are limited to human-specifiable elements."""
     schema_yaml = """
         version: 2
         sources:
@@ -239,5 +246,6 @@ def test_validate_humanity():
     ],
 )
 def test_validate_humanity_invalid(schema_yaml, match):
+    """Fail humanity check when specifying structures not permitted for humans."""
     with pytest.raises(AssertionError, match=match):
         _schema_from_yaml(schema_yaml).validate_humanity()

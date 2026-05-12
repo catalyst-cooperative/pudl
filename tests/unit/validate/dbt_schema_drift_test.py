@@ -1,5 +1,8 @@
 """Check that all fields in PUDL exist in dbt."""
 
+# 2026-05 TODO: once we have schema regeneration as a commit hook, we can probably
+# get rid of this whole file.
+
 from collections import defaultdict
 from pathlib import Path
 
