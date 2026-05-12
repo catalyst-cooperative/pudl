@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>The Public Utility Data Liberation Project &#8212; PUDL 2026.4.1.dev32 documentation</title>
+    <title>The Public Utility Data Liberation Project &#8212; PUDL 2026.4.1.dev34 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="_static/documentation_options.js?v=da579e29"></script>
+    <script src="_static/documentation_options.js?v=9b34abff"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -140,8 +140,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev32 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev32 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
   
   
 </a></div>
@@ -475,7 +475,7 @@ layers of processing.</p>
 <section id="raw-layer">
 <h3>Raw Layer<a class="headerlink" href="#raw-layer" title="Link to this heading">#</a></h3>
 <p>Assets in the Raw layer read the raw data from the original heterogeneous formats into
-a collection of <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> with uniform column names across all years so
+a collection of <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> with uniform column names across all years so
 that it can be easily processed in bulk. Data distributed as binary database files, such
 as the DBF files from FERC Form 1, may be converted into a unified SQLite database
 before individual dataframes are created. Raw data assets are not written to
@@ -547,7 +547,7 @@ table, which records monthly per-plant fuel deliveries, you may want to have the
 of the plant alongside the fuel delivery information since it’s more recognizable than
 the plant ID.</p>
 <p>Rather than requiring everyone to write their own SQL <code class="docutils literal notranslate"><span class="pre">SELECT</span></code> and <code class="docutils literal notranslate"><span class="pre">JOIN</span></code> statements
-or do a bunch of <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.merge.html#pandas.merge" title="(in pandas v3.0.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">pandas.merge()</span></code></a> operations to bring together data, PUDL provides a
+or do a bunch of <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.merge.html#pandas.merge" title="(in pandas v3.0.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">pandas.merge()</span></code></a> operations to bring together data, PUDL provides a
 variety of output tables that contain all of the useful information in one place. In
 some cases, like with EIA, the output tables are composed to closely resemble the raw
 spreadsheet tables you’re familiar with.</p>
