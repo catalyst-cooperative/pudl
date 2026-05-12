@@ -110,10 +110,7 @@ def test_merge_schema(
             version: 2
             sources:
               - name: pudl
-                tables:
-                  - name: plants
-                    columns:
-                      - name: id
+                tables: []
             """,
             """
             version: 2
@@ -131,8 +128,6 @@ def test_merge_schema(
               - name: pudl
                 tables:
                   - name: plants
-                    columns:
-                      - name: id
             """,
             """
             version: 2

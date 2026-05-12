@@ -91,6 +91,7 @@ def with_name(mock, name):
     [("_core_eia__foo", "eia"), ("out_ferc__bar", "ferc")],
 )
 def test_insert_data_source(table_name: str, expected_data_source: str, tmp_path: Path):
+    """Test regex."""
     observed = insert_data_source(tmp_path, table_name)
     expected = tmp_path / expected_data_source / table_name
     assert observed == expected
@@ -98,6 +99,7 @@ def test_insert_data_source(table_name: str, expected_data_source: str, tmp_path
 
 @pytest.mark.parametrize("table_name", ["out", "_a_b_c", "", "____"])
 def test_insert_data_source_invalid(table_name: str, tmp_path: Path):
+    """Test regex failures."""
     with pytest.raises(ValueError):
         insert_data_source(tmp_path, table_name)
 
@@ -767,6 +769,8 @@ sources:
 
 # update-tables --schema
 
+# 2026-05: this is a real table because we're using real PUDL_PACKAGE.
+# future us could mock out / dependency-inject PUDL_PACKAGE and then we could use a fake table.
 PUDL_TABLE = "core_pudl__codes_datasources"
 
 
