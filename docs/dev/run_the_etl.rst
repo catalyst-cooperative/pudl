@@ -360,8 +360,8 @@ the full default configuration (this can take hours):
 
     $ pixi run pudl
 
-Dagster Config and PUDL ETL Settings Files
-------------------------------------------
+Dagster Config and PUDL Data Config Files
+-----------------------------_------------
 
 The ``dg launch`` command can read run configuration from YAML files. This avoids
 undue command line complexity and preserves a record of how the pipeline was run.
@@ -412,8 +412,8 @@ dataset should be processed, and are generally structured like this:
 
 In general, you should not fiddle with these settings unless you are actually adding a
 new year of data. We only test the combinations of inputs found in the full and fast
-ETL settings that are checked into the PUDL repo. Many other combinations are obviously
-possible, but most of them probably don't work!
+data config files that are checked into the PUDL repo. Many other combinations are
+obviously possible, but most of them probably don't work!
 
 The Fast ETL
 ^^^^^^^^^^^^
@@ -427,11 +427,11 @@ your computer, it may take up to an hour to run.
 
 The Full ETL
 ^^^^^^^^^^^^
-The Full ETL settings includes all available data that PUDL can process. All
+The Full data config includes all available data that PUDL can process. All
 the years, all the states, and all the tables, including the ~1 billion record
 EPA CEMS dataset. Assuming you already have the data downloaded, on a computer
 with at least 16 GB of RAM, and a solid-state disk, the Full ETL including EPA
-CEMS should take around 2 hours.
+CEMS should take a couple of hours.
 
 .. code-block:: console
 

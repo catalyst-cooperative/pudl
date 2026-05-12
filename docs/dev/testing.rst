@@ -162,7 +162,7 @@ Assuming you do want to run the ETL and build new databases as part of the test 
 running, the contents of that database are determined by the Dagster config file passed
 via ``--dg-config``. By default, pytest uses
 ``src/pudl/package_data/settings/dg_pytest.yml``. That Dagster config file points at an
-ETL settings YAML file and any runtime settings needed for the prebuild.
+data config YAML file and contains the runtime settings needed for the prebuild.
 
 If you want to run tests against an existing local full build instead, use the pixi
 tasks we've defined for the nightly builds, which use
