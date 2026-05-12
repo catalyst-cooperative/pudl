@@ -1,5 +1,5 @@
 ---
-name: build-deploy-pudl
+name: build-pudl
 on:
   workflow_dispatch:
   push:
