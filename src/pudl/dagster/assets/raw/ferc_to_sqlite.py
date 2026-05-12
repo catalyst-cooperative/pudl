@@ -43,9 +43,25 @@ def dbf_to_sqlite_asset_factory(
         tags={"dataset": dataset, "data_format": "dbf"},
     )
     def _asset(context) -> dg.MaterializeResult[str]:
+        ferc_to_sqlite = context.resources.global_data_config.ferc_to_sqlite
+        data_config = ferc_to_sqlite.get_data_config(dataset=dataset, data_format="dbf")
+        if data_config is None or not data_config.years:
+            logger.info(f"No years configured for {dataset}_dbf: skipping extraction.")
+            return dg.MaterializeResult(
+                value="not_configured",
+                metadata={
+                    FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
+                        FercSqliteProvenanceRecord(
+                            dataset=dataset,
+                            data_format="dbf",
+                            status="not_configured",
+                        ).model_dump(mode="json")
+                    )
+                },
+            )
         extractor_class(
             datastore=context.resources.datastore,
-            data_config=context.resources.global_data_config.ferc_to_sqlite,
+            data_config=ferc_to_sqlite,
             output_path=PudlPaths().output_dir,
         ).execute()
         return dg.MaterializeResult(
@@ -57,10 +73,10 @@ def dbf_to_sqlite_asset_factory(
                         data_format="dbf",
                         status="complete",
                         zenodo_doi=context.resources.zenodo_dois.get_doi(dataset),
-                        years=context.resources.global_data_config.ferc_to_sqlite.get_dataset_years(
+                        years=ferc_to_sqlite.get_dataset_years(
                             dataset=dataset, data_format="dbf"
                         ),
-                        data_config=context.resources.global_data_config.ferc_to_sqlite,
+                        data_config=ferc_to_sqlite,
                         sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
                     ).model_dump(mode="json")
                 )

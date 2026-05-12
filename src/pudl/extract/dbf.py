@@ -452,11 +452,11 @@ class FercDbfExtractor:
         self.sqlite_meta.reflect(self.sqlite_engine)
 
     def get_data_config(
-        self, global_data_config: FercToSqliteDataConfig
+        self, ferc_to_sqlite_data_config: FercToSqliteDataConfig
     ) -> FercDbfToSqliteDataConfig:
-        """Returns dataset relevant data configuration from the global_data_config."""
-        raise NotImplementedError(
-            "get_data_config() needs to extract dataset specific data configuration."
+        """Returns dataset relevant data configuration from ferc_to_sqlite_data_config."""
+        return ferc_to_sqlite_data_config.get_data_config(
+            dataset=self.DATASET, data_format="dbf"
         )
 
     def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:

@@ -845,19 +845,27 @@ class FercToSqliteDataConfig(BaseSettings):
 
     def get_data_config(
         self, dataset: str | XbrlFormNumber, data_format: Literal["dbf", "xbrl"]
-    ) -> FercGenericXbrlToSqliteDataConfig | FercDbfToSqliteDataConfig:
+    ) -> FercGenericXbrlToSqliteDataConfig | FercDbfToSqliteDataConfig | None:
         """Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
-        Throws a KeyError if dataset/format is not configured.
+        Returns ``None`` if the dataset/format combination is not configured.
         """
         key = f"{dataset}_{data_format}"
-        return dict(self)[key]
+        return dict(self).get(key)
 
     def get_dataset_years(
         self, dataset: str | XbrlFormNumber, data_format: Literal["dbf", "xbrl"]
     ) -> list[int]:
-        """Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``)."""
+        """Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
+
+        Raises:
+            ValueError: if the dataset/format combination is not configured.
+        """
         data_config = self.get_data_config(dataset=dataset, data_format=data_format)
+        if data_config is None:
+            raise ValueError(
+                f"ferc_to_sqlite.{dataset}_{data_format} must be configured but is not set."
+            )
         return sorted(data_config.years)
 
 

@@ -86,11 +86,6 @@ from pudl.extract.dbf import (
     add_key_constraints,
     deduplicate_by_year,
 )
-from pudl.settings import (
-    Ferc1DbfToSqliteDataConfig,
-    FercDbfToSqliteDataConfig,
-    FercToSqliteDataConfig,
-)
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -263,17 +258,6 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 
     DATASET = "ferc1"
     DATABASE_NAME = "ferc1_dbf.sqlite"
-
-    def get_data_config(
-        self, ferc_to_sqlite_data_config: FercToSqliteDataConfig
-    ) -> FercDbfToSqliteDataConfig:
-        """Returns data config for FERC Form 1 DBF dataset."""
-        data_config: Ferc1DbfToSqliteDataConfig | None = (
-            ferc_to_sqlite_data_config.ferc1_dbf
-        )
-        if data_config is None:
-            raise ValueError("ferc_to_sqlite.ferc1_dbf must be configured")
-        return data_config
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Modifies schema before it's written to sqlite database.
