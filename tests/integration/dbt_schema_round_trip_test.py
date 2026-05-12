@@ -9,8 +9,6 @@ from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.scripts.dbt_helper import insert_data_source, maybe_schema_from_path
 
 
-
-
 @pytest.mark.parametrize("resource_name", [r.name for r in PUDL_PACKAGE.resources])
 def test_merge_schema_roundtrip(resource_name):
     dbt_dir = Path(__file__).parent.parent.parent / "dbt"
