@@ -174,6 +174,7 @@ def update_row_counts(
         message=f"Successfully updated row counts for {table_name}, partitioned by {partition_expr}.",
     )
 
+
 def maybe_schema_from_path(path: Path) -> DbtSchema:
     if not path.exists():
         return DbtSchema()
@@ -181,6 +182,7 @@ def maybe_schema_from_path(path: Path) -> DbtSchema:
         if f.read().strip() == "":
             return DbtSchema()
     return DbtSchema.from_yaml(path)
+
 
 def update_table_schema(
     table_name: str,
