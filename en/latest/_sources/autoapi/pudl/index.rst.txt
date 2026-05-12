@@ -18,6 +18,7 @@ Submodules
    /autoapi/pudl/_version/index
    /autoapi/pudl/analysis/index
    /autoapi/pudl/dagster/index
+   /autoapi/pudl/dbt_schema/index
    /autoapi/pudl/definitions/index
    /autoapi/pudl/deploy/index
    /autoapi/pudl/extract/index
