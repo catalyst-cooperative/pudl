@@ -21,50 +21,38 @@ Examples:
 import os
 import re
 import shutil
-from datetime import datetime, timedelta
+import sys
+from datetime import datetime
 from pathlib import Path
 
 import click
+from dateutil import parser
+from dateutil.relativedelta import relativedelta
 
 UUID_PATTERN = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 )
 
 
-def _parse_date(date_str: str) -> datetime:
+def _parse_date(date_str: str, now: datetime | None = None) -> datetime:
     """Parse a cutoff datetime from one of several formats.
 
-    Accepted formats:
-      YYYY-MM-DD HH:MM  — exact datetime; seconds set to 59
-      YYYY-MM-DD        — date only; cutoff is 23:59:59 on that day
-      <N>d / <N>w / <N>m — relative; cutoff is 23:59:59 N days/weeks/months ago
+    Accepts any absolute time string that dateutil can handle, plus relative
+    time strings like "<N>d/w/m" (for days/weeks/months).
     """
-    if re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$", date_str):
-        try:
-            return datetime.strptime(date_str, "%Y-%m-%d %H:%M").replace(second=59)
-        except ValueError as e:
-            raise click.BadParameter(str(e)) from e
-
-    if re.match(r"^\d{4}-\d{2}-\d{2}$", date_str):
-        try:
-            return datetime.strptime(date_str, "%Y-%m-%d").replace(
-                hour=23, minute=59, second=59
-            )
-        except ValueError as e:
-            raise click.BadParameter(str(e)) from e
-
+    if now is None:
+        now = datetime.now()
     m = re.match(r"^(\d+)([dwm])$", date_str, re.IGNORECASE)
-    if not m:
-        raise click.BadParameter(
-            f"Use YYYY-MM-DD, 'YYYY-MM-DD HH:MM', or a duration like 10d, 4w, 1m — got '{date_str}'."
-        )
-    num, unit = int(m.group(1)), m.group(2).lower()
-    delta = {
-        "d": timedelta(days=num),
-        "w": timedelta(weeks=num),
-        "m": timedelta(days=num * 30),
-    }[unit]
-    return (datetime.now() - delta).replace(hour=23, minute=59, second=59)
+    if m:
+        num, unit = int(m.group(1)), m.group(2).lower()
+        delta = {
+            "d": relativedelta(days=num),
+            "w": relativedelta(weeks=num),
+            "m": relativedelta(months=num),
+        }[unit]
+        return now - delta
+
+    return parser.parse(date_str)
 
 
 def _human_readable(kb: int) -> str:
@@ -76,9 +64,14 @@ def _human_readable(kb: int) -> str:
     return f"{kb / 1_048_576:.1f}G"
 
 
-# Color thresholds matching the bash script:
-#   green < 100 MB, yellow < 1 GB, orange < 5 GB, red >= 5 GB
 def _row_color(size_kb: int) -> str | tuple[int, int, int]:
+    """Get the right color of output for the filesize.
+
+    < 100 MB: green
+    <   1 GB: yellow
+    <   5 GB: orange
+    else: red
+    """
     if size_kb < 102_400:
         return "green"
     if size_kb < 1_048_576:
@@ -128,13 +121,9 @@ def dghome() -> None:
 
 
 _DATE_FORMATS_EPILOG = (
-    "\n"
-    "DATE formats:\n"
-    "  YYYY-MM-DD HH:MM  exact datetime, e.g. '2026-01-15 14:30'\n"
-    "  YYYY-MM-DD        end of that day, e.g. 2026-01-15\n"
-    "  <N>d              N days ago,  e.g. 10d\n"
-    "  <N>w              N weeks ago, e.g. 4w\n"
-    "  <N>m              N months ago, e.g. 1m"
+    "\n"
+    "Accepts any absolute time string that dateutil can handle, plus relative"
+    " time strings like '<N>d/w/m' (for days/weeks/months)."
 )
 
 
@@ -176,6 +165,8 @@ def rm(date: str | None) -> None:
     """Remove UUID directories last modified on or before DATE.
 
     Without DATE, reports what would be removed but does nothing.
+
+    Confirms before deletion.
     """
     cutoff_ts = _parse_date(date).timestamp() if date else None
     entries = _collect(cutoff_ts)
@@ -189,20 +180,22 @@ def rm(date: str | None) -> None:
         click.echo(msg, err=True)
         return
 
-    total = _human_readable(sum(e["size_kb"] for e in entries))
-
     if cutoff_ts is None:
-        click.echo(
-            f"Found {len(entries)} directories totalling {total}. Provide a date to remove them."
-        )
+        click.echo(f"Found {len(entries)} directories. Provide a date to remove them.")
         return
+
+    click.echo(
+        "About to remove these directories:\n"
+        + "\n".join(str(entry["path"]) for entry in entries)
+    )
+    click.confirm("Remove these directories?", abort=True)
 
     for e in entries:
         try:
             shutil.rmtree(e["path"])
         except OSError as exc:
             click.echo(f"Warning: failed to remove {e['path']}: {exc}", err=True)
-    click.echo(f"Removed {len(entries)} directories totalling {total}.")
+    click.echo(f"Removed {len(entries)} directories.")
 
 
 def main() -> None:
@@ -211,4 +204,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
