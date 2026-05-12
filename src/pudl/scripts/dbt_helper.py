@@ -174,25 +174,23 @@ def update_row_counts(
         message=f"Successfully updated row counts for {table_name}, partitioned by {partition_expr}.",
     )
 
+def maybe_schema_from_path(path: Path) -> DbtSchema:
+    if not path.exists():
+        return DbtSchema()
+    with path.open("r") as f:
+        if f.read().strip() == "":
+            return DbtSchema()
+    return DbtSchema.from_yaml(path)
 
 def update_table_schema(
     table_name: str,
     dbt_root: Path,
 ) -> UpdateResult:
     """Generate and write out a schema.yaml file defining a new or updated table."""
-
-    def _maybe_get_human_schema(human_path: Path) -> DbtSchema:
-        if not human_path.exists():
-            return DbtSchema()
-        with human_path.open("r") as f:
-            if f.read().strip() == "":
-                return DbtSchema()
-        return DbtSchema.from_yaml(human_path)
-
     schema_inputs = insert_data_source(dbt_root / "schema_inputs", table_name)
     schema_inputs.mkdir(parents=True, exist_ok=True)
     human_path = schema_inputs / "schema.human.yml"
-    human_schema = _maybe_get_human_schema(human_path)
+    human_schema = maybe_schema_from_path(human_path)
 
     machine_schema = DbtSchema.from_table_name(table_name)
 

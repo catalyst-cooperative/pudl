@@ -4,9 +4,9 @@ from pathlib import Path
 import deepdiff
 import pytest
 
-from pudl.dbt_schema import DbtSchema, merge_schema_paths
+from pudl.dbt_schema import DbtSchema, merge_schema
 from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.scripts.dbt_helper import insert_data_source
+from pudl.scripts.dbt_helper import insert_data_source, maybe_schema_from_path
 
 
 def get_schemas(root_dir: Path, pattern: str):
@@ -21,16 +21,13 @@ def test_merge_schema_roundtrip(resource_name):
     reference = DbtSchema.from_yaml(
         insert_data_source(dbt_dir / "models", resource_name) / "schema.yml"
     )
-    machine_path = (
-        insert_data_source(dbt_dir / "schema_inputs", resource_name)
-        / "schema.machine.yml"
-    )
-    human_path = (
+    machine_schema = DbtSchema.from_table_name(resource_name)
+    human_schema = maybe_schema_from_path(
         insert_data_source(dbt_dir / "schema_inputs", resource_name)
         / "schema.human.yml"
     )
 
-    merged = merge_schema_paths(machine_path, human_path)
+    merged = merge_schema(machine_schema, human_schema)
     try:
         assert merged == reference
     except AssertionError:
