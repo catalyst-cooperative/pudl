@@ -133,7 +133,13 @@ def filter_for_freshest_data_xbrl(
 def get_primary_key_raw_xbrl(
     sched_table_name: str, ferc_form: Literal["ferc1", "ferc714"]
 ) -> list[str]:
-    """Get the primary key for a raw XBRL table from the XBRL datapackage."""
+    """Get the primary key for a raw XBRL table from the XBRL datapackage.
+
+    If the sched_table_name does not exist in the datapackage, an empty list
+    will be returned. This is expected often because we attempt to grab both
+    the instant and the duration raw tables, despite those not always
+    existing in the original data.
+    """
     # TODO (daz): as of 2023-10-13, our datapackage.json is merely
     # "frictionless-like" so we manually parse it as JSON. once we make our
     # datapackage.json conformant, we will need to at least update the
@@ -141,7 +147,10 @@ def get_primary_key_raw_xbrl(
     # as well.
     with (PudlPaths().output_dir / f"{ferc_form}_xbrl_datapackage.json").open() as f:
         datapackage = json.loads(f.read())
-    [table_resource] = [
+    table_resource = [
         tr for tr in datapackage["resources"] if tr["name"] == sched_table_name
     ]
-    return table_resource["schema"]["primary_key"]
+    primary_key = []
+    if table_resource:
+        primary_key = table_resource[0]["schema"]["primary_key"]
+    return primary_key
