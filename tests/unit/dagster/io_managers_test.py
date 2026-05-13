@@ -29,10 +29,10 @@ from pudl.dagster.provenance import (
 )
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.settings import (
-    DatasetsSettings,
-    EtlSettings,
-    Ferc1Settings,
-    FercToSqliteSettings,
+    Ferc1DataConfig,
+    FercToSqliteDataConfig,
+    GlobalDataConfig,
+    PudlDataConfig,
 )
 from pudl.validate.integrity import (
     ForeignKeyError,
@@ -348,12 +348,12 @@ def test_mixed_format_io_manager_initializes_backends(mocker):
     assert manager._parquet_io_manager is parquet_manager
 
 
-def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
-    """The migrated FERC DBF IO manager should read years from injected settings."""
-    dataset_settings = DatasetsSettings(ferc1=Ferc1Settings(years=[2020, 2021]))
-    etl_settings: EtlSettings = EtlSettings(
-        datasets=dataset_settings,
-        ferc_to_sqlite_settings=FercToSqliteSettings(),
+def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
+    """The migrated FERC DBF IO manager should read years from injected data config."""
+    pudl_data_config = PudlDataConfig(ferc1=Ferc1DataConfig(years=[2020, 2021]))
+    global_data_config: GlobalDataConfig = GlobalDataConfig(
+        pudl=pudl_data_config,
+        ferc_to_sqlite=FercToSqliteDataConfig(),
     )
     zenodo_dois: ZenodoDoiSettings = ZenodoDoiSettings()
     fake_manager: FercDbfSqliteIOManager = mocker.MagicMock()
@@ -366,7 +366,10 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
 
     manager: FercDbfSqliteConfigurableIOManager = (
         ferc1_dbf_sqlite_io_manager.model_copy(
-            update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
+            update={
+                "global_data_config": global_data_config,
+                "zenodo_dois": zenodo_dois,
+            }
         )
     )
     instance: DagsterInstance = mocker.MagicMock()
@@ -379,7 +382,9 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
                     dataset="ferc1",
                     data_format="dbf",
                     status="complete",
-                    years=etl_settings.ferc_to_sqlite.get_dataset_years("ferc1", "dbf"),
+                    years=global_data_config.ferc_to_sqlite.get_dataset_years(
+                        "ferc1", "dbf"
+                    ),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
                     sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
                 ).model_dump(mode="json")
@@ -396,16 +401,16 @@ def test_ferc_dbf_io_manager_uses_injected_dataset_settings(mocker):
     assert observed["sched_table_name"].eq("f1_respondent_id").all()
     fake_manager._query.assert_called_once_with(
         "f1_respondent_id",
-        dataset_settings.ferc1.dbf_years,
+        global_data_config.pudl.ferc1.dbf_years,
     )
 
 
-def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
-    """The migrated FERC XBRL IO manager should pass years from injected settings."""
-    dataset_settings = DatasetsSettings(ferc1=Ferc1Settings(years=[2021]))
-    etl_settings = EtlSettings(
-        datasets=dataset_settings,
-        ferc_to_sqlite_settings=FercToSqliteSettings(),
+def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
+    """The migrated FERC XBRL IO manager should pass years from injected data config."""
+    pudl_data_config = PudlDataConfig(ferc1=Ferc1DataConfig(years=[2021]))
+    global_data_config: GlobalDataConfig = GlobalDataConfig(
+        pudl=pudl_data_config,
+        ferc_to_sqlite=FercToSqliteDataConfig(),
     )
     zenodo_dois = ZenodoDoiSettings()
     fake_manager = mocker.MagicMock()
@@ -418,7 +423,10 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
 
     manager: FercXbrlSqliteConfigurableIOManager = (
         ferc1_xbrl_sqlite_io_manager.model_copy(
-            update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
+            update={
+                "global_data_config": global_data_config,
+                "zenodo_dois": zenodo_dois,
+            }
         )
     )
     instance: DagsterInstance = mocker.MagicMock()
@@ -430,7 +438,7 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
                     dataset="ferc1",
                     data_format="dbf",
                     status="complete",
-                    years=etl_settings.ferc_to_sqlite.get_dataset_years(
+                    years=global_data_config.ferc_to_sqlite.get_dataset_years(
                         "ferc1", "xbrl"
                     ),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
@@ -450,16 +458,16 @@ def test_ferc_xbrl_io_manager_uses_injected_dataset_settings(mocker):
     assert observed["sched_table_name"].eq("plant_in_service").all()
     fake_manager._query.assert_called_once_with(
         "plant_in_service_duration",
-        dataset_settings.ferc1.xbrl_years,
+        global_data_config.pudl.ferc1.xbrl_years,
     )
 
 
 def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
     """The migrated FERC DBF IO manager should fail fast on stale prerequisites."""
-    dataset_settings = DatasetsSettings(ferc1=Ferc1Settings(years=[2020, 2021]))
-    etl_settings = EtlSettings(
-        datasets=dataset_settings,
-        ferc_to_sqlite_settings=FercToSqliteSettings(),
+    pudl_data_config = PudlDataConfig(ferc1=Ferc1DataConfig(years=[2020, 2021]))
+    global_data_config: GlobalDataConfig = GlobalDataConfig(
+        pudl=pudl_data_config,
+        ferc_to_sqlite=FercToSqliteDataConfig(),
     )
     zenodo_dois = ZenodoDoiSettings()
 
@@ -474,7 +482,10 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
 
     manager: FercDbfSqliteConfigurableIOManager = (
         ferc1_dbf_sqlite_io_manager.model_copy(
-            update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
+            update={
+                "global_data_config": global_data_config,
+                "zenodo_dois": zenodo_dois,
+            }
         )
     )
     stale_metadata = {
@@ -482,7 +493,7 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
             dataset="ferc1",
             data_format="dbf",
             status="complete",
-            years=etl_settings.ferc_to_sqlite.get_dataset_years("ferc1", "dbf"),
+            years=global_data_config.ferc_to_sqlite.get_dataset_years("ferc1", "dbf"),
             zenodo_doi="stale DOI",
             sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
         ).model_dump(mode="json")
@@ -505,12 +516,10 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
 
 def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
     """The migrated FERC DBF IO manager should fail fast when no provenance exists."""
-    dataset_settings = DatasetsSettings.model_validate(
-        {"ferc1": {"years": [2020, 2021]}}
-    )
-    etl_settings = EtlSettings(
-        datasets=dataset_settings,
-        ferc_to_sqlite_settings=FercToSqliteSettings(),
+    pudl_data_config = PudlDataConfig.model_validate({"ferc1": {"years": [2020, 2021]}})
+    global_data_config: GlobalDataConfig = GlobalDataConfig(
+        pudl=pudl_data_config,
+        ferc_to_sqlite=FercToSqliteDataConfig(),
     )
     zenodo_dois = ZenodoDoiSettings()
 
@@ -525,7 +534,10 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
 
     manager: FercDbfSqliteConfigurableIOManager = (
         ferc1_dbf_sqlite_io_manager.model_copy(
-            update={"etl_settings": etl_settings, "zenodo_dois": zenodo_dois}
+            update={
+                "global_data_config": global_data_config,
+                "zenodo_dois": zenodo_dois,
+            }
         )
     )
     instance: DagsterInstance = mocker.MagicMock()
