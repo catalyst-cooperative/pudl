@@ -33,6 +33,18 @@ FERC 1
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-930
+~~~~~~~
+
+* Updated EIA-930 data through April 2026. See :issue:`5209`
+  and :pr:`5216`.
+
+EIA-191
+~~~~~~~
+
+* Updated EIA-191 data through April 2026. See :issue:`5209`
+  and :pr:`5216`.
+
 Documentation
 ^^^^^^^^^^^^^
 
