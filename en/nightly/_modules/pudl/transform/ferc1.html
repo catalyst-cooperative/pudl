@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc1 &#8212; PUDL 2026.4.1.dev34 documentation</title>
+    <title>pudl.transform.ferc1 &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=9b34abff"></script>
+    <script src="../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -890,7 +890,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dfs</span><span class="w"> </span><span class="kn">import</span> <span class="n">POLITICAL_SUBDIVISIONS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ferc1Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ferc1DataConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.classes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AbstractTableTransformer</span><span class="p">,</span>
     <span class="n">InvalidRows</span><span class="p">,</span>
@@ -1004,7 +1004,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of the allowed FERC 1 table IDs.</span>
 
 <span class="sd">    Hard coding this doesn&#39;t seem ideal. Somehow it should be either defined in the</span>
-<span class="sd">    context of the Package, the Ferc1Settings, an etl_group, or DataSource. All of the</span>
+<span class="sd">    context of the Package, the Ferc1DataConfig, an etl_group, or DataSource. All of the</span>
 <span class="sd">    table transformers associated with a given data source should have a table_id that&#39;s</span>
 <span class="sd">    from that data source&#39;s subset of the database. Where should this really happen?</span>
 <span class="sd">    Alternatively, the allowable values could be derived *from* the structure of the</span>
@@ -3185,7 +3185,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ``[report_year, row_number, xbrl_factoid]``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">dbf_years</span><span class="p">:</span>
-        <span class="n">dbf_years</span> <span class="o">=</span> <span class="n">Ferc1Settings</span><span class="p">()</span><span class="o">.</span><span class="n">dbf_years</span>
+        <span class="n">dbf_years</span> <span class="o">=</span> <span class="n">Ferc1DataConfig</span><span class="p">()</span><span class="o">.</span><span class="n">dbf_years</span>
     <span class="c1"># If the first year that we&#39;re trying to produce isn&#39;t mapped, we won&#39;t be able to</span>
     <span class="c1"># forward fill.</span>
     <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="n">dbf_years</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
@@ -4391,7 +4391,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">,</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">out_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">out_df</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">Ferc1Settings</span><span class="p">()</span><span class="o">.</span><span class="n">xbrl_years</span><span class="p">)]</span></div>
+        <span class="k">return</span> <span class="n">out_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">out_df</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">Ferc1DataConfig</span><span class="p">()</span><span class="o">.</span><span class="n">xbrl_years</span><span class="p">)]</span></div>
 
 
     <span class="nd">@cache_df</span><span class="p">(</span><span class="s2">&quot;process_instant_xbrl&quot;</span><span class="p">)</span>

@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.io_managers &#8212; PUDL 2026.4.1.dev34 documentation</title>
+    <title>pudl.dagster.io_managers &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../../_static/documentation_options.js?v=9b34abff"></script>
+    <script src="../../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -419,6 +419,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../sensors/index.html">pudl.dagster.sensors</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dbt_schema/index.html">pudl.dbt_schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../definitions/index.html">pudl.definitions</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../deploy/pudl/index.html">pudl.deploy.pudl</a></li>
@@ -591,6 +592,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/deploy/index.html">pudl.scripts.deploy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/dghome/index.html">pudl.scripts.dghome</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/metadata_to_rst/index.html">pudl.scripts.metadata_to_rst</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/pudl_check_fks/index.html">pudl.scripts.pudl_check_fks</a></li>
@@ -1194,7 +1196,7 @@ FERC tables are not known prior to running the ETL and are not recorded in our
 metadata.</p>
 <p>The form name is inferred from <code class="docutils literal notranslate"><span class="pre">self.db_name</span></code> via <code class="xref py py-func docutils literal notranslate"><span class="pre">get_ferc_form_name()</span></code>, so
 a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as
-the corresponding settings object exposes a <code class="docutils literal notranslate"><span class="pre">dbf_years</span></code> attribute.</p>
+the corresponding data config object exposes a <code class="docutils literal notranslate"><span class="pre">dbf_years</span></code> attribute.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.FercDbfSqliteIOManager.handle_output">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercDbfSqliteIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager.handle_output" title="Link to this definition">#</a></dt>
@@ -1223,25 +1225,24 @@ prefix).</p></li>
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">_FercSqliteConfigurableIOManagerBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.ConfigurableIOManager</span></code></a></p>
 <p>Base class for Dagster-native FERC SQLite IO manager wrappers.</p>
-<p>Holds the shared resource dependencies (<code class="docutils literal notranslate"><span class="pre">etl_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">zenodo_dois</span></code>,
-<code class="docutils literal notranslate"><span class="pre">db_name</span></code>) and provides default delegation for <code class="docutils literal notranslate"><span class="pre">engine</span></code>, <code class="docutils literal notranslate"><span class="pre">handle_output</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">load_input</span></code>. Subclasses must define <code class="docutils literal notranslate"><span class="pre">_manager</span></code> (a <code class="docutils literal notranslate"><span class="pre">cached_property</span></code>
-returning the appropriate underlying IO manager) and <code class="docutils literal notranslate"><span class="pre">data_format</span></code>
-(<code class="docutils literal notranslate"><span class="pre">dbf</span></code> or <code class="docutils literal notranslate"><span class="pre">xbrl</span></code>).</p>
+<p>Holds the shared resource dependencies (<code class="docutils literal notranslate"><span class="pre">global_data_config</span></code>, <code class="docutils literal notranslate"><span class="pre">zenodo_dois</span></code>,
+<code class="docutils literal notranslate"><span class="pre">db_name</span></code>) and provides default delegation for <code class="docutils literal notranslate"><span class="pre">engine</span></code>, <code class="docutils literal notranslate"><span class="pre">handle_output</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">load_input</span></code>. Subclasses must define <code class="docutils literal notranslate"><span class="pre">_manager</span></code> (a <code class="docutils literal notranslate"><span class="pre">cached_property</span></code> returning
+the appropriate underlying IO manager) and <code class="docutils literal notranslate"><span class="pre">data_format</span></code> (<code class="docutils literal notranslate"><span class="pre">dbf</span></code> or <code class="docutils literal notranslate"><span class="pre">xbrl</span></code>).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This wrapper pattern is a temporary workaround for nested <code class="docutils literal notranslate"><span class="pre">etl_settings</span></code>
+<p>This wrapper pattern is a temporary workaround for nested <code class="docutils literal notranslate"><span class="pre">global_data_config</span></code>
 resource dependencies inside the FERC IO managers. Because Dagster wires
 resource dependencies at instantiation time, overriding the top-level
-<code class="docutils literal notranslate"><span class="pre">etl_settings</span></code> resource alone (e.g. in tests) is not enough — the IO
-managers must be rebuilt against the new resource instance. <code class="docutils literal notranslate"><span class="pre">build_defs</span></code>
-in <code class="docutils literal notranslate"><span class="pre">pudl.etl</span></code> handles that rebuilding explicitly. A follow-up PR will
-remove the nested dependency, at which point this base class can be
-simplified or eliminated. See issue #5118</p>
+<code class="docutils literal notranslate"><span class="pre">global_data_config</span></code> resource alone (e.g. in tests) is not enough — the IO
+managers must be rebuilt against the new resource instance. <code class="docutils literal notranslate"><span class="pre">build_defs</span></code> in
+<code class="docutils literal notranslate"><span class="pre">pudl.etl</span></code> handles that rebuilding explicitly. A follow-up PR will remove the
+nested dependency, at which point this base class can be simplified or
+eliminated. See issue #5118</p>
 </div>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.etl_settings">
-<span class="sig-name descname"><span class="pre">etl_settings</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dagster.ResourceDependency</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resources/index.html#pudl.dagster.resources.PudlEtlSettingsResource" title="pudl.dagster.resources.PudlEtlSettingsResource"><span class="pre">pudl.dagster.resources.PudlEtlSettingsResource</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.etl_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.etl_settings" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.global_data_config">
+<span class="sig-name descname"><span class="pre">global_data_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dagster.ResourceDependency</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resources/index.html#pudl.dagster.resources.GlobalDataConfigResource" title="pudl.dagster.resources.GlobalDataConfigResource"><span class="pre">pudl.dagster.resources.GlobalDataConfigResource</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.global_data_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.global_data_config" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1515,7 +1516,7 @@ prefix).</p></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.etl_settings"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.etl_settings</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.global_data_config"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.global_data_config</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.zenodo_dois"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.zenodo_dois</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.dataset"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.dataset</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.data_format"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.data_format</span></code></a></li>

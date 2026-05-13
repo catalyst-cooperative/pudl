@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Data validation quickstart &#8212; PUDL 2026.4.1.dev34 documentation</title>
+    <title>Data validation quickstart &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=9b34abff"></script>
+    <script src="../_static/documentation_options.js?v=bb853114"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -419,6 +419,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/sensors/index.html">pudl.dagster.sensors</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/dbt_schema/index.html">pudl.dbt_schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/definitions/index.html">pudl.definitions</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/pudl/index.html">pudl.deploy.pudl</a></li>
@@ -591,6 +592,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/deploy/index.html">pudl.scripts.deploy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dghome/index.html">pudl.scripts.dghome</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/metadata_to_rst/index.html">pudl.scripts.metadata_to_rst</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_check_fks/index.html">pudl.scripts.pudl_check_fks</a></li>
@@ -798,21 +800,15 @@ you can also use the Parquet files you find there.</p></li>
 <span id="update-dbt-schema"></span><h2>Updating table schemas<a class="headerlink" href="#updating-table-schemas" title="Link to this heading">#</a></h2>
 <p>dbt stores information about a table’s schema and what tests are defined in a special
 YAML file that you need to keep up to date.</p>
-<p>That file lives in <code class="docutils literal notranslate"><span class="pre">pudl/dbt/models/&lt;data_source&gt;/&lt;table_name&gt;/schema.yml</span></code>.</p>
-<p>When you change a table’s schema in <code class="docutils literal notranslate"><span class="pre">pudl.metadata.resources</span></code>, you need to make a
-matching change to the corresponding dbt YAML file.</p>
-<p>In simple cases, <code class="docutils literal notranslate"><span class="pre">dbt_helper</span></code> can automatically update the schema of an existing
-table with:</p>
+<p>We generate that file automatically by combining the existing metadata in
+<code class="docutils literal notranslate"><span class="pre">pudl.metadata.resources.RESOURCE_METADATA</span></code> with human-generated data tests
+defined in <code class="docutils literal notranslate"><span class="pre">pudl/dbt/schema_inputs/&lt;data_source&gt;/&lt;table_name&gt;/schemahuman.yml</span></code>.</p>
+<p>The final generated file lives in
+<code class="docutils literal notranslate"><span class="pre">pudl/dbt/models/&lt;data_source&gt;/&lt;table_name&gt;/schema.yml</span></code>.</p>
+<p>When you change a table’s schema or update the data tests, you need to
+regenerate the dbt schema:</p>
+<p>For more details on adding data tests, see <a class="reference internal" href="data_validation_reference.html#adding-new-tables"><span class="std std-ref">Adding new tables</span></a>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dbt_helper<span class="w"> </span>update-tables<span class="w"> </span>--schema<span class="w"> </span>table_to_update
-</pre></div>
-</div>
-<p>This will work so long as none of the columns being updated have data tests or other
-manually defined metadata associated with them. If the script finds tests or metadata it
-will abort, leaving the schema unchanged, and you will have to update the schema
-manually, by editing the <code class="docutils literal notranslate"><span class="pre">columns</span></code> list in the appropriate <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code> file. If you
-want to destructively replace an existing schema <strong>including any manually added tests or
-metadata</strong> you can use <code class="docutils literal notranslate"><span class="pre">--clobber</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dbt_helper<span class="w"> </span>update-tables<span class="w"> </span>--schema<span class="w"> </span>--clobber<span class="w"> </span>table_to_replace_entirely
 </pre></div>
 </div>
 </section>

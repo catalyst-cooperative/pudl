@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.dbf &#8212; PUDL 2026.4.1.dev34 documentation</title>
+    <title>pudl.extract.dbf &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=9b34abff"></script>
+    <script src="../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -865,11 +865,12 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">op</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dbfread</span><span class="w"> </span><span class="kn">import</span> <span class="n">DBF</span><span class="p">,</span> <span class="n">FieldParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.engine.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Engine</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.helpers</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSource</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">FercDbfToSqliteSettings</span><span class="p">,</span> <span class="n">FercToSqliteSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">FercDbfToSqliteDataConfig</span><span class="p">,</span> <span class="n">FercToSqliteDataConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.datastore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Datastore</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
@@ -1443,35 +1444,35 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">datastore</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">,</span>
-        <span class="n">settings</span><span class="p">:</span> <span class="n">FercToSqliteSettings</span><span class="p">,</span>
+        <span class="n">data_config</span><span class="p">:</span> <span class="n">FercDbfToSqliteDataConfig</span><span class="p">,</span>
         <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs new instance of FercDbfExtractor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            datastore: top-level datastore instance for accessing raw data files.</span>
-<span class="sd">            settings: generic settings object for this extrctor.</span>
+<span class="sd">            data_config: generic data config object for this extractor.</span>
 <span class="sd">            output_path: directory where the output databases should be stored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="FercDbfExtractor.settings">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.settings">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">:</span> <span class="n">FercDbfToSqliteSettings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span></div>
+<div class="viewcode-block" id="FercDbfExtractor.data_config">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.data_config">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="p">:</span> <span class="n">FercDbfToSqliteDataConfig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_config</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FercDbfExtractor.output_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.output_path">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">output_path</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">output_path</span></div>
 
 <div class="viewcode-block" id="FercDbfExtractor.datastore">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.datastore">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span> <span class="o">=</span> <span class="n">datastore</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="p">:</span> <span class="n">Datastore</span> <span class="o">=</span> <span class="n">datastore</span></div>
 
 <div class="viewcode-block" id="FercDbfExtractor.dbf_reader">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.dbf_reader">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dbf_reader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbf_reader</span><span class="p">(</span><span class="n">datastore</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dbf_reader</span><span class="p">:</span> <span class="n">AbstractFercDbfReader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dbf_reader</span><span class="p">(</span><span class="n">datastore</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FercDbfExtractor.sqlite_engine">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.sqlite_engine">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span><span class="p">:</span> <span class="n">Engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="FercDbfExtractor.sqlite_meta">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.sqlite_meta">[docs]</a>
@@ -1479,14 +1480,14 @@ window.runMermaid = runMermaid;</script>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FercDbfExtractor.get_settings">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.get_settings">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_settings</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">global_settings</span><span class="p">:</span> <span class="n">FercToSqliteSettings</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDbfToSqliteSettings</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dataset relevant settings from the global_settings.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;get_settings() needs to extract dataset specific settings.&quot;</span>
+<div class="viewcode-block" id="FercDbfExtractor.get_data_config">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.get_data_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_config</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ferc_to_sqlite_data_config</span><span class="p">:</span> <span class="n">FercToSqliteDataConfig</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDbfToSqliteDataConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dataset relevant data configuration from ferc_to_sqlite_data_config.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ferc_to_sqlite_data_config</span><span class="o">.</span><span class="n">get_data_config</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;dbf&quot;</span>
         <span class="p">)</span></div>
 
 
@@ -1514,7 +1515,7 @@ window.runMermaid = runMermaid;</script>
         <span class="nd">@op</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2">_dbf&quot;</span><span class="p">,</span>
             <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;etl_settings&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;global_data_config&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;datastore&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;runtime_settings&quot;</span><span class="p">,</span>
             <span class="p">},</span>
@@ -1524,7 +1525,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Instantiates dbf extractor and runs it.&quot;&quot;&quot;</span>
             <span class="n">dbf_extractor</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
                 <span class="n">datastore</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span><span class="p">,</span>
-                <span class="n">settings</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">ferc_to_sqlite</span><span class="p">,</span>
+                <span class="n">data_config</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">ferc_to_sqlite</span><span class="p">,</span>
                 <span class="n">output_path</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">dbf_extractor</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
@@ -1537,9 +1538,9 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the extraction of the data from dbf to sqlite.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Running dbf extraction for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> with settings: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Running dbf extraction for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> with data_config: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">years</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">years</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> has no years configured, skipping&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
@@ -1565,7 +1566,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.create_sqlite_tables">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_sqlite_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates database schema based on the input tables.&quot;&quot;&quot;</span>
-        <span class="n">refyear</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">refyear</span>
+        <span class="n">refyear</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">refyear</span>
         <span class="k">if</span> <span class="n">refyear</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">refyear</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
                 <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dbf_reader</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">())</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span>
@@ -1633,7 +1634,8 @@ window.runMermaid = runMermaid;</script>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">get_datapackage_descriptor</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span>
             <span class="p">)</span><span class="o">.</span><span class="n">get_partition_filters</span><span class="p">(</span><span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;dbf&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_partition</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">years</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_partition</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">years</span>
         <span class="p">]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Loading </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> table data from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">)</span><span class="si">}</span><span class="s2"> partitions.&quot;</span>

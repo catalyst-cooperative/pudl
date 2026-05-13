@@ -183,7 +183,7 @@ Module Contents
    Enumeration of the allowed FERC 1 table IDs.
 
    Hard coding this doesn't seem ideal. Somehow it should be either defined in the
-   context of the Package, the Ferc1Settings, an etl_group, or DataSource. All of the
+   context of the Package, the Ferc1DataConfig, an etl_group, or DataSource. All of the
    table transformers associated with a given data source should have a table_id that's
    from that data source's subset of the database. Where should this really happen?
    Alternatively, the allowable values could be derived *from* the structure of the

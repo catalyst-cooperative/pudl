@@ -37,7 +37,7 @@ Functions
    pudl.extract.extractor.concat_pages
    pudl.extract.extractor._is_dict_str_strint
    pudl.extract.extractor.partition_extractor_factory
-   pudl.extract.extractor.partitions_from_settings_factory
+   pudl.extract.extractor.partitions_from_data_config_factory
    pudl.extract.extractor.raw_df_factory
 
 
@@ -273,9 +273,9 @@ Module Contents
    :param name: Name of an Excel based dataset (e.g. "eia860").
 
 
-.. py:function:: partitions_from_settings_factory(name: str) -> dagster.OpDefinition
+.. py:function:: partitions_from_data_config_factory(name: str) -> dagster.OpDefinition
 
-   Construct a Dagster op to get target partitions from settings in Dagster context.
+   Construct a Dagster op to get target partitions from data config in Dagster context.
 
    :param name: Name of an Excel based dataset (e.g. "eia860").
 

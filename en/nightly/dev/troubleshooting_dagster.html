@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Troubleshooting Dagster &#8212; PUDL 2026.4.1.dev34 documentation</title>
+    <title>Troubleshooting Dagster &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=9b34abff"></script>
+    <script src="../_static/documentation_options.js?v=bb853114"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -419,6 +419,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/sensors/index.html">pudl.dagster.sensors</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/dbt_schema/index.html">pudl.dbt_schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/definitions/index.html">pudl.definitions</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/pudl/index.html">pudl.deploy.pudl</a></li>
@@ -591,6 +592,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/deploy/index.html">pudl.scripts.deploy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dghome/index.html">pudl.scripts.dghome</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/metadata_to_rst/index.html">pudl.scripts.metadata_to_rst</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_check_fks/index.html">pudl.scripts.pudl_check_fks</a></li>
@@ -803,18 +805,31 @@ when you switch branches.</strong> The stable code location module is
 Resources can be configured using the Dagster UI or via a YAML config
 file to change the behavior of a given resource. PUDL’s default resource
 set is assembled in <a class="reference internal" href="../autoapi/pudl/dagster/resources/index.html#module-pudl.dagster.resources" title="pudl.dagster.resources"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.resources</span></code></a> and includes datastore
-access, ETL settings, runtime settings, and several IO managers. The
+access, data config, runtime settings, and several IO managers. The
 resources contributors most often need to adjust are:</p>
-<section id="pudl-dagster-resources-pudletlsettingsresource">
-<h3><a class="reference internal" href="../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlEtlSettingsResource" title="pudl.dagster.resources.PudlEtlSettingsResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.dagster.resources.PudlEtlSettingsResource</span></code></a><a class="headerlink" href="#pudl-dagster-resources-pudletlsettingsresource" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">pudl_etl_settings_resource</span></code> loads a validated <a class="reference internal" href="../autoapi/pudl/settings/index.html#pudl.settings.EtlSettings" title="pudl.settings.EtlSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.settings.EtlSettings</span></code></a>
-object from an ETL settings YAML file. It controls which datasets and years are
-processed by both the <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> and <code class="docutils literal notranslate"><span class="pre">pudl</span></code> jobs. The path to the settings
-file is configured via the <code class="docutils literal notranslate"><span class="pre">etl_settings_path</span></code> field, and the standard packaged
-settings files are under <code class="docutils literal notranslate"><span class="pre">src/pudl/package_data/settings/</span></code>.</p>
-<p>To override the settings for a single run from the Dagster UI, hold shift while clicking
-“Materialize All” to open the run configuration panel and set
-<code class="docutils literal notranslate"><span class="pre">etl_settings.config.etl_settings_path</span></code> to point at a custom settings YAML file.</p>
+<section id="pudl-dagster-resources-globaldataconfigresource">
+<h3><a class="reference internal" href="../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.GlobalDataConfigResource" title="pudl.dagster.resources.GlobalDataConfigResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.dagster.resources.GlobalDataConfigResource</span></code></a><a class="headerlink" href="#pudl-dagster-resources-globaldataconfigresource" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">global_data_config</span></code> resource loads a validated
+<a class="reference internal" href="../autoapi/pudl/settings/index.html#pudl.settings.GlobalDataConfig" title="pudl.settings.GlobalDataConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.settings.GlobalDataConfig</span></code></a> object from a data config YAML
+file. It controls which datasets and years are processed by both
+the <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> and <code class="docutils literal notranslate"><span class="pre">pudl</span></code> jobs. The path to the settings
+file is configured via the <code class="docutils literal notranslate"><span class="pre">global_data_config_path</span></code> field, and the
+standard packaged settings files are under
+<code class="docutils literal notranslate"><span class="pre">src/pudl/package_data/settings/</span></code>.</p>
+<p>To override the settings for a single run from the Dagster UI, hold
+shift while clicking “Materialize All” to open the run configuration
+panel and set <code class="docutils literal notranslate"><span class="pre">global_data_config.config.global_data_config_path</span></code> to
+point at a custom data config YAML file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The configuration edits you make in the Dagster UI are only used
+for a single run.  To save a resource configuration permanently,
+update the Dagster config YAML (e.g. <code class="docutils literal notranslate"><span class="pre">dg_fast.yml</span></code>) or pass a
+<code class="docutils literal notranslate"><span class="pre">--config</span></code> flag to <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code>.</p>
+</div>
+</section>
+<section id="pudl-resources-datastoreresource">
+<h3><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.resources.DatastoreResource</span></code><a class="headerlink" href="#pudl-resources-datastoreresource" title="Link to this heading">#</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The configuration edits you make in the Dagster UI are only used
@@ -892,7 +907,8 @@ used to locate source archives.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#keeping-local-dagster-instance-up-to-date">Keeping local Dagster instance up-to-date</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assets-getting-out-of-sync">Assets getting out of sync</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuring-resources">Configuring resources</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-dagster-resources-pudletlsettingsresource"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.dagster.resources.PudlEtlSettingsResource</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-dagster-resources-globaldataconfigresource"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.dagster.resources.GlobalDataConfigResource</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-resources-datastoreresource"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.resources.DatastoreResource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-dagster-resources-datastore-resource"><code class="xref py py-data docutils literal notranslate"><span class="pre">pudl.dagster.resources.datastore_resource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-dagster-resources-ferc-xbrl-runtime-settings"><code class="xref py py-data docutils literal notranslate"><span class="pre">pudl.dagster.resources.ferc_xbrl_runtime_settings</span></code></a></li>
 </ul>

@@ -11,7 +11,7 @@ pudl.extract.sec10k
    found in this repository: https://github.com/catalyst-cooperative/mozilla-sec-eia
 
    Upstream data is not partitioned by year, but we want to be able to extract a subset of
-   the data for testing, so the :class:`Sec10kSettings` allow specification of which years
+   the data for testing, so the :class:`Sec10kDataConfig` allow specification of which years
    to extract, and those are used to filter the extracted data before returning it.
 
 

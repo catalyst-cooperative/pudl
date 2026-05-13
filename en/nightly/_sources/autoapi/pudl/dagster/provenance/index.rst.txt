@@ -55,9 +55,9 @@ Module Contents
 
 .. py:class:: FercSqliteProvenance
 
-   The provenance requirements derived from the current run's ETL settings.
+   The provenance requirements derived from the current run's data config.
 
-   Computed from ``etl_settings`` and ``zenodo_dois`` to describe what a
+   Computed from ``data_config`` and ``zenodo_dois`` to describe what a
    compatible FERC SQLite prerequisite must contain. Used by
    :func:`assert_ferc_sqlite_compatible` to compare against the stored
    :class:`FercSqliteProvenanceRecord` that was written when the DB was built.
@@ -118,8 +118,8 @@ Module Contents
 
 
 
-   .. py:attribute:: settings
-      :type:  pudl.settings.FercToSqliteSettings | None
+   .. py:attribute:: data_config
+      :type:  pudl.settings.FercToSqliteDataConfig | None
       :value: None
 
 
@@ -141,8 +141,8 @@ Module Contents
       means the raw archive has changed version and the DB must be rebuilt.
 
    2. The years stored in the FERC SQLite DB must be a *superset* of the years
-      needed by the current downstream settings. This allows a "full" FERC SQLite
-      DB to serve a "fast" downstream run without an expensive rebuild.
+      needed by the current downstream data config. This allows a "full" FERC SQLite DB
+      to serve a "fast" downstream run without an expensive rebuild.
 
    The check is skipped (with a warning) in two cases:
 

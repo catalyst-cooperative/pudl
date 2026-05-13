@@ -336,7 +336,7 @@ Module Contents
    :raises AssertionError: If all generators do not end up with the same unit_id each year.
 
 
-.. py:function:: _restrict_years(df: pandas.DataFrame, eia_settings: pudl.settings.EiaSettings | None = None) -> pandas.DataFrame
+.. py:function:: _restrict_years(df: pandas.DataFrame, eia_data_config: pudl.settings.EiaDataConfig | None = None) -> pandas.DataFrame
 
    Restricts eia years for boiler generator association.
 

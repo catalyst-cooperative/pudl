@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Data validation reference &#8212; PUDL 2026.4.1.dev34 documentation</title>
+    <title>Data validation reference &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=9b34abff"></script>
+    <script src="../_static/documentation_options.js?v=bb853114"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -419,6 +419,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/sensors/index.html">pudl.dagster.sensors</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/dbt_schema/index.html">pudl.dbt_schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/definitions/index.html">pudl.definitions</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/pudl/index.html">pudl.deploy.pudl</a></li>
@@ -591,6 +592,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/deploy/index.html">pudl.scripts.deploy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dghome/index.html">pudl.scripts.dghome</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/metadata_to_rst/index.html">pudl.scripts.metadata_to_rst</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_check_fks/index.html">pudl.scripts.pudl_check_fks</a></li>
@@ -1401,39 +1403,30 @@ files with the same name under <code class="docutils literal notranslate"><span 
 </section>
 </section>
 <section id="adding-new-tables">
-<h2>Adding new tables<a class="headerlink" href="#adding-new-tables" title="Link to this heading">#</a></h2>
-<p>The tables that exist within PUDL are defined by the data structures within
-<a class="reference internal" href="../autoapi/pudl/metadata/resources/index.html#module-pudl.metadata.resources" title="pudl.metadata.resources"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.metadata.resources</span></code></a>. Any Dagster asset that’s being written out to Parquet
-or the PUDL SQLite database needs to be defined there. The <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code> files within
-our dbt project are derived from that same PUDL metadata. Our unit tests check to make
-sure that the dbt schemas haven’t drifted away from the canonical PUDL metadata. To make
-sure that the two sets of database table descriptions stay in sync, we try to create and
-update the dbt schemas programmatically when possible.</p>
-<section id="using-dbt-helper-update-tables">
-<h3>Using <code class="docutils literal notranslate"><span class="pre">dbt_helper</span> <span class="pre">update-tables</span></code><a class="headerlink" href="#using-dbt-helper-update-tables" title="Link to this heading">#</a></h3>
-<p>To add a new PUDL table to the dbt project, you must add it as a <a class="reference external" href="https://docs.getdbt.com/docs/build/sources">dbt
-source</a>. The <code class="docutils literal notranslate"><span class="pre">dbt_helper</span></code> script
-automates the initial setup with the <code class="docutils literal notranslate"><span class="pre">update-tables</span></code> subcommand.</p>
-<p>Before adding a table as a dbt source, you need to:</p>
+<span id="id4"></span><h2>Adding new tables<a class="headerlink" href="#adding-new-tables" title="Link to this heading">#</a></h2>
+<p>Our dbt schemas are defined within schema files at
+<code class="docutils literal notranslate"><span class="pre">dbt/models/&lt;data_source&gt;/&lt;table_name&gt;/schema.yml</span></code>.
+These are automatically generated by combining the resource
+definitions in <code class="docutils literal notranslate"><span class="pre">pudl.metadata.resources.RESOURCE_METADATA</span></code>
+with some human-generated data test definitions in
+<code class="docutils literal notranslate"><span class="pre">dbt/schema_inputs/&lt;data_source&gt;/&lt;table_name&gt;/schema.human.yml</span></code>.</p>
+<p>When adding a new table to dbt, we need to:</p>
 <ul class="simple">
-<li><p>define that table as a resource in <a class="reference internal" href="../autoapi/pudl/metadata/resources/index.html#module-pudl.metadata.resources" title="pudl.metadata.resources"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.metadata.resources</span></code></a></p></li>
-<li><p>make sure that table is written out to Parquet</p></li>
+<li><p>add initial data tests</p></li>
+<li><p>generate the <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code> and check it in</p></li>
 </ul>
-<p>Then you can use the <code class="docutils literal notranslate"><span class="pre">dbt_helper</span> <span class="pre">update-tables</span></code> command to initialize the file.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dbt_helper<span class="w"> </span>update-tables<span class="w"> </span>--schema<span class="w"> </span>new_table_name
-</pre></div>
-</div>
-<p>This will add a file called <code class="docutils literal notranslate"><span class="pre">dbt/models/{data_source}/new_table_name/schema.yml</span></code>. You
-can also give it a list of tables and they will all be created at once.  This yaml file
-tells <code class="docutils literal notranslate"><span class="pre">dbt</span></code> about the table and its schema, but initially it will not have any data
-validations defined. Tests need to be added by hand.</p>
-</section>
+<p>The new table must have already been added to the <code class="docutils literal notranslate"><span class="pre">RESOURCE_METADATA</span></code> and be
+written out to Parquet in order for it to be available to dbt.</p>
+<p><strong>Non-data-test related ``schema.human.yml`` keys (like table and column
+descriptions) will not be applied to the final ``schema.yml``, and will cause a
+validation failure in schema generation.</strong></p>
 <section id="initial-data-tests">
 <h3>Initial data tests<a class="headerlink" href="#initial-data-tests" title="Link to this heading">#</a></h3>
 <p>There are a few tests that we apply to every table,
 which should be defined as soon as you’ve added a new table.
-These include <code class="docutils literal notranslate"><span class="pre">check_row_counts_by_partition</span></code> and <code class="docutils literal notranslate"><span class="pre">expect_columns_not_all_null</span></code>.
-We talk about <code class="docutils literal notranslate"><span class="pre">check_row_counts_by_partition</span></code> in <a class="reference internal" href="data_validation_quickstart.html#row-counts"><span class="std std-ref">Updating row counts</span></a>.</p>
+These include <code class="docutils literal notranslate"><span class="pre">check_row_counts_by_partition</span></code> and <code class="docutils literal notranslate"><span class="pre">expect_columns_not_all_null</span></code>.</p>
+<p>You need to add these to the <code class="docutils literal notranslate"><span class="pre">schema.human.yml</span></code> file for your table.</p>
+<p>We talk about <code class="docutils literal notranslate"><span class="pre">check_row_counts_by_partition</span></code> in <a class="reference internal" href="data_validation_quickstart.html#row-counts"><span class="std std-ref">Updating row counts</span></a>.</p>
 </section>
 <section id="checking-for-entirely-null-columns">
 <h3>Checking for entirely null columns<a class="headerlink" href="#checking-for-entirely-null-columns" title="Link to this heading">#</a></h3>
@@ -1451,6 +1444,16 @@ default, you add the test to the table level <code class="docutils literal notra
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">expect_columns_not_all_null</span>
 </pre></div>
 </div>
+</section>
+<section id="generating-the-schema-yml">
+<h3>Generating the <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code><a class="headerlink" href="#generating-the-schema-yml" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dbt_helper<span class="w"> </span>update-tables<span class="w"> </span>--schema<span class="w"> </span>new_table_name
+</pre></div>
+</div>
+<p>This will read the metadata from <code class="docutils literal notranslate"><span class="pre">RESOURCE_METADATA</span></code>, merge it with the
+<code class="docutils literal notranslate"><span class="pre">schema.human.yml</span></code>, and write the combination out to <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code> so dbt can
+see it.</p>
+<p>You can also give it a list of tables and they will all be created at once.</p>
 </section>
 </section>
 <section id="defining-new-data-validation-tests">
@@ -1712,9 +1715,9 @@ this pattern.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-tables">Adding new tables</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-dbt-helper-update-tables">Using <code class="docutils literal notranslate"><span class="pre">dbt_helper</span> <span class="pre">update-tables</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-data-tests">Initial data tests</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-for-entirely-null-columns">Checking for entirely null columns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-the-schema-yml">Generating the <code class="docutils literal notranslate"><span class="pre">schema.yml</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-new-data-validation-tests">Defining new data validation tests</a><ul class="nav section-nav flex-column">

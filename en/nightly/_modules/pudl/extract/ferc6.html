@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferc6 &#8212; PUDL 2026.4.1.dev34 documentation</title>
+    <title>pudl.extract.ferc6 &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=9b34abff"></script>
+    <script src="../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev34 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -859,7 +859,6 @@ window.runMermaid = runMermaid;</script>
     <span class="n">add_key_constraints</span><span class="p">,</span>
     <span class="n">deduplicate_by_year</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">FercDbfToSqliteSettings</span><span class="p">,</span> <span class="n">FercToSqliteSettings</span>
 
 
 <div class="viewcode-block" id="Ferc6DbfExtractor">
@@ -874,15 +873,6 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Ferc6DbfExtractor.DATABASE_NAME">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc6/index.html#pudl.extract.ferc6.Ferc6DbfExtractor.DATABASE_NAME">[docs]</a>
     <span class="n">DATABASE_NAME</span> <span class="o">=</span> <span class="s2">&quot;ferc6_dbf.sqlite&quot;</span></div>
-
-
-<div class="viewcode-block" id="Ferc6DbfExtractor.get_settings">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc6/index.html#pudl.extract.ferc6.Ferc6DbfExtractor.get_settings">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_settings</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">global_settings</span><span class="p">:</span> <span class="n">FercToSqliteSettings</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDbfToSqliteSettings</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns settings for FERC Form 6 DBF dataset.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">global_settings</span><span class="o">.</span><span class="n">ferc6_dbf_to_sqlite_settings</span></div>
 
 
 <div class="viewcode-block" id="Ferc6DbfExtractor.finalize_schema">

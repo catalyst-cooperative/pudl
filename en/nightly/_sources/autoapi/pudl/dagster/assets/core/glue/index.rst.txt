@@ -122,7 +122,7 @@ Module Contents
    solution, but it works for now.
 
    :param context: dagster keyword that provides access to resources and config. For this
-                   asset, this determines whether the years from the Eia860Settings object
+                   asset, this determines whether the years from the Eia860DataConfig object
                    match the EIA860 working partitions. This indicates whether or not to
                    restrict the crosswalk data so the tests don't fail on foreign key
                    restraints.
