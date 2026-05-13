@@ -19,7 +19,7 @@ import dagster as dg
 from pydantic import BaseModel
 
 import pudl.logging_helpers
-from pudl.settings import FercToSqliteSettings
+from pudl.settings import FercToSqliteDataConfig
 
 logger = pudl.logging_helpers.get_logger(__name__)
 FERC_TO_SQLITE_METADATA_KEY = "ferc_to_sqlite"
@@ -27,9 +27,9 @@ FERC_TO_SQLITE_METADATA_KEY = "ferc_to_sqlite"
 
 @dataclass(frozen=True)
 class FercSqliteProvenance:
-    """The provenance requirements derived from the current run's ETL settings.
+    """The provenance requirements derived from the current run's data config.
 
-    Computed from ``etl_settings`` and ``zenodo_dois`` to describe what a
+    Computed from ``data_config`` and ``zenodo_dois`` to describe what a
     compatible FERC SQLite prerequisite must contain. Used by
     :func:`assert_ferc_sqlite_compatible` to compare against the stored
     :class:`FercSqliteProvenanceRecord` that was written when the DB was built.
@@ -54,7 +54,7 @@ class FercSqliteProvenanceRecord(BaseModel):
     status: Literal["complete", "skipped", "not_configured"]
     zenodo_doi: str | None = None
     years: list[int] | None = None
-    settings: FercToSqliteSettings | None = None
+    data_config: FercToSqliteDataConfig | None = None
     sqlite_path: Path | None = None
 
 
@@ -72,8 +72,8 @@ def assert_ferc_sqlite_compatible(
        means the raw archive has changed version and the DB must be rebuilt.
 
     2. The years stored in the FERC SQLite DB must be a *superset* of the years
-       needed by the current downstream settings. This allows a "full" FERC SQLite
-       DB to serve a "fast" downstream run without an expensive rebuild.
+       needed by the current downstream data config. This allows a "full" FERC SQLite DB
+       to serve a "fast" downstream run without an expensive rebuild.
 
     The check is skipped (with a warning) in two cases:
 

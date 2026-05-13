@@ -22,7 +22,7 @@ from dagster import AssetIn, asset
 
 import pudl.logging_helpers
 from pudl.extract.ferc714 import TABLE_NAME_MAP_FERC714
-from pudl.settings import Ferc714Settings
+from pudl.settings import Ferc714DataConfig
 from pudl.transform.classes import (
     RenameColumns,
     rename_columns,
@@ -957,8 +957,8 @@ class HourlyPlanningAreaDemand:
     def spot_fix_records_xbrl(xbrl: pd.DataFrame):
         """Spot fix some specific XBRL records."""
         xbrl_years_mask = (
-            xbrl.report_date.dt.year >= min(Ferc714Settings().xbrl_years)
-        ) & (xbrl.report_date.dt.year <= max(Ferc714Settings().xbrl_years))
+            xbrl.report_date.dt.year >= min(Ferc714DataConfig().xbrl_years)
+        ) & (xbrl.report_date.dt.year <= max(Ferc714DataConfig().xbrl_years))
         if (len_xbrl_years := len(xbrl[~xbrl_years_mask])) >= 100:
             raise AssertionError(
                 "We expected less than 100 XBRL records that have timestamps "

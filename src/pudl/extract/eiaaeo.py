@@ -421,7 +421,7 @@ class AEOTaxonomy:
         "raw_eiaaeo__electric_power_projections_regional": AssetOut(is_required=False),
     },
     can_subset=True,
-    required_resource_keys={"datastore", "etl_settings"},
+    required_resource_keys={"datastore", "global_data_config"},
 )
 def raw_eiaaeo(context: AssetExecutionContext):
     """Extract tables from EIA's Annual Energy Outlook.
@@ -453,7 +453,7 @@ def raw_eiaaeo(context: AssetExecutionContext):
     ds = context.resources.datastore
 
     # Extract for all years specified in the settings
-    report_years = context.resources.etl_settings.dataset_settings.eia.eiaaeo.years
+    report_years = context.resources.global_data_config.pudl.eia.eiaaeo.years
 
     selected = context.op_execution_context.selected_output_names
     for asset_name in selected:
