@@ -62,7 +62,7 @@ Module Contents
 
    :type: List
 
-.. py:function:: mcoe_asset_factory(freq: Literal['YS', 'MS']) -> list[dagster.AssetsDefinition]
+.. py:function:: mcoe_asset_factory(freq: Literal['YS', 'MS'], op_tags: dict | None = None) -> list[dagster.AssetsDefinition]
 
    Build MCOE related assets at yearly and monthly frequencies.
 

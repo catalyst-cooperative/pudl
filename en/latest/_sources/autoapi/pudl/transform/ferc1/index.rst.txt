@@ -23,6 +23,7 @@ Attributes
 
    pudl.transform.ferc1.logger
    pudl.transform.ferc1.FERC1_TFR_CLASSES
+   pudl.transform.ferc1._FERC1_PLANT_TABLES
    pudl.transform.ferc1.ferc1_assets
 
 
@@ -4126,7 +4127,9 @@ Module Contents
 .. py:data:: FERC1_TFR_CLASSES
    :type:  collections.abc.Mapping[str, type[Ferc1AbstractTableTransformer]]
 
-.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'pudl_io_manager', convert_dtypes: bool = True, generic: bool = False) -> dagster.AssetsDefinition
+.. py:data:: _FERC1_PLANT_TABLES
+
+.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'pudl_io_manager', convert_dtypes: bool = True, generic: bool = False, op_tags: dict[str, Any] | None = None) -> dagster.AssetsDefinition
 
    Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
