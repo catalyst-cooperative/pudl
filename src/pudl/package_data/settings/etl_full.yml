@@ -36,7 +36,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc1_xbrl_to_sqlite_settings:
-    years: [2021, 2022, 2023, 2024]
+    years: [2021, 2022, 2023, 2024, 2025]
   ferc2_dbf_to_sqlite_settings:
     years:
       [
@@ -163,6 +163,7 @@ datasets:
         2022,
         2023,
         2024,
+        2025,
       ]
   ferc714:
     years:

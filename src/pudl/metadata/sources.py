@@ -548,7 +548,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)",
         },
         "working_partitions": {
-            "years": sorted(set(range(1994, 2025))),
+            "years": sorted(set(range(1994, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
