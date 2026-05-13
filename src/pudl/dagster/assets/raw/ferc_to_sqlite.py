@@ -27,7 +27,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def dbf_to_sqlite_asset_factory(
-    *, key: dg.AssetKey, dataset: str, extractor_class
+    *, key: dg.AssetKey, dataset: str, extractor_class, op_tags: dict | None = None
 ) -> dg.AssetsDefinition:
     """Create a DBF-to-SQLite prerequisite asset for a specific FERC dataset."""
 
@@ -41,6 +41,7 @@ def dbf_to_sqlite_asset_factory(
             "zenodo_dois",
         },
         tags={"dataset": dataset, "data_format": "dbf"},
+        op_tags=op_tags,
     )
     def _asset(context) -> dg.MaterializeResult[str]:
         ferc_to_sqlite = context.resources.global_data_config.ferc_to_sqlite
@@ -87,7 +88,7 @@ def dbf_to_sqlite_asset_factory(
 
 
 def xbrl_to_sqlite_asset_factory(
-    *, key: dg.AssetKey, form: XbrlFormNumber
+    *, key: dg.AssetKey, form: XbrlFormNumber, op_tags: dict | None = None
 ) -> dg.AssetsDefinition:
     """Create an XBRL-to-SQLite prerequisite asset for a specific FERC form."""
 
@@ -101,6 +102,7 @@ def xbrl_to_sqlite_asset_factory(
             "zenodo_dois",
         },
         tags={"dataset": str(form), "data_format": "xbrl"},
+        op_tags=op_tags,
     )
     def _asset(context) -> dg.MaterializeResult[str]:
         runtime_settings = context.resources.runtime_settings
@@ -170,6 +172,7 @@ raw_ferc1_dbf__sqlite = dbf_to_sqlite_asset_factory(
     key=dg.AssetKey("raw_ferc1_dbf__sqlite"),
     dataset="ferc1",
     extractor_class=Ferc1DbfExtractor,
+    op_tags={"dagster/priority": 10},
 )
 raw_ferc2_dbf__sqlite = dbf_to_sqlite_asset_factory(
     key=dg.AssetKey("raw_ferc2_dbf__sqlite"),
@@ -190,6 +193,7 @@ raw_ferc60_dbf__sqlite = dbf_to_sqlite_asset_factory(
 raw_ferc1_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
     key=dg.AssetKey("raw_ferc1_xbrl__sqlite"),
     form=XbrlFormNumber.FORM1,
+    op_tags={"dagster/priority": 10},
 )
 raw_ferc2_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
     key=dg.AssetKey("raw_ferc2_xbrl__sqlite"),
@@ -206,4 +210,5 @@ raw_ferc60_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
 raw_ferc714_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
     key=dg.AssetKey("raw_ferc714_xbrl__sqlite"),
     form=XbrlFormNumber.FORM714,
+    op_tags={"dagster/priority": 10},
 )
