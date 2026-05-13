@@ -33,6 +33,19 @@ FERC 1
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-930
+~~~~~~~
+
+* Updated EIA-930 data through April 2026. See :issue:`5209`
+  and :pr:`5216`. In the process made accommodations for BA changes resulting from the
+  `Southwest Power Pool RTO Expansion <https://www.spp.org/documents/75997/2026%20rtoe%20swpw%20transition%20plan%20%E2%80%93%20market%20participant.pdf>`__
+
+EIA-191
+~~~~~~~
+
+* Updated EIA-191 data through April 2026. See :issue:`5209`
+  and :pr:`5216`.
+
 Documentation
 ^^^^^^^^^^^^^
 
