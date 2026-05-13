@@ -1,0 +1,25 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_other_regulatory_assets_sched232
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_ferc1__yearly_other_regulatory_assets_sched232
+                partition_expr: report_year
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: description
+          - name: additional_description
+          - name: ending_balance
+          - name: starting_balance
+          - name: debits
+          - name: credits_written_off_recovered
+          - name: account_detail

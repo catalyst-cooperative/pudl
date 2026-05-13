@@ -104,7 +104,7 @@ just the script that extracts the unmapped IDs with:
 
 .. code-block:: console
 
-    $ pixi run pytest test/integration/glue_test.py --live-dbs --save-unmapped-ids
+    $ pixi run pytest test/integration/glue_test.py --live-pudl-output --save-unmapped-ids
 
 The ``--save-unmapped-ids`` flag saves unmapped plants and utilities in the
 ``devtools/ferc1-eia-glue`` folder by default.
@@ -192,9 +192,9 @@ notebook to speed up this process.
   capacity first to see if the facilities are the same. If that’s indeterminate, you can
   Google the plant to see if it has the same location or if there is ownership or
   construction history that helps determine if the facilities are the same or
-  co-located. Presuming you've run the ETL with the ``--ignore-foreign-key-constraints``
-  flag, you can also look at the PUDL ``plants_eia860`` and ``plants_all_ferc1`` tables
-  to compare the records' location information.
+  co-located. Once you've run the ETL, you can also look at the PUDL
+  ``plants_eia860`` and ``plants_all_ferc1`` tables to compare the records'
+  location information.
 
 Mapping Utilities
 ^^^^^^^^^^^^^^^^^
@@ -248,7 +248,7 @@ live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:
 
 .. code-block:: console
 
-    $ pytest --live-dbs test/integration/glue_test.py
+    $ pytest --live-pudl-output test/integration/glue_test.py
 
 Integrating Newly Mapped Records into PUDL
 ------------------------------------------

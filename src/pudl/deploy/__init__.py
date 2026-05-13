@@ -1,1 +1,1 @@
-"""Package for distributing PUDL data."""
+"""Deployment helpers for publishing PUDL build artifacts and services."""

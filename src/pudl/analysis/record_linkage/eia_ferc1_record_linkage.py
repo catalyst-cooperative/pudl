@@ -39,7 +39,7 @@ import pandas as pd
 from dagster import Out, graph, op
 from splink import DuckDBAPI, Linker, SettingsCreator
 
-import pudl
+import pudl.logging_helpers
 from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe, name_cleaner
 from pudl.analysis.record_linkage.eia_ferc1_inputs import (

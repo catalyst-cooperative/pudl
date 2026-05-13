@@ -1,11 +1,11 @@
 """Transform the RUS12 tables."""
 
 import pandas as pd
-from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
+from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
-from pudl.helpers import cleanstrings_snake
+from pudl.helpers import cleanstrings_snake, make_changelog
 from pudl.metadata.enums import (
     DEPRECIATION_CHANGES_GROUP_RUS12,
     DEPRECIATION_CHANGES_ITEMS_RUS12,
@@ -910,20 +910,15 @@ def _core_rus12__yearly_depreciation_misc(
 _CORE_RUS12_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS12]
 
 
-@asset(
+@multi_asset(
     ins={
         table_name: AssetIn()
         for table_name in ["_core_rus12__scd_borrowers"] + _CORE_RUS12_TABLES
     },
-    io_manager_key="pudl_io_manager",
-    config_schema={
-        "debug": Field(
-            bool,
-            default_value=False,
-            description=(
-                "If True, allow inconsistent values in harvested columns and "
-                "produce additional debugging output."
-            ),
+    outs={
+        "core_rus12__entity_borrowers": AssetOut(io_manager_key="pudl_io_manager"),
+        "_core_rus12__forensics_entity_resolution_borrowers": AssetOut(
+            io_manager_key="pudl_io_manager"
         ),
     },
 )
@@ -946,10 +941,14 @@ def core_rus12__entity_borrowers(context, **clean_dfs):
         entity,
         clean_dfs,
         special_case_strictness=special_case_strictness,
-        debug=context.op_config["debug"],
+        debug=True,
     )
 
-    return entity_df
+    out_all = pd.concat(
+        [df for harvested_col_name, df in _col_dfs.items()], axis="index"
+    ).reset_index(drop=True)
+    forensics = make_changelog(out_all, ["borrower_id_rus"])
+    return entity_df, forensics
 
 
 finished_rus_assets = [
