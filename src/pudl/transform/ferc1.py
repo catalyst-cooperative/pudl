@@ -6473,6 +6473,16 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_other_regulatory_assets_sched232": OtherRegulatoryAssetsTableTransformer,
 }
 
+_FERC1_PLANT_TABLES = frozenset(
+    {
+        "core_ferc1__yearly_steam_plants_fuel_sched402",
+        "core_ferc1__yearly_steam_plants_sched402",
+        "core_ferc1__yearly_small_plants_sched410",
+        "core_ferc1__yearly_hydroelectric_plants_sched406",
+        "core_ferc1__yearly_pumped_storage_plants_sched408",
+    }
+)
+
 
 def ferc1_transform_asset_factory(
     table_name: str,
@@ -6480,6 +6490,7 @@ def ferc1_transform_asset_factory(
     io_manager_key: str = "pudl_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
+    op_tags: dict[str, Any] | None = None,
 ) -> AssetsDefinition:
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
@@ -6515,7 +6526,12 @@ def ferc1_transform_asset_factory(
 
     table_id = TableIdFerc1(table_name)
 
-    @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
+    @asset(
+        name=table_name,
+        ins=ins,
+        io_manager_key=io_manager_key,
+        op_tags=op_tags or {},
+    )
     def ferc1_transform_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Transform a FERC Form 1 table.
 
@@ -6567,14 +6583,19 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
     """
     assets = []
     for table_name, tfr_class in FERC1_TFR_CLASSES.items():
-        assets.append(ferc1_transform_asset_factory(table_name, tfr_class))
+        op_tags = (
+            {"dagster/priority": 10} if table_name in _FERC1_PLANT_TABLES else None
+        )
+        assets.append(
+            ferc1_transform_asset_factory(table_name, tfr_class, op_tags=op_tags)
+        )
     return assets
 
 
 ferc1_assets = create_ferc1_transform_assets()
 
 ##########################################
-# Post-core tables/XBLR Calculations Stuff
+# Post-core tables/XBRL Calculations Stuff
 ##########################################
 
 
