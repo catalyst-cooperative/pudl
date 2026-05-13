@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.4.1.dev36 documentation</title>
+    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../../../_static/documentation_options.js?v=12c54572"></script>
+    <script src="../../../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -884,7 +884,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="s2">&quot;core_epa__assn_eia_epacamd&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table_name</span>
     <span class="p">},</span>
     <span class="n">can_subset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;etl_settings&quot;</span><span class="p">},</span>
+    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="create_glue_tables">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/core/glue/index.html#pudl.dagster.assets.core.glue.create_glue_tables">[docs]</a>
@@ -902,11 +902,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO 2024-09-23: double check if these settings are actually</span>
     <span class="c1"># doing anything for the FERC-EIA glue... doesn&#39;t look like it.</span>
-    <span class="n">dataset_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span>
+    <span class="n">pudl_data_config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span>
     <span class="c1"># grab the glue tables for ferc1 &amp; eia</span>
     <span class="n">glue_dfs</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">glue</span><span class="o">.</span><span class="n">ferc1_eia</span><span class="o">.</span><span class="n">glue</span><span class="p">(</span>
-        <span class="n">ferc1</span><span class="o">=</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">glue</span><span class="o">.</span><span class="n">ferc1</span><span class="p">,</span>
-        <span class="n">eia</span><span class="o">=</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">glue</span><span class="o">.</span><span class="n">eia</span><span class="p">,</span>
+        <span class="n">ferc1</span><span class="o">=</span><span class="n">pudl_data_config</span><span class="o">.</span><span class="n">glue</span><span class="o">.</span><span class="n">ferc1</span><span class="p">,</span>
+        <span class="n">eia</span><span class="o">=</span><span class="n">pudl_data_config</span><span class="o">.</span><span class="n">glue</span><span class="o">.</span><span class="n">eia</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># these 714 glue tables are so easy to build, it doesn&#39;t seem worth it</span>
     <span class="c1"># to not build/load them if we are not etl-ing 714</span>
@@ -954,7 +954,9 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;etl_settings&quot;</span><span class="p">},</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span>
+    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span>
+<span class="p">)</span>
 <div class="viewcode-block" id="core_epa__assn_eia_epacamd">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/core/glue/index.html#pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_epa__assn_eia_epacamd</span><span class="p">(</span>
@@ -1017,7 +1019,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Args:</span>
 <span class="sd">        context: dagster keyword that provides access to resources and config. For this</span>
-<span class="sd">            asset, this determines whether the years from the Eia860Settings object</span>
+<span class="sd">            asset, this determines whether the years from the Eia860DataConfig object</span>
 <span class="sd">            match the EIA860 working partitions. This indicates whether or not to</span>
 <span class="sd">            restrict the crosswalk data so the tests don&#39;t fail on foreign key</span>
 <span class="sd">            restraints.</span>
@@ -1060,10 +1062,10 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">])</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">correct_epa_eia_plant_id_mapping</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">dataset_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span>
+    <span class="n">pudl_data_config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span>
     <span class="n">processing_all_eia_years</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia860</span><span class="o">.</span><span class="n">years</span>
-        <span class="o">==</span> <span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia860</span><span class="o">.</span><span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span>
+        <span class="n">pudl_data_config</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia860</span><span class="o">.</span><span class="n">years</span>
+        <span class="o">==</span> <span class="n">pudl_data_config</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia860</span><span class="o">.</span><span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="c1"># Restrict crosswalk for tests if running fast etl</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">processing_all_eia_years</span><span class="p">:</span>

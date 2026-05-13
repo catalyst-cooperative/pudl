@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.resources &#8212; PUDL 2026.4.1.dev36 documentation</title>
+    <title>pudl.dagster.resources &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../../_static/documentation_options.js?v=12c54572"></script>
+    <script src="../../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -748,8 +748,8 @@
 <span id="pudl-dagster-resources"></span><h1>pudl.dagster.resources<a class="headerlink" href="#module-pudl.dagster.resources" title="Link to this heading">#</a></h1>
 <p>Dagster resources for PUDL.</p>
 <p>This module defines the configurable resources that PUDL assets depend on at runtime,
-such as ETL settings, datastore access, and other run-scoped helpers, along with the
-default resource mapping used by the assembled code location. Add
+such as data configuration, datastore access, and other run-scoped helpers, along with
+the default resource mapping used by the assembled code location. Add
 <a class="reference external" href="https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.ConfigurableResource</span></code></a> classes and configured singleton instances here
 when they provide external services or shared runtime context to assets and jobs. Keep
 asset logic out of this module; it should focus on dependency injection and default
@@ -760,7 +760,7 @@ resource wiring.</p>
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.pudl_etl_settings_resource" title="pudl.dagster.resources.pudl_etl_settings_resource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pudl_etl_settings_resource</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.global_data_config_resource" title="pudl.dagster.resources.global_data_config_resource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_data_config_resource</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.zenodo_doi_settings_resource" title="pudl.dagster.resources.zenodo_doi_settings_resource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zenodo_doi_settings_resource</span></code></a></p></td>
@@ -772,7 +772,7 @@ resource wiring.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.ferc_xbrl_runtime_settings" title="pudl.dagster.resources.ferc_xbrl_runtime_settings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_xbrl_runtime_settings</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.ferceqr_extract_settings" title="pudl.dagster.resources.ferceqr_extract_settings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_extract_settings</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.ferceqr_data_config" title="pudl.dagster.resources.ferceqr_data_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_data_config</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.default_resources" title="pudl.dagster.resources.default_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_resources</span></code></a></p></td>
@@ -789,8 +789,8 @@ resource wiring.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.FercXbrlRuntimeSettings" title="pudl.dagster.resources.FercXbrlRuntimeSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercXbrlRuntimeSettings</span></code></a></p></td>
 <td><p>Encodes runtime settings for the ferc_to_sqlite graphs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.PudlEtlSettingsResource" title="pudl.dagster.resources.PudlEtlSettingsResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlEtlSettingsResource</span></code></a></p></td>
-<td><p>Load validated PUDL ETL settings from a shared ETL YAML file.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.GlobalDataConfigResource" title="pudl.dagster.resources.GlobalDataConfigResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GlobalDataConfigResource</span></code></a></p></td>
+<td><p>Load validated PUDL data configuration from a shared ETL YAML file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.ZenodoDoiSettingsResource" title="pudl.dagster.resources.ZenodoDoiSettingsResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZenodoDoiSettingsResource</span></code></a></p></td>
 <td><p>Load the canonical Zenodo DOI settings for Dagster-managed runs.</p></td>
@@ -798,7 +798,7 @@ resource wiring.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.DatastoreResource" title="pudl.dagster.resources.DatastoreResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatastoreResource</span></code></a></p></td>
 <td><p>Dagster resource to interact with Zenodo archives.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.FercEqrExtractSettings" title="pudl.dagster.resources.FercEqrExtractSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercEqrExtractSettings</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.FercEqrDataConfig" title="pudl.dagster.resources.FercEqrDataConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercEqrDataConfig</span></code></a></p></td>
 <td><p>Configure which archived FERC EQR filings are available for extraction.</p></td>
 </tr>
 </tbody>
@@ -830,19 +830,19 @@ resource wiring.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pudl.dagster.resources.PudlEtlSettingsResource">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">PudlEtlSettingsResource</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#PudlEtlSettingsResource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.PudlEtlSettingsResource" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.GlobalDataConfigResource">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">GlobalDataConfigResource</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#GlobalDataConfigResource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.GlobalDataConfigResource" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.ConfigurableResource</span></code></a></p>
-<p>Load validated PUDL ETL settings from a shared ETL YAML file.</p>
+<p>Load validated PUDL data configuration from a shared ETL YAML file.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.resources.PudlEtlSettingsResource.etl_settings_path">
-<span class="sig-name descname"><span class="pre">etl_settings_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'src/pudl/package_data/settings/etl_full.yml'</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#PudlEtlSettingsResource.etl_settings_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.PudlEtlSettingsResource.etl_settings_path" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.GlobalDataConfigResource.global_data_config_path">
+<span class="sig-name descname"><span class="pre">global_data_config_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'src/pudl/package_data/settings/etl_full.yml'</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#GlobalDataConfigResource.global_data_config_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.GlobalDataConfigResource.global_data_config_path" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.resources.PudlEtlSettingsResource.create_resource">
-<span class="sig-name descname"><span class="pre">create_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../settings/index.html#pudl.settings.EtlSettings" title="pudl.settings.EtlSettings"><span class="pre">pudl.settings.EtlSettings</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#PudlEtlSettingsResource.create_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.PudlEtlSettingsResource.create_resource" title="Link to this definition">#</a></dt>
-<dd><p>Create runtime ETL settings from the configured ETL settings file.</p>
+<dt class="sig sig-object py" id="pudl.dagster.resources.GlobalDataConfigResource.create_resource">
+<span class="sig-name descname"><span class="pre">create_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../settings/index.html#pudl.settings.GlobalDataConfig" title="pudl.settings.GlobalDataConfig"><span class="pre">pudl.settings.GlobalDataConfig</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#GlobalDataConfigResource.create_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.GlobalDataConfigResource.create_resource" title="Link to this definition">#</a></dt>
+<dd><p>Create runtime data configuration from the configured YAML file.</p>
 </dd></dl>
 
 </dd></dl>
@@ -903,29 +903,29 @@ the source code.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrExtractSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">FercEqrExtractSettings</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrExtractSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrExtractSettings" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDataConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">FercEqrDataConfig</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDataConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDataConfig" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.ConfigurableResource</span></code></a></p>
 <p>Configure which archived FERC EQR filings are available for extraction.</p>
 <p>The default value of <code class="docutils literal notranslate"><span class="pre">ferceqr_archive_uri</span></code> points to the published archive of FERC
 EQR filings on GCS which is what we use in production. For testing or development,
 this can be overridden to point to a local path with a subset of the archive.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrExtractSettings.ferceqr_archive_uri">
-<span class="sig-name descname"><span class="pre">ferceqr_archive_uri</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrExtractSettings.ferceqr_archive_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrExtractSettings.ferceqr_archive_uri" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_uri">
+<span class="sig-name descname"><span class="pre">ferceqr_archive_uri</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDataConfig.ferceqr_archive_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_uri" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrExtractSettings.ferceqr_archive_path">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ferceqr_archive_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">upath.UPath</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrExtractSettings.ferceqr_archive_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrExtractSettings.ferceqr_archive_path" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_path">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ferceqr_archive_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">upath.UPath</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDataConfig.ferceqr_archive_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_path" title="Link to this definition">#</a></dt>
 <dd><p>Return UPath pointing to archive base path.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="pudl.dagster.resources.pudl_etl_settings_resource">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">pudl_etl_settings_resource</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#pudl_etl_settings_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.pudl_etl_settings_resource" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.global_data_config_resource">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">global_data_config_resource</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#global_data_config_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.global_data_config_resource" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -944,8 +944,8 @@ this can be overridden to point to a local path with a subset of the archive.</p
 <dd></dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="pudl.dagster.resources.ferceqr_extract_settings">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">ferceqr_extract_settings</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#ferceqr_extract_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.ferceqr_extract_settings" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.ferceqr_data_config">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">ferceqr_data_config</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#ferceqr_data_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.ferceqr_data_config" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -1012,9 +1012,9 @@ this can be overridden to point to a local path with a subset of the archive.</p
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercXbrlRuntimeSettings.xbrl_loglevel"><code class="docutils literal notranslate"><span class="pre">FercXbrlRuntimeSettings.xbrl_loglevel</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.PudlEtlSettingsResource"><code class="docutils literal notranslate"><span class="pre">PudlEtlSettingsResource</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.PudlEtlSettingsResource.etl_settings_path"><code class="docutils literal notranslate"><span class="pre">PudlEtlSettingsResource.etl_settings_path</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.PudlEtlSettingsResource.create_resource"><code class="docutils literal notranslate"><span class="pre">PudlEtlSettingsResource.create_resource()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.GlobalDataConfigResource"><code class="docutils literal notranslate"><span class="pre">GlobalDataConfigResource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.GlobalDataConfigResource.global_data_config_path"><code class="docutils literal notranslate"><span class="pre">GlobalDataConfigResource.global_data_config_path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.GlobalDataConfigResource.create_resource"><code class="docutils literal notranslate"><span class="pre">GlobalDataConfigResource.create_resource()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.ZenodoDoiSettingsResource"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettingsResource</span></code></a><ul class="nav section-nav flex-column">
@@ -1029,16 +1029,16 @@ this can be overridden to point to a local path with a subset of the archive.</p
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.DatastoreResource.create_resource"><code class="docutils literal notranslate"><span class="pre">DatastoreResource.create_resource()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrExtractSettings"><code class="docutils literal notranslate"><span class="pre">FercEqrExtractSettings</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrExtractSettings.ferceqr_archive_uri"><code class="docutils literal notranslate"><span class="pre">FercEqrExtractSettings.ferceqr_archive_uri</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrExtractSettings.ferceqr_archive_path"><code class="docutils literal notranslate"><span class="pre">FercEqrExtractSettings.ferceqr_archive_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDataConfig"><code class="docutils literal notranslate"><span class="pre">FercEqrDataConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_uri"><code class="docutils literal notranslate"><span class="pre">FercEqrDataConfig.ferceqr_archive_uri</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_path"><code class="docutils literal notranslate"><span class="pre">FercEqrDataConfig.ferceqr_archive_path</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.pudl_etl_settings_resource"><code class="docutils literal notranslate"><span class="pre">pudl_etl_settings_resource</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.global_data_config_resource"><code class="docutils literal notranslate"><span class="pre">global_data_config_resource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.zenodo_doi_settings_resource"><code class="docutils literal notranslate"><span class="pre">zenodo_doi_settings_resource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.datastore_resource"><code class="docutils literal notranslate"><span class="pre">datastore_resource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.ferc_xbrl_runtime_settings"><code class="docutils literal notranslate"><span class="pre">ferc_xbrl_runtime_settings</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.ferceqr_extract_settings"><code class="docutils literal notranslate"><span class="pre">ferceqr_extract_settings</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.ferceqr_data_config"><code class="docutils literal notranslate"><span class="pre">ferceqr_data_config</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.default_resources"><code class="docutils literal notranslate"><span class="pre">default_resources</span></code></a></li>
 </ul>
 </li>

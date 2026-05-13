@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.epacems &#8212; PUDL 2026.4.1.dev36 documentation</title>
+    <title>pudl.transform.epacems &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=12c54572"></script>
+    <script src="../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -1113,7 +1113,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span>
-    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;etl_settings&quot;</span><span class="p">},</span>
+    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span>
     <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">,</span>
     <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
 <span class="p">)</span>
@@ -1135,9 +1135,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># internally and this will save us significant dagster process startup overhead and</span>
     <span class="c1"># avoid CPU resource contention.</span>
     <span class="n">output_paths</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="p">(</span>
-        <span class="n">year_quarter</span>
-    <span class="p">)</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">epacems</span><span class="o">.</span><span class="n">year_quarters</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">year_quarter</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">epacems</span><span class="o">.</span><span class="n">year_quarters</span><span class="p">:</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="n">partitioned_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing EPA CEMS </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 

@@ -5,7 +5,7 @@ pudl.settings
 
 .. autoapi-nested-parse::
 
-   Module for validating pudl etl settings.
+   Module for validating pudl ETL data configurations.
 
 
 
@@ -24,45 +24,45 @@ Classes
 
    pudl.settings.XbrlFormNumber
    pudl.settings.FrozenBaseModel
-   pudl.settings.GenericDatasetSettings
-   pudl.settings.Ferc1Settings
-   pudl.settings.Ferc714Settings
-   pudl.settings.EpaCemsSettings
-   pudl.settings.PhmsaGasSettings
-   pudl.settings.Sec10kSettings
-   pudl.settings.NrelAtbSettings
-   pudl.settings.Eia923Settings
-   pudl.settings.Eia930Settings
-   pudl.settings.Eia861Settings
-   pudl.settings.Eia860Settings
-   pudl.settings.Eia860mSettings
-   pudl.settings.Eia757aSettings
-   pudl.settings.Eia191Settings
-   pudl.settings.Eia176Settings
-   pudl.settings.EiaAeoSettings
-   pudl.settings.VceRareSettings
-   pudl.settings.CensusPepSettings
-   pudl.settings.GlueSettings
+   pudl.settings.GenericDataConfig
+   pudl.settings.Ferc1DataConfig
+   pudl.settings.Ferc714DataConfig
+   pudl.settings.EpaCemsDataConfig
+   pudl.settings.PhmsaGasDataConfig
+   pudl.settings.Sec10kDataConfig
+   pudl.settings.NrelAtbDataConfig
+   pudl.settings.Eia923DataConfig
+   pudl.settings.Eia930DataConfig
+   pudl.settings.Eia861DataConfig
+   pudl.settings.Eia860DataConfig
+   pudl.settings.Eia860mDataConfig
+   pudl.settings.Eia757aDataConfig
+   pudl.settings.Eia191DataConfig
+   pudl.settings.Eia176DataConfig
+   pudl.settings.EiaAeoDataConfig
+   pudl.settings.VceRareDataConfig
+   pudl.settings.CensusPepDataConfig
+   pudl.settings.GlueDataConfig
    pudl.settings.GridPathRaToolkitTechType
    pudl.settings.GridPathRaToolkitProcLevel
-   pudl.settings.GridPathRaToolkitSettings
-   pudl.settings.EiaSettings
-   pudl.settings.Rus7Settings
-   pudl.settings.Rus12Settings
-   pudl.settings.DatasetsSettings
-   pudl.settings.FercDbfToSqliteSettings
-   pudl.settings.Ferc1DbfToSqliteSettings
-   pudl.settings.FercGenericXbrlToSqliteSettings
-   pudl.settings.Ferc1XbrlToSqliteSettings
-   pudl.settings.Ferc2XbrlToSqliteSettings
-   pudl.settings.Ferc2DbfToSqliteSettings
-   pudl.settings.Ferc6DbfToSqliteSettings
-   pudl.settings.Ferc6XbrlToSqliteSettings
-   pudl.settings.Ferc60DbfToSqliteSettings
-   pudl.settings.Ferc60XbrlToSqliteSettings
-   pudl.settings.Ferc714XbrlToSqliteSettings
-   pudl.settings.FercToSqliteSettings
-   pudl.settings.EtlSettings
+   pudl.settings.GridPathRaToolkitDataConfig
+   pudl.settings.EiaDataConfig
+   pudl.settings.Rus7DataConfig
+   pudl.settings.Rus12DataConfig
+   pudl.settings.PudlDataConfig
+   pudl.settings.FercDbfToSqliteDataConfig
+   pudl.settings.Ferc1DbfToSqliteDataConfig
+   pudl.settings.FercGenericXbrlToSqliteDataConfig
+   pudl.settings.Ferc1XbrlToSqliteDataConfig
+   pudl.settings.Ferc2XbrlToSqliteDataConfig
+   pudl.settings.Ferc2DbfToSqliteDataConfig
+   pudl.settings.Ferc6DbfToSqliteDataConfig
+   pudl.settings.Ferc6XbrlToSqliteDataConfig
+   pudl.settings.Ferc60DbfToSqliteDataConfig
+   pudl.settings.Ferc60XbrlToSqliteDataConfig
+   pudl.settings.Ferc714XbrlToSqliteDataConfig
+   pudl.settings.FercToSqliteDataConfig
+   pudl.settings.GlobalDataConfig
 
 
 Functions
@@ -131,7 +131,7 @@ Module Contents
       Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
 
 
-.. py:class:: GenericDatasetSettings(/, **data: Any)
+.. py:class:: GenericDataConfig(/, **data: Any)
 
    Bases: :py:obj:`FrozenBaseModel`
 
@@ -173,12 +173,12 @@ Module Contents
       :meth:`pandas.json_normalize`.
 
 
-.. py:class:: Ferc1Settings(/, **data: Any)
+.. py:class:: Ferc1DataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate Ferc1Settings.
+   An immutable pydantic model to validate Ferc1DataConfig.
 
 
    .. py:attribute:: data_source
@@ -203,12 +203,12 @@ Module Contents
       Return validated years for which XBRL data is available.
 
 
-.. py:class:: Ferc714Settings(/, **data: Any)
+.. py:class:: Ferc714DataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate Ferc714Settings.
+   An immutable pydantic model to validate Ferc714DataConfig.
 
 
    .. py:attribute:: data_source
@@ -233,12 +233,12 @@ Module Contents
       Return validated years for which XBRL data is available.
 
 
-.. py:class:: EpaCemsSettings(/, **data: Any)
+.. py:class:: EpaCemsDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate EPA CEMS settings.
+   An immutable pydantic model to validate EPA CEMS data configuration.
 
 
    .. py:attribute:: data_source
@@ -261,12 +261,12 @@ Module Contents
 
 
 
-.. py:class:: PhmsaGasSettings(/, **data: Any)
+.. py:class:: PhmsaGasDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate PHMSA settings.
+   An immutable pydantic model to validate PHMSA data configuration.
 
 
    .. py:attribute:: data_source
@@ -294,12 +294,12 @@ Module Contents
       all at once using the first year in the tab as the partition.
 
 
-.. py:class:: Sec10kSettings(/, **data: Any)
+.. py:class:: Sec10kDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable Pydantic model to validate SEC 10-K settings.
+   An immutable pydantic model to validate SEC 10-K data configuration.
 
 
    .. py:attribute:: data_source
@@ -318,32 +318,12 @@ Module Contents
       :type:  list[str]
 
 
-.. py:class:: NrelAtbSettings(/, **data: Any)
+.. py:class:: NrelAtbDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
-
-
-   An immutable pydantic model to validate NREL ATB settings.
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   .. py:attribute:: data_source
-      :type:  ClassVar[pudl.metadata.classes.DataSource]
-
-      The DataSource metadata object for this dataset.
-
-
-   .. py:attribute:: years
-      :type:  list[int]
-
-      The list of years to validate.
-
-
-.. py:class:: Eia923Settings(/, **data: Any)
-
-   Bases: :py:obj:`GenericDatasetSettings`
-
-
-   An immutable pydantic model to validate EIA 923 settings.
+   An immutable pydantic model to validate NREL ATB data configuration.
 
 
    .. py:attribute:: data_source
@@ -358,12 +338,32 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: Eia930Settings(/, **data: Any)
+.. py:class:: Eia923DataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate EIA 930 settings.
+   An immutable pydantic model to validate EIA 923 data configuration.
+
+
+   .. py:attribute:: data_source
+      :type:  ClassVar[pudl.metadata.classes.DataSource]
+
+      The DataSource metadata object for this dataset.
+
+
+   .. py:attribute:: years
+      :type:  list[int]
+
+      The list of years to validate.
+
+
+.. py:class:: Eia930DataConfig(/, **data: Any)
+
+   Bases: :py:obj:`GenericDataConfig`
+
+
+   An immutable pydantic model to validate EIA 930 data configuration.
 
 
    .. py:attribute:: data_source
@@ -386,12 +386,12 @@ Module Contents
 
 
 
-.. py:class:: Eia861Settings(/, **data: Any)
+.. py:class:: Eia861DataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate EIA 861 settings.
+   An immutable pydantic model to validate EIA 861 data configuration.
 
 
    .. py:attribute:: data_source
@@ -406,14 +406,14 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: Eia860Settings(/, **data: Any)
+.. py:class:: Eia860DataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate EIA 860 settings.
+   An immutable pydantic model to validate EIA 860 data configuration.
 
-   This model also check 860m settings.
+   This model also checks 860m data configuration.
 
 
    .. py:attribute:: data_source
@@ -488,12 +488,12 @@ Module Contents
 
 
 
-.. py:class:: Eia860mSettings(/, **data: Any)
+.. py:class:: Eia860mDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate EIA 860m settings.
+   An immutable pydantic model to validate EIA 860m data configuration.
 
 
    .. py:attribute:: data_source
@@ -516,32 +516,12 @@ Module Contents
 
 
 
-.. py:class:: Eia757aSettings(/, **data: Any)
+.. py:class:: Eia757aDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
-
-
-   An immutable pydantic model to validate EIA 757a settings.
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   .. py:attribute:: data_source
-      :type:  ClassVar[pudl.metadata.classes.DataSource]
-
-      The DataSource metadata object for this dataset.
-
-
-   .. py:attribute:: years
-      :type:  list[int]
-
-      The list of years to validate.
-
-
-.. py:class:: Eia191Settings(/, **data: Any)
-
-   Bases: :py:obj:`GenericDatasetSettings`
-
-
-   An immutable pydantic model to validate EIA 191 settings.
+   An immutable pydantic model to validate EIA 757a data configuration.
 
 
    .. py:attribute:: data_source
@@ -556,32 +536,12 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: Eia176Settings(/, **data: Any)
+.. py:class:: Eia191DataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
-
-
-   An immutable pydantic model to validate EIA 176 settings.
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   .. py:attribute:: data_source
-      :type:  ClassVar[pudl.metadata.classes.DataSource]
-
-      The DataSource metadata object for this dataset.
-
-
-   .. py:attribute:: years
-      :type:  list[int]
-
-      The list of years to validate.
-
-
-.. py:class:: EiaAeoSettings(/, **data: Any)
-
-   Bases: :py:obj:`GenericDatasetSettings`
-
-
-   An immutable pydantic model to validate EIA 176 settings.
+   An immutable pydantic model to validate EIA 191 data configuration.
 
 
    .. py:attribute:: data_source
@@ -596,12 +556,52 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: VceRareSettings(/, **data: Any)
+.. py:class:: Eia176DataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate VCE RARE Power Dataset settings.
+   An immutable pydantic model to validate EIA 176 data configuration.
+
+
+   .. py:attribute:: data_source
+      :type:  ClassVar[pudl.metadata.classes.DataSource]
+
+      The DataSource metadata object for this dataset.
+
+
+   .. py:attribute:: years
+      :type:  list[int]
+
+      The list of years to validate.
+
+
+.. py:class:: EiaAeoDataConfig(/, **data: Any)
+
+   Bases: :py:obj:`GenericDataConfig`
+
+
+   An immutable pydantic model to validate EIA AEO data configuration.
+
+
+   .. py:attribute:: data_source
+      :type:  ClassVar[pudl.metadata.classes.DataSource]
+
+      The DataSource metadata object for this dataset.
+
+
+   .. py:attribute:: years
+      :type:  list[int]
+
+      The list of years to validate.
+
+
+.. py:class:: VceRareDataConfig(/, **data: Any)
+
+   Bases: :py:obj:`GenericDataConfig`
+
+
+   An immutable pydantic model to validate VCE RARE data configuration.
 
 
    .. py:attribute:: data_source
@@ -624,12 +624,12 @@ Module Contents
       Include FIPS codes in VCE RARE Power Dataset.
 
 
-.. py:class:: CensusPepSettings(/, **data: Any)
+.. py:class:: CensusPepDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate Census PEP settings.
+   An immutable pydantic model to validate Census PEP data configuration.
 
 
    .. py:attribute:: data_source
@@ -644,12 +644,12 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: GlueSettings(/, **data: Any)
+.. py:class:: GlueDataConfig(/, **data: Any)
 
    Bases: :py:obj:`FrozenBaseModel`
 
 
-   An immutable pydantic model to validate Glue settings.
+   An immutable pydantic model to validate Glue data configuration.
 
 
    .. py:attribute:: eia
@@ -657,7 +657,7 @@ Module Contents
       :value: True
 
 
-      Include eia in glue settings.
+      Include eia in glue data configuration.
 
 
    .. py:attribute:: ferc1
@@ -665,7 +665,7 @@ Module Contents
       :value: True
 
 
-      Include ferc1 in glue settings.
+      Include ferc1 in glue data configuration.
 
 
 .. py:class:: GridPathRaToolkitTechType
@@ -693,12 +693,12 @@ Module Contents
    .. py:attribute:: EXTENDED
 
 
-.. py:class:: GridPathRaToolkitSettings(/, **data: Any)
+.. py:class:: GridPathRaToolkitDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   An immutable pydantic model to validate GridPath RA Toolkit settings.
+   An immutable pydantic model to validate GridPath RA Toolkit data configuration.
 
    Note that the default values for technology_types, processing_levels, and
    daily_weather are such that by default, all working partitions will be included.
@@ -759,64 +759,64 @@ Module Contents
       Construct parts from selected technologies, processing levels, and daily weather.
 
 
-.. py:class:: EiaSettings(/, **data: Any)
+.. py:class:: EiaDataConfig(/, **data: Any)
 
    Bases: :py:obj:`FrozenBaseModel`
 
 
-   An immutable pydantic model to validate EIA datasets settings.
+   An immutable pydantic model to validate EIA datasets data configuration.
 
 
    .. py:attribute:: eia176
-      :type:  Eia176Settings | None
+      :type:  Eia176DataConfig | None
       :value: None
 
 
 
    .. py:attribute:: eia191
-      :type:  Eia191Settings | None
+      :type:  Eia191DataConfig | None
       :value: None
 
 
 
    .. py:attribute:: eia757a
-      :type:  Eia757aSettings | None
+      :type:  Eia757aDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: eia860
-      :type:  Eia860Settings | None
+      :type:  Eia860DataConfig | None
       :value: None
 
 
 
    .. py:attribute:: eia860m
-      :type:  Eia860mSettings | None
+      :type:  Eia860mDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: eia861
-      :type:  Eia861Settings | None
+      :type:  Eia861DataConfig | None
       :value: None
 
 
 
    .. py:attribute:: eia923
-      :type:  Eia923Settings | None
+      :type:  Eia923DataConfig | None
       :value: None
 
 
 
    .. py:attribute:: eia930
-      :type:  Eia930Settings | None
+      :type:  Eia930DataConfig | None
       :value: None
 
 
 
    .. py:attribute:: eiaaeo
-      :type:  EiaAeoSettings | None
+      :type:  EiaAeoDataConfig | None
       :value: None
 
 
@@ -838,40 +838,20 @@ Module Contents
       Dependencies:
       * eia923 requires eia860 for harvesting purposes.
 
-      :param values: dataset settings.
+      :param values: dataset data configuration.
       :type values: Dict[str, BaseModel]
 
-      :returns: dataset settings.
+      :returns: dataset data configuration.
       :rtype: values (Dict[str, BaseModel])
 
 
 
-.. py:class:: Rus7Settings(/, **data: Any)
+.. py:class:: Rus7DataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
-
-
-   An immutable pydantic model to validate RUS-7 datasets settings.
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   .. py:attribute:: data_source
-      :type:  ClassVar[pudl.metadata.classes.DataSource]
-
-      The DataSource metadata object for this dataset.
-
-
-   .. py:attribute:: years
-      :type:  list[int]
-
-      The list of years to validate.
-
-
-.. py:class:: Rus12Settings(/, **data: Any)
-
-   Bases: :py:obj:`GenericDatasetSettings`
-
-
-   An immutable pydantic model to validate RUS Form 12 settings.
+   An immutable pydantic model to validate RUS-7 datasets data configuration.
 
 
    .. py:attribute:: data_source
@@ -886,88 +866,108 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: DatasetsSettings(/, **data: Any)
+.. py:class:: Rus12DataConfig(/, **data: Any)
+
+   Bases: :py:obj:`GenericDataConfig`
+
+
+   An immutable pydantic model to validate RUS Form 12 data configuration.
+
+
+   .. py:attribute:: data_source
+      :type:  ClassVar[pudl.metadata.classes.DataSource]
+
+      The DataSource metadata object for this dataset.
+
+
+   .. py:attribute:: years
+      :type:  list[int]
+
+      The list of years to validate.
+
+
+.. py:class:: PudlDataConfig(/, **data: Any)
 
    Bases: :py:obj:`FrozenBaseModel`
 
 
-   An immutable pydantic model to validate PUDL Dataset settings.
+   An immutable pydantic model to validate PUDL Dataset data configuration.
 
 
    .. py:attribute:: eia
-      :type:  EiaSettings | None
+      :type:  EiaDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: epacems
-      :type:  EpaCemsSettings | None
+      :type:  EpaCemsDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: ferc1
-      :type:  Ferc1Settings | None
+      :type:  Ferc1DataConfig | None
       :value: None
 
 
 
    .. py:attribute:: ferc714
-      :type:  Ferc714Settings | None
+      :type:  Ferc714DataConfig | None
       :value: None
 
 
 
    .. py:attribute:: glue
-      :type:  GlueSettings | None
+      :type:  GlueDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: gridpathratoolkit
-      :type:  GridPathRaToolkitSettings | None
+      :type:  GridPathRaToolkitDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: nrelatb
-      :type:  NrelAtbSettings | None
+      :type:  NrelAtbDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: phmsagas
-      :type:  PhmsaGasSettings | None
+      :type:  PhmsaGasDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: sec10k
-      :type:  Sec10kSettings | None
+      :type:  Sec10kDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: vcerare
-      :type:  VceRareSettings | None
+      :type:  VceRareDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: censuspep
-      :type:  CensusPepSettings | None
+      :type:  CensusPepDataConfig | None
       :value: None
 
 
 
    .. py:attribute:: rus7
-      :type:  Rus7Settings | None
+      :type:  Rus7DataConfig | None
       :value: None
 
 
 
    .. py:attribute:: rus12
-      :type:  Rus12Settings | None
+      :type:  Rus12DataConfig | None
       :value: None
 
 
@@ -978,64 +978,63 @@ Module Contents
 
       If no datasets are specified default to all.
 
-      :param data: dataset settings inputs.
+      :param data: PUDL data configuration.
 
-      :returns: Validated dataset settings inputs.
+      :returns: Validated PUDL data configuration.
 
 
 
-   .. py:method:: add_glue_settings(data: dict[str, Any]) -> dict[str, Any]
+   .. py:method:: add_glue_data_config(data: dict[str, Any]) -> dict[str, Any]
       :classmethod:
 
 
-      Add glue settings if ferc1 and eia data are both requested.
+      Add glue data configuration if ferc1 and eia data are both requested.
 
-      :param values: dataset settings.
+      :param values: PUDL data configuration.
       :type values: Dict[str, BaseModel]
 
-      :returns: dataset settings.
+      :returns: PUDL data configuration.
       :rtype: values (Dict[str, BaseModel])
 
 
 
    .. py:method:: get_datasets()
 
-      Gets dictionary of dataset settings.
+      Gets dictionary of PUDL data configuration.
 
 
 
-   .. py:method:: make_datasources_table(ds: pudl.workspace.datastore.Datastore) -> pandas.DataFrame
+   .. py:method:: make_datasources_table(data_store: pudl.workspace.datastore.Datastore) -> pandas.DataFrame
 
       Compile a table of dataset information.
 
       There are three places we can look for information about a dataset:
       * the datastore (for DOIs, working partitions, etc)
-      * the ETL settings (for partitions that are used in the ETL)
-      * the DataSource info (which is stored within the ETL settings)
+      * the PUDL data configuration (for partitions that are used in the ETL)
+      * the DataSource info (which is stored within the PUDL data configuration)
 
-      The ETL settings and the datastore have different levels of nesting - and
-      therefore names for datasets. The nesting happens particularly with the EI
-      data. There are three EIA datasets right now eia923, eia860 and eia860m.
-      eia860m is a monthly update of a few tables in the larger eia860 dataset.
+      The PUDL data configuration and the datastore have different levels of nesting -
+      and therefore names for datasets. The nesting happens particularly with the EIA
+      data.
 
-      :param ds: An initialized PUDL Datastore from which the DOI's for each raw input
-                 dataset can be obtained.
+      :param data_store: An initialized PUDL Datastore from which the DOI's for each raw input
+                         dataset can be obtained.
 
       :returns: a dataframe describing the partitions and DOI's of each of the datasets in
-                this settings object.
+                this PUDL data config object.
 
 
 
-.. py:class:: FercDbfToSqliteSettings(/, **data: Any)
+.. py:class:: FercDbfToSqliteDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`GenericDatasetSettings`
+   Bases: :py:obj:`GenericDataConfig`
 
 
-   Base class for all FERC DBF-to-SQLite settings models.
+   Base class for all FERC DBF-to-SQLite data config models.
 
    Declares the ``years`` and ``refyear`` attributes shared by every FERC DBF
    form so that :class:`~pudl.extract.dbf.FercDbfExtractor` can be typed
-   against this base rather than the looser :class:`GenericDatasetSettings`.
+   against this base rather than the looser :class:`GenericDataConfig`.
 
 
    .. py:attribute:: years
@@ -1052,12 +1051,12 @@ Module Contents
       Reference year used to build the destination schema; provided by each subclass.
 
 
-.. py:class:: Ferc1DbfToSqliteSettings(/, **data: Any)
+.. py:class:: Ferc1DbfToSqliteDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`FercDbfToSqliteSettings`
+   Bases: :py:obj:`FercDbfToSqliteDataConfig`
 
 
-   An immutable Pydantic model to validate FERC 1 to SQLite settings.
+   An immutable Pydantic model to validate FERC 1 to SQLite data config.
 
 
    .. py:attribute:: data_source
@@ -1078,12 +1077,12 @@ Module Contents
       The reference year for the dataset.
 
 
-.. py:class:: FercGenericXbrlToSqliteSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
+.. py:class:: FercGenericXbrlToSqliteDataConfig(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
 
    Bases: :py:obj:`pydantic_settings.BaseSettings`
 
 
-   An immutable pydantic model to validate Ferc1 to SQLite settings.
+   An immutable pydantic model to validate Ferc1 to SQLite data config.
 
 
    .. py:attribute:: years
@@ -1092,12 +1091,12 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: Ferc1XbrlToSqliteSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
+.. py:class:: Ferc1XbrlToSqliteDataConfig(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
 
-   Bases: :py:obj:`FercGenericXbrlToSqliteSettings`
+   Bases: :py:obj:`FercGenericXbrlToSqliteDataConfig`
 
 
-   An immutable pydantic model to validate Ferc1 to SQLite settings..
+   An immutable pydantic model to validate Ferc1 to SQLite data config.
 
 
    .. py:attribute:: data_source
@@ -1110,12 +1109,12 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: Ferc2XbrlToSqliteSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
+.. py:class:: Ferc2XbrlToSqliteDataConfig(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
 
-   Bases: :py:obj:`FercGenericXbrlToSqliteSettings`
+   Bases: :py:obj:`FercGenericXbrlToSqliteDataConfig`
 
 
-   An immutable pydantic model to validate FERC from 2 XBRL to SQLite settings.
+   An immutable pydantic model to validate FERC from 2 XBRL to SQLite data config.
 
 
    .. py:attribute:: data_source
@@ -1128,38 +1127,12 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: Ferc2DbfToSqliteSettings(/, **data: Any)
+.. py:class:: Ferc2DbfToSqliteDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`FercDbfToSqliteSettings`
-
-
-   An immutable Pydantic model to validate FERC 2 to SQLite settings.
+   Bases: :py:obj:`FercDbfToSqliteDataConfig`
 
 
-   .. py:attribute:: data_source
-      :type:  ClassVar[pudl.metadata.classes.DataSource]
-
-      The DataSource metadata object for this dataset.
-
-
-   .. py:attribute:: years
-      :type:  list[int]
-
-      The list of years to validate.
-
-
-   .. py:attribute:: refyear
-      :type:  ClassVar[int]
-
-      The reference year for the dataset.
-
-
-.. py:class:: Ferc6DbfToSqliteSettings(/, **data: Any)
-
-   Bases: :py:obj:`FercDbfToSqliteSettings`
-
-
-   An immutable Pydantic model to validate FERC 6 to SQLite settings.
+   An immutable Pydantic model to validate FERC 2 to SQLite data config.
 
 
    .. py:attribute:: data_source
@@ -1180,30 +1153,12 @@ Module Contents
       The reference year for the dataset.
 
 
-.. py:class:: Ferc6XbrlToSqliteSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
+.. py:class:: Ferc6DbfToSqliteDataConfig(/, **data: Any)
 
-   Bases: :py:obj:`FercGenericXbrlToSqliteSettings`
-
-
-   An immutable pydantic model to validate FERC from 6 XBRL to SQLite settings.
+   Bases: :py:obj:`FercDbfToSqliteDataConfig`
 
 
-   .. py:attribute:: data_source
-      :type:  ClassVar[pudl.metadata.classes.DataSource]
-
-
-   .. py:attribute:: years
-      :type:  list[int]
-
-      The list of years to validate.
-
-
-.. py:class:: Ferc60DbfToSqliteSettings(/, **data: Any)
-
-   Bases: :py:obj:`FercDbfToSqliteSettings`
-
-
-   An immutable Pydantic model to validate FERC 60 to SQLite settings.
+   An immutable Pydantic model to validate FERC 6 to SQLite data config.
 
 
    .. py:attribute:: data_source
@@ -1224,30 +1179,12 @@ Module Contents
       The reference year for the dataset.
 
 
-.. py:class:: Ferc60XbrlToSqliteSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
+.. py:class:: Ferc6XbrlToSqliteDataConfig(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
 
-   Bases: :py:obj:`FercGenericXbrlToSqliteSettings`
-
-
-   An immutable pydantic model to validate FERC from 60 XBRL to SQLite settings.
+   Bases: :py:obj:`FercGenericXbrlToSqliteDataConfig`
 
 
-   .. py:attribute:: data_source
-      :type:  ClassVar[pudl.metadata.classes.DataSource]
-
-
-   .. py:attribute:: years
-      :type:  list[int]
-
-      The list of years to validate.
-
-
-.. py:class:: Ferc714XbrlToSqliteSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
-
-   Bases: :py:obj:`FercGenericXbrlToSqliteSettings`
-
-
-   An immutable pydantic model to validate FERC from 714 XBRL to SQLite settings.
+   An immutable pydantic model to validate FERC from 6 XBRL to SQLite data config.
 
 
    .. py:attribute:: data_source
@@ -1260,64 +1197,126 @@ Module Contents
       The list of years to validate.
 
 
-.. py:class:: FercToSqliteSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
+.. py:class:: Ferc60DbfToSqliteDataConfig(/, **data: Any)
+
+   Bases: :py:obj:`FercDbfToSqliteDataConfig`
+
+
+   An immutable Pydantic model to validate FERC 60 to SQLite data config.
+
+
+   .. py:attribute:: data_source
+      :type:  ClassVar[pudl.metadata.classes.DataSource]
+
+      The DataSource metadata object for this dataset.
+
+
+   .. py:attribute:: years
+      :type:  list[int]
+
+      The list of years to validate.
+
+
+   .. py:attribute:: refyear
+      :type:  ClassVar[int]
+
+      The reference year for the dataset.
+
+
+.. py:class:: Ferc60XbrlToSqliteDataConfig(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
+
+   Bases: :py:obj:`FercGenericXbrlToSqliteDataConfig`
+
+
+   An immutable pydantic model to validate FERC from 60 XBRL to SQLite data config.
+
+
+   .. py:attribute:: data_source
+      :type:  ClassVar[pudl.metadata.classes.DataSource]
+
+
+   .. py:attribute:: years
+      :type:  list[int]
+
+      The list of years to validate.
+
+
+.. py:class:: Ferc714XbrlToSqliteDataConfig(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
+
+   Bases: :py:obj:`FercGenericXbrlToSqliteDataConfig`
+
+
+   An immutable pydantic model to validate FERC from 714 XBRL to SQLite data config.
+
+
+   .. py:attribute:: data_source
+      :type:  ClassVar[pudl.metadata.classes.DataSource]
+
+
+   .. py:attribute:: years
+      :type:  list[int]
+
+      The list of years to validate.
+
+
+.. py:class:: FercToSqliteDataConfig(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
 
    Bases: :py:obj:`pydantic_settings.BaseSettings`
 
 
-   An immutable pydantic model to validate FERC XBRL to SQLite settings.
+   An immutable pydantic model to validate FERC XBRL to SQLite data config.
 
 
-   .. py:attribute:: ferc1_dbf_to_sqlite_settings
-      :type:  Ferc1DbfToSqliteSettings | None
+   .. py:attribute:: ferc1_dbf
+      :type:  Ferc1DbfToSqliteDataConfig | None
       :value: None
 
 
 
-   .. py:attribute:: ferc1_xbrl_to_sqlite_settings
-      :type:  Ferc1XbrlToSqliteSettings | None
+   .. py:attribute:: ferc1_xbrl
+      :type:  Ferc1XbrlToSqliteDataConfig | None
       :value: None
 
 
 
-   .. py:attribute:: ferc2_dbf_to_sqlite_settings
-      :type:  Ferc2DbfToSqliteSettings | None
+   .. py:attribute:: ferc2_dbf
+      :type:  Ferc2DbfToSqliteDataConfig | None
       :value: None
 
 
 
-   .. py:attribute:: ferc2_xbrl_to_sqlite_settings
-      :type:  Ferc2XbrlToSqliteSettings | None
+   .. py:attribute:: ferc2_xbrl
+      :type:  Ferc2XbrlToSqliteDataConfig | None
       :value: None
 
 
 
-   .. py:attribute:: ferc6_dbf_to_sqlite_settings
-      :type:  Ferc6DbfToSqliteSettings | None
+   .. py:attribute:: ferc6_dbf
+      :type:  Ferc6DbfToSqliteDataConfig | None
       :value: None
 
 
 
-   .. py:attribute:: ferc6_xbrl_to_sqlite_settings
-      :type:  Ferc6XbrlToSqliteSettings | None
+   .. py:attribute:: ferc6_xbrl
+      :type:  Ferc6XbrlToSqliteDataConfig | None
       :value: None
 
 
 
-   .. py:attribute:: ferc60_dbf_to_sqlite_settings
-      :type:  Ferc60DbfToSqliteSettings | None
+   .. py:attribute:: ferc60_dbf
+      :type:  Ferc60DbfToSqliteDataConfig | None
       :value: None
 
 
 
-   .. py:attribute:: ferc60_xbrl_to_sqlite_settings
-      :type:  Ferc60XbrlToSqliteSettings | None
+   .. py:attribute:: ferc60_xbrl
+      :type:  Ferc60XbrlToSqliteDataConfig | None
       :value: None
 
 
 
-   .. py:attribute:: ferc714_xbrl_to_sqlite_settings
-      :type:  Ferc714XbrlToSqliteSettings | None
+   .. py:attribute:: ferc714_xbrl
+      :type:  Ferc714XbrlToSqliteDataConfig | None
       :value: None
 
 
@@ -1330,11 +1329,11 @@ Module Contents
 
 
 
-   .. py:method:: get_dataset_settings(dataset: str | XbrlFormNumber, data_format: Literal['dbf', 'xbrl']) -> FercGenericXbrlToSqliteSettings
+   .. py:method:: get_data_config(dataset: str | XbrlFormNumber, data_format: Literal['dbf', 'xbrl']) -> FercGenericXbrlToSqliteDataConfig | FercDbfToSqliteDataConfig | None
 
       Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
-      Throws a KeyError if dataset/format is not configured.
+      Returns ``None`` if the dataset/format combination is not configured.
 
 
 
@@ -1342,9 +1341,11 @@ Module Contents
 
       Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
+      :raises ValueError: if the dataset/format combination is not configured.
 
 
-.. py:class:: EtlSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
+
+.. py:class:: GlobalDataConfig(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | Literal['dual', 'toggle'] | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, _build_sources: tuple[tuple[pydantic_settings.sources.PydanticBaseSettingsSource, Ellipsis], dict[str, Any]] | None = None, **values: Any)
 
    Bases: :py:obj:`pydantic_settings.BaseSettings`
 
@@ -1352,14 +1353,14 @@ Module Contents
    Main settings validation class.
 
 
-   .. py:attribute:: ferc_to_sqlite_settings
-      :type:  FercToSqliteSettings | None
+   .. py:attribute:: ferc_to_sqlite
+      :type:  FercToSqliteDataConfig | None
       :value: None
 
 
 
-   .. py:attribute:: datasets
-      :type:  DatasetsSettings | None
+   .. py:attribute:: pudl
+      :type:  PudlDataConfig | None
       :value: None
 
 
@@ -1388,41 +1389,34 @@ Module Contents
 
 
 
-   .. py:method:: from_yaml(path: str | pathlib.Path) -> EtlSettings
+   .. py:method:: from_yaml(path: str | pathlib.Path) -> GlobalDataConfig
       :classmethod:
 
 
-      Create validated ETL settings from a local YAML file path.
+      Create validated GlobalDataConfig from a local YAML file path.
 
       :param path: Path to a YAML file. Relative paths are resolved against the
                    current working directory and ``~`` is expanded.
 
-      :returns: An ETL settings object.
+      :returns: A GlobalDataConfig object.
 
-
-
-   .. py:property:: ferc_to_sqlite
-      :type: FercToSqliteSettings
-
-
-      Return validated FERC-to-SQLite settings, or raise if unavailable.
 
 
    .. py:method:: validate_xbrl_years()
 
-      Ensure the XBRL years in DatasetsSettings align with FercToSqliteSettings.
+      Ensure the XBRL years in PudlDataConfig align with FercToSqliteDataConfig.
 
       For each of the FERC forms that we are processing in PUDL, check to ensure
       that the years we are trying to process in the PUDL ETL are included in the
-      XBRL to SQLite settings.
+      XBRL to SQLite data config.
 
 
 
-   .. py:property:: dataset_settings
-      :type: DatasetsSettings
+   .. py:property:: pudl_data_config
+      :type: PudlDataConfig
 
 
-      Return validated dataset settings or raise if they are unavailable.
+      Return validated PUDL data config or raise if it is unavailable.
 
 
 .. py:function:: _zenodo_doi_to_url(doi: pudl.workspace.datastore.ZenodoDoi) -> pydantic.AnyHttpUrl

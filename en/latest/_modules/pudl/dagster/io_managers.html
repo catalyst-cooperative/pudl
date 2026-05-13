@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.io_managers &#8212; PUDL 2026.4.1.dev36 documentation</title>
+    <title>pudl.dagster.io_managers &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=12c54572"></script>
+    <script src="../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -892,9 +892,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">assert_ferc_sqlite_compatible</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.resources</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">PudlEtlSettingsResource</span><span class="p">,</span>
+    <span class="n">GlobalDataConfigResource</span><span class="p">,</span>
     <span class="n">ZenodoDoiSettingsResource</span><span class="p">,</span>
-    <span class="n">pudl_etl_settings_resource</span><span class="p">,</span>
+    <span class="n">global_data_config_resource</span><span class="p">,</span>
     <span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parquet_table</span><span class="p">,</span> <span class="n">get_parquet_table_polars</span>
@@ -948,7 +948,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="PudlMixedFormatIOManager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlMixedFormatIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PudlMixedFormatIOManager</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableIOManager</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PudlMixedFormatIOManager</span><span class="p">(</span><span class="n">ConfigurableIOManager</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Format switching IOManager that supports sqlite and parquet.</span>
 
 <span class="sd">    This IOManager provides for the use of parquet files along with the standard SQLite</span>
@@ -1666,7 +1666,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so</span>
 <span class="sd">    a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as</span>
-<span class="sd">    the corresponding settings object exposes a ``dbf_years`` attribute.</span>
+<span class="sd">    the corresponding data config object exposes a ``dbf_years`` attribute.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="FercDbfSqliteIOManager.handle_output">
@@ -1703,29 +1703,28 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">_FercSqliteConfigurableIOManagerBase</span><span class="p">(</span><span class="n">ConfigurableIOManager</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_FercSqliteConfigurableIOManagerBase</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableIOManager</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for Dagster-native FERC SQLite IO manager wrappers.</span>
 
-<span class="sd">    Holds the shared resource dependencies (``etl_settings``, ``zenodo_dois``,</span>
-<span class="sd">    ``db_name``) and provides default delegation for ``engine``, ``handle_output``,</span>
-<span class="sd">    and ``load_input``. Subclasses must define ``_manager`` (a ``cached_property``</span>
-<span class="sd">    returning the appropriate underlying IO manager) and ``data_format``</span>
-<span class="sd">    (``dbf`` or ``xbrl``).</span>
+<span class="sd">    Holds the shared resource dependencies (``global_data_config``, ``zenodo_dois``,</span>
+<span class="sd">    ``db_name``) and provides default delegation for ``engine``, ``handle_output``, and</span>
+<span class="sd">    ``load_input``. Subclasses must define ``_manager`` (a ``cached_property`` returning</span>
+<span class="sd">    the appropriate underlying IO manager) and ``data_format`` (``dbf`` or ``xbrl``).</span>
 
 <span class="sd">    Note:</span>
-<span class="sd">        This wrapper pattern is a temporary workaround for nested ``etl_settings``</span>
+<span class="sd">        This wrapper pattern is a temporary workaround for nested ``global_data_config``</span>
 <span class="sd">        resource dependencies inside the FERC IO managers. Because Dagster wires</span>
 <span class="sd">        resource dependencies at instantiation time, overriding the top-level</span>
-<span class="sd">        ``etl_settings`` resource alone (e.g. in tests) is not enough — the IO</span>
-<span class="sd">        managers must be rebuilt against the new resource instance. ``build_defs``</span>
-<span class="sd">        in ``pudl.etl`` handles that rebuilding explicitly. A follow-up PR will</span>
-<span class="sd">        remove the nested dependency, at which point this base class can be</span>
-<span class="sd">        simplified or eliminated. See issue #5118</span>
+<span class="sd">        ``global_data_config`` resource alone (e.g. in tests) is not enough — the IO</span>
+<span class="sd">        managers must be rebuilt against the new resource instance. ``build_defs`` in</span>
+<span class="sd">        ``pudl.etl`` handles that rebuilding explicitly. A follow-up PR will remove the</span>
+<span class="sd">        nested dependency, at which point this base class can be simplified or</span>
+<span class="sd">        eliminated. See issue #5118</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.etl_settings">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.etl_settings">[docs]</a>
-    <span class="n">etl_settings</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">PudlEtlSettingsResource</span><span class="p">]</span></div>
+<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.global_data_config">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.global_data_config">[docs]</a>
+    <span class="n">global_data_config</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">GlobalDataConfigResource</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.zenodo_dois">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.zenodo_dois">[docs]</a>
@@ -1785,7 +1784,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
             <span class="n">data_format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span>
             <span class="n">zenodo_doi</span><span class="o">=</span><span class="n">zenodo_doi</span><span class="p">,</span>
-            <span class="n">years</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">ferc_to_sqlite</span><span class="o">.</span><span class="n">get_dataset_years</span><span class="p">(</span>
+            <span class="n">years</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">ferc_to_sqlite</span><span class="o">.</span><span class="n">get_dataset_years</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -1800,14 +1799,16 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataframe from the configured FERC SQLite database.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prepare</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="n">ferc_settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span><span class="p">,</span>
+        <span class="n">ferc_data_config</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;raw_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ferc_settings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_years_key</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span>
+            <span class="n">table_name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ferc_data_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_years_key</span><span class="p">)</span>
+        <span class="p">)</span></div>
 </div>
 
 
@@ -1957,7 +1958,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ferc1_dbf_sqlite_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager">[docs]</a>
 <span class="n">ferc1_dbf_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercDbfSqliteConfigurableIOManager</span><span class="p">(</span>
-    <span class="n">etl_settings</span><span class="o">=</span><span class="n">pudl_etl_settings_resource</span><span class="p">,</span>
+    <span class="n">global_data_config</span><span class="o">=</span><span class="n">global_data_config_resource</span><span class="p">,</span>
     <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
     <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
 <span class="p">)</span></div>
@@ -1965,7 +1966,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ferc1_xbrl_sqlite_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager">[docs]</a>
 <span class="n">ferc1_xbrl_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercXbrlSqliteConfigurableIOManager</span><span class="p">(</span>
-    <span class="n">etl_settings</span><span class="o">=</span><span class="n">pudl_etl_settings_resource</span><span class="p">,</span>
+    <span class="n">global_data_config</span><span class="o">=</span><span class="n">global_data_config_resource</span><span class="p">,</span>
     <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
     <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
 <span class="p">)</span></div>
@@ -1973,7 +1974,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ferc714_xbrl_sqlite_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.ferc714_xbrl_sqlite_io_manager">[docs]</a>
 <span class="n">ferc714_xbrl_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercXbrlSqliteConfigurableIOManager</span><span class="p">(</span>
-    <span class="n">etl_settings</span><span class="o">=</span><span class="n">pudl_etl_settings_resource</span><span class="p">,</span>
+    <span class="n">global_data_config</span><span class="o">=</span><span class="n">global_data_config_resource</span><span class="p">,</span>
     <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
     <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
 <span class="p">)</span></div>

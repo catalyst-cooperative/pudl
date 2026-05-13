@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>PUDL Release Notes &#8212; PUDL 2026.4.1.dev36 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="_static/documentation_options.js?v=12c54572"></script>
+    <script src="_static/documentation_options.js?v=bb853114"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -140,8 +140,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -534,9 +534,9 @@ asset scoping is handled by <code class="docutils literal notranslate"><span cla
 <li><p><strong>Switched to Dagster config YAML files</strong> for all run configuration (what years to
 process, which datasets to include, resource settings). The settings flow is now:
 <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span> <span class="pre">--config</span> <span class="pre">some_dg.yml</span></code> → <code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.resources.PudlEtlSettingsResource</span></code>
-loads a <a class="reference internal" href="autoapi/pudl/settings/index.html#pudl.settings.EtlSettings" title="pudl.settings.EtlSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.settings.EtlSettings</span></code></a> object from a path declared in that YAML
+loads a <code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.settings.EtlSettings</span></code> object from a path declared in that YAML
 → individual assets and IO managers read from the injected
-<a class="reference internal" href="autoapi/pudl/settings/index.html#pudl.settings.EtlSettings" title="pudl.settings.EtlSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">EtlSettings</span></code></a>. This replaces the old pattern of serializing
+<code class="xref py py-class docutils literal notranslate"><span class="pre">EtlSettings</span></code>. This replaces the old pattern of serializing
 Pydantic models to raw <code class="docutils literal notranslate"><span class="pre">run_config</span></code> dicts, which required keeping Dagster config
 schemas manually in sync with the Pydantic models.</p></li>
 <li><p><strong>Updated Dagster resources and IO managers to use Pydantic-native</strong>
@@ -610,6 +610,15 @@ combined two acronyms (e.g. <code class="docutils literal notranslate"><span cla
 They now follow the Python convention of treating each acronym as a single
 title-cased word, so <code class="docutils literal notranslate"><span class="pre">SQLite</span></code> becomes <code class="docutils literal notranslate"><span class="pre">Sqlite</span></code> when it appears mid-name
 (e.g. <code class="docutils literal notranslate"><span class="pre">FercDbfSqliteConfigurableIOManager</span></code>).  See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5123">#5123</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5124">#5124</a>.</p></li>
+<li><p><strong>Renamed Pydantic settings classes from</strong> <code class="docutils literal notranslate"><span class="pre">*Settings</span></code> <strong>to</strong> <code class="docutils literal notranslate"><span class="pre">*DataConfig</span></code>
+<strong>and tightened container field names.</strong> The old names were too vague — these
+classes define <em>which data gets processed</em>, not general application settings.
+The new names make that explicit and align with Dagster’s own <code class="docutils literal notranslate"><span class="pre">Config</span></code>
+naming convention. The top-level <code class="docutils literal notranslate"><span class="pre">EtlSettings</span></code> is now <code class="docutils literal notranslate"><span class="pre">GlobalDataConfig</span></code>;
+<code class="docutils literal notranslate"><span class="pre">DatasetsSettings</span></code> (the PUDL job) is now <code class="docutils literal notranslate"><span class="pre">PudlDataConfig</span></code>; and field names
+on the container classes drop redundant suffixes (e.g. <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite_settings</span></code>
+→ <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code>, <code class="docutils literal notranslate"><span class="pre">datasets</span></code> → <code class="docutils literal notranslate"><span class="pre">pudl</span></code>). The data config and Dagster
+config YAML files are updated to match. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5153">#5153</a>.</p></li>
 </ul>
 </section>
 </section>
@@ -3027,7 +3036,7 @@ run subsets of the tables.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">--clobber</span></code> argument has been removed from the <code class="docutils literal notranslate"><span class="pre">pudl_etl</span></code> command.</p></li>
 <li><p>New static method <a class="reference internal" href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package.get_etl_group_tables" title="pudl.metadata.classes.Package.get_etl_group_tables"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.metadata.classes.Package.get_etl_group_tables</span></code></a>
 returns the resources ids for a given etl group.</p></li>
-<li><p><a class="reference internal" href="autoapi/pudl/settings/index.html#pudl.settings.FercToSqliteSettings" title="pudl.settings.FercToSqliteSettings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.settings.FercToSqliteSettings</span></code></a> class now loads all FERC
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.settings.FercToSqliteSettings</span></code> class now loads all FERC
 datasources if no datasets are specified.</p></li>
 <li><p>The Excel extractor in <code class="docutils literal notranslate"><span class="pre">pudl.extract.excel</span></code> has been updated to parallelize
 Excel spreadsheet extraction using Dagster <code class="docutils literal notranslate"><span class="pre">&#64;multi_asset</span></code> functionality, thanks to
@@ -3356,7 +3365,7 @@ logic is now covered by the
 <code class="docutils literal notranslate"><span class="pre">pudl.io_managers.ferc1_dbf_sqlite_io_manager</span></code> IO Managers.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pudl.ferc1.extract_xbrl_metadata</span></code> has been replaced by the
 <code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.extract.ferc1.xbrl_metadata_json()</span></code> asset.</p></li>
-<li><p>All sub classes of <a class="reference internal" href="autoapi/pudl/settings/index.html#pudl.settings.GenericDatasetSettings" title="pudl.settings.GenericDatasetSettings"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.settings.GenericDatasetSettings()</span></code></a> in
+<li><p>All sub classes of <code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.settings.GenericDatasetSettings()</span></code> in
 <a class="reference internal" href="autoapi/pudl/settings/index.html#module-pudl.settings" title="pudl.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.settings</span></code></a> no longer have table attributes because the ETL no longer
 supports loading specific tables via settings. Use dagster to select subsets of
 tables to process.</p></li>

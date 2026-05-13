@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.eia860m &#8212; PUDL 2026.4.1.dev36 documentation</title>
+    <title>pudl.extract.eia860m &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../../_static/documentation_options.js?v=12c54572"></script>
+    <script src="../../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -753,7 +753,7 @@ conjunction with EIA 860. This module both extracts EIA 860M and appends
 the extracted EIA 860M dataframes to the extracted EIA 860 dataframes. Example
 setup with pre-generated <cite>eia860_raw_dfs</cite> and datastore as <cite>ds</cite>:</p>
 <dl class="simple">
-<dt>eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(</dt><dd><p>Eia860Settings.eia860m_date)</p>
+<dt>eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(</dt><dd><p>Eia860DataConfig.eia860m_date)</p>
 </dd>
 <dt>eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(</dt><dd><p>eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)</p>
 </dd>

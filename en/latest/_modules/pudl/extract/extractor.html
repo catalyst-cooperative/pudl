@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.extractor &#8212; PUDL 2026.4.1.dev36 documentation</title>
+    <title>pudl.extract.extractor &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=12c54572"></script>
+    <script src="../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -1330,10 +1330,10 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="partitions_from_settings_factory">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.partitions_from_settings_factory">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">partitions_from_settings_factory</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct a Dagster op to get target partitions from settings in Dagster context.</span>
+<div class="viewcode-block" id="partitions_from_data_config_factory">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.partitions_from_data_config_factory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">partitions_from_data_config_factory</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct a Dagster op to get target partitions from data config in Dagster context.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        name: Name of an Excel based dataset (e.g. &quot;eia860&quot;).</span>
@@ -1342,11 +1342,11 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@op</span><span class="p">(</span>
         <span class="n">out</span><span class="o">=</span><span class="n">DynamicOut</span><span class="p">(),</span>
-        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;etl_settings&quot;</span><span class="p">},</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_partitions_from_settings&quot;</span><span class="p">,</span>
+        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_partitions_from_data_config&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">partitions_from_settings</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DynamicOutput</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce target partitions for the given dataset from the dataset settings.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">partitions_from_data_config</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DynamicOutput</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce target partitions for the given dataset from the dataset data config.</span>
 
 <span class="sd">        These will be used to kick off worker processes to extract each year of data in</span>
 <span class="sd">        parallel.</span>
@@ -1356,16 +1356,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            extracted. See the Dagster API documentation for more details:</span>
 <span class="sd">            https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;eia&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>  <span class="c1"># Account for nested settings if EIA</span>
-            <span class="n">partition_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span>
+        <span class="k">if</span> <span class="s2">&quot;eia&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>  <span class="c1"># Account for nested data config if EIA</span>
+            <span class="n">partition_data_config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">eia</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">partition_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">etl_settings</span><span class="o">.</span><span class="n">dataset_settings</span>
+            <span class="n">partition_data_config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span>
         <span class="c1"># Get year/year_quarter/half_year partition</span>
-        <span class="n">data_settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">partition_settings</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>  <span class="c1"># Get dataset settings</span>
+        <span class="n">data_config</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">partition_data_config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>  <span class="c1"># Get data config</span>
 
         <span class="n">partition</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">var</span>
-            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">data_settings</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
                 <span class="n">date_partition</span> <span class="ow">in</span> <span class="n">var</span>
                 <span class="k">for</span> <span class="n">date_partition</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">,</span> <span class="s2">&quot;half_years&quot;</span><span class="p">,</span> <span class="s2">&quot;year_quarters&quot;</span><span class="p">]</span>
@@ -1375,16 +1375,16 @@ window.runMermaid = runMermaid;</script>
             <span class="sa">f</span><span class="s2">&quot;Only one working partition is supported: </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
         <span class="n">partition</span> <span class="o">=</span> <span class="n">partition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">data_settings</span><span class="p">,</span> <span class="n">partition</span><span class="p">)</span>  <span class="c1"># Get the actual values</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">partition</span><span class="p">)</span>  <span class="c1"># Get the actual values</span>
         <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">:</span>  <span class="c1"># phmsa has old years with multiple years in each tab</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">data_settings</span><span class="o">.</span><span class="n">extraction_years</span>
-        <span class="c1"># In Zenodo we use &quot;year&quot;, &quot;half_year&quot; as the partition, but in our settings</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extraction_years</span>
+        <span class="c1"># In Zenodo we use &quot;year&quot;, &quot;half_year&quot; as the partition, but in our data config</span>
         <span class="c1"># we use the plural &quot;years&quot;. Drop the &quot;s&quot; at the end if present.</span>
         <span class="n">partition</span> <span class="o">=</span> <span class="n">partition</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">DynamicOutput</span><span class="p">({</span><span class="n">partition</span><span class="p">:</span> <span class="n">part</span><span class="p">},</span> <span class="n">mapping_key</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">partitions_from_settings</span></div>
+    <span class="k">return</span> <span class="n">partitions_from_data_config</span></div>
 
 
 
@@ -1402,13 +1402,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Build a Dagster op that can extract a single year/half-year of data</span>
     <span class="n">partition_extractor</span> <span class="o">=</span> <span class="n">partition_extractor_factory</span><span class="p">(</span><span class="n">extractor_cls</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-    <span class="c1"># Get the list of target partitions to extract from the PUDL ETL settings object</span>
+    <span class="c1"># Get the list of target partitions to extract from the PUDL data config object</span>
     <span class="c1"># which is stored in the Dagster context that is available to all ops.</span>
-    <span class="n">partitions_from_settings</span> <span class="o">=</span> <span class="n">partitions_from_settings_factory</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">partitions_from_data_config</span> <span class="o">=</span> <span class="n">partitions_from_data_config_factory</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">raw_dfs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce a dictionary of extracted dataframes.&quot;&quot;&quot;</span>
-        <span class="n">partitions</span> <span class="o">=</span> <span class="n">partitions_from_settings</span><span class="p">()</span>
+        <span class="n">partitions</span> <span class="o">=</span> <span class="n">partitions_from_data_config</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">partitions</span><span class="p">)</span>
         <span class="c1"># Clone dagster op for each year using DynamicOut.map()</span>
         <span class="c1"># See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut</span>

@@ -8,8 +8,8 @@ pudl.dagster.resources
    Dagster resources for PUDL.
 
    This module defines the configurable resources that PUDL assets depend on at runtime,
-   such as ETL settings, datastore access, and other run-scoped helpers, along with the
-   default resource mapping used by the assembled code location. Add
+   such as data configuration, datastore access, and other run-scoped helpers, along with
+   the default resource mapping used by the assembled code location. Add
    :class:`dagster.ConfigurableResource` classes and configured singleton instances here
    when they provide external services or shared runtime context to assets and jobs. Keep
    asset logic out of this module; it should focus on dependency injection and default
@@ -25,11 +25,11 @@ Attributes
 
 .. autoapisummary::
 
-   pudl.dagster.resources.pudl_etl_settings_resource
+   pudl.dagster.resources.global_data_config_resource
    pudl.dagster.resources.zenodo_doi_settings_resource
    pudl.dagster.resources.datastore_resource
    pudl.dagster.resources.ferc_xbrl_runtime_settings
-   pudl.dagster.resources.ferceqr_extract_settings
+   pudl.dagster.resources.ferceqr_data_config
    pudl.dagster.resources.default_resources
 
 
@@ -39,10 +39,10 @@ Classes
 .. autoapisummary::
 
    pudl.dagster.resources.FercXbrlRuntimeSettings
-   pudl.dagster.resources.PudlEtlSettingsResource
+   pudl.dagster.resources.GlobalDataConfigResource
    pudl.dagster.resources.ZenodoDoiSettingsResource
    pudl.dagster.resources.DatastoreResource
-   pudl.dagster.resources.FercEqrExtractSettings
+   pudl.dagster.resources.FercEqrDataConfig
 
 
 Module Contents
@@ -74,23 +74,23 @@ Module Contents
 
 
 
-.. py:class:: PudlEtlSettingsResource
+.. py:class:: GlobalDataConfigResource
 
    Bases: :py:obj:`dagster.ConfigurableResource`
 
 
-   Load validated PUDL ETL settings from a shared ETL YAML file.
+   Load validated PUDL data configuration from a shared ETL YAML file.
 
 
-   .. py:attribute:: etl_settings_path
+   .. py:attribute:: global_data_config_path
       :type:  str
       :value: 'src/pudl/package_data/settings/etl_full.yml'
 
 
 
-   .. py:method:: create_resource(context) -> pudl.settings.EtlSettings
+   .. py:method:: create_resource(context) -> pudl.settings.GlobalDataConfig
 
-      Create runtime ETL settings from the configured ETL settings file.
+      Create runtime data configuration from the configured YAML file.
 
 
 
@@ -153,7 +153,7 @@ Module Contents
 
 
 
-.. py:class:: FercEqrExtractSettings
+.. py:class:: FercEqrDataConfig
 
    Bases: :py:obj:`dagster.ConfigurableResource`
 
@@ -176,7 +176,7 @@ Module Contents
       Return UPath pointing to archive base path.
 
 
-.. py:data:: pudl_etl_settings_resource
+.. py:data:: global_data_config_resource
 
 .. py:data:: zenodo_doi_settings_resource
 
@@ -184,7 +184,7 @@ Module Contents
 
 .. py:data:: ferc_xbrl_runtime_settings
 
-.. py:data:: ferceqr_extract_settings
+.. py:data:: ferceqr_data_config
 
 .. py:data:: default_resources
    :type:  dict[str, Any]

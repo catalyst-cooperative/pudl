@@ -147,7 +147,7 @@ Module Contents
    PUDL. We pull information about these tables from the XBRL metadata, but the data is
    not extracted from the DBF and XBRL derived SQLite DBs.
 
-.. py:class:: Ferc1DbfExtractor(datastore: pudl.workspace.datastore.Datastore, settings: pudl.settings.FercToSqliteSettings, output_path: pathlib.Path)
+.. py:class:: Ferc1DbfExtractor(datastore: pudl.workspace.datastore.Datastore, data_config: pudl.settings.FercDbfToSqliteDataConfig, output_path: pathlib.Path)
 
    Bases: :py:obj:`pudl.extract.dbf.FercDbfExtractor`
 
@@ -162,12 +162,6 @@ Module Contents
 
    .. py:attribute:: DATABASE_NAME
       :value: 'ferc1_dbf.sqlite'
-
-
-
-   .. py:method:: get_settings(global_settings: pudl.settings.FercToSqliteSettings) -> pudl.settings.FercDbfToSqliteSettings
-
-      Returns settings for FERC Form 1 DBF dataset.
 
 
 

@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferc6 &#8212; PUDL 2026.4.1.dev36 documentation</title>
+    <title>pudl.extract.ferc6 &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../../_static/documentation_options.js?v=12c54572"></script>
+    <script src="../../../../_static/documentation_options.js?v=bb853114"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -762,7 +762,7 @@
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.extract.ferc6.Ferc6DbfExtractor">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.ferc6.</span></span><span class="sig-name descname"><span class="pre">Ferc6DbfExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">pudl.workspace.datastore.Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.FercToSqliteSettings" title="pudl.settings.FercToSqliteSettings"><span class="pre">pudl.settings.FercToSqliteSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/ferc6.html#Ferc6DbfExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferc6.Ferc6DbfExtractor" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.ferc6.</span></span><span class="sig-name descname"><span class="pre">Ferc6DbfExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">pudl.workspace.datastore.Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.FercDbfToSqliteDataConfig" title="pudl.settings.FercDbfToSqliteDataConfig"><span class="pre">pudl.settings.FercDbfToSqliteDataConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/ferc6.html#Ferc6DbfExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferc6.Ferc6DbfExtractor" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../dbf/index.html#pudl.extract.dbf.FercDbfExtractor" title="pudl.extract.dbf.FercDbfExtractor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pudl.extract.dbf.FercDbfExtractor</span></code></a></p>
 <p>Extracts FERC Form 6 data from the legacy DBF archives.</p>
 <dl class="py attribute">
@@ -774,12 +774,6 @@
 <dt class="sig sig-object py" id="pudl.extract.ferc6.Ferc6DbfExtractor.DATABASE_NAME">
 <span class="sig-name descname"><span class="pre">DATABASE_NAME</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ferc6_dbf.sqlite'</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/ferc6.html#Ferc6DbfExtractor.DATABASE_NAME"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferc6.Ferc6DbfExtractor.DATABASE_NAME" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pudl.extract.ferc6.Ferc6DbfExtractor.get_settings">
-<span class="sig-name descname"><span class="pre">get_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.FercToSqliteSettings" title="pudl.settings.FercToSqliteSettings"><span class="pre">pudl.settings.FercToSqliteSettings</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../settings/index.html#pudl.settings.FercDbfToSqliteSettings" title="pudl.settings.FercDbfToSqliteSettings"><span class="pre">pudl.settings.FercDbfToSqliteSettings</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/ferc6.html#Ferc6DbfExtractor.get_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.ferc6.Ferc6DbfExtractor.get_settings" title="Link to this definition">#</a></dt>
-<dd><p>Returns settings for FERC Form 6 DBF dataset.</p>
-</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.extract.ferc6.Ferc6DbfExtractor.finalize_schema">
@@ -852,7 +846,6 @@ concatenated.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc6.Ferc6DbfExtractor"><code class="docutils literal notranslate"><span class="pre">Ferc6DbfExtractor</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc6.Ferc6DbfExtractor.DATASET"><code class="docutils literal notranslate"><span class="pre">Ferc6DbfExtractor.DATASET</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc6.Ferc6DbfExtractor.DATABASE_NAME"><code class="docutils literal notranslate"><span class="pre">Ferc6DbfExtractor.DATABASE_NAME</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc6.Ferc6DbfExtractor.get_settings"><code class="docutils literal notranslate"><span class="pre">Ferc6DbfExtractor.get_settings()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc6.Ferc6DbfExtractor.finalize_schema"><code class="docutils literal notranslate"><span class="pre">Ferc6DbfExtractor.finalize_schema()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.ferc6.Ferc6DbfExtractor.aggregate_table_frames"><code class="docutils literal notranslate"><span class="pre">Ferc6DbfExtractor.aggregate_table_frames()</span></code></a></li>
 </ul>

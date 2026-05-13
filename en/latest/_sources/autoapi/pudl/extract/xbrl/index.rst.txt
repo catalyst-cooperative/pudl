@@ -93,11 +93,12 @@ Module Contents
    Generates xbrl2sqlite op for a given FERC form.
 
 
-.. py:function:: convert_form(form_settings: pudl.settings.FercGenericXbrlToSqliteSettings, form: pudl.settings.XbrlFormNumber, datastore: FercXbrlDatastore, output_path: pathlib.Path, sqlite_path: pathlib.Path, duckdb_path: pathlib.Path, batch_size: int | None = None, workers: int | None = None, loglevel: str = 'INFO') -> None
+.. py:function:: convert_form(form_data_config: pudl.settings.FercGenericXbrlToSqliteDataConfig, form: pudl.settings.XbrlFormNumber, datastore: FercXbrlDatastore, output_path: pathlib.Path, sqlite_path: pathlib.Path, duckdb_path: pathlib.Path, batch_size: int | None = None, workers: int | None = None, loglevel: str = 'INFO') -> None
 
    Clone a single FERC XBRL form to SQLite.
 
-   :param form_settings: Validated settings for converting the desired XBRL form to SQLite.
+   :param form_data_config: Validated data configuration for converting the desired XBRL
+                            form to SQLite.
    :param form: FERC form number.
    :param datastore: Instance of a FERC XBRL datastore for retrieving data.
    :param output_path: PUDL output directory

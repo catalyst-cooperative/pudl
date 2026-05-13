@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Running the ETL Pipeline &#8212; PUDL 2026.4.1.dev36 documentation</title>
+    <title>Running the ETL Pipeline &#8212; PUDL 2026.4.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=12c54572"></script>
+    <script src="../_static/documentation_options.js?v=bb853114"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev36 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -853,9 +853,9 @@ objects used by Dagster assets to provide access to external systems, databases,
 services. In PUDL, we’ve defined a <a class="reference internal" href="../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.workspace.datastore.Datastore</span></code></a>
 Resource that pulls our raw input data from <a class="reference external" href="https://zenodo.org/communities/catalyst-cooperative/">archives on Zenodo</a> identified by DOI. The
 <a class="reference internal" href="../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings" title="pudl.workspace.datastore.ZenodoDoiSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.workspace.datastore.ZenodoDoiSettings</span></code></a> Resource defines the current
-Zenodo DOI for each dataset. We also store our dataset-specific ETL settings (like
+Zenodo DOI for each dataset. We also store our dataset-specific data config (like
 what years of EIA-861 data to process) in a Resource
-<a class="reference internal" href="../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlEtlSettingsResource" title="pudl.dagster.resources.PudlEtlSettingsResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.dagster.resources.PudlEtlSettingsResource</span></code></a>.</p></li>
+<a class="reference internal" href="../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.GlobalDataConfigResource" title="pudl.dagster.resources.GlobalDataConfigResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.dagster.resources.GlobalDataConfigResource</span></code></a>.</p></li>
 <li><p><strong>`IO Managers &lt;https://docs.dagster.io/guides/build/io-managers&gt;`__</strong> in Dagster let
 us keep the code for data processing separate from the code for reading and writing
 data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
@@ -877,8 +877,8 @@ The main jobs assembled in <a class="reference internal" href="../autoapi/pudl/d
 are the runtime settings passed to Dagster jobs, assets, and resources to control
 what gets executed and how. In PUDL, we usually store these settings in YAML files
 like <code class="docutils literal notranslate"><span class="pre">dg_fast.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">dg_full.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">dg_pytest.yml</span></code>, and <code class="docutils literal notranslate"><span class="pre">dg_nightly.yml</span></code>,
-which configure execution options and shared resources like <code class="docutils literal notranslate"><span class="pre">etl_settings</span></code>. The
-reusable helpers that assemble these run configs live in
+which configure execution options and shared resources like <code class="docutils literal notranslate"><span class="pre">global_data_config</span></code>.
+The reusable helpers that assemble these run configs live in
 <a class="reference internal" href="../autoapi/pudl/dagster/config/index.html#module-pudl.dagster.config" title="pudl.dagster.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.config</span></code></a>.</p></li>
 </ul>
 </section>
@@ -980,7 +980,7 @@ the logic of a specific asset and don’t want to rerun the entire ETL.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>To process a subset of years for a specific asset group, select the asset group,
-shift+click “Materialize all” and configure the <code class="docutils literal notranslate"><span class="pre">etl_settings</span></code> resource with the
+shift+click “Materialize all” and configure the <code class="docutils literal notranslate"><span class="pre">global_data_config</span></code> resource with the
 desired years.</p>
 </div>
 <p>See <a class="reference internal" href="troubleshooting_dagster.html#troubleshooting-dagster"><span class="std std-ref">Troubleshooting Dagster</span></a> for tips on how to fix common issues we run into.</p>
@@ -1050,9 +1050,8 @@ the full default configuration (this can take hours):</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pudl
 </pre></div>
 </div>
-</section>
-<section id="dagster-config-and-pudl-etl-settings-files">
-<h2>Dagster Config and PUDL ETL Settings Files<a class="headerlink" href="#dagster-config-and-pudl-etl-settings-files" title="Link to this heading">#</a></h2>
+<p>Dagster Config and PUDL Data Config Files
+—————————–_————</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> command can read run configuration from YAML files. This avoids
 undue command line complexity and preserves a record of how the pipeline was run.
 The standard Dagster config files we use are:</p>
@@ -1065,43 +1064,43 @@ The standard Dagster config files we use are:</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The Dagster config file selects resources and execution settings. The referenced
-ETL settings YAML still determines partitions, years, and other dataset-specific
+data config YAML still determines partitions, years, and other dataset-specific
 parameters, but job and asset selection determine which parts of the graph run.</p>
 </div>
 <p>Each Dagster config file includes execution options and resource configuration,
-including the <code class="docutils literal notranslate"><span class="pre">etl_settings_path</span></code> used by the shared <code class="docutils literal notranslate"><span class="pre">etl_settings</span></code> resource.
-The referenced ETL settings YAML files specify which partitions of each dataset should
-be processed, and are generally structured like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># FERC-to-SQLite settings
-ferc_to_sqlite_settings:
-  ├── ferc1_dbf_to_sqlite_settings
+including the <code class="docutils literal notranslate"><span class="pre">global_data_config_path</span></code> used by the shared <code class="docutils literal notranslate"><span class="pre">global_data_config</span></code>
+resource. The referenced data config YAML files specify which partitions of each
+dataset should be processed, and are generally structured like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># FERC-to-SQLite data config
+ferc_to_sqlite:
+  ├── ferc1_dbf
   |   └── years
-  ├── ferc1_xbrl_to_sqlite_settings
+  ├── ferc1_xbrl
   |   └── years
-  └── ferc2_xbrl_to_sqlite_settings
+  └── ferc2_xbrl
       └── years
 
-# PUDL ETL settings
+# PUDL ETL data config
 name : unique name identifying the etl outputs
 title : short human readable title for the etl outputs
 description : a longer description of the etl outputs
-datasets:
+pudl:
   ├── dataset name
-  │    └── dataset etl parameter (e.g. years) : editable list of years
+  │    └── dataset parameter (e.g. years) : editable list of years
   └── dataset name
-       └── dataset etl parameter (e.g. years) : editable list of years
+       └── dataset parameter (e.g. years) : editable list of years
 </pre></div>
 </div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p>For an exhaustive listing of the available parameters, see the ETL settings models in
+<p>For an exhaustive listing of the available parameters, see the data config models in
 <a class="reference internal" href="../autoapi/pudl/settings/index.html#module-pudl.settings" title="pudl.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.settings</span></code></a> and the packaged settings files under
 <code class="docutils literal notranslate"><span class="pre">src/pudl/package_data/settings/</span></code>.</p>
 </div>
 <p>In general, you should not fiddle with these settings unless you are actually adding a
 new year of data. We only test the combinations of inputs found in the full and fast
-ETL settings that are checked into the PUDL repo. Many other combinations are obviously
-possible, but most of them probably don’t work!</p>
+data config files that are checked into the PUDL repo. Many other combinations are
+obviously possible, but most of them probably don’t work!</p>
 <section id="the-fast-etl">
 <h3>The Fast ETL<a class="headerlink" href="#the-fast-etl" title="Link to this heading">#</a></h3>
 <p>Running the Fast ETL processes a limited subset of data for each dataset. This is
@@ -1113,19 +1112,19 @@ your computer, it may take up to an hour to run.</p>
 </section>
 <section id="the-full-etl">
 <h3>The Full ETL<a class="headerlink" href="#the-full-etl" title="Link to this heading">#</a></h3>
-<p>The Full ETL settings includes all available data that PUDL can process. All
+<p>The Full data config includes all available data that PUDL can process. All
 the years, all the states, and all the tables, including the ~1 billion record
 EPA CEMS dataset. Assuming you already have the data downloaded, on a computer
 with at least 16 GB of RAM, and a solid-state disk, the Full ETL including EPA
-CEMS should take around 2 hours.</p>
+CEMS should take a couple of hours.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>pudl<span class="w"> </span>--config<span class="w"> </span>src/pudl/package_data/settings/dg_full.yml
 </pre></div>
 </div>
 </section>
 <section id="custom-etl">
 <h3>Custom ETL<a class="headerlink" href="#custom-etl" title="Link to this heading">#</a></h3>
-<p>If you need a custom run profile, copy one of the existing Dagster config files,
-change its <code class="docutils literal notranslate"><span class="pre">etl_settings_path</span></code> or other resource settings, and point <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> at
+<p>If you need a custom run profile, copy one of the existing Dagster config files, change
+its <code class="docutils literal notranslate"><span class="pre">global_data_config_path</span></code> or other resource settings, and point <code class="docutils literal notranslate"><span class="pre">dg</span> <span class="pre">launch</span></code> at
 the new file.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>pudl<span class="w"> </span>--config<span class="w"> </span>the/path/to/your/custom_dg_config.yml
 </pre></div>
@@ -1224,8 +1223,7 @@ has been loaded into the database successfully. To check the constraints, run:</
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-ferc-eqr-etl">Running the FERC EQR ETL</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-etl-via-cli">Running the ETL via CLI</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dagster-config-and-pudl-etl-settings-files">Dagster Config and PUDL ETL Settings Files</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-etl-via-cli">Running the ETL via CLI</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-fast-etl">The Fast ETL</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-full-etl">The Full ETL</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-etl">Custom ETL</a></li>
