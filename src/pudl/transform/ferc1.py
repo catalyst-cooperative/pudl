@@ -26,7 +26,9 @@ from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
 from pydantic import BaseModel, Field, field_validator
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
+import pudl.metadata.classes
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import (
     assert_cols_areclose,
@@ -35,10 +37,10 @@ from pudl.helpers import (
     parse_address,
     standardize_phone_column,
 )
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.settings import Ferc1Settings
+from pudl.settings import Ferc1DataConfig
 from pudl.transform.classes import (
     AbstractTableTransformer,
     InvalidRows,
@@ -132,7 +134,7 @@ class TableIdFerc1(enum.Enum):
     """Enumeration of the allowed FERC 1 table IDs.
 
     Hard coding this doesn't seem ideal. Somehow it should be either defined in the
-    context of the Package, the Ferc1Settings, an etl_group, or DataSource. All of the
+    context of the Package, the Ferc1DataConfig, an etl_group, or DataSource. All of the
     table transformers associated with a given data source should have a table_id that's
     from that data source's subset of the database. Where should this really happen?
     Alternatively, the allowable values could be derived *from* the structure of the
@@ -1821,7 +1823,7 @@ def fill_dbf_to_xbrl_map(
         ``[report_year, row_number, xbrl_factoid]``
     """
     if not dbf_years:
-        dbf_years = Ferc1Settings().dbf_years
+        dbf_years = Ferc1DataConfig().dbf_years
     # If the first year that we're trying to produce isn't mapped, we won't be able to
     # forward fill.
     if min(dbf_years) not in df.report_year.unique():
@@ -2911,7 +2913,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     axis="columns",
                 ).reset_index()
 
-        return out_df.loc[out_df.report_year.isin(Ferc1Settings().xbrl_years)]
+        return out_df.loc[out_df.report_year.isin(Ferc1DataConfig().xbrl_years)]
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -3086,6 +3088,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.debug(
             f"{self.table_id.value}: Assigning {source_ferc1.value} source utility IDs."
         )
+        # NOTE (2026-05-27): pudl.glue.ferc1_eia imports pudl.transform.ferc1
+        # so we we need to move this import into function level to avoid circular dependency.
+        import pudl.glue.ferc1_eia
+
         utility_map_ferc1 = pudl.glue.ferc1_eia.get_utility_map_ferc1()
         # use the source utility ID column to get a unique map and for merging
         util_id_col = f"utility_id_ferc1_{source_ferc1.value}"

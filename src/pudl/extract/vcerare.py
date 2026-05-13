@@ -57,7 +57,7 @@ def _clean_column_names(
     outs={table_name: AssetOut() for table_name in VCERARE_PAGES.values()},
     required_resource_keys={
         "datastore",
-        "etl_settings",
+        "global_data_config",
     },
 )
 def extract_vcerare(
@@ -67,7 +67,7 @@ def extract_vcerare(
     extracted_tables = defaultdict(dict)
 
     # Loop through all years in settings and extract
-    for year in context.resources.etl_settings.dataset_settings.vcerare.years:
+    for year in context.resources.global_data_config.pudl.vcerare.years:
         partitions = {"year": year}
 
         # Extract each raw table, clean column names, then offload to parquet
@@ -94,7 +94,7 @@ def extract_vcerare(
     return tuple(extracted_tables.values())
 
 
-@asset(required_resource_keys={"datastore", "etl_settings"})
+@asset(required_resource_keys={"datastore", "global_data_config"})
 def raw_vcerare__lat_lon_fips(context) -> pd.DataFrame:
     """Extract lat/lon to FIPS and county mapping CSV.
 
@@ -102,9 +102,9 @@ def raw_vcerare__lat_lon_fips(context) -> pd.DataFrame:
     its extraction is controlled by a boolean in the ETL run.
     """
     ds = context.resources.datastore
-    partition_settings = context.resources.etl_settings.dataset_settings.vcerare
-    if partition_settings.fips:
+    partition_data_config = context.resources.global_data_config.pudl.vcerare
+    if partition_data_config.fips:
         return pd.read_csv(
-            BytesIO(ds.get_unique_resource("vcerare", fips=partition_settings.fips))
+            BytesIO(ds.get_unique_resource("vcerare", fips=partition_data_config.fips))
         )
     return pd.DataFrame()

@@ -2,6 +2,8 @@
 *.html linguist-detectable=false
 eia861-transform.ipynb merge=ours
 pixi.lock merge=ours linguist-generated=true
+schema.machine.yml merge=ours linguist-generated=true
+schema.yml merge=ours linguist-generated=true
 *.csv text
 *.py text
 *.json text

@@ -7,7 +7,8 @@ All transformations include:
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
 from pudl.helpers import (
     add_fips_ids,
     clean_eia_counties,
@@ -15,7 +16,7 @@ from pudl.helpers import (
     convert_to_date,
     standardize_na_values,
 )
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
