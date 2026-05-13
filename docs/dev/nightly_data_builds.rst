@@ -9,12 +9,13 @@ to ensure that any new changes merged into ``main`` are fully tested. These comp
 builds also enable continuous deployment of PUDL's data outputs. If no changes have been
 merged into ``main`` since the last time the builds ran, the builds are skipped.
 
-The builds are kicked off by the ``build-deploy-pudl`` GitHub Action, which builds and
+The builds are kicked off by the ``build-pudl`` GitHub Action, which builds and
 pushes a Docker image with PUDL installed to `Docker Hub <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
 and then launches a Google Batch job using that image. Inside the container,
 ``builds/pudl_batch.sh`` runs the ETL and tests, saves the raw build outputs to
-``gs://builds.catalyst.coop``, and if successful publishes the distributable outputs to
-our public cloud buckets.
+``gs://builds.catalyst.coop``. If the ``build-pudl`` action completes successfully,
+it will kickoff the ``deploy-pudl`` action, which uses the same Docker image as the
+builds, but will run the script ``src/pudl/scripts/deploy.py``.
 
 Breaking the Builds
 -------------------

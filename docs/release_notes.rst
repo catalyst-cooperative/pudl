@@ -11,6 +11,9 @@ v2026.5.0 (unreleased)
 Enhancements
 ^^^^^^^^^^^^
 
+* Finish decoupling PUDL nightly builds from data deployment to allow more flexibility
+  for deployments. See issue :issue:`5116` and PR :pr:`5235`.
+
 * Started distributing the XBRL-derived datasets for FERC Forms 1, 2, 6, 60, and 714
   as collections of parquet files. See PR :pr:`5232`.
 
