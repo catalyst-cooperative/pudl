@@ -1,21 +1,15 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
+import warnings
+
+from dagster import PreviewWarning
+
 from pudl.logging_helpers import configure_root_logger
 
-from . import (
-    analysis,
-    convert,
-    extract,
-    ferc_to_sqlite,
-    glue,
-    helpers,
-    io_managers,
-    logging_helpers,
-    metadata,
-    output,
-    transform,
-    validate,
-    workspace,
+warnings.filterwarnings(
+    action="once",
+    message=r"Specifying a partitions_def on an AssetCheckSpec is currently in preview.*",
+    category=PreviewWarning,
 )
 
 configure_root_logger()

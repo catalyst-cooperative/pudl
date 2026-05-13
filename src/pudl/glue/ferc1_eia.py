@@ -34,13 +34,20 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
+from pudl.dagster.io_managers import (
+    ferc1_dbf_sqlite_io_manager,
+    ferc1_xbrl_sqlite_io_manager,
+)
+from pudl.dagster.resources import (
+    global_data_config_resource,
+    zenodo_doi_settings_resource,
+)
 from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
 from pudl.helpers import get_parquet_table, simplify_strings
-from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
 from pudl.metadata.classes import Package
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.resources import dataset_settings
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
 from pudl.transform.ferc1 import (
     Ferc1AbstractTableTransformer,
@@ -218,14 +225,11 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     def transform(
         self,
-        raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
+        raw_dbf_dfs: dict[str, pd.DataFrame],
+        raw_xbrl_dfs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
         """Only apply the generic :meth:``transform_start``."""
-        return self.transform_start(raw_dbf, raw_xbrl_instant, raw_xbrl_duration).pipe(
-            self.transform_main
-        )
+        return self.transform_start(raw_dbf_dfs, raw_xbrl_dfs).pipe(self.transform_main)
 
     def transform_main(self, df: pd.DataFrame) -> pd.DataFrame:
         """Basic name normalization and dropping of invalid rows."""
@@ -336,7 +340,8 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
         resources={
             "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
             "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
-            "dataset_settings": dataset_settings,
+            "global_data_config": global_data_config_resource,
+            "zenodo_dois": zenodo_doi_settings_resource,
         },
         jobs=[define_asset_job(name="get_plants_ferc1_raw")],
     ).get_job_def("get_plants_ferc1_raw")

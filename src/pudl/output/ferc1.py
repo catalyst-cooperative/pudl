@@ -31,7 +31,10 @@ from pydantic import (
     model_validator,
 )
 
-import pudl
+import pudl.analysis.fuel_by_plant
+import pudl.helpers
+import pudl.logging_helpers
+import pudl.transform.ferc1
 from pudl.transform.ferc1 import (
     GroupMetricChecks,
     GroupMetricTolerances,
@@ -287,6 +290,7 @@ out_ferc1_assets = [
         "yearly_balance_sheet_liabilities_sched110",
         "yearly_cash_flows_sched120",
         "yearly_depreciation_summary_sched336",
+        "yearly_depreciation_factors_sched336",
         "yearly_energy_dispositions_sched401",
         "yearly_energy_sources_sched401",
         "yearly_operating_expenses_sched320",
@@ -295,6 +299,7 @@ out_ferc1_assets = [
         "yearly_depreciation_by_function_sched219",
         "yearly_sales_by_rate_schedules_sched304",
         "yearly_income_statements_sched114",
+        "yearly_other_regulatory_assets_sched232",
         "yearly_other_regulatory_liabilities_sched278",
         "yearly_retained_earnings_sched118",
         "yearly_transmission_lines_sched422",

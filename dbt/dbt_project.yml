@@ -22,5 +22,6 @@ test-paths: ["tests/unit_tests"]
 
 sources:
   pudl_dbt:
-    +external_location: |
-      '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'
+    +meta:
+      external_location: |
+        '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'

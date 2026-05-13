@@ -53,6 +53,17 @@ resource "google_service_account" "pudl_usage_metrics_dashboard_cloud_run" {
   display_name = "PUDL Usage Metrics Dashboard Service Account"
 }
 
+resource "google_storage_bucket_iam_member" "pudl_usage_metrics_dashboard_cloud_run" {
+  for_each = toset([
+    "roles/storage.legacyBucketReader",
+    "roles/storage.objectViewer",
+  ])
+
+  bucket = google_storage_bucket.pudl_usage_metrics_output_bucket.name
+  role   = each.key
+  member = google_service_account.pudl_usage_metrics_dashboard_cloud_run.member
+}
+
 resource "google_secret_manager_secret_iam_member" "pudl_usage_metrics_dashboard_secret_accessor" {
   for_each  = google_secret_manager_secret.pudl_usage_metrics_dashboard_secrets
   secret_id = each.value.secret_id

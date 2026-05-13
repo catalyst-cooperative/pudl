@@ -12,7 +12,7 @@ import mlflow
 import pandas as pd
 from dagster import graph, op
 
-import pudl
+import pudl.logging_helpers
 from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year

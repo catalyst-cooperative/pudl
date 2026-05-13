@@ -104,14 +104,14 @@ Additional data which we haven't yet integrated is available in a similar format
         ],
         "additional_details_text": (
             """This table is an aggregation of the more detailed data in the
-            :ref:`core_eia923__fuel_receipts_costs` table. It provides a tidy timeseries
-            of deliveries by fuel type for each plant. However, not all values in the
-            original table can be aggregated meaningfully, so this table contains only a
-            subset of the source table columns -- primarily numerical values and a
-            handful of categorical variables, plus additional attributes that are
-            constant within each plant-fuel-time period grouping and associated with the
-            plant or utility. When aggregating numerical values any sum that contains an
-            NA value is treated as NA."""
+:ref:`core_eia923__fuel_receipts_costs` table. It provides a tidy timeseries
+of deliveries by fuel type for each plant. However, not all values in the
+original table can be aggregated meaningfully, so this table contains only a
+subset of the source table columns -- primarily numerical values and a
+handful of categorical variables, plus additional attributes that are
+constant within each plant-fuel-time period grouping and associated with the
+plant or utility. When aggregating numerical values any sum that contains an
+NA value is treated as NA."""
         ),
     },
     "core_eia923__monthly_generation": {

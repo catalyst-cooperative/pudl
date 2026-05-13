@@ -15,11 +15,12 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import op
 from dbfread import DBF, FieldParser
+from sqlalchemy.engine.base import Engine
 
-import pudl
+import pudl.helpers
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
-from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
+from pudl.settings import FercDbfToSqliteDataConfig, FercToSqliteDataConfig
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
 
@@ -46,7 +47,7 @@ class DbfTableSchema:
     def add_column(
         self,
         col_name: str,
-        col_type: sa.types.TypeEngine,
+        col_type: type[sa.types.TypeEngine] | sa.types.TypeEngine,
         short_name: str | None = None,
     ):
         """Adds a new column to this table schema."""
@@ -56,7 +57,9 @@ class DbfTableSchema:
         if short_name is not None:
             self._short_name_map[short_name] = col_name
 
-    def get_columns(self) -> Iterator[tuple[str, sa.types.TypeEngine]]:
+    def get_columns(
+        self,
+    ) -> Iterator[tuple[str, type[sa.types.TypeEngine] | sa.types.TypeEngine]]:
         """Iterates over the (column_name, column_type) pairs."""
         for col_name in self._columns:
             yield (col_name, self._column_types[col_name])
@@ -94,7 +97,7 @@ class FercDbfArchive:
         dbc_path: Path,
         table_file_map: dict[str, str],
         partition: dict[str, Any],
-        field_parser: FieldParser,
+        field_parser: type[FieldParser],
     ):
         """Constructs new instance of FercDbfArchive."""
         self.zipfile = zipfile
@@ -162,7 +165,7 @@ class FercDbfArchive:
         dbf = self.get_table_dbf(table_name)
         dbf_fields = [field for field in dbf.fields if field.name != "_NullFlags"]
         if len(dbf_fields) != len(table_columns):
-            return ValueError(
+            raise ValueError(
                 f"Number of DBF fields in {table_name} does not match what was "
                 f"found in the DBC index file for {self.partition}."
             )
@@ -294,7 +297,7 @@ class FercDbfReader:
         self: Self,
         datastore: Datastore,
         dataset: str,
-        field_parser: FieldParser = FercFieldParser,
+        field_parser: type[FieldParser] = FercFieldParser,
     ):
         """Create a new instance of FercDbfReader.
 
@@ -430,30 +433,30 @@ class FercDbfExtractor:
     def __init__(
         self,
         datastore: Datastore,
-        settings: FercToSqliteSettings,
+        data_config: FercDbfToSqliteDataConfig,
         output_path: Path,
     ):
         """Constructs new instance of FercDbfExtractor.
 
         Args:
             datastore: top-level datastore instance for accessing raw data files.
-            settings: generic settings object for this extrctor.
+            data_config: generic data config object for this extractor.
             output_path: directory where the output databases should be stored.
         """
-        self.settings: GenericDatasetSettings = self.get_settings(settings)
-        self.output_path = output_path
-        self.datastore = datastore
-        self.dbf_reader = self.get_dbf_reader(datastore)
-        self.sqlite_engine = sa.create_engine(self.get_db_path())
+        self.data_config: FercDbfToSqliteDataConfig = self.get_data_config(data_config)
+        self.output_path: Path = output_path
+        self.datastore: Datastore = datastore
+        self.dbf_reader: AbstractFercDbfReader = self.get_dbf_reader(datastore)
+        self.sqlite_engine: Engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)
 
-    def get_settings(
-        self, global_settings: FercToSqliteSettings
-    ) -> GenericDatasetSettings:
-        """Returns dataset relevant settings from the global_settings."""
-        return NotImplemented(
-            "get_settings() needs to extract dataset specific settings."
+    def get_data_config(
+        self, ferc_to_sqlite_data_config: FercToSqliteDataConfig
+    ) -> FercDbfToSqliteDataConfig:
+        """Returns dataset relevant data configuration from ferc_to_sqlite_data_config."""
+        return ferc_to_sqlite_data_config.get_data_config(
+            dataset=self.DATASET, data_format="dbf"
         )
 
     def get_dbf_reader(self, datastore: Datastore) -> AbstractFercDbfReader:
@@ -472,7 +475,7 @@ class FercDbfExtractor:
         @op(
             name=f"{cls.DATASET}_dbf",
             required_resource_keys={
-                "ferc_to_sqlite_settings",
+                "global_data_config",
                 "datastore",
                 "runtime_settings",
             },
@@ -482,7 +485,7 @@ class FercDbfExtractor:
             """Instantiates dbf extractor and runs it."""
             dbf_extractor = cls(
                 datastore=context.resources.datastore,
-                settings=context.resources.ferc_to_sqlite_settings,
+                data_config=context.resources.global_data_config.ferc_to_sqlite,
                 output_path=PudlPaths().output_dir,
             )
             dbf_extractor.execute()
@@ -492,10 +495,10 @@ class FercDbfExtractor:
     def execute(self):
         """Runs the extraction of the data from dbf to sqlite."""
         logger.info(
-            f"Running dbf extraction for {self.DATASET} with settings: {self.settings}"
+            f"Running dbf extraction for {self.DATASET} with data_config: {self.data_config}"
         )
-        if self.settings.disabled:
-            logger.warning(f"Dataset {self.DATASET} extraction is disabled, skipping")
+        if not self.data_config.years:
+            logger.warning(f"Dataset {self.DATASET} has no years configured, skipping")
             return
 
         self.delete_schema()
@@ -514,7 +517,7 @@ class FercDbfExtractor:
 
     def create_sqlite_tables(self):
         """Creates database schema based on the input tables."""
-        refyear = self.settings.refyear
+        refyear = self.data_config.refyear
         if refyear is None:
             refyear = max(
                 DataSource.from_id(self.dbf_reader.get_dataset()).working_partitions[
@@ -570,7 +573,8 @@ class FercDbfExtractor:
             for p in self.datastore.get_datapackage_descriptor(
                 self.DATASET
             ).get_partition_filters(data_format="dbf")
-            if self.is_valid_partition(p) and p.get("year", None) in self.settings.years
+            if self.is_valid_partition(p)
+            and p.get("year", None) in self.data_config.years
         ]
         logger.info(
             f"Loading {self.DATASET} table data from {len(partitions)} partitions."

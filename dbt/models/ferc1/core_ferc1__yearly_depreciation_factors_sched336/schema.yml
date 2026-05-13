@@ -1,0 +1,24 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_depreciation_factors_sched336
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_ferc1__yearly_depreciation_factors_sched336
+                partition_expr: report_year
+        columns:
+          - name: record_id
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: depreciation_factors
+          - name: depreciable_plant_base
+          - name: net_salvage_pct
+          - name: depreciation_rate
+          - name: mortality_curve_type
+          - name: order_num
+          - name: account_num
+          - name: service_life_avg
+          - name: remaining_life_avg
