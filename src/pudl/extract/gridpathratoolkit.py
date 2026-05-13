@@ -62,7 +62,7 @@ def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
     """
     asset_kwargs = {
         "name": f"raw_gridpathratoolkit__{part}",
-        "required_resource_keys": {"datastore", "etl_settings"},
+        "required_resource_keys": {"datastore", "global_data_config"},
         "compute_kind": "Python",
     }
     if part == "aggregated_extended_solar_capacity":
@@ -75,9 +75,7 @@ def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
         Args:
             context: dagster keyword that provides access to resources and config.
         """
-        gpratk_settings = (
-            context.resources.etl_settings.dataset_settings.gridpathratoolkit
-        )
+        gpratk_data_config = context.resources.global_data_config.pudl.gridpathratoolkit
         ds = context.resources.datastore
         csv_parts = [
             "daily_weather",
@@ -89,7 +87,7 @@ def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
             "aggregated_extended_wind_capacity",
         ]
 
-        if part in gpratk_settings.parts:
+        if part in gpratk_data_config.parts:
             logger.info(f"Extracting {part} from GridPath RA Toolkit Data")
             if part in csv_parts:
                 extracted_df = _extract_csv(part, ds)
