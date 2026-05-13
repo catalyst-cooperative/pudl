@@ -374,7 +374,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "JSON",
         },
         "working_partitions": {
-            "years": [2023, 2025],
+            "years": [2023, 2025, 2026],
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

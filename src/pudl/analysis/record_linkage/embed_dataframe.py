@@ -21,7 +21,9 @@ from sklearn.preprocessing import (
     OneHotEncoder,
 )
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
+import pudl.metadata.codes
 from pudl.analysis.ml_tools import experiment_tracking
 from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 
