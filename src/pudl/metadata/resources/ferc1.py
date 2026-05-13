@@ -54,6 +54,33 @@ TABLE_DESCRIPTIONS = {
             "amortization changes."
         ),
     },
+    "yearly_depreciation_factors_sched336": {
+        "additional_summary_text": "factors used in estimating depreciation charges.",
+        "additional_source_text": "(Schedule 336 - Section C)",
+        "usage_warnings": [
+            "aggregation_hazard",
+            "free_text",
+            {
+                "type": "custom",
+                "description": (
+                    "The rate and percentage (pct) columns are reported either as values between 0-1 or 0-100. "
+                    "It is often consistent within a given utility-year but use caution when comparing value across "
+                    "different utilities and even the same utility filing in a different year."
+                ),
+            },
+        ],
+        "additional_primary_key_text": "This table is too unstructured to have a primary key.",
+        "additional_details_text": (
+            "This table contains details at a variety of levels of granularity."
+            "There are many free-form text fields in this table which results in respondents "
+            "filling out this table very differently from each other or from year to year. "
+            "We recommend using this table carefully with one utility-year at a time - not "
+            "attempting to perform analysis across long time-series or across utilities without "
+            "much caution and cleaning. "
+            "This table only "
+            "contains information from Section C: Factors Used in Estimating Depreciation Charges."
+        ),
+    },
     "yearly_energy_sources_sched401": {
         "additional_summary_text": "sources of electric energy generated or purchased, exchanged and wheeled.",
         "additional_source_text": "(Schedule 401a)",
@@ -191,12 +218,13 @@ any cleaning mechanisms in place to account for this."""
         "additional_summary_text": "utilities' other regulatory liabilities, including rate order docket number.",
         "additional_source_text": "(Schedule 278)",
         "additional_primary_key_text": "Respondents are able to enter any number of liabilities across many rows. There are no IDs or set fields enforced in the original table.",
-        "usage_warnings": [
-            {
-                "type": "custom",
-                "description": "The ``description`` column is a free-form string.",
-            }
-        ],
+        "usage_warnings": ["free_text", "aggregation_hazard"],
+    },
+    "yearly_other_regulatory_assets_sched232": {
+        "additional_summary_text": "utilities' other regulatory assets, including rate order docket number.",
+        "additional_source_text": "(Schedule 232)",
+        "additional_primary_key_text": "Respondents are able to enter any number of assets across many rows. There are no IDs or set fields enforced in the original table.",
+        "usage_warnings": ["free_text", "aggregation_hazard"],
     },
     "yearly_plant_in_service_sched204": {
         "additional_summary_text": "utilities' balances and changes to FERC Electric Plant in Service accounts.",
@@ -336,6 +364,17 @@ columns."""
             "will be NULL."
         ),
     },
+    "yearly_identification_certification": {
+        "additional_summary_text": "respondent identification and corporate officer certification information.",
+        "additional_source_text": "(Part I and II)",
+        "usage_warnings": ["free_text"],
+        "additional_details_text": (
+            "This table contains information identifying a utility's contact information, "
+            "addresses and individuals responsible for accounting and certification. Note that "
+            "the entity_id_gleif field does not conform to the expected format and largely includes "
+            "the names of respondents."
+        ),
+    },
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -430,6 +469,28 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_year",
                 "plant_function",
                 "ferc_account_label",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "core_ferc1__yearly_depreciation_factors_sched336": {
+        "description": TABLE_DESCRIPTIONS["yearly_depreciation_factors_sched336"],
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "depreciation_factors",
+                "depreciable_plant_base",
+                "net_salvage_pct",
+                "depreciation_rate",
+                "mortality_curve_type",
+                "order_num",
+                "account_num",
+                "service_life_avg",
+                "remaining_life_avg",
             ],
         },
         "sources": ["ferc1"],
@@ -641,11 +702,31 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_ferc1",
                 "report_year",
                 "description",
+                "additional_description",
                 "ending_balance",
                 "starting_balance",
                 "increase_in_other_regulatory_liabilities",
                 "account_detail",
                 "decrease_in_other_regulatory_liabilities",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
+    "core_ferc1__yearly_other_regulatory_assets_sched232": {
+        "description": TABLE_DESCRIPTIONS["yearly_other_regulatory_assets_sched232"],
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "description",
+                "additional_description",
+                "ending_balance",
+                "starting_balance",
+                "debits",
+                "credits_written_off_recovered",
+                "account_detail",
             ],
         },
         "sources": ["ferc1"],
@@ -1054,6 +1135,48 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "core_ferc1__yearly_identification_certification": {
+        "description": TABLE_DESCRIPTIONS["yearly_identification_certification"],
+        "schema": {
+            "fields": [
+                "utility_id_ferc1",
+                "report_year",
+                "record_id",
+                "utility_name_ferc1",
+                "prior_utility_name_ferc1",
+                "name_change_date",
+                "company_id_ferc",
+                "entity_id_gleif",
+                "contact_name",
+                "contact_title",
+                "contact_email",
+                "contact_address",
+                "contact_phone",
+                "contact_city",
+                "contact_state",
+                "contact_zip",
+                "office_street_address",
+                "office_city",
+                "office_state",
+                "office_zip",
+                "attestation_name",
+                "attestation_title",
+                "attestation_date",
+                "attestation_signature",
+                "filing_software_vendor_name",
+                "report_filing_type",
+                "filing_date",
+            ],
+            "primary_key": [
+                "utility_id_ferc1",
+                "report_year",
+                "report_filing_type",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
+        "field_namespace": "ferc1",
+    },
     "out_ferc1__yearly_balance_sheet_assets_sched110": {
         "description": TABLE_DESCRIPTIONS["yearly_balance_sheet_assets_sched110"],
         "schema": {
@@ -1161,6 +1284,32 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_function",
                 "ferc_account_label",
             ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "outputs",
+        "field_namespace": "ferc1",
+    },
+    "out_ferc1__yearly_depreciation_factors_sched336": {
+        "description": TABLE_DESCRIPTIONS["yearly_depreciation_factors_sched336"],
+        "schema": {
+            "fields": [
+                "record_id",
+                "report_year",
+                "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
+                "utility_id_pudl",
+                "utility_name_ferc1",
+                "depreciation_factors",
+                "depreciable_plant_base",
+                "net_salvage_pct",
+                "depreciation_rate",
+                "mortality_curve_type",
+                "order_num",
+                "account_num",
+                "service_life_avg",
+                "remaining_life_avg",
+            ]
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",
@@ -1383,6 +1532,29 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "sources": ["ferc1"],
         "etl_group": "outputs",
+        "field_namespace": "ferc1",
+    },
+    "out_ferc1__yearly_other_regulatory_assets_sched232": {
+        "description": TABLE_DESCRIPTIONS["yearly_other_regulatory_assets_sched232"],
+        "schema": {
+            "fields": [
+                "report_year",
+                "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
+                "utility_id_pudl",
+                "utility_name_ferc1",
+                "description",
+                "additional_description",
+                "ending_balance",
+                "starting_balance",
+                "debits",
+                "credits_written_off_recovered",
+                "account_detail",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
     "out_ferc1__yearly_other_regulatory_liabilities_sched278": {

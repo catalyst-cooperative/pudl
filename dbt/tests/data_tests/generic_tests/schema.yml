@@ -24,6 +24,22 @@ macros:
         type: string
         description: A SQL expression to partition by
 
+  - name: test_foreign_key
+    description: >
+      Check whether FK is valid.
+      Fails when non-null key tuple does not exist in parent. Rows with any
+      foreign key column null are skipped, matching SQLite behavior.
+    arguments:
+      - name: fk_column_names
+        type: list[str]
+        description: Ordered list of child key columns.
+      - name: pk_table_name
+        type: string
+        description: Parent relation to validate against, typically from ref().
+      - name: pk_column_names
+        type: list[str]
+        description: Ordered list of parent key columns.
+
   - name: test_expect_column_fraction_with_condition
     description: >
       Check whether the fraction of a column's total sum that meet a specified condition

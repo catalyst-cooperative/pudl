@@ -3,9 +3,17 @@
 import pandas as pd
 from dagster import asset
 
-import pudl
+from pudl.extract.excel import ExcelMetadata
+from pudl.helpers import (
+    dedupe_n_flatten_list_of_lists,
+    expand_timeseries,
+    make_changelog,
+)
+from pudl.logging_helpers import get_logger
+from pudl.metadata.classes import Resource
+from pudl.transform.eia860 import _core_eia860__generators
 
-logger = pudl.logging_helpers.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 @asset(
@@ -38,9 +46,9 @@ def core_eia860m__changelog_generators(
 
     """
     # compile all of the columns so these 860m bbs have everything for the transform
-    eia860_columns = pudl.helpers.dedupe_n_flatten_list_of_lists(
+    eia860_columns = dedupe_n_flatten_list_of_lists(
         [
-            pudl.extract.excel.ExcelMetadata("eia860").get_all_columns(gen_table)
+            ExcelMetadata("eia860").get_all_columns(gen_table)
             for gen_table in [
                 "generator_proposed",
                 "generator_existing",
@@ -49,7 +57,7 @@ def core_eia860m__changelog_generators(
             ]
         ]
     )
-    eia860m_all = pudl.transform.eia860._core_eia860__generators(
+    eia860m_all = _core_eia860__generators(
         raw_eia860__generator_proposed=raw_eia860m__generator_proposed,
         raw_eia860__generator_existing=raw_eia860m__generator_existing,
         raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
@@ -85,7 +93,7 @@ def core_eia860m__changelog_generators(
     eia860m_all = eia860m_all[
         [
             field.name
-            for field in pudl.metadata.classes.Resource.from_id(
+            for field in Resource.from_id(
                 "core_eia860m__changelog_generators"
             ).schema.fields
             if field.name != "valid_until_date"
@@ -108,7 +116,7 @@ def core_eia860m__changelog_generators(
         )
 
     gen_idx_no_date = [c for c in gens_idx if c != "report_date"]
-    eia860m_all = pudl.helpers.expand_timeseries(
+    eia860m_all = expand_timeseries(
         df=eia860m_deduped,
         key_cols=gen_idx_no_date,
         date_col="report_date",
@@ -116,29 +124,6 @@ def core_eia860m__changelog_generators(
         fill_through_freq="month",
     )
 
-    # assign a max report_date column for use in the valid_until_date column
-    eia860m_all["report_date_max"] = eia860m_all.groupby(gen_idx_no_date)[
-        "report_date"
-    ].transform("max")
-    # drop duplicates after sorting by date so we get the first appearance
-    eia860m_changelog = eia860m_all.sort_values(
-        by=["report_date"], ascending=True
-    ).drop_duplicates(
-        subset=[c for c in eia860m_all if c != "report_date"],
-        keep="first",
-    )
+    eia860m_changelog = make_changelog(eia860m_all, gens_idx)
 
-    report_date_max_mask = (
-        eia860m_changelog["report_date"] == eia860m_changelog["report_date_max"]
-    )
-    eia860m_changelog.loc[~report_date_max_mask, "valid_until_date"] = (
-        eia860m_changelog.sort_values(gens_idx, ascending=False)
-        .groupby(gen_idx_no_date)["report_date"]
-        .transform("shift")
-        .fillna(eia860m_changelog.report_date_max)
-    )
-    # for all of the last month records, use the next month as the valid until date
-    eia860m_changelog.loc[report_date_max_mask, "valid_until_date"] = (
-        eia860m_changelog.report_date + pd.DateOffset(months=1)
-    )
     return eia860m_changelog

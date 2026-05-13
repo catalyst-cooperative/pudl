@@ -1,0 +1,39 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_identification_certification
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_ferc1__yearly_identification_certification
+                partition_expr: report_year
+        columns:
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: record_id
+          - name: utility_name_ferc1
+          - name: prior_utility_name_ferc1
+          - name: name_change_date
+          - name: company_id_ferc
+          - name: entity_id_gleif
+          - name: contact_name
+          - name: contact_title
+          - name: contact_email
+          - name: contact_address
+          - name: contact_phone
+          - name: contact_city
+          - name: contact_state
+          - name: contact_zip
+          - name: office_street_address
+          - name: office_city
+          - name: office_state
+          - name: office_zip
+          - name: attestation_name
+          - name: attestation_title
+          - name: attestation_date
+          - name: attestation_signature
+          - name: filing_software_vendor_name
+          - name: report_filing_type
+          - name: filing_date

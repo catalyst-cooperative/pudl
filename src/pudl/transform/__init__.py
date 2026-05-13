@@ -65,6 +65,7 @@ from . import (
     classes,
     eia,
     eia176,
+    eia191,
     eia860,
     eia860m,
     eia861,

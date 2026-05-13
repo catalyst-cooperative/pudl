@@ -3,7 +3,7 @@
 EIA Form 930 is reported in half-year increments. Each half-year has three
 separate pages, which are stored as separate CSVs:
 "balance", "interchange", and "subregion." See
-https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/eia930.html for
+https://docs.catalyst.coop/pudl/en/latest/data_sources/eia930.html for
 more information.
 
 We extract these CSVs into DuckDB, rename the columns as per the column map, and
@@ -25,27 +25,27 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset(required_resource_keys={"datastore", "dataset_settings"})
+@asset(required_resource_keys={"datastore", "global_data_config"})
 def raw_eia930__balance(context) -> ParquetData:
     """Raw balance page."""
     return extract_page(
         datastore=context.resources.datastore,
         page="balance",
-        half_years=context.resources.dataset_settings.eia.eia930.half_years,
+        half_years=context.resources.global_data_config.pudl.eia.eia930.half_years,
     )
 
 
-@asset(required_resource_keys={"datastore", "dataset_settings"})
+@asset(required_resource_keys={"datastore", "global_data_config"})
 def raw_eia930__interchange(context) -> ParquetData:
     """Raw interchange page."""
     return extract_page(
         datastore=context.resources.datastore,
         page="interchange",
-        half_years=context.resources.dataset_settings.eia.eia930.half_years,
+        half_years=context.resources.global_data_config.pudl.eia.eia930.half_years,
     )
 
 
-@asset(required_resource_keys={"datastore", "dataset_settings"})
+@asset(required_resource_keys={"datastore", "global_data_config"})
 def raw_eia930__subregion(context) -> ParquetData:
     """Raw subregion page - only exists after 2018h2."""
     return extract_page(
@@ -53,7 +53,7 @@ def raw_eia930__subregion(context) -> ParquetData:
         page="subregion",
         half_years=[
             h
-            for h in context.resources.dataset_settings.eia.eia930.half_years
+            for h in context.resources.global_data_config.pudl.eia.eia930.half_years
             if h >= "2018half2"
         ],
     )
