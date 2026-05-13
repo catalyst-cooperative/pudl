@@ -16,7 +16,7 @@ EIA Form 930 -- Hourly and Daily Balancing Authority Operations Report
    * - Source Format
      - Comma separated values (CSV)
    * - Download Size
-     - 392 MB
+     - 402 MB
    * - Temporal Coverage
      - 2015half2-2026half1
    * - PUDL Code
