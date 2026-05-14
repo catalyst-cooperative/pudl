@@ -98,7 +98,7 @@ def _raise_if_live_output_mixes_unit_and_integration(config: pytest.Config) -> N
         return
 
     has_unit = _target_includes_suite(config, "test/unit")
-    has_integration = _target_includes_suite(config, "test/integration")
+    has_integration = _target_includes_suite(config, "tests/integration")
     if has_unit and has_integration:
         raise pytest.UsageError(
             "Cannot combine unit and integration tests in one session with "
@@ -134,7 +134,7 @@ def pytest_collection_finish(session) -> None:
 
     has_unit = any(item.nodeid.startswith("test/unit/") for item in session.items)
     has_integration = any(
-        item.nodeid.startswith("test/integration/") for item in session.items
+        item.nodeid.startswith("tests/integration/") for item in session.items
     )
     if has_unit and has_integration:
         pytest.exit(

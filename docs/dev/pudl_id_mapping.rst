@@ -254,7 +254,7 @@ live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:
 
 .. code-block:: console
 
-    $ pytest --live-pudl-output test/integration/glue_test.py
+    $ pytest --live-pudl-output tests/integration/glue/glue_test.py
 
 Integrating Newly Mapped Records into PUDL
 ------------------------------------------
