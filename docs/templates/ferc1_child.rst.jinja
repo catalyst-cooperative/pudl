@@ -96,7 +96,8 @@ alongside the old DBF database files.
 
 The structure of the XBRL filings is defined by an XBRL taxonomy. The taxonomies
 defining the structure of all the FERC XBRL filings can be
-`browsed on the FERC website <https://xbrlview.ferc.gov/yeti/resources/yeti-gwt/Yeti.jsp#tax~(id~8*v~142)!net~(a~143*l~35)!lang~(code~en)!rg~(rg~4*p~1)>`__. Like the old DBF data base schemas,
+`browsed on the FERC website <https://xbrlview.ferc.gov/yeti/resources/yeti-gwt/Yeti.jsp#tax~(id~8*v~142)!net~(a~143*l~35)!lang~(code~en)!rg~(rg~4*p~1)>`__.
+Like the old DBF data base schemas,
 the XBRL taxonomies are updated annually, but typically change very slowly. We archive
 the taxonomies alongside the filing data and use them to define the structure of the
 database of raw filings that we build out of the XBRL.
@@ -149,4 +150,90 @@ We have only integrated a small subset of the available Form 1 tables. If there'
 you need from Form 1 in bulk, you can `hire us <https://catalyst.coop/hire-catalyst/>`__
 to liberate it, or we're happy to accept open source contributions. Some tables only
 require a couple of hours of work, while others can be quite involved.
+{% endblock %}
+
+{% block extra_pudl_transform_text %}
+Supporting Structure Types & Materials
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Columns _ of out_ferc1__yearly_transmission_lines_sched422 and its ancestors are
+derived from a free-form text field in Schedule 422.
+
+The transformations for these columns required some opinionated design
+decisions, which we document here.
+
+The FERC form instructions for this field are:
+
+..blockquote
+
+  Indicate whether the type of supporting structure reported in column (e) is:
+  (1) single pole wood or steel; (2) H-frame wood, or steel poles; (3) tower; or
+  (4) underground construction. If a transmission line has more than one type of
+  supporting structure, indicate the mileage of each type of construction by the
+  use of brackets and extra lines. Minor portions of a transmission line of a
+  different type of construction need not be distinguished from the remainder of
+  the line.
+
+We provide the respondent's original free-form text in column _.
+Where it is possible to determine a single unambiguous structure type that applies to the entire record,
+we include it in column _.
+Where it is possible to determine a single unambiguous material that applies to the entire record,
+we include it in column _.
+Ambiguous or multi-category structure types and materials are encoded as NA.
+
+Structure types and materials are determined using dedicated mapping files that
+specify the category for each unique free-form text value that occurs in the raw data.
+The seed for these mapping files was developed using a combination of hand-labeling and LLM assistance.
+The seed was refined by exhaustively identifying outliers,
+developing regular expressions for each category,
+and reassigning all edge cases by hand.
+
+Over the course of the refinement process we found thousands of responses that lie outside the types and materials specified in the FERC instructions.
+We developed some empirical extensions to assort the more common of these according to the *spirit* of the FERC form instructions.
+They are:
+
+.. list-table:: Structure type definitions
+   :header-rows: 1
+
+   * - Category
+     - Also includes
+
+   * - pole
+     - single pole, mono pole
+
+   * - h_frame
+     - k-frame, a-frame, y-frame, frame, double pole, multi pole, lattice frame
+
+   * - tower
+     - bridge, building, lattice
+
+   * - underground
+     - subterranean, submarine, tunnel, subway
+
+   * - (excluded/NA)
+     - conduit, cable, xlpe
+
+.. list-table:: Structure material definitions
+   :header-rows: 1
+
+   * - Category
+     - Also includes
+
+   * - steel
+     - corten
+
+   * - wood
+     -
+
+   * - concrete
+     - cement
+
+   * - aluminum
+     -
+
+   * - (excluded/NA)
+     -
+
+
+
 {% endblock %}
