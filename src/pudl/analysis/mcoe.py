@@ -52,6 +52,7 @@ the final table.
 
 def mcoe_asset_factory(
     freq: Literal["YS", "MS"],
+    op_tags: dict | None = None,
 ) -> list[AssetsDefinition]:
     """Build MCOE related assets at yearly and monthly frequencies."""
     agg_freqs = {"YS": "yearly", "MS": "monthly"}
@@ -67,6 +68,7 @@ def mcoe_asset_factory(
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
         },
         compute_kind="Python",
+        op_tags=op_tags,
     )
     def hr_by_unit_asset(gen: pd.DataFrame, bga: pd.DataFrame) -> pd.DataFrame:
         return heat_rate_by_unit(gen_fuel_by_energy_source=gen, bga=bga)
@@ -79,6 +81,7 @@ def mcoe_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         compute_kind="Python",
+        op_tags=op_tags,
     )
     def hr_by_gen_asset(
         bga: pd.DataFrame, hr_by_unit: pd.DataFrame, gens: pd.DataFrame
@@ -95,6 +98,7 @@ def mcoe_asset_factory(
             "frc": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_fuel_receipts_costs"),
         },
         compute_kind="Python",
+        op_tags=op_tags,
     )
     def fc_asset(
         hr_by_gen: pd.DataFrame, gens: pd.DataFrame, frc: pd.DataFrame
@@ -110,6 +114,7 @@ def mcoe_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         compute_kind="Python",
+        op_tags=op_tags,
     )
     def cf_asset(gens: pd.DataFrame, gen: pd.DataFrame) -> pd.DataFrame:
         return capacity_factor(gens=gens, gen=gen, freq=freq)
@@ -125,6 +130,7 @@ def mcoe_asset_factory(
             ),
         },
         compute_kind="Python",
+        op_tags=op_tags,
         config_schema={
             "min_heat_rate": Field(
                 float,
@@ -187,6 +193,7 @@ def mcoe_asset_factory(
         },
         io_manager_key="pudl_io_manager",
         compute_kind="Python",
+        op_tags=op_tags,
         config_schema={
             "all_gens": Field(
                 bool,
@@ -231,9 +238,13 @@ def mcoe_asset_factory(
 
 mcoe_assets = [
     mcoe_asset
-    for freq in ["YS", "MS"]
+    for freq, op_tags in [
+        ("YS", {}),
+        ("MS", {"dagster/priority": 10}),
+    ]
     for mcoe_asset in mcoe_asset_factory(
         freq=freq,
+        op_tags=op_tags,
     )
 ]
 
