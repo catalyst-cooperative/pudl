@@ -11,11 +11,12 @@ import click
 import duckdb
 import pandas as pd
 
+from pudl import PUDL_DBT_PATH
 from pudl.dagster.build import build_defs
 from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.validate.dbt import DBT_DIR, build_with_context, dagster_to_dbt_selection
+from pudl.validate.dbt import build_with_context, dagster_to_dbt_selection
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
@@ -41,7 +42,7 @@ UpdateResult = namedtuple("UpdateResult", ["success", "message"])
 
 
 def _get_row_count_csv_path() -> Path:
-    return DBT_DIR / "seeds" / "etl_full_row_counts.csv"
+    return PUDL_DBT_PATH / "seeds" / "etl_full_row_counts.csv"
 
 
 def _get_existing_row_counts() -> pd.DataFrame:
@@ -305,14 +306,14 @@ def update_tables(
             _log_update_result(
                 update_table_schema(
                     table_name=table_name,
-                    dbt_root=DBT_DIR,
+                    dbt_root=PUDL_DBT_PATH,
                 )
             )
         if args.row_counts:
             _log_update_result(
                 update_row_counts(
                     table_name=table_name,
-                    dbt_root=DBT_DIR,
+                    dbt_root=PUDL_DBT_PATH,
                     clobber=args.clobber,
                 )
             )

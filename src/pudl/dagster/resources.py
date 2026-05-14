@@ -18,6 +18,7 @@ from typing import Any
 import dagster as dg
 from upath import UPath
 
+from pudl import PUDL_SETTINGS_PATH
 from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
@@ -34,7 +35,7 @@ class FercXbrlRuntimeSettings(dg.ConfigurableResource):
 class GlobalDataConfigResource(dg.ConfigurableResource):
     """Load validated PUDL data configuration from a shared ETL YAML file."""
 
-    global_data_config_path: str = "src/pudl/package_data/settings/etl_full.yml"
+    global_data_config_path: str = str(PUDL_SETTINGS_PATH / "etl_full.yml")
 
     def create_resource(self, context) -> GlobalDataConfig:
         """Create runtime data configuration from the configured YAML file."""
@@ -103,7 +104,7 @@ class FercEqrDataConfig(dg.ConfigurableResource):
         return UPath(self.ferceqr_archive_uri)
 
 
-global_data_config_resource = GlobalDataConfigResource.configure_at_launch()
+global_data_config_resource = GlobalDataConfigResource()
 zenodo_doi_settings_resource = ZenodoDoiSettingsResource()
 datastore_resource = DatastoreResource(zenodo_dois=zenodo_doi_settings_resource)
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()

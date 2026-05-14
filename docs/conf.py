@@ -12,12 +12,12 @@ import datetime
 import importlib.metadata
 import os
 import shutil
-from pathlib import Path
 
 from pybtex.plugin import register_plugin
 from pybtex.style.formatting.plain import Style as PlainStyle
 from pybtex.style.sorting import BaseSortingStyle
 
+from pudl import PUDL_DOCS_PATH
 from pudl.metadata.classes import (
     PUDL_PACKAGE,
     CodeMetadata,
@@ -29,13 +29,6 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
-
-DOCS_DIR = Path(__file__).parent.resolve()
-if os.environ.get("READTHEDOCS"):
-    pudl_input = Path(os.environ["PUDL_INPUT"])
-    pudl_input.mkdir(parents=True, exist_ok=True)
-    pudl_output = Path(os.environ["PUDL_OUTPUT"])
-    pudl_output.mkdir(parents=True, exist_ok=True)
 
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
@@ -260,7 +253,8 @@ def data_dictionary_metadata_to_rst(app):
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)
     package.to_rst(
-        docs_dir=DOCS_DIR, path=str(DOCS_DIR / "data_dictionaries/pudl_db.rst")
+        docs_dir=PUDL_DOCS_PATH,
+        path=str(PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst"),
     )
 
 
@@ -300,7 +294,7 @@ def data_sources_metadata_to_rst(app):
         "ferc1": ["glue"],
         "epacamd_eia": ["glue"],
     }
-    datastore = Datastore(local_cache_path=PudlPaths().data_dir)
+    datastore = Datastore(local_cache_path=PudlPaths().pudl_input)
     for name in INCLUDED_SOURCES:
         source = DataSource.from_id(name)
         source_resources = [res for res in package.resources if res.etl_group == name]
@@ -314,8 +308,8 @@ def data_sources_metadata_to_rst(app):
                 and name in [src.name for src in res.sources]
             ]
         source.to_rst(
-            docs_dir=DOCS_DIR,
-            output_path=str(DOCS_DIR / f"data_sources/{name}.rst"),
+            docs_dir=PUDL_DOCS_PATH,
+            output_path=str(PUDL_DOCS_PATH / f"data_sources/{name}.rst"),
             source_resources=source_resources,
             extra_resources=extra_resources,
             datastore=datastore,
@@ -327,27 +321,27 @@ def static_dfs_to_rst(app):
     # Sphinx csv-table directive wants an absolute path relative to source directory,
     # but pandas to_csv wants a true absolute path
     csv_subdir = "data_dictionaries/code_csvs"
-    abs_csv_dir_path = DOCS_DIR / csv_subdir
+    abs_csv_dir_path = PUDL_DOCS_PATH / csv_subdir
     abs_csv_dir_path.mkdir(parents=True, exist_ok=True)
     codemetadata = CodeMetadata.from_code_ids(sorted(CODE_METADATA.keys()))
     codemetadata.to_rst(
-        top_dir=DOCS_DIR,
+        top_dir=PUDL_DOCS_PATH,
         csv_subdir=csv_subdir,
-        rst_path=str(DOCS_DIR / "data_dictionaries/codes_and_labels.rst"),
+        rst_path=str(PUDL_DOCS_PATH / "data_dictionaries/codes_and_labels.rst"),
     )
 
 
 def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
-    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink(missing_ok=True)
-    (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink(missing_ok=True)
+    (PUDL_DOCS_PATH / "data_dictionaries/pudl_db.rst").unlink(missing_ok=True)
+    (PUDL_DOCS_PATH / "data_dictionaries/codes_and_labels.rst").unlink(missing_ok=True)
     for name in INCLUDED_SOURCES:
-        (DOCS_DIR / f"data_sources/{name}.rst").unlink(missing_ok=True)
+        (PUDL_DOCS_PATH / f"data_sources/{name}.rst").unlink(missing_ok=True)
 
 
 def cleanup_csv_dir(app, exception):
     """Remove generated CSV files when the build is finished."""
-    csv_dir = DOCS_DIR / "data_dictionaries/code_csvs"
+    csv_dir = PUDL_DOCS_PATH / "data_dictionaries/code_csvs"
     if csv_dir.exists() and csv_dir.is_dir():
         shutil.rmtree(csv_dir)
 
