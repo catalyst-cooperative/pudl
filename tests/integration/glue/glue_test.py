@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 def plants_ferc1_raw_df(
     tmp_path_factory: pytest.TempPathFactory,
     worker_id: str,
-    etl_settings_path: Path,
+    global_data_config_path: Path,
 ) -> pd.DataFrame:
     """Return plants_ferc1_raw, computing it at most once across all xdist workers.
 
@@ -43,8 +43,10 @@ def plants_ferc1_raw_df(
         result = get_plants_ferc1_raw_job().execute_in_process(
             run_config={
                 "resources": {
-                    "etl_settings": {
-                        "config": {"etl_settings_path": str(etl_settings_path)},
+                    "global_data_config": {
+                        "config": {
+                            "global_data_config_path": str(global_data_config_path)
+                        },
                     },
                 },
             },

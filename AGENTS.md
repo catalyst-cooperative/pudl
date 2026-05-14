@@ -243,11 +243,11 @@ Skills are defined in `skills-lock.json`. If not already installed, run
 ## Dagster architecture
 
 **Settings flow**: Always pass config via `dg launch --config dg_xxx.yml`. Never
-hand-assemble `run_config` dicts. The YAML path is read by `PudlEtlSettingsResource`,
-which loads `EtlSettings` and injects it into all assets and IO managers.
+hand-assemble `run_config` dicts. The YAML path is read by `GlobalDataConfigResource`,
+which loads `GlobalDataConfig` and injects it into all assets and IO managers.
 
 **FERC SQLite provenance**: each FERC SQLite materialization records a fingerprint
-(Zenodo DOI, years, ETL settings hash) in Dagster asset metadata. Downstream IO managers
+(Zenodo DOIs, years of data processed) in Dagster asset metadata. Downstream IO managers
 call `assert_ferc_sqlite_compatible()` before reading and raise a descriptive
 `RuntimeError` if the stored fingerprint does not match the current run.
 

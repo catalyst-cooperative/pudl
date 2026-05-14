@@ -28,7 +28,7 @@ def _add_timezone(
 
 @asset(
     compute_kind="Python",
-    required_resource_keys={"etl_settings"},
+    required_resource_keys={"global_data_config"},
 )
 def _out_eia930__hourly_operations(
     core_eia930__hourly_operations: pd.DataFrame,
@@ -54,7 +54,7 @@ def _out_eia930__hourly_operations(
 
 @asset(
     compute_kind="Python",
-    required_resource_keys={"etl_settings"},
+    required_resource_keys={"global_data_config"},
 )
 def _out_eia930__hourly_subregion_demand(
     core_eia930__hourly_subregion_demand: pd.DataFrame,
@@ -80,7 +80,7 @@ def _out_eia930__hourly_subregion_demand(
 def _years_from_context(context) -> list[int]:
     return [
         int(half_year[:4])
-        for half_year in context.resources.etl_settings.dataset_settings.eia.eia930.half_years
+        for half_year in context.resources.global_data_config.pudl.eia.eia930.half_years
     ]
 
 

@@ -13,7 +13,7 @@ from pudl.dagster.provenance import (
     FercSqliteProvenanceRecord,
     assert_ferc_sqlite_compatible,
 )
-from pudl.settings import FercToSqliteSettings
+from pudl.settings import FercToSqliteDataConfig
 
 # ---------------------------------------------------------------------------
 # FercSqliteProvenanceRecord serialization round-trip
@@ -22,14 +22,14 @@ from pudl.settings import FercToSqliteSettings
 
 def test_ferc_sqlite_provenance_record_round_trip() -> None:
     """A complete record round-trips through Dagster metadata without data loss."""
-    settings = FercToSqliteSettings()
+    data_config = FercToSqliteDataConfig()
     record = FercSqliteProvenanceRecord(
         dataset="ferc1",
         data_format="dbf",
         status="complete",
         zenodo_doi="fake DOI",
         years=[2018, 2019],
-        settings=settings,
+        data_config=data_config,
         sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
     )
     dagster_meta = {
@@ -43,7 +43,7 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
     )
 
     assert recovered == record
-    assert recovered.settings == settings
+    assert recovered.data_config == data_config
 
 
 @pytest.mark.parametrize("status", ["skipped", "not_configured"])

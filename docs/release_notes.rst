@@ -89,6 +89,11 @@ Quality of Life Improvements
 * **Renamed the** ``docker/`` **directory to** ``builds/`` to better reflect that it
   contains all production build scripts and infrastructure, not just Docker-related
   files. See PR :pr:`5124`.
+* Updated ``dbt_helper update-tables --schema`` to ingest "human schema input
+  files" (at ``dbt/schema_inputs/**/schema.human.yml``) and generate the actual
+  dbt-visible schema files automatically. This gives us clear separation between
+  human and machine-generated schemas and allows us to add more machine-generated
+  checks. See issue :issue:`5208` and PRs :pr:`5207` and :pr:`5228`.
 
 Major Dagster Project Refactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -196,6 +201,15 @@ changes:
   They now follow the Python convention of treating each acronym as a single
   title-cased word, so ``SQLite`` becomes ``Sqlite`` when it appears mid-name
   (e.g. ``FercDbfSqliteConfigurableIOManager``).  See :issue:`5123` and PR :pr:`5124`.
+* **Renamed Pydantic settings classes from** ``*Settings`` **to** ``*DataConfig``
+  **and tightened container field names.** The old names were too vague — these
+  classes define *which data gets processed*, not general application settings.
+  The new names make that explicit and align with Dagster's own ``Config``
+  naming convention. The top-level ``EtlSettings`` is now ``GlobalDataConfig``;
+  ``DatasetsSettings`` (the PUDL job) is now ``PudlDataConfig``; and field names
+  on the container classes drop redundant suffixes (e.g. ``ferc_to_sqlite_settings``
+  → ``ferc_to_sqlite``, ``datasets`` → ``pudl``). The data config and Dagster
+  config YAML files are updated to match. See PR :pr:`5153`.
 
 .. _release-v2026.4.0:
 

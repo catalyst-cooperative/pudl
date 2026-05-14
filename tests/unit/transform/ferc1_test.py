@@ -12,7 +12,7 @@ import pytest
 
 import pudl.logging_helpers
 from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
-from pudl.settings import Ferc1Settings
+from pudl.settings import Ferc1DataConfig
 from pudl.transform.ferc1 import (
     AddColumnsWithUniformValues,
     AddColumnWithUniformValue,
@@ -99,7 +99,7 @@ def test_dbf_to_xbrl_mapping_is_unique(dbf_table_name):
     """Verify that our DBF to XBRL mapping results in at most 1 mapping per year."""
     dbf_xbrl_map = fill_dbf_to_xbrl_map(
         df=read_dbf_to_xbrl_map(dbf_table_names=[dbf_table_name]),
-        dbf_years=Ferc1Settings().dbf_years,
+        dbf_years=Ferc1DataConfig().dbf_years,
     )
     dbf_xbrl_map = dbf_xbrl_map[dbf_xbrl_map.xbrl_factoid != "HEADER_ROW"]
     dbf_to_xbrl_mapping_is_unique = (
