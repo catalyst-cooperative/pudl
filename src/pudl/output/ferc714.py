@@ -699,5 +699,6 @@ imputed_hourly_planning_area_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="respondent_id_ferc714",
+    op_tags={"dagster/priority": 10},
     settings=ImputeTimeseriesSettings(min_data_fraction=0.7),
 )

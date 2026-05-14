@@ -188,6 +188,9 @@ https://www.law.cornell.edu/cfr/text/18/part-101
 BALANCING_AUTHORITY_SUBREGIONS_EIA: pd.DataFrame = pd.read_csv(
     StringIO(
         """balancing_authority_code_eia,balancing_authority_subregion_code_eia,balancing_authority_subregion_name_eia
+BHBA,BASI,Basin Electric Power Cooperative
+BHBA,SDE,Black Hills Energy South Dakota Electric
+BHBA,WYE,Black Hills Energy Wyoming Electric
 CISO,PGAE,Pacific Gas and Electric
 CISO,SCE,Southern California Edison
 CISO,SDGE,San Diego Gas and Electric
@@ -266,10 +269,13 @@ SWPP,MPS,KCP&L Greater Missouri Operations
 SWPP,NPPD,Nebraska Public Power District
 SWPP,OKGE,Oklahoma Gas and Electric Co.
 SWPP,OPPD,Omaha Public Power District
+SWPP,PRPA,Platte River Power Authority
 SWPP,SECI,Sunflower Electric
 SWPP,SPRM,City of Springfield
 SWPP,SPS,Southwestern Public Service Company
+SWPP,WACM,Western Area Power Colorado Missouri Region
 SWPP,WAUE,Western Area Power Upper Great Plains East
+SWPP,WAUW,Western Area Power Upper Great Plains West
 SWPP,WFEC,Western Farmers Electric Cooperative
 SWPP,WR,Westar Energy"""
     ),
