@@ -1,2631 +1,70 @@
 pole:
+  - "\x02twr,stlsp,wdp"
   - "& steel poles"
   - (1)
-  - (1) steel
-  - (1) wood
-  - (c-h-f)(s-p)
-  - (c-p)(s-p)
-  - (corten pole)
-  - (s-a-f)(s-h-f)(s-m-p)(s-p)
-  - (s-a-f)(s-h-f)(s-p)
-  - (s-a-f)(s-p)
-  - (s-h-f)(s-m-p)(s-p)
-  - (s-h-f)(s-p)
-  - (s-m-p)(s-p)
-  - (s-p) (s-a)
-  - (s-p) (w-p)
-  - (s-p)(w-m-p)
-  - (s-p)(w-p)
-  - (steel pole)
-  - (wood pole)
-  - "* sp (2)"
-  - .67 wood pole
-  - 1 ple wd
-  - 1 pole
-  - 1 pole wd
-  - 1 pole wood
-  - 1 span
-  - 1 span sub to sub
-  - 1 steel pole
-  - 1 steel poles
-  - 1pole 2pole
-  - 1pole wd
-  - 2 pole
-  - 2 pole h
-  - 2 pole h str
-  - 2 pole k
-  - 2 pole steel
-  - 2 pole str.
-  - 2 steel poles
-  - 2-scsp
-  - 3 pole
-  - 3 pole str.
-  - 3 wood pole
-  - 3 wood poles
-  - 3-pole
-  - 3-pole angle
-  - 3-pole wood
-  - 3-pole,wood
-  - 5 pole
-  - 5 pole str.
-  - al - lspg
-  - al-lspg
-  - al. lat. h,steel pole
-  - and poles
-  - b-hp/dcsp/s
-  - b-hp/dcsp/sp
-  - b-sa/dcsp
-  - b-sa/h/sp
-  - bus. sprts.
-  - c-s-p
-  - c-sp
-  - coc. pole
-  - con/steel pole
-  - conc pole
-  - conc. pole
-  - conc. st pole
-  - concret pole
-  - concret s pole
-  - concrete 1pole
-  - concrete pole
-  - concrete poles
-  - concrete three-pole
-  - corten pole
-  - corten poles
-  - cspdc
-  - cspsc
-  - cyl pol
-  - cyl pole
-  - cyl. pole
-  - cyl.pole
-  - d-s-p
-  - dbl wood poles
-  - dbl. wood pole
-  - dbl.wood poles
-  - dc c-sp
-  - dc s-sp
-  - dc stl pole
-  - dc wood pole
-  - dc-sp
-  - dc-ssp
-  - dcs c-sp
-  - dcsp
-  - dcsp 1
-  - dcsp/b-sa
-  - dcsp/bchp/h
-  - dcsp/h
-  - dcsp/s2//sh-
-  - dcsp/s2/sh-sp
-  - double pole
-  - dspdc
-  - dspsc
-  - frame w/sgl pl
-  - frames & poles
-  - frames & steel poles
-  - frames and steel poles
-  - frames, wood & steel poles
-  - galvanized monopole
-  - h fr & wd pole
-  - h, sp
-  - h, sp, wp
-  - h-fr & wd pole
-  - h-fr&wd. pole
-  - h-frm -wd pole
-  - h-frm stl pole
-  - h-frm wd pole
-  - h-frm wd.pole
-  - h-frm-stl pole
-  - h-frm-wd pole
-  - h-w & sp-w
-  - h-w&sp-w
-  - h-wood/sp-steel
-  - h-wood/sp-wood
-  - h. fr. pole
-  - h/dcsp
-  - h/sp
-  - hw & spw
-  - hw-f,sp-s
-  - hwp at st
-  - hwp,at,st
-  - hwp,st
-  - hwp. st
-  - mix steel and wood poles
-  - monopole
-  - monopole doubl
-  - no poles
-  - no spans
-  - oh steel poles
-  - oh stl poles
-  - oh wd poles
-  - oh wood poles
-  - on wood poles
-  - other ssp
-  - other swp
-  - others ssp
-  - others ssp swp
-  - others swp
-  - others swp ssp
-  - others t ssp
-  - others t ssp swp
-  - others t swp
-  - overhead wood poles
-  - p-2.87;sp-2.63
-  - pole
-  - pole 22 miles\
-  - pole special
-  - pole steel
-  - pole wood
-  - pole,
-  - poleconcrete
-  - poles
-  - poles wood
-  - poles wood &
-  - poles wood,
-  - polesteel
-  - polewood
-  - r-spwd
-  - rs-pwd
-  - rspwd
-  - s monopole
-  - s pole
-  - s pole steel
-  - s- pole
-  - s- poles
-  - s-dspst
-  - s-p
-  - s-pole
-  - s-poles
-  - s-pwd
-  - s-s-p
-  - s-sp
-  - s-sp-11
-  - s-spst
-  - s-spwd
-  - s-w-p
-  - s. conc. poles
-  - s. pole
-  - s. stl. pole
-  - s. stl. poles
-  - s.pole&h.frame
-  - s2/dcsp
-  - s2/dcsp/sp
-  - s2/sp/dcsp
-  - s2/sp/dcsp/h
-  - s2/sp/dcsp/h/
-  - sahp single pe
-  - sahp single pole
-  - sc-sp
-  - scdsp
-  - scsp
-  - scspd
-  - sgl pole
-  - sgl pole s
-  - sgl pole s/wo
-  - sgl pole steel
-  - sgl pole w
-  - sgl pole w&s
-  - sgl pole-w
-  - sgl pole-wd
-  - sgl pole/w
-  - sgl steel pole
-  - sgl wood
-  - sgl wood pole
-  - sgl wood poles
-  - sgl, dbl
-  - sgl,dbl wood
-  - sgl-pole wd
-  - sgl. pole-w
-  - sgl. wood pole
-  - sgl.pole-w
-  - sgl.wood pole
-  - sgl.wood poles
-  - sgl/dbl wd ple
-  - sgl/dbl wood
-  - sh sp, wd sp
-  - sh-sp
-  - signle pole st
-  - singe wd pl
-  - single
-  - single concr
-  - single dc sp
-  - single m.p.
-  - single p-w
-  - single pole
-  - single pole s
-  - single pole st
-  - single pole steel
-  - single pole steel & wood
-  - single pole wd
-  - single pole wood
-  - single pole,
-  - single pole,sl
-  - single pole,st
-  - single pole,steel
-  - single pole,wood
-  - single pole-w
-  - single pole-w/
-  - single pole-wood
-  - single pole/st
-  - single pole/wo
-  - single pool wood
-  - single sp
-  - single steel pole
-  - single w. p.
-  - single w.p
-  - single w.p.
-  - single wd pl
-  - single wd. pos
-  - single wood
-  - single wood pl
-  - single wood po
-  - single wood pole
-  - single wp
-  - single-pole
-  - singlewood
-  - sng con pole
-  - sng conc pl
-  - sng pole steel
-  - sng stl pole
-  - sng wood pole
-  - sngl pole stl
-  - sngl wood pole
-  - sngl woodpole
-  - sngl woodpoles
-  - sngle conc pls
-  - sp
-  - sp & wp
-  - sp (2)
-  - sp .01
-  - sp .02
-  - sp .04
-  - sp .07
-  - sp .08
-  - sp .14
-  - sp .15
-  - sp .16
-  - sp .17
-  - sp .28
-  - sp .29
-  - sp .32
-  - sp .4
-  - sp .91
-  - sp 1.15
-  - sp 1.21
-  - sp 1.3
-  - sp 1.41
-  - sp 1.49
-  - sp 1.82
-  - sp 1.88
-  - sp 10.44
-  - sp 10.51
-  - sp 11.19
-  - sp 11.68
-  - sp 11.71
-  - sp 13.03
-  - sp 15.13
-  - sp 157.24
-  - sp 161.62
-  - sp 17.66
-  - sp 19.66
-  - sp 2.07
-  - sp 2.29
-  - sp 2.63
-  - sp 2.86
-  - sp 3.09
-  - sp 3.11
-  - sp 3.58
-  - sp 4.42
-  - sp 5.38
-  - sp 6.78
-  - sp 6.92
-  - sp 7.07
-  - sp 7.1
-  - sp 7.24
-  - sp = steel poe
-  - sp dbl
-  - sp steel
-  - sp wd & st
-  - sp, h
-  - sp, h, st
-  - sp, sh
-  - sp, st
-  - sp, st & wp
-  - sp, st, h
-  - sp, steel h-f
-  - sp, u
-  - sp, wp
-  - sp,wp
-  - sp-1.0
-  - sp-1.00
-  - sp-1.22
-  - sp-1.39
-  - sp-15.54
-  - sp-c
-  - sp-concrete
-  - sp-s
-  - sp-s, sp-w
-  - sp-st
-  - sp-steel
-  - sp-steel, dp-w
-  - sp-steel, dp-wood
-  - sp-steel/sp-wd
-  - sp-w
-  - sp-w & sp-s
-  - sp-wd
-  - sp-wood
-  - sp-wood/h-wood
-  - sp/h
-  - sp/h/h2
-  - sp/sh
-  - sp/sh/s2
-  - sp/st
-  - sp/t
-  - sp1hp
-  - sp1hp/ccst/
-  - sp; sph
-  - sp; sph; wp
-  - sp; wp
-  - sp; wp, wph
-  - sp; wp; wph
-  - sp; wp; wph; sph
-  - sp; wph
-  - sp; wph; wp
-  - sp; wph; wp; t
-  - sp;st
-  - sp;wp
-  - sp= steel pole
-  - sp=steel pole
-  - spdc
-  - special
-  - special 1
-  - special 2
-  - special 2 pole
-  - special 3
-  - special pole
-  - sph; sp
-  - sphp
-  - sphp/h/b-sa
-  - sps
-  - sps, hps
-  - sps, spw
-  - spsc
-  - spst
-  - spw
-  - spw,
-  - spw, sps
-  - spw, wfh,
-  - spw,mpw
-  - spw,sps
-  - spwd
-  - spwd-s
-  - ssp
-  - ssp (a)
-  - ssp other
-  - ssp others
-  - ssp others swp
-  - ssp others t
-  - ssp others t s
-  - ssp others t swp
-  - ssp ssp t
-  - ssp swp
-  - ssp swp ot
-  - ssp swp ss
-  - ssp swp sw
-  - ssp swp t
-  - ssp swp t othe
-  - ssp t
-  - ssp t ssp
-  - ssp t swp
-  - ssp t t
-  - sspcc
-  - sspcs
-  - sspdc
-  - sspsc
-  - sspss
-  - ssptc
-  - st ,sp
-  - st ,wp
-  - st - lspg
-  - st - sp
-  - st pole
-  - st pole/h-fr
-  - st, h, wp
-  - st, sp
-  - st, sp & wp
-  - st, sp, h
-  - st, sp, wp
-  - st, u, sp
-  - st, wp
-  - st, wp, sp
-  - st,sp
-  - st,sp,wp
-  - st,wp
-  - st,wp,cp
-  - st,wp,sp
-  - st,wp,sp,cp
-  - st-lspg
-  - st-sp
-  - st. pole
-  - st. wp
-  - st., sgle pole
-  - st=steel pole
-  - steel - sp
-  - steel 1pole
-  - steel and wood poles
-  - steel h/pole
-  - steel lat/pole
-  - steel monopole
-  - steel monopoles
-  - steel pole
-  - "steel pole \x02"
-  - steel pole & wood h
-  - steel pole and frame
-  - steel pole h
-  - steel pole h-f
-  - steel pole-s
-  - steel pole-w
-  - steel pole-w/
-  - steel pole/fra
-  - steel pole/lat
-  - steel pole/to
-  - steel pole/tor
-  - steel poles
-  - steel poles (a
-  - steel poles (a)
-  - steel poles (b
-  - steel poles (b)
-  - steel poles a
-  - steel poles e
-  - steel poles(a)
-  - steel poles(b)
-  - steel poles(e)
-  - steel s pole
-  - steel single pole
-  - steel sp
-  - steel, sgle pole
-  - steel- sp
-  - steel-sp
-  - steel-wood pole
-  - steel/pole
-  - steelpoletowe
-  - steelwood pole
-  - steep pole
-  - stell pole
-  - sti-wd-pole
-  - stl h-fr/stl sp
-  - stl pole-0976
-  - stl pole-0977
-  - stl pole-0980
-  - stl pole-0984
-  - stl pole-0986
-  - stl pole/towe
-  - stl sp
-  - stl sp, wd h-fr
-  - stl sp, wd h-r
-  - stl sp, wd sp
-  - stl sp, wd sp,wh
-  - stl sp,lattice
-  - stl sp,wd h-fr
-  - stl sp,wd sp
-  - stl sp. wd sp
-  - stl sp.lattice,wd h-fr
-  - stl sp; wd h-fr
-  - stl sp;wd h-fr
-  - stl spwd spwh
-  - stl-sp
-  - stl-wd pole
-  - stl-wd-pole
-  - stl. pole
-  - stlh-fr/stl sp
-  - stlsp,wdsp,wh
-  - sttel pole
-  - swp other
-  - swp others
-  - swp ssp
-  - swp ssp others
-  - swp t
-  - swp t others
-  - swp t ssp
-  - swp t ssp othe
-  - swp t t
-  - swp, dcst
-  - swp/dcst
-  - t others ssp
-  - t others swp
-  - t ssp
-  - t ssp others
-  - t ssp others s
-  - t ssp others swp
-  - t ssp swp
-  - t ssp t
-  - t swp
-  - t swp others
-  - t swp others ssp
-  - t swp ssp
-  - tcsp
-  - tspdc
-  - tspsc
-  - tubular steel pole
-  - twpsc
-  - u, sp
-  - u, wp
-  - underbuilt on steel poles
-  - w monopole
-  - w- poles
-  - w-p
-  - w-pole
-  - w-sp
-  - wd & stl pole
-  - wd 3 pole agl
-  - wd 3 pole stru
-  - wd h-fr wd sp
-  - wd h-fr' wd sp
-  - wd h-fr, stl sp
-  - wd h-fr, wd sp
-  - wd h-fr,stl sp
-  - wd h-fr,wd sp
-  - wd h-fr/sp,stl
-  - wd h-fr/stl sp
-  - wd h-fr/wd sp
-  - wd h-fr; stl sp
-  - wd h-fr;stl sp
-  - wd h-fr;stlsp
-  - wd pole/h-fr
-  - wd sp
-  - wd sp, stl sp
-  - wd sp,stl sp
-  - wd-h-fr/sp, stl sp
-  - wd-pole
-  - wd-pole/h-fr
-  - wd-sti pole
-  - wd-stl-pole
-  - wd/st poles
-  - wd/steel poles
-  - wd/sti pole
-  - wd/stl pole
-  - wd/stl poles
-  - wood & steel poles
-  - wood - h & sp
-  - wood - pole
-  - wood - sp
-  - wood - sp-h
-  - wood -pole
-  - wood -sp
-  - wood 3-pole
-  - wood and steel pole
-  - wood and steel poles
-  - wood h & steel pole
-  - wood h pole
-  - wood h, steel pole
-  - wood h-pole
-  - wood pole
-  - wood pole & st
-  - wood pole & steel frame
-  - wood pole h
-  - wood pole h-fm
-  - wood pole h-fr
-  - wood pole str.
-  - wood pole,steel pole
-  - wood poles
-  - wood sp
-  - wood spdc
-  - wood spsc
-  - wood&stl pole
-  - wood&stl. pole
-  - wood, stl pole
-  - wood-pole
-  - wood-sp
-  - wood/ st pole
-  - wood/st pole
-  - wood/steel - sp
-  - wood/steel pole
-  - wood/steel spc
-  - wooden pole
-  - wooden poles
-  - woodpoles
-  - wp (45)
-  - wp - 3p
-  - wp - sp
-  - wp, sp
-  - wp, sp, h
-  - wp, sp,cp
-  - wp, st
-  - wp, st,sp
-  - wp,sp
-  - wp,sp,cp
-  - wp,sp,st
-  - wp,st
-  - wp,st,cp
-  - wp,st,sp
-  - wp-3p
-  - wp-sp
-  - wp-steel
-  - wp/sp
-  - wp/st
-  - wp/ts
-  - wp; sp
-  - wp; sp; sph
-  - wp; sp; wph
-  - wp; sp; wph; s
-  - wp; sph; wph
-  - wp; wph; sp
-  - wp=wood pole
-  - wph; sp
-  - wph; sp; wp
-  - wph; sp; wp;
-  - wph; sph; sp; wp
-  - wph; sph; wp;
-  - wph; sph; wp; sp
-  - wph; wp; sp
-  - wph; wp; sp;
-  - wph; wp; sp; s
-  - wph; wp; sp; sph
-  - wph; wp; sp; t
-  - wph; wp; sph
-  - wph; wp; sph; sp
-  - ws - sp
-  - wspdc
-  - wspsc
-h_frame:
-  - '"h" frame'
-  - (2)
-  - (2) wood
-  - (c-p)(s-p)(w-h-f)
-  - (c-p)(w-h-f)
-  - (s-h-f)(w-h-f)
-  - (s-p)(w-h-f)
-  - (s-p)(w-h-f)(w-p)
-  - (w-h-f)(s-p)
-  - (w-h-f)(w-p)
-  - (w-hfr)
-  - (w-p)(w-h-f)
-  - (wood h-frame
-  - 2 pole h frame
-  - 2 pole h-frame
-  - 95% wd h fr
-  - a-frame
-  - al - lhf
-  - al-lhf
-  - al. lat. h, h-frame
-  - alum h frame
-  - alum h-frame
-  - alum. h frame
-  - alum. h-frame
-  - b-sa/hf
-  - c-h fr.
-  - c-hfr
-  - conc hfrm
-  - conc. h-frame
-  - concr h-frame
-  - concrete h frame
-  - concrete h-frame
-  - cp - hf
-  - cp-hf
-  - dc s -hfr
-  - dc s hfr.
-  - dc s-hfr
-  - dc-s-h fr.
-  - dc-sh fr.
-  - dcst, whf
-  - dcst,whf
-  - dhfwd
-  - h frame
-  - h frame - w
-  - h frame -w
-  - h frame sp
-  - h frame st/wd
-  - h frame steel
-  - h frame w
-  - h frame w&sgl sp
-  - h frame wd
-  - h frame wood
-  - h frame wp
-  - h frame wp dc
-  - h frame-steel
-  - h frame-w
-  - h frame-wood
-  - h frame-wood p
-  - h-frame
-  - h-frame alumin
-  - h-frame corten
-  - h-frame pole
-  - h-frame st
-  - h-frame steel
-  - h-frame w
-  - h-frame w/sgl
-  - h-frame wd
-  - h-frame wood
-  - h-frame, wood
-  - h-frame,steel
-  - h-frame,wd
-  - h-frame,wood
-  - h-frame-steel
-  - h-frame-w
-  - h-frame-wd
-  - h-frame-wood
-  - h-frame/un
-  - h-frame/underg
-  - h-frame/w
-  - h-frame/wood
-  - h-frames
-  - h-frames wood
-  - h-frane,wd
-  - h-frm wood pol
-  - h-frm-alm.
-  - h-frm-wood
-  - h-wood
-  - h-wood and
-  - hf
-  - hf & st
-  - hf & wf
-  - hf & wp
-  - hf &st
-  - hf concrete
-  - hf steel
-  - hf wood
-  - hf, sp & wp
-  - hf,sp
-  - hf,st
-  - hf,wf
-  - hf,wp
-  - hf-dcsp
-  - hf-dcsp/
-  - hf-st
-  - hf-w
-  - hf-w, sp-s
-  - hf-w, sp-w
-  - hf-w,sp-w
-  - hf-wd
-  - hf-wood
-  - hf2
-  - hfr(1),spl(1)
-  - hframe
-  - hframe wood
-  - hfrm
-  - hfs
-  - hfs (10)
-  - hfs (12)
-  - hfs (14)
-  - hfs (15)
-  - hfs (16)
-  - hfs (17)
-  - hfs (18)
-  - hfs (19)
-  - hfs (20)
-  - hfs (25)
-  - hfs (27)
-  - hfs (28)
-  - hfs (30)
-  - hfs (31)
-  - hfs (33)
-  - hfs (34)
-  - hfs (38)
-  - hfs (39)
-  - hfs (41)
-  - hfs (42)
-  - hfs (45)
-  - hfs (5)
-  - hfs (6)
-  - hfs (7)
-  - hfs (8)
-  - hfs, spw
-  - hfsp
-  - hfst
-  - hfw
-  - hfw & mps
-  - hfw & sps
-  - hfw & spw
-  - hfw & st
-  - hfw, hfs, spw
-  - hfw, mps
-  - hfw, sps
-  - hfw, st
-  - hfw, st, hfs
-  - hfwd
-  - hfwd/stl
-  - k frame wd
-  - k-frame
-  - k-frame wood
-  - kf-wd
-  - kfw
-  - kfw .01
-  - kfw .29
-  - kfw 1.06
-  - kfw 1.1
-  - kfw 1.51
-  - kfw 10.09
-  - kfw 106.10
-  - kfw 106.80
-  - kfw 107.51
-  - kfw 11.10
-  - kfw 11.28
-  - kfw 11.86
-  - kfw 116.97
-  - kfw 126.01
-  - kfw 126.2
-  - kfw 157.7
-  - kfw 19.98
-  - kfw 20.26
-  - kfw 21.59
-  - kfw 220.15
-  - kfw 25.22
-  - kfw 26.72
-  - kfw 28.27
-  - kfw 52.95
-  - kfw 58.81
-  - kfw 65.79
-  - kfw 66.92
-  - kfw 69.06
-  - kfw 72.67
-  - kfw 76.16
-  - kfw 76.17
-  - kfw 78.18
-  - kfw 9.52
-  - kfw 9.68
-  - kfw 92.86
-  - lschf
-  - mps, hfs
-  - s pole& hframe
-  - s pole&h frame
-  - s pole&hframe
-  - s-dhfst
-  - s-dhfwd
-  - s-h fr
-  - s-h fr.
-  - s-hfr
-  - s-hfst
-  - s-hfwd
-  - s-kfwd
-  - s-shfr
-  - s-sp/s-hfr
-  - schf
-  - sclwhf
-  - scshf
-  - scsphf
-  - scst, whf
-  - seel h frame
-  - sh-frame
-  - shf
-  - shf,whf
-  - shf;whf
-  - single wood pole & wood pole h-frame
-  - sp - hf
-  - sp,whf
-  - sp,whf,wp
-  - sp-hf
-  - sp-w, whf
-  - sp-w, whf,
-  - sp;whf
-  - sp;whf;wp
-  - sph frame
-  - sph frame - oh
-  - sphf
-  - sphf, whf
-  - spole&h frame
-  - spole&hframe
-  - st & hfw
-  - st - hf
-  - st h-frame
-  - st, whf
-  - st,shf,whf
-  - st,whf
-  - st-hf
-  - st. h-frame
-  - st;shf;whf
-  - st;whf
-  - steel h frame
-  - steel h frames
-  - steel h-frame
-  - steel hframe
-  - steel hfrm
-  - sthf
-  - sti-h-frame
-  - stl-h-frame
-  - stl-wd-h-frame
-  - stl/conchframe
-  - sttel h-frame
-  - tcshf
-  - tus-hf
-  - w-h fr
-  - w-h fr.
-  - w-h-f
-  - w-h-fr
-  - w-hfr
-  - wd h-fr
-  - wd h-fr, wd
-  - wd h-frame
-  - wd-h frame
-  - wd-h-fr
-  - wd-h-frame
-  - wh & sh
-  - wh (a)
-  - wh frame
-  - wh frame - oh
-  - whf
-  - whf, dcst
-  - whf, oh
-  - whf, scst
-  - whf, sp
-  - whf, sp, sphf
-  - whf,sp,sphf
-  - whf,wp,sp
-  - whf;wp
-  - whf;wp;sp
-  - wod h-frame
-  - wood - h
-  - wood a frame
-  - wood a frames
-  - wood a-frame
-  - wood h
-  - wood h fr
-  - wood h frame
-  - wood h frames
-  - wood h-fr
-  - wood h-fr &pol
-  - wood h-frame
-  - wood h-frames
-  - wood h-frams
-  - wood hframe
-  - wood hfrm
-  - wood k frame
-  - wood k-frame
-  - wood pole h frame
-  - wood pole h-frame
-  - wood schf
-  - wood-h frame
-  - wood-h-frame
-  - wood-hf
-  - wood-hf/steel
-  - wood/h-frame
-  - woodh frame
-  - woof-hf
-  - wooh h-frame
-  - wp - hf
-  - wp--hf
-  - wp-hf
-  - wphf
-tower:
-  - "\x02twr,stlsp,wdp"
-  - "& steel frame"
-  - (1) & (3)
-  - (1) (1.93)
-  - (1) (11.37)
-  - (1) (2) (3)
-  - (1) (3.26)
-  - (1) (3.36)
-  - (1) (3.73)
-  - (1) (3.95)
-  - (1) (5.36)
-  - (1) (7.38)
-  - (1) 5.36
-  - (1) concrete
-  - (1) steel (a)
-  - (1)(2)(3)
-  - (1), (3)
-  - (1),(3)
-  - (1); (2); (3)
-  - (1); (2); (3);
-  - (1); (3)
-  - (1); (3); (2)
-  - (1); (3); (5)
-  - (1)concrete
-  - (1.31 ml)
-  - (1.31 ml.)
-  - (1concrete
-  - (2) & (3)
-  - (2) (.30)
-  - (2) (0.30)
-  - (2) (0.53)
-  - (2) (17.39)
-  - (2) (2.39)
-  - (2) (25.35)
-  - (2) (3.97)
-  - (2) (30.06)
-  - (2) (36.95)
-  - (2) (37.75)
-  - (2) (37.95)
-  - (2) (6.31)
-  - (2) 3.95
-  - (2) steel
-  - (2), (3)
-  - (2),(3)
-  - (2); (1); (3)
-  - (2); (1); (3);
-  - (2); (3)
-  - (2); (3); (1)
-  - (2); (3); (1);
-  - (2)concrete
-  - (3)
-  - (3) (0.79)
-  - (3) (3.06)
-  - (3) (3.18)
-  - (3) - 77.80
-  - (3) conc
-  - (3) steel
-  - (3) steel (a)
-  - (3) steel (c)
-  - (3) steel (d)
-  - (3) tower
-  - (3) wood
-  - (3); (1)
-  - (3); (1);
-  - (3); (1); (2)
-  - (3); (1); (2);
-  - (3); (1); (5)
-  - (3); (2)
-  - (3); (2); (1)
-  - (3); (2); (1);
-  - (3); (2); (2)
-  - (3)steel
-  - (5); (1); (3)
-  - (5); (3)
-  - (c-p)(s-p)(s-t)
-  - (c-p)(s-t)
-  - (s-a-f)(s-h-f)(s-t)
-  - (s-a-f)(s-m-p)(s-p)(s-t)
-  - (s-a-f)(s-m-p)(s-t)
-  - (s-a-f)(s-p)(s-t)
-  - (s-a-f)(s-t)
-  - (s-h) (s-t)
-  - (s-h-f)(s-p)(s-t)
-  - (s-h-f)(s-t)
-  - (s-m-p)(s-t)
-  - (s-p) (s-t)
-  - (s-p)(s-t)
-  - (s-t) (c-h-f)
-  - (s-t) (w-h-f)
-  - (s-t)(s-p)
-  - (s-t)(w-h-f)
-  - (s-t)(w-h-f)(w-p)
-  - (s-t)(w-p)
-  - (steel tower
-  - (steel tower)
-  - (switch)
-  - (tower)
-  - 1 & 2 & 3
-  - 1 steel p
-  - 1&2&3
-  - 138-oh-52
-  - 1p-st
-  - 1s ,3
-  - 1s, 2s, 3
-  - 1s, 2w, 3s, 3
-  - 1s, 3
-  - 1s,2s,3
-  - 1s,2w,3s,3
-  - 1s,3
-  - 1sa steel
-  - 1w, 1s, 3
-  - 1w, 2w, 1s, 3
-  - 1w, 3
-  - 1w,1s, 3
-  - 1w,1s,3
-  - 1w,2w,1s,2s,3
-  - 1w,2w,1s,3
-  - 1w,3
-  - 2 1/2' sq. twr
-  - 2 steel p
-  - 2'6" sq. tower
-  - 2,3 nomatch
-  - 2s, 3
-  - 2s,2w,3
-  - 2s,3
-  - 2sa steel
-  - 2w, 1s, 2s, 3
-  - 2w,1s,2s,3s,3
-  - 3, 1s
-  - 3, 1s, 1w
-  - 3, 1s, w
-  - 3, 1s,w
-  - 3, 1w
-  - 3,1s
-  - 3,1s,1w
-  - 3,1s,w
-  - 3,1w
-  - 3pw
-  - a tower
-  - a1-twr
-  - al-twr
-  - al. lat h
-  - al. lat. h
-  - al. lat. h,ste
-  - al. lat. h.
-  - al. lat. y
-  - al. towers
-  - all segments
-  - alum tower
-  - alum twr
-  - alum. tower
-  - alumin. towers
-  - aluminum tower
-  - and montana
-  - at (2)
-  - at (20)
-  - at (23)
-  - at, st
-  - at. st
-  - at=alum. tower
-  - b-1.00;h-33.25
-  - b-1.03;h-7.36;
-  - b-10.38
-  - b-2.33
-  - b-3.55;p-.092;
-  - b-5.03
-  - b2sa /steel dc
-  - c-t
-  - carta steel
-  - ccst
-  - con/steel/wood
-  - conc twr
-  - concrete
-  - concrete h
-  - concrete h-fr
-  - concrete h-fra
-  - concrete three
-  - concrete tower
-  - concrete&steel
-  - concrete/steel
-  - concrete/wood
-  - concreteh-frme
-  - corten
-  - corten steel
-  - ctsa
-  - d-.35
-  - d-2.00;st-.20
-  - d-3.53
-  - d-3.57
-  - d-5.33;p-.19;
-  - d-5.38;p-.19;
-  - d-5.83
-  - d-7.63;st-.20
-  - d-8.73
-  - d-s-t
-  - d-steel
-  - dc lat st
-  - dc lat stl
-  - dc lattice
-  - dc s-twr
-  - dc t
-  - dc-t
-  - dclt
-  - dcst
-  - dcst, scst
-  - dcst,scst
-  - dd-.70;d-.83;
-  - dd-3.62
-  - guyed alum twr
-  - h steel
-  - h type
-  - h wood & tower
-  - h, st
-  - h-.32;st-.07;
-  - h-1.00; st-.98
-  - h-11.65;st-.26
-  - h-15.31
-  - h-15.31;p-2.6
-  - h-16.31
-  - h-17.32
-  - h-17.32;hh-.52
-  - h-19.33
-  - h-19.93
-  - h-2.83
-  - h-22.10;st-.25
-  - h-23.22
-  - h-26.31
-  - h-28.31
-  - h-29.93
-  - h-3.03;p-2.58
-  - h-3.05
-  - h-3.12
-  - h-3.27
-  - h-3.97
-  - h-30.73
-  - h-32.23
-  - h-32.27
-  - h-33.28
-  - h-33.38
-  - h-33.56
-  - h-36.11
-  - h-36.12
-  - h-37.16
-  - h-37.65
-  - h-37.73
-  - h-38.23
-  - h-39.81
-  - h-39.82
-  - h-5.31
-  - h-50.26;p-3.90
-  - h-66.39
-  - h-7.37
-  - h-7.63
-  - h-fr,twr steel
-  - h-frame twr
-  - h-frame, steel pole
-  - h-frame,steel pole
-  - h-frm st twr
-  - h-frm stl ple
-  - h-frm stl twr
-  - h-frm-steel
-  - h-frm-stl twr
-  - h-steel
-  - h-tower
-  - h-wood and tos
-  - h-wood/st. monop
-  - h-wood/st. tower
-  - h. fr. steel
-  - h. fr. stl.
-  - h. frame st/wo
-  - h. frame steel
-  - h. frme steel
-  - h.frame conrte
-  - h.frame steel
-  - hf, sp & st
-  - hf, sp, st, wp
-  - hf, st & wp
-  - hf, st, sp, wp
-  - hf, wp & st
-  - hf,sp & st
-  - hf,sp ,st & wp
-  - hf,sp,st
-  - hf,sp,st & wp
-  - hf,sp,st,wp
-  - hf,sp,wp & st
-  - hf,sp,wp,st
-  - hf,st & wp
-  - hf,st,sp & wp
-  - hf,st,wp
-  - hh-1.32
-  - hh-1.50;p-1.13
-  - hh-15.35
-  - hh-3.50;
-  - hh-3.51;stdc-
-  - j-3.27
-  - joint
-  - k-33.97
-  - kfw 1.13
-  - kfw 1.36
-  - kfw 100.3
-  - kfw 100.37
-  - kfw 103.33
-  - kfw 103.51
-  - kfw 11.23
-  - kfw 115.38
-  - kfw 137.62
-  - kfw 137.63
-  - kfw 20.36
-  - kfw 26.32
-  - kfw 28.23
-  - kfw 3.50
-  - kfw 3.9
-  - kfw 3.92
-  - kfw 3.96
-  - kfw 30.32
-  - kfw 31.6
-  - kfw 31.63
-  - kfw 32.95
-  - kfw 35.1
-  - kfw 39.39
-  - kfw 53.02
-  - kfw 89.37
-  - kfw 9.93
-  - kfw 93.26
-  - kfw 93.78
-  - lat stl a
-  - lat stl ao
-  - lat tsteel twr
-  - latice tower
-  - latt steel twr
-  - lattice
-  - lattice steel
-  - lattice towe
-  - lattice tower
-  - lattice towers
-  - lattice, steel
-  - lattice, steel, wood
-  - lattice, wood
-  - lattice, wood,
-  - lattice, wood, steel
-  - latticetower
-  - lattrice
-  - less non-mec 161 kv partial ownership miles
-  - lst
-  - lst (a)
-  - metal tower
-  - new easement only
-  - no data
-  - oh steel rower
-  - oh steel tower
-  - oh stl tower
-  - on steel tower
-  - other
-  - other other
-  - other t
-  - others
-  - others t
-  - overhead ste
-  - overhead stee
-  - overhead steel
-  - overhead steel towers
-  - p-.13;h-.88
-  - p-.13;h-.92
-  - p-.23
-  - p-.53
-  - p-.56;h-6.35
-  - p-1.13
-  - p-1.30
-  - p-1.31
-  - p-1.31;h-5.60
-  - p-1.31;h-5.68
-  - p-1.52;h-.38
-  - p-12.13;
-  - p-13.33
-  - p-13.57
-  - p-13.80
-  - p-18.32
-  - p-19.31
-  - p-19.36
-  - p-2.03
-  - p-2.30
-  - p-3.02
-  - p-3.06
-  - p-3.10
-  - p-3.12
-  - p-3.19
-  - p-3.23
-  - p-3.29
-  - p-3.50
-  - p-3.53
-  - p-3.57
-  - p-3.62
-  - p-3.72
-  - p-3.75;h-5.91
-  - p-3.76;h-18.91
-  - p-3.79
-  - p-3.87;h-18.68
-  - p-5.11;dd-3.62
-  - p-6.13
-  - p-7.23
-  - p-7.33
-  - p-8.00;h-3.06
-  - p-8.23;h-3.16
-  - p-8.29;h-3.06
-  - p-8.82;h-3.16
-  - p-9.32
-  - p-9.35;h-1.26
-  - p-steel
-  - p23.12
-  - poles &towers
-  - pp-.30
-  - pp-.30;ss-3.28
-  - pp-.85;d-3.11
-  - pp-.96;d-3.11
-  - pp-3.76
-  - pp-3.86
-  - rhes-mod, pset
-  - rhes-mod,pset
-  - s 1.3
-  - s cat met towe
-  - s cat tower
-  - s lattice
-  - s p steel
-  - s steel
-  - s tower
-  - s- steel
-  - s- tower
-  - s-13.33
-  - s-2.35
-  - s-8.29;h-28.03
-  - s-altwr
-  - s-lattice
-  - s-pst
-  - s-stee;
-  - s-steel
-  - s-t
-  - s-tower
-  - s. cat tower
-  - s. stl. tower
-  - s. tower
-  - s.p.-st
-  - s.tower
-  - s/at
-  - s2hp/dcst/
-  - s=steel
-  - sac (35)
-  - sac (38)
-  - sc steel
-  - sc steel tower
-  - sclt
-  - sclt-v
-  - scst
-  - scst, dcst
-  - scst,dcst
-  - scst/dcst
-  - sd-1.73
-  - sd-2.53
-  - sdtm-wd
-  - see footnote
-  - see note
-  - sgl concretede
-  - sgl steel
-  - sing st pldead
-  - single catenary tower
-  - single steel
-  - single steel & wood
-  - single steel p
-  - single wood & steel
-  - single wood - steel
-  - sng concrete
-  - sng stl &
-  - sng stl & con
-  - sng stl & conc
-  - sngl stl pl
-  - sngle sl p & t
-  - sngle steel pl
-  - sp,st,whf,w
-  - sp,st,whf,wp
-  - "sp: twr"
-  - sp; twr
-  - sp; twr; wp
-  - sp; twr; wp; s
-  - sp; twr; wp; sph
-  - sp; twr; wp; wph
-  - sp; twr; wph
-  - sp; wp; twr
-  - sp; wp; twr;
-  - sp; wp; twr; wph
-  - sp; wph; twr
-  - sp; wph; twr;
-  - sp; wph; twr; wp
-  - sp; wph; wp; twr
-  - sp;st;whf
-  - sp;st;whf;wp
-  - sph; sp; twr
-  - sph; twr; sp
-  - sph; twr; sp;
-  - sph; twr; sp; wph
-  - ss-3.28
-  - ss-3.30
-  - st
-  - st & alum twr
-  - st & wh
-  - st (1)(2)(3)
-  - st (10)
-  - st (11)
-  - st (12)
-  - st (13)
-  - st (19)
-  - st (22)
-  - st (28)
-  - st (29)
-  - st (3)
-  - st (30)
-  - st (31)
-  - st (32)
-  - st (33)
-  - st (36)
-  - st (37)
-  - st (38)
-  - st (39)
-  - st (6)
-  - st (7)
-  - st (9)
-  - st - lss
-  - st pole/st twr
-  - st tower
-  - st tower and
-  - st wd hr
-  - st, h
-  - st,sp, whf
-  - st,sp,whf
-  - st,w
-  - st,whf,sp
-  - st,whf,wp,s
-  - st,whf,wp,sp
-  - st-.13
-  - st-.20
-  - st-.22;p-13.13
-  - st-.28
-  - st-.30
-  - st-.35;h-1.69
-  - st-.36
-  - st-.37
-  - st-.56
-  - st-.73
-  - st-.76
-  - st-.82
-  - st-.86
-  - st-.87
-  - st-.88
-  - st-.98
-  - st-0.88
-  - st-1.00
-  - st-1.05
-  - st-1.16
-  - st-1.26
-  - st-1.32
-  - st-1.52
-  - st-1.56
-  - st-1.65
-  - st-10.87;d-.27
-  - st-13.30
-  - st-16.21
-  - st-18.75
-  - st-1p
-  - st-2.08
-  - st-2.57
-  - st-21.30
-  - st-3.82
-  - st-3p
-  - st-7.37
-  - st-86
-  - st-lpsg
-  - st-lss
-  - st-steel
-  - st. lat h
-  - st. lat. h
-  - st. lat. h.
-  - st. monop
-  - st. monop/st. tower
-  - st. monop/st. tower/h-wood
-  - st. tower
-  - st. tower/h-wood
-  - st. tower/st. monop
-  - st.tower
-  - st/concr
-  - st;sp;whf
-  - st;whf;sp
-  - st;whf;wp
-  - st;whf;wp;sp
-  - st= steel
-  - st=steel tower
-  - stdc
-  - stdc-.03
-  - stdc-.05
-  - stdc-.69
-  - stdc-.80
-  - stdc-0.19
-  - stdc-12.56
-  - stdc-12.96
-  - stdc-2.29
-  - stdc-22.51
-  - stdc-3.69
-  - stdc-7.91
-  - stdc-8.03
-  - stdc-8.23
-  - ste pole-tower
-  - steel
-  - steel & wood
-  - steel & wood h
-  - steel & wood p
-  - steel - 3p
-  - steel - d
-  - steel - d-p
-  - steel - dc
-  - steel - h
-  - steel - h-p
-  - steel - s
-  - steel / wood
-  - steel 1sa
-  - steel 2sa
-  - steel and
-  - steel and wood
-  - steel bridge
-  - steel delta
-  - steel frame
-  - steel frames
-  - steel h
-  - steel h f
-  - steel h fr
-  - steel h fram
-  - steel h-f
-  - steel h-fr
-  - steel h. frame
-  - steel h. tower
-  - steel h_frame
-  - steel isa
-  - steel lat. h
-  - steel latt
-  - steel lattice
-  - steel p
-  - steel pip
-  - steel pipe
-  - steel ploe
-  - steel pol
-  - steel pole "h" frame
-  - steel pole dc "h" frame
-  - steel pole h-frame
-  - steel pole"
-  - steel pole, tower
-  - steel pole/lattice towers
-  - steel pole/tower
-  - steel pool dbl
-  - steel power
-  - steel powers
-  - steel single p
-  - steel sngl pl
-  - steel tow
-  - steel tower
-  - steel tower 1
-  - steel tower 2
-  - steel tower and wood h-frame
-  - steel tower"
-  - steel tower)
-  - steel tower,
-  - steel tower, s
-  - steel tower, steel pole
-  - steel tower, w
-  - steel tower, wood pole
-  - steel tower,st
-  - steel tower,steel pole
-  - steel tower/
-  - steel tower/pole
-  - steel towerr
-  - steel towers
-  - steel towers &
-  - steel towers & frames
-  - steel towers & frames, wood
-  - steel towers & steel poles
-  - steel towers"
-  - steel towers,
-  - steel towers/frames & poles
-  - steel twr
-  - steel twr & p
-  - steel twr.
-  - steel twr/pole
-  - steel twrs.
-  - steel twrs.,
-  - steel varies
-  - steel, lattice
-  - steel, lattice, wood
-  - steel, sgl pol
-  - steel, sgle
-  - steel, sgle pe
-  - steel, sgle pl
-  - steel, singl
-  - steel, single
-  - steel, wood
-  - steel, wood, l
-  - steel, wood, lattice
-  - steel,wood
-  - steel,wool
-  - steel- d-p
-  - steel-h
-  - steel-wood pol
-  - steel/
-  - steel/ wood
-  - steel/alum twr
-  - steel/concr.
-  - steel/latice towers
-  - steel/wood
-  - steeletowerpol
-  - steelpoletower
-  - steeltower
-  - steeltowerpole
-  - steeltwr&pole
-  - steet tower
-  - sti pi/sti-h-f
-  - sti piwd-h-fr
-  - sti-wd-h-fr
-  - sti/wd-h-fr
-  - stl con/lat
-  - stl h-fr
-  - stl h-fr, lattice tower
-  - stl h-fr, ltwr
-  - stl h-fr/stl p
-  - stl pi/wd-h-fr
-  - stl pl / tower
-  - stl pl-097
-  - stl pl-0976
-  - stl pl-0977
-  - stl pl-0978
-  - stl pl-098
-  - stl pl-0980
-  - stl pl-0986
-  - stl pl/stl-h-f
-  - stl pl/wd-h-fr
-  - stl plwd-h-fr
-  - stl sp, l twr
-  - stl sp, lattice tower
-  - stl sp, ltwr
-  - stl tower
-  - stl twr
-  - stl-pl/wd-h-fr
-  - stl-wd-h-fr
-  - stl.
-  - stl. tower
-  - stl. towers
-  - stl. towers - oh
-  - stl.-lattice
-  - stl.tower
-  - stl/alm tower
-  - stl/wd-h-fr
-  - stlh-fr, l twr
-  - stlpi/sti-h-fr
-  - stlsp,lat,wdhf
-  - stm-wd
-  - stp, h. frame
-  - stp, w.h.frame
-  - stsc
-  - sttc-0.73
-  - sttc-1.82
-  - sttc-1.86
-  - sttc-1.90
-  - sttc-5.22
-  - switch
-  - t (a)
-  - t others
-  - t t
-  - t-steel
-  - t0-1001
-  - t0-1009
-  - t0-1101
-  - t0-2001
-  - t0-3001
-  - t0-a108
-  - t30-326
-  - t60-179
-  - t60-302b
-  - t60-327
-  - tangent steel
-  - tclt
-  - tcpcs
-  - tcpsc
-  - tcsphf
-  - th-1 wood
-  - th-1a wood
-  - th7
-  - total
-  - tow/woodh/c
-  - tow/woodh/conc
-  - tower
-  - tower & pole
-  - tower & poles
-  - tower & wd h
-  - tower & wd h f
-  - tower &stl hfr
-  - tower (wd h)
-  - tower and
-  - tower and pole
-  - tower h frame
-  - tower pole
-  - tower wood h
-  - tower&stl h-fr
-  - tower&wdh
-  - tower, steel
-  - tower, wd h-fr
-  - tower, wd sp
-  - tower,concr h
-  - tower,stl h-fr,stl sp
-  - tower,stl sp,w
-  - tower,stlh-frs
-  - tower-cyl pole
-  - tower-cyl.pole
-  - tower-h
-  - tower-wire
-  - tower/concrete
-  - tower/h
-  - tower/h frame
-  - tower/poles
-  - tower/s
-  - towerhframe
-  - towers
-  - towers &
-  - towers & h-frame wood
-  - towers & poles
-  - towers (a)
-  - towers (ab)
-  - towers (ac)
-  - towers (ad)
-  - towers (b)
-  - towers (e)
-  - towers (f)
-  - towers (h)
-  - towers / wf. .
-  - towers, frames
-  - towers-s
-  - towerwire only
-  - towre
-  - towrs
-  - tp-138 steel
-  - tp-69 wood
-  - trip. stl. p.
-  - triple w.p.
-  - ts (18)
-  - ts (26)
-  - ts (27)
-  - ts (29)
-  - ts (30)
-  - ts (32)
-  - ts (33)
-  - ts (35)
-  - ts (36)
-  - ts (37)
-  - ts (38)
-  - ts (6)
-  - ts-1 wood
-  - ts1
-  - tw on 0899
-  - tw on 0910
-  - tw on 0975
-  - tw on 0976
-  - tw on 0977
-  - tw on 0978
-  - tw on 0979
-  - tw on 0980
-  - tw on 0985
-  - tw on 0986
-  - twr
-  - twr on 0910
-  - twr on 0975
-  - twr on 0976
-  - twr on 0977
-  - twr on 0978
-  - twr on 0979
-  - twr on 0980
-  - twr on 0984
-  - twr on 0985
-  - twr on 0986
-  - twr, stl sp, wd sp
-  - twr,stlh-fr,st
-  - twr,stlsp,wdsp
-  - twr; sp
-  - twr; sp ;wph; wp
-  - twr; sp; sph
-  - twr; sp; sph;
-  - twr; sp; sph; wp
-  - twr; sp; sph; wp; wph
-  - twr; sp; wp
-  - twr; sp; wp;
-  - twr; sp; wp; s
-  - twr; sp; wp; sph
-  - twr; sp; wp; w
-  - twr; sp; wp; wph
-  - twr; sp; wph
-  - twr; sp; wph;
-  - twr; sp; wph; wp
-  - twr; sp; wph; wp; sph
-  - twr; sph
-  - twr; sph; sp
-  - twr; sph; wph
-  - twr; wp
-  - twr; wp; sp
-  - twr; wp; sp;
-  - twr; wp; sp; w
-  - twr; wp; sp; wph
-  - twr; wp; sph
-  - twr; wp; sph;
-  - twr; wp; sph; sp; wph
-  - twr; wp; wph
-  - twr; wp; wph;
-  - twr; wp; wph; sp
-  - twr; wp; wph; sph; sp
-  - twr; wph
-  - twr; wph; sp
-  - twr; wph; sp;
-  - twr; wph; sp; sph
-  - twr; wph; sp; wp
-  - twr; wph; sp; wpk
-  - twr; wph; sph
-  - twr; wph; sph;
-  - twr; wph; sph; wp; sp
-  - twr; wph; wp
-  - twr; wph; wp;
-  - twr; wph; wp; sp
-  - twr; wph; wp; sph; sp
-  - twr; wph; wpk
-  - twr;wph;wp;sp
-  - v-steel
-  - vert. conc. po
-  - w-t
-  - w.pl./st.tower
-  - wd frm/ stl pl
-  - wd frm/sti pl
-  - wd h-fr, stl p
-  - wd ple stl twr
-  - wd ple-stl twr
-  - wd ple.stl twr
-  - wd pol stl twr
-  - wd-pl stl twr
-  - wd-st pi/h fr
-  - wd-st pi/h-fr
-  - wd-st pl/h fr
-  - wd-stl
-  - wd. pole/sttwr
-  - wd/pol-stl twr
-  - wdhfr/sp,stlsp
-  - wdst
-  - wdstl
-  - wfs (13)
-  - wfs (30)
-  - wood & steel
-  - wood & stell
-  - wood &steel p
-  - wood and steel
-  - wood frm/steel
-  - wood h & steee
-  - wood h, steel
-  - wood h-frames & steel poles
-  - wood pole twr
-  - wood steel
-  - wood tower
-  - wood towers
-  - wood towers &
-  - wood towers & frames
-  - wood twr
-  - wood twrs. and
-  - wood&concrete
-  - wood&steel
-  - wood, lattice
-  - wood, lattice,
-  - wood, lattice, steel
-  - wood, steel
-  - wood, steel, e
-  - wood, steel, l
-  - wood, steel, lattice
-  - wood, steelwol
-  - wood,steel
-  - wood/concret
-  - wood/concrete
-  - wood/steel
-  - wood/stl/concr
-  - wp; sp; twr
-  - wp; twr
-  - wp; twr; sp
-  - wp; twr; sp;
-  - wp; twr; sp; w
-  - wp; twr; sp; wph
-  - wp; twr; sph;
-  - wp; twr; sph; sp
-  - wp; twr; wph
-  - wp; twr; wph;
-  - wp; twr; wph; sp
-  - wp; wph; sp; twr
-  - wp; wph; twr
-  - wp; wph; twr;
-  - wp; wph; twr; sp
-  - wph; sp; twr
-  - wph; sp; twr;
-  - wph; sp; twr; wp
-  - wph; sph; wp; twr; sp
-  - wph; twr
-  - wph; twr; sp
-  - wph; twr; sp;
-  - wph; twr; sp; wp
-  - wph; twr; wp
-  - wph; twr; wp;
-  - wph; twr; wp; sp
-  - wph; twr; wp; sp; sph
-  - wph; twr; wp; sph
-  - wph; twr; wpk;
-  - wph; wp; sp; twr
-  - wph; wp; sp; twr; sph
-  - wph; wp; twr
-  - wph; wp; twr;
-  - wph; wp; twr; sp
-  - wph; wp; twr; sp; sph
-  - z-1.30
-underground:
-  - (1) (14.90)
-  - (1) (4.07)
-  - (1) (7.40)
-  - (1) (7.43)
-  - (1)(5.47)
-  - (1); (2); (4)
-  - (1); (2); (4); (3)
-  - (1); (2); (4); (3); (5)
-  - (1); (3); (2); (4)
-  - (1); (3); (4)
-  - (1); (3); (4); (5)
-  - (1); (3); (5); (4)
-  - (1); (4)
-  - (1); (4); (2)
-  - (1); (4); (2); (3)
-  - (1); (4); (2); (5); (3)
-  - (1); (4); (3)
-  - (1); (4); (5)
-  - (1); (4); (5); (3)
-  - (1); (4); (5); (3); (2)
-  - (1); (5); (3); (4)
-  - (1); (5); (3); (4); (2)
-  - (1); (5); (4)
-  - (1); (5); (4); (3)
-  - (2) (11.43)
-  - (2) (12.48)
-  - (2) (12.94)
-  - (2) (14.49)
-  - (2) (24.16)
-  - (2) (24.77)
-  - (2) (24.92)
-  - (2) (30.04)
-  - (2) (34.13)
-  - (2) - 146.90
-  - (2) - 147.20
-  - (2); (1); (4)
-  - (2); (4)
-  - (2); (4); (1)
-  - (2); (4); (3); (1)
-  - (2); (4); (5)
-  - (24)
-  - (3); (1); (4)
-  - (3); (1); (4); (5)
-  - (3); (4)
-  - (3); (4); (1)
-  - (3); (4); (1); (2)
-  - (3); (4); (1); (5)
-  - (3); (4); (1); (5); (2)
-  - (3); (4); (2)
-  - (3); (4); (5)
-  - (3); (4); (5); (1)
-  - (3); (4); (5); (2)
-  - (3); (5); (4)
-  - (4)
-  - (4) u.g.
-  - (4) under
-  - (4); (1); (2)
-  - (4); (1); (2); (3)
-  - (4); (1); (2); (5)
-  - (4); (1); (3); (2)
-  - (4); (1); (5); (3)
-  - (4); (2)
-  - (4); (2); (1)
-  - (4); (2); (1); (3)
-  - (4); (2); (3)
-  - (4); (2); (3); (5); (1)
-  - (4); (3)
-  - (4); (3); (1)
-  - (4); (3); (1); (5)
-  - (4); (3); (2)
-  - (4); (3); (2); (1)
-  - (4); (3); (5)
-  - (4); (5)
-  - (4); (5); (3)
-  - (43)
-  - (46)
-  - (5); (3); (4)
-  - (5); (4); (3)
-  - (avon juniper)
-  - (avon-juniper)
-  - (ug)
-  - .33 db cable
-  - 1 (1)an sub to sub
-  - 1 (3)an sub to sub
-  - 1 ban sub to sub
-  - 1, 2 & 4
-  - 1, 2 &4
-  - 1,2&4
-  - 2-column h.str
-  - 2s, 4
-  - 2w,4
-  - 4, 2s
-  - 4,2s
-  - alum
-  - alum guye
-  - alum guyed
-  - alum guyed-v
-  - alum h
-  - alum h-fr
-  - alum.
-  - alum. guyed v
-  - alum. h. frame
-  - alum. tow
-  - alum. y
-  - aluminum
-  - alumt
-  - at (44)
-  - at (47)
-  - at=alum
-  - b-.56;h-15.47
-  - b-0.58;p-4.60;
-  - b-1.00;h-33.45
-  - b-10.24
-  - b-19.84
-  - b-2.46;p-.72;
-  - b-24.33
-  - b-24.50
-  - b-24.50;z-1.30
-  - b-25.42
-  - b-3.49;h-9.54
-  - b-4.00
-  - b-4.00;h-20.22
-  - b-4.55;dd-.20;
-  - b-4.88
-  - b-5.05;h-3.47;
-  - b-505;h-3.47;
-  - bus
-  - c-u
-  - c-u-g
-  - c-ug
-  - cable
-  - cble
-  - conduit
-  - construction
-  - cu cable
-  - cu xlpe c
-  - cu xlpe cable
-  - cu. cable
-  - d-.45;z-2.14
-  - d-14.29
-  - d-14.67
-  - d-3.51;h-14.85
-  - d-7.49;h-19.24
-  - db cable
-  - double
-  - double ckt
-  - double ckt.
-  - double w.p.
-  - dw-2.48
-  - epr
-  - guy
-  - guy delta,towr
-  - guyed
-  - guyed "h"
-  - guyed "h" frame (69.6 ml) double ckt steel (1.31 ml)
-  - guyed "h" frame (69.6 ml), double ckt steel (1.31 ml)
-  - guyed "y"
-  - guyed alu
-  - guyed alum
-  - guyed delta
-  - guyed ste
-  - guyed steel
-  - guyed y
-  - guyed-v alumin
-  - h frame underground
-  - h frame wp dc-sgl dbl circuit
-  - h-.45;st-.40;
-  - h-.60.42
-  - h-.74
-  - h-1.42
-  - h-11.14
-  - h-14.26;p-.54
-  - h-14.34;p-.17
-  - h-14.92;p-.38
-  - h-16.14
-  - h-16.64
-  - h-17.84;p-2.10
-  - h-19.42
-  - h-20.40
-  - h-21.68;hh-.46
-  - h-23.43
-  - h-24.10
-  - h-24.48
-  - h-25.34
-  - h-26.64
-  - h-26.84
-  - h-27.49
-  - h-29.28;d-2.04
-  - h-3.40
-  - h-3.45
-  - h-34.22;
-  - h-36.64
-  - h-39.34
-  - h-4.07
-  - h-4.17
-  - h-4.24
-  - h-4.79
-  - h-40.68
-  - h-40.75
-  - h-41.53
-  - h-41.89
-  - h-42.70
-  - h-42.73
-  - h-43.33
-  - h-45.43
-  - h-45.97
-  - h-46.20;p-1.15
-  - h-46.20p-1.00
-  - h-46.40;p-1.00
-  - h-49.25
-  - h-49.26
-  - h-49.68
-  - h-5.54
-  - h-50.26;p-4.25
-  - h-50.26;p-4.30
-  - h-6.30;st-.43;
-  - h-6.74
-  - h-69.46
-  - h42.46
-  - hh-.46
-  - hh-1.14
-  - hh-2.44
-  - hh-2.45
-  - hh-4.28
-  - hh-4.46
-  - hh-4.50
-  - hh-4.71
-  - hpff
-  - hpof
-  - included in (1) e.shore - totoket
-  - included in (13) w.river - congress
-  - included in (15) peq-ash creek
-  - included in (17) w.river - water st sub
-  - included in (7) seaview - trumbull junction
-  - included in 1
-  - included in 13
-  - included in 15
-  - included in 17
-  - included in 7
-  - included in-1
-  - included in-13
-  - included in-15
-  - included in-17
-  - kfw .14
-  - kfw 10.34
-  - kfw 104.66
-  - kfw 115.64
-  - kfw 12.54
-  - kfw 23.41
-  - kfw 25.4
-  - kfw 26.45
-  - kfw 34.87
-  - kfw 34.95
-  - kfw 38.48
-  - kfw 4.52
-  - kfw 40.86
-  - kfw 43.62
-  - kfw 43.87
-  - kfw 45.11
-  - kfw 47.88
-  - kfw 48.1
-  - kfw 48.12
-  - kfw 49.82
-  - kfw 49.93
-  - kfw 5.43
-  - kfw 52.41
-  - kfw 54.49
-  - kfw 54.51
-  - kfw 62.04
-  - kfw 64.07
-  - kfw 76.47
-  - kfw 87.64
-  - kfw 91.74
-  - kfw 94.46
-  - lattice alumin
-  - lattice struct
-  - no structures
-  - oh and sub
-  - p-.10;b-.48;
-  - p-.14;h-14.24
-  - p-.43
-  - p-.45
-  - p-.48
-  - p-1.04;h.72
-  - p-1.14
-  - p-1.54;st-.70;
-  - p-10.04;
-  - p-12.46
-  - p-14.16
-  - p-16.43
-  - p-19.48
-  - p-2.24
-  - p-2.44;h-5.91
-  - p-3.54
-  - p-3.54;h-4.03;
-  - p-4.10
-  - p-4.30
-  - p-4.32
-  - p-4.46
-  - p-4.77
-  - p-4.78
-  - p-4.94
-  - p-5.46
-  - p-8.00;h-5.40
-  - p-8.48;pp-.10
-  - p-9.04
-  - p-9.47;h-3.2
-  - p6.46
-  - pipe typecable
-  - pp-.42;p-5.02;
-  - pp-7.54
-  - s 9.44
-  - s-.49
-  - s-10.64
-  - s-16.43
-  - s-16.44
-  - s-2.04;s-2.35
-  - s14.13
-  - s2/cble
-  - scsu
-  - scug
-  - single,double
-  - ss-2.43
-  - st (14)
-  - st (34)
-  - st (4)
-  - st (41)
-  - st (42)
-  - st (45)
-  - st (46)
-  - st, u
-  - st-.13.41
-  - st-.35;h-2.44
-  - st-.40
-  - st-.44
-  - st-.74
-  - st-0.43
-  - st-1.40
-  - st-10.84
-  - st-13.24
-  - st-14.47
-  - st-2.54
-  - st-3.43
-  - st-4.58
-  - st-49.11
-  - stdc-.41
-  - stdc-.45
-  - stdc-.47
-  - stdc-17.04
-  - stdc-4.89
-  - steel - h-us
-  - steel building
-  - steel guy
-  - steel guyed
-  - steel h column
-  - steel structue
-  - steel twr & ug
-  - stl pl-0984
-  - sttc-1.43
-  - sub term
-  - sub terminatin
-  - sub to sub 1 s
-  - submarine
-  - submarine (c)
-  - submarine (d)
-  - submarine (f)
-  - submarine cab
-  - submarine cabe
-  - submarine cable
-  - submarine cble
-  - submarine(d)
-  - substation bay
-  - subway
-  - t0-324
-  - t0-342
-  - t0-4001
-  - t0-402
-  - t0-476
-  - t10-421
-  - t40-475
-  - t40-505
-  - t60-470
-  - take-off struc
-  - ts (34)
-  - ts (4)
-  - ts (40)
-  - ts (41)
-  - ts (43)
-  - ts (44)
-  - tu-1
-  - tu-1, single
-  - tunnel
-  - tus-1-115
-  - tus-1-115 wood
-  - tus-1-161
-  - tus-1-161 wood
-  - tus-1p
-  - tw on 0984
-  - u (39)
-  - u (47)
-  - u, st
-  - u-g
-  - u. g.
-  - u.g xple
-  - u.g.
-  - u.g. hpff
-  - u.g. xlpe
-  - u.g.=hpof
-  - u/g
-  - ucb
-  - udg
-  - udg construct.
-  - ug
-  - ug (a)
-  - ug and sub
-  - ug cable
-  - ug const
-  - ug duct
-  - ug duct bank
-  - ug twr
-  - ug ug
-  - ug-.27
-  - ug-hpof
-  - ug= undergroun
-  - ug=hpof
-  - ug=underground
-  - und
-  - und. stl. pipe
-  - undeerground
-  - under construc
-  - underbuild
-  - underbuilt on
-  - undergound
-  - undergr cable
-  - undergrd
-  - undergrnd
-  - undergrnd &
-  - undergrnd (d
-  - undergrnd (d)
-  - undergrnd (f)
-  - undergrnd (g)
-  - undergrnd(d)
-  - undergrnd(g)
-  - undergrou
-  - underground
-  - underground &
-  - underground (3)
-  - underground (a
-  - underground (a) (f)
-  - underground (f
-  - underground (f)
-  - underground 1
-  - underground 2
-  - underground(3)
-  - underground(f)
-  - underground25%
-  - underground75%
-  - undergroung
-  - undg. (26)
-  - undg.(26)
-  - undgrd (a) (f)
-  - undreground
-  - undrgrnd
-  - undrgrnd cable
-  - undrground
-  - unk
-  - unknown
-  - unset
-  - urd
-  - urd const.
-  - urd constr.
-  - various 1
-  - various 2
-  - various 3
-  - various 4
-  - various oh
-  - various oh/og
-  - various oh/ug
-  - various wood
-  - variouss
-  - varoius
-  - verious
-  - wood & double steel
-  - wood - h sub
-  - wood - h subst
-  - wood - u
-  - wood structure - oh
-  - wood,steel, ug
-  - wood,steel,ug
-  - wp, st, ug
-  - wp,at,st,ug
-  - xlpe
-  - xlpe cabl
-  - xlpe cable
-  - z-.04;h-9.03;
-  - z-.45
-  - z-.46
-  - z-.48
-  - z-0.04
-  - z-4.65
-  - z-5.43
-na_category:
-  - '"'
-  - "' (5)"
-  - (1) & (2)
   - (1) (.07)
   - (1) (0.06)
   - (1) (0.7)
   - (1) (1.85)
+  - (1) (1.93)
   - (1) (10.80)
+  - (1) (11.37)
   - (1) (11.56)
   - (1) (12.61)
   - (1) (12.66)
   - (1) (12.71)
+  - (1) (14.90)
   - (1) (15.26)
   - (1) (17.59)
   - (1) (19.02)
-  - (1) (2)
   - (1) (2.28)
   - (1) (2.29)
+  - (1) (3.26)
+  - (1) (3.36)
+  - (1) (3.73)
+  - (1) (3.95)
+  - (1) (4.07)
+  - (1) (5.36)
   - (1) (5.56)
   - (1) (5.60)
   - (1) (6.66)
   - (1) (7.1)
   - (1) (7.11)
   - (1) (7.22)
+  - (1) (7.38)
+  - (1) (7.40)
+  - (1) (7.43)
   - (1) (9.00)
   - (1) )5.56)
+  - (1) 5.36
   - (1) 9.78
   - (1) conc
   - (1) conc.
-  - (1)(2)
-  - (1), (2)
-  - (1),(2)
+  - (1) concrete
+  - (1) steel
+  - (1) steel (a)
+  - (1) wood
+  - (1)(5.47)
   - (1)9.78
   - (1); (1)
-  - (1); (2)
-  - (1); (2);
-  - (1); (2); (5)
-  - (1); (5)
-  - (1); (5); (2)
-  - (1.81 ml)
-  - (1.81 ml.)
-  - (2) (.70)
-  - (2) (1.82)
-  - (2) (10.78)
-  - (2) (12.11)
-  - (2) (12.87)
-  - (2) (127.07)
-  - (2) (15.07)
-  - (2) (15.78)
-  - (2) (16.26)
-  - (2) (16.27)
-  - (2) (16.28)
-  - (2) (22.16)
-  - (2) (26.70)
-  - (2) (27.57)
-  - (2) (29.88)
-  - (2) (5.96)
-  - (2) (6.16)
-  - (2) (7.02)
-  - (2) 9.98
-  - (2)9.98
-  - (2); (1)
-  - (2); (1);
-  - (2); (1); (1)
-  - (2)wood
-  - (25)
-  - (27)
-  - (28)
-  - (5)
-  - (5); (2)
-  - (69.6 ml)
-  - (69.6 ml.)
-  - (91.9 ml)
-  - (91.9 ml.)
-  - (92.6 ml.)
-  - (a)
-  - (b)
-  - (c)
-  - (c-h-f)(c-p)
-  - (c-h-f)(s-h-f)
-  - (c-h-f)(w-p)
-  - (c-p)(s-m-p)
-  - (c-p)(w-p)
-  - (h. frame)
-  - (perry-inland)
-  - (ref ln129)
-  - (s-a-f)(s-h-f)
-  - (s-a-f)(s-h-f)(s-m-p)
-  - (s-a-f)(s-m-p)
-  - (s-h-f)(s-m-p)
-  - (wood
-  - "*"
-  - ",132.00,132.00"
-  - ",345.00,345.00"
-  - "-"
-  - "-1"
-  - "-2"
-  - "-3"
-  - "-5"
-  - .
-  - ".2"
-  - .20; cp-.69
-  - /b-sa
-  - "0"
-  - "0.00"
-  - "0.50"
+  - (1)concrete
+  - (c-p)(s-p)
+  - (corten pole)
+  - (s-p) (w-p)
+  - (s-p)(w-p)
+  - (steel pole)
+  - (wood pole)
+  - .67 wood pole
   - "1"
-  - 1 & 2
   - 1 = 0.62
   - 1 = 0.94
   - 1 = 1.02
-  - 1,2
-  - 1,2,
-  - 1,2,3
-  - 1,2,3,
-  - 1,2,3,4
-  - 1,3
-  - 1,3,4
-  - 1,4
+  - 1 ple wd
+  - 1 pole
+  - 1 pole wd
+  - 1 pole wood
+  - 1 steel pole
+  - 1 steel poles
   - 1-.01
   - 1-.018
   - 1-.03
@@ -2910,8 +349,6 @@ na_category:
   - 1-19.61
   - 1-19.69
   - 1-19.81
-  - 1-2
-  - 1-2-3
   - 1-2.02
   - 1-2.03
   - 1-2.038
@@ -3121,7 +558,6 @@ na_category:
   - 1-4.9688
   - 1-40.64
   - 1-44.5
-  - 1-5
   - 1-5.0591
   - 1-5.09
   - 1-5.093
@@ -3257,38 +693,569 @@ na_category:
   - 1-9.75
   - 1-9.90
   - 1-9.99
-  - 1-feb
-  - "1.00"
-  - "1.2"
-  - "1.3"
-  - "1.50"
-  - "1.74"
-  - "10.57"
-  - "10.60"
-  - 12-feb
-  - "132.00"
-  - "138.00"
-  - "161.00"
-  - 17-feb
+  - 1pole wd
   - 1s
   - 1s, 1w
-  - 1s, 2s
-  - 1s, 2s, 2w
-  - 1s, 2w
   - 1s, w
   - 1s,1w
-  - 1s,2s
-  - 1s,2s,2w
-  - 1s,2w
   - 1s,w
   - 1w
   - 1w, 1s
-  - 1w, 2w,1s, 2s
   - 1w, s
   - 1w,1s
-  - 1w,2w,1s,2s
   - 1w,s
   - 1w. 1s
+  - 3pw
+  - c-p
+  - c-s-p
+  - c-sp
+  - coc. pole
+  - con-p
+  - con/steel pole
+  - conc pole
+  - conc. pole
+  - conc. st pole
+  - concret pole
+  - concret s pole
+  - concrete 1pole
+  - concrete pole
+  - concrete poles
+  - corten pole
+  - corten poles
+  - cp
+  - cp-1p
+  - cyl pol
+  - cyl pole
+  - cyl. pole
+  - cyl.pole
+  - dc c-sp
+  - dc s-sp
+  - dc stl pole
+  - dc wood pole
+  - dc-sp
+  - dc-ssp
+  - dcs c-sp
+  - dcsp
+  - dcsp 1
+  - dspdc
+  - dspsc
+  - galvanized monopole
+  - included in (1) e.shore - totoket
+  - mix steel and wood poles
+  - monopole
+  - oh steel poles
+  - oh stl poles
+  - oh wd poles
+  - oh wood poles
+  - on wood poles
+  - other ssp
+  - other swp
+  - others ssp
+  - others ssp swp
+  - others swp
+  - others swp ssp
+  - others t ssp
+  - others t ssp swp
+  - others t swp
+  - overhead wood poles
+  - p
+  - p (a)
+  - p-.15
+  - p-.20
+  - p-.28
+  - p-.59
+  - p-.61
+  - p-1.00
+  - p-1.06
+  - p-1.10
+  - p-1.11
+  - p-1.52
+  - p-1.82
+  - p-11.19
+  - p-11.28
+  - p-17.08
+  - p-18.20
+  - p-19.60
+  - p-19.69
+  - p-19.77;pp-.86
+  - p-2.00
+  - p-2.01
+  - p-2.05
+  - p-2.07;-2.28
+  - p-2.20
+  - p-2.50
+  - p-2.6
+  - p-2.60
+  - p-2.70
+  - p-2.85
+  - p-2.86
+  - p-2.87;sp-2.63
+  - p-2.91
+  - p-2.97
+  - p-5.11
+  - p-5.82
+  - p-6.08
+  - p-6.80
+  - p-7.10
+  - p-8.16
+  - p-8.19
+  - p-8.50
+  - p-9.01
+  - p-9.02
+  - p-9.15
+  - p-wood
+  - pole
+  - pole 22 miles\
+  - pole special
+  - pole steel
+  - pole wood
+  - pole,
+  - poleconcrete
+  - poles
+  - poles wood
+  - poles wood &
+  - poles wood,
+  - polesteel
+  - polewood
+  - r-spwd
+  - rs-pwd
+  - rspwd
+  - s monopole
+  - s p wood
+  - s pole
+  - s pole steel
+  - s- pole
+  - s- poles
+  - s-c-p
+  - s-dspst
+  - s-p
+  - s-pole
+  - s-poles
+  - s-pst
+  - s-pwd
+  - s-s-p
+  - s-sp
+  - s-sp-11
+  - s-spst
+  - s-spwd
+  - s-w-p
+  - s. conc. poles
+  - s. p. wood
+  - s. pole
+  - s. stl. pole
+  - s. stl. poles
+  - s.p wood
+  - s.p. wood
+  - s.p.-wd
+  - s2/dcsp
+  - s2/dcsp/sp
+  - s2/sp/dcsp
+  - sahp single pe
+  - sahp single pole
+  - sc-sp
+  - scdsp
+  - scsp
+  - sgl pole
+  - sgl pole s
+  - sgl pole s/wo
+  - sgl pole steel
+  - sgl pole w
+  - sgl pole w&s
+  - sgl pole-w
+  - sgl pole-wd
+  - sgl pole/w
+  - sgl steel pole
+  - sgl wood
+  - sgl wood pole
+  - sgl wood poles
+  - sgl-pole wd
+  - sgl. pole-w
+  - sgl. wood pole
+  - sgl.pole-w
+  - sgl.wood pole
+  - sgl.wood poles
+  - signle pole st
+  - singe wd pl
+  - single
+  - single concr
+  - single dc sp
+  - single m.p.
+  - single p-w
+  - single pole
+  - single pole s
+  - single pole st
+  - single pole steel
+  - single pole steel & wood
+  - single pole wd
+  - single pole wood
+  - single pole,
+  - single pole,sl
+  - single pole,st
+  - single pole,steel
+  - single pole,wood
+  - single pole-w
+  - single pole-w/
+  - single pole-wood
+  - single pole/st
+  - single pole/wo
+  - single pool wood
+  - single sp
+  - single steel
+  - single steel & wood
+  - single steel p
+  - single steel pole
+  - single w. p.
+  - single w.p
+  - single w.p.
+  - single wd pl
+  - single wd. pos
+  - single wood
+  - single wood & steel
+  - single wood - steel
+  - single wood pl
+  - single wood po
+  - single wood pole
+  - single wp
+  - single-pole
+  - singlewood
+  - sng con pole
+  - sng conc pl
+  - sng pole steel
+  - sng stl pole
+  - sng wood pole
+  - sngl pole stl
+  - sngl stl pl
+  - sngl wood pole
+  - sngl woodpole
+  - sngl woodpoles
+  - sngle conc pls
+  - sngle steel pl
+  - sp
+  - sp & wp
+  - sp .01
+  - sp .02
+  - sp .04
+  - sp .07
+  - sp .08
+  - sp .14
+  - sp .15
+  - sp .16
+  - sp .17
+  - sp .28
+  - sp .29
+  - sp .32
+  - sp .4
+  - sp .91
+  - sp 1.15
+  - sp 1.21
+  - sp 1.3
+  - sp 1.41
+  - sp 1.49
+  - sp 1.82
+  - sp 1.88
+  - sp 10.44
+  - sp 10.51
+  - sp 11.19
+  - sp 11.68
+  - sp 11.71
+  - sp 13.03
+  - sp 15.13
+  - sp 157.24
+  - sp 161.62
+  - sp 17.66
+  - sp 19.66
+  - sp 2.07
+  - sp 2.29
+  - sp 2.63
+  - sp 2.86
+  - sp 3.09
+  - sp 3.11
+  - sp 3.58
+  - sp 4.42
+  - sp 5.38
+  - sp 6.78
+  - sp 6.92
+  - sp 7.07
+  - sp 7.1
+  - sp 7.24
+  - sp = steel poe
+  - sp steel
+  - sp wd & st
+  - sp, wp
+  - sp,wp
+  - sp-1.0
+  - sp-1.00
+  - sp-1.22
+  - sp-1.39
+  - sp-15.54
+  - sp-c
+  - sp-concrete
+  - sp-s
+  - sp-s, sp-w
+  - sp-steel
+  - sp-steel/sp-wd
+  - sp-w
+  - sp-w & sp-s
+  - sp-wd
+  - sp-wood
+  - "sp: twr"
+  - sp; twr
+  - sp; twr; wp
+  - sp; twr; wp; s
+  - sp; wp
+  - sp; wp; twr
+  - sp; wp; twr;
+  - sp;wp
+  - sp= steel pole
+  - sp=steel pole
+  - spdc
+  - special pole
+  - sps
+  - sps, spw
+  - spsc
+  - spw
+  - spw,
+  - spw, sps
+  - spw,sps
+  - spwd
+  - spwd-s
+  - ssp
+  - ssp (a)
+  - ssp swp
+  - ssp swp ss
+  - ssp swp sw
+  - sspcc
+  - sspcs
+  - sspdc
+  - sspsc
+  - sspss
+  - st pole
+  - st., sgle pole
+  - st=steel pole
+  - steel - sp
+  - steel 1pole
+  - steel and wood poles
+  - steel monopole
+  - steel monopoles
+  - steel ploe
+  - steel pol
+  - steel pole
+  - "steel pole \x02"
+  - steel pole"
+  - steel pole-s
+  - steel pole-w
+  - steel pole-w/
+  - steel poles
+  - steel poles (a
+  - steel poles (a)
+  - steel poles (b
+  - steel poles (b)
+  - steel poles a
+  - steel poles e
+  - steel poles(a)
+  - steel poles(b)
+  - steel poles(e)
+  - steel s pole
+  - steel single p
+  - steel single pole
+  - steel sngl pl
+  - steel sp
+  - steel twr/pole
+  - steel, sgl pol
+  - steel, sgle pl
+  - steel, sgle pole
+  - steel, single
+  - steel- sp
+  - steel-sp
+  - steel-wood pol
+  - steel-wood pole
+  - steel/pole
+  - steeltwr&pole
+  - steelwood pole
+  - steep pole
+  - stell pole
+  - sti-wd-pole
+  - stl pl-097
+  - stl pl-0976
+  - stl pl-0977
+  - stl pl-0978
+  - stl pl-098
+  - stl pl-0980
+  - stl pl-0984
+  - stl pl-0986
+  - stl pole-0976
+  - stl pole-0977
+  - stl pole-0980
+  - stl pole-0984
+  - stl pole-0986
+  - stl sp
+  - stl sp, l twr
+  - stl sp, ltwr
+  - stl sp, wd sp
+  - stl sp,wd sp
+  - stl sp. wd sp
+  - stl-sp
+  - stl-wd pole
+  - stl-wd-pole
+  - stl. pole
+  - sttel pole
+  - swp ssp
+  - swp, dcst
+  - swp/dcst
+  - tu-1, single
+  - tubular steel pole
+  - twr, stl sp, wd sp
+  - twr,stlsp,wdsp
+  - twr; sp
+  - twr; sp; wp
+  - twr; sp; wp;
+  - twr; sp; wp; s
+  - twr; sp; wp; w
+  - twr; wp
+  - twr; wp; sp
+  - twr; wp; sp;
+  - twr; wp; sp; w
+  - underbuilt on steel poles
+  - w monopole
+  - w- poles
+  - w-p
+  - w-pole
+  - w-sp
+  - wd & stl pole
+  - wd ple stl twr
+  - wd ple-stl twr
+  - wd ple.stl twr
+  - wd pol stl twr
+  - wd sp
+  - wd sp, stl sp
+  - wd sp,stl sp
+  - wd-pl stl twr
+  - wd-pole
+  - wd-sti pole
+  - wd-stl-pole
+  - wd. pole/sttwr
+  - wd/pol-stl twr
+  - wd/st poles
+  - wd/steel poles
+  - wd/sti pole
+  - wd/stl pole
+  - wd/stl poles
+  - wood & steel poles
+  - wood - pole
+  - wood - sp
+  - wood -pole
+  - wood -sp
+  - wood and steel pole
+  - wood and steel poles
+  - wood pol
+  - wood pole
+  - wood pole str.
+  - wood pole twr
+  - wood pole,steel pole
+  - wood poles
+  - wood pool
+  - wood s. p.
+  - wood s.p.
+  - wood sp
+  - wood spdc
+  - wood spsc
+  - wood&stl pole
+  - wood&stl. pole
+  - wood, stl pole
+  - wood-pole
+  - wood-sp
+  - wood/ st pole
+  - wood/st pole
+  - wood/steel - sp
+  - wood/steel pole
+  - wood/steel spc
+  - wooden pole
+  - wooden poles
+  - woodpoles
+  - woodpoole
+  - wp
+  - wp (45)
+  - wp - sp
+  - wp, sp
+  - wp, sp,cp
+  - wp,sp
+  - wp,sp,cp
+  - wp-1p
+  - wp-sp
+  - wp-steel
+  - wp/sp
+  - wp; sp
+  - wp; sp; twr
+  - wp; twr
+  - wp; twr; sp
+  - wp; twr; sp;
+  - wp; twr; sp; w
+  - wp= wood
+  - wp=wood
+  - wp=wood pole
+  - ws - sp
+  - wspdc
+  - wspsc
+h_frame:
+  - '"h" frame'
+  - "& steel frame"
+  - (2)
+  - (2) (.30)
+  - (2) (.70)
+  - (2) (0.30)
+  - (2) (0.53)
+  - (2) (1.82)
+  - (2) (10.78)
+  - (2) (11.43)
+  - (2) (12.11)
+  - (2) (12.48)
+  - (2) (12.87)
+  - (2) (12.94)
+  - (2) (127.07)
+  - (2) (14.49)
+  - (2) (15.07)
+  - (2) (15.78)
+  - (2) (16.26)
+  - (2) (16.27)
+  - (2) (16.28)
+  - (2) (17.39)
+  - (2) (2.39)
+  - (2) (22.16)
+  - (2) (24.16)
+  - (2) (24.77)
+  - (2) (24.92)
+  - (2) (25.35)
+  - (2) (26.70)
+  - (2) (27.57)
+  - (2) (29.88)
+  - (2) (3.97)
+  - (2) (30.04)
+  - (2) (30.06)
+  - (2) (34.13)
+  - (2) (36.95)
+  - (2) (37.75)
+  - (2) (37.95)
+  - (2) (5.96)
+  - (2) (6.16)
+  - (2) (6.31)
+  - (2) (7.02)
+  - (2) - 146.90
+  - (2) - 147.20
+  - (2) 3.95
+  - (2) 9.98
+  - (2) steel
+  - (2) wood
+  - (2)9.98
+  - (2)concrete
+  - (2)wood
+  - (h. frame)
+  - (s-a-f)(s-h-f)
+  - (s-a-f)(s-h-f)(s-m-p)
+  - (s-a-f)(s-m-p)
+  - (s-h-f)(s-m-p)
+  - (s-h-f)(w-h-f)
+  - (w-hfr)
+  - (wood h-frame
   - "2"
   - 2 = 0.07
   - 2 = 0.24
@@ -3408,9 +1375,8 @@ na_category:
   - 2 =44.18
   - 2 =45.56
   - 2 =59.64
-  - 2'6
-  - 2, 3
-  - 2,3
+  - 2 pole h frame
+  - 2 pole h-frame
   - 2-.13
   - 2-.15
   - 2-.16
@@ -3471,7 +1437,6 @@ na_category:
   - 2-0.95
   - 2-0.98
   - 2-0.99
-  - 2-1
   - 2-1.07
   - 2-1.08
   - 2-1.13
@@ -3976,14 +1941,652 @@ na_category:
   - 2-9.75
   - 2-9.76
   - 2-9.78
-  - "2.10"
-  - "230"
-  - "230.00"
+  - 2-column h.str
   - 2=1.45
   - 2s
   - 2w
   - 2w, 2s
   - 2w,2s
+  - 95% wd h fr
+  - a-frame
+  - al - lhf
+  - al-lhf
+  - al. lat h
+  - al. lat. h
+  - al. lat. h, h-frame
+  - al. lat. h,ste
+  - al. lat. h.
+  - alum h
+  - alum h frame
+  - alum h-fr
+  - alum h-frame
+  - alum. h frame
+  - alum. h-frame
+  - alum. h. frame
+  - b-.56;h-15.47
+  - b-1.00;h-33.25
+  - b-1.00;h-33.45
+  - b-1.03;h-7.36;
+  - b-3.49;h-9.54
+  - b-4.00;h-20.22
+  - b-5.05;h-3.47;
+  - b-505;h-3.47;
+  - b-sa/hf
+  - c-h fr.
+  - c-h-f
+  - c-hfr
+  - ch
+  - con. h. frame
+  - con. h.frame
+  - conc h.frame
+  - conc hfrm
+  - conc. h-frame
+  - concr h-frame
+  - concrete h
+  - concrete h frame
+  - concrete h-fr
+  - concrete h-fra
+  - concrete h-frame
+  - concrete three-pole
+  - concreteh-frme
+  - d-3.51;h-14.85
+  - d-7.49;h-19.24
+  - dc s -hfr
+  - dc s hfr.
+  - dc s-hfr
+  - dc-s-h fr.
+  - dc-sh fr.
+  - dhfwd
+  - double
+  - double ckt
+  - double ckt.
+  - double pole
+  - double w.p.
+  - fh-wd
+  - frame
+  - frames
+  - frames &
+  - frames & wood
+  - frames and
+  - frames, wood
+  - frames, wood &
+  - frames, wood,
+  - frames,wood
+  - frames,wood,
+  - franes
+  - fwd
+  - guyed "h"
+  - guyed "h" frame (69.6 ml) double ckt steel (1.31 ml)
+  - guyed "h" frame (69.6 ml), double ckt steel (1.31 ml)
+  - h
+  - h (a)
+  - h frame
+  - h frame - w
+  - h frame -w
+  - h frame sp
+  - h frame st/wd
+  - h frame steel
+  - h frame w
+  - h frame wd
+  - h frame wood
+  - h frame-steel
+  - h frame-w
+  - h frame-wood
+  - h steel
+  - h type
+  - h wood
+  - h wood &
+  - h wood"
+  - h- frame
+  - h- wood
+  - h-.06
+  - h-.10
+  - h-.11
+  - h-.15
+  - h-.51;
+  - h-.60.42
+  - h-.74
+  - h-1.05;p-6.21
+  - h-1.05;p-6.21;
+  - h-1.05;p-9.28
+  - h-1.18
+  - h-1.18;hh-2.81
+  - h-1.42
+  - h-1.50
+  - h-1.86
+  - h-1.98
+  - h-10.21
+  - h-10.86
+  - h-10.96
+  - h-11.14
+  - h-11.81
+  - h-12.00
+  - h-12.17
+  - h-14.26;p-.54
+  - h-14.34;p-.17
+  - h-14.92;p-.38
+  - h-15.19
+  - h-15.20
+  - h-15.21
+  - h-15.28;hh-.52
+  - h-15.31
+  - h-15.31;p-2.6
+  - h-16.01
+  - h-16.14
+  - h-16.31
+  - h-16.50
+  - h-16.64
+  - h-16.81
+  - h-17.32
+  - h-17.32;hh-.52
+  - h-17.66
+  - h-17.70
+  - h-17.84;p-2.10
+  - h-17.90
+  - h-18.77
+  - h-19.33
+  - h-19.42
+  - h-19.59
+  - h-19.82
+  - h-19.88
+  - h-19.89
+  - h-19.93
+  - h-19.97
+  - h-2.27
+  - h-2.62
+  - h-2.83
+  - h-2.85
+  - h-20.22
+  - h-20.40
+  - h-21.59
+  - h-21.68;hh-.46
+  - h-21.77;
+  - h-23.22
+  - h-23.43
+  - h-24.10
+  - h-24.48
+  - h-25.34
+  - h-26.11
+  - h-26.31
+  - h-26.61
+  - h-26.64
+  - h-26.84
+  - h-27.07
+  - h-27.18
+  - h-27.21
+  - h-27.49
+  - h-27.62
+  - h-28.22
+  - h-28.31
+  - h-29.28;d-2.04
+  - h-29.93
+  - h-3.03;p-2.58
+  - h-3.05
+  - h-3.12
+  - h-3.27
+  - h-3.40
+  - h-3.45
+  - h-3.97
+  - h-30.73
+  - h-32.23
+  - h-32.27
+  - h-33.28
+  - h-33.38
+  - h-33.56
+  - h-34.22;
+  - h-36.11
+  - h-36.12
+  - h-36.64
+  - h-37.16
+  - h-37.65
+  - h-37.73
+  - h-38.23
+  - h-39.34
+  - h-39.81
+  - h-39.82
+  - h-4.07
+  - h-4.17
+  - h-4.24
+  - h-4.79
+  - h-40.68
+  - h-40.75
+  - h-41.53
+  - h-41.89
+  - h-42.70
+  - h-42.73
+  - h-43.33
+  - h-45.43
+  - h-45.97
+  - h-46.20;p-1.15
+  - h-46.20p-1.00
+  - h-46.40;p-1.00
+  - h-49.25
+  - h-49.26
+  - h-49.68
+  - h-5.31
+  - h-5.54
+  - h-50.26;p-3.90
+  - h-50.26;p-4.25
+  - h-50.26;p-4.30
+  - h-52.59
+  - h-6.70
+  - h-6.74
+  - h-6.97
+  - h-66.39
+  - h-69.19
+  - h-69.46
+  - h-7.25;p-2.59
+  - h-7.37
+  - h-7.61
+  - h-7.63
+  - h-7.92
+  - h-70.20
+  - h-76.68
+  - h-85.60
+  - h-9.01
+  - h-9.90
+  - h-f
+  - h-fame
+  - h-fr,twr steel
+  - h-frame
+  - h-frame alumin
+  - h-frame corten
+  - h-frame st
+  - h-frame steel
+  - h-frame twr
+  - h-frame w
+  - h-frame wd
+  - h-frame wood
+  - h-frame, wood
+  - h-frame,steel
+  - h-frame,wd
+  - h-frame,wood
+  - h-frame-steel
+  - h-frame-w
+  - h-frame-wd
+  - h-frame-wood
+  - h-frame/w
+  - h-frame/wood
+  - h-frames
+  - h-frames wood
+  - h-frane,wd
+  - h-frm stl twr
+  - h-frm-alm.
+  - h-frm-steel
+  - h-frm-stl twr
+  - h-frm-wood
+  - h-steel
+  - h-w
+  - h-wiid
+  - h-wood
+  - h-wood and
+  - h-wood and tos
+  - h-woos
+  - h-wppd
+  - h. f. wood
+  - h. fr. steel
+  - h. fr. stl.
+  - h. fr. wood
+  - h. frame
+  - h. frame conc
+  - h. frame steel
+  - h. frame wood
+  - h. frme steel
+  - h. wood &
+  - h.f. - w.d.
+  - h.f. wood
+  - h.f.-shld
+  - h.f.-wd
+  - h.f.wood
+  - h.frame
+  - h.frame - oh
+  - h.frame conrte
+  - h.frame steel
+  - h.frame wood
+  - hf
+  - hf & wf
+  - hf concrete
+  - hf steel
+  - hf wood
+  - hf,wf
+  - hf-w
+  - hf-wd
+  - hf-wood
+  - hf2
+  - hframe
+  - hframe wood
+  - hfrm
+  - hfs
+  - hfs (10)
+  - hfs (12)
+  - hfs (14)
+  - hfs (15)
+  - hfs (16)
+  - hfs (17)
+  - hfs (18)
+  - hfs (19)
+  - hfs (20)
+  - hfs (25)
+  - hfs (27)
+  - hfs (28)
+  - hfs (30)
+  - hfs (31)
+  - hfs (33)
+  - hfs (34)
+  - hfs (38)
+  - hfs (39)
+  - hfs (41)
+  - hfs (42)
+  - hfs (45)
+  - hfs (5)
+  - hfs (6)
+  - hfs (7)
+  - hfs (8)
+  - hfw
+  - hfw & mps
+  - hfw, mps
+  - hfwd
+  - hfwd/stl
+  - hpff
+  - hpof
+  - hw-9.77
+  - hw-9.81
+  - k frame wd
+  - k-frame
+  - k-frame wood
+  - kf-wd
+  - kfw
+  - kfw .01
+  - kfw .14
+  - kfw .29
+  - kfw 1.06
+  - kfw 1.1
+  - kfw 1.13
+  - kfw 1.36
+  - kfw 1.51
+  - kfw 10.09
+  - kfw 10.34
+  - kfw 100.3
+  - kfw 100.37
+  - kfw 103.33
+  - kfw 103.51
+  - kfw 104.66
+  - kfw 106.10
+  - kfw 106.80
+  - kfw 107.51
+  - kfw 11.10
+  - kfw 11.23
+  - kfw 11.28
+  - kfw 11.86
+  - kfw 115.38
+  - kfw 115.64
+  - kfw 116.97
+  - kfw 12.54
+  - kfw 126.01
+  - kfw 126.2
+  - kfw 137.62
+  - kfw 137.63
+  - kfw 157.7
+  - kfw 19.98
+  - kfw 20.26
+  - kfw 20.36
+  - kfw 21.59
+  - kfw 220.15
+  - kfw 23.41
+  - kfw 25.22
+  - kfw 25.4
+  - kfw 26.32
+  - kfw 26.45
+  - kfw 26.72
+  - kfw 28.23
+  - kfw 28.27
+  - kfw 3.50
+  - kfw 3.9
+  - kfw 3.92
+  - kfw 3.96
+  - kfw 30.32
+  - kfw 31.6
+  - kfw 31.63
+  - kfw 32.95
+  - kfw 34.87
+  - kfw 34.95
+  - kfw 35.1
+  - kfw 38.48
+  - kfw 39.39
+  - kfw 4.52
+  - kfw 40.86
+  - kfw 43.62
+  - kfw 43.87
+  - kfw 45.11
+  - kfw 47.88
+  - kfw 48.1
+  - kfw 48.12
+  - kfw 49.82
+  - kfw 49.93
+  - kfw 5.43
+  - kfw 52.41
+  - kfw 52.95
+  - kfw 53.02
+  - kfw 54.49
+  - kfw 54.51
+  - kfw 58.81
+  - kfw 62.04
+  - kfw 64.07
+  - kfw 65.79
+  - kfw 66.92
+  - kfw 69.06
+  - kfw 72.67
+  - kfw 76.16
+  - kfw 76.17
+  - kfw 76.47
+  - kfw 78.18
+  - kfw 87.64
+  - kfw 89.37
+  - kfw 9.52
+  - kfw 9.68
+  - kfw 9.93
+  - kfw 91.74
+  - kfw 92.86
+  - kfw 93.26
+  - kfw 93.78
+  - kfw 94.46
+  - lschf
+  - mps, hfs
+  - p-.13;h-.88
+  - p-.13;h-.92
+  - p-.14;h-14.24
+  - p-.56;h-6.35
+  - p-.76;h-1.21
+  - p-1.04;h.72
+  - p-1.31;h-5.60
+  - p-1.31;h-5.68
+  - p-1.52;h-.38
+  - p-1.65;h-2.72
+  - p-10.19;h-6.71
+  - p-2.44;h-5.91
+  - p-3.54;h-4.03;
+  - p-3.75;h-5.91
+  - p-3.76;h-18.91
+  - p-3.87;h-18.68
+  - p-8.00;h-3.06
+  - p-8.00;h-5.40
+  - p-8.23;h-3.16
+  - p-8.29;h-3.06
+  - p-8.82;h-3.16
+  - p-9.35;h-1.26
+  - p-9.47;h-3.2
+  - s-8.29;h-28.03
+  - s-a-f
+  - s-dhfst
+  - s-dhfwd
+  - s-h fr
+  - s-h fr.
+  - s-h-f
+  - s-hfr
+  - s-hfst
+  - s-hfwd
+  - s-kfwd
+  - s-m-p
+  - s-shfr
+  - s-sp/s-hfr
+  - schf
+  - sclwhf
+  - scshf
+  - scsphf
+  - scst, whf
+  - see footnote
+  - seel h frame
+  - sgl, dbl
+  - sgl,dbl wood
+  - sgl/dbl wood
+  - sh-frame
+  - shf
+  - shf,whf
+  - shf;whf
+  - special 2 pole
+  - sphp
+  - sphp/h/b-sa
+  - st - hf
+  - st h-frame
+  - st-hf
+  - st. h-frame
+  - steel & wood h
+  - steel - h
+  - steel - h-p
+  - steel - h-us
+  - steel frame
+  - steel frames
+  - steel h
+  - steel h column
+  - steel h f
+  - steel h fr
+  - steel h fram
+  - steel h frame
+  - steel h frames
+  - steel h-f
+  - steel h-fr
+  - steel h-frame
+  - steel h. frame
+  - steel h_frame
+  - steel hframe
+  - steel hfrm
+  - steel lat. h
+  - steel-h
+  - sthf
+  - sti pi/sti-h-f
+  - sti piwd-h-fr
+  - sti-h-frame
+  - sti-wd-h-fr
+  - sti/wd-h-fr
+  - stl h-fr
+  - stl h-fr, ltwr
+  - stl h-fr/stl p
+  - stl pi/wd-h-fr
+  - stl-h-frame
+  - stl-wd-h-fr
+  - stl-wd-h-frame
+  - stl/conchframe
+  - stl/wd-h-fr
+  - stlh-fr, l twr
+  - stlpi/sti-h-fr
+  - stp, h. frame
+  - stp, w.h.frame
+  - sttel h-frame
+  - take-off struc
+  - tcshf
+  - tcsphf
+  - tus-hf
+  - twr; sph
+  - w-h fr
+  - w-h fr.
+  - w-h-f
+  - w-h-fr
+  - w-hfr
+  - w-hrf
+  - w. h. frame
+  - w.h. frame
+  - wd h-fr
+  - wd h-fr, stl p
+  - wd h-fr, wd
+  - wd h-frame
+  - wd-h frame
+  - wd-h-fr
+  - wd-h-frame
+  - wh
+  - wh & sh
+  - wh (a)
+  - wh frame
+  - wh frame - oh
+  - whf
+  - whf, oh
+  - wod h-frame
+  - wood "h"
+  - wood & double steel
+  - wood - h
+  - wood a frame
+  - wood a frames
+  - wood a-frame
+  - wood frame
+  - wood frames
+  - wood frm/steel
+  - wood h
+  - wood h &
+  - wood h & steee
+  - wood h drames
+  - wood h fr
+  - wood h frame
+  - wood h frames
+  - wood h fs
+  - wood h, steel
+  - wood h- frame
+  - wood h- frames
+  - wood h-fr
+  - wood h-frame
+  - wood h-frames
+  - wood h-frams
+  - wood h. frame
+  - wood hframe
+  - wood hfrm
+  - wood k -frame
+  - wood k fr
+  - wood k frame
+  - wood k-fr
+  - wood k-frame
+  - wood schf
+  - wood-h
+  - wood-h frame
+  - wood-h-frame
+  - wood-hf
+  - wood-hf/steel
+  - wood/h-frame
+  - woodh frame
+  - woof-hf
+  - wooh h-frame
+  - wook h
+  - wp - 3p
+  - wp-3p
+  - wph
+  - y-frame
+  - z-.04;h-9.03;
+tower:
+  - (3)
+  - (3) (0.79)
+  - (3) (3.06)
+  - (3) (3.18)
+  - (3) - 77.80
+  - (3) conc
+  - (3) steel
+  - (3) steel (a)
+  - (3) steel (c)
+  - (3) steel (d)
+  - (3) tower
+  - (3) wood
+  - (3)steel
+  - (steel tower
+  - (steel tower)
+  - (tower)
+  - 2 1/2' sq. twr
+  - 2'6" sq. tower
   - "3"
   - 3 = 0.16
   - 3 = 0.18
@@ -4043,8 +2646,6 @@ na_category:
   - 3 =46.58
   - 3 =55.23
   - 3 =60.60
-  - 3,1
-  - 3,4
   - 3-0.04
   - 3-0.06
   - 3-0.07
@@ -4076,7 +2677,6 @@ na_category:
   - 3-0.8699
   - 3-0.9
   - 3-0.95
-  - 3-1
   - 3-1.05
   - 3-1.09
   - 3-1.29
@@ -4149,15 +2749,718 @@ na_category:
   - 3-86.492
   - 3-87.22
   - 3-9.33
-  - "33.00"
-  - "345.00"
   - 3s
+  - a tower
+  - a1-twr
+  - al-twr
+  - al. towers
+  - alum tower
+  - alum twr
+  - alum. tower
+  - alumin. towers
+  - aluminum tower
+  - at (2)
+  - at (20)
+  - at (23)
+  - at (44)
+  - at (47)
+  - at, st
+  - at. st
+  - at=alum
+  - at=alum. tower
+  - c-t
+  - ccst
+  - conc twr
+  - concrete tower
+  - dc lat st
+  - dc lat stl
+  - dc lattice
+  - dc s-twr
+  - dc t
+  - dc-t
+  - dclt
+  - dcst
+  - dcst, scst
+  - dcst,scst
+  - guyed alum twr
+  - lat tsteel twr
+  - latice tower
+  - latt steel twr
+  - lattice
+  - lattice steel
+  - lattice towe
+  - lattice tower
+  - lattice towers
+  - lattice, steel
+  - lattice, steel, wood
+  - lattice, wood
+  - lattice, wood,
+  - lattice, wood, steel
+  - latticetower
+  - lattrice
+  - lst
+  - lst (a)
+  - metal tower
+  - oh steel rower
+  - oh steel tower
+  - oh stl tower
+  - on steel tower
+  - other t
+  - others t
+  - overhead steel towers
+  - p-1.54;st-.70;
+  - s cat met towe
+  - s cat tower
+  - s lattice
+  - s tower
+  - s- tower
+  - s-altwr
+  - s-lattice
+  - s-t
+  - s-tower
+  - s. cat tower
+  - s. stl. tower
+  - s. tower
+  - s.tower
+  - s/at
+  - sc steel tower
+  - sclt
+  - sclt-v
+  - scst
+  - scst, dcst
+  - scst,dcst
+  - scst/dcst
+  - sdtm-wd
+  - single catenary tower
+  - st
+  - st & alum twr
+  - st (10)
+  - st (11)
+  - st (12)
+  - st (13)
+  - st (14)
+  - st (19)
+  - st (22)
+  - st (28)
+  - st (29)
+  - st (3)
+  - st (30)
+  - st (31)
+  - st (32)
+  - st (33)
+  - st (34)
+  - st (36)
+  - st (37)
+  - st (38)
+  - st (39)
+  - st (41)
+  - st (42)
+  - st (45)
+  - st (46)
+  - st (6)
+  - st (7)
+  - st (9)
+  - st - lspg
+  - st - lss
+  - st tower
+  - st tower and
+  - st-.13
+  - st-.13.41
+  - st-.20
+  - st-.28
+  - st-.30
+  - st-.36
+  - st-.37
+  - st-.40
+  - st-.44
+  - st-.56
+  - st-.73
+  - st-.74
+  - st-.76
+  - st-.82
+  - st-.86
+  - st-.87
+  - st-.88
+  - st-.98
+  - st-0.43
+  - st-0.88
+  - st-1.00
+  - st-1.05
+  - st-1.16
+  - st-1.26
+  - st-1.32
+  - st-1.40
+  - st-1.52
+  - st-1.56
+  - st-1.65
+  - st-10.84
+  - st-13.24
+  - st-13.30
+  - st-14.47
+  - st-16.21
+  - st-18.75
+  - st-1p
+  - st-2.08
+  - st-2.54
+  - st-2.57
+  - st-21.30
+  - st-3.43
+  - st-3.82
+  - st-3p
+  - st-4.58
+  - st-49.11
+  - st-7.37
+  - st-86
+  - st-lpsg
+  - st-lspg
+  - st-lss
+  - st-steel
+  - st. tower
+  - st.tower
+  - st/concr
+  - st= steel
+  - st=steel tower
+  - stdc
+  - stdc-.03
+  - stdc-.05
+  - stdc-.69
+  - stdc-.80
+  - stdc-0.19
+  - stdc-12.56
+  - stdc-12.96
+  - stdc-2.29
+  - stdc-22.51
+  - stdc-3.69
+  - stdc-7.91
+  - stdc-8.03
+  - stdc-8.23
+  - steel latt
+  - steel lattice
+  - steel power
+  - steel powers
+  - steel tow
+  - steel tower
+  - steel tower 1
+  - steel tower 2
+  - steel tower"
+  - steel tower)
+  - steel tower,
+  - steel tower, s
+  - steel tower, w
+  - steel tower,st
+  - steel tower/
+  - steel towerr
+  - steel towers
+  - steel towers &
+  - steel towers"
+  - steel towers,
+  - steel twr
+  - steel twr.
+  - steel twrs.
+  - steel twrs.,
+  - steel, lattice
+  - steel, lattice, wood
+  - steel, wood, l
+  - steel, wood, lattice
+  - steel/alum twr
+  - steel/latice towers
+  - steeltower
+  - steet tower
+  - stl con/lat
+  - stl tower
+  - stl twr
+  - stl. tower
+  - stl. towers
+  - stl. towers - oh
+  - stl.-lattice
+  - stl.tower
+  - stl/alm tower
+  - sttc-0.73
+  - sttc-1.82
+  - sttc-1.86
+  - sttc-1.90
+  - sttc-5.22
+  - t
+  - t (a)
+  - t others
+  - t t
+  - t-steel
+  - t0-1001
+  - t0-1009
+  - t0-1101
+  - t0-2001
+  - t0-3001
+  - t0-a108
+  - t30-326
+  - t60-179
+  - t60-302b
+  - t60-327
+  - tower
+  - tower and
+  - tower, steel
+  - tower-wire
+  - tower/concrete
+  - tower/s
+  - towers
+  - towers &
+  - towers (a)
+  - towers (ab)
+  - towers (ac)
+  - towers (ad)
+  - towers (b)
+  - towers (e)
+  - towers (f)
+  - towers (h)
+  - towers-s
+  - towerwire only
+  - towre
+  - towrs
+  - ts
+  - ts (18)
+  - ts (26)
+  - ts (27)
+  - ts (29)
+  - ts (30)
+  - ts (32)
+  - ts (33)
+  - ts (35)
+  - ts (36)
+  - ts (37)
+  - ts (38)
+  - ts (6)
+  - ts-1 wood
+  - ts1
+  - tw on 0899
+  - tw on 0910
+  - tw on 0975
+  - tw on 0976
+  - tw on 0977
+  - tw on 0978
+  - tw on 0979
+  - tw on 0980
+  - tw on 0985
+  - tw on 0986
+  - twr
+  - twr on 0910
+  - twr on 0975
+  - twr on 0976
+  - twr on 0977
+  - twr on 0978
+  - twr on 0979
+  - twr on 0980
+  - twr on 0984
+  - twr on 0985
+  - twr on 0986
+  - w-t
+  - wood tower
+  - wood towers
+  - wood towers &
+  - wood twr
+  - wood twrs. and
+  - wood, lattice
+  - wood, lattice,
+  - wood, lattice, steel
+  - wood, steel, l
+  - wood, steel, lattice
+underground:
+  - (4)
+  - (4) u.g.
+  - (4) under
+  - (ug)
+  - 1 (1)an sub to sub
+  - 1 (3)an sub to sub
+  - 1 ban sub to sub
+  - 1 span sub to sub
   - "4"
   - 4-0.27
   - 4-0.41
   - 4-8.56
+  - c-u
+  - c-u-g
+  - c-ug
+  - pipe typecable
+  - scug
+  - sub term
+  - sub terminatin
+  - sub to sub 1 s
+  - submarine
+  - submarine (c)
+  - submarine (d)
+  - submarine (f)
+  - submarine cab
+  - submarine cabe
+  - submarine cable
+  - submarine cble
+  - submarine(d)
+  - substation bay
+  - subway
+  - tu-1
+  - tunnel
+  - u
+  - u (39)
+  - u (47)
+  - u, st
+  - u-g
+  - u. g.
+  - u.g xple
+  - u.g.
+  - u.g. hpff
+  - u.g. xlpe
+  - u.g.=hpof
+  - u/g
+  - ucb
+  - udg
+  - udg construct.
+  - ug
+  - ug (a)
+  - ug and sub
+  - ug cable
+  - ug const
+  - ug duct
+  - ug duct bank
+  - ug twr
+  - ug ug
+  - ug-.27
+  - ug-hpof
+  - ug= undergroun
+  - ug=hpof
+  - ug=underground
+  - und
+  - und. stl. pipe
+  - undeerground
+  - underbuild
+  - underbuilt on
+  - undergound
+  - undergr cable
+  - undergrd
+  - undergrnd
+  - undergrnd &
+  - undergrnd (d
+  - undergrnd (d)
+  - undergrnd (f)
+  - undergrnd (g)
+  - undergrnd(d)
+  - undergrnd(g)
+  - undergrou
+  - underground
+  - underground &
+  - underground (3)
+  - underground (a
+  - underground (a) (f)
+  - underground (f
+  - underground (f)
+  - underground 1
+  - underground 2
+  - underground(3)
+  - underground(f)
+  - underground25%
+  - underground75%
+  - undergroung
+  - undg. (26)
+  - undg.(26)
+  - undgrd (a) (f)
+  - undreground
+  - undrgrnd
+  - undrgrnd cable
+  - undrground
+  - urd
+na_category:
+  - '"'
+  - "' (5)"
+  - (1) & (2)
+  - (1) & (3)
+  - (1) (2)
+  - (1) (2) (3)
+  - (1)(2)
+  - (1)(2)(3)
+  - (1), (2)
+  - (1), (3)
+  - (1),(2)
+  - (1),(3)
+  - (1); (2)
+  - (1); (2);
+  - (1); (2); (3)
+  - (1); (2); (3);
+  - (1); (2); (4)
+  - (1); (2); (4); (3)
+  - (1); (2); (4); (3); (5)
+  - (1); (2); (5)
+  - (1); (3)
+  - (1); (3); (2)
+  - (1); (3); (2); (4)
+  - (1); (3); (4)
+  - (1); (3); (4); (5)
+  - (1); (3); (5)
+  - (1); (3); (5); (4)
+  - (1); (4)
+  - (1); (4); (2)
+  - (1); (4); (2); (3)
+  - (1); (4); (2); (5); (3)
+  - (1); (4); (3)
+  - (1); (4); (5)
+  - (1); (4); (5); (3)
+  - (1); (4); (5); (3); (2)
+  - (1); (5)
+  - (1); (5); (2)
+  - (1); (5); (3); (4)
+  - (1); (5); (3); (4); (2)
+  - (1); (5); (4)
+  - (1); (5); (4); (3)
+  - (1.31 ml)
+  - (1.31 ml.)
+  - (1.81 ml)
+  - (1.81 ml.)
+  - (1concrete
+  - (2) & (3)
+  - (2), (3)
+  - (2),(3)
+  - (2); (1)
+  - (2); (1);
+  - (2); (1); (1)
+  - (2); (1); (3)
+  - (2); (1); (3);
+  - (2); (1); (4)
+  - (2); (3)
+  - (2); (3); (1)
+  - (2); (3); (1);
+  - (2); (4)
+  - (2); (4); (1)
+  - (2); (4); (3); (1)
+  - (2); (4); (5)
+  - (24)
+  - (25)
+  - (27)
+  - (28)
+  - (3); (1)
+  - (3); (1);
+  - (3); (1); (2)
+  - (3); (1); (2);
+  - (3); (1); (4)
+  - (3); (1); (4); (5)
+  - (3); (1); (5)
+  - (3); (2)
+  - (3); (2); (1)
+  - (3); (2); (1);
+  - (3); (2); (2)
+  - (3); (4)
+  - (3); (4); (1)
+  - (3); (4); (1); (2)
+  - (3); (4); (1); (5)
+  - (3); (4); (1); (5); (2)
+  - (3); (4); (2)
+  - (3); (4); (5)
+  - (3); (4); (5); (1)
+  - (3); (4); (5); (2)
+  - (3); (5); (4)
+  - (4); (1); (2)
+  - (4); (1); (2); (3)
+  - (4); (1); (2); (5)
+  - (4); (1); (3); (2)
+  - (4); (1); (5); (3)
+  - (4); (2)
+  - (4); (2); (1)
+  - (4); (2); (1); (3)
+  - (4); (2); (3)
+  - (4); (2); (3); (5); (1)
+  - (4); (3)
+  - (4); (3); (1)
+  - (4); (3); (1); (5)
+  - (4); (3); (2)
+  - (4); (3); (2); (1)
+  - (4); (3); (5)
+  - (4); (5)
+  - (4); (5); (3)
+  - (43)
+  - (46)
+  - (5)
+  - (5); (1); (3)
+  - (5); (2)
+  - (5); (3)
+  - (5); (3); (4)
+  - (5); (4); (3)
+  - (69.6 ml)
+  - (69.6 ml.)
+  - (91.9 ml)
+  - (91.9 ml.)
+  - (92.6 ml.)
+  - (a)
+  - (avon juniper)
+  - (avon-juniper)
+  - (b)
+  - (c)
+  - (c-h-f)(c-p)
+  - (c-h-f)(s-h-f)
+  - (c-h-f)(s-p)
+  - (c-h-f)(w-p)
+  - (c-p)(s-m-p)
+  - (c-p)(s-p)(s-t)
+  - (c-p)(s-p)(w-h-f)
+  - (c-p)(s-t)
+  - (c-p)(w-h-f)
+  - (c-p)(w-p)
+  - (perry-inland)
+  - (ref ln129)
+  - (s-a-f)(s-h-f)(s-m-p)(s-p)
+  - (s-a-f)(s-h-f)(s-p)
+  - (s-a-f)(s-h-f)(s-t)
+  - (s-a-f)(s-m-p)(s-p)(s-t)
+  - (s-a-f)(s-m-p)(s-t)
+  - (s-a-f)(s-p)
+  - (s-a-f)(s-p)(s-t)
+  - (s-a-f)(s-t)
+  - (s-h) (s-t)
+  - (s-h-f)(s-m-p)(s-p)
+  - (s-h-f)(s-p)
+  - (s-h-f)(s-p)(s-t)
+  - (s-h-f)(s-t)
+  - (s-m-p)(s-p)
+  - (s-m-p)(s-t)
+  - (s-p) (s-a)
+  - (s-p) (s-t)
+  - (s-p)(s-t)
+  - (s-p)(w-h-f)
+  - (s-p)(w-h-f)(w-p)
+  - (s-p)(w-m-p)
+  - (s-t) (c-h-f)
+  - (s-t) (w-h-f)
+  - (s-t)(s-p)
+  - (s-t)(w-h-f)
+  - (s-t)(w-h-f)(w-p)
+  - (s-t)(w-p)
+  - (switch)
+  - (w-h-f)(s-p)
+  - (w-h-f)(w-p)
+  - (w-p)(w-h-f)
+  - (wood
+  - "*"
+  - "* sp (2)"
+  - ",132.00,132.00"
+  - ",345.00,345.00"
+  - "-"
+  - "-1"
+  - "-2"
+  - "-3"
+  - "-5"
+  - .
+  - ".2"
+  - .20; cp-.69
+  - .33 db cable
+  - /b-sa
+  - "0"
+  - "0.00"
+  - "0.50"
+  - 1 & 2
+  - 1 & 2 & 3
+  - 1 span
+  - 1 steel p
+  - 1&2&3
+  - 1, 2 & 4
+  - 1, 2 &4
+  - 1,2
+  - 1,2&4
+  - 1,2,
+  - 1,2,3
+  - 1,2,3,
+  - 1,2,3,4
+  - 1,3
+  - 1,3,4
+  - 1,4
+  - 1-2
+  - 1-2-3
+  - 1-5
+  - 1-feb
+  - "1.00"
+  - "1.2"
+  - "1.3"
+  - "1.50"
+  - "1.74"
+  - "10.57"
+  - "10.60"
+  - 12-feb
+  - "132.00"
+  - 138-oh-52
+  - "138.00"
+  - "161.00"
+  - 17-feb
+  - 1p-st
+  - 1pole 2pole
+  - 1s ,3
+  - 1s, 2s
+  - 1s, 2s, 2w
+  - 1s, 2s, 3
+  - 1s, 2w
+  - 1s, 2w, 3s, 3
+  - 1s, 3
+  - 1s,2s
+  - 1s,2s,2w
+  - 1s,2s,3
+  - 1s,2w
+  - 1s,2w,3s,3
+  - 1s,3
+  - 1sa steel
+  - 1w, 1s, 3
+  - 1w, 2w, 1s, 3
+  - 1w, 2w,1s, 2s
+  - 1w, 3
+  - 1w,1s, 3
+  - 1w,1s,3
+  - 1w,2w,1s,2s
+  - 1w,2w,1s,2s,3
+  - 1w,2w,1s,3
+  - 1w,3
+  - 2 pole
+  - 2 pole h
+  - 2 pole h str
+  - 2 pole k
+  - 2 pole steel
+  - 2 pole str.
+  - 2 steel p
+  - 2 steel poles
+  - 2'6
+  - 2, 3
+  - 2,3
+  - 2,3 nomatch
+  - 2-1
+  - 2-scsp
+  - "2.10"
+  - "230"
+  - "230.00"
+  - 2s, 3
+  - 2s, 4
+  - 2s,2w,3
+  - 2s,3
+  - 2sa steel
+  - 2w, 1s, 2s, 3
+  - 2w,1s,2s,3s,3
+  - 2w,4
+  - 3 pole
+  - 3 pole str.
+  - 3 wood pole
+  - 3 wood poles
+  - 3, 1s
+  - 3, 1s, 1w
+  - 3, 1s, w
+  - 3, 1s,w
+  - 3, 1w
+  - 3,1
+  - 3,1s
+  - 3,1s,1w
+  - 3,1s,w
+  - 3,1w
+  - 3,4
+  - 3-1
+  - 3-pole
+  - 3-pole angle
+  - 3-pole wood
+  - 3-pole,wood
+  - "33.00"
+  - "345.00"
+  - 4, 2s
+  - 4,2s
   - "44.00"
   - 4w
+  - 5 pole
+  - 5 pole str.
   - "653.4263"
   - "66.00"
   - 7-feb
@@ -4243,10 +3546,27 @@ na_category:
   - adpsc
   - af
   - ah
+  - al - lspg
   - al-lpsg
+  - al-lspg
+  - al. lat. h,steel pole
+  - al. lat. y
+  - all segments
   - all wp h & s
   - all wp h&s
+  - alum
+  - alum guye
+  - alum guyed
+  - alum guyed-v
+  - alum.
+  - alum. guyed v
+  - alum. tow
+  - alum. y
+  - aluminum
+  - alumt
   - and frames
+  - and montana
+  - and poles
   - and wood h
   - at
   - b
@@ -4254,23 +3574,43 @@ na_category:
   - b-.11
   - b-.66;h-28.17;
   - b-0
+  - b-0.58;p-4.60;
+  - b-10.24
   - b-10.29;
+  - b-10.38
   - b-10.82
   - b-19.79
+  - b-19.84
   - b-2.06
+  - b-2.33
+  - b-2.46;p-.72;
   - b-2.56,h-10.60
   - b-2.95
+  - b-24.33
+  - b-24.50
+  - b-24.50;z-1.30
+  - b-25.42
+  - b-3.55;p-.092;
+  - b-4.00
+  - b-4.55;dd-.20;
+  - b-4.88
+  - b-5.03
   - b-5.61
   - b-5.90
   - b-8.78;h-15.97
   - b-hp
   - b-hp/b-sa/h
+  - b-hp/dcsp/s
+  - b-hp/dcsp/sp
   - b-hp/h
   - b-sa
   - b-sa-h
+  - b-sa/dcsp
   - b-sa/h
+  - b-sa/h/sp
   - b2hp
   - b2sa
+  - b2sa /steel dc
   - b2sa/b2hp
   - b; a
   - b; a; c
@@ -4306,10 +3646,10 @@ na_category:
   - bchp/b2hp/b
   - bchp/b2hp/b2sa
   - bcsa
+  - bus
+  - bus. sprts.
   - c
   - c, a, b, e
-  - c-h-f
-  - c-p
   - c1hp
   - c; a
   - c; a; b
@@ -4337,31 +3677,61 @@ na_category:
   - c; e; d
   - c; e; d; b
   - c; f; d
+  - cable
+  - carta steel
+  - cble
   - cc-15.70
   - ccpsc
   - cdpc
   - cdpsc
-  - ch
   - ci-sa
-  - con-p
-  - con. h. frame
-  - con. h.frame
+  - con/steel/wood
   - conc
-  - conc h.frame
-  - cp
-  - cp-1p
+  - concrete
+  - concrete three
+  - concrete&steel
+  - concrete/steel
+  - concrete/wood
+  - conduit
+  - construction
+  - corten
+  - corten steel
+  - cp - hf
+  - cp-hf
   - cpdc
+  - cspdc
+  - cspsc
+  - ctsa
+  - cu cable
+  - cu xlpe c
+  - cu xlpe cable
+  - cu. cable
   - d
   - d-.02
+  - d-.35
+  - d-.45;z-2.14
   - d-.89
   - d-1.06
+  - d-14.29
+  - d-14.67
   - d-16.19;h-0.89
+  - d-2.00;st-.20
   - d-2.85
+  - d-3.53
+  - d-3.57
+  - d-5.33;p-.19;
+  - d-5.38;p-.19;
   - d-5.56
+  - d-5.83
   - d-5.91
   - d-6.55
   - d-6.56
+  - d-7.63;st-.20
   - d-8.17
+  - d-8.73
+  - d-s-p
+  - d-s-t
+  - d-steel
   - d-w-p
   - d-wood
   - d; a
@@ -4399,19 +3769,33 @@ na_category:
   - d; f
   - d; f; c
   - dapsc
+  - db cable
+  - dbl wood poles
+  - dbl. wood pole
+  - dbl.wood poles
   - dc-11.29
   - dc-cp
   - dchp
   - dchp/sa
   - dcpsc
   - dcpx
+  - dcsp/b-sa
+  - dcsp/bchp/h
+  - dcsp/h
+  - dcsp/s2//sh-
+  - dcsp/s2/sh-sp
+  - dcst, whf
+  - dcst,whf
   - dd-.70
+  - dd-.70;d-.83;
   - dd-1.18
   - dd-1.69
+  - dd-3.62
   - dp-wood
   - dpdc
   - dpsc
   - dscp
+  - dw-2.48
   - dwpsc
   - e
   - e, a, d, b
@@ -4464,138 +3848,153 @@ na_category:
   - e; d; f
   - e; e
   - epox
+  - epr
   - f
   - f; a; c
   - f; b
   - f; c
   - f; c; d
   - f; d; c
-  - fh-wd
   - fp
-  - frame
-  - frames
-  - frames &
-  - frames & wood
-  - frames and
-  - frames, wood
-  - frames, wood &
-  - frames, wood,
-  - frames,wood
-  - frames,wood,
-  - franes
-  - fwd
+  - frame w/sgl pl
+  - frames & poles
+  - frames & steel poles
+  - frames and steel poles
+  - frames, wood & steel poles
   - goab
-  - h
-  - h (a)
-  - h wood
-  - h wood &
-  - h wood"
+  - guy
+  - guy delta,towr
+  - guyed
+  - guyed "y"
+  - guyed alu
+  - guyed alum
+  - guyed delta
+  - guyed ste
+  - guyed steel
+  - guyed y
+  - guyed-v alumin
+  - h fr & wd pole
+  - h frame underground
+  - h frame w&sgl sp
+  - h frame wp
+  - h frame wp dc
+  - h frame wp dc-sgl dbl circuit
+  - h frame-wood p
+  - h wood & tower
+  - h, sp
+  - h, sp, wp
+  - h, st
   - h, wp
-  - h- frame
-  - h- wood
-  - h-.06
-  - h-.10
-  - h-.11
-  - h-.15
-  - h-.51;
-  - h-1.05;p-6.21
-  - h-1.05;p-6.21;
-  - h-1.05;p-9.28
-  - h-1.18
-  - h-1.18;hh-2.81
-  - h-1.50
-  - h-1.86
-  - h-1.98
-  - h-10.21
-  - h-10.86
-  - h-10.96
-  - h-11.81
-  - h-12.00
-  - h-12.17
-  - h-15.19
-  - h-15.20
-  - h-15.21
-  - h-15.28;hh-.52
-  - h-16.01
-  - h-16.50
-  - h-16.81
-  - h-17.66
-  - h-17.70
-  - h-17.90
-  - h-18.77
-  - h-19.59
-  - h-19.82
-  - h-19.88
-  - h-19.89
-  - h-19.97
-  - h-2.27
-  - h-2.62
-  - h-2.85
-  - h-20.22
-  - h-21.59
-  - h-21.77;
-  - h-26.11
-  - h-26.61
-  - h-27.07
-  - h-27.18
-  - h-27.21
-  - h-27.62
-  - h-28.22
-  - h-52.59
-  - h-6.70
-  - h-6.97
-  - h-69.19
-  - h-7.25;p-2.59
-  - h-7.61
-  - h-7.92
-  - h-70.20
-  - h-76.68
-  - h-85.60
-  - h-9.01
-  - h-9.90
+  - h-.32;st-.07;
+  - h-.45;st-.40;
+  - h-1.00; st-.98
+  - h-11.65;st-.26
+  - h-22.10;st-.25
+  - h-6.30;st-.43;
   - h-b-sa
   - h-b2
-  - h-f
-  - h-fame
-  - h-w
-  - h-wiid
-  - h-woos
-  - h-wppd
-  - h. f. wood
+  - h-fr & wd pole
+  - h-fr&wd. pole
+  - h-frame pole
+  - h-frame w/sgl
+  - h-frame, steel pole
+  - h-frame,steel pole
+  - h-frame/un
+  - h-frame/underg
+  - h-frm -wd pole
+  - h-frm st twr
+  - h-frm stl ple
+  - h-frm stl pole
+  - h-frm wd pole
+  - h-frm wd.pole
+  - h-frm wood pol
+  - h-frm-stl pole
+  - h-frm-wd pole
+  - h-tower
+  - h-w & sp-w
+  - h-w&sp-w
+  - h-wood/sp-steel
+  - h-wood/sp-wood
+  - h-wood/st. monop
+  - h-wood/st. tower
+  - h. fr. pole
   - h. fr. w. p.
-  - h. fr. wood
-  - h. frame
-  - h. frame conc
-  - h. frame wood
+  - h. frame st/wo
   - h. frame wp
-  - h. wood &
-  - h.f. - w.d.
-  - h.f. wood
-  - h.f.-shld
-  - h.f.-wd
-  - h.f.wood
-  - h.frame
-  - h.frame - oh
-  - h.frame wood
   - h/b-hp
   - h/b-sa
   - h/dchp
+  - h/dcsp
   - h/s2
   - h/sa
   - h/sh
+  - h/sp
   - h2
+  - h42.46
+  - hf & st
+  - hf & wp
+  - hf &st
+  - hf, sp & st
+  - hf, sp & wp
+  - hf, sp, st, wp
+  - hf, st & wp
+  - hf, st, sp, wp
+  - hf, wp & st
+  - hf,sp
+  - hf,sp & st
+  - hf,sp ,st & wp
+  - hf,sp,st
+  - hf,sp,st & wp
+  - hf,sp,st,wp
+  - hf,sp,wp & st
+  - hf,sp,wp,st
+  - hf,st
+  - hf,st & wp
+  - hf,st,sp & wp
+  - hf,st,wp
+  - hf,wp
+  - hf-dcsp
+  - hf-dcsp/
+  - hf-st
+  - hf-w, sp-s
+  - hf-w, sp-w
+  - hf-w,sp-w
+  - hfr(1),spl(1)
+  - hfs, spw
+  - hfsp
+  - hfst
+  - hfw & sps
+  - hfw & spw
+  - hfw & st
+  - hfw, hfs, spw
+  - hfw, sps
+  - hfw, st
+  - hfw, st, hfs
   - hh-.12;p-7.05
   - hh-.29
+  - hh-.46
   - hh-.52
   - hh-.96;p-28.10
   - hh-1.07
   - hh-1.07;b-0.6
   - hh-1.07;b-0.60
+  - hh-1.14
+  - hh-1.32
   - hh-1.50;
+  - hh-1.50;p-1.13
   - hh-1.52
+  - hh-15.35
   - hh-2.12
+  - hh-2.44
+  - hh-2.45
   - hh-2.81
   - hh-2.92
+  - hh-3.50;
+  - hh-3.51;stdc-
+  - hh-4.28
+  - hh-4.46
+  - hh-4.50
+  - hh-4.71
   - hh-5.79
   - hh-6.52
   - hh-6.55
@@ -4608,231 +4007,831 @@ na_category:
   - hpgf
   - hppf
   - hpw
-  - hw-9.77
-  - hw-9.81
+  - hw & spw
+  - hw-f,sp-s
   - hwp
+  - hwp at st
+  - hwp,at,st
+  - hwp,st
+  - hwp. st
+  - included in (13) w.river - congress
+  - included in (15) peq-ash creek
+  - included in (17) w.river - water st sub
+  - included in (7) seaview - trumbull junction
+  - included in 1
+  - included in 13
+  - included in 15
+  - included in 17
+  - included in 7
+  - included in-1
+  - included in-13
+  - included in-15
+  - included in-17
   - inland-harding
+  - j-3.27
+  - joint
+  - k-33.97
+  - lat stl a
+  - lat stl ao
+  - lattice alumin
+  - lattice struct
   - leased line
+  - less non-mec 161 kv partial ownership miles
   - loop
   - ls
   - ls, hpw
   - lsw
   - meb
+  - monopole doubl
   - mps
   - mscl
-  - n/a
   - na_category
   - nbs2
   - nbs2/b-hp
+  - new easement only
+  - no data
+  - no poles
+  - no spans
+  - no structures
   - none
+  - oh and sub
+  - other
+  - other other
+  - others
   - overhead
+  - overhead ste
+  - overhead stee
+  - overhead steel
   - overhead woo
   - overhead wood
   - overhear
   - ownership
   - ownership.
-  - p
-  - p (a)
-  - p-.15
-  - p-.20
-  - p-.28
-  - p-.59
-  - p-.61
-  - p-.76;h-1.21
-  - p-1.00
-  - p-1.06
-  - p-1.10
-  - p-1.11
-  - p-1.52
-  - p-1.65;h-2.72
-  - p-1.82
-  - p-10.19;h-6.71
-  - p-11.19
-  - p-11.28
-  - p-17.08
-  - p-18.20
-  - p-19.60
-  - p-19.69
-  - p-19.77;pp-.86
-  - p-2.00
-  - p-2.01
-  - p-2.05
-  - p-2.07;-2.28
-  - p-2.20
-  - p-2.50
-  - p-2.6
-  - p-2.60
-  - p-2.70
-  - p-2.85
-  - p-2.86
-  - p-2.91
-  - p-2.97
-  - p-5.11
-  - p-5.82
-  - p-6.08
-  - p-6.80
-  - p-7.10
-  - p-8.16
-  - p-8.19
-  - p-8.50
-  - p-9.01
-  - p-9.02
-  - p-9.15
-  - p-wood
+  - p-.10;b-.48;
+  - p-.23
+  - p-.43
+  - p-.45
+  - p-.48
+  - p-.53
+  - p-1.13
+  - p-1.14
+  - p-1.30
+  - p-1.31
+  - p-10.04;
+  - p-12.13;
+  - p-12.46
+  - p-13.33
+  - p-13.57
+  - p-13.80
+  - p-14.16
+  - p-16.43
+  - p-18.32
+  - p-19.31
+  - p-19.36
+  - p-19.48
+  - p-2.03
+  - p-2.24
+  - p-2.30
+  - p-3.02
+  - p-3.06
+  - p-3.10
+  - p-3.12
+  - p-3.19
+  - p-3.23
+  - p-3.29
+  - p-3.50
+  - p-3.53
+  - p-3.54
+  - p-3.57
+  - p-3.62
+  - p-3.72
+  - p-3.79
+  - p-4.10
+  - p-4.30
+  - p-4.32
+  - p-4.46
+  - p-4.77
+  - p-4.78
+  - p-4.94
+  - p-5.11;dd-3.62
+  - p-5.46
+  - p-6.13
+  - p-7.23
+  - p-7.33
+  - p-8.48;pp-.10
+  - p-9.04
+  - p-9.32
+  - p-steel
+  - p23.12
+  - p6.46
+  - poles &towers
   - power form 1 -
   - power form 1-
+  - pp-.30
+  - pp-.30;ss-3.28
+  - pp-.42;p-5.02;
   - pp-.80
+  - pp-.85;d-3.11
   - pp-.90;
   - pp-.96;
+  - pp-.96;d-3.11
   - pp-.96;hh-6.52
   - pp-1.00
   - pp-1.21
   - pp-1.50
   - pp-2.81
+  - pp-3.76
+  - pp-3.86
+  - pp-7.54
   - psdc-1.98
   - ref ln129
   - rel ln 129
+  - rhes-mod, pset
+  - rhes-mod,pset
   - rr0
   - rro
   - s
   - s .10
+  - s 1.3
   - s 5.56
-  - s p wood
+  - s 9.44
+  - s p steel
+  - s pole& hframe
+  - s pole&h frame
+  - s pole&hframe
+  - s steel
+  - s- steel
   - s- wood
+  - s-.49
   - s-1.80
+  - s-10.64
   - s-10.71
+  - s-13.33
+  - s-16.43
+  - s-16.44
+  - s-2.04;s-2.35
+  - s-2.35
   - s-5.52
-  - s-a-f
-  - s-c-p
   - s-fwd
-  - s-h-f
-  - s-m-p
   - s-s-o
   - s-sfr
+  - s-stee;
+  - s-steel
   - s-wood
-  - s. p. wood
-  - s.p wood
-  - s.p. wood
-  - s.p.-wd
+  - s.p.-st
+  - s.pole&h.frame
+  - s14.13
   - s2
   - s2-b-sa
   - s2/b-sa
   - s2/b-sa/h
+  - s2/cble
   - s2/h
   - s2/sh
+  - s2/sp/dcsp/h
+  - s2/sp/dcsp/h/
   - s2hp
   - s2hp/c1hp
+  - s2hp/dcst/
   - s2sa
+  - s=steel
   - sa
   - sac
+  - sac (35)
+  - sac (38)
+  - sc steel
   - scpdc
   - scpsc
   - scsf
+  - scspd
   - scss
+  - scsu
   - scwp
+  - sd-1.73
   - sd-2.20
   - sd-2.28
+  - sd-2.53
   - sd-2.72
   - sd-2.82
   - sdpsc
+  - see note
   - see pacificorp
   - several
+  - sgl concretede
+  - sgl steel
+  - sgl/dbl wd ple
   - sh
   - sh (a)
+  - sh sp, wd sp
   - sh-.51
+  - sh-sp
   - sh/hp
   - sh/wd
+  - sing st pldead
   - singe
   - singe wp
+  - single wood pole & wood pole h-frame
+  - single,double
   - sl
   - sng & con
   - sng & conc
   - sng con p
   - sng concr
+  - sng concrete
   - sng deadend
+  - sng stl &
+  - sng stl & con
+  - sng stl & conc
   - sng wood
+  - sngle sl p & t
+  - sp (2)
+  - sp - hf
+  - sp dbl
+  - sp, h
+  - sp, h, st
+  - sp, sh
+  - sp, st
+  - sp, st & wp
+  - sp, st, h
+  - sp, steel h-f
+  - sp, u
+  - sp,st,whf,w
+  - sp,st,whf,wp
+  - sp,whf
+  - sp,whf,wp
+  - sp-hf
+  - sp-st
+  - sp-steel, dp-w
+  - sp-steel, dp-wood
+  - sp-w, whf
+  - sp-w, whf,
+  - sp-wood/h-wood
+  - sp/h
+  - sp/h/h2
+  - sp/sh
+  - sp/sh/s2
+  - sp/st
+  - sp/t
+  - sp1hp
+  - sp1hp/ccst/
+  - sp; sph
+  - sp; sph; wp
+  - sp; twr; wp; sph
+  - sp; twr; wp; wph
+  - sp; twr; wph
+  - sp; wp, wph
+  - sp; wp; twr; wph
+  - sp; wp; wph
+  - sp; wp; wph; sph
+  - sp; wph
+  - sp; wph; twr
+  - sp; wph; twr;
+  - sp; wph; twr; wp
+  - sp; wph; wp
+  - sp; wph; wp; t
+  - sp; wph; wp; twr
+  - sp;st
+  - sp;st;whf
+  - sp;st;whf;wp
+  - sp;whf
+  - sp;whf;wp
+  - special
+  - special 1
+  - special 2
+  - special 3
+  - sph frame
+  - sph frame - oh
+  - sph; sp
+  - sph; sp; twr
+  - sph; twr; sp
+  - sph; twr; sp;
+  - sph; twr; sp; wph
+  - sphf
+  - sphf, whf
+  - spole&h frame
+  - spole&hframe
+  - sps, hps
+  - spst
+  - spw, wfh,
+  - spw,mpw
+  - ss-2.43
+  - ss-3.28
+  - ss-3.30
+  - ssp other
+  - ssp others
+  - ssp others swp
+  - ssp others t
+  - ssp others t s
+  - ssp others t swp
+  - ssp ssp t
+  - ssp swp ot
+  - ssp swp t
+  - ssp swp t othe
+  - ssp t
+  - ssp t ssp
+  - ssp t swp
+  - ssp t t
+  - ssptc
+  - st & hfw
+  - st & wh
+  - st (1)(2)(3)
+  - st (4)
+  - st ,sp
+  - st ,wp
+  - st - sp
+  - st pole/h-fr
+  - st pole/st twr
+  - st wd hr
+  - st, h
+  - st, h, wp
+  - st, sp
+  - st, sp & wp
+  - st, sp, h
+  - st, sp, wp
+  - st, u
+  - st, u, sp
+  - st, whf
+  - st, wp
+  - st, wp, sp
+  - st,shf,whf
+  - st,sp
+  - st,sp, whf
+  - st,sp,whf
+  - st,sp,wp
+  - st,w
+  - st,whf
+  - st,whf,sp
+  - st,whf,wp,s
+  - st,whf,wp,sp
+  - st,wp
+  - st,wp,cp
+  - st,wp,sp
+  - st,wp,sp,cp
+  - st-.22;p-13.13
+  - st-.35;h-1.69
+  - st-.35;h-2.44
+  - st-10.87;d-.27
+  - st-sp
+  - st. lat h
+  - st. lat. h
+  - st. lat. h.
+  - st. monop
+  - st. monop/st. tower
+  - st. monop/st. tower/h-wood
+  - st. pole
+  - st. tower/h-wood
+  - st. tower/st. monop
+  - st. wp
+  - st;shf;whf
+  - st;sp;whf
+  - st;whf
+  - st;whf;sp
+  - st;whf;wp
+  - st;whf;wp;sp
+  - stdc-.41
+  - stdc-.45
+  - stdc-.47
+  - stdc-17.04
+  - stdc-4.89
+  - ste pole-tower
+  - steel
+  - steel & wood
+  - steel & wood p
+  - steel - 3p
+  - steel - d
+  - steel - d-p
+  - steel - dc
+  - steel - s
+  - steel / wood
+  - steel 1sa
+  - steel 2sa
+  - steel and
+  - steel and wood
+  - steel bridge
+  - steel building
+  - steel delta
+  - steel guy
+  - steel guyed
+  - steel h. tower
+  - steel h/pole
+  - steel isa
+  - steel lat/pole
+  - steel p
+  - steel pip
+  - steel pipe
+  - steel pole "h" frame
+  - steel pole & wood h
+  - steel pole and frame
+  - steel pole dc "h" frame
+  - steel pole h
+  - steel pole h-f
+  - steel pole h-frame
+  - steel pole, tower
+  - steel pole/fra
+  - steel pole/lat
+  - steel pole/lattice towers
+  - steel pole/to
+  - steel pole/tor
+  - steel pole/tower
+  - steel pool dbl
+  - steel structue
+  - steel tower and wood h-frame
+  - steel tower, steel pole
+  - steel tower, wood pole
+  - steel tower,steel pole
+  - steel tower/pole
+  - steel towers & frames
+  - steel towers & frames, wood
+  - steel towers & steel poles
+  - steel towers/frames & poles
+  - steel twr & p
+  - steel twr & ug
+  - steel varies
+  - steel, sgle
+  - steel, sgle pe
+  - steel, singl
+  - steel, wood
+  - steel,wood
+  - steel,wool
+  - steel- d-p
+  - steel/
+  - steel/ wood
+  - steel/concr.
+  - steel/wood
+  - steeletowerpol
+  - steelpoletowe
+  - steelpoletower
+  - steeltowerpole
+  - stl h-fr, lattice tower
+  - stl h-fr/stl sp
+  - stl pl / tower
+  - stl pl/stl-h-f
+  - stl pl/wd-h-fr
+  - stl plwd-h-fr
+  - stl pole/towe
+  - stl sp, lattice tower
+  - stl sp, wd h-fr
+  - stl sp, wd h-r
+  - stl sp, wd sp,wh
+  - stl sp,lattice
+  - stl sp,wd h-fr
+  - stl sp.lattice,wd h-fr
+  - stl sp; wd h-fr
+  - stl sp;wd h-fr
+  - stl spwd spwh
+  - stl-pl/wd-h-fr
+  - stl.
+  - stlh-fr/stl sp
+  - stlsp,lat,wdhf
+  - stlsp,wdsp,wh
+  - stm-wd
+  - stsc
+  - sttc-1.43
+  - switch
   - swl
   - swp
   - swp (a)
+  - swp other
+  - swp others
+  - swp ssp others
+  - swp t
+  - swp t others
+  - swp t ssp
+  - swp t ssp othe
+  - swp t t
   - swpsc
-  - t
+  - t others ssp
+  - t others swp
+  - t ssp
+  - t ssp others
+  - t ssp others s
+  - t ssp others swp
+  - t ssp swp
+  - t ssp t
+  - t swp
+  - t swp others
+  - t swp others ssp
+  - t swp ssp
+  - t0-324
+  - t0-342
+  - t0-4001
+  - t0-402
+  - t0-476
+  - t10-421
+  - t40-475
+  - t40-505
+  - t60-470
+  - tangent steel
+  - tclt
+  - tcpcs
+  - tcpsc
+  - tcsp
+  - th-1 wood
+  - th-1a wood
+  - th7
+  - total
+  - tow/woodh/c
+  - tow/woodh/conc
+  - tower & pole
+  - tower & poles
+  - tower & wd h
+  - tower & wd h f
+  - tower &stl hfr
+  - tower (wd h)
+  - tower and pole
+  - tower h frame
+  - tower pole
+  - tower wood h
+  - tower&stl h-fr
+  - tower&wdh
+  - tower, wd h-fr
+  - tower, wd sp
+  - tower,concr h
+  - tower,stl h-fr,stl sp
+  - tower,stl sp,w
+  - tower,stlh-frs
+  - tower-cyl pole
+  - tower-cyl.pole
+  - tower-h
+  - tower/h
+  - tower/h frame
+  - tower/poles
+  - towerhframe
+  - towers & h-frame wood
+  - towers & poles
+  - towers / wf. .
+  - towers, frames
   - tp
-  - ts
-  - u
+  - tp-138 steel
+  - tp-69 wood
+  - trip. stl. p.
+  - triple w.p.
+  - ts (34)
+  - ts (4)
+  - ts (40)
+  - ts (41)
+  - ts (43)
+  - ts (44)
+  - tspdc
+  - tspsc
+  - tus-1-115
+  - tus-1-115 wood
+  - tus-1-161
+  - tus-1-161 wood
+  - tus-1p
+  - tw on 0984
+  - twpsc
+  - twr,stlh-fr,st
+  - twr; sp ;wph; wp
+  - twr; sp; sph
+  - twr; sp; sph;
+  - twr; sp; sph; wp
+  - twr; sp; sph; wp; wph
+  - twr; sp; wp; sph
+  - twr; sp; wp; wph
+  - twr; sp; wph
+  - twr; sp; wph;
+  - twr; sp; wph; wp
+  - twr; sp; wph; wp; sph
+  - twr; sph; sp
+  - twr; sph; wph
+  - twr; wp; sp; wph
+  - twr; wp; sph
+  - twr; wp; sph;
+  - twr; wp; sph; sp; wph
+  - twr; wp; wph
+  - twr; wp; wph;
+  - twr; wp; wph; sp
+  - twr; wp; wph; sph; sp
+  - twr; wph
+  - twr; wph; sp
+  - twr; wph; sp;
+  - twr; wph; sp; sph
+  - twr; wph; sp; wp
+  - twr; wph; sp; wpk
+  - twr; wph; sph
+  - twr; wph; sph;
+  - twr; wph; sph; wp; sp
+  - twr; wph; wp
+  - twr; wph; wp;
+  - twr; wph; wp; sp
+  - twr; wph; wp; sph; sp
+  - twr; wph; wpk
+  - twr;wph;wp;sp
+  - u, sp
+  - u, wp
+  - under construc
+  - unk
+  - unknown
+  - unset
+  - urd const.
+  - urd constr.
   - v
+  - v-steel
   - v-wood
   - var
   - various
+  - various 1
+  - various 2
+  - various 3
+  - various 4
+  - various oh
+  - various oh/og
+  - various oh/ug
+  - various wood
+  - variouss
+  - varoius
+  - verious
+  - vert. conc. po
   - vop
   - vop & wood h-f
   - w
-  - w-hrf
   - w-wood
-  - w. h. frame
-  - w.h. frame
+  - w.pl./st.tower
   - wa
+  - wd 3 pole agl
+  - wd 3 pole stru
+  - wd frm/ stl pl
+  - wd frm/sti pl
+  - wd h-fr wd sp
+  - wd h-fr' wd sp
+  - wd h-fr, stl sp
+  - wd h-fr, wd sp
+  - wd h-fr,stl sp
+  - wd h-fr,wd sp
+  - wd h-fr/sp,stl
+  - wd h-fr/stl sp
+  - wd h-fr/wd sp
+  - wd h-fr; stl sp
+  - wd h-fr;stl sp
+  - wd h-fr;stlsp
+  - wd pole/h-fr
+  - wd-h-fr/sp, stl sp
+  - wd-pole/h-fr
+  - wd-st pi/h fr
+  - wd-st pi/h-fr
+  - wd-st pl/h fr
+  - wd-stl
+  - wdhfr/sp,stlsp
   - wdpsc
+  - wdst
+  - wdstl
   - wfs
+  - wfs (13)
   - wfs (15)
   - wfs (16)
   - wfs (2)
   - wfs (27)
+  - wfs (30)
   - wfs (7)
   - wfs (8)
   - wfw
-  - wh
+  - whf, dcst
+  - whf, scst
+  - whf, sp
+  - whf, sp, sphf
+  - whf,sp,sphf
+  - whf,wp,sp
+  - whf;wp
+  - whf;wp;sp
   - wo
   - wo & vop
   - wood
-  - wood "h"
   - wood &
+  - wood & steel
+  - wood & stell
+  - wood &steel p
   - wood - dc
   - wood - h & s
+  - wood - h & sp
+  - wood - h sub
+  - wood - h subst
   - wood - hp
   - wood - hs
   - wood - hsw
+  - wood - sp-h
+  - wood - u
+  - wood 3-pole
   - wood and
+  - wood and steel
   - wood c frame
   - wood dc
-  - wood frame
-  - wood frames
-  - wood h &
-  - wood h drames
-  - wood h fs
-  - wood h- frame
-  - wood h- frames
-  - wood h. frame
-  - wood k -frame
-  - wood k fr
-  - wood k-fr
-  - wood pol
-  - wood pool
-  - wood s. p.
-  - wood s.p.
-  - wood-h
-  - woodpoole
-  - wook h
-  - wp
-  - wp-1p
+  - wood h & steel pole
+  - wood h pole
+  - wood h, steel pole
+  - wood h-fr &pol
+  - wood h-frames & steel poles
+  - wood h-pole
+  - wood pole & st
+  - wood pole & steel frame
+  - wood pole h
+  - wood pole h frame
+  - wood pole h-fm
+  - wood pole h-fr
+  - wood pole h-frame
+  - wood steel
+  - wood structure - oh
+  - wood towers & frames
+  - wood&concrete
+  - wood&steel
+  - wood, steel
+  - wood, steel, e
+  - wood, steelwol
+  - wood,steel
+  - wood,steel, ug
+  - wood,steel,ug
+  - wood/concret
+  - wood/concrete
+  - wood/steel
+  - wood/stl/concr
+  - wp - hf
+  - wp, sp, h
+  - wp, st
+  - wp, st, ug
+  - wp, st,sp
+  - wp,at,st,ug
+  - wp,sp,st
+  - wp,st
+  - wp,st,cp
+  - wp,st,sp
+  - wp--hf
   - wp-22
+  - wp-hf
   - wp-hp
+  - wp/st
+  - wp/ts
+  - wp; sp; sph
+  - wp; sp; wph
+  - wp; sp; wph; s
+  - wp; sph; wph
+  - wp; twr; sp; wph
+  - wp; twr; sph;
+  - wp; twr; sph; sp
+  - wp; twr; wph
+  - wp; twr; wph;
+  - wp; twr; wph; sp
   - wp; wph
-  - wp= wood
-  - wp=wood
+  - wp; wph; sp
+  - wp; wph; sp; twr
+  - wp; wph; twr
+  - wp; wph; twr;
+  - wp; wph; twr; sp
   - wpcf
-  - wph
+  - wph; sp
+  - wph; sp; twr
+  - wph; sp; twr;
+  - wph; sp; twr; wp
+  - wph; sp; wp
+  - wph; sp; wp;
+  - wph; sph; sp; wp
+  - wph; sph; wp;
+  - wph; sph; wp; sp
+  - wph; sph; wp; twr; sp
+  - wph; twr
+  - wph; twr; sp
+  - wph; twr; sp;
+  - wph; twr; sp; wp
+  - wph; twr; wp
+  - wph; twr; wp;
+  - wph; twr; wp; sp
+  - wph; twr; wp; sp; sph
+  - wph; twr; wp; sph
+  - wph; twr; wpk;
   - wph; wp
+  - wph; wp; sp
+  - wph; wp; sp;
+  - wph; wp; sp; s
+  - wph; wp; sp; sph
+  - wph; wp; sp; t
+  - wph; wp; sp; twr
+  - wph; wp; sp; twr; sph
+  - wph; wp; sph
+  - wph; wp; sph; sp
+  - wph; wp; twr
+  - wph; wp; twr;
+  - wph; wp; twr; sp
+  - wph; wp; twr; sp; sph
   - wph; wp; wpk
+  - wphf
   - wwood
+  - xlpe
+  - xlpe cabl
+  - xlpe cable
   - xxxxxxxxx
   - y-55
-  - y-frame
   - z-.20
+  - z-.45
+  - z-.46
+  - z-.48
   - z-.52
+  - z-0.04
   - z-1.00
   - z-1.10
+  - z-1.30
+  - z-4.65
+  - z-5.43
   - z-6.56
   - z-7.22
   - z.52
   - zpox
-  - —
+  - "\u0101\u20AC\u201D"

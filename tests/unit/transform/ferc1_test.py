@@ -1347,8 +1347,8 @@ def test_convert_pnynmndtnhnmns_to_years():
         ("tower", "tower", pd.NA),
         ("h-frame", "h_frame", pd.NA),
         ("pole", "pole", pd.NA),
-        ("steel", "tower", "steel"),
-        ("2-29.55", pd.NA, pd.NA),
+        ("steel", pd.NA, "steel"),
+        ("2-29.55", "h_frame", pd.NA),
         (pd.NA, pd.NA, pd.NA),
     ],
 )
