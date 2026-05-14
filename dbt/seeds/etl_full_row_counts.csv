@@ -1401,8 +1401,8 @@ core_eia930__hourly_subregion_demand,2024,729072
 core_eia930__hourly_subregion_demand,2025,727080
 core_eia930__hourly_subregion_demand,2026,245981
 core_eia__codes_averaging_periods,,17
-core_eia__codes_balancing_authorities,,98
-core_eia__codes_balancing_authority_subregions,,84
+core_eia__codes_balancing_authorities,,100
+core_eia__codes_balancing_authority_subregions,,90
 core_eia__codes_boiler_generator_assn_types,,2
 core_eia__codes_boiler_status,,9
 core_eia__codes_boiler_types,,5
@@ -3658,7 +3658,7 @@ out_eia930__hourly_aggregated_demand,2022,148920
 out_eia930__hourly_aggregated_demand,2023,148920
 out_eia930__hourly_aggregated_demand,2024,149328
 out_eia930__hourly_aggregated_demand,2025,148920
-out_eia930__hourly_aggregated_demand,2026,12771
+out_eia930__hourly_aggregated_demand,2026,49883
 out_eia930__hourly_operations,2015,291016
 out_eia930__hourly_operations,2016,579744
 out_eia930__hourly_operations,2017,578160
@@ -3670,7 +3670,7 @@ out_eia930__hourly_operations,2022,548958
 out_eia930__hourly_operations,2023,541664
 out_eia930__hourly_operations,2024,535824
 out_eia930__hourly_operations,2025,527031
-out_eia930__hourly_operations,2026,171467
+out_eia930__hourly_operations,2026,173003
 out_eia930__hourly_subregion_demand,2018,366043
 out_eia930__hourly_subregion_demand,2019,727080
 out_eia930__hourly_subregion_demand,2020,729072
@@ -3679,7 +3679,7 @@ out_eia930__hourly_subregion_demand,2022,727080
 out_eia930__hourly_subregion_demand,2023,727080
 out_eia930__hourly_subregion_demand,2024,729072
 out_eia930__hourly_subregion_demand,2025,727080
-out_eia930__hourly_subregion_demand,2026,241517
+out_eia930__hourly_subregion_demand,2026,245981
 out_eia__monthly_generators,2001,194239
 out_eia__monthly_generators,2002,201072
 out_eia__monthly_generators,2003,205348
