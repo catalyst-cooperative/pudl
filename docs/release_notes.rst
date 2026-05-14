@@ -33,6 +33,18 @@ FERC 1
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA860M
+~~~~~~~
+
+* Added EIA860M data through March 2026. See issue :issue:`5225` and PR
+  :pr:`5230`.
+
+EIA923
+~~~~~~
+
+* Added EIA923 data through December 2025. See issue :issue:`5226` and PR
+  :pr:`5230`.
+
 EIA-930
 ~~~~~~~
 
