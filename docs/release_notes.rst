@@ -35,13 +35,28 @@ Expanded Data Coverage
 
 EIA860M
 ~~~~~~~
+
 * Added EIA860M data through March 2026. See issue :issue:`5225` and PR
   :pr:`5230`.
 
 EIA923
 ~~~~~~
+
 * Added EIA923 data through December 2025. See issue :issue:`5226` and PR
   :pr:`5230`.
+
+EIA-930
+~~~~~~~
+
+* Updated EIA-930 data through April 2026. See :issue:`5209`
+  and :pr:`5216`. In the process made accommodations for BA changes resulting from the
+  `Southwest Power Pool RTO Expansion <https://www.spp.org/documents/75997/2026%20rtoe%20swpw%20transition%20plan%20%E2%80%93%20market%20participant.pdf>`__
+
+EIA-191
+~~~~~~~
+
+* Updated EIA-191 data through April 2026. See :issue:`5209`
+  and :pr:`5216`.
 
 Documentation
 ^^^^^^^^^^^^^

@@ -1820,6 +1820,7 @@ AVRN,avangrid,Avangrid Renewables LLC,America/Los_Angeles,Northwest,,NW,,True
 AZPS,arizona_public_service,Arizona Public Service Company,America/Phoenix,Southwest,,SW,western,False
 BANC,northern_california,Balancing Authority of Northern California,America/Los_Angeles,California,,CAL,western,False
 BCHA,bc_hydro,British Columbia Hydro and Power Authority,,Canada,,CAN,,False
+BHBA,black_hills_energy,Black Hills Energy,America/Denver,Northwest,,NW,western,False
 BPAT,bonneville_power,Bonneville Power Administration,America/Los_Angeles,Northwest,,NW,western,False
 CHPD,public_utility_district_of_chelan_county,Public Utility District No. 1 of Chelan County,America/Los_Angeles,Northwest,,NW,western,False
 CISO,california_iso,California Independent System Operator,America/Los_Angeles,California,,CAL,western,False
@@ -1896,16 +1897,17 @@ SPRM,city_utilities_of_springfield,"City Utilities Of Springfield, MO",,,,,,Fals
 SPS,southwestern_public_service,Southwestern Public Service Co. (Xcel Energy),,,,,,False
 SRP,salt_river_project,Salt River Project,America/Phoenix,Southwest,,SW,western,False
 SWPP,southwest_power_pool,Southwest Power Pool,America/Chicago,Central,,CENT,eastern,False
+SWPW,southwest_power_pool_west,Southwest Power Pool West,America/Denver,Northwest,,NW,western,False
 TAL,city_of_tallahassee,City of Tallahassee,America/New_York,Florida,,FLA,eastern,False
 TEC,tampa_electric,Tampa Electric Company,America/New_York,Florida,,FLA,eastern,False
 TEPC,tuscon_electric_power,Tucson Electric Power Company,America/Phoenix,Southwest,,SW,western,False
 TIDC,turlock_irrigation_district,Turlock Irrigation District,America/Los_Angeles,California,,CAL,western,False
 TPWR,city_of_tacoma,"City of Tacoma, Department of Public Utilities, Light Division",America/Los_Angeles,Northwest,,NW,western,False
 TVA,tennessee_valley_authority,Tennessee Valley Authority,America/Chicago,Tennessee,,TEN,eastern,False
-WACM,western_area_power_mountain,Western Area Power Administration - Rocky Mountain Region,America/Phoenix,Northwest,,NW,western,False
+WACM,western_area_power_mountain,Western Area Power Administration - Rocky Mountain Region,America/Phoenix,Northwest,2026-04-01,NW,western,False
 WALC,western_area_power_southwest,Western Area Power Administration - Desert Southwest Region,America/Phoenix,Southwest,,SW,western,False
 WAUE,western_area_power_east,Western Area Power Administration - Upper Great Plains East,,,,,,False
-WAUW,western_area_power_west,Western Area Power Administration UGP West,America/Denver,Northwest,,NW,western,False
+WAUW,western_area_power_west,Western Area Power Administration UGP West,America/Denver,Northwest,2026-04-01,NW,western,False
 WFEC,western_farmers_electric_coop,Western Farmers Electric Cooperative,,,,,,False
 WR,westar_energy,Westar Energy,,,,,,False
 WWA,naturener_wind,"NaturEner Wind Watch, LLC",America/Denver,Northwest,,NW,western,True
