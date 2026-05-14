@@ -7836,9 +7836,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Material used in the supporting structure for the transmission line. "
-            "Categorized values: steel, wood, concrete."
+            "Categorized values: steel, wood, concrete, aluminum."
         ),
-        "constraints": {"enum": ["steel", "wood", "concrete"]},
+        "constraints": {"enum": ["steel", "wood", "concrete", "aluminum"]},
     },
     "can_switch_oil_gas": {
         "type": "boolean",
