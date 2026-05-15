@@ -15,9 +15,17 @@ import dagster as dg
 
 from pudl.dagster.asset_checks import default_asset_checks
 from pudl.dagster.assets import default_assets
-from pudl.dagster.io_managers import default_io_managers
+from pudl.dagster.io_managers import (
+    FercDbfSqliteIOManager,
+    FercXbrlSqliteIOManager,
+    default_io_managers,
+)
 from pudl.dagster.jobs import default_jobs
-from pudl.dagster.resources import default_resources
+from pudl.dagster.resources import (
+    GlobalDataConfigResource,
+    ZenodoDoiSettingsResource,
+    default_resources,
+)
 from pudl.dagster.sensors import default_sensors
 
 
@@ -55,4 +63,62 @@ def build_defs(
     )
 
 
-__all__ = ["build_defs"]
+def _build_interactive_ferc_io_managers(
+    *,
+    global_data_config: GlobalDataConfigResource,
+    zenodo_dois: ZenodoDoiSettingsResource,
+) -> dict[str, Any]:
+    """Build FERC IO managers wired to concrete local resource instances."""
+    return {
+        "ferc1_dbf_sqlite_io_manager": FercDbfSqliteIOManager(
+            global_data_config=global_data_config,
+            zenodo_dois=zenodo_dois,
+            dataset="ferc1",
+        ),
+        "ferc1_xbrl_sqlite_io_manager": FercXbrlSqliteIOManager(
+            global_data_config=global_data_config,
+            zenodo_dois=zenodo_dois,
+            dataset="ferc1",
+        ),
+        "ferc714_xbrl_sqlite_io_manager": FercXbrlSqliteIOManager(
+            global_data_config=global_data_config,
+            zenodo_dois=zenodo_dois,
+            dataset="ferc714",
+        ),
+    }
+
+
+def build_interactive_defs(
+    *,
+    global_data_config_path: str | None = None,
+    zenodo_dois_path: str | None = None,
+) -> dg.Definitions:
+    """Build defs for interactive in-process use with concrete default resources.
+
+    Dagster's asset value loader does not resolve the FERC SQLite IO managers when
+    they reference partially configured nested resources. For notebooks, REPLs,
+    and local scripts, rebuild those resources with concrete top-level instances so
+    in-process asset loading works for FERC-backed assets too.
+    """
+    if global_data_config_path is None:
+        global_data_config = GlobalDataConfigResource()
+    else:
+        global_data_config = GlobalDataConfigResource(
+            global_data_config_path=global_data_config_path
+        )
+
+    zenodo_dois = ZenodoDoiSettingsResource(zenodo_dois_path=zenodo_dois_path)
+
+    return build_defs(
+        resource_overrides={
+            "global_data_config": global_data_config,
+            "zenodo_dois": zenodo_dois,
+            **_build_interactive_ferc_io_managers(
+                global_data_config=global_data_config,
+                zenodo_dois=zenodo_dois,
+            ),
+        }
+    )
+
+
+__all__ = ["build_defs", "build_interactive_defs"]
