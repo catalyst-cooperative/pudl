@@ -5283,6 +5283,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "State that the distribution utility is reporting for. Prior to 2004, this may be a list of states."
         ),
     },
+    "mode_of_transportation": {
+        "type": "string",
+        "description": "Means by which natural gas was transported.",
+        "constraints": {"enum": ["pipeline", "truck", "vessel"]},
+    },
     "operating_time_hours": {
         "type": "number",
         "description": "Length of time interval measured.",
@@ -7813,6 +7818,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner."
+        ),
+    },
+    "reference_state": {
+        "type": "string",
+        "description": (
+            "State, territory, country, or other reporting code associated with the referenced gas receipt or delivery."
         ),
     },
     "supporting_structure_type": {

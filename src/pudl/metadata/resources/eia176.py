@@ -3,6 +3,35 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_eia176__yearly_gas_imports": {
+        "description": {
+            "additional_summary_text": (
+                "a company's detailed natural gas receipts from another state or a "
+                "U.S. border."
+            ),
+            "additional_source_text": "(Part 4, Line 3.0)",
+            "additional_primary_key_text": (
+                "This table has no enforced primary key because some records do not "
+                "report a mode of transportation. Rows are deduplicated by operator, "
+                "report year, operating state, reference state, supplier, and mode of "
+                "transportation when the data are transformed."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "reference_state",
+                "supplier_name",
+                "mode_of_transportation",
+                "volume_mcf",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia176"],
+        "etl_group": "eia176",
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "description": {
             "additional_summary_text": (

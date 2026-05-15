@@ -22,6 +22,30 @@ DROP_OPERATING_STATES = (
     "other",
 )
 
+CONTINUATION_LINES_NON_SUBDIVISION_CODES = {
+    "operating_state": {"MX"},
+    "reference_state": {
+        "AG",
+        "AU",
+        "CN",
+        "EG",
+        "FR",
+        "FX",
+        "GQ",
+        "JM",
+        "MX",
+        "NG",
+        "NO",
+        "OM",
+        "OO",
+        "QR",
+        "TD",
+        "UK",
+        "XX",
+        "YE",
+    },
+}
+
 
 @multi_asset(
     outs={
@@ -92,6 +116,52 @@ def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataF
     unstacked = simplify_columns(unstacked)  # Clean up column names
     unstacked.columns.name = None  # gets rid of "item" name of columns index
     return unstacked.reset_index()
+
+
+def _subdivision_code_map(
+    core_pudl__codes_subdivisions: pd.DataFrame,
+) -> pd.Series:
+    """Map subdivision names and codes to canonical two-letter codes."""
+    code_map = pd.concat(
+        [
+            core_pudl__codes_subdivisions.assign(
+                key=lambda x: x["subdivision_name"].str.strip().str.casefold()
+            ),
+            core_pudl__codes_subdivisions.assign(
+                key=lambda x: x["subdivision_code"].str.strip().str.casefold()
+            ),
+        ],
+        ignore_index=True,
+    )
+    return code_map.drop_duplicates("key").set_index("key")["subdivision_code"]
+
+
+def convert_continuation_lines_state_codes(
+    df: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    column: str,
+) -> pd.DataFrame:
+    """Validate and normalize continuation line state codes.
+
+    Values matching ``core_pudl__codes_subdivisions`` by name or code are converted
+    to canonical subdivision codes. Observed country/import adjustment codes are
+    allowed through unchanged, because they are not subdivisions.
+    """
+    df = df.copy()
+    code_map = _subdivision_code_map(core_pudl__codes_subdivisions)
+    allowed_codes = CONTINUATION_LINES_NON_SUBDIVISION_CODES.get(column, set())
+
+    norm = df[column].astype("string").str.strip().str.casefold()
+    converted = norm.map(code_map).astype("string")
+    allowed = norm.str.upper().isin(allowed_codes)
+    invalid = df.loc[converted.isna() & ~allowed & df[column].notna(), column]
+    if not invalid.empty:
+        raise ValueError(
+            f"Unknown {column} values: {sorted(invalid.unique().tolist())!r}"
+        )
+
+    df[column] = converted.fillna(norm.str.upper())
+    return df
 
 
 @asset_check(
@@ -357,6 +427,106 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
 
 @asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_imports(
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce company-level detailed annual gas imports (EIA-176, Line 3.0)."""
+    primary_key = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "reference_state",
+        "supplier_name",
+        "mode_of_transportation",
+    ]
+    keep = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "reference_state",
+        "reference_company_or_line_description",
+        "volume_mcf",
+        "mode_of_transportation",
+    ]
+    df = raw_eia176__continuation_text_lines[
+        raw_eia176__continuation_text_lines["line"] == 300
+    ].filter(keep)
+    df = convert_continuation_lines_state_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="operating_state",
+    )
+    df = convert_continuation_lines_state_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="reference_state",
+    )
+    df = df.rename(
+        columns={
+            "reference_company_or_line_description": "supplier_name",
+        }
+    )
+    df["mode_of_transportation"] = (
+        df["mode_of_transportation"]
+        .astype("string")
+        .str.strip()
+        .replace({".": pd.NA, "0": pd.NA})
+        .str.casefold()
+    )
+    df["report_year"] = df["report_year"].astype("int64")
+    df = df.groupby(primary_key, dropna=False, as_index=False).agg(
+        {"volume_mcf": "sum"}
+    )
+    assert not df.duplicated(subset=primary_key).any()
+
+    mismatches = _find_line_300_total_mismatches(
+        imports=df,
+        _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+    )
+    assert len(mismatches) <= 2, "More than 2 line 300 total mismatches"
+
+    return df
+
+
+def _find_line_300_total_mismatches(
+    imports: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Compare detailed line 300 imports with reported company-level totals."""
+    primary_key = ["operator_id_eia", "report_year"]
+    company_totals = _core_eia176__yearly_company_data[
+        [
+            *primary_key,
+            "receipts_from_state_or_us_border_volume",
+        ]
+    ]
+    company_totals = company_totals[
+        company_totals["receipts_from_state_or_us_border_volume"].notna()
+    ]
+    continuation_totals = imports.groupby(primary_key, as_index=False).agg(
+        {"volume_mcf": "sum"}
+    )
+    comparison = company_totals.merge(
+        continuation_totals,
+        how="outer",
+        on=primary_key,
+        validate="1:1",
+    )
+    return comparison[
+        (
+            comparison["receipts_from_state_or_us_border_volume"]
+            != comparison["volume_mcf"]
+        )
+        & (
+            comparison["receipts_from_state_or_us_border_volume"].notna()
+            | comparison["volume_mcf"].notna()
+        )
+    ]
+
+
+@asset(io_manager_key="pudl_io_manager")
 def core_eia176__yearly_gas_disposition(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -532,7 +702,9 @@ def core_eia176__yearly_gas_disposition(
     return df
 
 
-def _normalize_operating_states(core_pudl__codes_subdivisions, df):
+def _normalize_operating_states(
+    core_pudl__codes_subdivisions, df, column: str = "operating_state"
+):
     """Map full state names to their postal abbreviations.
 
     This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.
@@ -545,7 +717,7 @@ def _normalize_operating_states(core_pudl__codes_subdivisions, df):
         .drop_duplicates("key")
         .set_index("key")["subdivision_code"]
     )
-    norm = df["operating_state"].astype(str).str.strip().str.casefold()
+    norm = df[column].astype(str).str.strip().str.casefold()
     mask_valid = norm.isin(codes.index)
     mask_safe_drop = norm.isin(DROP_OPERATING_STATES)
 
@@ -553,5 +725,5 @@ def _normalize_operating_states(core_pudl__codes_subdivisions, df):
     if len(invalid) > 0:
         raise ValueError(f"Unknown operating_state values: {invalid!r}")
 
-    df["operating_state"] = norm.map(codes)
+    df[column] = norm.map(codes)
     return df
