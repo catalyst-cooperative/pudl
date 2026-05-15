@@ -1233,6 +1233,9 @@ def calculate_values_from_components(
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
     calc_df.columns = calc_df.columns.str.removesuffix("_parent")
+    logger.info(
+        f"{data[data.duplicated(data_idx, keep=False)].set_index(data_idx).sort_index()}"
+    )
     calculated_df = pd.merge(
         data,
         calc_df,
@@ -3102,6 +3105,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
         df["utility_id_ferc1"] = df[util_id_col].map(util_map_series)
+        if unmapped := list(
+            df.loc[df["utility_id_ferc1"].isnull(), util_id_col].unique()
+        ):
+            raise AssertionError(
+                f"Found {len(unmapped)} {util_id_col} and expected none.\n"
+                f"Unmapped ids: {list(unmapped)}"
+            )
         return df
 
     def reconcile_table_calculations(
