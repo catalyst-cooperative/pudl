@@ -34,7 +34,7 @@ from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.settings import GlobalDataConfig
-from pudl.workspace.datastore import Datastore
+from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
@@ -402,7 +402,7 @@ def global_data_config(
 
 
 @pytest.fixture(scope="session")
-def zenodo_dois() -> Generator:
+def zenodo_dois() -> Generator[ZenodoDoiSettings]:
     """Load Zenodo DOI settings through the Dagster resource."""
     with resources.ZenodoDoiSettingsResource.from_resource_context_cm(
         build_init_resource_context()
