@@ -24,6 +24,7 @@ from dagster import (
 
 import pudl.dagster.resources as resources
 import pudl.logging_helpers
+from pudl import PUDL_SETTINGS_PATH
 from pudl.dagster.build import build_interactive_defs
 from pudl.dagster.io_managers import (
     FercDbfSqliteIOManager,
@@ -38,7 +39,7 @@ from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
 
-DG_CONFIG_PATH_DEFAULT = "src/pudl/package_data/settings/dg_pytest.yml"
+DG_PYTEST_CONFIG_PATH = PUDL_SETTINGS_PATH / "dg_pytest.yml"
 
 # Preamble: before pytest starts handling this module's CLI options and fixtures, we
 # do a small amount of one-time environment setup and controller-side validation. The
@@ -165,11 +166,11 @@ def pytest_addoption(parser):
     parser.addoption(
         "--dg-config",
         action="store",
-        default=DG_CONFIG_PATH_DEFAULT,
+        default=DG_PYTEST_CONFIG_PATH,
         help=(
             "Path to a Dagster dg launch config YAML file for integration tests. "
             "Relative paths are resolved from the repository root. "
-            f"Defaults to {DG_CONFIG_PATH_DEFAULT}."
+            f"Defaults to {DG_PYTEST_CONFIG_PATH}."
         ),
     )
     parser.addoption(
