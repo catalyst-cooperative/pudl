@@ -95,7 +95,6 @@ def build_interactive_defs(
 ) -> dg.Definitions:
     """Build defs for interactive in-process use with concrete default resources.
 
-
     Dagster's asset value loader does not resolve the FERC SQLite IO managers when
     they reference partially configured nested resources, which happens when you're
     trying to load assets outside of a `dg`-spawned environment. So, in notebooks,
