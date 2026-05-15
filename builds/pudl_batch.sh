@@ -187,6 +187,53 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
+function send_zulip_msg() {
+    # TODO: set up Zulip bot and get API key
+    # TODO: set topic name to something like YYYY-mm-dd ref_name - maybe just $BUILD_ID?
+    set +x &&
+        echo "sending Zulip message" &&
+    curl -X POST https://catalyst-cooperative.zulipchat.com/api/v1/messages \
+        -u EMAIL_ADDRESS:API_KEY \
+        --data-urlencode type=stream \
+        --data-urlencode 'to="pudl-deployments"' \
+        --data-urlencode topic=Castle \
+        --data-urlencode "content=$1" &&
+        set -x
+}
+
+function notify_zulip() {
+    # Notify pudl-deployment zulip channel of deployment status
+    local total_build_duration
+
+    echo "Notifying Slack about deployment status"
+    total_build_duration=$(get_total_build_duration)
+    message="${BUILD_ID} status\n\n"
+    if [[ "$1" == "success" ]]; then
+        message+=":green_circle: :sunglasses: :unicorn: :rainbow: PUDL Data Build Succeeded!! :partygritty: :database_parrot: :blob-dance: :green_circle:\n\n"
+    elif [[ "$1" == "failure" ]]; then
+        message+=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:\n\n"
+    else
+        echo "Invalid deployment status"
+        exit 1
+    fi
+
+    message+=":time: \`[${total_build_duration}]\` Total Build Duration\n\n"
+    message+="$(slack_stage_status "Run PUDL Dagster Job" "$DAGSTER_STATUS" "$DAGSTER_DURATION")\n"
+    message+="$(slack_stage_status "Unit Tests" "$UNIT_TEST_STATUS" "$UNIT_TEST_DURATION")\n"
+    message+="$(slack_stage_status "Integration Tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")\n"
+    message+="$(slack_stage_status "Data Validations (FKs/dbt)" "$DATA_VALIDATION_STATUS" "$DATA_VALIDATION_DURATION")\n"
+    message+="$(slack_stage_status "Row Count Checks (dbt)" "$ROW_COUNT_VALIDATION_STATUS" "$ROW_COUNT_VALIDATION_DURATION")\n"
+    message+="$(slack_stage_status "Write PUDL Datapackage" "$WRITE_DATAPACKAGE_STATUS" "$WRITE_DATAPACKAGE_DURATION")\n"
+    message+="$(slack_stage_status "Save Build Outputs" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
+
+    # TODO: fix the link for batch logs to cut everything in BUILD_ID after YYYY-mm-dd-hhmm-<hash>
+    message+="**[Query logs online](https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl)**\n\n"
+    message+="**[Download logs to your computer](https://storage.cloud.google.com/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log)**\n\n"
+    message+="**[Browse full build outputs](https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID)**"
+
+    send_zulip_msg "$message"
+}
+
 ########################################################################################
 # MAIN SCRIPT
 ########################################################################################
