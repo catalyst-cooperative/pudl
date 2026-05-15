@@ -11,7 +11,6 @@ For the underlying Dagster concept, see https://docs.dagster.io/guides/build/io-
 """
 
 import json
-import os
 import re
 from functools import cached_property
 from pathlib import Path
@@ -582,30 +581,6 @@ parquet_io_manager = PudlParquetIOManager()
 geoparquet_io_manager = PudlGeoParquetIOManager()
 
 
-def _setup_ferc_sqlite_database(
-    base_dir: Path,
-    db_name: str,
-    timeout: float = 1_000.0,
-) -> tuple[sa.Engine, Path, sa.MetaData]:
-    """Create a SQLite engine and load metadata for a FERC database."""
-    if not base_dir.exists():
-        base_dir.mkdir(parents=True)
-
-    db_path = base_dir / f"{db_name}.sqlite"
-    engine = sa.create_engine(f"sqlite:///{db_path}", connect_args={"timeout": timeout})
-
-    metadata = sa.MetaData()
-    if db_path.exists():
-        metadata.reflect(engine)
-    else:
-        logger.info(
-            f"{db_path} not found during resource initialization; metadata reflection "
-            "will happen on first load."
-        )
-
-    return engine, db_path, metadata
-
-
 class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     """Shared FERC SQLite IO-manager behavior for Dagster resources."""
 
@@ -615,7 +590,6 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     data_format: ClassVar[str]
 
     _engine: sa.Engine | None = PrivateAttr(default=None)
-    _db_path: Path | None = PrivateAttr(default=None)
     _md: sa.MetaData | None = PrivateAttr(default=None)
 
     @property
@@ -626,6 +600,30 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     def db_name(self) -> str:
         """Return the SQLite database name for this dataset and data format."""
         return f"{self.dataset}_{self.data_format}"
+
+    @property
+    def db_path(self) -> Path:
+        """Return the canonical SQLite path for this dataset and data format."""
+        return PudlPaths().sqlite_db_path(self.db_name)
+
+    def _setup_database(
+        self, timeout: float = 1_000.0
+    ) -> tuple[sa.Engine, sa.MetaData]:
+        """Create the SQLite engine and load metadata for this FERC database."""
+        engine = sa.create_engine(
+            f"sqlite:///{self.db_path}", connect_args={"timeout": timeout}
+        )
+
+        metadata = sa.MetaData()
+        if self.db_path.exists():
+            metadata.reflect(engine)
+        else:
+            logger.info(
+                f"{self.db_path} not found during resource initialization; metadata reflection "
+                "will happen on first load."
+            )
+
+        return engine, metadata
 
     @property
     def md(self) -> sa.MetaData:
@@ -650,11 +648,8 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     def engine(self) -> sa.Engine:
         """Expose the underlying SQLAlchemy engine for tests and helpers."""
         if self._engine is None:
-            engine, db_path, metadata = _setup_ferc_sqlite_database(
-                Path(os.environ["PUDL_OUTPUT"]), self.db_name
-            )
+            engine, metadata = self._setup_database()
             self._engine = engine
-            self._db_path = db_path
             self._md = metadata
         return self._engine
 
@@ -666,10 +661,9 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     def _ensure_database_ready(self) -> None:
         """Ensure the sqlite DB exists and metadata has been reflected."""
         _ = self.engine
-        assert self._db_path is not None
-        if not self._db_path.exists():
+        if not self.db_path.exists():
             raise ValueError(
-                f"No DB found at {self._db_path}. Run the job that creates the "
+                f"No DB found at {self.db_path}. Run the job that creates the "
                 f"{self.db_name} database."
             )
         if not self.md.tables:
@@ -685,7 +679,7 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
             )
         return sa_table
 
-    def _prepare(self, context: InputContext) -> None:
+    def _ensure_database_compatible(self, context: InputContext) -> None:
         """Make sure extracted FERC database is valid for this run."""
         self._ensure_database_ready()
 
@@ -706,7 +700,7 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC SQLite database."""
-        self._prepare(context)
+        self._ensure_database_compatible(context)
         ferc_data_config = getattr(
             self.global_data_config.pudl,
             self.dataset,
