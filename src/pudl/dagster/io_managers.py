@@ -606,7 +606,7 @@ def _setup_ferc_sqlite_database(
     return engine, db_path, metadata
 
 
-class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
+class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     """Shared FERC SQLite IO-manager behavior for Dagster resources."""
 
     global_data_config: dg.ResourceDependency[GlobalDataConfigResource]
@@ -624,6 +624,7 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
 
     @property
     def db_name(self) -> str:
+        """Return the SQLite database name for this dataset and data format."""
         return f"{self.dataset}_{self.data_format}"
 
     @property
@@ -726,8 +727,8 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
         raise NotImplementedError("Subclasses must implement _query.")
 
 
-class FercDbfSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
-    """Configurable IO manager for reading tables from FERC DBF SQLite databases.
+class FercDbfSqliteIOManager(FercSqliteIOManagerBase):
+    """IO manager for reading tables from FERC DBF SQLite databases.
 
     Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.)
     """
@@ -749,8 +750,8 @@ class FercDbfSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
             ).assign(sched_table_name=table_name)
 
 
-class FercXbrlSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
-    """Configurable IO manager for reading tables from a FERC XBRL SQLite database.
+class FercXbrlSqliteIOManager(FercSqliteIOManagerBase):
+    """IO manager for reading tables from a FERC XBRL SQLite database.
 
     Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.).
     """
@@ -821,17 +822,17 @@ class FercXbrlSqliteConfigurableIOManager(_FercSqliteConfigurableIOManagerBase):
         return df.pipe(self.refine_report_year, xbrl_years=years)
 
 
-ferc1_dbf_sqlite_io_manager = FercDbfSqliteConfigurableIOManager(
+ferc1_dbf_sqlite_io_manager = FercDbfSqliteIOManager(
     global_data_config=global_data_config_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     dataset="ferc1",
 )
-ferc1_xbrl_sqlite_io_manager = FercXbrlSqliteConfigurableIOManager(
+ferc1_xbrl_sqlite_io_manager = FercXbrlSqliteIOManager(
     global_data_config=global_data_config_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     dataset="ferc1",
 )
-ferc714_xbrl_sqlite_io_manager = FercXbrlSqliteConfigurableIOManager(
+ferc714_xbrl_sqlite_io_manager = FercXbrlSqliteIOManager(
     global_data_config=global_data_config_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     dataset="ferc714",

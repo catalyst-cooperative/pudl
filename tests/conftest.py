@@ -26,8 +26,8 @@ import pudl.dagster.resources as resources
 import pudl.logging_helpers
 from pudl.dagster.build import build_defs
 from pudl.dagster.io_managers import (
-    FercDbfSqliteConfigurableIOManager,
-    FercXbrlSqliteConfigurableIOManager,
+    FercDbfSqliteIOManager,
+    FercXbrlSqliteIOManager,
 )
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
@@ -264,8 +264,7 @@ def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
 
 
 def _initialize_ferc_engine(
-    io_manager: FercDbfSqliteConfigurableIOManager
-    | FercXbrlSqliteConfigurableIOManager,
+    io_manager: FercDbfSqliteIOManager | FercXbrlSqliteIOManager,
     *,
     asset_key: str,
     dagster_instance: DagsterInstance,
@@ -290,8 +289,8 @@ def _initialize_ferc_engine(
 
 def _initialize_ferc_io_manager[
     FercSqliteIOManager: (
-        FercDbfSqliteConfigurableIOManager,
-        FercXbrlSqliteConfigurableIOManager,
+        FercDbfSqliteIOManager,
+        FercXbrlSqliteIOManager,
     )
 ](
     io_manager_cls: type[FercSqliteIOManager],
@@ -423,10 +422,10 @@ def ferc1_dbf_io_manager(
     prebuilt_outputs,
     global_data_config: GlobalDataConfig,
     zenodo_dois,
-) -> Generator[FercDbfSqliteConfigurableIOManager]:
+) -> Generator[FercDbfSqliteIOManager]:
     """Initialize the FERC Form 1 DBF IO manager through Dagster."""
     yield from _initialize_ferc_io_manager(
-        FercDbfSqliteConfigurableIOManager,
+        FercDbfSqliteIOManager,
         global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
@@ -438,10 +437,10 @@ def ferc1_xbrl_io_manager(
     prebuilt_outputs,
     global_data_config: GlobalDataConfig,
     zenodo_dois,
-) -> Generator[FercXbrlSqliteConfigurableIOManager]:
+) -> Generator[FercXbrlSqliteIOManager]:
     """Initialize the FERC Form 1 XBRL IO manager through Dagster."""
     yield from _initialize_ferc_io_manager(
-        FercXbrlSqliteConfigurableIOManager,
+        FercXbrlSqliteIOManager,
         global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
@@ -453,10 +452,10 @@ def ferc714_xbrl_io_manager(
     prebuilt_outputs,
     global_data_config: GlobalDataConfig,
     zenodo_dois,
-) -> Generator[FercXbrlSqliteConfigurableIOManager]:
+) -> Generator[FercXbrlSqliteIOManager]:
     """Initialize the FERC Form 714 XBRL IO manager through Dagster."""
     yield from _initialize_ferc_io_manager(
-        FercXbrlSqliteConfigurableIOManager,
+        FercXbrlSqliteIOManager,
         global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         dataset="ferc714",
@@ -503,7 +502,7 @@ def dbt_target(global_data_config_path: Path) -> str:
 
 @pytest.fixture(scope="session")
 def ferc1_engine_dbf(
-    ferc1_dbf_io_manager: FercDbfSqliteConfigurableIOManager,
+    ferc1_dbf_io_manager: FercDbfSqliteIOManager,
     dagster_instance: DagsterInstance,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database."""
@@ -546,7 +545,7 @@ def prebuilt_outputs(
 
 @pytest.fixture(scope="session")
 def ferc1_engine_xbrl(
-    ferc1_xbrl_io_manager: FercXbrlSqliteConfigurableIOManager,
+    ferc1_xbrl_io_manager: FercXbrlSqliteIOManager,
     dagster_instance: DagsterInstance,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database."""
@@ -572,7 +571,7 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
 
 @pytest.fixture(scope="session")
 def ferc714_engine_xbrl(
-    ferc714_xbrl_io_manager: FercXbrlSqliteConfigurableIOManager,
+    ferc714_xbrl_io_manager: FercXbrlSqliteIOManager,
     dagster_instance: DagsterInstance,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database."""

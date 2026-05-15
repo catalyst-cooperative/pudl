@@ -12,8 +12,8 @@ from dagster._core.execution.context.output import OutputContext
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from pudl.dagster.io_managers import (
-    FercDbfSqliteConfigurableIOManager,
-    FercXbrlSqliteConfigurableIOManager,
+    FercDbfSqliteIOManager,
+    FercXbrlSqliteIOManager,
     PudlMixedFormatIOManager,
     PudlParquetIOManager,
     PudlSqliteIOManager,
@@ -352,14 +352,14 @@ def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
         ferc_to_sqlite=FercToSqliteDataConfig(),
     )
     zenodo_dois = ZenodoDoiSettings()
-    manager: FercDbfSqliteConfigurableIOManager = FercDbfSqliteConfigurableIOManager(
+    manager: FercDbfSqliteIOManager = FercDbfSqliteIOManager(
         global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
-    mocker.patch.object(FercDbfSqliteConfigurableIOManager, "_ensure_database_ready")
+    mocker.patch.object(FercDbfSqliteIOManager, "_ensure_database_ready")
     query = mocker.patch.object(
-        FercDbfSqliteConfigurableIOManager,
+        FercDbfSqliteIOManager,
         "_query",
         return_value=pd.DataFrame({"sched_table_name": ["f1_respondent_id"]}),
     )
@@ -404,14 +404,14 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
         ferc_to_sqlite=FercToSqliteDataConfig(),
     )
     zenodo_dois = ZenodoDoiSettings()
-    manager: FercXbrlSqliteConfigurableIOManager = FercXbrlSqliteConfigurableIOManager(
+    manager: FercXbrlSqliteIOManager = FercXbrlSqliteIOManager(
         global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
-    mocker.patch.object(FercXbrlSqliteConfigurableIOManager, "_ensure_database_ready")
+    mocker.patch.object(FercXbrlSqliteIOManager, "_ensure_database_ready")
     query = mocker.patch.object(
-        FercXbrlSqliteConfigurableIOManager,
+        FercXbrlSqliteIOManager,
         "_query",
         return_value=pd.DataFrame(
             {"report_year": [2021], "sched_table_name": ["plant_in_service"]}
@@ -459,13 +459,13 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
     )
     zenodo_dois = ZenodoDoiSettings()
 
-    manager: FercDbfSqliteConfigurableIOManager = FercDbfSqliteConfigurableIOManager(
+    manager: FercDbfSqliteIOManager = FercDbfSqliteIOManager(
         global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
-    mocker.patch.object(FercDbfSqliteConfigurableIOManager, "_ensure_database_ready")
-    query = mocker.patch.object(FercDbfSqliteConfigurableIOManager, "_query")
+    mocker.patch.object(FercDbfSqliteIOManager, "_ensure_database_ready")
+    query = mocker.patch.object(FercDbfSqliteIOManager, "_query")
     stale_metadata = {
         FERC_TO_SQLITE_METADATA_KEY: FercSqliteProvenanceRecord(
             dataset="ferc1",
@@ -501,13 +501,13 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
     )
     zenodo_dois = ZenodoDoiSettings()
 
-    manager: FercDbfSqliteConfigurableIOManager = FercDbfSqliteConfigurableIOManager(
+    manager: FercDbfSqliteIOManager = FercDbfSqliteIOManager(
         global_data_config=global_data_config,
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
-    mocker.patch.object(FercDbfSqliteConfigurableIOManager, "_ensure_database_ready")
-    query = mocker.patch.object(FercDbfSqliteConfigurableIOManager, "_query")
+    mocker.patch.object(FercDbfSqliteIOManager, "_ensure_database_ready")
+    query = mocker.patch.object(FercDbfSqliteIOManager, "_query")
     instance: DagsterInstance = mocker.MagicMock()
     instance.is_ephemeral = False
     instance.get_latest_materialization_event.return_value = None
@@ -557,7 +557,7 @@ def test_report_year_fixing_instant():
             },
         ]
     )
-    observed: pd.Series = FercXbrlSqliteConfigurableIOManager.refine_report_year(
+    observed: pd.Series = FercXbrlSqliteIOManager.refine_report_year(
         instant_df, xbrl_years=[2021, 2022]
     ).report_year
     expected = pd.Series([2020])
@@ -583,7 +583,7 @@ def test_report_year_fixing_duration():
             },
         ]
     )
-    observed: pd.Series = FercXbrlSqliteConfigurableIOManager.refine_report_year(
+    observed: pd.Series = FercXbrlSqliteIOManager.refine_report_year(
         duration_df, xbrl_years=[2021, 2022]
     ).report_year
     expected: pd.Series = pd.Series([2021])
@@ -642,6 +642,4 @@ def test_report_year_fixing_duration():
 )
 def test_report_year_fixing_bad_values(df, match):
     with pytest.raises(ValueError, match=match):
-        FercXbrlSqliteConfigurableIOManager.refine_report_year(
-            df, xbrl_years=[2021, 2022]
-        )
+        FercXbrlSqliteIOManager.refine_report_year(df, xbrl_years=[2021, 2022])

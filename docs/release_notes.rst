@@ -162,8 +162,8 @@ changes:
   :class:`pudl.workspace.datastore.ZenodoDoiSettingsResource` replace the legacy
   ``@resource``-decorated functions;
   :class:`pudl.io_managers.PudlMixedFormatIOManager`,
-  :class:`pudl.io_managers.FercDbfSqliteConfigurableIOManager`, and
-  :class:`pudl.io_managers.FercXbrlSqliteConfigurableIOManager` replace the legacy
+  :class:`pudl.io_managers.FercDbfSqliteIOManager`, and
+  :class:`pudl.io_managers.FercXbrlSqliteIOManager` replace the legacy
   ``@io_manager`` wrappers. Resources now receive settings via Pydantic field
   injection rather than via :func:`dagster.build_init_resource_context` config dicts.
 * **Added FERC SQLite provenance tracking** via the new
@@ -225,7 +225,7 @@ changes:
   combined two acronyms (e.g. ``FERC`` + ``SQLite``) were inconsistently named.
   They now follow the Python convention of treating each acronym as a single
   title-cased word, so ``SQLite`` becomes ``Sqlite`` when it appears mid-name
-  (e.g. ``FercDbfSqliteConfigurableIOManager``).  See :issue:`5123` and PR :pr:`5124`.
+  (e.g. ``FercDbfSqliteIOManager``).  See :issue:`5123` and PR :pr:`5124`.
 * **Renamed Pydantic settings classes from** ``*Settings`` **to** ``*DataConfig``
   **and tightened container field names.** The old names were too vague — these
   classes define *which data gets processed*, not general application settings.
