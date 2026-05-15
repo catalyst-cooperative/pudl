@@ -24,7 +24,7 @@ from dagster import (
 
 import pudl.dagster.resources as resources
 import pudl.logging_helpers
-from pudl.dagster.build import build_defs
+from pudl.dagster.build import build_interactive_defs
 from pudl.dagster.io_managers import (
     FercDbfSqliteIOManager,
     FercXbrlSqliteIOManager,
@@ -271,14 +271,13 @@ def _initialize_ferc_engine(
 ) -> sa.Engine:
     """Initialize a FERC IO manager through Dagster before exposing its engine.
 
-    Loading one representative asset forces the manager to:
-
-    * verify the sqlite database exists,
-    * reflect metadata if needed, and
-    * run the FERC sqlite provenance compatibility check against the shared
-      Dagster instance used by the pytest session.
+    This probe only needs to confirm that the sqlite database exists, metadata can be
+    reflected, and the FERC provenance check passes against the shared Dagster
+    instance. It intentionally avoids calling ``load_input()`` because some raw FERC
+    tables used as ordering-only sentinels do not support the manager's normal
+    year-filtered query shape.
     """
-    io_manager.load_input(
+    io_manager._ensure_database_compatible(  # noqa: SLF001
         build_input_context(
             asset_key=AssetKey(asset_key),
             instance=dagster_instance,
@@ -300,17 +299,14 @@ def _initialize_ferc_io_manager[
     dataset: str,
 ) -> Generator[FercSqliteIOManager]:
     """Initialize a FERC sqlite IO manager through Dagster resource context."""
-    init_context = build_init_resource_context(
-        resources={
+    init_context = build_init_resource_context(config={"dataset": dataset})
+    with io_manager_cls.from_resource_context_cm(
+        init_context,
+        nested_resources={
             "global_data_config": global_data_config,
             "zenodo_dois": zenodo_dois,
-        }
-    )
-    with io_manager_cls(
-        global_data_config=global_data_config,  # type: ignore[arg-type]
-        zenodo_dois=zenodo_dois,  # type: ignore[arg-type]
-        dataset=dataset,
-    ).from_resource_context_cm(init_context) as io_manager:
+        },
+    ) as io_manager:
         yield io_manager
 
 
@@ -377,12 +373,8 @@ def asset_value_loader(
     ``defs.load_asset_value`` to not reinitialize the asset value loader over and over
     again.
     """
-    configured_defs = build_defs(
-        resource_overrides={
-            "global_data_config": resources.GlobalDataConfigResource(
-                global_data_config_path=str(global_data_config_path)
-            )
-        }
+    configured_defs = build_interactive_defs(
+        global_data_config_path=str(global_data_config_path)
     )
     with configured_defs.get_asset_value_loader(instance=dagster_instance) as loader:
         yield loader
