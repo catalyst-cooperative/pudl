@@ -630,6 +630,8 @@ def update_subplant_ids(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
                 x.subplant_id_connected + x.unit_id_pudl_connected.max()
             )
         ),
+        # create a new unique subplant_id based on the connected subplant ids and the
+        # filled unit_id
         subplant_id_updated=(
             lambda x: x.groupby(
                 ["subplant_id_connected", "unit_id_pudl_filled"],
@@ -677,6 +679,8 @@ def connect_ids(
         duplicates.loc[:, f"{connecting_id}_to_replace"] = (
             duplicates.groupby([id_to_update])[connecting_id].min().iloc[0]
         )
+        # merge this replacement subplant_id into the dataframe and use it to update the
+        # existing subplant id
         subplant_crosswalk = subplant_crosswalk.merge(
             duplicates,
             how="left",
