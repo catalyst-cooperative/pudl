@@ -104,7 +104,7 @@ class FercEqrDataConfig(dg.ConfigurableResource):
         return UPath(self.ferceqr_archive_uri)
 
 
-global_data_config_resource = GlobalDataConfigResource()
+global_data_config_resource = GlobalDataConfigResource().configure_at_launch()
 zenodo_doi_settings_resource = ZenodoDoiSettingsResource()
 datastore_resource = DatastoreResource(zenodo_dois=zenodo_doi_settings_resource)
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()

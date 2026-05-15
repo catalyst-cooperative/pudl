@@ -350,9 +350,11 @@ def core_epa__assn_eia_epacamd_subplant_ids(
         " records have a subplant_id."
     )
     # update the subplant ids for each plant
-    subplant_ids_updated = subplant_ids.groupby(
-        by=["plant_id_eia"], group_keys=False
-    ).apply(update_subplant_ids)
+    subplant_ids_updated = (
+        subplant_ids.groupby(by=["plant_id_eia"])
+        .apply(update_subplant_ids, include_groups=False)
+        .reset_index(level="plant_id_eia")
+    )
     # log differences between updated ids
     subplant_id_diff = subplant_ids_updated[
         subplant_ids_updated.subplant_id != subplant_ids_updated.subplant_id_updated
@@ -625,17 +627,12 @@ def update_subplant_ids(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
     subplant_crosswalk = subplant_crosswalk.assign(
         unit_id_pudl_filled=(
             lambda x: x.unit_id_pudl_connected.fillna(
-                x.subplant_id_connected
-                + x.groupby(
-                    ["plant_id_eia"], dropna=False
-                ).unit_id_pudl_connected.transform("max")
+                x.subplant_id_connected + x.unit_id_pudl_connected.max()
             )
         ),
-        # create a new unique subplant_id based on the connected subplant ids and the
-        # filled unit_id
         subplant_id_updated=(
             lambda x: x.groupby(
-                ["plant_id_eia", "subplant_id_connected", "unit_id_pudl_filled"],
+                ["subplant_id_connected", "unit_id_pudl_filled"],
                 dropna=False,
             ).ngroup()
         ),
@@ -662,7 +659,7 @@ def connect_ids(
     """
     # get a table with all unique subplant to unit pairs
     subplant_unit_pairs = subplant_crosswalk[
-        ["plant_id_eia", "subplant_id", "unit_id_pudl"]
+        ["subplant_id", "unit_id_pudl"]
     ].drop_duplicates()
 
     # identify if any non-NA id_to_update are duplicated, indicated that it is
@@ -678,20 +675,17 @@ def connect_ids(
     if len(duplicates) > 0:
         # find the lowest number subplant id associated with each duplicated unit_id_pudl
         duplicates.loc[:, f"{connecting_id}_to_replace"] = (
-            duplicates.groupby(["plant_id_eia", id_to_update])[connecting_id]
-            .min()
-            .iloc[0]
+            duplicates.groupby([id_to_update])[connecting_id].min().iloc[0]
         )
-        # merge this replacement subplant_id into the dataframe and use it to update the
-        # existing subplant id
         subplant_crosswalk = subplant_crosswalk.merge(
             duplicates,
             how="left",
-            on=["plant_id_eia", id_to_update, connecting_id],
+            on=[id_to_update, connecting_id],
             validate="m:1",
         )
-        subplant_crosswalk[f"{connecting_id}_connected"].update(
-            subplant_crosswalk[f"{connecting_id}_to_replace"]
+        mask = subplant_crosswalk[f"{connecting_id}_to_replace"].notna()
+        subplant_crosswalk.loc[mask, f"{connecting_id}_connected"] = (
+            subplant_crosswalk.loc[mask, f"{connecting_id}_to_replace"]
         )
     return subplant_crosswalk
 
