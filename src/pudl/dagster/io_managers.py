@@ -674,8 +674,9 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         sa_table = self.md.tables.get(table_name, None)
         if sa_table is None:
             raise ValueError(
-                f"{table_name} not found in database metadata. Either add the table to "
-                "the metadata or use a different IO Manager."
+                f"{table_name} not found in {self.db_name} metadata. Either add the "
+                "table to the metadata or use a different IO Manager. Database is "
+                f"located at {self.db_path}."
             )
         return sa_table
 
