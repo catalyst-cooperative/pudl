@@ -14,9 +14,11 @@ import pytest
 import sqlalchemy as sa
 import yaml
 from dagster import (
+    AssetKey,
     AssetValueLoader,
     DagsterInstance,
     build_init_resource_context,
+    build_input_context,
     materialize_to_memory,
 )
 
@@ -24,19 +26,13 @@ import pudl.dagster.resources as resources
 import pudl.logging_helpers
 from pudl.dagster.build import build_defs
 from pudl.dagster.io_managers import (
-    PudlMixedFormatIOManager,
-    _FercSqliteConfigurableIOManagerBase,
-    ferc1_dbf_sqlite_io_manager,
-    ferc1_xbrl_sqlite_io_manager,
-    ferc714_xbrl_sqlite_io_manager,
-    pudl_mixed_format_io_manager,
+    FercDbfSqliteConfigurableIOManager,
+    FercXbrlSqliteConfigurableIOManager,
 )
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
 from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.settings import (
-    GlobalDataConfig,
-)
+from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
 
@@ -66,13 +62,15 @@ def _requested_test_targets(config: pytest.Config) -> list[Path]:
     """Return normalized path targets requested on the pytest command line."""
     raw_targets = config.args or ["test"]
     targets: list[Path] = []
-
-    for raw_target in raw_targets:
-        path_text = raw_target.split("::", maxsplit=1)[0]
-        if not path_text:
+    for target_str in raw_targets:
+        if target_str.startswith("-"):
             continue
 
-        target = Path(path_text)
+        target_str = target_str.split("::", maxsplit=1)[0]
+        if not target_str:
+            continue
+
+        target = Path(target_str)
         if not target.is_absolute():
             target = (Path(config.rootpath) / target).resolve()
         else:
@@ -265,19 +263,56 @@ def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
         )
 
 
-def _engine_from_io_manager(
-    io_manager_factory: PudlMixedFormatIOManager | _FercSqliteConfigurableIOManagerBase,
-    global_data_config: GlobalDataConfig | None = None,
+def _initialize_ferc_engine(
+    io_manager: FercDbfSqliteConfigurableIOManager
+    | FercXbrlSqliteConfigurableIOManager,
+    *,
+    asset_key: str,
+    dagster_instance: DagsterInstance,
 ) -> sa.Engine:
-    """Return the SQLAlchemy engine exposed by a Dagster IO manager resource."""
-    io_manager = io_manager_factory
-    if global_data_config is not None:
-        io_manager = io_manager_factory.model_copy(
-            update={"global_data_config": global_data_config}
+    """Initialize a FERC IO manager through Dagster before exposing its engine.
+
+    Loading one representative asset forces the manager to:
+
+    * verify the sqlite database exists,
+    * reflect metadata if needed, and
+    * run the FERC sqlite provenance compatibility check against the shared
+      Dagster instance used by the pytest session.
+    """
+    io_manager.load_input(
+        build_input_context(
+            asset_key=AssetKey(asset_key),
+            instance=dagster_instance,
         )
-    if isinstance(io_manager, PudlMixedFormatIOManager):
-        return io_manager._sqlite_io_manager.engine
+    )
     return io_manager.engine
+
+
+def _initialize_ferc_io_manager[
+    FercSqliteIOManager: (
+        FercDbfSqliteConfigurableIOManager,
+        FercXbrlSqliteConfigurableIOManager,
+    )
+](
+    io_manager_cls: type[FercSqliteIOManager],
+    *,
+    global_data_config: GlobalDataConfig,
+    zenodo_dois,
+    dataset: str,
+) -> Generator[FercSqliteIOManager]:
+    """Initialize a FERC sqlite IO manager through Dagster resource context."""
+    init_context = build_init_resource_context(
+        resources={
+            "global_data_config": global_data_config,
+            "zenodo_dois": zenodo_dois,
+        }
+    )
+    with io_manager_cls(
+        global_data_config=global_data_config,  # type: ignore[arg-type]
+        zenodo_dois=zenodo_dois,  # type: ignore[arg-type]
+        dataset=dataset,
+    ).from_resource_context_cm(init_context) as io_manager:
+        yield io_manager
 
 
 @pytest.fixture(scope="session")
@@ -361,9 +396,71 @@ def save_unmapped_ids(request) -> bool:
 
 
 @pytest.fixture(scope="session")
-def global_data_config(global_data_config_path: Path) -> GlobalDataConfig:
-    """Read global data config referenced by Dagster integration config."""
-    return GlobalDataConfig.from_yaml(str(global_data_config_path))
+def global_data_config(
+    global_data_config_path: Path,
+) -> Generator[GlobalDataConfig]:
+    """Load the global data config through its Dagster resource."""
+    init_context = build_init_resource_context(
+        config={"global_data_config_path": str(global_data_config_path)}
+    )
+    with resources.GlobalDataConfigResource.from_resource_context_cm(
+        init_context
+    ) as dagster_config:
+        yield dagster_config
+
+
+@pytest.fixture(scope="session")
+def zenodo_dois() -> Generator:
+    """Load Zenodo DOI settings through the Dagster resource."""
+    with resources.ZenodoDoiSettingsResource.from_resource_context_cm(
+        build_init_resource_context()
+    ) as doi_settings:
+        yield doi_settings
+
+
+@pytest.fixture(scope="session")
+def ferc1_dbf_io_manager(
+    prebuilt_outputs,
+    global_data_config: GlobalDataConfig,
+    zenodo_dois,
+) -> Generator[FercDbfSqliteConfigurableIOManager]:
+    """Initialize the FERC Form 1 DBF IO manager through Dagster."""
+    yield from _initialize_ferc_io_manager(
+        FercDbfSqliteConfigurableIOManager,
+        global_data_config=global_data_config,
+        zenodo_dois=zenodo_dois,
+        dataset="ferc1",
+    )
+
+
+@pytest.fixture(scope="session")
+def ferc1_xbrl_io_manager(
+    prebuilt_outputs,
+    global_data_config: GlobalDataConfig,
+    zenodo_dois,
+) -> Generator[FercXbrlSqliteConfigurableIOManager]:
+    """Initialize the FERC Form 1 XBRL IO manager through Dagster."""
+    yield from _initialize_ferc_io_manager(
+        FercXbrlSqliteConfigurableIOManager,
+        global_data_config=global_data_config,
+        zenodo_dois=zenodo_dois,
+        dataset="ferc1",
+    )
+
+
+@pytest.fixture(scope="session")
+def ferc714_xbrl_io_manager(
+    prebuilt_outputs,
+    global_data_config: GlobalDataConfig,
+    zenodo_dois,
+) -> Generator[FercXbrlSqliteConfigurableIOManager]:
+    """Initialize the FERC Form 714 XBRL IO manager through Dagster."""
+    yield from _initialize_ferc_io_manager(
+        FercXbrlSqliteConfigurableIOManager,
+        global_data_config=global_data_config,
+        zenodo_dois=zenodo_dois,
+        dataset="ferc714",
+    )
 
 
 @pytest.fixture(scope="session")
@@ -406,12 +503,14 @@ def dbt_target(global_data_config_path: Path) -> str:
 
 @pytest.fixture(scope="session")
 def ferc1_engine_dbf(
-    prebuilt_outputs, global_data_config: GlobalDataConfig
+    ferc1_dbf_io_manager: FercDbfSqliteConfigurableIOManager,
+    dagster_instance: DagsterInstance,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database."""
-    return _engine_from_io_manager(
-        ferc1_dbf_sqlite_io_manager,
-        global_data_config,
+    return _initialize_ferc_engine(
+        ferc1_dbf_io_manager,
+        asset_key="raw_ferc1_dbf__f1_respondent_id",
+        dagster_instance=dagster_instance,
     )
 
 
@@ -447,12 +546,14 @@ def prebuilt_outputs(
 
 @pytest.fixture(scope="session")
 def ferc1_engine_xbrl(
-    prebuilt_outputs, global_data_config: GlobalDataConfig
+    ferc1_xbrl_io_manager: FercXbrlSqliteConfigurableIOManager,
+    dagster_instance: DagsterInstance,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database."""
-    return _engine_from_io_manager(
-        ferc1_xbrl_sqlite_io_manager,
-        global_data_config,
+    return _initialize_ferc_engine(
+        ferc1_xbrl_io_manager,
+        asset_key="raw_ferc1_xbrl__identification_001_duration",
+        dagster_instance=dagster_instance,
     )
 
 
@@ -471,12 +572,14 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
 
 @pytest.fixture(scope="session")
 def ferc714_engine_xbrl(
-    prebuilt_outputs, global_data_config: GlobalDataConfig
+    ferc714_xbrl_io_manager: FercXbrlSqliteConfigurableIOManager,
+    dagster_instance: DagsterInstance,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database."""
-    return _engine_from_io_manager(
-        ferc714_xbrl_sqlite_io_manager,
-        global_data_config,
+    return _initialize_ferc_engine(
+        ferc714_xbrl_io_manager,
+        asset_key="raw_ferc714_xbrl__identification_and_certification_01_1_duration",
+        dagster_instance=dagster_instance,
     )
 
 
@@ -495,13 +598,13 @@ def ferc714_xbrl_taxonomy_metadata(ferc714_engine_xbrl: sa.Engine):
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(prebuilt_outputs, global_data_config: GlobalDataConfig) -> sa.Engine:
+def pudl_engine(prebuilt_outputs, pudl_test_paths: PudlPaths) -> sa.Engine:
     """Return the SQLAlchemy engine for the prepared PUDL integration database."""
-    return _engine_from_io_manager(pudl_mixed_format_io_manager, global_data_config)
+    return sa.create_engine(pudl_test_paths.pudl_db)
 
 
 @pytest.fixture(scope="session", autouse=True)
-def pudl_test_paths(tmp_path_factory, request, dagster_home: Path):
+def pudl_test_paths(tmp_path_factory, request, dagster_home: Path) -> PudlPaths:
     """Configures PudlPaths for tests.
 
     Default behavior:

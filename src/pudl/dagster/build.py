@@ -1,11 +1,8 @@
-"""Dagster definitions assembly for PUDL.
+"""Assembles Dagster Definitions from default values and specified overrides.
 
-This module is where PUDL assembles a complete :class:`dagster.Definitions` object from the
-package's default assets, asset checks, jobs, resources, and sensors. Define helpers
-here that compose those building blocks into a code location, especially when tests,
-CLI entrypoints, or specialized environments need to override part of the default
-assembly. Avoid putting asset or resource implementations here; this module should stay
-focused on top-level orchestration assembly.
+Define helpers here that compose those building blocks into a code location, especially
+when tests, CLI entrypoints, or specialized environments need to override part of the
+default assembly. Avoid putting asset or resource implementations here.
 
 For the underlying Dagster concept, see
 https://docs.dagster.io/getting-started/concepts#definitions
@@ -18,11 +15,7 @@ import dagster as dg
 
 from pudl.dagster.asset_checks import default_asset_checks
 from pudl.dagster.assets import default_assets
-from pudl.dagster.io_managers import (
-    FercDbfSqliteConfigurableIOManager,
-    FercXbrlSqliteConfigurableIOManager,
-    default_io_managers,
-)
+from pudl.dagster.io_managers import default_io_managers
 from pudl.dagster.jobs import default_jobs
 from pudl.dagster.resources import default_resources
 from pudl.dagster.sensors import default_sensors
@@ -36,7 +29,11 @@ def build_defs(
     job_overrides: Sequence[Any] | None = None,
     sensor_overrides: Sequence[dg.SensorDefinition] | None = None,
 ) -> dg.Definitions:
-    """Build a fresh PUDL ``Definitions`` object with optional overrides."""
+    """Build a fresh PUDL ``Definitions`` object with optional overrides.
+
+    Note that resource_overrides are used to update the default resources, while all
+    other overrides replace the defaults entirely.
+    """
     resources: dict[str, Any] = {
         **default_resources,
         **default_io_managers,
@@ -44,38 +41,6 @@ def build_defs(
     if resource_overrides:
         # Merge the overrides into the existing resources
         resources.update(resource_overrides)
-
-        global_data_config_override = resource_overrides.get("global_data_config")
-        zenodo_dois_override = resources.get("zenodo_dois")
-        if zenodo_dois_override is None:
-            raise ValueError("zenodo_dois_override cannot be None")
-        if global_data_config_override is not None:
-            if "ferc1_dbf_sqlite_io_manager" not in resource_overrides:
-                resources["ferc1_dbf_sqlite_io_manager"] = (
-                    FercDbfSqliteConfigurableIOManager(
-                        global_data_config=global_data_config_override,
-                        zenodo_dois=zenodo_dois_override,
-                        dataset="ferc1",
-                    )
-                )
-
-            if "ferc1_xbrl_sqlite_io_manager" not in resource_overrides:
-                resources["ferc1_xbrl_sqlite_io_manager"] = (
-                    FercXbrlSqliteConfigurableIOManager(
-                        global_data_config=global_data_config_override,
-                        zenodo_dois=zenodo_dois_override,
-                        dataset="ferc1",
-                    )
-                )
-
-            if "ferc714_xbrl_sqlite_io_manager" not in resource_overrides:
-                resources["ferc714_xbrl_sqlite_io_manager"] = (
-                    FercXbrlSqliteConfigurableIOManager(
-                        global_data_config=global_data_config_override,
-                        zenodo_dois=zenodo_dois_override,
-                        dataset="ferc714",
-                    )
-                )
 
     return dg.Definitions(
         assets=list(default_assets if asset_overrides is None else asset_overrides),
