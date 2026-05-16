@@ -56,7 +56,7 @@ Module Contents
    whether or not apply-diff is giving us more values than best-snapshot.
 
 
-.. py:function:: filter_for_freshest_data_xbrl(xbrl_table: pandas.DataFrame, primary_keys, compare_methods: bool = False) -> pandas.DataFrame
+.. py:function:: filter_for_freshest_data_xbrl(xbrl_table: pandas.DataFrame, primary_keys: list[str], compare_methods: bool = False) -> pandas.DataFrame
 
    Get most updated values for each XBRL context.
 
@@ -80,5 +80,10 @@ Module Contents
 .. py:function:: get_primary_key_raw_xbrl(sched_table_name: str, ferc_form: Literal['ferc1', 'ferc714']) -> list[str]
 
    Get the primary key for a raw XBRL table from the XBRL datapackage.
+
+   If the sched_table_name does not exist in the datapackage, an empty list
+   will be returned. This is expected often because we attempt to grab both
+   the instant and the duration raw tables, despite those not always
+   existing in the original data.
 
 

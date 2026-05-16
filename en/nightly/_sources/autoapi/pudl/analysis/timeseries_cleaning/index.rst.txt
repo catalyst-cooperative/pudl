@@ -1066,7 +1066,7 @@ Module Contents
       Defaults to None which will not do any simulation/scoring.
 
 
-.. py:function:: impute_timeseries_asset_factory(input_asset_name: str, output_asset_name: str, years_from_context: collections.abc.Callable, id_col: str, value_col: str = 'demand_mwh', imputed_value_col: str = 'demand_imputed_mwh', reported_value_col: str = 'demand_reported_mwh', simulation_group_col: str | None = None, output_io_manager_key: str = 'parquet_io_manager', settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings()) -> pandas.DataFrame
+.. py:function:: impute_timeseries_asset_factory(input_asset_name: str, output_asset_name: str, years_from_context: collections.abc.Callable, id_col: str, value_col: str = 'demand_mwh', imputed_value_col: str = 'demand_imputed_mwh', reported_value_col: str = 'demand_reported_mwh', simulation_group_col: str | None = None, output_io_manager_key: str = 'parquet_io_manager', op_tags: dict[str, Any] | None = None, settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings()) -> pandas.DataFrame
 
    Produces assets to impute values for a given timeseries table/column.
 
@@ -1103,6 +1103,9 @@ Module Contents
                                 a single imputation run (like BA/subregion demand), this column is used
                                 to compute simulation results for each set independently. This should
                                 point to a categorical column which defines which group a row belongs to.
+   :param op_tags: Tags applied to every op produced by the factory. Use
+                   ``{"dagster/priority": N}`` to raise scheduling priority for assets on
+                   the critical execution path.
    :param settings: Configurable options for imputation
                     (see :class:`ImputeTimeseriesSettings`).
 

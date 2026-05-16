@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc &#8212; PUDL 2026.4.1.dev37 documentation</title>
+    <title>pudl.transform.ferc &#8212; PUDL 2026.4.1.dev45 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../../_static/documentation_options.js?v=bb853114"></script>
+    <script src="../../../../_static/documentation_options.js?v=f9fd4f54"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev37 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.1.dev45 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.1.dev45 documentation - Home"/>
   
   
 </a></div>
@@ -813,7 +813,7 @@ whether or not apply-diff is giving us more values than best-snapshot.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.transform.ferc.filter_for_freshest_data_xbrl">
-<span class="sig-prename descclassname"><span class="pre">pudl.transform.ferc.</span></span><span class="sig-name descname"><span class="pre">filter_for_freshest_data_xbrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xbrl_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compare_methods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc.html#filter_for_freshest_data_xbrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc.filter_for_freshest_data_xbrl" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.ferc.</span></span><span class="sig-name descname"><span class="pre">filter_for_freshest_data_xbrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xbrl_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compare_methods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc.html#filter_for_freshest_data_xbrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc.filter_for_freshest_data_xbrl" title="Link to this definition">#</a></dt>
 <dd><p>Get most updated values for each XBRL context.</p>
 <p>An XBRL context includes an entity ID, the time period the data applies to, and
 other dimensions such as utility type. Each context has its own ID, but they are
@@ -833,6 +833,10 @@ be fairly rare, affecting &lt; 0.005% of reported values.</p>
 <dt class="sig sig-object py" id="pudl.transform.ferc.get_primary_key_raw_xbrl">
 <span class="sig-prename descclassname"><span class="pre">pudl.transform.ferc.</span></span><span class="sig-name descname"><span class="pre">get_primary_key_raw_xbrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sched_table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ferc_form</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ferc1'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ferc714'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/ferc.html#get_primary_key_raw_xbrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.ferc.get_primary_key_raw_xbrl" title="Link to this definition">#</a></dt>
 <dd><p>Get the primary key for a raw XBRL table from the XBRL datapackage.</p>
+<p>If the sched_table_name does not exist in the datapackage, an empty list
+will be returned. This is expected often because we attempt to grab both
+the instant and the duration raw tables, despite those not always
+existing in the original data.</p>
 </dd></dl>
 
 </section>

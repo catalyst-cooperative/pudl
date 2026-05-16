@@ -45,12 +45,12 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:function:: dbf_to_sqlite_asset_factory(*, key: dagster.AssetKey, dataset: str, extractor_class) -> dagster.AssetsDefinition
+.. py:function:: dbf_to_sqlite_asset_factory(*, key: dagster.AssetKey, dataset: str, extractor_class, op_tags: dict | None = None) -> dagster.AssetsDefinition
 
    Create a DBF-to-SQLite prerequisite asset for a specific FERC dataset.
 
 
-.. py:function:: xbrl_to_sqlite_asset_factory(*, key: dagster.AssetKey, form: pudl.settings.XbrlFormNumber) -> dagster.AssetsDefinition
+.. py:function:: xbrl_to_sqlite_asset_factory(*, key: dagster.AssetKey, form: pudl.settings.XbrlFormNumber, op_tags: dict | None = None) -> dagster.AssetsDefinition
 
    Create an XBRL-to-SQLite prerequisite asset for a specific FERC form.
 
