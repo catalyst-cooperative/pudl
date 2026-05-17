@@ -319,8 +319,14 @@ function prep_outputs_for_distribution() {
         # Move the parquet datapackage to the output directory also!
         mv ./pudl_parquet_datapackage.json "$PUDL_OUTPUT" &&
         popd &&
+        zip -0 "$PUDL_OUTPUT/ferc1_xbrl.zip" ./ferc1_xbrl &&
+        zip -0 "$PUDL_OUTPUT/ferc2_xbrl.zip" ./ferc2_xbrl &&
+        zip -0 "$PUDL_OUTPUT/ferc6_xbrl.zip" ./ferc6_xbrl &&
+        zip -0 "$PUDL_OUTPUT/ferc60_xbrl.zip" ./ferc60_xbrl &&
+        zip -0 "$PUDL_OUTPUT/ferc714_xbrl.zip" ./ferc714_xbrl &&
         # Remove any remaining files and directories we don't want to distribute
         rm -rf "$PUDL_OUTPUT/parquet" &&
+        rm -rf "$PUDL_OUTPUT/ferc*_xbrl" &&
         rm -f "$PUDL_OUTPUT/pudl_dbt_tests.duckdb"
 }
 
