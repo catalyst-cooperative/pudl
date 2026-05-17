@@ -326,7 +326,6 @@ function prep_outputs_for_distribution() {
         zip -0 "$PUDL_OUTPUT/ferc714_xbrl.zip" ./ferc714_xbrl &&
         # Remove any remaining files and directories we don't want to distribute
         rm -rf "$PUDL_OUTPUT/parquet" &&
-        rm -rf "$PUDL_OUTPUT/ferc*_xbrl" &&
         rm -f "$PUDL_OUTPUT/pudl_dbt_tests.duckdb"
 }
 
