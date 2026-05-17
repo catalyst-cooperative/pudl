@@ -5,82 +5,88 @@ PUDL Release Notes
 .. _release-v2026.5.0:
 
 ---------------------------------------------------------------------------------------
-v2026.5.0 (unreleased)
+v2026.5.0 (2026-05-17)
 ---------------------------------------------------------------------------------------
+
+This is a quarterly PUDL data release, updating datasets that are released on a monthly
+or quarterly basis, including the EIA-860M, year-to-date EIA-923, EIA-930, and EIA-191.
+It also includes an annual update for the EIA Annual Energy Outlook (AEO).
+
+Normally this release would also update the EPA CEMS hourly emissions dataset.
+Unfortunately, the bulk CEMS data product that we archive and process was not published
+as usual. We are exploring other ways of integrating the updated data.
 
 Enhancements
 ^^^^^^^^^^^^
 
-* Started distributing the XBRL-derived datasets for FERC Forms 1, 2, 6, 60, and 714
-  as collections of parquet files. See PR :pr:`5232`.
-
-New Data
-^^^^^^^^
-
-* Added 2026 Projections from EIA AEO. See issue :issue:`5182` and PR :pr:`5198`.
+* Started distributing the raw XBRL-derived data for FERC Forms 1, 2, 6, 60, and 714
+  as collections of parquet files, alongside existing SQLite and DuckDB outputs. See PR
+  :pr:`5232`. This change is primarily in support of making these data available through
+  the `PUDL Data Viewer <https://data.catalyst.coop>`__.
 
 FERC 1
 ~~~~~~
 
-* Added new :ref:`out_ferc1__yearly_depreciation_factors_sched336` table. See
-  issue :issue:`5103` and PR :pr:`5112`.
+* Added new :ref:`out_ferc1__yearly_depreciation_factors_sched336` table. See issue
+  :issue:`5103` and PR :pr:`5112`.
 * Added FERC Form 1 respondents' identification and certification information as
   :ref:`core_ferc1__yearly_identification_certification`. See :issue:`5150` and
   :pr:`5008`.
-* Added new :ref:`out_ferc1__yearly_other_regulatory_assets_sched232` table. See
-  issue :issue:`5104` and PR :pr:`5170`.
+* Added new :ref:`out_ferc1__yearly_other_regulatory_assets_sched232` table. See issue
+  :issue:`5104` and PR :pr:`5170`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-EIA860M
+EIA AEO
 ~~~~~~~
 
-* Added EIA860M data through March 2026. See issue :issue:`5225` and PR
-  :pr:`5230`.
+* Added 2026 Projections from EIA AEO. See issue :issue:`5182` and PR :pr:`5198`.
 
-EIA923
-~~~~~~
+EIA-860M
+~~~~~~~~
 
-* Added EIA923 data through December 2025. See issue :issue:`5226` and PR
-  :pr:`5230`.
+* Added EIA-860M data through March 2026. See issue :issue:`5225` and PR :pr:`5230`.
+
+EIA-923
+~~~~~~~
+
+* Added year-to-date updates for EIA-923 data through December 2025. See issue
+  :issue:`5226` and PR :pr:`5230`.
 
 EIA-930
 ~~~~~~~
 
-* Updated EIA-930 data through April 2026. See :issue:`5209`
-  and :pr:`5216`. In the process made accommodations for BA changes resulting from the
-  `Southwest Power Pool RTO Expansion <https://www.spp.org/documents/75997/2026%20rtoe%20swpw%20transition%20plan%20%E2%80%93%20market%20participant.pdf>`__
+* Updated EIA-930 data through April 2026. See :issue:`5209` and :pr:`5216`. In the
+  process made accommodations for BA changes resulting from the `Southwest Power Pool
+  RTO Expansion <https://www.spp.org/documents/75997/2026%20rtoe%20swpw%20transition%20plan%20%E2%80%93%20market%20participant.pdf>`__
 
 EIA-191
 ~~~~~~~
 
-* Updated EIA-191 data through April 2026. See :issue:`5209`
-  and :pr:`5216`.
+* Added :ref:`core_eia191__monthly_gas_storage`, a new table containing monthly
+  underground natural gas storage activity reported by operators to EIA on Form 191.
+  Data covers 2014-present, is updated through April 2026, and includes working gas,
+  base gas, and total capacity by storage field. See issue :issue:`5209` and PRs
+  :pr:`5058` and :pr:`5216`. Thanks to :user:`irubey` for this contribution!
 
 Documentation
 ^^^^^^^^^^^^^
 
-* Added new component to table descriptions showing the most recent data
-  available. See issue :issue:`4586` and PR :pr:`4632`.
-* Added new ``forensics`` tables which can be used to see all input values before
-  PUDL chooses canonical values/golden records in the
-  :doc:`entity resolution process </methodology/entity_resolution>`. See issue
-  :issue:`4265` and PR :pr:`5157`.
-
-New Data Tests & Validations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Added new component to table descriptions showing the most recent data available. See
+  issue :issue:`4586` and PR :pr:`4632`.
+* Added new ``forensics`` tables which can be used to see all input values before PUDL
+  chooses canonical values/golden records in the :doc:`entity resolution process
+  </methodology/entity_resolution>`. See issue :issue:`4265` and PR :pr:`5157`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-* Previously-deprecated ``pudl.extract.ferc1.extract_dbf``,
-  ``pudl.extract.ferc1.extract_xbrl``
-  ``pudl.extract.ferc1.extract_xbrl_generic``,
-  ``pudl.extract.ferc1.extract_dbf_generic`` have been
-  removed. The extraction logic is now covered by the
-  :mod:`pudl.io_managers.ferc1_xbrl_sqlite_io_manager` and
-  :mod:`pudl.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
 
+* Removed the already deprecated ``pudl.extract.ferc1.extract_dbf``,
+  ``pudl.extract.ferc1.extract_xbrl``, ``pudl.extract.ferc1.extract_xbrl_generic``, and
+  ``pudl.extract.ferc1.extract_dbf_generic`` functions. The extraction logic is now
+  covered by the :mod:`pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager` and
+  :mod:`pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager` IO Managers.
 * Fixed a :class:`TypeError` in MCOE asset checks where ``sum(exc.null_rows)`` iterated
   over a DataFrame's column names as strings instead of counting rows. Replaced with
   ``len(exc.null_rows)``. See PR :pr:`5124`.
@@ -91,9 +97,8 @@ Bug Fixes & Data Cleaning
   association tables (e.g. ``core_eia__entity_plants``,
   ``core_pudl__entity_utilities_pudl``); composite PKs and non-INTEGER single PKs are
   enforced normally by SQLite and were unaffected. See PR :pr:`5124`.
-
-Performance Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated FERC XBRL extraction to handle a new upstream behavior in which empty
+  instant or duration tables are omitted from published filings. See PR :pr:`5239`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -267,14 +272,6 @@ RUS 7 & RUS 12
   :pr:`5040`. See :pr:`5077`.
 * Added last rounds of core and output tables from RUS Form 7 and 12.
   See :pr:`5087`, :pr:`5091` and :pr:`5145`.
-
-EIA-191
-~~~~~~~
-
-* Added :ref:`core_eia191__monthly_gas_storage`, a new table containing monthly
-  underground natural gas storage activity reported by operators to EIA on Form 191.
-  Data covers 2014–present and includes working gas, base gas, and total capacity
-  by storage field. See :pr:`5058`. Thanks to :user:`irubey` for this contribution!
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
