@@ -224,6 +224,25 @@ REVENUE_CLASSES_EIA176: list[str] = [
     "transport",
 ]
 
+SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176: list[str] = [
+    "air_injection",
+    "biomass",
+    "biomass_gas",
+    "blast_furnace_gas",
+    "coke_oven_gas",
+    "gas_holders",
+    "leaks_condensate",
+    "line_pressure",
+    "manufactured_gas",
+    "natural_gas",
+    "other",
+    "propane_air",
+    "refinery_gas",
+    "truck",
+    "unknown",
+    "vented_flared",
+]
+
 RELIABILITY_STANDARDS: list[str] = ["ieee_standard", "other_standard"]
 
 FUEL_CLASSES: list[str] = [

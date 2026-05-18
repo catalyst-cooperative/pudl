@@ -61,6 +61,7 @@ from pudl.metadata.enums import (
     SERVICE_STATUS_RUS7,
     SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
+    SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_EIAAEO,
@@ -10389,6 +10390,22 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "operator (sales) or gas transported by the operator (transport)."
             ),
             "constraints": {"enum": REVENUE_CLASSES_EIA176},
+        },
+    },
+    "core_eia176__yearly_supplemental_gaseous_fuel_supplies": {
+        "fuel_type": {
+            "description": (
+                "Normalized supplemental gaseous fuel type reported by the operator."
+            ),
+            "constraints": {"enum": SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176},
+        },
+        "volume_mcf": {
+            "description": (
+                "Volume of supplemental gaseous fuels supplied by fuel type within "
+                "the report state. Reference conditions for measurement are 14.73 "
+                "psia and 60° Fahrenheit."
+            ),
+            "unit": "Mcf",
         },
     },
     "sector_consolidated_eia": {"code": {"type": "integer"}},

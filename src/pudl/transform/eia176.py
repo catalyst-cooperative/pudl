@@ -46,6 +46,39 @@ CONTINUATION_LINES_NON_SUBDIVISION_CODES = {
     },
 }
 
+SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP = {
+    "air injection": "air_injection",
+    "air injections": "air_injection",
+    "biomass": "biomass",
+    "biomass gas": "biomass_gas",
+    "blast furnance": "blast_furnace_gas",
+    "coke oven": "coke_oven_gas",
+    "coke oven gas": "coke_oven_gas",
+    "gas holders": "gas_holders",
+    "leaks condensate": "leaks_condensate",
+    "line pressure": "line_pressure",
+    "line pressure chan": "line_pressure",
+    "manufactured gas": "manufactured_gas",
+    "natural gas": "natural_gas",
+    "no label - bad cod": "unknown",
+    "no label - bad code 9004": "unknown",
+    "no label - bad code 9090": "unknown",
+    "not available": "unknown",
+    "other": "other",
+    "propane air": "propane_air",
+    "refinery gas": "refinery_gas",
+    "truck": "truck",
+    "vented flared": "vented_flared",
+}
+
+UNKNOWN_SUPPLEMENTAL_GASEOUS_FUEL_TYPES = {
+    "",
+    ".",
+    "na",
+    "n/a",
+    "n.a.",
+}
+
 
 @multi_asset(
     outs={
@@ -162,6 +195,20 @@ def convert_continuation_lines_state_codes(
 
     df[column] = converted.fillna(norm.str.upper())
     return df
+
+
+def _normalize_supplemental_gaseous_fuel_type(raw_fuel_type: pd.Series) -> pd.Series:
+    """Normalize EIA-176 line 6.0 supplemental gaseous fuel type labels."""
+    raw_fuel_type = raw_fuel_type.astype("string").str.strip().str.casefold()
+    fuel_type = raw_fuel_type.map(SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP).astype("string")
+    fuel_type = fuel_type.mask(
+        raw_fuel_type.isin(UNKNOWN_SUPPLEMENTAL_GASEOUS_FUEL_TYPES), "unknown"
+    )
+
+    unmapped = sorted(raw_fuel_type[fuel_type.isna() & raw_fuel_type.notna()].unique())
+    assert not unmapped, f"Unmapped supplemental gaseous fuel types: {unmapped!r}"
+
+    return fuel_type
 
 
 @asset_check(
@@ -521,6 +568,84 @@ def _find_line_300_total_mismatches(
         )
         & (
             comparison["receipts_from_state_or_us_border_volume"].notna()
+            | comparison["volume_mcf"].notna()
+        )
+    ]
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_supplemental_gaseous_fuel_supplies(
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce detailed annual supplemental gaseous fuel supplies (EIA-176, Line 6.0)."""
+    primary_key = ["operator_id_eia", "report_year", "fuel_type"]
+    keep = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "reference_company_or_line_description",
+        "volume_mcf",
+    ]
+    df = raw_eia176__continuation_text_lines[
+        raw_eia176__continuation_text_lines["line"] == 600
+    ].filter(keep)
+    df = convert_continuation_lines_state_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="operating_state",
+    )
+    df["fuel_type"] = _normalize_supplemental_gaseous_fuel_type(
+        df["reference_company_or_line_description"]
+    )
+    df = df.drop(columns=["reference_company_or_line_description"])
+    df["report_year"] = df["report_year"].astype("int64")
+    df = df.groupby(
+        [*primary_key, "operating_state"], dropna=False, as_index=False
+    ).agg({"volume_mcf": "sum"})
+    df = df[
+        ["operator_id_eia", "report_year", "operating_state", "fuel_type", "volume_mcf"]
+    ]
+    assert not df.duplicated(subset=primary_key).any()
+
+    mismatches = _find_line_600_total_mismatches(
+        supplies=df,
+        _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+    )
+    assert mismatches.empty, "Found line 600 total mismatches"
+
+    return df
+
+
+def _find_line_600_total_mismatches(
+    supplies: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Compare detailed line 600 supplies with reported company-level totals."""
+    primary_key = ["operator_id_eia", "report_year"]
+    company_totals = _core_eia176__yearly_company_data[
+        [
+            *primary_key,
+            "supplemental_gaseous_fuels_volume",
+        ]
+    ]
+    company_totals = company_totals[
+        company_totals["supplemental_gaseous_fuels_volume"].notna()
+    ]
+    continuation_totals = supplies.groupby(primary_key, as_index=False).agg(
+        {"volume_mcf": "sum"}
+    )
+    comparison = company_totals.merge(
+        continuation_totals,
+        how="outer",
+        on=primary_key,
+        validate="1:1",
+    )
+    return comparison[
+        (comparison["supplemental_gaseous_fuels_volume"] != comparison["volume_mcf"])
+        & (
+            comparison["supplemental_gaseous_fuels_volume"].notna()
             | comparison["volume_mcf"].notna()
         )
     ]

@@ -32,6 +32,31 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia176"],
         "etl_group": "eia176",
     },
+    "core_eia176__yearly_supplemental_gaseous_fuel_supplies": {
+        "description": {
+            "additional_summary_text": (
+                "a company's detailed supplemental gaseous fuel supplies by fuel type."
+            ),
+            "additional_source_text": "(Part 4, Line 6.0)",
+        },
+        "schema": {
+            "fields": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "fuel_type",
+                "volume_mcf",
+            ],
+            "primary_key": [
+                "operator_id_eia",
+                "report_year",
+                "fuel_type",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia176"],
+        "etl_group": "eia176",
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "description": {
             "additional_summary_text": (
