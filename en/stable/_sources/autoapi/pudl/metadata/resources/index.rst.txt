@@ -19,6 +19,7 @@ Submodules
    /autoapi/pudl/metadata/resources/censusdp1tract/index
    /autoapi/pudl/metadata/resources/eia/index
    /autoapi/pudl/metadata/resources/eia176/index
+   /autoapi/pudl/metadata/resources/eia191/index
    /autoapi/pudl/metadata/resources/eia860/index
    /autoapi/pudl/metadata/resources/eia860m/index
    /autoapi/pudl/metadata/resources/eia861/index

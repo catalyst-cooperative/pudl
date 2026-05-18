@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Converting raw FERC data to SQLite &#8212; PUDL 2026.4.0 documentation</title>
+    <title>Converting raw FERC data to SQLite &#8212; PUDL 2026.5.0 documentation</title>
   
   
   
@@ -36,8 +36,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -45,18 +45,454 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../_static/documentation_options.js?v=288f4d1e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'dev/clone_ferc1';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -87,7 +523,9 @@
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -139,8 +577,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.0 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.0 documentation - Home"/>
   
   
 </a></div>
@@ -370,7 +808,6 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/pudl/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/__main__/index.html">pudl.__main__</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/_version/index.html">pudl._version</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/index.html">pudl.analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
@@ -400,29 +837,32 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/convert/index.html">pudl.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/dagster/index.html">pudl.dagster</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/asset_checks/index.html">pudl.dagster.asset_checks</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/dagster/assets/index.html">pudl.dagster.assets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/dagster/assets/core/index.html">pudl.dagster.assets.core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/dagster/assets/deploy/index.html">pudl.dagster.assets.deploy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/dagster/assets/raw/index.html">pudl.dagster.assets.raw</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/build/index.html">pudl.dagster.build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/config/index.html">pudl.dagster.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/io_managers/index.html">pudl.dagster.io_managers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/jobs/index.html">pudl.dagster.jobs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/partitions/index.html">pudl.dagster.partitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/provenance/index.html">pudl.dagster.provenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/resources/index.html">pudl.dagster.resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dagster/sensors/index.html">pudl.dagster.sensors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/dbt_schema/index.html">pudl.dbt_schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/definitions/index.html">pudl.definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/defs/index.html">pudl.defs</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/deploy/index.html">pudl.deploy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/ferceqr/index.html">pudl.deploy.ferceqr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/deploy/pudl/index.html">pudl.deploy.pudl</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/etl/index.html">pudl.etl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/cli/index.html">pudl.etl.cli</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/static_assets/index.html">pudl.etl.static_assets</a></li>
-</ul>
-</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/censusdp1tract/index.html">pudl.extract.censusdp1tract</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/censuspep/index.html">pudl.extract.censuspep</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/csv/index.html">pudl.extract.csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/dbf/index.html">pudl.extract.dbf</a></li>
@@ -458,17 +898,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/xbrl/index.html">pudl.extract.xbrl</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
-</ul>
-</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/glue/index.html">pudl.glue</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/glue/ferc714/index.html">pudl.glue.ferc714</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/helpers/index.html">pudl.helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/io_managers/index.html">pudl.io_managers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/logging_helpers/index.html">pudl.logging_helpers</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/metadata/index.html">pudl.metadata</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/classes/index.html">pudl.metadata.classes</a></li>
@@ -486,6 +921,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia191/index.html">pudl.metadata.resources.eia191</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
@@ -526,10 +962,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/ferc714/index.html">pudl.output.ferc714</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/rus/index.html">pudl.output.rus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/sec10k/index.html">pudl.output.sec10k</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/output/sql/index.html">pudl.output.sql</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
-</ul>
-</details></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/index.html">pudl.package_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -592,13 +1024,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/resources/index.html">pudl.resources</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/deploy/index.html">pudl.scripts.deploy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dghome/index.html">pudl.scripts.dghome</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/metadata_to_rst/index.html">pudl.scripts.metadata_to_rst</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_check_fks/index.html">pudl.scripts.pudl_check_fks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_datastore/index.html">pudl.scripts.pudl_datastore</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_service_territories/index.html">pudl.scripts.pudl_service_territories</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/update_zenodo_dois/index.html">pudl.scripts.update_zenodo_dois</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
@@ -610,6 +1046,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/classes/index.html">pudl.transform.classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia/index.html">pudl.transform.eia</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia191/index.html">pudl.transform.eia191</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia860/index.html">pudl.transform.eia860</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia860m/index.html">pudl.transform.eia860m</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia861/index.html">pudl.transform.eia861</a></li>
@@ -637,7 +1074,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/vcerare/index.html">pudl.transform.vcerare</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/validate/index.html">pudl.validate</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/validate/index.html">pudl.validate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/validate/dbt/index.html">pudl.validate.dbt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/validate/integrity/index.html">pudl.validate.integrity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/validate/quality/index.html">pudl.validate.quality</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/workspace/index.html">pudl.workspace</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/workspace/datastore/index.html">pudl.workspace.datastore</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
@@ -649,7 +1091,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Developer Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="dev_setup.html">Development Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="run_the_etl.html">Running the ETL Pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting_dagster.html">Troubleshooting Dagster</a></li>
 <li class="toctree-l2"><a class="reference internal" href="project_management.html">Project Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="testing.html">Testing PUDL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="data_validation_quickstart.html">Data validation quickstart</a></li>
@@ -762,16 +1204,48 @@ columns.</p>
 <p>If you need to work with this relatively unprocessed data, we highly recommend
 downloading it from one of our stable data releases or nightly build outputs, which
 can be found in the PUDL <a class="reference internal" href="../data_access.html#access-zenodo"><span class="std std-ref">Zenodo Archives</span></a> or <a class="reference internal" href="../data_access.html#access-cloud"><span class="std std-ref">Cloud Storage</span></a>.</p>
-<p>Cloning the original FERC database is the first step in the PUDL ETL process. This can
-be done using the dagster UI (see <a class="reference internal" href="run_the_etl.html#run-dagster-ui"><span class="std std-ref">Running the ETL via the Dagster UI</span></a>) or with the <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code>
-script (see <a class="reference internal" href="run_the_etl.html#run-cli"><span class="std std-ref">Running the ETL with CLI Commands</span></a>).</p>
+<p>The conversion of the raw FERC data is represented in the PUDL Dagster project by the
+<code class="docutils literal notranslate"><span class="pre">raw_ferc_to_sqlite</span></code> asset group which is defined in <code class="xref py py-data docutils literal notranslate"><span class="pre">pudl.dagster.defs</span></code>. If you
+only need the raw FERC SQLite (or experimental DuckDB) outputs, use the dedicated
+<code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> job. If you are running the full ETL from scratch, use the
+<code class="docutils literal notranslate"><span class="pre">pudl_with_ferc_to_sqlite</span></code> job, which also includes FERC SQLite assets.</p>
+<p>The raw FERC conversion flow within <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> looks like this:</p>
+<pre  class="mermaid">
+        flowchart TD
+    A[FERC archives in Zenodo datastore] --&gt; B[raw_ferc_to_sqlite assets]
+    B --&gt; C[DBF extraction&lt;br/&gt;1994-2020]
+    B --&gt; D[XBRL extraction&lt;br/&gt;2021-present]
+
+    C --&gt; E[ferc1_dbf.sqlite]
+
+    D --&gt; F[ferc1_xbrl.sqlite]
+    D --&gt; G[ferc1_xbrl.duckdb&lt;br/&gt;experimental]
+    D --&gt; H[ferc1_xbrl_datapackage.json]
+    D --&gt; I[ferc1_xbrl_taxonomy_metadata.json]
+
+    E --&gt; J[Clean FERC tables in PUDL&lt;br/&gt;1994-present]
+    F --&gt; J
+    H --&gt; J
+    I --&gt; J
+    </pre><p>The separation between FERC and PUDL is intentional: the raw FERC conversion step
+produces large source databases with hundreds of tables and thousands of columns that
+can be reused across multiple downstream PUDL runs (and external applications), while
+the <code class="docutils literal notranslate"><span class="pre">pudl</span></code> job standardizes and cleans a smaller subset of those tables in the main
+PUDL data products.</p>
+<p>The conversion can be done using the Dagster UI (see <a class="reference internal" href="run_the_etl.html#run-dagster-ui"><span class="std std-ref">Running the ETL via the Dagster UI</span></a>) or the
+Dagster CLI (see <a class="reference internal" href="run_the_etl.html#run-cli"><span class="std std-ref">Running the ETL via CLI</span></a>). For local command-line usage, options include:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>ferc-to-sqlite
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>ferc_to_sqlite<span class="w"> </span>--config<span class="w"> </span>src/pudl/package_data/settings/dg_full.yml
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>We recommend using the Dagster UI to execute the ETL as it provides additional
 functionality for re-execution and viewing dependences.</p>
 </div>
-<p>Executing a <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> job will create several outputs in your <code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT</span></code>
-directory. For example the FERC Form 1 outputs will include:</p>
+<p>Executing either the <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> job or the full <code class="docutils literal notranslate"><span class="pre">pudl_with_ferc_to_sqlite</span></code> job
+will create several outputs in your <code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT</span></code> directory. For example the FERC
+Form 1 outputs will include:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">$PUDL_OUTPUT/ferc1_dbf.sqlite</span></code>: Data from 1994-2020 (FoxPro/DBF)</p></li>
@@ -783,8 +1257,66 @@ database.</p></li>
 XBRL Taxonomy, containing additional metadata.</p></li>
 </ul>
 </div></blockquote>
-<p>By default, the script pulls in all available years and tables of data.  The
-<code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> jobs also extract the XBRL data for FERC Form 1, 2, 6, 60 and 714.</p>
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite</span></code> job converts all available years and tables of data
+for all available FERC Data, which includes Forms 1, 2, 6, 60 and 714. You can also
+choose to materialize any combination of form an format (DBF or XBRL). Note that the
+earlier FERC 714 data (2006-2020) is distributed as CSVs, and PUDL does not yet load
+all available tables.</p>
+<section id="ferc-sqlite-provenance-compatibility">
+<h2>FERC SQLite provenance compatibility<a class="headerlink" href="#ferc-sqlite-provenance-compatibility" title="Link to this heading">#</a></h2>
+<p>PUDL records provenance metadata when FERC SQLite assets are materialized, including
+the Zenodo DOI and the years extracted.
+Before downstream <code class="docutils literal notranslate"><span class="pre">pudl</span></code> assets use those databases,
+PUDL checks the metadata to make sure they are compatible with the current run.
+This helps avoid scenarios where the FERC databases were built with old inputs
+or don’t have all the years needed by the current run.</p>
+<section id="incompatible-provenance-metadata">
+<h3>Incompatible provenance metadata<a class="headerlink" href="#incompatible-provenance-metadata" title="Link to this heading">#</a></h3>
+<p>The provenance check looks at two things:</p>
+<ul class="simple">
+<li><p>Whether the Zenodo DOI changed for a FERC dataset. This would mean that the
+raw input data used to build the existing SQLite DB is different from what is
+expected.</p></li>
+<li><p>Whether the current ETL config requests years of FERC data that are not present in the
+existing SQLite DB.</p></li>
+</ul>
+<p>When either of these criteria aren’t met, Dagster raises an error telling you to refresh
+the FERC SQLite assets.</p>
+</section>
+<section id="regenerating-ferc-sqlite-assets">
+<h3>Regenerating FERC SQLite assets<a class="headerlink" href="#regenerating-ferc-sqlite-assets" title="Link to this heading">#</a></h3>
+<p>To rebuild FERC SQLite databases so they match the current input data and configuration,
+rerun the raw FERC conversion step:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Our<span class="w"> </span>task<span class="w"> </span>shortcut
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>ferc-to-sqlite
+<span class="gp"># </span>Equivalent<span class="w"> </span>to
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>ferc_to_sqlite<span class="w"> </span>--config<span class="w"> </span>src/pudl/package_data/settings/dg_full.yml
+</pre></div>
+</div>
+<p>You can also materialize just the specific FERC SQLite assets that are out of date,
+either in the Dagster UI or using the command line:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span>raw_ferc1_xbrl__sqlite<span class="w"> </span>--config<span class="w"> </span>src/pudl/package_data/settings/dg_full.yml
+</pre></div>
+</div>
+<p>After the FERC databases are refreshed, rerun the <code class="docutils literal notranslate"><span class="pre">pudl</span></code> job or selected downstream
+assets.</p>
+</section>
+<section id="bypassing-provenance-checks-for-development">
+<h3>Bypassing provenance checks for development<a class="headerlink" href="#bypassing-provenance-checks-for-development" title="Link to this heading">#</a></h3>
+<p>If you need to use externally-downloaded FERC SQLite databases (for example, from
+nightly build outputs), you can bypass compatibility checks by setting:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PUDL_SKIP_FERC_SQLITE_PROVENANCE</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Truthy values <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">true</span></code>, and <code class="docutils literal notranslate"><span class="pre">yes</span></code> are accepted.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Skipping provenance checks is a development escape hatch. It can cause runtime
+failures or incorrect results if your local prerequisites do not actually match the
+current ETL configuration.</p>
+</div>
+</section>
+</section>
 </section>
 
 
@@ -827,6 +1359,23 @@ XBRL Taxonomy, containing additional metadata.</p></li>
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-sqlite-provenance-compatibility">FERC SQLite provenance compatibility</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#incompatible-provenance-metadata">Incompatible provenance metadata</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regenerating-ferc-sqlite-assets">Regenerating FERC SQLite assets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bypassing-provenance-checks-for-development">Bypassing provenance checks for development</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
     <a href="../_sources/dev/clone_ferc1.rst.txt">
@@ -848,8 +1397,8 @@ XBRL Taxonomy, containing additional metadata.</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -883,7 +1432,7 @@ XBRL Taxonomy, containing additional metadata.</p></li>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

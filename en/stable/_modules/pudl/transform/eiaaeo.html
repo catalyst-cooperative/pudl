@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eiaaeo &#8212; PUDL 2026.4.0 documentation</title>
+    <title>pudl.transform.eiaaeo &#8212; PUDL 2026.5.0 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../_static/documentation_options.js?v=288f4d1e"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/transform/eiaaeo';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -520,7 +520,9 @@ window.runMermaid = runMermaid;</script>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -572,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.0 documentation - Home"/>
   
   
 </a></div>
@@ -1515,8 +1517,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Projected fuel cost for the electric power sector.</span>
 
-<span class="sd">    Includes 2022 US dollars per million BTU and nominal US dollars per million</span>
-<span class="sd">    BTU.</span>
+<span class="sd">    Includes 2022, 2024, 2025, and nominal US dollars per million BTU.</span>
 
 <span class="sd">    In future report years, the base year for the real cost will change, so we</span>
 <span class="sd">    store that base year as well.</span>
@@ -1528,7 +1529,12 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;electricity&quot;</span><span class="p">}</span>
     <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;fuel_prices&quot;</span><span class="p">}</span>
-    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;2024_mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;2022_mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;nom_mmbtu&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">sanitized</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span>
+        <span class="s2">&quot;2025_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2024_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2022_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nom_mmbtu&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
     <span class="c1"># turn variable_name into `nominal_fuel_prices` and `real_fuel_prices` based on unit</span>
     <span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">units</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">variable_name</span>
 
@@ -1589,7 +1595,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="BASE_AEO_CATEGORIES">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.BASE_AEO_CATEGORIES">[docs]</a>
 <span class="n">BASE_AEO_CATEGORIES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
     <span class="s2">&quot;projection_year&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
     <span class="s2">&quot;electricity_market_module_region_eiaaeo&quot;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span>
 <span class="p">}</span></div>
@@ -1691,8 +1697,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1726,7 +1732,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

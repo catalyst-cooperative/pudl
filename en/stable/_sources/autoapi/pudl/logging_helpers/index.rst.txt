@@ -9,6 +9,14 @@ pudl.logging_helpers
 
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.logging_helpers.DEFAULT_DEPENDENCY_LOGLEVELS
+
+
 Functions
 ---------
 
@@ -21,19 +29,23 @@ Functions
 Module Contents
 ---------------
 
+.. py:data:: DEFAULT_DEPENDENCY_LOGLEVELS
+   :type:  dict[str, int]
+
 .. py:function:: get_logger(name: str)
 
    Helper function to append 'catalystcoop' to logger name and return logger.
 
 
-.. py:function:: configure_root_logger(logfile: str | None = None, loglevel: str = 'INFO', dependency_loglevels: dict[str, int] | None = None, propagate: bool = False) -> None
+.. py:function:: configure_root_logger(logfile: str | None = None, loglevel: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] = 'INFO', dependency_loglevels: dict[str, int] | None = None, color_logs: bool = True, propagate: bool = False) -> None
 
    Configure the root catalystcoop logger.
 
    :param logfile: Path to logfile or None.
-   :param loglevel: Level of detail at which to log, by default INFO.
+   :param loglevel: Level of detail at which to log. Defaults to ``INFO``.
    :param dependency_loglevels: Dictionary mapping dependency name to desired loglevel.
                                 This allows us to filter excessive logs from dependencies.
+   :param color_logs: Whether to emit ANSI color codes. Defaults to ``True``.
    :param propagate: Whether to propagate logs to ancestor loggers. Useful for ensuring
                      that pytest has access to PUDL logs during testing.
 

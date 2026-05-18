@@ -15,7 +15,7 @@ pudl.extract.eia860m
    setup with pre-generated `eia860_raw_dfs` and datastore as `ds`:
 
    eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-       Eia860Settings.eia860m_date)
+       Eia860DataConfig.eia860m_date)
    eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
        eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 

@@ -78,6 +78,7 @@ Submodules
    /autoapi/pudl/transform/classes/index
    /autoapi/pudl/transform/eia/index
    /autoapi/pudl/transform/eia176/index
+   /autoapi/pudl/transform/eia191/index
    /autoapi/pudl/transform/eia860/index
    /autoapi/pudl/transform/eia860m/index
    /autoapi/pudl/transform/eia861/index

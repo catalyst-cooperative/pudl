@@ -5,7 +5,7 @@ pudl.deploy
 
 .. autoapi-nested-parse::
 
-   Package for distributing PUDL data.
+   Deployment helpers for publishing PUDL build artifacts and services.
 
 
 
@@ -15,7 +15,6 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
-   /autoapi/pudl/deploy/ferceqr/index
    /autoapi/pudl/deploy/pudl/index
 
 

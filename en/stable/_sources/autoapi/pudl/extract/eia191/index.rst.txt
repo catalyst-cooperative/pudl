@@ -60,7 +60,7 @@ Module Contents
 
    .. py:method:: process_raw(df: pandas.DataFrame, page: str, **partition: pudl.extract.extractor.PartitionSelection) -> pandas.DataFrame
 
-      Append report year to df to distinguish data from other years.
+      Rename columns using ``any_year`` partition.
 
 
 

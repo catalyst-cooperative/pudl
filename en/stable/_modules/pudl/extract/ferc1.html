@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferc1 &#8212; PUDL 2026.4.0 documentation</title>
+    <title>pudl.extract.ferc1 &#8212; PUDL 2026.5.0 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../_static/documentation_options.js?v=288f4d1e"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/extract/ferc1';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -520,7 +520,9 @@ window.runMermaid = runMermaid;</script>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -572,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.0 documentation - Home"/>
   
   
 </a></div>
@@ -860,8 +862,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">clean up a small subset of them.</span>
 
 <span class="sd">The conversion from both DBF and XBRL to SQLite is coordinated by the</span>
-<span class="sd">:mod:`pudl.convert.ferc_to_sqlite` script. The code for the XBRL to SQLite conversion</span>
-<span class="sd">is used across all the modern FERC forms, and is contained in a standalone</span>
+<span class="sd">:mod:`pudl.dagster.assets.raw.ferc_to_sqlite` asset module. The code for the XBRL to</span>
+<span class="sd">SQLite conversion is used across all the modern FERC forms, and is contained in a</span>
+<span class="sd">standalone</span>
 <span class="sd">`ferc-xbrl-extractor package &lt;https://github.com/catalyst-cooperative/ferc-xbrl-extractor&gt;`__.</span>
 
 <span class="sd">The code for converting the older FERC 1 DBF files into an SQLite DB is contained in</span>
@@ -916,7 +919,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypedDict</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
@@ -924,24 +927,15 @@ window.runMermaid = runMermaid;</script>
     <span class="n">AssetKey</span><span class="p">,</span>
     <span class="n">AssetSpec</span><span class="p">,</span>
     <span class="n">asset</span><span class="p">,</span>
-    <span class="n">build_init_resource_context</span><span class="p">,</span>
-    <span class="n">build_input_context</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.extract.dbf</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FercDbfExtractor</span><span class="p">,</span>
     <span class="n">PartitionedDataFrame</span><span class="p">,</span>
     <span class="n">add_key_constraints</span><span class="p">,</span>
     <span class="n">deduplicate_by_year</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.io_managers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">FercDBFSQLiteIOManager</span><span class="p">,</span>
-    <span class="n">FercXBRLSQLiteIOManager</span><span class="p">,</span>
-    <span class="n">ferc1_dbf_sqlite_io_manager</span><span class="p">,</span>
-    <span class="n">ferc1_xbrl_sqlite_io_manager</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetsSettings</span><span class="p">,</span> <span class="n">FercToSqliteSettings</span><span class="p">,</span> <span class="n">GenericDatasetSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
 <div class="viewcode-block" id="logger">
@@ -949,9 +943,40 @@ window.runMermaid = runMermaid;</script>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="FERC1_DBF_SQLITE_ASSET_KEY">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.FERC1_DBF_SQLITE_ASSET_KEY">[docs]</a>
+<span class="n">FERC1_DBF_SQLITE_ASSET_KEY</span> <span class="o">=</span> <span class="n">AssetKey</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_dbf__sqlite&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FERC1_XBRL_SQLITE_ASSET_KEY">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.FERC1_XBRL_SQLITE_ASSET_KEY">[docs]</a>
+<span class="n">FERC1_XBRL_SQLITE_ASSET_KEY</span> <span class="o">=</span> <span class="n">AssetKey</span><span class="p">(</span><span class="s2">&quot;raw_ferc1_xbrl__sqlite&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RawFercTableName">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.RawFercTableName">[docs]</a>
+<span class="n">RawFercTableName</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="RawTableMapping">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.RawTableMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RawTableMapping</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mapping between normalized PUDL table and raw DBF/XBRL table names.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RawTableMapping.dbf">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.RawTableMapping.dbf">[docs]</a>
+    <span class="n">dbf</span><span class="p">:</span> <span class="n">RawFercTableName</span></div>
+
+<div class="viewcode-block" id="RawTableMapping.xbrl">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.RawTableMapping.xbrl">[docs]</a>
+    <span class="n">xbrl</span><span class="p">:</span> <span class="n">RawFercTableName</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="TABLE_NAME_MAP_FERC1">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.TABLE_NAME_MAP_FERC1">[docs]</a>
-<span class="n">TABLE_NAME_MAP_FERC1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">TABLE_NAME_MAP_FERC1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RawTableMapping</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;core_ferc1__yearly_steam_plants_fuel_sched402&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="s2">&quot;f1_fuel&quot;</span><span class="p">,</span>
         <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402&quot;</span><span class="p">,</span>
@@ -1024,6 +1049,10 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="s2">&quot;f1_dacs_epda&quot;</span><span class="p">,</span>
         <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;summary_of_depreciation_and_amortization_charges_section_a_336&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;core_ferc1__yearly_depreciation_factors_sched336&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="s2">&quot;f1_edcfu_epda&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;factors_used_in_estimating_depreciation_charges_section_c_336&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;core_ferc1__yearly_depreciation_changes_sched219&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="s2">&quot;f1_accumdepr_prvsn&quot;</span><span class="p">,</span>
         <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219&quot;</span><span class="p">,</span>
@@ -1058,13 +1087,27 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="s2">&quot;f1_othr_reg_liab&quot;</span><span class="p">,</span>
         <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;other_regulatory_liabilities_account_254_278&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;core_ferc1__yearly_identification_certification&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="s2">&quot;f1_ident_attsttn&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;identification_001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;corporate_officer_certification_001&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_ferc1__yearly_other_regulatory_assets_sched232&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="s2">&quot;f1_othr_reg_assets&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;other_regulatory_assets_account_182_3_232&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;other_regulatory_assets_account_182_3_totals_232&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;A mapping of PUDL DB table names to their XBRL and DBF source table names.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="XBRL_META_ONLY_FERC1">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.XBRL_META_ONLY_FERC1">[docs]</a>
-<span class="n">XBRL_META_ONLY_FERC1</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">XBRL_META_ONLY_FERC1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RawTableMapping</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;nuclear_fuel_materials_ferc1&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;dbf&quot;</span><span class="p">:</span> <span class="s2">&quot;f1_nuclear_fuel&quot;</span><span class="p">,</span>
         <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;nuclear_fuel_materials_202&quot;</span><span class="p">,</span>
@@ -1099,15 +1142,6 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Ferc1DbfExtractor.DATABASE_NAME">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.Ferc1DbfExtractor.DATABASE_NAME">[docs]</a>
     <span class="n">DATABASE_NAME</span> <span class="o">=</span> <span class="s2">&quot;ferc1_dbf.sqlite&quot;</span></div>
-
-
-<div class="viewcode-block" id="Ferc1DbfExtractor.get_settings">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.Ferc1DbfExtractor.get_settings">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_settings</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">global_settings</span><span class="p">:</span> <span class="n">FercToSqliteSettings</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericDatasetSettings</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns settings for FERC Form 1 DBF dataset.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">global_settings</span><span class="o">.</span><span class="n">ferc1_dbf_to_sqlite_settings</span></div>
 
 
 <div class="viewcode-block" id="Ferc1DbfExtractor.finalize_schema">
@@ -1169,7 +1203,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># are identified in the PUDL_RIDS map, others are still unknown.</span>
         <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">rid</span> <span class="ow">in</span> <span class="n">missing_ids</span><span class="p">:</span>
-            <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;respondent_id&quot;</span><span class="p">:</span> <span class="n">rid</span><span class="p">}</span>
+            <span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;respondent_id&quot;</span><span class="p">:</span> <span class="n">rid</span><span class="p">}</span>
             <span class="n">known_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PUDL_RIDS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rid</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">known_name</span><span class="p">:</span>
                 <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;respondent_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">known_name</span><span class="si">}</span><span class="s2"> (PUDL determined)&quot;</span>
@@ -1248,9 +1282,10 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="n">dbf_table_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">flattened_dbfs</span><span class="p">))</span>
     <span class="n">raw_ferc1_dbf_assets</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">AssetSpec</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">AssetKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_dbf__</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">with_io_manager_key</span><span class="p">(</span>
-            <span class="s2">&quot;ferc1_dbf_sqlite_io_manager&quot;</span>
-        <span class="p">)</span>
+        <span class="n">AssetSpec</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="n">AssetKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_dbf__</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">FERC1_DBF_SQLITE_ASSET_KEY</span><span class="p">],</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">with_io_manager_key</span><span class="p">(</span><span class="s2">&quot;ferc1_dbf_sqlite_io_manager&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">dbf_table_names</span>
     <span class="p">]</span>
 
@@ -1264,9 +1299,10 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="n">xbrl_table_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">xbrls_with_periods</span><span class="p">))</span>
     <span class="n">raw_ferc1_xbrl_assets</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">AssetSpec</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">AssetKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_xbrl__</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">with_io_manager_key</span><span class="p">(</span>
-            <span class="s2">&quot;ferc1_xbrl_sqlite_io_manager&quot;</span>
-        <span class="p">)</span>
+        <span class="n">AssetSpec</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="n">AssetKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;raw_ferc1_xbrl__</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">FERC1_XBRL_SQLITE_ASSET_KEY</span><span class="p">],</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">with_io_manager_key</span><span class="p">(</span><span class="s2">&quot;ferc1_xbrl_sqlite_io_manager&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">xbrl_table_names</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="n">raw_ferc1_dbf_assets</span> <span class="o">+</span> <span class="n">raw_ferc1_xbrl_assets</span></div>
@@ -1284,7 +1320,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># asset name.</span>
 
 
-<span class="nd">@asset</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">FERC1_XBRL_SQLITE_ASSET_KEY</span><span class="p">])</span>
 <div class="viewcode-block" id="raw_ferc1_xbrl__metadata_json">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.raw_ferc1_xbrl__metadata_json">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_ferc1_xbrl__metadata_json</span><span class="p">(</span>
@@ -1301,7 +1337,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        filings. If there is no instant/duration table, an empty list is returned</span>
 <span class="sd">        instead.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">metadata_path</span> <span class="o">=</span> <span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;ferc1_xbrl_taxonomy_metadata.json&quot;</span>
+    <span class="n">metadata_path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span>  <span class="c1"># type: ignore[call-arg]</span>
+        <span class="o">/</span> <span class="s2">&quot;ferc1_xbrl_taxonomy_metadata.json&quot;</span>
+    <span class="p">)</span>
     <span class="k">with</span> <span class="n">Path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">xbrl_meta_all</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
@@ -1333,150 +1372,6 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">return</span> <span class="n">xbrl_meta_out</span></div>
 
-
-
-<span class="c1"># Ferc extraction functions for devtool notebook testing</span>
-<div class="viewcode-block" id="extract_dbf_generic">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.extract_dbf_generic">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_dbf_generic</span><span class="p">(</span>
-    <span class="n">table_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">io_manager</span><span class="p">:</span> <span class="n">FercDBFSQLiteIOManager</span><span class="p">,</span>
-    <span class="n">dataset_settings</span><span class="p">:</span> <span class="n">DatasetsSettings</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine multiple raw dbf tables into one.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        table_names: The name of the raw dbf tables you want to combine</span>
-<span class="sd">            under dbf. These are the tables you want to combine.</span>
-<span class="sd">        io_manager: IO Manager that reads tables out of ``ferc1_dbf.sqlite``.</span>
-<span class="sd">        dataset_settings: object containing desired years to extract.</span>
-
-<span class="sd">    Return:</span>
-<span class="sd">        Concatenation of all tables in table_names as a dataframe.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">table_names</span><span class="p">:</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">build_input_context</span><span class="p">(</span>
-            <span class="n">asset_key</span><span class="o">=</span><span class="n">AssetKey</span><span class="p">(</span><span class="n">table_name</span><span class="p">),</span>
-            <span class="n">upstream_output</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">:</span> <span class="n">dataset_settings</span><span class="p">},</span>
-        <span class="p">)</span>
-        <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">io_manager</span><span class="o">.</span><span class="n">load_input</span><span class="p">(</span><span class="n">context</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">tables</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="extract_xbrl_generic">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.extract_xbrl_generic">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_xbrl_generic</span><span class="p">(</span>
-    <span class="n">table_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">io_manager</span><span class="p">:</span> <span class="n">FercXBRLSQLiteIOManager</span><span class="p">,</span>
-    <span class="n">dataset_settings</span><span class="p">:</span> <span class="n">DatasetsSettings</span><span class="p">,</span>
-    <span class="n">period</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="s2">&quot;instant&quot;</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine multiple raw dbf tables into one.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        table_names: The name of the raw dbf tables you want to combine</span>
-<span class="sd">            under xbrl. These are the tables you want to combine.</span>
-<span class="sd">        io_manager: IO Manager that reads tables out of ``ferc1_xbrl.sqlite``.</span>
-<span class="sd">        dataset_settings: object containing desired years to extract.</span>
-<span class="sd">        period: Either duration or instant, specific to xbrl data.</span>
-
-<span class="sd">    Return:</span>
-<span class="sd">        Concatenation of all tables in table_names as a dataframe.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">table_names</span><span class="p">:</span>
-        <span class="n">full_xbrl_table_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">period</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">build_input_context</span><span class="p">(</span>
-            <span class="n">asset_key</span><span class="o">=</span><span class="n">AssetKey</span><span class="p">(</span><span class="n">full_xbrl_table_name</span><span class="p">),</span>
-            <span class="n">upstream_output</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">:</span> <span class="n">dataset_settings</span><span class="p">},</span>
-        <span class="p">)</span>
-        <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">io_manager</span><span class="o">.</span><span class="n">load_input</span><span class="p">(</span><span class="n">context</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">tables</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="extract_dbf">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.extract_dbf">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_dbf</span><span class="p">(</span><span class="n">dataset_settings</span><span class="p">:</span> <span class="n">DatasetsSettings</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Coordinates the extraction of all FERC Form 1 tables into PUDL.</span>
-
-<span class="sd">    This function is not used in the dagster ETL and is only intended</span>
-<span class="sd">    to be used in notebooks for debugging the FERC Form 1 transforms.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        dataset_settings: object containing desired years to extract.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A dictionary of DataFrames, with the names of PUDL database tables as the keys.</span>
-<span class="sd">        These are the raw unprocessed dataframes, reflecting the data as it is in the</span>
-<span class="sd">        FERC Form 1 DB, for passing off to the data tidying and cleaning functions found</span>
-<span class="sd">        in the :mod:`pudl.transform.ferc1` module.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ferc1_dbf_raw_dfs</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="n">io_manager_init_context</span> <span class="o">=</span> <span class="n">build_init_resource_context</span><span class="p">(</span>
-        <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">:</span> <span class="n">dataset_settings</span><span class="p">}</span>
-    <span class="p">)</span>
-    <span class="n">io_manager</span> <span class="o">=</span> <span class="n">ferc1_dbf_sqlite_io_manager</span><span class="p">(</span><span class="n">io_manager_init_context</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">raw_table_mapping</span> <span class="ow">in</span> <span class="n">TABLE_NAME_MAP_FERC1</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">dbf_table_or_tables</span> <span class="o">=</span> <span class="n">raw_table_mapping</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dbf_table_or_tables</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">dbf_tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">dbf_table_or_tables</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">dbf_tables</span> <span class="o">=</span> <span class="n">dbf_table_or_tables</span>
-
-        <span class="n">ferc1_dbf_raw_dfs</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_dbf_generic</span><span class="p">(</span>
-            <span class="n">dbf_tables</span><span class="p">,</span> <span class="n">io_manager</span><span class="p">,</span> <span class="n">dataset_settings</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">ferc1_dbf_raw_dfs</span></div>
-
-
-
-<div class="viewcode-block" id="extract_xbrl">
-<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.extract_xbrl">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_xbrl</span><span class="p">(</span>
-    <span class="n">dataset_settings</span><span class="p">:</span> <span class="n">DatasetsSettings</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="s2">&quot;instant&quot;</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Coordinates the extraction of all FERC Form 1 tables into PUDL from XBRL data.</span>
-
-<span class="sd">    This function is not used in the dagster ETL and is only intended</span>
-<span class="sd">    to be used in notebooks for debugging the FERC Form 1 transforms.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        dataset_settings: object containing desired years to extract.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A dictionary where keys are the names of the PUDL database tables, values are</span>
-<span class="sd">        dictionaries of DataFrames corresponding to the instant and duration tables from</span>
-<span class="sd">        the XBRL derived FERC 1 database.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ferc1_xbrl_raw_dfs</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="n">io_manager_init_context</span> <span class="o">=</span> <span class="n">build_init_resource_context</span><span class="p">(</span>
-        <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">:</span> <span class="n">dataset_settings</span><span class="p">}</span>
-    <span class="p">)</span>
-    <span class="n">io_manager</span> <span class="o">=</span> <span class="n">ferc1_xbrl_sqlite_io_manager</span><span class="p">(</span><span class="n">io_manager_init_context</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">raw_table_mapping</span> <span class="ow">in</span> <span class="n">TABLE_NAME_MAP_FERC1</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">xbrl_table_or_tables</span> <span class="o">=</span> <span class="n">raw_table_mapping</span><span class="p">[</span><span class="s2">&quot;xbrl&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xbrl_table_or_tables</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">xbrl_tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">xbrl_table_or_tables</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">xbrl_tables</span> <span class="o">=</span> <span class="n">xbrl_table_or_tables</span>
-
-        <span class="n">ferc1_xbrl_raw_dfs</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">for</span> <span class="n">period</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="s2">&quot;instant&quot;</span><span class="p">):</span>
-            <span class="n">ferc1_xbrl_raw_dfs</span><span class="p">[</span><span class="n">table_name</span><span class="p">][</span><span class="n">period</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_xbrl_generic</span><span class="p">(</span>
-                <span class="n">xbrl_tables</span><span class="p">,</span> <span class="n">io_manager</span><span class="p">,</span> <span class="n">dataset_settings</span><span class="p">,</span> <span class="n">period</span>
-            <span class="p">)</span>
-    <span class="k">return</span> <span class="n">ferc1_xbrl_raw_dfs</span></div>
-
 </pre></div>
 
                 </article>
@@ -1506,8 +1401,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1541,7 +1436,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

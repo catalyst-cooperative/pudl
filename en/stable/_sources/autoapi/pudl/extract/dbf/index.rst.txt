@@ -81,13 +81,13 @@ Module Contents
    .. py:attribute:: _short_name_map
 
 
-   .. py:method:: add_column(col_name: str, col_type: sqlalchemy.types.TypeEngine, short_name: str | None = None)
+   .. py:method:: add_column(col_name: str, col_type: type[sqlalchemy.types.TypeEngine] | sqlalchemy.types.TypeEngine, short_name: str | None = None)
 
       Adds a new column to this table schema.
 
 
 
-   .. py:method:: get_columns() -> collections.abc.Iterator[tuple[str, sqlalchemy.types.TypeEngine]]
+   .. py:method:: get_columns() -> collections.abc.Iterator[tuple[str, type[sqlalchemy.types.TypeEngine] | sqlalchemy.types.TypeEngine]]
 
       Iterates over the (column_name, column_type) pairs.
 
@@ -113,7 +113,7 @@ Module Contents
 
 
 
-.. py:class:: FercDbfArchive(zipfile: FercDbfArchive.__init__.zipfile, dbc_path: pathlib.Path, table_file_map: dict[str, str], partition: dict[str, Any], field_parser: dbfread.FieldParser)
+.. py:class:: FercDbfArchive(zipfile: FercDbfArchive.__init__.zipfile, dbc_path: pathlib.Path, table_file_map: dict[str, str], partition: dict[str, Any], field_parser: type[dbfread.FieldParser])
 
    Represents API for accessing files within a single DBF archive.
 
@@ -265,7 +265,7 @@ Module Contents
    .. py:attribute:: partition
 
 
-.. py:class:: FercDbfReader(datastore: pudl.workspace.datastore.Datastore, dataset: str, field_parser: dbfread.FieldParser = FercFieldParser)
+.. py:class:: FercDbfReader(datastore: pudl.workspace.datastore.Datastore, dataset: str, field_parser: type[dbfread.FieldParser] = FercFieldParser)
 
    Wrapper to provide standardized access to FERC DBF databases.
 
@@ -341,7 +341,7 @@ Module Contents
 
 
 
-.. py:class:: FercDbfExtractor(datastore: pudl.workspace.datastore.Datastore, settings: pudl.settings.FercToSqliteSettings, output_path: pathlib.Path)
+.. py:class:: FercDbfExtractor(datastore: pudl.workspace.datastore.Datastore, data_config: pudl.settings.FercDbfToSqliteDataConfig, output_path: pathlib.Path)
 
    Generalized class for loading data from foxpro databases into SQLAlchemy.
 
@@ -380,20 +380,24 @@ Module Contents
 
 
 
-   .. py:attribute:: settings
-      :type:  pudl.settings.GenericDatasetSettings
+   .. py:attribute:: data_config
+      :type:  pudl.settings.FercDbfToSqliteDataConfig
 
 
    .. py:attribute:: output_path
+      :type:  pathlib.Path
 
 
    .. py:attribute:: datastore
+      :type:  pudl.workspace.datastore.Datastore
 
 
    .. py:attribute:: dbf_reader
+      :type:  AbstractFercDbfReader
 
 
    .. py:attribute:: sqlite_engine
+      :type:  sqlalchemy.engine.base.Engine
       :value: None
 
 
@@ -401,9 +405,9 @@ Module Contents
    .. py:attribute:: sqlite_meta
 
 
-   .. py:method:: get_settings(global_settings: pudl.settings.FercToSqliteSettings) -> pudl.settings.GenericDatasetSettings
+   .. py:method:: get_data_config(ferc_to_sqlite_data_config: pudl.settings.FercToSqliteDataConfig) -> pudl.settings.FercDbfToSqliteDataConfig
 
-      Returns dataset relevant settings from the global_settings.
+      Returns dataset relevant data configuration from ferc_to_sqlite_data_config.
 
 
 

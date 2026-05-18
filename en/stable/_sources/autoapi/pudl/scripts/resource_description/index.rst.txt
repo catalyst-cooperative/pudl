@@ -20,7 +20,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: main(name: str)
+.. py:function:: main(name: str) -> int
 
    Compute and display the description components for a resource.
 

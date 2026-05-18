@@ -50,7 +50,7 @@ Functions
    pudl.scripts.deploy._get_deployment_path_suffixes
    pudl.scripts.deploy._get_zenodo_release_source_dir
    pudl.scripts.deploy._deploy_outputs
-   pudl.scripts.deploy.pudl_deploy
+   pudl.scripts.deploy.main
 
 
 Module Contents
@@ -73,7 +73,7 @@ Module Contents
    hold on versioned release.
 
 
-.. py:function:: pudl_deploy(git_tag: str, staging: bool)
+.. py:function:: main(git_tag: str, staging: bool) -> int
 
    Deploy PUDL ETL outputs to cloud storage and external services.
 

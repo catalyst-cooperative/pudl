@@ -83,7 +83,7 @@ Module Contents
              exclusion
 
 
-.. py:function:: main(table_name: str, ignore_eia860m: bool, date_column: str, max_year: int | None)
+.. py:function:: main(table_name: str, ignore_eia860m: bool, date_column: str, max_year: int | None) -> int
 
    Generate row_conditions for use with the expect_columns_not_all_null dbt test.
 

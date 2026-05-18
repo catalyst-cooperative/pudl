@@ -23,6 +23,7 @@ Attributes
 
    pudl.transform.ferc1.logger
    pudl.transform.ferc1.FERC1_TFR_CLASSES
+   pudl.transform.ferc1._FERC1_PLANT_TABLES
    pudl.transform.ferc1.ferc1_assets
 
 
@@ -59,6 +60,7 @@ Classes
    pudl.transform.ferc1.NullReportedValueFrequency
    pudl.transform.ferc1.Ferc1TableTransformParams
    pudl.transform.ferc1.Ferc1AbstractTableTransformer
+   pudl.transform.ferc1.IdentificationCertificationTableTransformer
    pudl.transform.ferc1.SteamPlantsFuelTableTransformer
    pudl.transform.ferc1.SteamPlantsTableTransformer
    pudl.transform.ferc1.HydroelectricPlantsTableTransformer
@@ -75,6 +77,7 @@ Classes
    pudl.transform.ferc1.IncomeStatementsTableTransformer
    pudl.transform.ferc1.RetainedEarningsTableTransformer
    pudl.transform.ferc1.DepreciationSummaryTableTransformer
+   pudl.transform.ferc1.DepreciationFactorsTransformer
    pudl.transform.ferc1.DepreciationChangesTableTransformer
    pudl.transform.ferc1.DepreciationByFunctionTableTransformer
    pudl.transform.ferc1.OperatingExpensesTableTransformer
@@ -82,6 +85,7 @@ Classes
    pudl.transform.ferc1.CashFlowsTableTransformer
    pudl.transform.ferc1.SalesByRateSchedulesTableTransformer
    pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer
+   pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer
 
 
 Functions
@@ -115,6 +119,7 @@ Functions
    pudl.transform.ferc1.fill_dbf_to_xbrl_map
    pudl.transform.ferc1.get_data_cols_raw_xbrl
    pudl.transform.ferc1.read_xbrl_calculation_fixes
+   pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years
    pudl.transform.ferc1.ferc1_transform_asset_factory
    pudl.transform.ferc1.create_ferc1_transform_assets
    pudl.transform.ferc1.other_dimensions
@@ -179,7 +184,7 @@ Module Contents
    Enumeration of the allowed FERC 1 table IDs.
 
    Hard coding this doesn't seem ideal. Somehow it should be either defined in the
-   context of the Package, the Ferc1Settings, an etl_group, or DataSource. All of the
+   context of the Package, the Ferc1DataConfig, an etl_group, or DataSource. All of the
    table transformers associated with a given data source should have a table_id that's
    from that data source's subset of the database. Where should this really happen?
    Alternatively, the allowable values could be derived *from* the structure of the
@@ -256,6 +261,11 @@ Module Contents
 
 
 
+   .. py:attribute:: DEPRECIATION_FACTORS
+      :value: 'core_ferc1__yearly_depreciation_factors_sched336'
+
+
+
    .. py:attribute:: BALANCE_SHEET_ASSETS
       :value: 'core_ferc1__yearly_balance_sheet_assets_sched110'
 
@@ -298,6 +308,16 @@ Module Contents
 
    .. py:attribute:: OTHER_REGULATORY_LIABILITIES
       :value: 'core_ferc1__yearly_other_regulatory_liabilities_sched278'
+
+
+
+   .. py:attribute:: IDENTIFICATION_CERTIFICATION
+      :value: 'core_ferc1__yearly_identification_certification'
+
+
+
+   .. py:attribute:: OTHER_REGULATORY_ASSETS
+      :value: 'core_ferc1__yearly_other_regulatory_assets_sched232'
 
 
 
@@ -1582,7 +1602,7 @@ Module Contents
       instantiated but is an empty table, then there are no calculations for that table.
 
 
-   .. py:method:: transform_start(raw_dbf: pandas.DataFrame, raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+   .. py:method:: transform_start(raw_dbf_dfs: dict[str, pandas.DataFrame], raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
 
       Process the raw data until the XBRL and DBF inputs have been unified.
 
@@ -1792,6 +1812,18 @@ Module Contents
 
 
 
+   .. py:method:: preprocess_dbf(raw_dbf_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+
+      Pre-process DBF inputs into one dataframe. Concats by default.
+
+
+
+   .. py:method:: preprocess_xbrl(raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+
+      Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
+
+
+
    .. py:method:: process_dbf(raw_dbf: pandas.DataFrame) -> pandas.DataFrame
 
       DBF-specific transformations that take place before concatenation.
@@ -1981,6 +2013,53 @@ Module Contents
    .. py:method:: reconcile_table_calculations(df: pandas.DataFrame, params: ReconcileTableCalculations | None = None)
 
       Check how well a table's calculated values match reported values.
+
+
+
+.. py:class:: IdentificationCertificationTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for the :ref:`core_ferc1__yearly_identification_certification` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:method:: preprocess_xbrl(raw_xbrl_dfs: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+
+      Pre-process XBRL inputs into one dataframe. Grab freshest data and concat by default.
+
+
+
+   .. py:method:: source_table_primary_key(source_ferc1: SourceFerc1) -> list[str]
+
+      Look up the pre-renaming source table primary key columns.
+
+      The identification table does not have spplmnt_num or row_number,
+      which are part of the DBF primary key for every other DBF table.
+
+
+
+   .. py:method:: drop_unused_original_columns_dbf(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Remove one residual DBF specific column.
+
+
+
+   .. py:method:: transform_main(df)
+
+      Standard transform_main plus address normalization and string cleaning.
+
+      Transformations include phone number normalization, address parsing using
+      usaddress, null normalization, and converting names and titles to title case.
 
 
 
@@ -3485,6 +3564,55 @@ Module Contents
 
 
 
+.. py:function:: convert_pnynmndtnhnmns_to_years(dep_factors: pandas.DataFrame, life_col: str)
+
+   Convert the XBRL-based PnYnMnDTnHnMnS time period into years.
+
+   FERC1's Taxonomy documents these fields as: Estimated average service life of
+   utility plant, in 'PnYnMnDTnHnMnS' format, for example 'P4Y7M12D' represents a
+   fact of four years, seven months, and 12 days.
+
+   As a format, its a fine standard despite not being a widely used format for
+   duration of time. not super standard but is acceptable. but the DBF data is all reported - seemingly - in years.
+
+
+.. py:class:: DepreciationFactorsTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_depreciation_factors_sched336` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: transform_main(df)
+
+      Convert $1000s to $s & standardize life cols after standard transform_main.
+
+
+
 .. py:class:: DepreciationChangesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
 
    Bases: :py:obj:`Ferc1AbstractTableTransformer`
@@ -3950,10 +4078,58 @@ Module Contents
       the transformed data.
 
 
+.. py:class:: OtherRegulatoryAssetsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_other_regulatory_assets_sched232` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: process_xbrl(raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+
+      Add values to the axis columns from the totals tables, then standard.
+
+      The raw XBRL data for this table comes from two tables - one of which has
+      an "axis" column - which is generally designated as a unique identifying field -
+      that is a free-text field containing details about what type of asset the record
+      pertains to. The second table is a "totals" table which based on the XBRL
+      documentation is the total of the other regulatory assets. So we assign the value
+      for the ``other_regulatory_assets_axis`` column as ``totals``. These records are
+      labeled as ``totals`` instead of ``total`` because there are some records (~3%) from
+      the ``other_regulatory_assets_account_182_3_232`` table that are labeled as total
+      and will break the pk expectations.
+
+
+
 .. py:data:: FERC1_TFR_CLASSES
    :type:  collections.abc.Mapping[str, type[Ferc1AbstractTableTransformer]]
 
-.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'pudl_io_manager', convert_dtypes: bool = True, generic: bool = False) -> dagster.AssetsDefinition
+.. py:data:: _FERC1_PLANT_TABLES
+
+.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'pudl_io_manager', convert_dtypes: bool = True, generic: bool = False, op_tags: dict[str, Any] | None = None) -> dagster.AssetsDefinition
 
    Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 

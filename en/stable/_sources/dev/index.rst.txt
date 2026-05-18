@@ -7,7 +7,7 @@ Developer Guide
 
   dev_setup
   run_the_etl
-  dev_dagster
+  troubleshooting_dagster
   project_management
   testing
   data_validation_quickstart

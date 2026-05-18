@@ -109,6 +109,13 @@ command in the pixi environment.
 
 There's additional information about running tests in the :doc:`testing` documentation.
 
+Once your environment is installed, a good quick sanity check is to confirm that the
+Dagster project loads successfully:
+
+.. code-block:: console
+
+    $ pixi run dg check defs --verbose
+
 -------------------------------------------------------------------------------
 Updating the PUDL Development Environment
 -------------------------------------------------------------------------------
@@ -191,7 +198,7 @@ project codebase. This is known as `code linting
 makes the code easier to read, and helps catch some types of bugs before they are
 committed. These tools are part of the PUDL pixi environment and their configuration
 files are checked into the GitHub repository. If you've cloned the pudl repo and are
-working inside the pudl conda environment, they should be installed and ready to go.
+working inside the PUDL pixi environment, they should be installed and ready to go.
 
 Git Pre-commit Hooks
 ^^^^^^^^^^^^^^^^^^^^

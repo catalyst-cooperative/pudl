@@ -17,8 +17,21 @@ Attributes
    pudl.metadata.sources.SOURCES
 
 
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.metadata.sources._year_quarter_range
+
+
 Module Contents
 ---------------
+
+.. py:function:: _year_quarter_range(start_quarter: str, end_quarter: str) -> list[str]
+
+   Return a range of year-quarters formatted as ``YYYYqQ``.
+
 
 .. py:data:: SOURCES
    :type:  dict[str, Any]

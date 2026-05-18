@@ -17,14 +17,6 @@ Attributes
    pudl.extract.ferceqr.logger
 
 
-Classes
--------
-
-.. autoapisummary::
-
-   pudl.extract.ferceqr.ExtractSettings
-
-
 Functions
 ---------
 
@@ -44,27 +36,6 @@ Module Contents
 ---------------
 
 .. py:data:: logger
-
-.. py:class:: ExtractSettings
-
-   Bases: :py:obj:`dagster.ConfigurableResource`
-
-
-   Dagster resource which defines which EQR data to extract and configuration for raw archive.
-
-
-   .. py:attribute:: ferceqr_archive_uri
-      :type:  str
-      :value: 'gs://archives.catalyst.coop/ferceqr/published'
-
-
-
-   .. py:property:: ferceqr_archive_path
-      :type: upath.UPath
-
-
-      Return UPath pointing to archive base path.
-
 
 .. py:function:: _get_csv(base_path: upath.UPath, year_quarter: str) -> zipfile.ZipFile
 
@@ -104,7 +75,7 @@ Module Contents
    Create parquet file with metadata on any CSV parsing errors.
 
 
-.. py:function:: extract_ferceqr(context: dagster.AssetExecutionContext, ferceqr_extract_settings: ExtractSettings = ExtractSettings()) -> tuple[pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData]
+.. py:function:: extract_ferceqr(context: dagster.AssetExecutionContext, ferceqr_data_config: pudl.dagster.resources.FercEqrDataConfig = FercEqrDataConfig()) -> tuple[pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData]
 
    Extract year quarter from CSVs and load to parquet files.
 

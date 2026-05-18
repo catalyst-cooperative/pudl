@@ -14,7 +14,7 @@ Derived values:
   Contains columns derived from inputs and not originally present in sources.
 
 Discontinued by the source:
-  The data is no longer being collected or reported in this way.
+  The original data is no longer being collected or reported in this way.
 
 Discontinued by us:
   PUDL does not currently update its copy of this data.
@@ -22,7 +22,7 @@ Discontinued by us:
   If you would be interested in funding additional updates to this data, get in touch!
 
 Early release:
-  May contain early release data. EIA releases some of it's annual data early for
+  May contain early release data. EIA releases some of its annual data early for
   immediate access to individual plant and generator level data. The data has not
   been fully edited and is inappropriate for use in aggregation. Data for certain
   plants may be excluding pending validation.
@@ -37,7 +37,7 @@ FERC:
   FERC data is notoriously difficult to extract cleanly, and often contains
   free-form strings, non-labeled total rows and lack of IDs. See `Notable
   Irregularities
-  <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`__
+  <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`__
   for details.
 
 Free text:

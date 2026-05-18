@@ -20,6 +20,7 @@ Attributes
    pudl.metadata.enums.EPACEMS_STATES
    pudl.metadata.enums.DIVISION_CODES_US_CENSUS
    pudl.metadata.enums.APPROXIMATE_TIMEZONES
+   pudl.metadata.enums.EIA191_STORAGE_REGIONS
    pudl.metadata.enums.NERC_REGIONS
    pudl.metadata.enums.US_TIMEZONES
    pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930
@@ -106,6 +107,13 @@ Module Contents
    For states that are split, we chose the timezone with a larger population. List of
    timezones in pytz.common_timezones Canada:
    https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
+
+.. py:data:: EIA191_STORAGE_REGIONS
+   :type:  list[str]
+   :value: ['alaska', 'east region', 'midwest region', 'mountain region', 'pacific region', 'south central region']
+
+
+   EIA storage regions for underground natural gas storage fields (Form 191).
 
 .. py:data:: NERC_REGIONS
    :type:  list[str]

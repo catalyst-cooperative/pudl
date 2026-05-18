@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.4.0 documentation</title>
+    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.5.0 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../_static/documentation_options.js?v=288f4d1e"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/analysis/timeseries_cleaning';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -520,7 +520,9 @@ window.runMermaid = runMermaid;</script>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -572,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.0 documentation - Home"/>
   
   
 </a></div>
@@ -2986,6 +2988,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">reported_value_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demand_reported_mwh&quot;</span><span class="p">,</span>
     <span class="n">simulation_group_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">output_io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">,</span>
+    <span class="n">op_tags</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">settings</span><span class="p">:</span> <span class="n">ImputeTimeseriesSettings</span> <span class="o">=</span> <span class="n">ImputeTimeseriesSettings</span><span class="p">(),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Produces assets to impute values for a given timeseries table/column.</span>
@@ -3024,6 +3027,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            a single imputation run (like BA/subregion demand), this column is used</span>
 <span class="sd">            to compute simulation results for each set independently. This should</span>
 <span class="sd">            point to a categorical column which defines which group a row belongs to.</span>
+<span class="sd">        op_tags: Tags applied to every op produced by the factory. Use</span>
+<span class="sd">            ``{&quot;dagster/priority&quot;: N}`` to raise scheduling priority for assets on</span>
+<span class="sd">            the critical execution path.</span>
 <span class="sd">        settings: Configurable options for imputation</span>
 <span class="sd">            (see :class:`ImputeTimeseriesSettings`).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3032,6 +3038,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Uses regex substitution so prefix starts with exactly one underscore even</span>
     <span class="c1"># if `output_asset_name` starts with an underscore</span>
     <span class="n">asset_prefix</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^__&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">output_asset_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">op_tags</span> <span class="o">=</span> <span class="n">op_tags</span> <span class="ow">or</span> <span class="p">{}</span>
 
     <span class="c1"># Asset names</span>
     <span class="n">timeseries_matrix_asset</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">asset_prefix</span><span class="si">}</span><span class="s2">_timeseries_matrix&quot;</span>
@@ -3052,6 +3059,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">aligned_input_asset</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">aligned_input_asset</span><span class="p">),</span>
         <span class="p">},</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">asset_prefix</span><span class="si">}</span><span class="s2">_prepare_timeseries_matrix&quot;</span><span class="p">,</span>
+        <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_timeseries_matrix</span><span class="p">(</span>
         <span class="n">input_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -3100,7 +3108,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">),</span>
             <span class="n">flags_asset</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">flags_asset</span><span class="p">),</span>
         <span class="p">},</span>
-        <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+        <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">}</span> <span class="o">|</span> <span class="n">op_tags</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">asset_prefix</span><span class="si">}</span><span class="s2">_flag_timeseries_matrix&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_flag_timeseries_matrix</span><span class="p">(</span>
@@ -3125,13 +3133,14 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">},</span>
+        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;matrix&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">cleaned_timeseries_matrix_asset</span><span class="p">),</span>
             <span class="s2">&quot;flags&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">flags_asset</span><span class="p">),</span>
             <span class="s2">&quot;aligned_df&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">aligned_input_asset</span><span class="p">),</span>
         <span class="p">},</span>
         <span class="n">name</span><span class="o">=</span><span class="n">imputed_asset</span><span class="p">,</span>
+        <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_impute_timeseries</span><span class="p">(</span>
         <span class="n">context</span><span class="p">,</span>
@@ -3159,6 +3168,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">},</span>
         <span class="n">name</span><span class="o">=</span><span class="n">output_asset_name</span><span class="p">,</span>
         <span class="n">io_manager_key</span><span class="o">=</span><span class="n">output_io_manager_key</span><span class="p">,</span>
+        <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_output_asset</span><span class="p">(</span>
         <span class="n">imputed_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -3187,6 +3197,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">simulated_flags_asset</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">simulated_flags_asset</span><span class="p">),</span>
         <span class="p">},</span>
         <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">asset_prefix</span><span class="si">}</span><span class="s2">_simulate_flag_timeseries_matrix&quot;</span><span class="p">,</span>
+        <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_simulate_flags</span><span class="p">(</span>
         <span class="n">imputed_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -3232,13 +3243,14 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">},</span>
+        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;aligned_df&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">aligned_input_asset</span><span class="p">),</span>
             <span class="s2">&quot;matrix&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">simulated_timeseries_matrix_asset</span><span class="p">),</span>
             <span class="s2">&quot;flags&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">simulated_flags_asset</span><span class="p">),</span>
         <span class="p">},</span>
         <span class="n">name</span><span class="o">=</span><span class="n">imputed_simulated_asset</span><span class="p">,</span>
+        <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_impute_simulated_timeseries</span><span class="p">(</span>
         <span class="n">context</span><span class="p">,</span>
@@ -3267,6 +3279,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">io_manager_key</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">simulate_flags_settings</span><span class="o">.</span><span class="n">output_io_manager_key</span>
         <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">simulate_flags_settings</span>
         <span class="k">else</span> <span class="s2">&quot;io_manager&quot;</span><span class="p">,</span>
+        <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_simulated_output_asset</span><span class="p">(</span>
         <span class="n">imputed_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -3287,6 +3300,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;simulated_df&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">imputed_simulated_asset</span><span class="p">),</span>
         <span class="p">},</span>
         <span class="n">name</span><span class="o">=</span><span class="n">imputation_score_asset</span><span class="p">,</span>
+        <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_score_imputation</span><span class="p">(</span>
         <span class="n">imputed_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -3385,8 +3399,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -3420,7 +3434,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

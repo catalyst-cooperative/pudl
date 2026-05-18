@@ -15,6 +15,7 @@ Attributes
 .. autoapisummary::
 
    pudl.extract.ferc714.logger
+   pudl.extract.ferc714.FERC714_XBRL_SQLITE_ASSET_KEY
    pudl.extract.ferc714.FERC714_CSV_ENCODING
    pudl.extract.ferc714.TABLE_NAME_MAP_FERC714
    pudl.extract.ferc714.raw_ferc714_csv_assets
@@ -35,6 +36,8 @@ Module Contents
 ---------------
 
 .. py:data:: logger
+
+.. py:data:: FERC714_XBRL_SQLITE_ASSET_KEY
 
 .. py:data:: FERC714_CSV_ENCODING
    :type:  collections.OrderedDict[str, dict[str, str]]

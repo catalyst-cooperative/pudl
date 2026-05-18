@@ -14,11 +14,12 @@ Attributes
 
 .. autoapisummary::
 
-   pudl.metadata.descriptions.layer_descriptions
-   pudl.metadata.descriptions.source_descriptions
-   pudl.metadata.descriptions.table_type_fragments
+   pudl.metadata.descriptions.LAYER_DESCRIPTIONS
+   pudl.metadata.descriptions.SOURCE_DESCRIPTIONS
+   pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS
    pudl.metadata.descriptions.NONE_TABLETYPE_FRAGMENTS
-   pudl.metadata.descriptions.timeseries_resolution_fragments
+   pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS
+   pudl.metadata.descriptions.PARTITION_OFFSETS
 
 
 Classes
@@ -39,6 +40,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.metadata.descriptions.half_year_offset
    pudl.metadata.descriptions.first_non_none
    pudl.metadata.descriptions.component
 
@@ -46,12 +48,12 @@ Functions
 Module Contents
 ---------------
 
-.. py:data:: layer_descriptions
+.. py:data:: LAYER_DESCRIPTIONS
    :type:  dict
 
    Standard descriptive text to appear in the Processing section of resource descriptions.
 
-.. py:data:: source_descriptions
+.. py:data:: SOURCE_DESCRIPTIONS
    :type:  dict
 
    Standard descriptive text to appear in the Source section of resource descriptions.
@@ -67,7 +69,7 @@ Module Contents
    .. py:attribute:: conjunction
 
 
-.. py:data:: table_type_fragments
+.. py:data:: TABLE_TYPE_FRAGMENTS
    :type:  dict[str, TableTypeFragments]
 
    Standard descriptive text to appear in the Summary (first line) of resource descriptions.
@@ -92,10 +94,24 @@ Module Contents
 
 .. py:data:: NONE_TABLETYPE_FRAGMENTS
 
-.. py:data:: timeseries_resolution_fragments
+.. py:data:: TIMESERIES_RESOLUTION_FRAGMENTS
    :type:  dict
 
    More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources.
+
+.. py:function:: half_year_offset(partition: str, offset: int) -> str
+
+   Offset a half_year partition by the specified number of half_years.
+
+
+.. py:data:: PARTITION_OFFSETS
+   :type:  dict[str, collections.abc.Callable]
+
+   Lookup table for computing offsets of temporal partitions.
+
+   Maps each partition key to a function that, given a partition (2026, 2026q3,
+   2026half1, 2026-07) and an integer offset, returns the partition ``offset``
+   partition-units away from the input partition.
 
 .. py:class:: DescriptionMeta(/, **data: Any)
 
@@ -153,9 +169,10 @@ Module Contents
 
    This class stores the different components of a resource description, as computed by :class:`ResourceDescriptionBuilder`.
 
-   There are six description components:
+   There are seven description components:
 
    * summary
+   * availability
    * layer
    * source
    * primary_key
@@ -174,6 +191,10 @@ Module Contents
 
 
    .. py:attribute:: summary
+      :type:  ResourceTrait
+
+
+   .. py:attribute:: availability
       :type:  ResourceTrait
 
 
@@ -253,6 +274,22 @@ Module Contents
 
 
 
+   .. py:method:: offset_source_availability(source, offset: int) -> str | None
+      :staticmethod:
+
+
+      Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units.
+
+
+
+   .. py:method:: compute_rowcounts_availability(resource_id) -> str | None
+      :staticmethod:
+
+
+      Compute an availability date from the most recent available partition for a resource, according to the row counts file.
+
+
+
    .. py:method:: summary(settings, defaults: ResourceNameComponents) -> ResourceTrait
 
       Compute the summary component (first line) of the resource description.
@@ -261,6 +298,26 @@ Module Contents
       Any :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`, if present, is included after the standard text for the timeseries resolution and table type.
       If the timeseries resolution and table type aren't set manually and can't be auto detected, fall back to
       the :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text` key and use it as a complete sentence instead of just a predicate fragment.
+
+
+
+   .. py:method:: availability(settings, defaults) -> ResourceTrait
+
+      Compute the availability component of the resource description.
+
+      If
+      :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_text`
+      was set manually, use that.
+
+      If the table has temporal partitions in the dbt row counts file, use the
+      most recent row counts partition.
+
+      If the table has exactly one source, and that source has temporal
+      partitions, use the most recent source partition, optionally offset by
+      :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset`.
+
+      Otherwise, use "Unknown" and set :attr:`ResourceTrait.type`=``False`` to
+      permit display logics to hide this component.
 
 
 

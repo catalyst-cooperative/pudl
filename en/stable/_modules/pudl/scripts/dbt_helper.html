@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.dbt_helper &#8212; PUDL 2026.4.0 documentation</title>
+    <title>pudl.scripts.dbt_helper &#8212; PUDL 2026.5.0 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=4c409d5a"></script>
+    <script src="../../../_static/documentation_options.js?v=288f4d1e"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/scripts/dbt_helper';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -520,7 +520,9 @@ window.runMermaid = runMermaid;</script>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -572,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.4.0 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.4.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.0 documentation - Home"/>
   
   
 </a></div>
@@ -849,22 +851,21 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="sd">&quot;&quot;&quot;A basic CLI to autogenerate dbt data test configurations.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">difflib</span><span class="w"> </span><span class="kn">import</span> <span class="n">unified_diff</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">deepdiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeepDiff</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dbt_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">DBT_DIR</span><span class="p">,</span> <span class="n">build_with_context</span><span class="p">,</span> <span class="n">dagster_to_dbt_selection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_defs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dbt_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbtSchema</span><span class="p">,</span> <span class="n">DbtTable</span><span class="p">,</span> <span class="n">merge_schema</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_root_logger</span><span class="p">,</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.validate.dbt</span><span class="w"> </span><span class="kn">import</span> <span class="n">DBT_DIR</span><span class="p">,</span> <span class="n">build_with_context</span><span class="p">,</span> <span class="n">dagster_to_dbt_selection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
 <div class="viewcode-block" id="logger">
@@ -879,431 +880,19 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="_prettier_yaml_dumps">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._prettier_yaml_dumps">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_prettier_yaml_dumps</span><span class="p">(</span><span class="n">yaml_contents</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dump YAML to string that Prettier likes.&quot;&quot;&quot;</span>
-
-    <span class="k">class</span><span class="w"> </span><span class="nc">PrettierCompatibleDumper</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">Dumper</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Custom Dumper that indents lists like prettier does.</span>
-
-<span class="sd">        Default dumper behavior::</span>
-
-<span class="sd">            foo:</span>
-<span class="sd">            - name: a</span>
-<span class="sd">            - name: b</span>
-
-<span class="sd">        prettier behavior::</span>
-
-<span class="sd">            foo:</span>
-<span class="sd">              - name: a</span>
-<span class="sd">              - name: b</span>
-
-<span class="sd">        NOTE (2025-07-10): this code was generated by LLM and Does The</span>
-<span class="sd">        Right Thing. It appears to do so by forcing the ``indentless`` parameter to</span>
-<span class="sd">        always be ``False``. If at any point this stops working we should convert</span>
-<span class="sd">        to using ``ruamel`` which has much more customizable formatting with actual</span>
-<span class="sd">        documentation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">increase_indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indentless</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">increase_indent</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
-        <span class="n">yaml_contents</span><span class="p">,</span>
-        <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">Dumper</span><span class="o">=</span><span class="n">PrettierCompatibleDumper</span><span class="p">,</span>
-        <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">width</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span>
-    <span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="DbtColumn">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtColumn">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DbtColumn</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define yaml structure of a dbt column.&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="DbtColumn.name">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtColumn.name">[docs]</a>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span></div>
-
-<div class="viewcode-block" id="DbtColumn.description">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtColumn.description">[docs]</a>
-    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="DbtColumn.data_tests">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtColumn.data_tests">[docs]</a>
-    <span class="n">data_tests</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="DbtColumn.meta">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtColumn.meta">[docs]</a>
-    <span class="n">meta</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="DbtColumn.tags">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtColumn.tags">[docs]</a>
-    <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-
-<div class="viewcode-block" id="DbtColumn.add_column_tests">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtColumn.add_column_tests">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_column_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_tests</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtColumn&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data tests to columns in dbt config.&quot;&quot;&quot;</span>
-        <span class="n">data_tests</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_tests</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_tests</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;data_tests&quot;</span><span class="p">:</span> <span class="n">data_tests</span> <span class="o">+</span> <span class="n">column_tests</span><span class="p">})</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="DbtTable">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DbtTable</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define yaml structure of a dbt table.&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="DbtTable.name">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.name">[docs]</a>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span></div>
-
-<div class="viewcode-block" id="DbtTable.description">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.description">[docs]</a>
-    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="DbtTable.data_tests">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.data_tests">[docs]</a>
-    <span class="n">data_tests</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="DbtTable.columns">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.columns">[docs]</a>
-    <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtColumn</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="DbtTable.meta">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.meta">[docs]</a>
-    <span class="n">meta</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="DbtTable.tags">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.tags">[docs]</a>
-    <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="DbtTable.config">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.config">[docs]</a>
-    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># only for models</span></div>
-
-
-<div class="viewcode-block" id="DbtTable.add_source_tests">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.add_source_tests">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_source_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_tests</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtTable&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data tests to source in dbt config.&quot;&quot;&quot;</span>
-        <span class="n">data_tests</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_tests</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_tests</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;data_tests&quot;</span><span class="p">:</span> <span class="n">data_tests</span> <span class="o">+</span> <span class="n">source_tests</span><span class="p">})</span></div>
-
-
-<div class="viewcode-block" id="DbtTable.add_column_tests">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.add_column_tests">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_column_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_tests</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtTable&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data tests to columns in dbt config.&quot;&quot;&quot;</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">column</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">}</span>
-        <span class="n">columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="n">name</span><span class="p">:</span> <span class="n">columns</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">add_column_tests</span><span class="p">(</span><span class="n">tests</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tests</span> <span class="ow">in</span> <span class="n">column_tests</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">())})</span></div>
-
-
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="DbtTable.from_table_name">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtTable.from_table_name">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtTable&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct configuration defining table from PUDL metadata.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">DbtColumn</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
-            <span class="p">],</span>
-        <span class="p">)</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="DbtSource">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSource">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DbtSource</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define basic dbt yml structure to add a pudl table as a dbt source.&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="DbtSource.name">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSource.name">[docs]</a>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pudl&quot;</span></div>
-
-<div class="viewcode-block" id="DbtSource.tables">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSource.tables">[docs]</a>
-    <span class="n">tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtTable</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="DbtSource.description">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSource.description">[docs]</a>
-    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="DbtSource.meta">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSource.meta">[docs]</a>
-    <span class="n">meta</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-
-<div class="viewcode-block" id="DbtSource.add_source_tests">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSource.add_source_tests">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_source_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_tests</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtSource&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data tests to source in dbt config.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span>
-            <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tables&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add_source_tests</span><span class="p">(</span><span class="n">source_tests</span><span class="p">)]}</span>
-        <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="DbtSource.add_column_tests">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSource.add_column_tests">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_column_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_tests</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtSource&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data tests to columns in dbt config.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span>
-            <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tables&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add_column_tests</span><span class="p">(</span><span class="n">column_tests</span><span class="p">)]}</span>
-        <span class="p">)</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="DbtSchema">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DbtSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define basic structure of a dbt models yaml file.&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="DbtSchema.version">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema.version">[docs]</a>
-    <span class="n">version</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span></div>
-
-<div class="viewcode-block" id="DbtSchema.sources">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema.sources">[docs]</a>
-    <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtSource</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="DbtSchema.models">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema.models">[docs]</a>
-    <span class="n">models</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DbtTable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-
-<div class="viewcode-block" id="DbtSchema.add_source_tests">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema.add_source_tests">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_source_tests</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">source_tests</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtSchema&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data tests to source in dbt config.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">model_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span>
-                <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add_source_tests</span><span class="p">(</span><span class="n">source_tests</span><span class="p">)]}</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">model</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">}</span>
-            <span class="n">models</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">add_source_tests</span><span class="p">(</span><span class="n">source_tests</span><span class="p">)</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;models&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())})</span>
-
-        <span class="k">return</span> <span class="n">schema</span></div>
-
-
-<div class="viewcode-block" id="DbtSchema.add_column_tests">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema.add_column_tests">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_column_tests</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">column_tests</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtSchema&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data tests to columns in dbt config.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">model_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span>
-                <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add_column_tests</span><span class="p">(</span><span class="n">column_tests</span><span class="p">)]}</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">model</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">}</span>
-            <span class="n">models</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">add_column_tests</span><span class="p">(</span><span class="n">column_tests</span><span class="p">)</span>
-            <span class="n">schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;models&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())})</span>
-
-        <span class="k">return</span> <span class="n">schema</span></div>
-
-
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="DbtSchema.from_table_name">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema.from_table_name">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_table_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtSchema&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct configuration defining table from PUDL metadata.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">sources</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">DbtSource</span><span class="p">(</span>
-                    <span class="n">tables</span><span class="o">=</span><span class="p">[</span><span class="n">DbtTable</span><span class="o">.</span><span class="n">from_table_name</span><span class="p">(</span><span class="n">table_name</span><span class="p">)],</span>
-                <span class="p">)</span>
-            <span class="p">],</span>
-        <span class="p">)</span></div>
-
-
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="DbtSchema.from_yaml">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema.from_yaml">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtSchema&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a DbtSchema object from a YAML file.&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">schema_yaml</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">schema_yaml</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="DbtSchema.to_yaml">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema.to_yaml">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write DbtSchema object to YAML file.&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">schema_file</span><span class="p">:</span>
-            <span class="n">yaml_output</span> <span class="o">=</span> <span class="n">_prettier_yaml_dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-            <span class="n">schema_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml_output</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="DbtSchema.merge_metadata_from">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.DbtSchema.merge_metadata_from">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">merge_metadata_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_schema</span><span class="p">:</span> <span class="s2">&quot;DbtSchema&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DbtSchema&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge metadata from an old schema into this one, preferring new values where present.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Merging metadata is not allowed when models are defined in the schema.&quot;</span>
-            <span class="p">)</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">merge_pydantic_model</span><span class="p">(</span>
-            <span class="n">new_model</span><span class="p">:</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">old_model</span><span class="p">:</span> <span class="n">BaseModel</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseModel</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Recursively merge fields of two pydantic models.&quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">old_model</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">new_model</span>
-
-            <span class="n">merged_data</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">_field_info</span> <span class="ow">in</span> <span class="n">new_model</span><span class="o">.</span><span class="n">model_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">new_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">new_model</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="n">old_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">old_model</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="n">BaseModel</span><span class="p">):</span>
-                    <span class="n">merged_data</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">merge_pydantic_model</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="n">old_value</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="p">(</span>
-                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
-                    <span class="ow">and</span> <span class="n">new_value</span>
-                    <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">BaseModel</span><span class="p">)</span>
-                <span class="p">):</span>
-                    <span class="c1"># Merge lists of models by matching names</span>
-                    <span class="n">old_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">old_value</span> <span class="ow">or</span> <span class="p">[]}</span>
-                    <span class="n">merged_list</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="n">merge_pydantic_model</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">old_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">new_value</span>
-                    <span class="p">]</span>
-                    <span class="n">merged_data</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged_list</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">merged_data</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">new_value</span> <span class="k">if</span> <span class="n">new_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">old_value</span>
-                    <span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">new_model</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="n">merged_data</span><span class="p">)</span>
-
-        <span class="c1"># Merge sources</span>
-        <span class="n">old_sources_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">old_schema</span><span class="o">.</span><span class="n">sources</span> <span class="ow">or</span> <span class="p">[]}</span>
-        <span class="n">new_sources</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">merge_pydantic_model</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">old_sources_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span>
-        <span class="p">]</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="n">new_sources</span><span class="p">})</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="schema_has_removals_or_modifications">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.schema_has_removals_or_modifications">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">schema_has_removals_or_modifications</span><span class="p">(</span>
-    <span class="n">old_schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-    <span class="n">new_schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if schema changes include removals or modifications.</span>
-
-<span class="sd">    Ignores:</span>
-<span class="sd">    * Column removals with no metadata (only {&quot;name&quot;} or empty dict)</span>
-<span class="sd">    * Column renames (values_changed on [&#39;name&#39;])</span>
+<div class="viewcode-block" id="insert_data_source">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.insert_data_source">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">insert_data_source</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert parent_dir and table_name to parent_dir/data_source/table_name.</span>
+
+<span class="sd">    Table name must have &lt;layer&gt;_&lt;source&gt;__&lt;...&gt; format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">diff</span> <span class="o">=</span> <span class="n">DeepDiff</span><span class="p">(</span>
-        <span class="n">old_schema</span><span class="p">,</span>
-        <span class="n">new_schema</span><span class="p">,</span>
-        <span class="n">ignore_order</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">verbose_level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">view</span><span class="o">=</span><span class="s2">&quot;tree&quot;</span><span class="p">,</span>
-        <span class="n">threshold_to_diff_deeper</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="n">change_keys</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;values_changed&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;type_changes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;dictionary_item_removed&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;iterable_item_removed&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;attribute_deleted&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">change_keys</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">diff</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-        <span class="n">items</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-
-        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">items</span><span class="p">:</span>
-            <span class="n">path_str</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">path</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-            <span class="n">removed_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;t1&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;dictionary_item_removed&quot;</span><span class="p">,</span> <span class="s2">&quot;iterable_item_removed&quot;</span><span class="p">)</span>
-                <span class="ow">and</span> <span class="s2">&quot;[&#39;columns&#39;]&quot;</span> <span class="ow">in</span> <span class="n">path_str</span>
-                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">removed_val</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
-                <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">removed_val</span> <span class="ow">or</span> <span class="nb">set</span><span class="p">(</span><span class="n">removed_val</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">})</span>
-            <span class="p">):</span>
-                <span class="k">continue</span>  <span class="c1"># ignore empty column drop</span>
-
-            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;values_changed&quot;</span> <span class="ow">and</span> <span class="n">path_str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;[&#39;name&#39;]&quot;</span><span class="p">):</span>
-                <span class="k">continue</span>  <span class="c1"># ignore renames</span>
-
-            <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># anything else is a modification/removal</span>
-
-    <span class="k">return</span> <span class="kc">False</span></div>
-
-
-
-<div class="viewcode-block" id="_log_schema_diff">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._log_schema_diff">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_log_schema_diff</span><span class="p">(</span><span class="n">old_schema</span><span class="p">:</span> <span class="n">DbtSchema</span><span class="p">,</span> <span class="n">new_schema</span><span class="p">:</span> <span class="n">DbtSchema</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print colored summary of schema changes.&quot;&quot;&quot;</span>
-    <span class="n">summary</span> <span class="o">=</span> <span class="n">_schema_diff_summary</span><span class="p">(</span><span class="n">old_schema</span><span class="p">,</span> <span class="n">new_schema</span><span class="p">)</span>
-    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;Proposed schema changes:&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">summary</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;- &quot;</span><span class="p">):</span>
-            <span class="n">click</span><span class="o">.</span><span class="n">secho</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;+ &quot;</span><span class="p">):</span>
-            <span class="n">click</span><span class="o">.</span><span class="n">secho</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">click</span><span class="o">.</span><span class="n">secho</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="_schema_diff_summary">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._schema_diff_summary">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_schema_diff_summary</span><span class="p">(</span><span class="n">old_schema</span><span class="p">:</span> <span class="n">DbtSchema</span><span class="p">,</span> <span class="n">new_schema</span><span class="p">:</span> <span class="n">DbtSchema</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a summary of schema changes based on YAML output.&quot;&quot;&quot;</span>
-    <span class="n">stripped</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">unified_diff</span><span class="p">(</span>
-            <span class="n">_prettier_yaml_dumps</span><span class="p">(</span><span class="n">old_schema</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
-            <span class="n">_prettier_yaml_dumps</span><span class="p">(</span><span class="n">new_schema</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">),</span>
-            <span class="n">fromfile</span><span class="o">=</span><span class="s2">&quot;old_schema&quot;</span><span class="p">,</span>
-            <span class="n">tofile</span><span class="o">=</span><span class="s2">&quot;new_schema&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stripped</span> <span class="k">if</span> <span class="n">line</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span></div>
-
-
-
-<div class="viewcode-block" id="get_data_source">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.get_data_source">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_data_source</span><span class="p">(</span><span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the data source element of the table&#39;s name.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">table_name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div>
+    <span class="c1"># 2026-05 TODO: consider using pudl.metadata.description machinery here instead of a regex</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_?([a-zA-Z0-9]+)_([a-zA-Z0-9]+)__&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> has no data source segment.&quot;</span><span class="p">)</span>
+    <span class="n">data_source</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parent_dir</span> <span class="o">/</span> <span class="n">data_source</span> <span class="o">/</span> <span class="n">table_name</span></div>
 
 
 
@@ -1316,20 +905,6 @@ window.runMermaid = runMermaid;</script>
 <span class="n">UpdateResult</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;UpdateResult&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">])</span></div>
 </div>
 </div>
-
-
-
-<div class="viewcode-block" id="_get_local_table_path">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._get_local_table_path">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_local_table_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span></div>
-
-
-
-<div class="viewcode-block" id="_get_model_path">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._get_model_path">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_model_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">DBT_DIR</span> <span class="o">/</span> <span class="s2">&quot;models&quot;</span> <span class="o">/</span> <span class="n">data_source</span> <span class="o">/</span> <span class="n">table_name</span></div>
 
 
 
@@ -1356,7 +931,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">partition_expr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="n">table_path</span> <span class="o">=</span> <span class="n">_get_local_table_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+    <span class="n">table_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">partition_expr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">partition_expr_sql</span> <span class="o">=</span> <span class="s2">&quot;&#39;&#39;&quot;</span>
@@ -1407,12 +982,11 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.update_row_counts">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">update_row_counts</span><span class="p">(</span>
     <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">data_source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dbt_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UpdateResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate updated row counts per partition and write to csv file within dbt project.&quot;&quot;&quot;</span>
-    <span class="n">model_path</span> <span class="o">=</span> <span class="n">_get_model_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">data_source</span><span class="p">)</span>
-    <span class="n">schema_path</span> <span class="o">=</span> <span class="n">model_path</span> <span class="o">/</span> <span class="s2">&quot;schema.yml&quot;</span>
+    <span class="n">schema_path</span> <span class="o">=</span> <span class="n">insert_data_source</span><span class="p">(</span><span class="n">dbt_root</span> <span class="o">/</span> <span class="s2">&quot;models&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;schema.yml&quot;</span>
     <span class="n">schema</span> <span class="o">=</span> <span class="n">DbtSchema</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">schema_path</span><span class="p">)</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -1488,56 +1062,49 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="maybe_schema_from_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.maybe_schema_from_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">maybe_schema_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbtSchema</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load DbtSchema that may or may not be located at specified path.</span>
+
+<span class="sd">    If file is empty or does not exist, returns blank schema.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">DbtSchema</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DbtSchema</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">DbtSchema</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="update_table_schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.update_table_schema">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">update_table_schema</span><span class="p">(</span>
     <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">data_source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">dbt_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UpdateResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate and write out a schema.yaml file defining a new or updated table.&quot;&quot;&quot;</span>
-    <span class="n">model_path</span> <span class="o">=</span> <span class="n">_get_model_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">data_source</span><span class="p">)</span>
-    <span class="n">schema_path</span> <span class="o">=</span> <span class="n">model_path</span> <span class="o">/</span> <span class="s2">&quot;schema.yml&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate and write out a schema.yaml file defining a new or updated table for dbt.</span>
 
-    <span class="n">generated_schema</span> <span class="o">=</span> <span class="n">DbtSchema</span><span class="o">.</span><span class="n">from_table_name</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+<span class="sd">    Incorporates handwritten models and data tests in corresponding schema.human.yml files,</span>
+<span class="sd">    if present.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">schema_inputs</span> <span class="o">=</span> <span class="n">insert_data_source</span><span class="p">(</span><span class="n">dbt_root</span> <span class="o">/</span> <span class="s2">&quot;schema_inputs&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
+    <span class="n">schema_inputs</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">human_path</span> <span class="o">=</span> <span class="n">schema_inputs</span> <span class="o">/</span> <span class="s2">&quot;schema.human.yml&quot;</span>
+    <span class="n">human_schema</span> <span class="o">=</span> <span class="n">maybe_schema_from_path</span><span class="p">(</span><span class="n">human_path</span><span class="p">)</span>
 
-    <span class="c1"># If we are updating an existing model, augment the newly generated schema with</span>
-    <span class="c1"># whatever additional information is available from the old dbt schema.</span>
-    <span class="k">if</span> <span class="n">model_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">clobber</span><span class="p">:</span>
-        <span class="c1"># Load existing schema</span>
-        <span class="n">old_schema</span> <span class="o">=</span> <span class="n">DbtSchema</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">schema_path</span><span class="p">)</span>
-        <span class="c1"># Replace new schema with the generated schema but copying missing metadata</span>
-        <span class="c1"># from the old schema</span>
-        <span class="n">new_schema</span> <span class="o">=</span> <span class="n">generated_schema</span><span class="o">.</span><span class="n">merge_metadata_from</span><span class="p">(</span><span class="n">old_schema</span><span class="p">)</span>
+    <span class="n">machine_schema</span> <span class="o">=</span> <span class="n">DbtSchema</span><span class="o">.</span><span class="n">from_table_name</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">schema_has_removals_or_modifications</span><span class="p">(</span>
-            <span class="n">old_schema</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-            <span class="n">new_schema</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-        <span class="p">):</span>
-            <span class="n">_log_schema_diff</span><span class="p">(</span><span class="n">old_schema</span><span class="p">,</span> <span class="n">new_schema</span><span class="p">)</span>
-            <span class="c1"># TODO 2025-07-11: perhaps we can integrate this `git add -p` flow directly</span>
-            <span class="c1"># into the --clobber command?</span>
-            <span class="k">return</span> <span class="n">UpdateResult</span><span class="p">(</span>
-                <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;dbt configuration for table </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> has &quot;</span>
-                <span class="s2">&quot;information that would be deleted. Update manually, or: &quot;</span>
-                <span class="s2">&quot;1) re-run with --clobber, 2) run `git add dbt/models -p` &quot;</span>
-                <span class="s2">&quot;and follow the instructions for recovering the deleted info&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Either there is no existing schema, or --clobber is set. Use generated schema as is.</span>
-        <span class="n">new_schema</span> <span class="o">=</span> <span class="n">generated_schema</span>
-
-    <span class="c1"># By the time we&#39;ve gotten here, either:</span>
-    <span class="c1"># * We&#39;ve merged the old and new schema (if old schema existed, and we&#39;re updating)</span>
-    <span class="c1"># * We&#39;re clobbering an existing schema entirely (clobber is True)</span>
-    <span class="c1"># * We&#39;re creating a new schema from scratch (model_path did not exist)</span>
-    <span class="n">model_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">new_schema</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">schema_path</span><span class="p">)</span>
+    <span class="n">merged_schema</span> <span class="o">=</span> <span class="n">merge_schema</span><span class="p">(</span><span class="n">machine_schema</span><span class="p">,</span> <span class="n">human_schema</span><span class="p">)</span>
+    <span class="n">model_outputs</span> <span class="o">=</span> <span class="n">insert_data_source</span><span class="p">(</span><span class="n">dbt_root</span> <span class="o">/</span> <span class="s2">&quot;models&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
+    <span class="n">model_outputs</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">merged_path</span> <span class="o">=</span> <span class="n">model_outputs</span> <span class="o">/</span> <span class="s2">&quot;schema.yml&quot;</span>
+    <span class="n">merged_schema</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">merged_path</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">UpdateResult</span><span class="p">(</span>
         <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Wrote schema config for table </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">schema_path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Successfully generated schema </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -1649,20 +1216,18 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
-        <span class="n">data_source</span> <span class="o">=</span> <span class="n">get_data_source</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">schema</span><span class="p">:</span>
             <span class="n">_log_update_result</span><span class="p">(</span>
                 <span class="n">update_table_schema</span><span class="p">(</span>
                     <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
-                    <span class="n">data_source</span><span class="o">=</span><span class="n">data_source</span><span class="p">,</span>
-                    <span class="n">clobber</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clobber</span><span class="p">,</span>
+                    <span class="n">dbt_root</span><span class="o">=</span><span class="n">DBT_DIR</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">row_counts</span><span class="p">:</span>
             <span class="n">_log_update_result</span><span class="p">(</span>
                 <span class="n">update_row_counts</span><span class="p">(</span>
                     <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
-                    <span class="n">data_source</span><span class="o">=</span><span class="n">data_source</span><span class="p">,</span>
+                    <span class="n">dbt_root</span><span class="o">=</span><span class="n">DBT_DIR</span><span class="p">,</span>
                     <span class="n">clobber</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">clobber</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span></div>
@@ -1745,7 +1310,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">node_selection</span> <span class="o">=</span> <span class="n">select</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">asset_select</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">node_selection</span> <span class="o">=</span> <span class="n">dagster_to_dbt_selection</span><span class="p">(</span><span class="n">asset_select</span><span class="p">)</span>
+            <span class="n">node_selection</span> <span class="o">=</span> <span class="n">dagster_to_dbt_selection</span><span class="p">(</span><span class="n">asset_select</span><span class="p">,</span> <span class="n">build_defs</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">node_selection</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
 
@@ -1756,7 +1321,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">dry_run</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Dry run - would build with these params: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">build_params</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
         <span class="k">return</span>
@@ -1772,9 +1337,9 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">(</span>
     <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]},</span>
 <span class="p">)</span>
-<div class="viewcode-block" id="dbt_helper">
-<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.dbt_helper">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">dbt_helper</span><span class="p">():</span>
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Script for auto-generating dbt configuration and migrating existing tests.</span>
 
 <span class="sd">    This CLI currently provides the following sub-commands:</span>
@@ -1788,17 +1353,24 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    validate: run validation tests for a selection of dbt nodes.</span>
 
 <span class="sd">    Run ``dbt_helper {command} --help`` for detailed usage on each command.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
 
 
 
-<span class="n">dbt_helper</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">update_tables</span><span class="p">)</span>
-<span class="n">dbt_helper</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">validate</span><span class="p">)</span>
+<span class="n">main</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">update_tables</span><span class="p">)</span>
+<span class="n">main</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">validate</span><span class="p">)</span>
+
+<span class="c1"># Alias for callers that import dbt_helper by name (e.g. integration tests).</span>
+<div class="viewcode-block" id="dbt_helper">
+<a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.dbt_helper">[docs]</a>
+<span class="n">dbt_helper</span> <span class="o">=</span> <span class="n">main</span></div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">configure_root_logger</span><span class="p">()</span>
-    <span class="n">dbt_helper</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 
                 </article>
@@ -1828,8 +1400,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1863,7 +1435,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>
