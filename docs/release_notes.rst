@@ -28,7 +28,7 @@ Bug Fixes & Data Cleaning
 
 - Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
   directories when deciding what to upload to Zenodo, which caused release failures
-  once we started leaving the ``ferc*_xbrl`` directories laying around. See PR
+  once we started leaving the ``ferc*_xbrl`` directories lying around. See PR
   :pr:`5254`.
 
 Performance Improvements
