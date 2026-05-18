@@ -2,6 +2,41 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2026.6.0:
+
+---------------------------------------------------------------------------------------
+v2026.6.0 (2026-06-XX)
+---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
+  directories when deciding what to upload to Zenodo, which caused release failures
+  once we started leaving the ``ferc*_xbrl`` directories lying around. See PR
+  :pr:`5254`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. _release-v2026.5.0:
 
 ---------------------------------------------------------------------------------------
