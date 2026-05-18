@@ -12,6 +12,7 @@ https://docs.dagster.io/guides/build/assets/metadata-and-tags
 
 import os
 from dataclasses import dataclass
+from importlib.metadata import version
 from pathlib import Path
 from typing import Any, Literal
 
@@ -39,6 +40,7 @@ class FercSqliteProvenance:
     data_format: str
     zenodo_doi: str
     years: list[int]
+    ferc_xbrl_extractor_version: str
 
     @property
     def asset_key(self) -> dg.AssetKey:
@@ -56,9 +58,15 @@ class FercSqliteProvenanceRecord(BaseModel):
     years: list[int] | None = None
     data_config: FercToSqliteDataConfig | None = None
     sqlite_path: Path | None = None
+    ferc_xbrl_extractor_version: str | None = None
 
 
-def assert_ferc_sqlite_compatible(
+def get_xbrl_extractor_version() -> str:
+    """Return the installed version of ``catalystcoop.ferc_xbrl_extractor``."""
+    return version("catalystcoop.ferc_xbrl_extractor")
+
+
+def assert_ferc_sqlite_compatible(  # noqa: C901
     *,
     instance: Any | None,
     provenance: FercSqliteProvenance,
@@ -152,6 +160,13 @@ def assert_ferc_sqlite_compatible(
             f"missing={sorted(missing_years)}, "
             f"stored={sorted(stored_years)}, "
             f"required={sorted(required_years)}"
+        )
+
+    if stored.ferc_xbrl_extractor_version != provenance.ferc_xbrl_extractor_version:
+        mismatches.append(
+            "FERC SQLite DB created with incompatible version of the XBRL extractor: "
+            f"stored={stored.ferc_xbrl_extractor_version}, "
+            f"required={provenance.ferc_xbrl_extractor_version}"
         )
 
     if mismatches:

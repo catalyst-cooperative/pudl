@@ -12,6 +12,7 @@ import pudl.logging_helpers
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenanceRecord,
+    get_xbrl_extractor_version,
 )
 from pudl.extract.ferc import (
     Ferc1DbfExtractor,
@@ -79,6 +80,7 @@ def dbf_to_sqlite_asset_factory(
                         ),
                         data_config=ferc_to_sqlite,
                         sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
+                        ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
                     ).model_dump(mode="json")
                 )
             },

@@ -1,5 +1,6 @@
 """Test Dagster IO Managers."""
 
+from importlib.metadata import version
 from pathlib import Path
 
 import alembic.config
@@ -387,6 +388,9 @@ def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
                     ),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
                     sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+                    ferc_xbrl_extractor_version=version(
+                        "catalystcoop.ferc_xbrl_extractor"
+                    ),
                 ).model_dump(mode="json")
             }
         )
@@ -443,6 +447,9 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
                     ),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
                     sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+                    ferc_xbrl_extractor_version=version(
+                        "catalystcoop.ferc_xbrl_extractor"
+                    ),
                 ).model_dump(mode="json")
             }
         )

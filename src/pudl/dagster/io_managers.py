@@ -40,6 +40,7 @@ import pudl.logging_helpers
 from pudl.dagster.provenance import (
     FercSqliteProvenance,
     assert_ferc_sqlite_compatible,
+    get_xbrl_extractor_version,
 )
 from pudl.dagster.resources import (
     GlobalDataConfigResource,
@@ -774,6 +775,7 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
             years=self.global_data_config.ferc_to_sqlite.get_dataset_years(
                 self.dataset, self.data_format
             ),
+            ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
         )
 
         assert_ferc_sqlite_compatible(

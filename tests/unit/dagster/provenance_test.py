@@ -31,6 +31,7 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
         years=[2018, 2019],
         data_config=data_config,
         sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+        ferc_xbrl_extractor_version="1.0.0",
     )
     dagster_meta = {
         FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
@@ -52,7 +53,10 @@ def test_ferc_sqlite_provenance_record_minimal_round_trip(
 ) -> None:
     """A minimal record still round-trips through the nested Dagster metadata."""
     record = FercSqliteProvenanceRecord(
-        dataset="ferc714", data_format="xbrl", status=status
+        dataset="ferc714",
+        data_format="xbrl",
+        status=status,
+        ferc_xbrl_extractor_version="1.0.0",
     )
     dagster_meta = {
         FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
@@ -78,7 +82,11 @@ def test_assert_ferc_sqlite_compatible_skips_without_instance(
     # TODO replace mocker with caplog
     mock_warn = mocker.patch("pudl.dagster.provenance.logger.warning")
     provenance = FercSqliteProvenance(
-        dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[2018, 2019]
+        dataset="ferc1",
+        data_format="dbf",
+        zenodo_doi="fake DOI",
+        years=[2018, 2019],
+        ferc_xbrl_extractor_version="1.0.0",
     )
     assert_ferc_sqlite_compatible(instance=None, provenance=provenance)
     assert mock_warn.call_count == 1
@@ -95,7 +103,11 @@ def test_assert_ferc_sqlite_compatible_skips_with_env_var(
     mock_warn = mocker.patch("pudl.dagster.provenance.logger.warning")
 
     provenance = FercSqliteProvenance(
-        dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[2018, 2019]
+        dataset="ferc1",
+        data_format="dbf",
+        zenodo_doi="fake DOI",
+        years=[2018, 2019],
+        ferc_xbrl_extractor_version="1.0.0",
     )
 
     assert_ferc_sqlite_compatible(instance=mock_instance, provenance=provenance)
@@ -116,7 +128,11 @@ def test_assert_ferc_sqlite_compatible_env_var_truthy_values(
     mock_instance = mocker.MagicMock()
     # Should not raise.
     provenance = FercSqliteProvenance(
-        dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[2018, 2019]
+        dataset="ferc1",
+        data_format="dbf",
+        zenodo_doi="fake DOI",
+        years=[2018, 2019],
+        ferc_xbrl_extractor_version="1.0.0",
     )
 
     assert_ferc_sqlite_compatible(instance=mock_instance, provenance=provenance)
@@ -148,9 +164,14 @@ def test_assert_ferc_sqlite_compatible_year_subset_check(
         status="complete",
         zenodo_doi="fake DOI",
         years=stored_years,
+        ferc_xbrl_extractor_version="1.0.0",
     )
     required = FercSqliteProvenance(
-        dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=required_years
+        dataset="ferc1",
+        data_format="dbf",
+        zenodo_doi="fake DOI",
+        years=required_years,
+        ferc_xbrl_extractor_version="1.0.0",
     )
 
     stored_dagster_meta = {
@@ -180,9 +201,14 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
         status="complete",
         zenodo_doi="stale DOI",
         years=[],
+        ferc_xbrl_extractor_version="1.0.0",
     )
     required = FercSqliteProvenance(
-        dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[]
+        dataset="ferc1",
+        data_format="dbf",
+        zenodo_doi="fake DOI",
+        years=[],
+        ferc_xbrl_extractor_version="1.0.0",
     )
 
     stored_dagster_meta = {
@@ -198,12 +224,53 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
         assert_ferc_sqlite_compatible(instance=instance, provenance=required)
 
 
+def test_assert_ferc_sqlite_compatible_rejects_xbrl_extractor_mismatch(
+    mocker,
+) -> None:
+    """A Zenodo DOI mismatch should raise a descriptive RuntimeError."""
+
+    stored = FercSqliteProvenanceRecord(
+        dataset="ferc1",
+        data_format="dbf",
+        status="complete",
+        zenodo_doi="fake DOI",
+        years=[],
+        ferc_xbrl_extractor_version="1.0.0",
+    )
+    required = FercSqliteProvenance(
+        dataset="ferc1",
+        data_format="dbf",
+        zenodo_doi="fake DOI",
+        years=[],
+        ferc_xbrl_extractor_version="1.1.0",
+    )
+
+    stored_dagster_meta = {
+        FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
+            stored.model_dump(mode="json")
+        )
+    }
+    instance = mocker.MagicMock()
+    instance.get_latest_materialization_event.return_value = mocker.MagicMock(
+        asset_materialization=mocker.MagicMock(metadata=stored_dagster_meta)
+    )
+    with pytest.raises(
+        RuntimeError,
+        match="FERC SQLite DB created with incompatible version of the XBRL extractor",
+    ):
+        assert_ferc_sqlite_compatible(instance=instance, provenance=required)
+
+
 def test_assert_ferc_sqlite_compatible_rejects_missing_materialization(
     mocker,
 ) -> None:
     """Missing materialization event should raise a descriptive RuntimeError."""
     required = FercSqliteProvenance(
-        dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[]
+        dataset="ferc1",
+        data_format="dbf",
+        zenodo_doi="fake DOI",
+        years=[],
+        ferc_xbrl_extractor_version="1.0.0",
     )
     instance = mocker.MagicMock()
     instance.get_latest_materialization_event.return_value = None
@@ -232,7 +299,10 @@ def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
     dagster_meta = {
         FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
             FercSqliteProvenanceRecord(
-                dataset="ferc1", data_format="dbf", status=status
+                dataset="ferc1",
+                data_format="dbf",
+                status=status,
+                ferc_xbrl_extractor_version="1.0.0",
             ).model_dump(mode="json")
         )
     }
@@ -241,7 +311,11 @@ def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
         asset_materialization=mocker.MagicMock(metadata=dagster_meta)
     )
     required = FercSqliteProvenance(
-        dataset="ferc1", data_format="dbf", zenodo_doi="fake DOI", years=[]
+        dataset="ferc1",
+        data_format="dbf",
+        zenodo_doi="fake DOI",
+        years=[],
+        ferc_xbrl_extractor_version="1.0.0",
     )
     with pytest.raises(RuntimeError, match=expected_match):
         assert_ferc_sqlite_compatible(instance=instance, provenance=required)
