@@ -368,6 +368,24 @@ class EmptyDraft(State):
     """We can only sync the directory once we've gotten an empty draft."""
 
     @staticmethod
+    def _top_level_files(dir_fs: fsspec.AbstractFileSystem, dir_path: str) -> list[str]:
+        """Return only top-level files from ``dir_path``.
+
+        Zenodo's bucket API only accepts a flat list of files. Some filesystems return
+        top-level directories from ``ls()``, so we must filter them out explicitly
+        before handing paths to ``fsspec.open_files()``.
+        """
+        file_paths: list[str] = []
+        for entry in dir_fs.ls(dir_path, detail=True):
+            entry_path = entry["name"]
+            entry_type = entry.get("type")
+            if entry_type == "directory":
+                continue
+            if entry_type == "file" or dir_fs.isfile(entry_path):
+                file_paths.append(entry_path)
+        return file_paths
+
+    @staticmethod
     def _sync_local_path(
         openable_file: fsspec.core.OpenFile, staging_dir: Path
     ) -> Path:
@@ -429,7 +447,10 @@ class EmptyDraft(State):
             protocol[0] if isinstance(protocol, (list, tuple)) else protocol
         )
         files = fsspec.open_files(
-            [f"{protocol_prefix}://{path}" for path in dir_fs.ls(dir_path)]
+            [
+                f"{protocol_prefix}://{path}"
+                for path in self._top_level_files(dir_fs, dir_path)
+            ]
         )
         all_ignore_regex = re.compile("|".join(ignore)) if ignore else None
 
