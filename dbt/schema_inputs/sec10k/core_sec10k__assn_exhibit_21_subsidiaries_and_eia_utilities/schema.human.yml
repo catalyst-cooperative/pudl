@@ -5,12 +5,20 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - dbt_expectations.expect_table_row_count_to_be_between:
-              description: Nightly builds and local ETL yield slightly different output
+              description: Nightly builds and local ETL yield slightly different output.
               config:
                 enabled: "{{ target.name == 'etl-full'}}"
               arguments:
                 min_value: 5691
-                max_value: 5696
+                # 2026Q2: boosted from 5696 to 5701 for remote builds; extra matches vs local are:
+                # talen montana, LLC x2
+                # great bay power marketing, inc
+                # nrg greens bayout 6 llc
+                # kaiser permanente
+                # cone renewable energy project
+                # terraform power operating, llc x2
+                # blackwater rd solar llc
+                max_value: 5701
         columns:
           - name: subsidiary_company_id_sec10k
             data_tests:
