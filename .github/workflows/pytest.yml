@@ -70,6 +70,7 @@ jobs:
               - '!.git-blame-ignore-revs'
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
+              - '!.env.example'
               - '!.taplo.toml'
               - '!terraform/**'
               - '!tests/unit/**'
