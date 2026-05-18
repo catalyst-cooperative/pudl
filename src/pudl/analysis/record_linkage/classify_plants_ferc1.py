@@ -84,7 +84,7 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 )
 
 
-@op
+@op(tags={"dagster/priority": 10})
 def plants_steam_validate_ids(
     ferc_to_ferc_tracker: experiment_tracking.ExperimentTracker,
     ferc1_steam_df: pd.DataFrame,
@@ -134,7 +134,7 @@ def plants_steam_validate_ids(
     return ferc1_steam_df
 
 
-@op
+@op(tags={"dagster/priority": 10})
 def merge_steam_fuel_dfs(
     ferc1_steam_df: pd.DataFrame,
     fuel_fractions: pd.DataFrame,
