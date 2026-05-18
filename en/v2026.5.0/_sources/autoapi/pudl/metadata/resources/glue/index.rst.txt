@@ -1,0 +1,32 @@
+pudl.metadata.resources.glue
+============================
+
+.. py:module:: pudl.metadata.resources.glue
+
+.. autoapi-nested-parse::
+
+   Definitions for the glue/crosswalk tables that connect data groups.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.glue.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
+
+   Keys are in alphabetical order.
+
+   See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of
+   ``foreign_key_rules``.
+

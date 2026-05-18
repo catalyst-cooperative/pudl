@@ -1,0 +1,75 @@
+pudl.dagster.assets.raw.ferc_to_sqlite
+======================================
+
+.. py:module:: pudl.dagster.assets.raw.ferc_to_sqlite
+
+.. autoapi-nested-parse::
+
+   Dagster asset definitions for granular FERC-to-SQLite extraction.
+
+   This module defines the prerequisite assets that build the FERC DBF and XBRL derived
+   SQLite databases used elsewhere in the PUDL pipeline. It should contain asset factories,
+   resource requirements, and materialization metadata specific to those prerequisite
+   databases, rather than the downstream transforms that consume them.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.raw.ferc_to_sqlite.logger
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc1_dbf__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc2_dbf__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc6_dbf__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc60_dbf__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc1_xbrl__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc2_xbrl__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc6_xbrl__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc60_xbrl__sqlite
+   pudl.dagster.assets.raw.ferc_to_sqlite.raw_ferc714_xbrl__sqlite
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.raw.ferc_to_sqlite.dbf_to_sqlite_asset_factory
+   pudl.dagster.assets.raw.ferc_to_sqlite.xbrl_to_sqlite_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: dbf_to_sqlite_asset_factory(*, key: dagster.AssetKey, dataset: str, extractor_class, op_tags: dict | None = None) -> dagster.AssetsDefinition
+
+   Create a DBF-to-SQLite prerequisite asset for a specific FERC dataset.
+
+
+.. py:function:: xbrl_to_sqlite_asset_factory(*, key: dagster.AssetKey, form: pudl.settings.XbrlFormNumber, op_tags: dict | None = None) -> dagster.AssetsDefinition
+
+   Create an XBRL-to-SQLite prerequisite asset for a specific FERC form.
+
+
+.. py:data:: raw_ferc1_dbf__sqlite
+
+.. py:data:: raw_ferc2_dbf__sqlite
+
+.. py:data:: raw_ferc6_dbf__sqlite
+
+.. py:data:: raw_ferc60_dbf__sqlite
+
+.. py:data:: raw_ferc1_xbrl__sqlite
+
+.. py:data:: raw_ferc2_xbrl__sqlite
+
+.. py:data:: raw_ferc6_xbrl__sqlite
+
+.. py:data:: raw_ferc60_xbrl__sqlite
+
+.. py:data:: raw_ferc714_xbrl__sqlite
+

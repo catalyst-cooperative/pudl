@@ -1,0 +1,179 @@
+pudl.metadata.dfs
+=================
+
+.. py:module:: pudl.metadata.dfs
+
+.. autoapi-nested-parse::
+
+   Static database tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.dfs.IMPUTATION_REASON_CODES
+   pudl.metadata.dfs.FERC_ACCOUNTS
+   pudl.metadata.dfs.BALANCING_AUTHORITY_SUBREGIONS_EIA
+   pudl.metadata.dfs.EIA_SECTOR_AGGREGATE_ASSN
+   pudl.metadata.dfs.EIA_FUEL_AGGREGATE_ASSN
+   pudl.metadata.dfs.POLITICAL_SUBDIVISIONS
+   pudl.metadata.dfs.SEC_EDGAR_STATE_AND_COUNTRY_CODES
+   pudl.metadata.dfs.ALPHA_2_COUNTRY_CODES
+   pudl.metadata.dfs.STANDARD_INDUSTRIAL_CLASSIFICATION
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.metadata.dfs.ImputationReasonCodes
+
+
+Module Contents
+---------------
+
+.. py:class:: ImputationReasonCodes(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Defines all reasons a value might be flagged for imputation.
+
+
+   .. py:attribute:: MISSING_VALUE
+      :value: 'Indicates that reported value was already NULL.'
+
+
+
+   .. py:attribute:: ANOMALOUS_REGION
+      :value: 'Indicates that value is surrounded by flagged values.'
+
+
+
+   .. py:attribute:: NEGATIVE_OR_ZERO
+      :value: 'Indicates value is negative or zero.'
+
+
+
+   .. py:attribute:: IDENTICAL_RUN
+      :value: 'Indicates value is part of an identical run of values, excluding first value in run.'
+
+
+
+   .. py:attribute:: GLOBAL_OUTLIER
+      :value: 'Indicates value is greater or less than n times the global median.'
+
+
+
+   .. py:attribute:: GLOBAL_OUTLIER_NEIGHBOR
+      :value: 'Indicates value neighbors global outliers.'
+
+
+
+   .. py:attribute:: LOCAL_OUTLIER_HIGH
+      :value: 'Indicates value is a local outlier on the high end.'
+
+
+
+   .. py:attribute:: LOCAL_OUTLIER_LOW
+      :value: 'Indicates value is a local outlier on the low end.'
+
+
+
+   .. py:attribute:: DOUBLE_DELTA
+      :value: 'Indicates value is very different from neighbors on either side.'
+
+
+
+   .. py:attribute:: SINGLE_DELTA
+      :value: 'Indicates value is significantly different from nearest unflagged value.'
+
+
+
+   .. py:attribute:: BAD_YEAR
+      :value: 'Indicates the entire year of data for a respondent was dropped due to too much missing data.'
+
+
+
+   .. py:attribute:: SIMULATED
+      :value: 'Used for scoring imputation using simulated data. SHOULD NOT APPEAR IN PRODUCTION DATA.'
+
+
+
+.. py:data:: IMPUTATION_REASON_CODES
+
+.. py:data:: FERC_ACCOUNTS
+   :type:  pandas.DataFrame
+
+   FERC electric plant account IDs with associated row numbers and descriptions.
+   From FERC Form 1 pages 204-207, Electric Plant in Service. Descriptions from:
+   https://www.law.cornell.edu/cfr/text/18/part-101
+
+.. py:data:: BALANCING_AUTHORITY_SUBREGIONS_EIA
+   :type:  pandas.DataFrame
+
+.. py:data:: EIA_SECTOR_AGGREGATE_ASSN
+   :value: None
+
+
+   Association table describing the many-to-many relationships between plant sectors and
+   various aggregates in core_eia__yearly_fuel_receipts_costs_aggs.
+
+.. py:data:: EIA_FUEL_AGGREGATE_ASSN
+   :value: None
+
+
+   Association table describing the many-to-many relationships between fuel types and
+   various aggregates in core_eia__yearly_fuel_receipts_costs_aggs.
+
+   Missing from these aggregates are all the "other" categories of gases: OG, BFG, SGP, SC,
+   PG. But those gases combine for about 0.2% of total MMBTU of reported fuel receipts.
+
+.. py:data:: POLITICAL_SUBDIVISIONS
+   :type:  pandas.DataFrame
+   :value: None
+
+
+   Static attributes of sub-national political jurisdictions.
+
+   Note AK and PR have incomplete EPA CEMS data, and so are excluded from is_epacems_state:
+   See
+   https://github.com/catalyst-cooperative/pudl/issues/1264
+
+.. py:data:: SEC_EDGAR_STATE_AND_COUNTRY_CODES
+
+   State and country codes and their names as are reported to SEC's EDGAR database.
+
+   These codes are used for XML filings of Ownership Reports (Forms 3, 4, 5), Form D and Form ID in EDGAR.
+   Table found at https://www.sec.gov/submit-filings/filer-support-resources/edgar-state-country-codes .
+   Used in PUDL to standardize the state codes in the SEC 10K filings.
+
+.. py:data:: ALPHA_2_COUNTRY_CODES
+
+   Alpha 2 country codes and the country's name.
+
+   Most SEC locations from Ex. 21 attachments match the two digit EDGAR codes, however
+   some use alpha 2 country codes, i.e. us -> united states and ch -> switzerland.
+   Map these codes as well for location standardization.
+
+.. py:data:: STANDARD_INDUSTRIAL_CLASSIFICATION
+   :type:  pandas.DataFrame
+   :value: None
+
+
+   A table of Standard Industrial Classification codes and descriptions used by SEC.
+
+   These codes have mostly been supplanted by the NAICS codes, which provide more detail
+   and modernized industrial categories, but are still in use by SEC. Crosswalks exist that
+   can convert between SIC and NAICS codes, but the correspondence isn't perfect.
+
+   .. seealso::
+
+      * https://www.sec.gov/search-filings/standard-industrial-classification-sic-code-list
+      * https://www.osha.gov/data/sic-manual
+      * https://www.zacharyschaller.com/data-and-crosswalks
+

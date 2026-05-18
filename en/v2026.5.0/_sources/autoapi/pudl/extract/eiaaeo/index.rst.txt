@@ -1,0 +1,333 @@
+pudl.extract.eiaaeo
+===================
+
+.. py:module:: pudl.extract.eiaaeo
+
+.. autoapi-nested-parse::
+
+   Extract EIA AEO data from the bulk JSON.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.eiaaeo.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.eiaaeo.AEOCategory
+   pudl.extract.eiaaeo.AEOSeries
+   pudl.extract.eiaaeo.AEOTable
+   pudl.extract.eiaaeo.AEOTaxonomy
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.eiaaeo.raw_eiaaeo
+   pudl.extract.eiaaeo.raw_table_54_invariants
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: AEOCategory(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Describe how the AEO data is categorized.
+
+   Categories are the basic way in which metadata that is shared across
+   multiple data series is represented.
+
+
+   .. py:attribute:: category_id
+      :type:  int
+
+
+   .. py:attribute:: parent_category_id
+      :type:  int
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: notes
+      :type:  str
+
+
+   .. py:attribute:: childseries
+      :type:  list[str]
+
+
+.. py:class:: AEOSeries(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Describe actual AEO timeseries data.
+
+   This includes the data itself as well as some timeseries-specific metadata
+   that may not be shared across multiple timeseries.
+
+
+   .. py:attribute:: series_id
+      :type:  str
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: last_updated
+      :type:  str
+
+
+   .. py:attribute:: units
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: data
+      :type:  list[tuple[str, str | float]]
+
+
+.. py:class:: AEOTable
+
+   Bases: :py:obj:`pandera.pandas.DataFrameModel`
+
+
+   Data schema for a raw AEO table.
+
+
+   .. py:attribute:: projection_year
+      :type:  int
+
+
+   .. py:attribute:: value
+      :type:  str
+
+
+   .. py:attribute:: units
+      :type:  str
+
+
+   .. py:attribute:: series_name
+      :type:  str
+
+
+   .. py:attribute:: series_id
+      :type:  str
+
+
+   .. py:attribute:: category_name
+      :type:  str
+
+
+   .. py:attribute:: model_case_eiaaeo
+      :type:  str
+
+
+   .. py:attribute:: report_year
+      :type:  int
+
+
+.. py:class:: AEOTaxonomy(records: collections.abc.Iterable[str])
+
+   Container for *all* the information in one AEO report.
+
+   AEO reports are composed of *categories*, which are metadata about multiple
+   data series, and *series*, which are the actual data + metadata associated
+   with one specific time series.
+
+   The categories and series form a DAG structure with 5 generations: root,
+   case, subject, leaf category, and data series.
+
+   The first generation is the root - there is one root node which is nameless
+   and which all other nodes descend from.
+
+   The second generation is the "cases." Cases are different scenarios within
+   the AEO. These have names like "Reference case," "High Economic Growth",
+   "Low Oil and Gas Supply." All direct children of the root node are cases.
+
+   The third generation is the "subjects." These are high-level tags, with
+   names like "Energy Prices", "Energy Consumption", etc. These are largely
+   used for filtering in the AEO data UI, so we ignore these.
+
+   The fourth generation is the "leaf categories." These are named things like
+   "Table 54.  Electric Power Projections by Electricity Market Module Region,
+   United States" and have a long list of "child series" which actually
+   contain the data. In other words, these leaf categories map the notion of
+   an AEO "table" to the actual data.
+
+   The fifth generation is the "data series." These actually contain the data
+   points, and have no children. They have names like "Electricity : Electric
+   Power Sector : Cumulative Planned Additions : Coal" and "Coal Supply :
+   Delivered Prices : Electric Power." As you can see the names imply a bunch
+   of different dimensions, which we don't try to make sense of in the extract
+   step.
+
+   In the first four generations we see a strictly branching tree, but many
+   leaf categories can point at the same data series so the whole taxonomy is
+   a DAG. This is because of two reasons:
+
+   * the subject tag doesn't affect data values, but because of the tree
+     structure, each leaf category is repeated once for each subject, leading to
+     multiple *duplicated* leaf categories pointing at the same data series.
+   * some data series are relevant to multiple different tables - so multiple
+     different leaf categories point at the same data series. In this case we
+     would expect the names of the leaf category to reflect their different
+     identities.
+
+   Note, also, that there is no structural notion of a "Table" in the AEO
+   data. That information is carried purely by the names of the leaf
+   categories.
+
+
+   .. py:class:: EntityType(*args, **kwds)
+
+      Bases: :py:obj:`enum.Enum`
+
+
+      These are the three types of entities in AEO.
+
+
+      .. py:attribute:: ROOT
+         :value: 1001
+
+
+
+      .. py:attribute:: CATEGORY
+         :value: 1002
+
+
+
+      .. py:attribute:: SERIES
+         :value: 1003
+
+
+
+
+   .. py:class:: CheckSpec
+
+      Encapsulate shared checks for the taxonomy structure.
+
+
+      .. py:attribute:: generation
+         :type:  str
+
+
+      .. py:attribute:: typecheck
+         :type:  collections.abc.Callable[[int | str], bool]
+
+
+      .. py:attribute:: in_degree
+         :type:  collections.abc.Callable[[int], bool]
+
+
+      .. py:attribute:: out_degree
+         :type:  collections.abc.Callable[[int], bool]
+
+
+
+   .. py:attribute:: graph
+
+
+   .. py:attribute:: __cases
+
+
+   .. py:attribute:: __sanitize_re
+
+
+   .. py:method:: __load_records(records: collections.abc.Iterable[str]) -> tuple[dict[int, AEOCategory], dict[str, AEOSeries]]
+
+      Read AEO JSON blob into memory.
+
+      A single JSON object can represent either a category or a series, so we
+      parse those into two separate mappings.
+
+
+
+   .. py:method:: __generate_graph(categories: dict[int, AEOCategory], series: dict[str, AEOSeries]) -> networkx.DiGraph
+
+      Stitch categories and series together into a DAG.
+
+
+
+   .. py:method:: __generation_invariants() -> list
+
+      Check that the graph behaves the way we expect.
+
+      We have a few generic checks for *all* generations - node type,
+      in-degree, and out-degree.
+
+      We also have bespoke checks for individual generations as needed.
+
+      Returns the list of generations for further manipulation.
+
+
+
+   .. py:method:: __sanitize(s: str) -> str
+
+
+   .. py:method:: __series_to_records(series_id: str, potential_parents: set[int], report_year: int) -> pandas.DataFrame
+
+      Turn a data series into records we can feed into a DataFrame.
+
+      This uses graph ancestor data to figure out what case this series
+      belongs to.
+
+      This series may be associated with multiple different tables in the
+      graph. In that case, we'll need to filter down only to the leaf
+      categories that are relevant to the table we're creating a DataFrame
+      for. We do that by passing in ``potential_parents`` as a parameter.
+
+
+
+   .. py:method:: get_table(table_number: int, report_year: int) -> pandas.DataFrame
+
+      Get a specific table number and report year as a DataFrame.
+
+
+
+.. py:function:: raw_eiaaeo(context: dagster.AssetExecutionContext)
+
+   Extract tables from EIA's Annual Energy Outlook.
+
+   We first extract a taxonomy from the AEO JSON blob, which connects
+   individual data series to "categories". Some categories are associated with
+   a specific table; others are associated with an AEO case or subject.
+
+   The AEO cases are different scenarios such as "High Economic Growth" or
+   "High Oil Price." They include "Reference" and "2022 AEO reference case" as
+   well.
+
+   The AEO subjects are only used for filtering which tables are relevant to
+   which subjects, e.g. "Table 54 is relevant to Energy Prices." So we ignore
+   those right now.
+
+   The series each have their own timeseries data, as well as some metadata
+   such as a series name and units. Many different dimensions can be inferred
+   from the series names, but the data is somewhat heterogeneous so we do not
+   try to infer those here and leave that to the transformation step.
+
+
+.. py:function:: raw_table_54_invariants(df: pandas.DataFrame) -> dagster.AssetCheckResult
+
+   Check that the AEO Table 54 raw data conforms to *some* assumptions.
+
+

@@ -1,0 +1,31 @@
+pudl.metadata.resources.ferceqr
+===============================
+
+.. py:module:: pudl.metadata.resources.ferceqr
+
+.. autoapi-nested-parse::
+
+   Table definitions for the FERC EQR data group.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.ferceqr.TABLE_DESCRIPTIONS
+   pudl.metadata.resources.ferceqr.PARTITIONS
+   pudl.metadata.resources.ferceqr.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: TABLE_DESCRIPTIONS
+
+.. py:data:: PARTITIONS
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

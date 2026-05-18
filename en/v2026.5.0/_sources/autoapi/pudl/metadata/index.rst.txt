@@ -1,0 +1,32 @@
+pudl.metadata
+=============
+
+.. py:module:: pudl.metadata
+
+.. autoapi-nested-parse::
+
+   Metadata constants and methods.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/metadata/classes/index
+   /autoapi/pudl/metadata/codes/index
+   /autoapi/pudl/metadata/constants/index
+   /autoapi/pudl/metadata/descriptions/index
+   /autoapi/pudl/metadata/dfs/index
+   /autoapi/pudl/metadata/enums/index
+   /autoapi/pudl/metadata/fields/index
+   /autoapi/pudl/metadata/helpers/index
+   /autoapi/pudl/metadata/labels/index
+   /autoapi/pudl/metadata/resource_helpers/index
+   /autoapi/pudl/metadata/resources/index
+   /autoapi/pudl/metadata/sources/index
+   /autoapi/pudl/metadata/warnings/index
+
+

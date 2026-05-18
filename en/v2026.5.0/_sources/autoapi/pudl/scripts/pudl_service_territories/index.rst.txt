@@ -1,0 +1,38 @@
+pudl.scripts.pudl_service_territories
+=====================================
+
+.. py:module:: pudl.scripts.pudl_service_territories
+
+.. autoapi-nested-parse::
+
+   CLI for compiling historical utility and balancing area service territory geometries.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_service_territories.main
+
+
+Module Contents
+---------------
+
+.. py:function:: main(entity_type: Literal['utility', 'balancing_authority'], dissolve: bool, output_dir: pathlib.Path, limit_by_state: bool, years: list[int], logfile: pathlib.Path, loglevel: str) -> int
+
+   Compile historical utility and balancing area service territory geometries.
+
+   This script produces GeoParquet files describing the historical service territories
+   of utilities and balancing authorities based on data reported in the EIA Form 861
+   and county geometries from the US Census DP1 geodatabase.
+
+   See: https://geoparquet.org/ for more on the GeoParquet file format.
+
+   Usage examples:
+
+   pudl_service_territories --entity-type balancing_authority --dissolve --limit-by-state
+   pudl_service_territories --entity-type utility
+
+
