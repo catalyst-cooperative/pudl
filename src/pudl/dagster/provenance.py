@@ -10,13 +10,13 @@ For the closest Dagster concept, see
 https://docs.dagster.io/guides/build/assets/metadata-and-tags
 """
 
-import os
 from dataclasses import dataclass
 from importlib.metadata import version
 from pathlib import Path
 from typing import Any, Literal
 
 import dagster as dg
+import sqlalchemy as sa
 from pydantic import BaseModel
 
 import pudl.logging_helpers
@@ -60,6 +60,67 @@ class FercSqliteProvenanceRecord(BaseModel):
     sqlite_path: Path | None = None
     ferc_xbrl_extractor_version: str | None = None
 
+    @classmethod
+    def from_dagster_instance(
+        cls,
+        instance: Any | None,
+        desired_provenance: FercSqliteProvenance,
+    ) -> "FercSqliteProvenanceRecord":
+        """Return FercSqliteProvenanceRecord from dagster metadata if available."""
+        if instance is None:
+            logger.warning(
+                f"No Dagster instance is available; skipping FERC SQLite provenance "
+                f"check for {desired_provenance.dataset}_{desired_provenance.data_format}. This is "
+                "expected when running assets outside a Dagster execution context "
+                "(e.g. in unit tests)."
+            )
+            return None
+
+        event = instance.get_latest_materialization_event(desired_provenance.asset_key)
+        materialization = None if event is None else event.asset_materialization
+        raw_payload = (
+            None
+            if materialization is None
+            else materialization.metadata.get(FERC_TO_SQLITE_METADATA_KEY)
+        )
+        payload = raw_payload.value if hasattr(raw_payload, "value") else raw_payload
+        if not isinstance(payload, dict):
+            raise RuntimeError(
+                "No Dagster provenance metadata is available for "
+                f"{desired_provenance.asset_key.to_user_string()}. Refresh the FERC SQLite assets."
+            )
+
+        return cls(**payload)
+
+    def to_sqlite(self, engine: sa.Engine):
+        """Write Provenance data to sqlite."""
+        with engine.begin() as conn:
+            conn.execute(
+                sa.text("""
+                CREATE TABLE IF NOT EXISTS _provenance_metadata (
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    metadata TEXT NOT NULL
+                )
+            """)
+            )
+
+            conn.execute(
+                sa.text(
+                    "INSERT INTO _provenance_metadata (metadata) VALUES (:metadata)"
+                ),
+                {"metadata": self.model_dump_json()},
+            )
+
+    @classmethod
+    def from_sqlite(cls, engine: sa.Engine) -> "FercSqliteProvenanceRecord":
+        """Read SQLite provenance metadata from DB."""
+        with engine.begin() as conn:
+            row = conn.execute(
+                sa.text("SELECT metadata FROM _provenance_metadata WHERE id = 1")
+            ).scalar_one()
+
+        return cls.model_validate_json(row)
+
 
 def get_xbrl_extractor_version() -> str:
     """Return the installed version of ``catalystcoop.ferc_xbrl_extractor``."""
@@ -68,7 +129,7 @@ def get_xbrl_extractor_version() -> str:
 
 def assert_ferc_sqlite_compatible(  # noqa: C901
     *,
-    instance: Any | None,
+    stored: FercSqliteProvenanceRecord,
     provenance: FercSqliteProvenance,
 ) -> None:
     """Ensure a persisted FERC SQLite prerequisite is compatible with this run.
@@ -82,48 +143,7 @@ def assert_ferc_sqlite_compatible(  # noqa: C901
     2. The years stored in the FERC SQLite DB must be a *superset* of the years
        needed by the current downstream data config. This allows a "full" FERC SQLite DB
        to serve a "fast" downstream run without an expensive rebuild.
-
-    The check is skipped (with a warning) in two cases:
-
-    * No Dagster instance is available (running outside a Dagster execution context).
-    * The environment variable ``PUDL_SKIP_FERC_SQLITE_PROVENANCE`` is set to a
-      truthy value (``1``, ``true``, or ``yes``). This allows contributors to use
-      externally-downloaded FERC databases without triggering a provenance error.
     """
-    skip_env = os.environ.get("PUDL_SKIP_FERC_SQLITE_PROVENANCE", "").strip().lower()
-    if skip_env in {"1", "true", "yes"}:
-        logger.warning(
-            f"PUDL_SKIP_FERC_SQLITE_PROVENANCE is set: skipping FERC SQLite "
-            f"provenance check for {provenance.dataset}_{provenance.data_format}. "
-            "Stale or incompatible prerequisites may cause downstream failures."
-        )
-        return
-
-    if instance is None:
-        logger.warning(
-            f"No Dagster instance is available; skipping FERC SQLite provenance "
-            f"check for {provenance.dataset}_{provenance.data_format}. This is "
-            "expected when running assets outside a Dagster execution context "
-            "(e.g. in unit tests)."
-        )
-        return
-
-    event = instance.get_latest_materialization_event(provenance.asset_key)
-    materialization = None if event is None else event.asset_materialization
-    raw_payload = (
-        None
-        if materialization is None
-        else materialization.metadata.get(FERC_TO_SQLITE_METADATA_KEY)
-    )
-    payload = raw_payload.value if hasattr(raw_payload, "value") else raw_payload
-    if not isinstance(payload, dict):
-        raise RuntimeError(
-            "No Dagster provenance metadata is available for "
-            f"{provenance.asset_key.to_user_string()}. Refresh the FERC SQLite assets."
-        )
-
-    stored = FercSqliteProvenanceRecord.model_validate(payload)
-
     if stored.status == "not_configured":
         raise RuntimeError(
             f"Stored provenance metadata for {provenance.asset_key.to_user_string()} has "

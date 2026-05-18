@@ -39,6 +39,7 @@ from sqlalchemy.exc import IntegrityError
 import pudl.logging_helpers
 from pudl.dagster.provenance import (
     FercSqliteProvenance,
+    FercSqliteProvenanceRecord,
     assert_ferc_sqlite_compatible,
     get_xbrl_extractor_version,
 )
@@ -778,9 +779,13 @@ class _FercSqliteConfigurableIOManagerBase(dg.ConfigurableIOManager):
             ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
         )
 
-        assert_ferc_sqlite_compatible(
-            instance=_get_dagster_instance_if_available(context), provenance=provenance
-        )
+        if (instance := _get_dagster_instance_if_available(context)) is not None:
+            assert_ferc_sqlite_compatible(
+                stored=FercSqliteProvenanceRecord.from_dagster_instance(
+                    instance, provenance
+                ),
+                provenance=provenance,
+            )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC SQLite database."""
