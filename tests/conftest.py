@@ -274,16 +274,14 @@ def _initialize_ferc_engine(
 
     This probe only needs to confirm that the sqlite database exists, metadata can be
     reflected, and the FERC provenance check passes against the shared Dagster
-    instance. It intentionally avoids calling ``load_input()`` because some raw FERC
-    tables used as ordering-only sentinels do not support the manager's normal
-    year-filtered query shape.
+    instance.
     """
-    io_manager._ensure_database_compatible(  # noqa: SLF001
-        build_input_context(
-            asset_key=AssetKey(asset_key),
-            instance=dagster_instance,
-        )
+    context = build_input_context(
+        asset_key=AssetKey(asset_key),
+        instance=dagster_instance,
     )
+    _ = io_manager.metadata  # noqa: SLF001
+    io_manager._check_provenance(context)  # noqa: SLF001
     return io_manager.engine
 
 

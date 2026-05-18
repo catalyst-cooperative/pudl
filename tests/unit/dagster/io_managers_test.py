@@ -357,7 +357,9 @@ def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
-    mocker.patch.object(FercDbfSqliteIOManager, "_ensure_database_ready")
+    mocker.patch.object(
+        FercDbfSqliteIOManager, "metadata", new_callable=mocker.PropertyMock
+    )
     query = mocker.patch.object(
         FercDbfSqliteIOManager,
         "_query",
@@ -409,7 +411,9 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
-    mocker.patch.object(FercXbrlSqliteIOManager, "_ensure_database_ready")
+    mocker.patch.object(
+        FercXbrlSqliteIOManager, "metadata", new_callable=mocker.PropertyMock
+    )
     query = mocker.patch.object(
         FercXbrlSqliteIOManager,
         "_query",
@@ -464,7 +468,9 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
-    mocker.patch.object(FercDbfSqliteIOManager, "_ensure_database_ready")
+    mocker.patch.object(
+        FercDbfSqliteIOManager, "metadata", new_callable=mocker.PropertyMock
+    )
     query = mocker.patch.object(FercDbfSqliteIOManager, "_query")
     stale_metadata = {
         FERC_TO_SQLITE_METADATA_KEY: FercSqliteProvenanceRecord(
@@ -506,7 +512,9 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
-    mocker.patch.object(FercDbfSqliteIOManager, "_ensure_database_ready")
+    mocker.patch.object(
+        FercDbfSqliteIOManager, "metadata", new_callable=mocker.PropertyMock
+    )
     query = mocker.patch.object(FercDbfSqliteIOManager, "_query")
     instance: DagsterInstance = mocker.MagicMock()
     instance.is_ephemeral = False

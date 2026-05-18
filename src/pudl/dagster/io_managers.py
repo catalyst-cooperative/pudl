@@ -582,7 +582,15 @@ geoparquet_io_manager = PudlGeoParquetIOManager()
 
 
 class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
-    """Shared FERC SQLite IO-manager behavior for Dagster resources."""
+    """Shared lazy-loading behavior for FERC SQLite Dagster IO managers.
+
+    Subclasses provide the query details for a particular FERC SQLite backend, while
+    this base class owns three shared responsibilities:
+
+    1. lazily creating and caching a SQLAlchemy engine for the configured database
+    2. lazily reflecting and caching SQLAlchemy metadata once the database exists
+    3. checking Dagster provenance metadata before each read
+    """
 
     global_data_config: dg.ResourceDependency[GlobalDataConfigResource]
     zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
@@ -590,7 +598,7 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     data_format: ClassVar[str]
 
     _engine: sa.Engine | None = PrivateAttr(default=None)
-    _md: sa.MetaData | None = PrivateAttr(default=None)
+    _metadata: sa.MetaData | None = PrivateAttr(default=None)
 
     @property
     def _years_key(self) -> str:
@@ -606,72 +614,36 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         """Return the canonical SQLite path for this dataset and data format."""
         return PudlPaths().sqlite_db_path(self.db_name)
 
-    def _setup_database(
-        self, timeout: float = 1_000.0
-    ) -> tuple[sa.Engine, sa.MetaData]:
-        """Create the SQLite engine and load metadata for this FERC database."""
-        engine = sa.create_engine(
-            f"sqlite:///{self.db_path}", connect_args={"timeout": timeout}
-        )
-
-        metadata = sa.MetaData()
-        if self.db_path.exists():
-            metadata.reflect(engine)
-        else:
-            logger.info(
-                f"{self.db_path} not found during resource initialization; metadata reflection "
-                "will happen on first load."
-            )
-
-        return engine, metadata
-
-    @property
-    def md(self) -> sa.MetaData:
-        """Return the cached SQLAlchemy metadata, initializing it on first access.
-
-        The FERC configurable IO managers lazily create their engine and metadata so
-        they can be instantiated before the corresponding SQLite database exists.
-        Accessing ``self.md`` guarantees that ``self._md`` has been populated by the
-        same setup path used by ``self.engine``.
-
-        On first access this may yield an empty ``MetaData`` if the SQLite file has not
-        been created yet. Callers that need reflected tables should go through
-        ``_ensure_database_ready()`` or ``_reflect_metadata()`` rather than assuming
-        ``self.md.tables`` is already populated.
-        """
-        if self._md is None:
-            _ = self.engine
-        assert self._md is not None
-        return self._md
-
     @property
     def engine(self) -> sa.Engine:
-        """Expose the underlying SQLAlchemy engine for tests and helpers."""
+        """Return a cached SQLAlchemy engine for this FERC SQLite database."""
         if self._engine is None:
-            engine, metadata = self._setup_database()
-            self._engine = engine
-            self._md = metadata
+            self._engine = sa.create_engine(f"sqlite:///{self.db_path}")
         return self._engine
 
-    def _reflect_metadata(self) -> None:
-        """Reflect table metadata from the SQLite database into ``self.md``."""
-        self._md = sa.MetaData()
-        self._md.reflect(self.engine)
+    @property
+    def metadata(self) -> sa.MetaData:
+        """Return cached reflected metadata for this database.
 
-    def _ensure_database_ready(self) -> None:
-        """Ensure the sqlite DB exists and metadata has been reflected."""
-        _ = self.engine
+        The metadata is reflected on first access and reused for subsequent reads.
+        Accessing this property requires the SQLite database to already exist.
+        """
         if not self.db_path.exists():
             raise ValueError(
                 f"No DB found at {self.db_path}. Run the job that creates the "
                 f"{self.db_name} database."
             )
-        if not self.md.tables:
-            self._reflect_metadata()
+
+        if self._metadata is None:
+            metadata = sa.MetaData()
+            metadata.reflect(self.engine)
+            self._metadata = metadata
+
+        return self._metadata
 
     def _get_sqlalchemy_table(self, table_name: str) -> sa.Table:
-        """Get SQLAlchemy table metadata for a FERC SQLite table."""
-        sa_table = self.md.tables.get(table_name, None)
+        """Return reflected SQLAlchemy table metadata for a FERC SQLite table."""
+        sa_table = self.metadata.tables.get(table_name, None)
         if sa_table is None:
             raise ValueError(
                 f"{table_name} not found in {self.db_name} metadata. Either add the "
@@ -680,10 +652,13 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
             )
         return sa_table
 
-    def _ensure_database_compatible(self, context: InputContext) -> None:
-        """Make sure extracted FERC database is valid for this run."""
-        self._ensure_database_ready()
+    def _check_provenance(self, context: InputContext) -> None:
+        """Check that the existing FERC SQLite database is compatible with this run.
 
+        This is intentionally separate from engine and metadata caching because the
+        compatibility check depends on the Dagster run context rather than on local
+        process state.
+        """
         zenodo_doi = self.zenodo_dois.get_doi(self.dataset)
 
         provenance = FercSqliteProvenance(
@@ -700,8 +675,14 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
-        """Load a dataframe from the configured FERC SQLite database."""
-        self._ensure_database_compatible(context)
+        """Load a dataframe from the configured FERC SQLite database.
+
+        Ensure that the database exists and its schema has been reflected, then verify
+        the upstream FERC-to-SQLite provenance recorded in Dagster before delegating to
+        the subclass-specific query implementation.
+        """
+        _ = self.metadata
+        self._check_provenance(context)
         ferc_data_config = getattr(
             self.global_data_config.pudl,
             self.dataset,
@@ -712,10 +693,8 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         return self._query(table_name, getattr(ferc_data_config, self._years_key))
 
     def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame | str) -> None:
-        """Handle an op or asset output."""
-        raise NotImplementedError(
-            "Ferc SQLite configurable IO managers can't write outputs yet."
-        )
+        """Reject writes because these IO managers currently support reads only."""
+        raise NotImplementedError("Ferc SQLite IO managers can't write outputs yet.")
 
     def _query(self, table_name: str, years: list[int]) -> pd.DataFrame:
         """Execute a filtered read against the FERC SQLite database."""
@@ -806,7 +785,7 @@ class FercXbrlSqliteIOManager(FercSqliteIOManagerBase):
         # don't have duration and instant variants.
         # Not every table contains both instant and duration;
         # return an empty dataframe if the table doesn't exist.
-        if table_name not in self.md.tables:
+        if table_name not in self.metadata.tables:
             return pd.DataFrame()
         sched_table_name = re.sub("_instant|_duration", "", table_name)
         with self.engine.begin() as con:
