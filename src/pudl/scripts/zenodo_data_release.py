@@ -429,7 +429,13 @@ class EmptyDraft(State):
             protocol[0] if isinstance(protocol, (list, tuple)) else protocol
         )
         files = fsspec.open_files(
-            [f"{protocol_prefix}://{path}" for path in dir_fs.ls(dir_path)]
+            [
+                f"{protocol_prefix}://{entry['name']}"
+                for entry in dir_fs.ls(dir_path, detail=True)
+                # Only upload files, not subdirectories.
+                # Zenodo doesn't support nested folders.
+                if entry.get("type") == "file" or dir_fs.isfile(entry["name"])
+            ]
         )
         all_ignore_regex = re.compile("|".join(ignore)) if ignore else None
 

@@ -335,7 +335,7 @@ function prep_outputs_for_distribution() {
 # MAIN SCRIPT
 ########################################################################################
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
-ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^.*pudl_parquet_datapackage\\\\.json$|^ferc\d{1,3}_xbrl$)"
+ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^.*pudl_parquet_datapackage\\\\.json$)"
 STAGE_SKIPPED="skipped"
 BUILD_START_EPOCH_SECONDS=$(date +%s)
 
