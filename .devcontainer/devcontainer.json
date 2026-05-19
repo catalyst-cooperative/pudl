@@ -23,7 +23,7 @@
         "NPM_CONFIG_CACHE": "${containerWorkspaceFolder}/.pixi/.npm-cache"
     },
     "waitFor": "postCreateCommand",
-    "postCreateCommand": "sudo mkdir -p .pixi && sudo chown -R $(id -u):$(id -g) .pixi && pixi run -e dev devcontainer-install",
+    "postCreateCommand": "pixi run -e dev devcontainer-install",
     "remoteUser": "ubuntu",
     "customizations": {
         "vscode": {
