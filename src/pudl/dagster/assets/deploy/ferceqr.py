@@ -52,7 +52,7 @@ def _notify_slack_deployments_channel(
 
 
 def _get_etl_status_csv_path() -> Path:
-    return PudlPaths().output_dir / "ferceqr_etl_status.csv"
+    return PudlPaths().pudl_output / "ferceqr_etl_status.csv"
 
 
 def _get_logfile_pointer() -> str:
@@ -65,7 +65,7 @@ def _get_logfile_pointer() -> str:
 
 def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
     """Notify build script that job is complete by creating a status file."""
-    (PudlPaths().output_dir / status).touch()
+    (PudlPaths().pudl_output / status).touch()
 
 
 def deployment_status_asset(

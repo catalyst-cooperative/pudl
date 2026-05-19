@@ -63,7 +63,7 @@ def dbf_to_sqlite_asset_factory(
         extractor_class(
             datastore=context.resources.datastore,
             data_config=ferc_to_sqlite,
-            output_path=PudlPaths().output_dir,
+            output_path=PudlPaths().pudl_output,
         ).execute()
         return dg.MaterializeResult(
             value="complete",
@@ -126,7 +126,7 @@ def xbrl_to_sqlite_asset_factory(
                 },
             )
 
-        output_path = PudlPaths().output_dir
+        output_path = PudlPaths().pudl_output
         sqlite_path = PudlPaths().sqlite_db_path(f"{form}_xbrl")
         if sqlite_path.exists():
             sqlite_path.unlink()

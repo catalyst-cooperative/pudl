@@ -235,7 +235,7 @@ def transform_epacems(
 
 def _partitioned_path() -> Path:
     partitioned_path = (
-        PudlPaths().output_dir / "parquet" / "raw_epacems__hourly_emissions"
+        PudlPaths().pudl_output / "parquet" / "raw_epacems__hourly_emissions"
     )
     partitioned_path.mkdir(exist_ok=True)
     return partitioned_path

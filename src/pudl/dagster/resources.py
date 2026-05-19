@@ -16,12 +16,46 @@ import os
 from typing import Any
 
 import dagster as dg
+from pydantic import Field
 from upath import UPath
 
 from pudl import PUDL_SETTINGS_PATH
 from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
+
+
+class PudlPathsResource(dg.ConfigurableResource):
+    """Load the input/output paths used by Dagster-managed PUDL runs.
+
+    Explicit Dagster resource config takes precedence. Any unset field falls back to
+    the current process environment so `dg` runs, local `.env` files, test fixtures,
+    and container-provided environment variables all share a single typed entry point.
+    """
+
+    pudl_input: str | None = Field(default_factory=lambda: os.getenv("PUDL_INPUT"))
+    pudl_output: str | None = Field(default_factory=lambda: os.getenv("PUDL_OUTPUT"))
+
+    def create_resource(self, context) -> PudlPaths:
+        """Create validated runtime path settings for the current Dagster run."""
+        del context  # Required by Dagster's hook signature; intentionally unused here.
+
+        missing = [
+            env_var
+            for env_var, value in {
+                "PUDL_INPUT": self.pudl_input,
+                "PUDL_OUTPUT": self.pudl_output,
+            }.items()
+            if value is None
+        ]
+        if missing:
+            raise ValueError(
+                "Missing required PUDL path settings: "
+                f"{', '.join(missing)}. Configure the `pudl_paths` Dagster resource "
+                "or set them in the environment / project .env file."
+            )
+
+        return PudlPaths(pudl_input=self.pudl_input, pudl_output=self.pudl_output)
 
 
 class FercXbrlRuntimeSettings(dg.ConfigurableResource):
@@ -70,6 +104,7 @@ class DatastoreResource(dg.ConfigurableResource):
     """Dagster resource to interact with Zenodo archives."""
 
     zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
+    pudl_paths: dg.ResourceDependency[PudlPathsResource]
     cloud_cache_path: str = "s3://pudl.catalyst.coop/zenodo"
     use_local_cache: bool = True
 
@@ -82,7 +117,7 @@ class DatastoreResource(dg.ConfigurableResource):
         }
 
         if self.use_local_cache:
-            ds_kwargs["local_cache_path"] = PudlPaths().input_dir  # type: ignore[call-arg]
+            ds_kwargs["local_cache_path"] = self.pudl_paths.pudl_input
         return Datastore(**ds_kwargs)
 
 
@@ -105,14 +140,19 @@ class FercEqrDataConfig(dg.ConfigurableResource):
 
 
 global_data_config_resource = GlobalDataConfigResource.configure_at_launch()
+pudl_paths_resource = PudlPathsResource.configure_at_launch()
 zenodo_doi_settings_resource = ZenodoDoiSettingsResource()
-datastore_resource = DatastoreResource(zenodo_dois=zenodo_doi_settings_resource)
+datastore_resource = DatastoreResource(
+    zenodo_dois=zenodo_doi_settings_resource,
+    pudl_paths=pudl_paths_resource,
+)
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()
 ferceqr_data_config = FercEqrDataConfig()
 
 default_resources: dict[str, Any] = {
     "datastore": datastore_resource,
     "global_data_config": global_data_config_resource,
+    "pudl_paths": pudl_paths_resource,
     "ferceqr_data_config": ferceqr_data_config,
     "runtime_settings": ferc_xbrl_runtime_settings,
     "zenodo_dois": zenodo_doi_settings_resource,
@@ -123,11 +163,13 @@ __all__ = [
     "FercEqrDataConfig",
     "FercXbrlRuntimeSettings",
     "GlobalDataConfigResource",
+    "PudlPathsResource",
     "ZenodoDoiSettingsResource",
     "datastore_resource",
     "default_resources",
     "ferceqr_data_config",
     "ferc_xbrl_runtime_settings",
     "global_data_config_resource",
+    "pudl_paths_resource",
     "zenodo_doi_settings_resource",
 ]

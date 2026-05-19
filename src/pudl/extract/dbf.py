@@ -486,7 +486,7 @@ class FercDbfExtractor:
             dbf_extractor = cls(
                 datastore=context.resources.datastore,
                 data_config=context.resources.global_data_config.ferc_to_sqlite,
-                output_path=PudlPaths().output_dir,
+                output_path=PudlPaths().pudl_output,
             )
             dbf_extractor.execute()
 

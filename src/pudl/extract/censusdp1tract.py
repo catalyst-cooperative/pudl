@@ -70,9 +70,9 @@ def raw_censusdp1tract__all_tables(context):
             "censusdp1tract", year=context.op_config["year"]
         ) as zip_ref:
             extract_root = tmpdir_path / Path(zip_ref.filelist[0].filename)
-            out_dir = PudlPaths().output_dir
+            out_dir = PudlPaths().pudl_output
             assert out_dir.is_dir()
-            out_path = PudlPaths().output_dir / "censusdp1tract.sqlite"
+            out_path = PudlPaths().pudl_output / "censusdp1tract.sqlite"
 
             if out_path.exists():
                 if context.op_config["clobber"]:

@@ -140,7 +140,7 @@ def raw_ferc714_xbrl__metadata_json(
         structure, with each row annotating a separate XBRL concept from the FERC 714
         filings.
     """
-    metadata_path = PudlPaths().output_dir / "ferc714_xbrl_taxonomy_metadata.json"
+    metadata_path = PudlPaths().pudl_output / "ferc714_xbrl_taxonomy_metadata.json"
     with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 

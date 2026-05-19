@@ -156,7 +156,7 @@ def get_primary_key_raw_xbrl(
     # datapackage.json conformant, we will need to at least update the
     # "primary_key" to "primaryKey", but maybe there will be other changes
     # as well.
-    with (PudlPaths().output_dir / f"{ferc_form}_xbrl_datapackage.json").open() as f:
+    with (PudlPaths().pudl_output / f"{ferc_form}_xbrl_datapackage.json").open() as f:
         datapackage = json.loads(f.read())
     table_resource = [
         tr for tr in datapackage["resources"] if tr["name"] == sched_table_name

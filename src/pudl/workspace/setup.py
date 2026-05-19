@@ -2,16 +2,14 @@
 
 import os
 from pathlib import Path
-from typing import Self
+from typing import Any, Self
 
-from pydantic import DirectoryPath, NewPath, model_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-PotentialDirectoryPath = DirectoryPath | NewPath
 
 
 class PudlPaths(BaseSettings):
@@ -21,40 +19,47 @@ class PudlPaths(BaseSettings):
     variables. Other paths of relevance are derived from these.
     """
 
-    pudl_input: PotentialDirectoryPath
-    pudl_output: PotentialDirectoryPath
+    pudl_input: Path
+    pudl_output: Path
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @field_validator("pudl_input", "pudl_output", mode="before")
+    @classmethod
+    def normalize_paths(cls, value: Any) -> Path:
+        """Normalize configured paths to absolute ``Path`` objects."""
+        return Path(value).absolute()
 
     @model_validator(mode="after")
     def create_directories(self: Self):
         """Create PUDL input and output directories if they don't already exist."""
         for path_name, path in [
-            ("PUDL_INPUT", self.input_dir),
-            ("PUDL_OUTPUT", self.output_dir),
+            ("PUDL_INPUT", self.pudl_input),
+            ("PUDL_OUTPUT", self.pudl_output),
         ]:
+            if path.is_symlink() and not path.exists():
+                raise FileExistsError(
+                    f"{path_name} path {path} is a broken symlink. "
+                    f"If it points to an external drive, ensure the drive is mounted. "
+                    f"Otherwise, remove the symlink and try again."
+                )
+
             if path.exists() and not path.is_dir():
-                if path.is_symlink():
-                    raise FileExistsError(
-                        f"{path_name} path {path} is a broken symlink. "
-                        f"If it points to an external drive, ensure the drive is mounted. "
-                        f"Otherwise, remove the symlink and try again."
-                    )
                 raise FileExistsError(
                     f"{path_name} path {path} exists but is not a directory. "
                     f"Please remove or relocate this file."
                 )
-            path.mkdir(parents=True, exist_ok=True)
+
+            if path.exists():
+                continue
+
+            if not path.parent.exists() or not path.parent.is_dir():
+                raise FileNotFoundError(
+                    f"{path_name} parent directory {path.parent} does not exist. "
+                    "Please create the parent directory first."
+                )
+
+            path.mkdir()
         return self
-
-    @property
-    def input_dir(self) -> Path:
-        """Path to PUDL input directory."""
-        return Path(self.pudl_input).absolute()
-
-    @property
-    def output_dir(self) -> Path:
-        """Path to PUDL output directory."""
-        return Path(self.pudl_output).absolute()
 
     @property
     def pudl_db(self) -> str:
@@ -74,20 +79,20 @@ class PudlPaths(BaseSettings):
     def parquet_path(self, table_name: str | None = None) -> Path:
         """Return path to parquet file for given database and table."""
         if table_name is None:
-            return self.output_dir / "parquet"
-        return self.output_dir / "parquet" / f"{table_name}.parquet"
+            return self.pudl_output / "parquet"
+        return self.pudl_output / "parquet" / f"{table_name}.parquet"
 
     def sqlite_db_path(self, name: str) -> Path:
         """Return path to locally stored SQLite DB file."""
-        return self.output_dir / f"{name}.sqlite"
+        return self.pudl_output / f"{name}.sqlite"
 
     def duckdb_db_path(self, name: str) -> Path:
         """Return path to locally stored SQLite DB file."""
-        return self.output_dir / f"{name}.duckdb"
+        return self.pudl_output / f"{name}.duckdb"
 
     def output_file(self, filename: str) -> Path:
         """Path to file in PUDL output directory."""
-        return self.output_dir / filename
+        return self.pudl_output / filename
 
     @staticmethod
     def set_path_overrides(

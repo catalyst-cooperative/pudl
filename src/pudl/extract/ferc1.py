@@ -426,7 +426,7 @@ def raw_ferc1_xbrl__metadata_json(
         instead.
     """
     metadata_path = (
-        PudlPaths().output_dir  # type: ignore[call-arg]
+        PudlPaths().pudl_output  # type: ignore[call-arg]
         / "ferc1_xbrl_taxonomy_metadata.json"
     )
     with Path.open(metadata_path) as f:

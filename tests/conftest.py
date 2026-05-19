@@ -22,13 +22,18 @@ from dagster import (
     materialize_to_memory,
 )
 
-import pudl.dagster.resources as resources
 import pudl.logging_helpers
 from pudl import PUDL_SETTINGS_PATH
 from pudl.dagster.build import build_interactive_defs
 from pudl.dagster.io_managers import (
     FercDbfSqliteIOManager,
     FercXbrlSqliteIOManager,
+)
+from pudl.dagster.resources import (
+    DatastoreResource,
+    GlobalDataConfigResource,
+    PudlPathsResource,
+    ZenodoDoiSettingsResource,
 )
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
@@ -217,8 +222,8 @@ def _pudl_etl(
     ]
     env = os.environ.copy()
     # Force dg launch to read/write within pytest-managed paths.
-    env["PUDL_INPUT"] = str(pudl_test_paths.input_dir)
-    env["PUDL_OUTPUT"] = str(pudl_test_paths.output_dir)
+    env["PUDL_INPUT"] = str(pudl_test_paths.pudl_input)
+    env["PUDL_OUTPUT"] = str(pudl_test_paths.pudl_output)
     env["DAGSTER_HOME"] = str(dagster_home)
     env["PYTHONUNBUFFERED"] = "1"
     logger.info("Starting PUDL pytest ETL using dg launch.")
@@ -253,9 +258,9 @@ def _pudl_etl(
 def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
     """Validate that required FERC SQLite databases exist after prebuild."""
     required = [
-        pudl_test_paths.output_dir / "ferc1_dbf.sqlite",
-        pudl_test_paths.output_dir / "ferc1_xbrl.sqlite",
-        pudl_test_paths.output_dir / "ferc714_xbrl.sqlite",
+        pudl_test_paths.pudl_output / "ferc1_dbf.sqlite",
+        pudl_test_paths.pudl_output / "ferc1_xbrl.sqlite",
+        pudl_test_paths.pudl_output / "ferc714_xbrl.sqlite",
     ]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
@@ -294,6 +299,7 @@ def _initialize_ferc_io_manager[
     io_manager_cls: type[FercSqliteIOManager],
     *,
     global_data_config: GlobalDataConfig,
+    pudl_paths: PudlPaths,
     zenodo_dois,
     dataset: str,
 ) -> Generator[FercSqliteIOManager]:
@@ -303,6 +309,7 @@ def _initialize_ferc_io_manager[
         init_context,
         nested_resources={
             "global_data_config": global_data_config,
+            "pudl_paths": pudl_paths,
             "zenodo_dois": zenodo_dois,
         },
     ) as io_manager:
@@ -346,12 +353,16 @@ def dagster_home(tmp_path_factory, request) -> Path:
     if request.config.getoption("--live-pudl-output") and os.environ.get(
         "DAGSTER_HOME"
     ):
-        return Path(os.environ["DAGSTER_HOME"]).resolve()
+        dagster_home = Path(os.environ["DAGSTER_HOME"]).resolve()
+        logger.info(f"Using pre-existing DAGSTER_HOME: {dagster_home}")
+        return dagster_home
 
     dagster_home = tmp_path_factory.mktemp("dagster_home")
     (dagster_home / "dagster.yaml").touch()
     os.environ["DAGSTER_HOME"] = str(dagster_home)
-    return dagster_home.resolve()
+    dagster_home = dagster_home.resolve()
+    logger.info(f"Using temporary DAGSTER_HOME: {dagster_home}")
+    return dagster_home
 
 
 @pytest.fixture(scope="session")
@@ -364,6 +375,7 @@ def dagster_instance(dagster_home: Path) -> DagsterInstance:
 def asset_value_loader(
     prebuilt_outputs,
     global_data_config_path: Path,
+    pudl_paths_resource: PudlPathsResource,
     dagster_instance: DagsterInstance,
 ) -> Generator[AssetValueLoader]:
     """Fixture that initializes an asset value loader.
@@ -373,7 +385,9 @@ def asset_value_loader(
     again.
     """
     configured_defs = build_interactive_defs(
-        global_data_config_path=str(global_data_config_path)
+        global_data_config_path=str(global_data_config_path),
+        pudl_input=pudl_paths_resource.pudl_input,
+        pudl_output=pudl_paths_resource.pudl_output,
     )
     with configured_defs.get_asset_value_loader(instance=dagster_instance) as loader:
         yield loader
@@ -393,7 +407,7 @@ def global_data_config(
     init_context = build_init_resource_context(
         config={"global_data_config_path": str(global_data_config_path)}
     )
-    with resources.GlobalDataConfigResource.from_resource_context_cm(
+    with GlobalDataConfigResource.from_resource_context_cm(
         init_context
     ) as dagster_config:
         yield dagster_config
@@ -402,7 +416,7 @@ def global_data_config(
 @pytest.fixture(scope="session")
 def zenodo_dois() -> Generator[ZenodoDoiSettings]:
     """Load Zenodo DOI settings through the Dagster resource."""
-    with resources.ZenodoDoiSettingsResource.from_resource_context_cm(
+    with ZenodoDoiSettingsResource.from_resource_context_cm(
         build_init_resource_context()
     ) as doi_settings:
         yield doi_settings
@@ -412,12 +426,14 @@ def zenodo_dois() -> Generator[ZenodoDoiSettings]:
 def ferc1_dbf_io_manager(
     prebuilt_outputs,
     global_data_config: GlobalDataConfig,
+    pudl_test_paths: PudlPaths,
     zenodo_dois,
 ) -> Generator[FercDbfSqliteIOManager]:
     """Initialize the FERC Form 1 DBF IO manager through Dagster."""
     yield from _initialize_ferc_io_manager(
         FercDbfSqliteIOManager,
         global_data_config=global_data_config,
+        pudl_paths=pudl_test_paths,
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
@@ -427,12 +443,14 @@ def ferc1_dbf_io_manager(
 def ferc1_xbrl_io_manager(
     prebuilt_outputs,
     global_data_config: GlobalDataConfig,
+    pudl_test_paths: PudlPaths,
     zenodo_dois,
 ) -> Generator[FercXbrlSqliteIOManager]:
     """Initialize the FERC Form 1 XBRL IO manager through Dagster."""
     yield from _initialize_ferc_io_manager(
         FercXbrlSqliteIOManager,
         global_data_config=global_data_config,
+        pudl_paths=pudl_test_paths,
         zenodo_dois=zenodo_dois,
         dataset="ferc1",
     )
@@ -442,12 +460,14 @@ def ferc1_xbrl_io_manager(
 def ferc714_xbrl_io_manager(
     prebuilt_outputs,
     global_data_config: GlobalDataConfig,
+    pudl_test_paths: PudlPaths,
     zenodo_dois,
 ) -> Generator[FercXbrlSqliteIOManager]:
     """Initialize the FERC Form 714 XBRL IO manager through Dagster."""
     yield from _initialize_ferc_io_manager(
         FercXbrlSqliteIOManager,
         global_data_config=global_data_config,
+        pudl_paths=pudl_test_paths,
         zenodo_dois=zenodo_dois,
         dataset="ferc714",
     )
@@ -521,7 +541,7 @@ def prebuilt_outputs(
         return
 
     logger.info(
-        f"Prebuilding PUDL outputs in temporary directory: {pudl_test_paths.output_dir}"
+        f"Prebuilding PUDL outputs in temporary directory: {pudl_test_paths.pudl_output}"
     )
     logger.info(
         f"Initializing empty pudl.sqlite with current schema at {pudl_test_paths.pudl_db}."
@@ -594,7 +614,7 @@ def pudl_engine(prebuilt_outputs, pudl_test_paths: PudlPaths) -> sa.Engine:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def pudl_test_paths(tmp_path_factory, request, dagster_home: Path) -> PudlPaths:
+def pudl_test_paths(tmp_path_factory, request) -> PudlPaths:
     """Configures PudlPaths for tests.
 
     Default behavior:
@@ -640,16 +660,10 @@ def pudl_test_paths(tmp_path_factory, request, dagster_home: Path) -> PudlPaths:
         output_dir = out_tmp.resolve()
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
 
-    os.environ["DAGSTER_HOME"] = str(dagster_home)
-    logger.info(f"Using temporary DAGSTER_HOME: {dagster_home}")
-
     PudlPaths.set_path_overrides(
         input_dir=str(input_dir),
         output_dir=str(output_dir),
     )
-    # Keep process env in sync so subprocesses inherit the same locations.
-    os.environ["PUDL_INPUT"] = str(input_dir)
-    os.environ["PUDL_OUTPUT"] = str(output_dir)
 
     try:
         return PudlPaths(
@@ -660,6 +674,17 @@ def pudl_test_paths(tmp_path_factory, request, dagster_home: Path) -> PudlPaths:
         pytest.exit(
             f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --temp-pudl-input, --live-pudl-output flags. Error: {err}."
         )
+
+
+@pytest.fixture(scope="session")
+def pudl_paths_resource(
+    pudl_test_paths: PudlPaths,
+) -> PudlPathsResource:
+    """Adapt the canonical pytest path fixture into Dagster resource config."""
+    return PudlPathsResource(
+        pudl_input=str(pudl_test_paths.pudl_input),
+        pudl_output=str(pudl_test_paths.pudl_output),
+    )
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -684,18 +709,24 @@ def logger_config():
 
 
 @pytest.fixture(scope="session")
-def zenodo_datastore(request) -> Generator[Datastore]:
+def zenodo_datastore(
+    request,
+    pudl_test_paths: PudlPaths,
+) -> Generator[Datastore]:
     """Create a Zenodo Datastore resource."""
-    with resources.ZenodoDoiSettingsResource.from_resource_context_cm(
+    with ZenodoDoiSettingsResource.from_resource_context_cm(
         build_init_resource_context()
     ) as zenodo_dois:
         init_context = build_init_resource_context(
             config={
                 "use_local_cache": not request.config.getoption("--bypass-local-cache"),
             },
-            resources={"zenodo_dois": zenodo_dois},
         )
-        with resources.DatastoreResource.from_resource_context_cm(
-            init_context
+        with DatastoreResource.from_resource_context_cm(
+            init_context,
+            nested_resources={
+                "zenodo_dois": zenodo_dois,
+                "pudl_paths": pudl_test_paths,
+            },
         ) as datastore:
             yield datastore

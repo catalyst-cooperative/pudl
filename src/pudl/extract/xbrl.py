@@ -104,7 +104,7 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
         tags={"data_format": "xbrl", "dataset": str(form)},
     )
     def inner_op(context) -> None:
-        output_path = PudlPaths().output_dir
+        output_path = PudlPaths().pudl_output
         rs: FercXbrlRuntimeSettings = context.resources.runtime_settings
         data_config = (
             context.resources.global_data_config.ferc_to_sqlite.get_data_config(
