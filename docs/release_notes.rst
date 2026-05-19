@@ -28,7 +28,7 @@ Bug Fixes & Data Cleaning
 
 - Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
   directories when deciding what to upload to Zenodo, which caused release failures
-  once we started leaving the ``ferc*_xbrl`` directories lying around. See PR
+  once we started leaving the ``ferc*_xbrl`` directories laying around. See PR
   :pr:`5254`.
 
 Performance Improvements
@@ -36,6 +36,12 @@ Performance Improvements
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Cleaned up PUDL's default Dagster wiring by separating default resources from IO
+  managers, giving shared data-config resources clearer defaults, and simplifying the
+  FERC SQLite IO manager and provenance stack. The branch also consolidated the FERC EQR
+  deployment helper assets with the rest of the Dagster package layout. See issue
+  :issue:`5118` and PR :pr:`5242`.
 
 .. _release-v2026.5.0:
 

@@ -103,10 +103,9 @@ Core Dagster concepts used in PUDL
   are the top-level collection of Dagster objects that get loaded into a code location.
   They bundle together the assets, asset checks, resources, jobs, schedules, and
   sensors that Dagster can see and execute. In PUDL, the canonical Dagster assembly
-  lives in :mod:`pudl.dagster` and is exposed via :data:`pudl.dagster.defs`, while
-  :mod:`pudl.definitions` remains the stable top-level code location used by ``dg``.
-  The package is split by Dagster abstraction so contributors can edit the relevant
-  layer directly:
+  lives in :mod:`pudl.dagster`, while :mod:`pudl.definitions` remains the stable
+  top-level code location used by ``dg``. The package is split by Dagster abstraction so
+  contributors can edit the relevant layer directly:
 
   - :mod:`pudl.dagster.assets` loads and groups assets.
   - :mod:`pudl.dagster.asset_checks` defines Dagster asset checks.
@@ -283,21 +282,19 @@ See :ref:`troubleshooting_dagster` for tips on how to fix common issues we run i
 
 Running the FERC EQR ETL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-All processing for FERC EQR data is contained in a separate ETL from the
-rest of PUDL. This is because the dataset is too large to archive the raw
-data on Zenodo. This means the ETL can only be run by developers with credentials
-to access private cloud storage containing the raw data. Any external
-contributors interested in working on this ETL should contact the Catalyst team
-to set up access to the raw data.
+All processing for FERC EQR data is contained in a separate ETL from the rest of PUDL.
+This is because the dataset is too large to archive the raw data on Zenodo. This means
+the ETL can only be run by developers with credentials to access private cloud storage
+containing the raw data. Any external contributors interested in working on this ETL
+should contact the Catalyst team to set up access to the raw data.
 
-The FERC EQR ETL is contained in a Dagster job called ``ferceqr``.
-Executing this job from the Dagster UI is slightly different from the main
-PUDL ETL jobs because the EQR job uses Dagster partitions. After selecting
-"Materialize All" (or "Materialize selected" for a selection of assets),
-a screen will popup allowing you to select the partitions to execute.
-From here you can select a set of year-quarter combinations. This will
-trigger a ``backfill``, which will execute each partition in its own ``run``.
-To properly handle a ``backfill``, you will need to configure dagster to use a
+The FERC EQR ETL is contained in a Dagster job called ``ferceqr``. Executing this job
+from the Dagster UI is slightly different from the main PUDL ETL jobs because the EQR
+job uses Dagster partitions. After selecting "Materialize All" (or "Materialize
+selected" for a selection of assets), a screen will popup allowing you to select the
+partitions to execute. From here you can select a set of year-quarter combinations. This
+will trigger a ``backfill``, which will execute each partition in its own ``run``. To
+properly handle a ``backfill``, you will need to configure dagster to use a
 ``QueuedRunCoordinator``. This can be done using a ``dagster.yaml`` file in your
 ``DAGSTER_HOME`` directory with the following content:
 
@@ -311,9 +308,9 @@ To properly handle a ``backfill``, you will need to configure dagster to use a
          - key: "dagster/backfill"
            limit: 2
 
-The ``config`` section shown above is not strictly necessary, but will limit the
-number of concurrent ``runs`` Dagster will start, which can be helpful to avoid
-out-of-memory issues while running many quarters in one ``backfill``.
+The ``config`` section shown above is not strictly necessary, but will limit the number
+of concurrent ``runs`` Dagster will start, which can be helpful to avoid out-of-memory
+issues while running many quarters in one ``backfill``.
 
 .. _run-cli:
 
