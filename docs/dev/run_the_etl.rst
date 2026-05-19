@@ -183,6 +183,29 @@ specific usage examples:
     # List all of the Dagster definitions
     $ pixi run dg list defs
 
+  Interactive asset loading
+  ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  If you want to inspect asset values interactively from a notebook, REPL, or local
+  script, use :func:`pudl.dagster.build.build_interactive_defs` rather than the default
+  ``build_defs()`` assembly. This helper constructs concrete FERC SQLite IO managers for
+  interactive use, which allows :meth:`dagster.Definitions.load_asset_value` to work
+  outside a ``dg``-spawned environment.
+
+  For example, to load a raw FERC asset in a notebook:
+
+  .. code-block:: python
+
+    from dagster import AssetKey
+    from pudl.dagster.build import build_interactive_defs
+
+    defs = build_interactive_defs()
+    test_df = defs.load_asset_value(AssetKey("raw_ferc1_dbf__f1_edcfu_epda"))
+    test_df.sample(10)
+
+  If you need to point at non-default packaged settings, ``build_interactive_defs()``
+  also accepts ``global_data_config_path=...`` and ``zenodo_dois_path=...`` overrides.
+
 .. _run-dagster-ui:
 
 Running the ETL via the Dagster UI

@@ -40,8 +40,11 @@ Quality of Life Improvements
 * Cleaned up PUDL's default Dagster wiring by separating default resources from IO
   managers, giving shared data-config resources clearer defaults, and simplifying the
   FERC SQLite IO manager and provenance stack. The branch also consolidated the FERC EQR
-  deployment helper assets with the rest of the Dagster package layout. See issue
-  :issue:`5118` and PR :pr:`5242`.
+  deployment helper assets with the rest of the Dagster package layout. Also created a
+  new Dagster definition builder for use in notebooks and other interactive environments
+  outside of a ``dg``-spawned environment:
+  :func:`pudl.dagster.build.build_interactive_defs`. See issue :issue:`5118` and PR
+  :pr:`5242`.
 
 .. _release-v2026.5.0:
 
