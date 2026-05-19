@@ -119,11 +119,12 @@ Dagster project loads successfully:
 Using the Devcontainer
 ^^^^^^^^^^^^^^^^^^^^^^
 
-PUDL includes a devcontainer configuration under ``.devcontainer/``. It is useful if you
-want a reproducible Linux development environment, or if you want to work with coding
-agents in YOLO mode safely inside a sandbox. Many editors are compatible with
-devcontainers, not just VS Code, but you may need to add a configuration section for
-other editors to ``.devcontainers/devcontainer.json``.
+PUDL includes a `devcontainer <https://containers.dev/>`__ configuration under
+``.devcontainer/``. It's useful if you want a reproducible Linux development
+environment, or if you want to work with coding agents in YOLO mode safely inside a
+sandbox. Many editors are compatible with devcontainers, not just VS Code, but you may
+need to add a configuration section for other editors to
+``.devcontainers/devcontainer.json``.
 
 The devcontainer expects the host to provide three directories through environment
 variables before the container starts:
@@ -155,6 +156,10 @@ bind-mounted separately and then exposed to PUDL as:
     If VS Code is launched from the macOS GUI instead of from a shell, it may not
     inherit these environment variables. In that case, the simplest fix is to launch
     ``code`` from a shell where the variables are already exported.
+
+If you are working on macOS, we recommend using `Orbstack <https://orbstack.dev/>`__
+to run the devcontainer efficiently. The PUDL ``pixi`` environment specifies
+packages for the ``linux-aarch64`` platform so it should run well on Apple silicon.
 
 When working with the devcontainer, you can run the Dagster UI either from inside the
 container or outside it on your host machine.

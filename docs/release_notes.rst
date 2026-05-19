@@ -37,6 +37,10 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Added a PUDL devcontainer configuration to make it easier for contributors to get up
+  and running, and to enable the safe use of coding agents in YOLO mode. See PR
+  :pr:`5260`.
+
 .. _release-v2026.5.0:
 
 ---------------------------------------------------------------------------------------
