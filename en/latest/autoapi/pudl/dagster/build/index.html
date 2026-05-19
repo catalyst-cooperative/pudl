@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.build &#8212; PUDL 2026.5.1.dev4 documentation</title>
+    <title>pudl.dagster.build &#8212; PUDL 2026.5.1.dev5 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../../_static/documentation_options.js?v=a45bf7f3"></script>
+    <script src="../../../../_static/documentation_options.js?v=0d1b8395"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -746,13 +746,10 @@
                   
   <section id="module-pudl.dagster.build">
 <span id="pudl-dagster-build"></span><h1>pudl.dagster.build<a class="headerlink" href="#module-pudl.dagster.build" title="Link to this heading">#</a></h1>
-<p>Dagster definitions assembly for PUDL.</p>
-<p>This module is where PUDL assembles a complete <a class="reference external" href="https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions" title="(in Dagster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dagster.Definitions</span></code></a> object from the
-package’s default assets, asset checks, jobs, resources, and sensors. Define helpers
-here that compose those building blocks into a code location, especially when tests,
-CLI entrypoints, or specialized environments need to override part of the default
-assembly. Avoid putting asset or resource implementations here; this module should stay
-focused on top-level orchestration assembly.</p>
+<p>Assembles Dagster Definitions from default values and specified overrides.</p>
+<p>Define helpers here that compose those building blocks into a code location, especially
+when tests, CLI entrypoints, or specialized environments need to override part of the
+default assembly. Avoid putting asset or resource implementations here.</p>
 <p>For the underlying Dagster concept, see
 <a class="reference external" href="https://docs.dagster.io/getting-started/concepts#definitions">https://docs.dagster.io/getting-started/concepts#definitions</a></p>
 <section id="functions">
@@ -761,6 +758,9 @@ focused on top-level orchestration assembly.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.build.build_defs" title="pudl.dagster.build.build_defs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_defs</span></code></a>(→ dagster.Definitions)</p></td>
 <td><p>Build a fresh PUDL <code class="docutils literal notranslate"><span class="pre">Definitions</span></code> object with optional overrides.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.build.build_interactive_defs" title="pudl.dagster.build.build_interactive_defs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_interactive_defs</span></code></a>(→ dagster.Definitions)</p></td>
+<td><p>Build defs for interactive in-process use with concrete default resources.</p></td>
 </tr>
 </tbody>
 </table>
@@ -772,6 +772,18 @@ focused on top-level orchestration assembly.</p>
 <dt class="sig sig-object py" id="pudl.dagster.build.build_defs">
 <span class="sig-prename descclassname"><span class="pre">pudl.dagster.build.</span></span><span class="sig-name descname"><span class="pre">build_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><span class="pre">collections.abc.Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_check_overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition" title="(in Dagster)"><span class="pre">dagster.AssetChecksDefinition</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor_overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">collections.abc.Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.dagster.io/api/dagster/schedules-sensors/#dagster.SensorDefinition" title="(in Dagster)"><span class="pre">dagster.SensorDefinition</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions" title="(in Dagster)"><span class="pre">dagster.Definitions</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/build.html#build_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.build.build_defs" title="Link to this definition">#</a></dt>
 <dd><p>Build a fresh PUDL <code class="docutils literal notranslate"><span class="pre">Definitions</span></code> object with optional overrides.</p>
+<p>Note that resource_overrides are used to update the default resources, while all
+other overrides replace the defaults entirely.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.dagster.build.build_interactive_defs">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.build.</span></span><span class="sig-name descname"><span class="pre">build_interactive_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_data_config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zenodo_dois_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.dagster.io/api/dagster/definitions/#dagster.Definitions" title="(in Dagster)"><span class="pre">dagster.Definitions</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/build.html#build_interactive_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.build.build_interactive_defs" title="Link to this definition">#</a></dt>
+<dd><p>Build defs for interactive in-process use with concrete default resources.</p>
+<p>Dagster’s asset value loader does not resolve the FERC SQLite IO managers when
+they reference partially configured nested resources, which happens when you’re
+trying to load assets outside of a <cite>dg</cite>-spawned environment. So, in notebooks,
+REPLs, and local scripts, we need to explicitly construct the FERC IO managers.</p>
 </dd></dl>
 
 </section>
@@ -827,6 +839,7 @@ focused on top-level orchestration assembly.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.build.build_defs"><code class="docutils literal notranslate"><span class="pre">build_defs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.build.build_interactive_defs"><code class="docutils literal notranslate"><span class="pre">build_interactive_defs()</span></code></a></li>
 </ul>
 </li>
 </ul>

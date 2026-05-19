@@ -44,12 +44,9 @@ Classes
    pudl.dagster.io_managers.PudlParquetIOManager
    pudl.dagster.io_managers.PudlGeoParquetIOManager
    pudl.dagster.io_managers.PudlSqliteIOManager
-   pudl.dagster.io_managers.FercSqliteIOManager
+   pudl.dagster.io_managers.FercSqliteIOManagerBase
    pudl.dagster.io_managers.FercDbfSqliteIOManager
-   pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase
-   pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager
    pudl.dagster.io_managers.FercXbrlSqliteIOManager
-   pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager
 
 
 Functions
@@ -312,121 +309,19 @@ Module Contents
 
 .. py:data:: geoparquet_io_manager
 
-.. py:class:: FercSqliteIOManager(base_dir: str | None = None, db_name: str | None = None, md: sqlalchemy.MetaData | None = None, timeout: float = 1000.0)
-
-   Bases: :py:obj:`SqliteIOManager`
-
-
-   IO Manager for reading tables from FERC databases.
-
-   This class should be subclassed and the load_input and handle_output methods should
-   be implemented.
-
-   This IOManager expects the database to already exist.
-
-
-   .. py:attribute:: _db_path
-      :type:  pathlib.Path
-
-
-   .. py:method:: _setup_database(timeout: float = 1000.0) -> sqlalchemy.Engine
-
-      Create database engine and read metadata if the DB already exists.
-
-      :param timeout: How many seconds the connection should wait before raising an
-                      exception, if the database is locked by another connection.  If another
-                      connection opens a transaction to modify the database, it will be locked
-                      until that transaction is committed.
-
-      :returns: SQL Alchemy engine that connects to a database in the base_dir.
-      :rtype: engine
-
-
-
-   .. py:method:: _reflect_metadata(engine: sqlalchemy.Engine | None = None) -> None
-
-      Reflect table metadata from the sqlite database into ``self.md``.
-
-
-
-   .. py:method:: _ensure_database_ready() -> None
-
-      Ensure the sqlite DB exists and metadata has been reflected.
-
-
-
-   .. py:method:: _query(table_name: str, years: list[int]) -> pandas.DataFrame
-      :abstractmethod:
-
-
-      Execute a year-filtered read against the FERC SQLite database.
-
-
-
-   .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame | str) -> None
-      :abstractmethod:
-
-
-      Handle an op or asset output.
-
-
-
-.. py:class:: FercDbfSqliteIOManager(base_dir: str | None = None, db_name: str | None = None, md: sqlalchemy.MetaData | None = None, timeout: float = 1000.0)
-
-   Bases: :py:obj:`FercSqliteIOManager`
-
-
-   IO Manager for reading tables from FERC DBF SQLite databases.
-
-   This IO Manager is for reading data only. It does not handle outputs because the raw
-   FERC tables are not known prior to running the ETL and are not recorded in our
-   metadata.
-
-   The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so
-   a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as
-   the corresponding data config object exposes a ``dbf_years`` attribute.
-
-
-   .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame | str) -> None
-      :abstractmethod:
-
-
-      Handle an op or asset output.
-
-
-
-   .. py:method:: _query(table_name: str, years: list[int]) -> pandas.DataFrame
-
-      Execute the year-filtered read against the FERC DBF SQLite database.
-
-      :param table_name: Name of the table to query (without the ``raw_<db_name>__``
-                         prefix).
-      :param years: Years to include in the result set.
-
-
-
-.. py:class:: _FercSqliteConfigurableIOManagerBase(**data: Any)
+.. py:class:: FercSqliteIOManagerBase(**data: Any)
 
    Bases: :py:obj:`dagster.ConfigurableIOManager`
 
 
-   Base class for Dagster-native FERC SQLite IO manager wrappers.
+   Shared lazy-loading behavior for FERC SQLite Dagster IO managers.
 
-   Holds the shared resource dependencies (``global_data_config``, ``zenodo_dois``,
-   ``db_name``) and provides default delegation for ``engine``, ``handle_output``, and
-   ``load_input``. Subclasses must define ``_manager`` (a ``cached_property`` returning
-   the appropriate underlying IO manager) and ``data_format`` (``dbf`` or ``xbrl``).
+   Subclasses provide the query details for a particular FERC SQLite backend, while
+   this base class owns three shared responsibilities:
 
-   .. note::
-
-      This wrapper pattern is a temporary workaround for nested ``global_data_config``
-      resource dependencies inside the FERC IO managers. Because Dagster wires
-      resource dependencies at instantiation time, overriding the top-level
-      ``global_data_config`` resource alone (e.g. in tests) is not enough — the IO
-      managers must be rebuilt against the new resource instance. ``build_defs`` in
-      ``pudl.etl`` handles that rebuilding explicitly. A follow-up PR will remove the
-      nested dependency, at which point this base class can be simplified or
-      eliminated. See issue #5118
+   1. lazily creating and caching a SQLAlchemy engine for the configured database
+   2. lazily reflecting and caching SQLAlchemy metadata once the database exists
+   3. checking Dagster provenance metadata before each read
 
 
    .. py:attribute:: global_data_config
@@ -442,7 +337,19 @@ Module Contents
 
 
    .. py:attribute:: data_format
-      :type:  Literal['dbf', 'xbrl']
+      :type:  ClassVar[str]
+
+
+   .. py:attribute:: _engine
+      :type:  sqlalchemy.Engine | None
+      :value: None
+
+
+
+   .. py:attribute:: _metadata
+      :type:  sqlalchemy.MetaData | None
+      :value: None
+
 
 
    .. py:property:: _years_key
@@ -454,26 +361,46 @@ Module Contents
       :type: str
 
 
+      Return the SQLite database name for this dataset and data format.
+
+
+   .. py:property:: db_path
+      :type: pathlib.Path
+
+
+      Return the canonical SQLite path for this dataset and data format.
+
 
    .. py:property:: engine
       :type: sqlalchemy.Engine
 
 
-      Expose the underlying SQLAlchemy engine for tests and helpers.
+      Return a cached SQLAlchemy engine for this FERC SQLite database.
 
 
-   .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame | str) -> None
-
-      Delegate writes to the underlying runtime IO manager.
-
+   .. py:property:: metadata
+      :type: sqlalchemy.MetaData
 
 
-   .. py:method:: _prepare(context: dagster.InputContext) -> None
+      Return cached reflected metadata for this database.
 
-      Make sure extracted FERC database is valid for this run.
+      The metadata is reflected on first access and reused for subsequent reads.
+      Accessing this property requires the SQLite database to already exist.
 
-      * does the database exist?
-      * do the FERC SQLite provenance check
+
+   .. py:method:: _get_sqlalchemy_table(table_name: str) -> sqlalchemy.Table
+
+      Return reflected SQLAlchemy table metadata for a FERC SQLite table.
+
+
+
+   .. py:method:: _check_provenance(context: dagster.InputContext) -> None
+
+      Check that the existing FERC SQLite database is compatible with this run.
+
+      This is intentionally separate from engine and metadata caching because the
+      compatibility check depends on the Dagster run context rather than on local
+      process state.
 
 
 
@@ -481,41 +408,64 @@ Module Contents
 
       Load a dataframe from the configured FERC SQLite database.
 
+      Ensure that the database exists and its schema has been reflected, then verify
+      the upstream FERC-to-SQLite provenance recorded in Dagster before delegating to
+      the subclass-specific query implementation.
 
 
-.. py:class:: FercDbfSqliteConfigurableIOManager(**data: Any)
 
-   Bases: :py:obj:`_FercSqliteConfigurableIOManagerBase`
+   .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame | str) -> None
+      :abstractmethod:
 
 
-   Configurable IO manager for reading tables from FERC DBF SQLite databases.
+      Reject writes because these IO managers currently support reads only.
+
+
+
+   .. py:method:: _query(table_name: str, years: list[int]) -> pandas.DataFrame
+      :abstractmethod:
+
+
+      Execute a filtered read against the FERC SQLite database.
+
+
+
+.. py:class:: FercDbfSqliteIOManager(**data: Any)
+
+   Bases: :py:obj:`FercSqliteIOManagerBase`
+
+
+   IO manager for reading tables from FERC DBF SQLite databases.
 
    Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.)
 
 
    .. py:attribute:: data_format
-      :type:  Literal['dbf']
+      :type:  ClassVar[str]
       :value: 'dbf'
 
 
 
-   .. py:property:: _manager
-      :type: FercDbfSqliteIOManager
+   .. py:method:: _query(table_name: str, years: list[int]) -> pandas.DataFrame
+
+      Execute the year-filtered read against the FERC DBF SQLite database.
 
 
-      Build the underlying SQLite reader lazily.
+
+.. py:class:: FercXbrlSqliteIOManager(**data: Any)
+
+   Bases: :py:obj:`FercSqliteIOManagerBase`
 
 
-.. py:class:: FercXbrlSqliteIOManager(base_dir: str | None = None, db_name: str | None = None, md: sqlalchemy.MetaData | None = None, timeout: float = 1000.0)
+   IO manager for reading tables from a FERC XBRL SQLite database.
 
-   Bases: :py:obj:`FercSqliteIOManager`
+   Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.).
 
 
-   IO Manager for only reading tables from the XBRL database.
+   .. py:attribute:: data_format
+      :type:  ClassVar[str]
+      :value: 'xbrl'
 
-   This IO Manager is for reading data only. It does not handle outputs because the raw
-   FERC tables are not known prior to running the ETL and are not recorded in our
-   metadata.
 
 
    .. py:method:: refine_report_year(df: pandas.DataFrame, xbrl_years: list[int]) -> pandas.DataFrame
@@ -534,14 +484,6 @@ Module Contents
 
 
 
-   .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame | str) -> None
-      :abstractmethod:
-
-
-      Handle an op or asset output.
-
-
-
    .. py:method:: _query(table_name: str, years: list[int]) -> pandas.DataFrame
 
       Execute the full-table read against the FERC XBRL SQLite database.
@@ -551,29 +493,6 @@ Module Contents
       :param years: Years to include in the result set (passed to
                     :meth:`refine_report_year`).
 
-
-
-.. py:class:: FercXbrlSqliteConfigurableIOManager(**data: Any)
-
-   Bases: :py:obj:`_FercSqliteConfigurableIOManagerBase`
-
-
-   Configurable IO manager for reading tables from a FERC XBRL SQLite database.
-
-   Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.).
-
-
-   .. py:attribute:: data_format
-      :type:  Literal['xbrl']
-      :value: 'xbrl'
-
-
-
-   .. py:property:: _manager
-      :type: FercXbrlSqliteIOManager
-
-
-      Build the underlying SQLite reader lazily.
 
 
 .. py:data:: ferc1_dbf_sqlite_io_manager
