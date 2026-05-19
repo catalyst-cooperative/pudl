@@ -494,20 +494,6 @@ docker volume rm pudl-pixi || true \
 """
 description = "Rebuild the dev container image metadata and recreate the named pixi cache volume"
 
-[tool.pixi.tasks.devcontainer-start]
-cmd = "npx -y @devcontainers/cli up --workspace-folder . --remove-existing-container --log-level info"
-description = "Create or recreate the dev container using devcontainer.json"
-
-[tool.pixi.tasks.devcontainer-exec]
-cmd = "npx -y @devcontainers/cli exec --workspace-folder . bash"
-description = "Open a bash shell inside the running dev container"
-
-[tool.pixi.tasks.devcontainer-stop]
-cmd = """
-bash -c 'container_ids=$(docker ps -aq --filter "label=devcontainer.local_folder=$(pwd)"); if [[ -n "$container_ids" ]]; then docker rm -f $container_ids; fi'
-"""
-description = "Stop and remove the dev container associated with this workspace"
-
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command
 # which is the workaround for "restoring from a lockfile" - see
