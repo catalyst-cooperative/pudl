@@ -122,8 +122,8 @@ Using the Devcontainer
 PUDL includes a `devcontainer <https://containers.dev/>`__ configuration under
 ``.devcontainer/``. It's useful if you want a reproducible Linux development
 environment, or if you want to work with coding agents in YOLO mode safely inside a
-sandbox. Many editors are compatible with devcontainers, not just VS Code, but you may
-need to add a configuration section for other editors to
+sandbox. Many editors are compatible with devcontainers, not just VS Code, but for other
+editors you may need to add a configuration section to
 ``.devcontainers/devcontainer.json``.
 
 The devcontainer expects the host to provide three directories through environment
@@ -154,8 +154,8 @@ bind-mounted separately and then exposed to PUDL as:
 .. note::
 
     If VS Code is launched from the macOS GUI instead of from a shell, it may not
-    inherit these environment variables. In that case, the simplest fix is to launch
-    ``code`` from a shell where the variables are already exported.
+    inherit these environment variables. When using the devcontainer, we recommend
+    launching ``code`` from a shell, and not through the GUI.
 
 If you are working on macOS, we recommend using `Orbstack <https://orbstack.dev/>`__
 to run the devcontainer efficiently. The PUDL ``pixi`` environment specifies
