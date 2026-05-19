@@ -120,21 +120,27 @@ Using the Devcontainer
 ^^^^^^^^^^^^^^^^^^^^^^
 
 PUDL includes a `devcontainer <https://containers.dev/>`__ configuration under
-``.devcontainer/``. It's useful if you want a reproducible Linux development
-environment, or if you want to work with coding agents in YOLO mode safely inside a
-sandbox. Many editors are compatible with devcontainers, not just VS Code, but for other
-editors you may need to add a configuration section to
-``.devcontainers/devcontainer.json``.
+``.devcontainer/``. We set it up initially to make it possible to work with coding
+agents in YOLO mode without giving them free reign over your entire computer. It's also
+useful if you want a reproducible Linux development environment. Several popular agent
+harnesses (Claude Code, Pi, etc.) are also installed inside the devcontainer.
 
-The devcontainer expects the host to provide three directories through environment
+Many editors are compatible with devcontainers, not just VS Code, but for other editors
+you may need to add a configuration section to ``.devcontainers/devcontainer.json``.
+
+The devcontainer requires the host to provide three directories through environment
 variables before the container starts:
 
 * ``PUDL_INPUT``
 * ``PUDL_OUTPUT``
 * ``DAGSTER_HOME``
 
-The simplest way to pass them in is to export the paths in the shell that launches VS
-Code, then reopen the repository in the container. For example:
+It will also import environment variables typically used to hold API keys for various
+agents and LLM services, such as ``ANTHROPHIC_API_KEY`` and ``OPENROUTER_API_KEY``. See
+``.devcontainer/devcontainer.json`` for the full list.
+
+The simplest way to pass environment variables in is to export the paths in the shell
+that launches VS Code, then open the repository in the container. For example:
 
 .. code-block:: console
 
