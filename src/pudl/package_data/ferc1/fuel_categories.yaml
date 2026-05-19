@@ -301,6 +301,7 @@ oil:
   - residual oil
   - tall oil
   - used oil
+  - diesel/composite
 other:
   - ""
   - '"'

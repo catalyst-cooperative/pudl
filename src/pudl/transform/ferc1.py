@@ -1236,18 +1236,31 @@ def calculate_values_from_components(
     logger.info(
         f"{data[data.duplicated(data_idx, keep=False)].set_index(data_idx).sort_index()}"
     )
-    calculated_df = pd.merge(
-        data,
-        calc_df,
-        on=data_idx,
-        how="outer",
-        validate="1:1",
-        indicator=True,
-    )
+    try:
+        calculated_df = pd.merge(
+            left=data,
+            right=calc_df,
+            on=data_idx,
+            how="outer",
+            validate="1:1",
+            indicator=True,
+        )
+    except pd.errors.MergeError as err:  # Make debugging easier.
+        raise pd.errors.MergeError(
+            f"Merge failed, duplicated merge keys in right dataset with merge key of {data_idx}:\n"
+            f"right\n{data[data.duplicated(data_idx, keep=False)].set_index(data_idx).sort_index()}\n\n"
+            f"left\n{calc_df[calc_df.duplicated(data_idx, keep=False)].set_index(data_idx).sort_index()}"
+        ) from err
 
-    assert calculated_df[
-        (calculated_df._merge == "right_only") & (calculated_df[value_col].notnull())
-    ].empty
+    if not (
+        baddies := calculated_df[
+            (calculated_df._merge == "right_only")
+            & (calculated_df[value_col].notnull())
+        ]
+    ).empty:
+        raise AssertionError(
+            f"Found right only values from merge but expected none: {baddies}"
+        )
 
     calculated_df = calculated_df.drop(columns=["_merge"])
     # Force value_col to be a float to prevent any hijinks with calculating differences.
