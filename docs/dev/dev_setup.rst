@@ -116,6 +116,49 @@ Dagster project loads successfully:
 
     $ pixi run dg check defs --verbose
 
+Using the Devcontainer
+^^^^^^^^^^^^^^^^^^^^^^
+
+PUDL includes a devcontainer configuration under ``.devcontainer/``. It is useful if you
+want a reproducible Linux development environment, or if you want to work with coding
+agents in YOLO mode safely inside a sandbox. Many editors are compatible with
+devcontainers, not just VS Code, but you may need to add a configuration section for
+other editors to ``.devcontainers/devcontainer.json``.
+
+The devcontainer expects the host to provide three directories through environment
+variables before the container starts:
+
+* ``PUDL_INPUT``
+* ``PUDL_OUTPUT``
+* ``DAGSTER_HOME``
+
+The simplest way to pass them in is to export the paths in the shell that launches VS
+Code, then reopen the repository in the container. For example:
+
+.. code-block:: console
+
+    $ mkdir -p "$HOME/pudl-dev/input" "$HOME/pudl-dev/output" "$HOME/pudl-dev/dagster-home"
+    $ export PUDL_INPUT="$HOME/pudl-dev/input"
+    $ export PUDL_OUTPUT="$HOME/pudl-dev/output"
+    $ export DAGSTER_HOME="$HOME/pudl-dev/dagster-home"
+    $ code /path/to/pudl/repo
+
+The in-container path is under ``/workspaces/``. The extra host directories are
+bind-mounted separately and then exposed to PUDL as:
+
+* ``PUDL_INPUT=/workspaces/pudl-input``
+* ``PUDL_OUTPUT=/workspaces/pudl-output``
+* ``DAGSTER_HOME=/workspaces/dagster-home``
+
+.. note::
+
+    If VS Code is launched from the macOS GUI instead of from a shell, it may not
+    inherit these environment variables. In that case, the simplest fix is to launch
+    ``code`` from a shell where the variables are already exported.
+
+When working with the devcontainer, you can run the Dagster UI either from inside the
+container or outside it on your host machine.
+
 -------------------------------------------------------------------------------
 Updating the PUDL Development Environment
 -------------------------------------------------------------------------------
