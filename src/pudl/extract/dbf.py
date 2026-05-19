@@ -22,7 +22,6 @@ import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
 from pudl.settings import FercDbfToSqliteDataConfig, FercToSqliteDataConfig
 from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -477,6 +476,7 @@ class FercDbfExtractor:
             required_resource_keys={
                 "global_data_config",
                 "datastore",
+                "pudl_paths",
                 "runtime_settings",
             },
             tags={"dataset": cls.DATASET, "data_format": "dbf"},
@@ -486,7 +486,7 @@ class FercDbfExtractor:
             dbf_extractor = cls(
                 datastore=context.resources.datastore,
                 data_config=context.resources.global_data_config.ferc_to_sqlite,
-                output_path=PudlPaths().pudl_output,
+                output_path=context.resources.pudl_paths.pudl_output,
             )
             dbf_extractor.execute()
 

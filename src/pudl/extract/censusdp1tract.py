@@ -16,7 +16,6 @@ from dagster import Field, asset
 
 import pudl.logging_helpers
 from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -32,7 +31,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
             default_value=2010,
         ),
     },
-    required_resource_keys={"datastore"},
+    required_resource_keys={"datastore", "pudl_paths"},
 )
 def raw_censusdp1tract__all_tables(context):
     """Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.
@@ -70,9 +69,9 @@ def raw_censusdp1tract__all_tables(context):
             "censusdp1tract", year=context.op_config["year"]
         ) as zip_ref:
             extract_root = tmpdir_path / Path(zip_ref.filelist[0].filename)
-            out_dir = PudlPaths().pudl_output
+            out_dir = context.resources.pudl_paths.pudl_output
             assert out_dir.is_dir()
-            out_path = PudlPaths().pudl_output / "censusdp1tract.sqlite"
+            out_path = out_dir / "censusdp1tract.sqlite"
 
             if out_path.exists():
                 if context.op_config["clobber"]:

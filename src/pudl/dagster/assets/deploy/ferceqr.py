@@ -51,8 +51,8 @@ def _notify_slack_deployments_channel(
     )
 
 
-def _get_etl_status_csv_path() -> Path:
-    return PudlPaths().pudl_output / "ferceqr_etl_status.csv"
+def _get_etl_status_csv_path(pudl_paths: PudlPaths) -> Path:
+    return pudl_paths.pudl_output / "ferceqr_etl_status.csv"
 
 
 def _get_logfile_pointer() -> str:
@@ -63,9 +63,9 @@ def _get_logfile_pointer() -> str:
     )
 
 
-def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
+def _write_status_file(status: Literal["SUCCESS", "FAILURE"], pudl_paths: PudlPaths):
     """Notify build script that job is complete by creating a status file."""
-    (PudlPaths().pudl_output / status).touch()
+    (pudl_paths.pudl_output / status).touch()
 
 
 def deployment_status_asset(
@@ -79,20 +79,20 @@ def deployment_status_asset(
     running until it eventually times out.
     """
 
-    @dg.asset(name=handler.__name__)
-    def _status_handler_asset():
+    @dg.asset(name=handler.__name__, required_resource_keys={"pudl_paths"})
+    def _status_handler_asset(context):
         try:
-            handler()
+            handler(context.resources.pudl_paths)
         except Exception:
             logger.error("FERCEQR deployment handler failed!")
             logger.error(traceback.format_exc())
-            _write_status_file("FAILURE")
+            _write_status_file("FAILURE", context.resources.pudl_paths)
 
     return _status_handler_asset
 
 
 @deployment_status_asset
-def deploy_ferceqr():
+def deploy_ferceqr(pudl_paths: PudlPaths):
     """Publish EQR outputs to cloud storage."""
     # Get output locations for S3 and GCS
     distribution_paths = [
@@ -144,11 +144,11 @@ def deploy_ferceqr():
         )
         + _get_logfile_pointer()
     )
-    _write_status_file("SUCCESS")
+    _write_status_file("SUCCESS", pudl_paths)
 
 
 @deployment_status_asset
-def handle_ferceqr_deployment_failure():
+def handle_ferceqr_deployment_failure(pudl_paths: PudlPaths):
     """Send notification if EQR deployment failed."""
     logger.error("Build failed, notifying slack.")
     _notify_slack_deployments_channel(
@@ -157,6 +157,6 @@ def handle_ferceqr_deployment_failure():
             + _get_logfile_pointer()
             + "See individual step status in attached file: "
         ),
-        attached_file_path=str(_get_etl_status_csv_path()),
+        attached_file_path=str(_get_etl_status_csv_path(pudl_paths)),
     )
-    _write_status_file("FAILURE")
+    _write_status_file("FAILURE", pudl_paths)

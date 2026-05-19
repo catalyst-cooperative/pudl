@@ -10,7 +10,6 @@ import pandas as pd
 from dagster import AssetKey, AssetsDefinition, AssetSpec, asset
 
 import pudl.logging_helpers
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -126,7 +125,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
     return _extract_raw_ferc714_csv
 
 
-@asset(deps=[FERC714_XBRL_SQLITE_ASSET_KEY])
+@asset(deps=[FERC714_XBRL_SQLITE_ASSET_KEY], required_resource_keys={"pudl_paths"})
 def raw_ferc714_xbrl__metadata_json(
     context,
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -140,7 +139,9 @@ def raw_ferc714_xbrl__metadata_json(
         structure, with each row annotating a separate XBRL concept from the FERC 714
         filings.
     """
-    metadata_path = PudlPaths().pudl_output / "ferc714_xbrl_taxonomy_metadata.json"
+    metadata_path = (
+        context.resources.pudl_paths.pudl_output / "ferc714_xbrl_taxonomy_metadata.json"
+    )
     with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 

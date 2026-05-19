@@ -19,7 +19,6 @@ from pudl.settings import (
     XbrlFormNumber,
 )
 from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -99,12 +98,14 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
         required_resource_keys={
             "global_data_config",
             "datastore",
+            "pudl_paths",
             "runtime_settings",
         },
         tags={"data_format": "xbrl", "dataset": str(form)},
     )
     def inner_op(context) -> None:
-        output_path = PudlPaths().pudl_output
+        pudl_paths = context.resources.pudl_paths
+        output_path = pudl_paths.pudl_output
         rs: FercXbrlRuntimeSettings = context.resources.runtime_settings
         data_config = (
             context.resources.global_data_config.ferc_to_sqlite.get_data_config(
@@ -120,10 +121,10 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
             )
             return
 
-        sqlite_path = PudlPaths().sqlite_db_path(f"{form}_xbrl")
+        sqlite_path = pudl_paths.sqlite_db_path(f"{form}_xbrl")
         if sqlite_path.exists():
             sqlite_path.unlink()
-        duckdb_path = PudlPaths().duckdb_db_path(f"{form}_xbrl")
+        duckdb_path = pudl_paths.duckdb_db_path(f"{form}_xbrl")
         if duckdb_path.exists():
             duckdb_path.unlink()
 

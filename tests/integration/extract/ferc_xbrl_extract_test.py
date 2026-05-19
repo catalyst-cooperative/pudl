@@ -12,7 +12,6 @@ import sqlalchemy as sa
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.settings import GlobalDataConfig, XbrlFormNumber
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
-from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +35,7 @@ def _find_empty_tables(db_conn, tables: set[str]) -> set[str]:
 def test_sqlite_duckdb_equivalence(
     prebuilt_outputs,
     global_data_config: GlobalDataConfig,
+    pudl_test_paths,
 ):
     """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
     for form in XbrlFormNumber:
@@ -47,8 +47,8 @@ def test_sqlite_duckdb_equivalence(
             )
             continue
         logger.info(f"Comparing {form} SQLite vs. DuckDB outputs...")
-        sqlite_path = PudlPaths().sqlite_db_path(f"{form}_xbrl")
-        duckdb_path = PudlPaths().duckdb_db_path(f"{form}_xbrl")
+        sqlite_path = pudl_test_paths.sqlite_db_path(f"{form}_xbrl")
+        duckdb_path = pudl_test_paths.duckdb_db_path(f"{form}_xbrl")
 
         with (
             duckdb.connect(sqlite_path) as sqlite_conn,
@@ -161,6 +161,7 @@ def test_filter_for_freshest_data(
     ferc1_engine_xbrl: sa.Engine,  # Dependency only to ensure database is available
     table_name: str,
     asset_value_loader,
+    pudl_test_paths,
 ):
     """Test if we are unexpectedly replacing records during filter_for_freshest_data."""
 
@@ -178,7 +179,9 @@ def test_filter_for_freshest_data(
         xbrl_table: pd.DataFrame = asset_value_loader.load_asset_value(raw_table_name)
         if not xbrl_table.empty:
             primary_keys = get_primary_key_raw_xbrl(
-                raw_table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                raw_table_name.removeprefix("raw_ferc1_xbrl__"),
+                "ferc1",
+                pudl_paths=pudl_test_paths,
             )
             filter_for_freshest_data_xbrl(
                 xbrl_table, primary_keys, compare_methods=True
