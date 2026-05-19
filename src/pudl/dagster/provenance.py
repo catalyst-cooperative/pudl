@@ -10,6 +10,7 @@ For the closest Dagster concept, see
 https://docs.dagster.io/guides/build/assets/metadata-and-tags
 """
 
+import sqlite3
 from dataclasses import dataclass
 from importlib.metadata import version
 from pathlib import Path
@@ -92,9 +93,9 @@ class FercSqliteProvenanceRecord(BaseModel):
 
         return cls(**payload)
 
-    def to_sqlite(self, engine: sa.Engine):
+    def to_sqlite(self):
         """Write Provenance data to sqlite."""
-        with engine.begin() as conn:
+        with sa.create_engine(f"sqlite:///{self.sqlite_path}").begin() as conn:
             conn.execute(
                 sa.text("""
                 CREATE TABLE IF NOT EXISTS _provenance_metadata (
@@ -112,12 +113,16 @@ class FercSqliteProvenanceRecord(BaseModel):
             )
 
     @classmethod
-    def from_sqlite(cls, engine: sa.Engine) -> "FercSqliteProvenanceRecord":
+    def from_sqlite(cls, sqlite_path: Path) -> "FercSqliteProvenanceRecord":
         """Read SQLite provenance metadata from DB."""
-        with engine.begin() as conn:
-            row = conn.execute(
-                sa.text("SELECT metadata FROM _provenance_metadata WHERE id = 1")
-            ).scalar_one()
+        try:
+            with sa.create_engine(f"sqlite:///{sqlite_path}").begin() as conn:
+                row = conn.execute(
+                    sa.text("SELECT metadata FROM _provenance_metadata WHERE id = 1")
+                ).scalar_one()
+        except (sa.exc.OperationalError, sqlite3.OperationalError):
+            logger.warning(f"No provenance metadata available for {sqlite_path}.")
+            return None
 
         return cls.model_validate_json(row)
 

@@ -1,6 +1,7 @@
 """Tests for xbrl extraction module."""
 
 from pathlib import Path
+from zipfile import ZipFile
 
 import dagster as dg
 import pytest
@@ -11,6 +12,10 @@ from dagster._core.definitions.assets.definition.assets_definition import (
 from dagster._core.execution.execute_in_process_result import ExecuteInProcessResult
 
 from pudl.dagster.assets.raw import ferc_to_sqlite
+from pudl.dagster.provenance import (
+    FercSqliteProvenanceRecord,
+    get_xbrl_extractor_version,
+)
 from pudl.dagster.resources import FercXbrlRuntimeSettings
 from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
@@ -231,3 +236,95 @@ def test_ferc_dbf_extractor_skips_with_empty_years(mocker, tmp_path):
     extractor.execute()
 
     delete_schema_mock.assert_not_called()
+
+
+def _prep_cached_dbs(
+    local_provenance: FercSqliteProvenanceRecord,
+    nightly_provenance: FercSqliteProvenanceRecord,
+    nightly_zip_path: Path,
+):
+    """Prep cached dbs with provenance metadata."""
+    # Delete db's if they exist for fresh start
+    local_provenance.sqlite_path.unlink(missing_ok=True)
+    nightly_provenance.sqlite_path.unlink(missing_ok=True)
+
+    # Write records to DB's
+    local_provenance.to_sqlite()
+    nightly_provenance.to_sqlite()
+
+    with ZipFile(nightly_zip_path, mode="w") as archive:
+        archive.write(nightly_provenance.sqlite_path, local_provenance.sqlite_path.name)
+
+
+def test_check_compatible_cached_db(mocker, tmp_path):
+    """Test the logic for checking for a compatible cached FERC SQLite DB."""
+    # Basic parameters
+    dataset = "ferc1"
+    data_format = "dbf"
+    status = "complete"
+    data_config = FercToSqliteDataConfig(ferc1_dbf=Ferc1DbfToSqliteDataConfig())
+    years = data_config.get_dataset_years(dataset, data_format)
+    local_doi = "local_doi"
+    nightly_doi = "nightly_doi"
+    local_path = tmp_path / "local_ferc1_dbf.sqlite"
+    nightly_path = tmp_path / "nightly_ferc1_dbf.sqlite"
+    nightly_zip_path = tmp_path / "nightly.zip"
+
+    # Construct provenance records for local and nightly DB's
+    local_provenance = FercSqliteProvenanceRecord(
+        dataset=dataset,
+        data_format=data_format,
+        status=status,
+        zenodo_doi=local_doi,
+        years=years,
+        sqlite_path=local_path,
+        ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
+    )
+    nightly_provenance = FercSqliteProvenanceRecord(
+        dataset=dataset,
+        data_format=data_format,
+        status=status,
+        zenodo_doi=nightly_doi,
+        years=years,
+        sqlite_path=nightly_path,
+        ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
+    )
+    _prep_cached_dbs(local_provenance, nightly_provenance, nightly_zip_path)
+
+    # Mock nightly downloads
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite.fsspec.open",
+        side_effect=lambda _path, _mode, **kwargs: nightly_zip_path.open("rb"),
+    )
+
+    # Test with local doi to return local_provenance record
+    assert local_provenance == ferc_to_sqlite._check_compatible_cached_db(
+        dataset=dataset,
+        data_format=data_format,
+        zenodo_doi=local_doi,
+        sqlite_path=local_path,
+        ferc_to_sqlite=data_config,
+    )
+
+    # Test with nightly doi to return nightly_provenance record
+    _prep_cached_dbs(local_provenance, nightly_provenance, nightly_zip_path)
+    assert nightly_provenance == ferc_to_sqlite._check_compatible_cached_db(
+        dataset=dataset,
+        data_format=data_format,
+        zenodo_doi=nightly_doi,
+        sqlite_path=local_path,
+        ferc_to_sqlite=data_config,
+    )
+
+    # Test with doi from neither local / nightly, should return None
+    _prep_cached_dbs(local_provenance, nightly_provenance, nightly_zip_path)
+    assert (
+        ferc_to_sqlite._check_compatible_cached_db(
+            dataset=dataset,
+            data_format=data_format,
+            zenodo_doi="uncached_doi",
+            sqlite_path=local_path,
+            ferc_to_sqlite=data_config,
+        )
+        is None
+    )

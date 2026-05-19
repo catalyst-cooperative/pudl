@@ -5,7 +5,6 @@ from typing import Literal
 
 import dagster as dg
 import pytest
-import sqlalchemy as sa
 
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
@@ -50,6 +49,7 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
 def test_ferc_sqlite_provenance_record_round_trip_sqlite(tmp_path):
     """Test ``FercSqliteProvenanceRecord`` to sqlite and back again."""
     data_config = FercToSqliteDataConfig()
+    sqlite_path = tmp_path / "test.sqlite"
     record = FercSqliteProvenanceRecord(
         dataset="ferc1",
         data_format="dbf",
@@ -57,16 +57,15 @@ def test_ferc_sqlite_provenance_record_round_trip_sqlite(tmp_path):
         zenodo_doi="fake DOI",
         years=[2018, 2019],
         data_config=data_config,
-        sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+        sqlite_path=sqlite_path,
         ferc_xbrl_extractor_version="1.0.0",
     )
 
     # Write to sqlite
-    engine = sa.create_engine(f"sqlite:///{tmp_path}/test.sqlite")
-    record.to_sqlite(engine)
+    record.to_sqlite()
 
     # Recover and compare
-    recovered = FercSqliteProvenanceRecord.from_sqlite(engine)
+    recovered = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
     assert recovered == record
     assert recovered.data_config == data_config
 

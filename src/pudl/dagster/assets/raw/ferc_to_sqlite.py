@@ -6,12 +6,19 @@ resource requirements, and materialization metadata specific to those prerequisi
 databases, rather than the downstream transforms that consume them.
 """
 
+from io import BytesIO
+from pathlib import Path
+from zipfile import ZipFile
+
 import dagster as dg
+import fsspec
 
 import pudl.logging_helpers
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
+    FercSqliteProvenance,
     FercSqliteProvenanceRecord,
+    assert_ferc_sqlite_compatible,
     get_xbrl_extractor_version,
 )
 from pudl.extract.ferc import (
@@ -21,10 +28,86 @@ from pudl.extract.ferc import (
     Ferc60DbfExtractor,
 )
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
-from pudl.settings import XbrlFormNumber
+from pudl.settings import FercToSqliteDataConfig, XbrlFormNumber
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def _compare_provenance_metadata(
+    required_provenance: FercSqliteProvenance,
+    stored_provenance: FercSqliteProvenanceRecord | None,
+) -> FercSqliteProvenanceRecord | None:
+    """Compare provenance metadata and return if compatible."""
+    # Can be None for legacy SQLite DB's that don't contain metadata
+    if stored_provenance is None:
+        return None
+
+    try:
+        assert_ferc_sqlite_compatible(
+            stored=stored_provenance, provenance=required_provenance
+        )
+        return stored_provenance
+    except RuntimeError as e:
+        logger.warning(
+            f"SQLite DB cached at {stored_provenance.sqlite_path} is not compatible. "
+            f"See the following for details: {e}"
+        )
+    return None
+
+
+def _download_nightly_db(sqlite_path: Path):
+    """Download nightly SQLite db and extract from zipfile, writing to local workspace."""
+    with (
+        fsspec.open(
+            f"s3://pudl.catalyst.coop/nightly/{sqlite_path.name}.zip", "rb", anon=True
+        ) as f,
+        ZipFile(BytesIO(f.read())) as archive,
+        archive.open(sqlite_path.name) as nightly_sqlite,
+        sqlite_path.open("wb") as local_sqlite,
+    ):
+        local_sqlite.write(nightly_sqlite.read())
+
+
+def _check_compatible_cached_db(
+    dataset: str,
+    data_format: str,
+    zenodo_doi: str,
+    sqlite_path: Path,
+    ferc_to_sqlite: FercToSqliteDataConfig,
+) -> FercSqliteProvenanceRecord | None:
+    """Check to see if there is a compatible SQLite DB either locally, or in nightly builds.
+
+    Reads a FercSqliteProvenanceRecord
+    """
+    provenance = FercSqliteProvenance(
+        dataset=dataset,
+        data_format=data_format,
+        zenodo_doi=zenodo_doi,
+        years=ferc_to_sqlite.get_dataset_years(dataset, data_format),
+        ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
+    )
+
+    # Check local DB first
+    stored_local = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
+
+    # If not compatible, try nightly builds
+    if (
+        compatible_metadata := _compare_provenance_metadata(provenance, stored_local)
+    ) is None:
+        logger.info(
+            f"Provenance metadata for local version of {sqlite_path.name} is incompatible."
+            " Downloading version from nightly builds."
+        )
+        _download_nightly_db(sqlite_path)
+        stored_nightly = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
+        compatible_metadata = _compare_provenance_metadata(provenance, stored_nightly)
+    if compatible_metadata is None:
+        logger.info(
+            f"Can't find a cached version of {sqlite_path.name} with compatible provenance metadata."
+            " Extracting from scratch."
+        )
+    return compatible_metadata
 
 
 def dbf_to_sqlite_asset_factory(
@@ -61,27 +144,51 @@ def dbf_to_sqlite_asset_factory(
                     )
                 },
             )
-        extractor_class(
-            datastore=context.resources.datastore,
-            data_config=ferc_to_sqlite,
-            output_path=PudlPaths().output_dir,
-        ).execute()
+
+        zenodo_doi = context.resources.zenodo_dois.get_doi(dataset)
+        sqlite_path = PudlPaths().sqlite_db_path(f"{dataset}_dbf")
+
+        # Check if there's a cached SQLite DB that is compatible
+        if (
+            provenance := _check_compatible_cached_db(
+                dataset=dataset,
+                data_format="dbf",
+                zenodo_doi=zenodo_doi,
+                sqlite_path=sqlite_path,
+                ferc_to_sqlite=ferc_to_sqlite,
+            )
+        ) is None:
+            # If not, run extraction
+            extractor_class(
+                datastore=context.resources.datastore,
+                data_config=ferc_to_sqlite,
+                output_path=PudlPaths().output_dir,
+            ).execute()
+
+            provenance = FercSqliteProvenanceRecord(
+                dataset=dataset,
+                data_format="dbf",
+                status="complete",
+                zenodo_doi=zenodo_doi,
+                years=ferc_to_sqlite.get_dataset_years(
+                    dataset=dataset, data_format="dbf"
+                ),
+                data_config=ferc_to_sqlite,
+                sqlite_path=sqlite_path,
+                ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
+            )
+            provenance.to_sqlite()
+        else:
+            logger.info(
+                f"Found compatible cached SQLite DB for {sqlite_path.name}. Skipping extraction."
+            )
+
+        # Return provenance metadata
         return dg.MaterializeResult(
             value="complete",
             metadata={
                 FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
-                    FercSqliteProvenanceRecord(
-                        dataset=dataset,
-                        data_format="dbf",
-                        status="complete",
-                        zenodo_doi=context.resources.zenodo_dois.get_doi(dataset),
-                        years=ferc_to_sqlite.get_dataset_years(
-                            dataset=dataset, data_format="dbf"
-                        ),
-                        data_config=ferc_to_sqlite,
-                        sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
-                        ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
-                    ).model_dump(mode="json")
+                    provenance.model_dump(mode="json")
                 )
             },
         )
@@ -108,11 +215,10 @@ def xbrl_to_sqlite_asset_factory(
     )
     def _asset(context) -> dg.MaterializeResult[str]:
         runtime_settings = context.resources.runtime_settings
-        data_config = (
-            context.resources.global_data_config.ferc_to_sqlite.get_data_config(
-                dataset=form, data_format="xbrl"
-            )
-        )
+        ferc_to_sqlite = context.resources.global_data_config.ferc_to_sqlite
+        data_config = ferc_to_sqlite.get_data_config(dataset=form, data_format="xbrl")
+        dataset = str(form)
+        zenodo_doi = context.resources.zenodo_dois.get_doi(str(form))
         if data_config is None or not data_config.years:
             logger.info(f"No years configured for {form}_xbrl: skipping extraction.")
             return dg.MaterializeResult(
@@ -120,7 +226,7 @@ def xbrl_to_sqlite_asset_factory(
                 metadata={
                     FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
                         FercSqliteProvenanceRecord(
-                            dataset=str(form),
+                            dataset=dataset,
                             data_format="xbrl",
                             status="not_configured",
                         ).model_dump(mode="json")
@@ -136,33 +242,45 @@ def xbrl_to_sqlite_asset_factory(
         if duckdb_path.exists():
             duckdb_path.unlink()
 
-        convert_form(
-            form_data_config=data_config,
-            form=form,
-            datastore=FercXbrlDatastore(context.resources.datastore),
-            output_path=output_path,
-            sqlite_path=sqlite_path,
-            duckdb_path=duckdb_path,
-            batch_size=runtime_settings.xbrl_batch_size,
-            workers=runtime_settings.xbrl_num_workers,
-            loglevel=runtime_settings.xbrl_loglevel,
-        )
+        # Check if there's a cached SQLite DB that is compatible
+        if (
+            provenance := _check_compatible_cached_db(
+                dataset=dataset,
+                data_format="xbrl",
+                zenodo_doi=zenodo_doi,
+                sqlite_path=sqlite_path,
+                ferc_to_sqlite=ferc_to_sqlite,
+            )
+        ) is None:
+            convert_form(
+                form_data_config=data_config,
+                form=form,
+                datastore=FercXbrlDatastore(context.resources.datastore),
+                output_path=output_path,
+                sqlite_path=sqlite_path,
+                duckdb_path=duckdb_path,
+                batch_size=runtime_settings.xbrl_batch_size,
+                workers=runtime_settings.xbrl_num_workers,
+                loglevel=runtime_settings.xbrl_loglevel,
+            )
+            provenance = FercSqliteProvenanceRecord(
+                dataset=str(form),
+                data_format="xbrl",
+                status="complete",
+                zenodo_doi=zenodo_doi,
+                years=ferc_to_sqlite.get_dataset_years(
+                    dataset=form, data_format="xbrl"
+                ),
+                data_config=ferc_to_sqlite,
+                sqlite_path=PudlPaths().sqlite_db_path(f"{form}_xbrl"),
+            )
+            provenance.to_sqlite()
 
         return dg.MaterializeResult(
             value="complete",
             metadata={
                 FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
-                    FercSqliteProvenanceRecord(
-                        dataset=str(form),
-                        data_format="xbrl",
-                        status="complete",
-                        zenodo_doi=context.resources.zenodo_dois.get_doi(str(form)),
-                        years=context.resources.global_data_config.ferc_to_sqlite.get_dataset_years(
-                            dataset=form, data_format="xbrl"
-                        ),
-                        data_config=context.resources.global_data_config.ferc_to_sqlite,
-                        sqlite_path=PudlPaths().sqlite_db_path(f"{form}_xbrl"),
-                    ).model_dump(mode="json")
+                    provenance.model_dump(mode="json")
                 )
             },
         )
