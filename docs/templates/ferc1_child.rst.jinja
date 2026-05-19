@@ -153,10 +153,12 @@ require a couple of hours of work, while others can be quite involved.
 {% endblock %}
 
 {% block extra_pudl_transform_text %}
-Supporting Structure Types & Materials
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Columns _ of out_ferc1__yearly_transmission_lines_sched422 and its ancestors are
+Supporting Structure Types & Materials
+--------------------------------------
+
+Columns ``supporting_structure_type`` and  ``supporting_structure_material`` of
+``out_ferc1__yearly_transmission_lines_sched422`` and its ancestors are
 derived from a free-form text field in Schedule 422.
 
 The transformations for these columns required some opinionated design
@@ -164,21 +166,25 @@ decisions, which we document here.
 
 The FERC form instructions for this field are:
 
-..blockquote
+.. pull-quote
 
-  Indicate whether the type of supporting structure reported in column (e) is:
-  (1) single pole wood or steel; (2) H-frame wood, or steel poles; (3) tower; or
-  (4) underground construction. If a transmission line has more than one type of
-  supporting structure, indicate the mileage of each type of construction by the
-  use of brackets and extra lines. Minor portions of a transmission line of a
-  different type of construction need not be distinguished from the remainder of
-  the line.
+   Indicate whether the type of supporting structure reported in column (e) is:
 
-We provide the respondent's original free-form text in column _.
+     (1) single pole wood or steel;
+     (2) H-frame wood, or steel poles;
+     (3) tower; or
+     (4) underground construction.
+  
+   If a transmission line has more than one type of supporting structure,
+   indicate the mileage of each type of construction by the use of brackets and
+   extra lines. Minor portions of a transmission line of a different type of
+   construction need not be distinguished from the remainder of the line.
+
+We provide the respondent's original free-form text in column ``supporting_structure_type_original``.
 Where it is possible to determine a single unambiguous structure type that applies to the entire record,
-we include it in column _.
+we include it in column ``supporting_structure_type``.
 Where it is possible to determine a single unambiguous material that applies to the entire record,
-we include it in column _.
+we include it in column ``supporting_structure_material``.
 Ambiguous or multi-category structure types and materials are encoded as NA.
 
 Structure types and materials are determined using dedicated mapping files that
@@ -189,51 +195,109 @@ developing regular expressions for each category,
 and reassigning all edge cases by hand.
 
 Over the course of the refinement process we found thousands of responses that lie outside the types and materials specified in the FERC instructions.
-We developed some empirical extensions to assort the more common of these according to the *spirit* of the FERC form instructions.
+We developed some empirical notes to help sort the more common among these according to the *spirit* of the FERC form instructions.
 They are:
 
 .. list-table:: Structure type definitions
    :header-rows: 1
 
    * - Category
-     - Also includes
+     - Note
 
    * - pole
-     - single pole, mono pole
+     - Also includes single pole, mono pole
 
    * - h_frame
-     - k-frame, a-frame, y-frame, frame, double pole, multi pole, lattice frame
+     - Also includes k-frame, a-frame, y-frame, frame, double pole, multi pole, lattice frame
 
    * - tower
-     - bridge, building, lattice
+     - Also includes bridge, building, lattice
 
    * - underground
-     - subterranean, submarine, tunnel, subway
+     - Also includes subterranean, submarine, tunnel, subway
 
    * - (excluded/NA)
-     - conduit, cable, xlpe
+     - Cabling-related words like conduit, cable, xlpe do not indicate supporting structure type
 
 .. list-table:: Structure material definitions
    :header-rows: 1
 
    * - Category
-     - Also includes
+     - Note
 
    * - steel
-     - corten
+     - Also includes corten
 
    * - wood
-     -
+     - 
 
    * - concrete
-     - cement
-
+     - Also includes cement
+    
    * - aluminum
-     -
+     - Not mentioned in FERC instructions, but occurs ~2700 times as a write-in
 
    * - (excluded/NA)
-     -
+     - Cabling-related words like conduit, cable, xlpe do not indicate supporting structure material
 
+Structure types and materials are often abbreviated in responses,
+and no standard set of abbreviations is made available to respondents.
+Some choices of abbreviation are ambiguous,
+having one clear meaning in some responses and a different clear meaning in other responses.
+If there is not enough surrounding context in a given response to uniquely determine the meaning of an ambiguous abbreviation,
+we report NA.
+The extents below indicate an upper bound for the affected data;
+not all occurrences of frequently-ambiguous tokens are ambiguous in context.
+
+.. list-table:: Frequently ambiguous tokens
+   :header-rows: 1
+
+   * - Abbreviation
+     - Ambiguity
+     - Extent
+
+   * - ``sp``
+     - single pole vs steel pole
+     - 52k occurrences by 54 utilities between 1994 and 2024; no more than 360k miles of line
+
+   * - ``st``
+     - steel (material only) vs steel tower
+     - 38k occurrences by 58 utilities between 1994 and 2024; no more than 560k miles of line
+
+   * - ``mp``
+     - mono pole vs multi pole
+     - 70 occurrences by 2 utilities between 2015 and 2024; no more than 1200 miles of line
+
+Some responses include ordinals or abbreviations not mentioned in the FERC form instructions,
+and which we were not able to clearly align to something in the spirit of the instructions.
+If you have information regarding what the following tokens might indicate, please get in touch!
+
+.. list-table:: Unknown tokens
+   :header-rows: 1
+
+   * - Token
+     - Extent
+
+   * - ``(a)``
+     - 1683 occurences by 4 utilities between 1994 and 2024; no more than 60k miles of line
+
+   * - ``(b)``
+     - 115 occurences by 2 utilities between 1994 and 2024; no more than 1100 miles of line
+
+   * - ``(e)``
+     - 76 occurences by 1 utility between 1994 and 2024; no more than 500 miles of line
+
+   * - ``(5)``
+     - 91 occurences by 4 utilities between 1994 and 2024; no more than 1200 miles of line
+
+   * - ``dc``
+     - 5498 occurences by 18 utilities between 1994 and 2024; no more than 29k miles of line
+
+   * - ``ek``
+     - 7 occurences by 2 utilities between 2021 and 2024; no more than 200 miles of line
+
+   * - ``hh``
+     - 244 occurences by 1 utility between 1994 and 2006; no more than 600 miles of line
 
 
 {% endblock %}
