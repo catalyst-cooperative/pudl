@@ -328,8 +328,7 @@ PLANT_STATUS = {
 
 FUEL_CATEGORIES: dict[str, Path] = {
     "categories": Path(
-        importlib.resources.files("pudl.package_data.ferc1")
-        / "fuel_categories.yaml"
+        importlib.resources.files("pudl.package_data.ferc1") / "fuel_categories.yaml"
     )
 }
 """A mapping a canonical fuel name to a set of strings which are used to represent that
