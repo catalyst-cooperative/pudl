@@ -218,9 +218,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
     },
     "other_disposition_all_other_mcf": {
-        # TODO (12-03-2025): When we have created the disaggregated table, update this field description to point at it.
         "description": (
-            "Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            "Other disposition within the report state that does not fall into one "
+            "of the other reported categories in lines 10.1-17.0. This has been "
+            "summed from the detailed data reported by each company on Line 18.4 "
+            "of the original form. Reference conditions for measurement are 14.73 "
+            "psia and 60° Fahrenheit. See "
+            "core_eia176__yearly_gas_disposition_other for the unaggregated "
+            "records."
         ),
         "unit": "Mcf",
         "type": "number",
@@ -239,6 +244,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "destination_type": {
         "type": "string",
         "description": "Type of delivery destination represented by the destination code.",
+    },
+    "disposition_type": {
+        "type": "string",
+        "description": "Free-text type of other gas disposition reported by the operator.",
     },
     "operator_id_eia": {
         "type": "string",
@@ -10444,6 +10453,15 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "conditions for measurement are 14.73 psia and 60° Fahrenheit."
             ),
             "unit": "Mcf",
+        },
+    },
+    "core_eia176__yearly_gas_disposition_other": {
+        "disposition_type": {
+            "description": (
+                "Lightly normalized free-text type of other disposition reported by "
+                "the operator. Missing and placeholder values are reported as "
+                "unknown."
+            ),
         },
     },
     "sector_consolidated_eia": {"code": {"type": "integer"}},

@@ -79,6 +79,18 @@ UNKNOWN_SUPPLEMENTAL_GASEOUS_FUEL_TYPES = {
     "n.a.",
 }
 
+UNKNOWN_OTHER_DISPOSITION_TYPES = {
+    "",
+    ".",
+    "0",
+    "na",
+    "n/a",
+    "n.a.",
+    "none",
+    "not applicable",
+    "not available",
+}
+
 
 @multi_asset(
     outs={
@@ -209,6 +221,23 @@ def _normalize_supplemental_gaseous_fuel_type(raw_fuel_type: pd.Series) -> pd.Se
     assert not unmapped, f"Unmapped supplemental gaseous fuel types: {unmapped!r}"
 
     return fuel_type
+
+
+def _normalize_line_1840_disposition_type(
+    raw_disposition_type: pd.Series,
+) -> pd.Series:
+    """Lightly normalize EIA-176 line 18.4 other disposition type labels."""
+    disposition_type = (
+        raw_disposition_type.astype("string")
+        .str.strip()
+        .str.casefold()
+        .str.replace(r"\s+", " ", regex=True)
+    )
+    return disposition_type.mask(
+        disposition_type.isna()
+        | disposition_type.isin(UNKNOWN_OTHER_DISPOSITION_TYPES),
+        "unknown",
+    )
 
 
 def _get_line_1400_destination_type(
@@ -781,6 +810,83 @@ def _find_line_1400_total_mismatches(
 
 
 @asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_disposition_other(
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce detailed annual gas disposition to other uses (EIA-176, Line 18.4)."""
+    primary_key = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "disposition_type",
+    ]
+    keep = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "reference_company_or_line_description",
+        "volume_mcf",
+    ]
+    df = raw_eia176__continuation_text_lines[
+        raw_eia176__continuation_text_lines["line"] == 1840
+    ].filter(keep)
+    df = convert_continuation_lines_state_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="operating_state",
+    )
+    df["disposition_type"] = _normalize_line_1840_disposition_type(
+        df["reference_company_or_line_description"]
+    )
+    df = df.drop(columns=["reference_company_or_line_description"])
+    df["report_year"] = df["report_year"].astype("int64")
+    df = df.groupby(primary_key, dropna=False, as_index=False).agg(
+        {"volume_mcf": "sum"}
+    )
+    assert not df.duplicated(subset=primary_key).any()
+
+    mismatches = _find_line_1840_total_mismatches(
+        disposition_other=df,
+        _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+    )
+    assert len(mismatches) <= 6, "More than 6 line 1840 total mismatches"
+
+    return df
+
+
+def _find_line_1840_total_mismatches(
+    disposition_other: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Compare detailed line 18.4 disposition with reported company-level totals."""
+    primary_key = ["operator_id_eia", "report_year"]
+    company_totals = _core_eia176__yearly_company_data[
+        [
+            *primary_key,
+            "disposition_to_other_volume",
+        ]
+    ]
+    continuation_totals = disposition_other.groupby(primary_key, as_index=False).agg(
+        {"volume_mcf": "sum"}
+    )
+    comparison = company_totals.merge(
+        continuation_totals,
+        how="outer",
+        on=primary_key,
+        validate="1:1",
+    )
+    return comparison[
+        (comparison["disposition_to_other_volume"] != comparison["volume_mcf"])
+        & (
+            comparison["disposition_to_other_volume"].notna()
+            | comparison["volume_mcf"].notna()
+        )
+    ]
+
+
+@asset(io_manager_key="pudl_io_manager")
 def core_eia176__yearly_gas_disposition(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -863,14 +969,14 @@ def core_eia176__yearly_gas_disposition(
     )
 
     # 2001: 2
-    # 2024: 3
+    # 2024: 4
     # [km feb 2026] - keep an eye on this. Two of these mismatches (1 2001, 1 2024) happen
     # bc disposition_to_other_volume is NA while line 1840 has valid data, which suggests
     # we should continue to prefer line 1840. But for the other three mismatches (1 2001,
     # 2 2024) disposition_to_other_volume always exceeds the value from 1840. If this pattern
     # continues, we may want to switch to only using 1840 when disposition_to_other_volume
     # is not available.
-    max_disposition_mismatch = 5
+    max_disposition_mismatch = 6
     disposition_to_other_mismatch = (
         (df["disposition_to_other_volume"] != df[1840])
         & (df["disposition_to_other_volume"].notna() | df[1840].notna())

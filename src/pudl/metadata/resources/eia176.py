@@ -87,6 +87,40 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia176"],
         "etl_group": "eia176",
     },
+    "core_eia176__yearly_gas_disposition_other": {
+        "description": {
+            "additional_summary_text": (
+                "a company's detailed other natural gas disposition within the report "
+                "state."
+            ),
+            "additional_source_text": "(Part 6, Line 18.4)",
+            "additional_details_text": (
+                "The EIA-176 instructions describe Line 18.4 as other disposition "
+                "within the report state and ask respondents to specify the type. "
+                "Some instructions also route producer vented/flared volumes and "
+                "extraction-loss volumes to this line, so the disposition type is "
+                "only lightly normalized from free text."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "disposition_type",
+                "volume_mcf",
+            ],
+            "primary_key": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "disposition_type",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia176"],
+        "etl_group": "eia176",
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "description": {
             "additional_summary_text": (
@@ -118,15 +152,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_eia176__yearly_gas_disposition": {
         "description": {
-            # TODO (12-03-25): Once we add the granular records for these two fields,
-            # update to point at these tables for the unaggregated data.
             "additional_summary_text": (
                 "a company's natural and supplemental gas disposition for the report state."
             ),
             "additional_source_text": "(Part 6, Lines 9, 12-20)",
             "additional_details_text": """The ``deliveries_out_of_state_volume_mcf`` (Line 14.0) are reported as one aggregated volume,
-calculated by summing the original granular data. Similarly, ``disposition_to_other_volume_mcf``
-(Line 18.4) is summed from the original granular data and reported as one aggregate field.
+calculated by summing the original granular data. Similarly, ``other_disposition_all_other_mcf``
+(Line 18.4) is summed from the original granular data and reported as one aggregate field. Use
+``core_eia176__yearly_gas_exports`` and ``core_eia176__yearly_gas_disposition_other`` to inspect
+these unaggregated records.
 
 The ``delivered_gas_heat_content_mmbtu_per_mcf`` is expected to be between 0.8 and 1.2
 by the EIA. We find that less than 0.5 percent of data falls outside of these expected bounds.
