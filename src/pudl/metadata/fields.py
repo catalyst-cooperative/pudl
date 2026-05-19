@@ -229,6 +229,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Number of end-use consumers within the report state.",
     },
+    "destination_code": {
+        "type": "string",
+        "description": (
+            "State, territory, country, or other reporting code associated with a "
+            "delivery destination."
+        ),
+    },
+    "destination_type": {
+        "type": "string",
+        "description": "Type of delivery destination represented by the destination code.",
+    },
     "operator_id_eia": {
         "type": "string",
         "description": (
@@ -7827,6 +7838,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "State, territory, country, or other reporting code associated with the referenced gas receipt or delivery."
         ),
     },
+    "recipient_name": {
+        "type": "string",
+        "description": "Reported recipient or counterparty name.",
+    },
     "supporting_structure_type": {
         "type": "string",
         "description": "Supporting structure of the transmission line.",
@@ -10404,6 +10419,29 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Volume of supplemental gaseous fuels supplied by fuel type within "
                 "the report state. Reference conditions for measurement are 14.73 "
                 "psia and 60° Fahrenheit."
+            ),
+            "unit": "Mcf",
+        },
+    },
+    "core_eia176__yearly_gas_exports": {
+        "destination_code": {
+            "description": (
+                "State, territory, country, or other reporting code associated with "
+                "the out-of-state gas delivery destination."
+            ),
+        },
+        "destination_type": {
+            "constraints": {"enum": ["country_or_other", "subdivision"]},
+        },
+        "recipient_name": {
+            "description": (
+                "Reported recipient or counterparty for the out-of-state gas delivery."
+            ),
+        },
+        "volume_mcf": {
+            "description": (
+                "Volume of natural gas delivered out of the report state. Reference "
+                "conditions for measurement are 14.73 psia and 60° Fahrenheit."
             ),
             "unit": "Mcf",
         },

@@ -23,7 +23,7 @@ DROP_OPERATING_STATES = (
 )
 
 CONTINUATION_LINES_NON_SUBDIVISION_CODES = {
-    "operating_state": {"MX"},
+    "operating_state": {"FX", "MX"},
     "reference_state": {
         "AG",
         "AU",
@@ -209,6 +209,24 @@ def _normalize_supplemental_gaseous_fuel_type(raw_fuel_type: pd.Series) -> pd.Se
     assert not unmapped, f"Unmapped supplemental gaseous fuel types: {unmapped!r}"
 
     return fuel_type
+
+
+def _get_line_1400_destination_type(
+    destination_code: pd.Series,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+) -> pd.Series:
+    """Classify line 14.0 delivery destinations as subdivisions or other codes."""
+    subdivision_codes = set(core_pudl__codes_subdivisions["subdivision_code"])
+    destination_code = destination_code.astype("string").str.strip().str.upper()
+    destination_type = pd.Series(
+        "country_or_other",
+        index=destination_code.index,
+        dtype="string",
+    )
+    destination_type = destination_type.mask(
+        destination_code.isin(subdivision_codes), "subdivision"
+    )
+    return destination_type.mask(destination_code.isna(), pd.NA)
 
 
 @asset_check(
@@ -646,6 +664,117 @@ def _find_line_600_total_mismatches(
         (comparison["supplemental_gaseous_fuels_volume"] != comparison["volume_mcf"])
         & (
             comparison["supplemental_gaseous_fuels_volume"].notna()
+            | comparison["volume_mcf"].notna()
+        )
+    ]
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_exports(
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce detailed annual out-of-state gas deliveries (EIA-176, Line 14.0)."""
+    primary_key = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "destination_code",
+        "recipient_name",
+        "mode_of_transportation",
+    ]
+    keep = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "reference_state",
+        "reference_company_or_line_description",
+        "volume_mcf",
+        "mode_of_transportation",
+    ]
+    df = raw_eia176__continuation_text_lines[
+        raw_eia176__continuation_text_lines["line"] == 1400
+    ].filter(keep)
+    df = convert_continuation_lines_state_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="operating_state",
+    )
+    df["destination_code"] = (
+        df["reference_state"].astype("string").str.strip().str.upper()
+    )
+    df["destination_type"] = _get_line_1400_destination_type(
+        df["destination_code"],
+        core_pudl__codes_subdivisions,
+    )
+    df = df.rename(
+        columns={
+            "reference_company_or_line_description": "recipient_name",
+        }
+    ).drop(columns="reference_state")
+    df["mode_of_transportation"] = (
+        df["mode_of_transportation"]
+        .astype("string")
+        .str.strip()
+        .replace({".": pd.NA, "0": pd.NA})
+        .str.casefold()
+    )
+    df["report_year"] = df["report_year"].astype("int64")
+    df = df.groupby(
+        [*primary_key, "destination_type"], dropna=False, as_index=False
+    ).agg({"volume_mcf": "sum"})
+    df = df[
+        [
+            "operator_id_eia",
+            "report_year",
+            "operating_state",
+            "destination_code",
+            "destination_type",
+            "recipient_name",
+            "mode_of_transportation",
+            "volume_mcf",
+        ]
+    ]
+    assert not df.duplicated(subset=primary_key).any()
+
+    mismatches = _find_line_1400_total_mismatches(
+        exports=df,
+        _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+    )
+    assert len(mismatches) <= 4, "More than 4 line 1400 total mismatches"
+
+    return df
+
+
+def _find_line_1400_total_mismatches(
+    exports: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Compare detailed line 14.0 exports with reported company-level totals."""
+    primary_key = ["operator_id_eia", "report_year"]
+    company_totals = _core_eia176__yearly_company_data[
+        [
+            *primary_key,
+            "deliveries_out_of_state_volume",
+        ]
+    ]
+    company_totals = company_totals[
+        company_totals["deliveries_out_of_state_volume"].notna()
+    ]
+    continuation_totals = exports.groupby(primary_key, as_index=False).agg(
+        {"volume_mcf": "sum"}
+    )
+    comparison = company_totals.merge(
+        continuation_totals,
+        how="outer",
+        on=primary_key,
+        validate="1:1",
+    )
+    return comparison[
+        (comparison["deliveries_out_of_state_volume"] != comparison["volume_mcf"])
+        & (
+            comparison["deliveries_out_of_state_volume"].notna()
             | comparison["volume_mcf"].notna()
         )
     ]

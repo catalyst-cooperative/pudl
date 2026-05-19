@@ -57,6 +57,36 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia176"],
         "etl_group": "eia176",
     },
+    "core_eia176__yearly_gas_exports": {
+        "description": {
+            "additional_summary_text": (
+                "a company's detailed natural gas deliveries out of the report state."
+            ),
+            "additional_source_text": "(Part 6, Line 14.0)",
+            "additional_primary_key_text": (
+                "This table has no enforced primary key because some records do not "
+                "report destination or mode of transportation details. Rows are "
+                "deduplicated by operator, report year, operating state, destination "
+                "code, recipient, and mode of transportation when the data are "
+                "transformed."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "destination_code",
+                "destination_type",
+                "recipient_name",
+                "mode_of_transportation",
+                "volume_mcf",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia176"],
+        "etl_group": "eia176",
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "description": {
             "additional_summary_text": (
