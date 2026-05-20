@@ -116,6 +116,60 @@ Dagster project loads successfully:
 
     $ pixi run dg check defs --verbose
 
+Using the Devcontainer
+^^^^^^^^^^^^^^^^^^^^^^
+
+PUDL includes a `devcontainer <https://containers.dev/>`__ configuration under
+``.devcontainer/``. We set it up initially to make it possible to work with coding
+agents in YOLO mode without giving them free reign over your entire computer. It's also
+useful if you want a reproducible Linux development environment. Several popular agent
+harnesses (Claude Code, Pi, etc.) are also installed inside the devcontainer.
+
+Many editors are compatible with devcontainers, not just VS Code, but for other editors
+you may need to add a configuration section to ``.devcontainers/devcontainer.json``.
+
+The devcontainer requires the host to provide three directories through environment
+variables before the container starts:
+
+* ``PUDL_INPUT``
+* ``PUDL_OUTPUT``
+* ``DAGSTER_HOME``
+
+It will also import environment variables typically used to hold API keys for various
+agents and LLM services, such as ``ANTHROPHIC_API_KEY`` and ``OPENROUTER_API_KEY``. See
+``.devcontainer/devcontainer.json`` for the full list.
+
+The simplest way to pass environment variables in is to export the paths in the shell
+that launches VS Code, then open the repository in the container. For example:
+
+.. code-block:: console
+
+    $ mkdir -p "$HOME/pudl-dev/input" "$HOME/pudl-dev/output" "$HOME/pudl-dev/dagster-home"
+    $ export PUDL_INPUT="$HOME/pudl-dev/input"
+    $ export PUDL_OUTPUT="$HOME/pudl-dev/output"
+    $ export DAGSTER_HOME="$HOME/pudl-dev/dagster-home"
+    $ code /path/to/pudl/repo
+
+The in-container path is under ``/workspaces/``. The extra host directories are
+bind-mounted separately and then exposed to PUDL as:
+
+* ``PUDL_INPUT=/workspaces/pudl-input``
+* ``PUDL_OUTPUT=/workspaces/pudl-output``
+* ``DAGSTER_HOME=/workspaces/dagster-home``
+
+.. note::
+
+    If VS Code is launched from the macOS GUI instead of from a shell, it may not
+    inherit these environment variables. When using the devcontainer, we recommend
+    launching ``code`` from a shell, and not through the GUI.
+
+If you are working on macOS, we recommend using `Orbstack <https://orbstack.dev/>`__
+to run the devcontainer efficiently. The PUDL ``pixi`` environment specifies
+packages for the ``linux-aarch64`` platform so it should run well on Apple silicon.
+
+When working with the devcontainer, you can run the Dagster UI either from inside the
+container or outside it on your host machine.
+
 -------------------------------------------------------------------------------
 Updating the PUDL Development Environment
 -------------------------------------------------------------------------------
