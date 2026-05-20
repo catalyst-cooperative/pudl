@@ -42,8 +42,7 @@ Quality of Life Improvements
   assets, IO managers, and tests. This makes path resolution more explicit in Dagster
   contexts and allows interactive definitions to override ``pudl_input`` and
   ``pudl_output`` directly when calling
-  :func:`pudl.dagster.build.build_interactive_defs`.
-
+  :func:`pudl.dagster.build.build_interactive_defs`. See PR :pr:`5261`.
 * Cleaned up PUDL's default Dagster wiring by separating default resources from IO
   managers, giving shared data-config resources clearer defaults, and simplifying the
   FERC SQLite IO manager and provenance stack. The branch also consolidated the FERC EQR
