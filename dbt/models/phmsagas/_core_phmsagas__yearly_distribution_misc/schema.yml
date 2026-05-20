@@ -21,7 +21,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: _core_phmsagas__yearly_distribution_misc
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date
           - name: report_id
@@ -32,16 +32,16 @@ sources:
           - name: hazardous_leaks_mechanical_joint_failure
           - name: federal_land_leaks_repaired_or_scheduled
           - name: average_service_length_feet
+          - name: services_efv_in_system
+          - name: services_efv_installed
+          - name: services_shutoff_valve_in_system
+          - name: services_shutoff_valve_installed
           - name: unaccounted_for_gas_fraction
             data_tests:
               - expect_quantile_constraints:
-                  description: "Accept negative values in at most 17% of rows"
+                  description: Accept negative values in at most 17% of rows
                   arguments:
                     constraints:
                       - quantile: 0.17
                         min_value: 0
-          - name: services_shutoff_valve_installed
-          - name: services_efv_installed
-          - name: services_shutoff_valve_in_system
-          - name: services_efv_in_system
           - name: excavation_tickets

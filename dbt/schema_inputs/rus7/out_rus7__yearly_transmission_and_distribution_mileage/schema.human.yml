@@ -8,6 +8,7 @@ sources:
               arguments:
                 table_name: out_rus7__yearly_transmission_and_distribution_mileage
                 partition_expr: EXTRACT(YEAR FROM report_date)
+        # TODO: CHECK SUBCOMPONENTS SUM TO TOTAL
         columns:
           - name: miles
             data_tests:

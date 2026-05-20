@@ -7,7 +7,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_rus12__monthly_demand_and_energy_at_power_sources
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - dbt_utils.expression_is_true:
               arguments:
                 expression: date_trunc('month', report_date) >= date_trunc('month', peak_demand_date) AND date_trunc('year', report_date) == date_trunc('year', peak_demand_date)
@@ -27,5 +27,5 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: is_peak_coincident
           - name: peak_demand_date
+          - name: is_peak_coincident

@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia861__yearly_demand_response_water_heater
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: balancing_authority_code_eia
           - name: report_date
@@ -19,5 +19,5 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-                    error_if: ">1"
+                    error_if: '>1'
           - name: data_maturity

@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia861__yearly_sales
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: utility_id_eia
           - name: state
@@ -26,19 +26,19 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-                    row_condition: "utility_id_eia != 99999"
+                    row_condition: utility_id_eia != 99999
           - name: sales_mwh
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-                    row_condition: "utility_id_eia != 99999"
-                    error_if: ">30"
+                    row_condition: utility_id_eia != 99999
+                    error_if: '>30'
           - name: sales_revenue
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-                    row_condition: "utility_id_eia != 99999"
-                    error_if: ">300" # Relatively large, worth investigating
+                    row_condition: utility_id_eia != 99999
+                    error_if: '>300'
           - name: data_maturity

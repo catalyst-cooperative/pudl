@@ -8,6 +8,7 @@ sources:
               arguments:
                 table_name: out_rus7__yearly_service_interruptions
                 partition_expr: EXTRACT(YEAR FROM report_date)
+        # TODO: CHECK SUBCOMPONENTS SUM TO TOTAL
         columns:
           - name: saidi_minutes
             data_tests:

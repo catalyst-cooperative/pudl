@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_ferc714__hourly_planning_area_demand
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_consistent_years:
               arguments:
                 datetime_column: datetime_utc

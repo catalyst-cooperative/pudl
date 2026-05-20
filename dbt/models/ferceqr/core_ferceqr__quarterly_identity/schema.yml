@@ -4,8 +4,9 @@ sources:
     tables:
       - name: core_ferceqr__quarterly_identity
         columns:
-          - name: filer_unique_id
+          - name: year_quarter
           - name: company_id_ferc
+          - name: filer_unique_id
           - name: company_name
           - name: contact_name
           - name: contact_title
@@ -17,4 +18,3 @@ sources:
           - name: contact_phone
           - name: contact_email
           - name: transactions_reported_to_index_price_publishers
-          - name: year_quarter

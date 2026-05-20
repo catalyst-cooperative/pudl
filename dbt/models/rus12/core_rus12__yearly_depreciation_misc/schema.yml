@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_rus12__yearly_depreciation_misc
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -19,5 +19,5 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: ">126"
-                  description: "Check that most of the ending_balance's are positive. About 4% of the table is negative, which seems reasonable."
+                    error_if: '>126'
+                  description: Check that most of the ending_balance's are positive. About 4% of the table is negative, which seems reasonable.

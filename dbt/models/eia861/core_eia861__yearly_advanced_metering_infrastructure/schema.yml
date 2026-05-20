@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia861__yearly_advanced_metering_infrastructure
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: advanced_metering_infrastructure
             data_tests:
@@ -48,7 +48,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-                    error_if: ">1"
+                    error_if: '>1'
           - name: report_date
           - name: short_form
           - name: state

@@ -11,7 +11,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_phmsagas__yearly_distribution_operators
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_id
           - name: report_date
