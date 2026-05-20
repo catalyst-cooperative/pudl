@@ -568,13 +568,19 @@ def ferc1_engine_xbrl(
 
 
 @pytest.fixture(scope="session")
-def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
+def ferc1_xbrl_taxonomy_metadata(
+    ferc1_engine_xbrl: sa.Engine,
+    pudl_paths_resource: PudlPathsResource,
+):
     """Read the FERC 1 XBRL taxonomy metadata from JSON.
 
     ``ferc1_engine_xbrl`` is an ordering-only dependency that ensures the FERC 1 XBRL
     database is prebuilt before this fixture runs. Its return value is not used here.
     """
-    result = materialize_to_memory([raw_ferc1_xbrl__metadata_json])
+    result = materialize_to_memory(
+        [raw_ferc1_xbrl__metadata_json],
+        resources={"pudl_paths": pudl_paths_resource},
+    )
     assert result.success
 
     return result.output_for_node("raw_ferc1_xbrl__metadata_json")
@@ -594,14 +600,20 @@ def ferc714_engine_xbrl(
 
 
 @pytest.fixture(scope="session")
-def ferc714_xbrl_taxonomy_metadata(ferc714_engine_xbrl: sa.Engine):
+def ferc714_xbrl_taxonomy_metadata(
+    ferc714_engine_xbrl: sa.Engine,
+    pudl_paths_resource: PudlPathsResource,
+):
     """Read the FERC 714 XBRL taxonomy metadata from JSON.
 
     ``ferc714_engine_xbrl`` is an ordering-only dependency that ensures the FERC 714
     XBRL database is prebuilt before this fixture runs. Its return value is not used
     here.
     """
-    result = materialize_to_memory([raw_ferc714_xbrl__metadata_json])
+    result = materialize_to_memory(
+        [raw_ferc714_xbrl__metadata_json],
+        resources={"pudl_paths": pudl_paths_resource},
+    )
     assert result.success
 
     return result.output_for_node("raw_ferc714_xbrl__metadata_json")
