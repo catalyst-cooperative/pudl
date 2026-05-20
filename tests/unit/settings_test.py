@@ -457,7 +457,7 @@ def test_partitions_with_json_normalize(global_data_config: GlobalDataConfig):
 @pytest.mark.slow
 def test_partitions_for_datasource_table(global_data_config: GlobalDataConfig):
     """Test whether or not we can make the datasource table."""
-    ds = Datastore(local_cache_path=PudlPaths().data_dir)
+    ds = Datastore(local_cache_path=PudlPaths().pudl_input)
     datasource = global_data_config.pudl.make_datasources_table(ds)
     datasets = global_data_config.pudl.get_datasets().keys()
     if datasource.empty and datasets != 0:

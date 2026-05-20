@@ -5,7 +5,7 @@
       "source": "dagster-io/skills",
       "sourceType": "github",
       "skillPath": "skills/dagster-expert/skills/dagster-expert/SKILL.md",
-      "computedHash": "3fa97f744f589cbf97bae25c7fb499f19c7bdadfa696eee88a8118d0fbc0fb9a"
+      "computedHash": "2d94bda586b6e63a3a8735125fc5d7717548cc747cddf2f05fa95b1892c527e7"
     },
     "dignified-python": {
       "source": "dagster-io/skills",
