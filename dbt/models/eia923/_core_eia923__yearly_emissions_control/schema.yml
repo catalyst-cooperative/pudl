@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: _core_eia923__yearly_emissions_control
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: plant_id_eia
           - name: report_date
@@ -77,14 +77,14 @@ sources:
                   arguments:
                     min_value: 0.0
                     max_value: 1.0
-                    warn_if: ">0"
-                    error_if: ">66" # A few records have efficiencies between 1 and 10.
+                    warn_if: '>0'
+                    error_if: '>66'
           - name: particulate_test_date
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
-                    min_value: "DATE '1950-01-01'"
-                    max_value: "current_date"
+                    min_value: DATE '1950-01-01'
+                    max_value: current_date
           - name: so2_control_id_eia
           - name: so2_removal_efficiency_tested
             data_tests:
@@ -102,5 +102,5 @@ sources:
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
-                    min_value: "DATE '1975-01-01'"
-                    max_value: "current_date"
+                    min_value: DATE '1975-01-01'
+                    max_value: current_date

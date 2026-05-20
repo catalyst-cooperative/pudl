@@ -8,13 +8,13 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia861__yearly_distributed_generation_misc
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
               arguments:
                 column_A: generators_number
                 column_B: generators_num_less_1_mw
-                or_equal: True
-                error_if: ">8"
+                or_equal: true
+                error_if: '>8'
         columns:
           - name: backup_capacity_mw
             data_tests:

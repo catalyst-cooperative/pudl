@@ -8,12 +8,12 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia861__yearly_distribution_systems
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
               arguments:
                 column_A: distribution_circuits
                 column_B: circuits_with_voltage_optimization
-                or_equal: True
+                or_equal: true
         columns:
           - name: circuits_with_voltage_optimization
             data_tests:

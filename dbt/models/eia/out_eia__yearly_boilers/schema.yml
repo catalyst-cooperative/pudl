@@ -5,13 +5,9 @@ sources:
       - name: out_eia__yearly_boilers
         data_tests:
           - expect_columns_not_all_null:
-              description: >
-                Excluded mercury control strategies are very infrequently used, since
-                few boilers have more than three. It's fine if they're null. The boiler
-                manufacturer and code are static attributes which were only reported in
-                a single year and are effectively forward/back filled because they are
-                part of the boiler entity table. This means they're fully populated if
-                that year of data is included, and entirely null if it's not.
+              description: 'Excluded mercury control strategies are very infrequently used, since few boilers have more than three. It''s fine if they''re null. The boiler manufacturer and code are static attributes which were only reported in a single year and are effectively forward/back filled because they are part of the boiler entity table. This means they''re fully populated if that year of data is included, and entirely null if it''s not.
+
+                '
               arguments:
                 ignore_eia860m_nulls: true
                 exclude_columns:
@@ -108,7 +104,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_eia__yearly_boilers
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_date_frequency_ratio:
               arguments:
                 compare_model: source("pudl", "out_eia__yearly_generators")
