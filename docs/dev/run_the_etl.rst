@@ -240,17 +240,15 @@ the FERC SQLite assets need to be rematerialized. This will happen when:
 * The configured Zenodo DOI for a FERC dataset changed.
 * The set of FERC years requested by your current ETL config includes years that are
   missing from the existing FERC SQLite database.
+* The version of ``catalystcoop.ferc_xbrl_extractor`` that was used to perform the
+  XBRL conversion is out of date.
 
 When this happens, refresh the FERC databases by materializing ``ferc_to_sqlite`` again,
 then rerun the ``pudl`` job or selected downstream assets. You can also choose to
 materialize only the FERC Form 1 and Form 714 databases in the Dagster UI, since those
-are the only ones that feed directly into the PUDL ETL.
-
-If you intentionally want to skip this compatibility check (for example, when using
-prebuilt FERC SQLite files downloaded from nightly outputs), set
-``PUDL_SKIP_FERC_SQLITE_PROVENANCE=1`` in your shell before running the ETL. This bypass
-is intended for development workflows and can lead to downstream failures if the
-FERC databases are stale.
+are the only ones that feed directly into the PUDL ETL. To ease development flow, this
+job will check to see if the SQLite DBs from nightly builds are compatible with your
+current run, and skip running the full conversion if that is true.
 
 Running the PUDL ETL
 ^^^^^^^^^^^^^^^^^^^^
