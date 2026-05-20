@@ -26,7 +26,7 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
+* Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
   directories when deciding what to upload to Zenodo, which caused release failures
   once we started leaving the ``ferc*_xbrl`` directories laying around. See PR
   :pr:`5254`.
@@ -37,6 +37,9 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added a PUDL devcontainer configuration to make it easier for contributors to get up
+  and running, and to enable the safe use of coding agents in YOLO mode. See PR
+  :pr:`5260`.
 * Cleaned up PUDL's default Dagster wiring by separating default resources from IO
   managers, giving shared data-config resources clearer defaults, and simplifying the
   FERC SQLite IO manager and provenance stack. The branch also consolidated the FERC EQR
