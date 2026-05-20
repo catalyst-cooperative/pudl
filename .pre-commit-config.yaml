@@ -172,6 +172,16 @@ repos:
         always_run: true
         entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit -m "not slow"
 
+      - id: schema-check
+        name: schema-check
+        stages: [pre-commit]
+        language: system
+        verbose: true
+        files: "^(src/pudl/metadata/resources/[^_].*\\.py|dbt/schema_inputs/.*schema\\.human\\.yml)$"
+        pass_filenames: false
+        always_run: false
+        entry: pixi run dbt_helper update-tables --schema all
+
 # Configuration for pre-commit.ci
 ci:
   autofix_commit_msg: |
