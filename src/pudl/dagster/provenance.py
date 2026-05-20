@@ -187,7 +187,9 @@ def assert_ferc_sqlite_compatible(  # noqa: C901
             f"required={sorted(required_years)}"
         )
 
-    if stored.ferc_xbrl_extractor_version != provenance.ferc_xbrl_extractor_version:
+    if (
+        stored.ferc_xbrl_extractor_version != provenance.ferc_xbrl_extractor_version
+    ) and (provenance.data_format == "xbrl"):
         mismatches.append(
             "FERC SQLite DB created with incompatible version of the XBRL extractor: "
             f"stored={stored.ferc_xbrl_extractor_version}, "

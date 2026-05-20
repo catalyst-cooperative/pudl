@@ -226,14 +226,23 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
         assert_ferc_sqlite_compatible(stored=stored, provenance=required)
 
 
+@pytest.mark.parametrize(
+    ("data_format", "should_raise"),
+    [
+        ("dbf", False),
+        ("xbrl", True),
+    ],
+)
 def test_assert_ferc_sqlite_compatible_rejects_xbrl_extractor_mismatch(
     mocker,
+    data_format: str,
+    should_raise: bool,
 ) -> None:
     """A Zenodo DOI mismatch should raise a descriptive RuntimeError."""
 
     stored = FercSqliteProvenanceRecord(
         dataset="ferc1",
-        data_format="dbf",
+        data_format=data_format,
         status="complete",
         zenodo_doi="fake DOI",
         years=[],
@@ -241,15 +250,18 @@ def test_assert_ferc_sqlite_compatible_rejects_xbrl_extractor_mismatch(
     )
     required = FercSqliteProvenance(
         dataset="ferc1",
-        data_format="dbf",
+        data_format=data_format,
         zenodo_doi="fake DOI",
         years=[],
         ferc_xbrl_extractor_version="1.1.0",
     )
-    with pytest.raises(
-        RuntimeError,
-        match="FERC SQLite DB created with incompatible version of the XBRL extractor",
-    ):
+    if should_raise:
+        with pytest.raises(
+            RuntimeError,
+            match="FERC SQLite DB created with incompatible version of the XBRL extractor",
+        ):
+            assert_ferc_sqlite_compatible(stored=stored, provenance=required)
+    else:
         assert_ferc_sqlite_compatible(stored=stored, provenance=required)
 
 
