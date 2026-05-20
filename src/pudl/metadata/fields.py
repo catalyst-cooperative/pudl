@@ -7836,7 +7836,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Material used in the supporting structure for the transmission line. "
-            "Categorized values: steel, wood, concrete, aluminum."
+            "Categorized values: steel, wood, concrete, aluminum. "
+            "Only filled for unambiguous values; set to NA for multi-category or ambiguous values."
         ),
         "constraints": {"enum": ["steel", "wood", "concrete", "aluminum"]},
     },
