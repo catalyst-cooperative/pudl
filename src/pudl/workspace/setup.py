@@ -58,6 +58,8 @@ class PudlPaths(BaseSettings):
                     "Please create the parent directory first."
                 )
 
+            # If we've gotten this far, the path doesn't exist but the parent directory
+            # does, so we can create it.
             path.mkdir()
         return self
 
