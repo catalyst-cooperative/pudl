@@ -166,14 +166,14 @@ decisions, which we document here.
 
 The FERC form instructions for this field are:
 
-.. pull-quote
+.. code-block:: text
 
    Indicate whether the type of supporting structure reported in column (e) is:
 
-     (1) single pole wood or steel;
-     (2) H-frame wood, or steel poles;
-     (3) tower; or
-     (4) underground construction.
+   (1) single pole wood or steel;
+   (2) H-frame wood, or steel poles;
+   (3) tower; or
+   (4) underground construction.
 
    If a transmission line has more than one type of supporting structure,
    indicate the mileage of each type of construction by the use of brackets and
@@ -190,7 +190,7 @@ Ambiguous or multi-category structure types and materials are encoded as NA.
 Structure types and materials are determined using dedicated mapping files that
 specify the category for each unique free-form text value that occurs in the raw data.
 The seed for these mapping files was developed using a combination of hand-labeling and LLM assistance.
-The seed was refined by exhaustively identifying outliers,
+The mappings were refined by exhaustively identifying outliers,
 developing regular expressions for each category,
 and reassigning all edge cases by hand.
 
