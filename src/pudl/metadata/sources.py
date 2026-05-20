@@ -112,7 +112,7 @@ SOURCES: dict[str, Any] = {
                 "All companies that operate underground natural gas storage fields in "
                 "the United States."
             ),
-            "source_format": "JSON",
+            "source_format": "CSV",
         },
         "working_partitions": {"years": sorted(set(range(2014, 2027)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
