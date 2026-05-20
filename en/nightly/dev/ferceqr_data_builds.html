@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>FERC EQR Data Builds &#8212; PUDL 2026.5.1.dev4 documentation</title>
+    <title>FERC EQR Data Builds &#8212; PUDL 2026.5.1.dev5 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=a45bf7f3"></script>
+    <script src="../_static/documentation_options.js?v=0d1b8395"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -743,25 +743,22 @@
                   
   <section id="ferc-eqr-data-builds">
 <span id="ferceqr-data-builds"></span><h1>FERC EQR Data Builds<a class="headerlink" href="#ferc-eqr-data-builds" title="Link to this heading">#</a></h1>
-<p>The FERC EQR ETL uses a very similar setup for running remote cloud builds
-as the <a class="reference internal" href="nightly_data_builds.html"><span class="doc">Nightly Data Builds</span></a>, however these builds do not currently
-run on an automated schedule, and must be started manually. Like the nightly
-builds, FERC EQR builds use a GitHub action to kick off a
-<a class="reference external" href="https://cloud.google.com/batch/docs">Google Batch</a> job, which will
-execute the ETL using the same Docker container as the nightly builds.</p>
+<p>The FERC EQR ETL uses a very similar setup for running remote cloud builds as the
+<a class="reference internal" href="nightly_data_builds.html"><span class="doc">Nightly Data Builds</span></a>, however these builds do not currently run on an
+automated schedule, and must be started manually. Like the nightly builds, FERC EQR
+builds use a GitHub action to kick off a <a class="reference external" href="https://cloud.google.com/batch/docs">Google Batch</a> job, which will execute the ETL using the same
+Docker container as the nightly builds.</p>
 <section id="notable-differences-from-nightly-builds">
 <h2>Notable differences from nightly builds<a class="headerlink" href="#notable-differences-from-nightly-builds" title="Link to this heading">#</a></h2>
-<p>While the FERC EQR builds use much of the same infrastructure as nightly
-builds, there are a few notable differences. First, the data distribution
-is all done in Python using Dagster tooling. More information on how this
-works can be found in the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.deploy.ferceqr</span></code> module together with the
-<code class="docutils literal notranslate"><span class="pre">ferceqr</span></code> Dagster assets, resources, and sensor exposed through
-<a class="reference internal" href="../autoapi/pudl/dagster/index.html#module-pudl.dagster" title="pudl.dagster"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster</span></code></a>. One other
-major difference from the nightly builds is where data will be published.
-Due to the large size of the FERC EQR dataset, we do not maintain multiple
-versions of the data in S3, and instead have just one version, which will be
-overwritten each time a build is executed successfully. This version can be found at
-<code class="docutils literal notranslate"><span class="pre">s3://pudl.catalyst.coop/ferceqr</span></code>.</p>
+<p>While the FERC EQR builds use much of the same infrastructure as nightly builds, there
+are a few notable differences. First, the data distribution is all done in Python using
+Dagster tooling. More information on how this works can be found in
+<a class="reference internal" href="../autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#module-pudl.dagster.assets.deploy.ferceqr" title="pudl.dagster.assets.deploy.ferceqr"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.assets.deploy.ferceqr</span></code></a> together with the supporting resources in
+<a class="reference internal" href="../autoapi/pudl/dagster/resources/index.html#module-pudl.dagster.resources" title="pudl.dagster.resources"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.resources</span></code></a> and sensor in <a class="reference internal" href="../autoapi/pudl/dagster/sensors/index.html#module-pudl.dagster.sensors" title="pudl.dagster.sensors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.sensors</span></code></a>. One other major
+difference from the nightly builds is where data will be published. Due to the large
+size of the FERC EQR dataset, we do not maintain multiple versions of the data in S3,
+and instead have just one version, which will be overwritten each time a build is
+executed successfully. This version can be found at <code class="docutils literal notranslate"><span class="pre">s3://pudl.catalyst.coop/ferceqr</span></code>.</p>
 </section>
 </section>
 

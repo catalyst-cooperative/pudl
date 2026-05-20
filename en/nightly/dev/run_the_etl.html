@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Running the ETL Pipeline &#8212; PUDL 2026.5.1.dev4 documentation</title>
+    <title>Running the ETL Pipeline &#8212; PUDL 2026.5.1.dev5 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=a45bf7f3"></script>
+    <script src="../_static/documentation_options.js?v=0d1b8395"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -826,10 +826,9 @@ Dagster docs for more info.</p>
 are the top-level collection of Dagster objects that get loaded into a code location.
 They bundle together the assets, asset checks, resources, jobs, schedules, and
 sensors that Dagster can see and execute. In PUDL, the canonical Dagster assembly
-lives in <a class="reference internal" href="../autoapi/pudl/dagster/index.html#module-pudl.dagster" title="pudl.dagster"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster</span></code></a> and is exposed via <code class="xref py py-data docutils literal notranslate"><span class="pre">pudl.dagster.defs</span></code>, while
-<a class="reference internal" href="../autoapi/pudl/definitions/index.html#module-pudl.definitions" title="pudl.definitions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.definitions</span></code></a> remains the stable top-level code location used by <code class="docutils literal notranslate"><span class="pre">dg</span></code>.
-The package is split by Dagster abstraction so contributors can edit the relevant
-layer directly:</p>
+lives in <a class="reference internal" href="../autoapi/pudl/dagster/index.html#module-pudl.dagster" title="pudl.dagster"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster</span></code></a>, while <a class="reference internal" href="../autoapi/pudl/definitions/index.html#module-pudl.definitions" title="pudl.definitions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.definitions</span></code></a> remains the stable
+top-level code location used by <code class="docutils literal notranslate"><span class="pre">dg</span></code>. The package is split by Dagster abstraction so
+contributors can edit the relevant layer directly:</p>
 <ul>
 <li><p><a class="reference internal" href="../autoapi/pudl/dagster/assets/index.html#module-pudl.dagster.assets" title="pudl.dagster.assets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.assets</span></code></a> loads and groups assets.</p></li>
 <li><p><a class="reference internal" href="../autoapi/pudl/dagster/asset_checks/index.html#module-pudl.dagster.asset_checks" title="pudl.dagster.asset_checks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.dagster.asset_checks</span></code></a> defines Dagster asset checks.</p></li>
@@ -895,14 +894,37 @@ to the CLI for every operation.</p>
 It can perform many of the same actions managed through the Dagster UI, but is better
 suited to programmatic usage.  PUDL is configured as a <code class="docutils literal notranslate"><span class="pre">dg</span></code> project.  Some PUDL
 specific usage examples:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Start<span class="w"> </span>up<span class="w"> </span>the<span class="w"> </span>Dagster<span class="w"> </span>UI<span class="w"> </span>webserver<span class="w"> </span>and<span class="w"> </span>daemons
-<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>dev
-<span class="gp"># </span>Launch<span class="w"> </span>a<span class="w"> </span>full<span class="w"> </span>job<span class="w"> </span>with<span class="w"> </span>its<span class="w"> </span>default<span class="w"> </span>config
-<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>pudl
-<span class="gp"># </span>Select<span class="w"> </span>a<span class="w"> </span>subset<span class="w"> </span>of<span class="w"> </span>assets<span class="w"> </span>to<span class="w"> </span>materialize
-<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span><span class="s2">&quot;group:raw_eia861&quot;</span>
-<span class="gp"># </span>List<span class="w"> </span>all<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>Dagster<span class="w"> </span>definitions
-<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>list<span class="w"> </span>defs
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">  # </span>Start<span class="w"> </span>up<span class="w"> </span>the<span class="w"> </span>Dagster<span class="w"> </span>UI<span class="w"> </span>webserver<span class="w"> </span>and<span class="w"> </span>daemons
+<span class="gp">  $ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>dev
+<span class="gp">  # </span>Launch<span class="w"> </span>a<span class="w"> </span>full<span class="w"> </span>job<span class="w"> </span>with<span class="w"> </span>its<span class="w"> </span>default<span class="w"> </span>config
+<span class="gp">  $ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--job<span class="w"> </span>pudl
+<span class="gp">  # </span>Select<span class="w"> </span>a<span class="w"> </span>subset<span class="w"> </span>of<span class="w"> </span>assets<span class="w"> </span>to<span class="w"> </span>materialize
+<span class="gp">  $ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span><span class="s2">&quot;group:raw_eia861&quot;</span>
+<span class="gp">  # </span>List<span class="w"> </span>all<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>Dagster<span class="w"> </span>definitions
+<span class="gp">  $ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>list<span class="w"> </span>defs
+
+<span class="go">Interactive asset loading</span>
+<span class="go">^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+
+<span class="go">If you want to inspect asset values interactively from a notebook, REPL, or local</span>
+<span class="go">script, use :func:`pudl.dagster.build.build_interactive_defs` rather than the default</span>
+<span class="go">``build_defs()`` assembly. This helper constructs concrete FERC SQLite IO managers for</span>
+<span class="go">interactive use, which allows :meth:`dagster.Definitions.load_asset_value` to work</span>
+<span class="go">outside a ``dg``-spawned environment.</span>
+
+<span class="go">For example, to load a raw FERC asset in a notebook:</span>
+
+<span class="go">.. code-block:: python</span>
+
+<span class="go">  from dagster import AssetKey</span>
+<span class="go">  from pudl.dagster.build import build_interactive_defs</span>
+
+<span class="go">  defs = build_interactive_defs()</span>
+<span class="go">  test_df = defs.load_asset_value(AssetKey(&quot;raw_ferc1_dbf__f1_edcfu_epda&quot;))</span>
+<span class="go">  test_df.sample(10)</span>
+
+<span class="go">If you need to point at non-default packaged settings, ``build_interactive_defs()``</span>
+<span class="go">also accepts ``global_data_config_path=...`` and ``zenodo_dois_path=...`` overrides.</span>
 </pre></div>
 </div>
 </section>
@@ -987,20 +1009,18 @@ desired years.</p>
 </section>
 <section id="running-the-ferc-eqr-etl">
 <h3>Running the FERC EQR ETL<a class="headerlink" href="#running-the-ferc-eqr-etl" title="Link to this heading">#</a></h3>
-<p>All processing for FERC EQR data is contained in a separate ETL from the
-rest of PUDL. This is because the dataset is too large to archive the raw
-data on Zenodo. This means the ETL can only be run by developers with credentials
-to access private cloud storage containing the raw data. Any external
-contributors interested in working on this ETL should contact the Catalyst team
-to set up access to the raw data.</p>
-<p>The FERC EQR ETL is contained in a Dagster job called <code class="docutils literal notranslate"><span class="pre">ferceqr</span></code>.
-Executing this job from the Dagster UI is slightly different from the main
-PUDL ETL jobs because the EQR job uses Dagster partitions. After selecting
-“Materialize All” (or “Materialize selected” for a selection of assets),
-a screen will popup allowing you to select the partitions to execute.
-From here you can select a set of year-quarter combinations. This will
-trigger a <code class="docutils literal notranslate"><span class="pre">backfill</span></code>, which will execute each partition in its own <code class="docutils literal notranslate"><span class="pre">run</span></code>.
-To properly handle a <code class="docutils literal notranslate"><span class="pre">backfill</span></code>, you will need to configure dagster to use a
+<p>All processing for FERC EQR data is contained in a separate ETL from the rest of PUDL.
+This is because the dataset is too large to archive the raw data on Zenodo. This means
+the ETL can only be run by developers with credentials to access private cloud storage
+containing the raw data. Any external contributors interested in working on this ETL
+should contact the Catalyst team to set up access to the raw data.</p>
+<p>The FERC EQR ETL is contained in a Dagster job called <code class="docutils literal notranslate"><span class="pre">ferceqr</span></code>. Executing this job
+from the Dagster UI is slightly different from the main PUDL ETL jobs because the EQR
+job uses Dagster partitions. After selecting “Materialize All” (or “Materialize
+selected” for a selection of assets), a screen will popup allowing you to select the
+partitions to execute. From here you can select a set of year-quarter combinations. This
+will trigger a <code class="docutils literal notranslate"><span class="pre">backfill</span></code>, which will execute each partition in its own <code class="docutils literal notranslate"><span class="pre">run</span></code>. To
+properly handle a <code class="docutils literal notranslate"><span class="pre">backfill</span></code>, you will need to configure dagster to use a
 <code class="docutils literal notranslate"><span class="pre">QueuedRunCoordinator</span></code>. This can be done using a <code class="docutils literal notranslate"><span class="pre">dagster.yaml</span></code> file in your
 <code class="docutils literal notranslate"><span class="pre">DAGSTER_HOME</span></code> directory with the following content:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">run_coordinator</span><span class="p">:</span>
@@ -1012,9 +1032,9 @@ To properly handle a <code class="docutils literal notranslate"><span class="pre
 <span class="w">        </span><span class="nt">limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">config</span></code> section shown above is not strictly necessary, but will limit the
-number of concurrent <code class="docutils literal notranslate"><span class="pre">runs</span></code> Dagster will start, which can be helpful to avoid
-out-of-memory issues while running many quarters in one <code class="docutils literal notranslate"><span class="pre">backfill</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">config</span></code> section shown above is not strictly necessary, but will limit the number
+of concurrent <code class="docutils literal notranslate"><span class="pre">runs</span></code> Dagster will start, which can be helpful to avoid out-of-memory
+issues while running many quarters in one <code class="docutils literal notranslate"><span class="pre">backfill</span></code>.</p>
 </section>
 </section>
 <section id="running-the-etl-via-cli">

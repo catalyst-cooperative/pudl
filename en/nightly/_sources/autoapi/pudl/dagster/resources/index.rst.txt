@@ -84,7 +84,7 @@ Module Contents
 
    .. py:attribute:: global_data_config_path
       :type:  str
-      :value: 'src/pudl/package_data/settings/etl_full.yml'
+      :value: ''
 
 
 

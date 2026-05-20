@@ -5,14 +5,11 @@ pudl.dagster.build
 
 .. autoapi-nested-parse::
 
-   Dagster definitions assembly for PUDL.
+   Assembles Dagster Definitions from default values and specified overrides.
 
-   This module is where PUDL assembles a complete :class:`dagster.Definitions` object from the
-   package's default assets, asset checks, jobs, resources, and sensors. Define helpers
-   here that compose those building blocks into a code location, especially when tests,
-   CLI entrypoints, or specialized environments need to override part of the default
-   assembly. Avoid putting asset or resource implementations here; this module should stay
-   focused on top-level orchestration assembly.
+   Define helpers here that compose those building blocks into a code location, especially
+   when tests, CLI entrypoints, or specialized environments need to override part of the
+   default assembly. Avoid putting asset or resource implementations here.
 
    For the underlying Dagster concept, see
    https://docs.dagster.io/getting-started/concepts#definitions
@@ -25,6 +22,7 @@ Functions
 .. autoapisummary::
 
    pudl.dagster.build.build_defs
+   pudl.dagster.build.build_interactive_defs
 
 
 Module Contents
@@ -33,5 +31,18 @@ Module Contents
 .. py:function:: build_defs(*, resource_overrides: collections.abc.Mapping[str, Any] | None = None, asset_overrides: collections.abc.Sequence[Any] | None = None, asset_check_overrides: collections.abc.Sequence[dagster.AssetChecksDefinition] | None = None, job_overrides: collections.abc.Sequence[Any] | None = None, sensor_overrides: collections.abc.Sequence[dagster.SensorDefinition] | None = None) -> dagster.Definitions
 
    Build a fresh PUDL ``Definitions`` object with optional overrides.
+
+   Note that resource_overrides are used to update the default resources, while all
+   other overrides replace the defaults entirely.
+
+
+.. py:function:: build_interactive_defs(*, global_data_config_path: str | None = None, zenodo_dois_path: str | None = None) -> dagster.Definitions
+
+   Build defs for interactive in-process use with concrete default resources.
+
+   Dagster's asset value loader does not resolve the FERC SQLite IO managers when
+   they reference partially configured nested resources, which happens when you're
+   trying to load assets outside of a `dg`-spawned environment. So, in notebooks,
+   REPLs, and local scripts, we need to explicitly construct the FERC IO managers.
 
 

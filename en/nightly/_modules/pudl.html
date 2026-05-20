@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl &#8212; PUDL 2026.5.1.dev4 documentation</title>
+    <title>pudl &#8212; PUDL 2026.5.1.dev5 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=a45bf7f3"></script>
+    <script src="../_static/documentation_options.js?v=0d1b8395"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -848,6 +848,7 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="sd">&quot;&quot;&quot;The Public Utility Data Liberation (PUDL) Project.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">PreviewWarning</span>
 
@@ -860,6 +861,30 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 <span class="n">configure_root_logger</span><span class="p">()</span>
+
+<span class="c1"># Paths to resources stored within the PUDL repository. Unlike PUDL_INPUT and</span>
+<span class="c1"># PUDL_OUTPUT these are not intended to be overridden by users or reset at runtime for</span>
+<span class="c1"># different environments.</span>
+<div class="viewcode-block" id="PUDL_ROOT_PATH">
+<a class="viewcode-back" href="../autoapi/pudl/index.html#pudl.PUDL_ROOT_PATH">[docs]</a>
+<span class="n">PUDL_ROOT_PATH</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Resolved absolute path to the repository root.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PUDL_SETTINGS_PATH">
+<a class="viewcode-back" href="../autoapi/pudl/index.html#pudl.PUDL_SETTINGS_PATH">[docs]</a>
+<span class="n">PUDL_SETTINGS_PATH</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">PUDL_ROOT_PATH</span> <span class="o">/</span> <span class="s2">&quot;src/pudl/package_data/settings&quot;</span></div>
+
+<span class="sd">&quot;&quot;&quot;Resolved absolute path to the package_data directory.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PUDL_DBT_PATH">
+<a class="viewcode-back" href="../autoapi/pudl/index.html#pudl.PUDL_DBT_PATH">[docs]</a>
+<span class="n">PUDL_DBT_PATH</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">PUDL_ROOT_PATH</span> <span class="o">/</span> <span class="s2">&quot;dbt&quot;</span></div>
+
+<span class="sd">&quot;&quot;&quot;Resolved absolute path to the dbt directory.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PUDL_DOCS_PATH">
+<a class="viewcode-back" href="../autoapi/pudl/index.html#pudl.PUDL_DOCS_PATH">[docs]</a>
+<span class="n">PUDL_DOCS_PATH</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">PUDL_ROOT_PATH</span> <span class="o">/</span> <span class="s2">&quot;docs&quot;</span></div>
+
+<span class="sd">&quot;&quot;&quot;Resolved absolute path to the docs directory.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="__author__">
 <a class="viewcode-back" href="../autoapi/pudl/index.html#pudl.__author__">[docs]</a>

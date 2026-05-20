@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>PUDL ID Mapping &#8212; PUDL 2026.5.1.dev4 documentation</title>
+    <title>PUDL ID Mapping &#8212; PUDL 2026.5.1.dev5 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=a45bf7f3"></script>
+    <script src="../_static/documentation_options.js?v=0d1b8395"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev4 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -832,7 +832,7 @@ unmapped IDs to the <code class="docutils literal notranslate"><span class="pre"
 plants and utilities from FERC 1 and EIA.</p>
 <p>If you have already generated a database without foreign-key constraints, you can run
 just the script that extracts the unmapped IDs with:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>test/integration/glue_test.py<span class="w"> </span>--live-pudl-output<span class="w"> </span>--save-unmapped-ids
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/integration/glue/glue_test.py<span class="w"> </span>--live-pudl-output<span class="w"> </span>--save-unmapped-ids
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">--save-unmapped-ids</span></code> flag saves unmapped plants and utilities in the
@@ -962,7 +962,7 @@ are satisfied with the proposed changes, run:</p>
 run some basic tests in the command line to make sure you’ve covered all of the unmapped
 entities. This command assumes that you have all of the new EIA data loaded into your
 live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pytest<span class="w"> </span>--live-pudl-output<span class="w"> </span>test/integration/glue_test.py
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--live-pudl-output<span class="w"> </span>tests/integration/glue/glue_test.py
 </pre></div>
 </div>
 </section>
