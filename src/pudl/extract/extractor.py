@@ -452,7 +452,6 @@ def raw_df_factory(
     def raw_dfs() -> dict[str, pd.DataFrame]:
         """Produce a dictionary of extracted dataframes."""
         partitions = partitions_from_data_config()
-        logger.info(partitions)
         # Clone dagster op for each year using DynamicOut.map()
         # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
         dfs = partitions.map(lambda partition: partition_extractor(partition))

@@ -9,9 +9,9 @@ from typing import Self
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from pudl import PUDL_DBT_PATH
 from pudl.metadata.sources import SOURCES
 from pudl.metadata.warnings import USAGE_WARNINGS
-from pudl.workspace.setup import DBT_DIR
 
 LAYER_DESCRIPTIONS: dict = {
     "raw": (
@@ -317,7 +317,7 @@ class ResourceDescriptionBuilder:
         """Compute an availability date from the most recent available partition for a resource, according to the row counts file."""
         rowcount_partition_lookups = (
             pd.read_csv(
-                DBT_DIR / "seeds" / "etl_full_row_counts.csv",
+                PUDL_DBT_PATH / "seeds" / "etl_full_row_counts.csv",
                 # [kmm dec 2025] currently all non-null row count partitions are integer years.
                 # if we add other kinds of partitions to the row counts file, we'll need to revise this code.
                 dtype={"partition": "Int64", "table_name": "string"},

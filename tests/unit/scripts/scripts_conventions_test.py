@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-from pudl.workspace.setup import PUDL_ROOT_PATH
+from pudl import PUDL_ROOT_PATH
 
 _SRC_PUDL = PUDL_ROOT_PATH / "src" / "pudl"
 _SCRIPTS_DIR = _SRC_PUDL / "scripts"
