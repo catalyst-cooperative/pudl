@@ -103,10 +103,9 @@ Core Dagster concepts used in PUDL
   are the top-level collection of Dagster objects that get loaded into a code location.
   They bundle together the assets, asset checks, resources, jobs, schedules, and
   sensors that Dagster can see and execute. In PUDL, the canonical Dagster assembly
-  lives in :mod:`pudl.dagster` and is exposed via :data:`pudl.dagster.defs`, while
-  :mod:`pudl.definitions` remains the stable top-level code location used by ``dg``.
-  The package is split by Dagster abstraction so contributors can edit the relevant
-  layer directly:
+  lives in :mod:`pudl.dagster`, while :mod:`pudl.definitions` remains the stable
+  top-level code location used by ``dg``. The package is split by Dagster abstraction so
+  contributors can edit the relevant layer directly:
 
   - :mod:`pudl.dagster.assets` loads and groups assets.
   - :mod:`pudl.dagster.asset_checks` defines Dagster asset checks.
@@ -183,6 +182,29 @@ specific usage examples:
     $ pixi run dg launch --assets "group:raw_eia861"
     # List all of the Dagster definitions
     $ pixi run dg list defs
+
+  Interactive asset loading
+  ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  If you want to inspect asset values interactively from a notebook, REPL, or local
+  script, use :func:`pudl.dagster.build.build_interactive_defs` rather than the default
+  ``build_defs()`` assembly. This helper constructs concrete FERC SQLite IO managers for
+  interactive use, which allows :meth:`dagster.Definitions.load_asset_value` to work
+  outside a ``dg``-spawned environment.
+
+  For example, to load a raw FERC asset in a notebook:
+
+  .. code-block:: python
+
+    from dagster import AssetKey
+    from pudl.dagster.build import build_interactive_defs
+
+    defs = build_interactive_defs()
+    test_df = defs.load_asset_value(AssetKey("raw_ferc1_dbf__f1_edcfu_epda"))
+    test_df.sample(10)
+
+  If you need to point at non-default packaged settings, ``build_interactive_defs()``
+  also accepts ``global_data_config_path=...`` and ``zenodo_dois_path=...`` overrides.
 
 .. _run-dagster-ui:
 
@@ -281,21 +303,19 @@ See :ref:`troubleshooting_dagster` for tips on how to fix common issues we run i
 
 Running the FERC EQR ETL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-All processing for FERC EQR data is contained in a separate ETL from the
-rest of PUDL. This is because the dataset is too large to archive the raw
-data on Zenodo. This means the ETL can only be run by developers with credentials
-to access private cloud storage containing the raw data. Any external
-contributors interested in working on this ETL should contact the Catalyst team
-to set up access to the raw data.
+All processing for FERC EQR data is contained in a separate ETL from the rest of PUDL.
+This is because the dataset is too large to archive the raw data on Zenodo. This means
+the ETL can only be run by developers with credentials to access private cloud storage
+containing the raw data. Any external contributors interested in working on this ETL
+should contact the Catalyst team to set up access to the raw data.
 
-The FERC EQR ETL is contained in a Dagster job called ``ferceqr``.
-Executing this job from the Dagster UI is slightly different from the main
-PUDL ETL jobs because the EQR job uses Dagster partitions. After selecting
-"Materialize All" (or "Materialize selected" for a selection of assets),
-a screen will popup allowing you to select the partitions to execute.
-From here you can select a set of year-quarter combinations. This will
-trigger a ``backfill``, which will execute each partition in its own ``run``.
-To properly handle a ``backfill``, you will need to configure dagster to use a
+The FERC EQR ETL is contained in a Dagster job called ``ferceqr``. Executing this job
+from the Dagster UI is slightly different from the main PUDL ETL jobs because the EQR
+job uses Dagster partitions. After selecting "Materialize All" (or "Materialize
+selected" for a selection of assets), a screen will popup allowing you to select the
+partitions to execute. From here you can select a set of year-quarter combinations. This
+will trigger a ``backfill``, which will execute each partition in its own ``run``. To
+properly handle a ``backfill``, you will need to configure dagster to use a
 ``QueuedRunCoordinator``. This can be done using a ``dagster.yaml`` file in your
 ``DAGSTER_HOME`` directory with the following content:
 
@@ -309,9 +329,9 @@ To properly handle a ``backfill``, you will need to configure dagster to use a
          - key: "dagster/backfill"
            limit: 2
 
-The ``config`` section shown above is not strictly necessary, but will limit the
-number of concurrent ``runs`` Dagster will start, which can be helpful to avoid
-out-of-memory issues while running many quarters in one ``backfill``.
+The ``config`` section shown above is not strictly necessary, but will limit the number
+of concurrent ``runs`` Dagster will start, which can be helpful to avoid out-of-memory
+issues while running many quarters in one ``backfill``.
 
 .. _run-cli:
 

@@ -33,7 +33,7 @@ downloading it from one of our stable data releases or nightly build outputs, wh
 can be found in the PUDL :ref:`access-zenodo` or :ref:`access-cloud`.
 
 The conversion of the raw FERC data is represented in the PUDL Dagster project by the
-``raw_ferc_to_sqlite`` asset group which is defined in :data:`pudl.dagster.defs`. If you
+``raw_ferc_to_sqlite`` asset group in the default PUDL Dagster code location. If you
 only need the raw FERC SQLite (or experimental DuckDB) outputs, use the dedicated
 ``ferc_to_sqlite`` job. If you are running the full ETL from scratch, use the
 ``pudl_with_ferc_to_sqlite`` job, which also includes FERC SQLite assets.
@@ -88,7 +88,7 @@ Form 1 outputs will include:
  * ``$PUDL_OUTPUT/ferc1_xbrl_datapackage.json``: `Frictionless data package
    <https://specs.frictionlessdata.io/data-package/>`__ descriptor for the XBRL derived
    database.
- * ``pudl_output/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the
+ * ``$PUDL_OUTPUT/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the
    XBRL Taxonomy, containing additional metadata.
 
 By default, the ``ferc_to_sqlite`` job converts all available years and tables of data

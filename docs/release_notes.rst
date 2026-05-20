@@ -2,6 +2,50 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2026.6.0:
+
+---------------------------------------------------------------------------------------
+v2026.6.0 (2026-06-XX)
+---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
+  directories when deciding what to upload to Zenodo, which caused release failures
+  once we started leaving the ``ferc*_xbrl`` directories laying around. See PR
+  :pr:`5254`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Cleaned up PUDL's default Dagster wiring by separating default resources from IO
+  managers, giving shared data-config resources clearer defaults, and simplifying the
+  FERC SQLite IO manager and provenance stack. The branch also consolidated the FERC EQR
+  deployment helper assets with the rest of the Dagster package layout. Also created a
+  new Dagster definition builder for use in notebooks and other interactive environments
+  outside of a ``dg``-spawned environment:
+  :func:`pudl.dagster.build.build_interactive_defs`. See issue :issue:`5118` and PR
+  :pr:`5242`.
+
 .. _release-v2026.5.0:
 
 ---------------------------------------------------------------------------------------
@@ -167,8 +211,8 @@ changes:
   :class:`pudl.workspace.datastore.ZenodoDoiSettingsResource` replace the legacy
   ``@resource``-decorated functions;
   :class:`pudl.io_managers.PudlMixedFormatIOManager`,
-  :class:`pudl.io_managers.FercDbfSqliteConfigurableIOManager`, and
-  :class:`pudl.io_managers.FercXbrlSqliteConfigurableIOManager` replace the legacy
+  :class:`pudl.io_managers.FercDbfSqliteIOManager`, and
+  :class:`pudl.io_managers.FercXbrlSqliteIOManager` replace the legacy
   ``@io_manager`` wrappers. Resources now receive settings via Pydantic field
   injection rather than via :func:`dagster.build_init_resource_context` config dicts.
 * **Added FERC SQLite provenance tracking** via the new
@@ -230,7 +274,7 @@ changes:
   combined two acronyms (e.g. ``FERC`` + ``SQLite``) were inconsistently named.
   They now follow the Python convention of treating each acronym as a single
   title-cased word, so ``SQLite`` becomes ``Sqlite`` when it appears mid-name
-  (e.g. ``FercDbfSqliteConfigurableIOManager``).  See :issue:`5123` and PR :pr:`5124`.
+  (e.g. ``FercDbfSqliteIOManager``).  See :issue:`5123` and PR :pr:`5124`.
 * **Renamed Pydantic settings classes from** ``*Settings`` **to** ``*DataConfig``
   **and tightened container field names.** The old names were too vague — these
   classes define *which data gets processed*, not general application settings.
