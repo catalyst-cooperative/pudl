@@ -11,6 +11,12 @@ v2026.6.0 (2026-06-XX)
 Enhancements
 ^^^^^^^^^^^^
 
+- In table ``out_ferc1__yearly_transmission_lines_sched422`` and ancestors, moved
+  ``supporting_structure_type`` to ``supporting_structure_type_original`` and split
+  it into separate structure type and structure material enums. Refer to
+  :ref:`ferc-structure-type-material` for transformation
+  notes and edge cases. See issue :issue:`4658` and PRs :pr:`4859,5263`.
+
 New Data
 ^^^^^^^^
 

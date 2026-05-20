@@ -24,6 +24,7 @@ from pudl.transform.ferc1 import (
     MetricTolerances,
     ReconcileTableCalculations,
     TableIdFerc1,
+    TransmissionLinesTableTransformer,
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
     add_columns_with_uniform_values,
@@ -1334,3 +1335,106 @@ def test_convert_pnynmndtnhnmns_to_years():
             (3 / 12 + 15 / 365),
         ]
     )
+
+
+@pytest.mark.parametrize(
+    ["given", "expected_type", "expected_material"],
+    [
+        ("steel tower", "tower", "steel"),
+        ("wood pole", "pole", "wood"),
+        ("steel h-frame", "h_frame", "steel"),
+        ("underground", "underground", pd.NA),
+        ("tower", "tower", pd.NA),
+        ("h-frame", "h_frame", pd.NA),
+        ("pole", "pole", pd.NA),
+        ("steel", pd.NA, "steel"),
+        ("2-29.55", "h_frame", pd.NA),
+        (pd.NA, pd.NA, pd.NA),
+    ],
+)
+def test_split_supporting_structure(
+    given: str, expected_type: str, expected_material: str
+):
+    """Test splitting supporting_structure_type into type and material columns."""
+    from pudl.transform.params.ferc1 import TRANSFORM_PARAMS
+
+    params = Ferc1TableTransformParams.from_dict(
+        TRANSFORM_PARAMS["core_ferc1__yearly_transmission_lines_sched422"]
+    )
+    transformer = TransmissionLinesTableTransformer(params=params)
+
+    test_data = pd.DataFrame(
+        {
+            "supporting_structure_type_original": [given],
+            "supporting_structure_type": [given],
+            "supporting_structure_material": [given],
+            "num_transmission_circuits": [-1],
+        }
+    )
+
+    result = transformer.normalize_strings(test_data).pipe(
+        transformer.categorize_strings
+    )
+
+    # Check categorization results
+    supporting_structure_type = pd.Series(
+        [expected_type],
+        dtype=pd.StringDtype(),
+        name="supporting_structure_type",
+    )
+
+    supporting_structure_material = pd.Series(
+        [expected_material],
+        dtype=pd.StringDtype(),
+        name="supporting_structure_material",
+    )
+
+    pd.testing.assert_series_equal(
+        result["supporting_structure_type"],
+        supporting_structure_type,
+        check_names=False,
+        check_dtype=False,
+    )
+    pd.testing.assert_series_equal(
+        result["supporting_structure_material"],
+        supporting_structure_material,
+        check_names=False,
+        check_dtype=False,
+    )
+
+
+def test_split_supporting_structure_handles_uncategorized():
+    """Test that supportiing structure sets uncategorized values to NA."""
+    from pudl.transform.params.ferc1 import TRANSFORM_PARAMS
+
+    params = Ferc1TableTransformParams.from_dict(
+        TRANSFORM_PARAMS["core_ferc1__yearly_transmission_lines_sched422"]
+    )
+    transformer = TransmissionLinesTableTransformer(params=params)
+
+    # Test data with uncategorized value
+    unk = ["unknown_value", "steel tower"]
+    test_data = pd.DataFrame(
+        {
+            "supporting_structure_type_original": unk,
+            "supporting_structure_type": unk,
+            "supporting_structure_material": unk,
+            "num_transmission_circuits": [1, 2],
+        }
+    )
+
+    result = transformer.normalize_strings(test_data).pipe(
+        transformer.categorize_strings
+    )
+
+    # Check that original value is preserved
+    assert result["supporting_structure_type_original"].iloc[0] == "unknown_value"
+    assert result["supporting_structure_type_original"].iloc[1] == "steel tower"
+
+    # Check that uncategorized value results in NA for categorized columns
+    assert pd.isna(result["supporting_structure_type"].iloc[0])
+    assert pd.isna(result["supporting_structure_material"].iloc[0])
+
+    # Check that categorized value is still categorized
+    assert result["supporting_structure_type"].iloc[1] == "tower"
+    assert result["supporting_structure_material"].iloc[1] == "steel"

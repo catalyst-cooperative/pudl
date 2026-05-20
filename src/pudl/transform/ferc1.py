@@ -4866,8 +4866,13 @@ class TransmissionLinesTableTransformer(Ferc1AbstractTableTransformer):
     has_unique_record_ids: bool = False
 
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
-        """Do some string-to-numeric ninja moves."""
+        """Transform transmission lines table, splitting structure type and material."""
         df["num_transmission_circuits"] = pd.to_numeric(df["num_transmission_circuits"])
+        # Prepare to split supporting structure type in the categorize_strings phase
+        df = df.assign(
+            supporting_structure_type_original=df.supporting_structure_type.copy(),
+            supporting_structure_material=df.supporting_structure_type.copy(),
+        )
         return super().transform_main(df)
 
 
