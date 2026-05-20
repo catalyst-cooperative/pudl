@@ -37,6 +37,13 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Refactored Dagster-managed path handling to use a dedicated ``pudl_paths`` resource
+  instead of constructing :class:`pudl.workspace.setup.PudlPaths` directly throughout
+  assets, IO managers, and tests. This makes path resolution more explicit in Dagster
+  contexts and allows interactive definitions to override ``pudl_input`` and
+  ``pudl_output`` directly when calling
+  :func:`pudl.dagster.build.build_interactive_defs`.
+
 * Cleaned up PUDL's default Dagster wiring by separating default resources from IO
   managers, giving shared data-config resources clearer defaults, and simplifying the
   FERC SQLite IO manager and provenance stack. The branch also consolidated the FERC EQR

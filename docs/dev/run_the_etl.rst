@@ -205,6 +205,10 @@ specific usage examples:
 
   If you need to point at non-default packaged settings, ``build_interactive_defs()``
   also accepts ``global_data_config_path=...`` and ``zenodo_dois_path=...`` overrides.
+  If you need to inspect assets against non-default workspace locations, you can also
+  pass ``pudl_input=...`` and ``pudl_output=...`` directly. These values are used to
+  configure the underlying ``pudl_paths`` Dagster resource for the interactive
+  ``Definitions`` object.
 
 .. _run-dagster-ui:
 
