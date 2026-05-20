@@ -53,7 +53,7 @@ dependencies = []
 
 [tool.pixi.workspace]
 name = "catalystcoop.pudl"
-platforms = ["linux-64", "osx-64", "osx-arm64"]
+platforms = ["linux-aarch64", "linux-64", "osx-64", "osx-arm64"]
 channels = ["conda-forge"]
 channel-priority = "strict"
 preview = ["pixi-build"]
@@ -182,7 +182,7 @@ usaddress = ">=0.5.16,<0.6"
 
 [tool.pixi.feature.dev.dependencies]
 jq = ">=1.8" # Primarily for agent skills use
-marimo = ">=0.21"
+marimo = ">=0.13"
 matplotx = ">=0.3.10"
 plotly = ">=6.6"
 ripgrep = ">=15" # Primarily for agent skills use
@@ -473,6 +473,26 @@ description = "Update pre-commit hook versions"
 cmd = "dbt deps --upgrade"
 cwd = "dbt"
 description = "Update dbt dependencies"
+
+[tool.pixi.tasks.devcontainer-install]
+cmd = """
+pixi install -e dev \
+    && pixi run -e dev install-skills \
+    && npm install -g \
+      @anthropic-ai/claude-code \
+      @google/gemini-cli \
+      @openai/codex \
+      @earendil-works/pi-coding-agent \
+      opencode-ai
+"""
+description = "Set up the dev container: install pixi environment, skills, and agent CLIs (run once after first start)"
+
+[tool.pixi.tasks.devcontainer-rebuild]
+cmd = """
+docker volume rm pudl-pixi || true \
+    && npx -y @devcontainers/cli build --workspace-folder . --log-level info
+"""
+description = "Rebuild the dev container image metadata and recreate the named pixi cache volume"
 
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command
