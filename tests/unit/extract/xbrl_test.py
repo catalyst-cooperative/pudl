@@ -252,6 +252,7 @@ def _prep_cached_dbs(
     local_provenance.to_sqlite()
     nightly_provenance.to_sqlite()
 
+    # Zip nightly db to simulate how FERC sqlite dbs are actually distributed
     with ZipFile(nightly_zip_path, mode="w") as archive:
         archive.write(nightly_provenance.sqlite_path, local_provenance.sqlite_path.name)
 

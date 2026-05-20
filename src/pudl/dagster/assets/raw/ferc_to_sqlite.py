@@ -6,6 +6,7 @@ resource requirements, and materialization metadata specific to those prerequisi
 databases, rather than the downstream transforms that consume them.
 """
 
+import os
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
@@ -78,8 +79,24 @@ def _check_compatible_cached_db(
 ) -> FercSqliteProvenanceRecord | None:
     """Check to see if there is a compatible SQLite DB either locally, or in nightly builds.
 
-    Reads a FercSqliteProvenanceRecord
+    This function will first check the local SQLite DB for the specified ``dataset``
+    and ``data_format`` to see if it contains a ``FercSqliteProvenanceRecord`` that
+    is compatible with the requirements of the current run. If the local DB doesn't
+    exist or contains an incompatible record, it will then download the DB produced
+    by the most recent nightly build and perform the same check. If one of the DBs
+    is found to be compatible, then it will return the associated ``FercSqliteProvenanceRecord``,
+    which will trigger the ``ferc_to_sqlite`` process to skip the normal extraction,
+    and use the cached DB. If this function returns ``None``, then the extraction will
+    go forward as normal.
+
+    If the environment variable, ``PUDL_FORCE_FERC_TO_SQLITE``, is set to ``true``, then
+    this function will immediately return ``None``, triggering the normal extraction.
     """
+    # Check if configured to force extraction
+    if os.getenv("PUDL_FORCE_FERC_TO_SQLITE", default="false").lower() == "true":
+        return None
+
+    # Assemble required provenance for current run
     provenance = FercSqliteProvenance(
         dataset=dataset,
         data_format=data_format,
