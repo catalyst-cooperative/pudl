@@ -9,6 +9,7 @@ import requests
 from pudl.scripts.zenodo_data_release import (
     RETRYABLE_STATUS_CODES,
     SANDBOX,
+    EmptyDraft,
     ZenodoClient,
 )
 
@@ -157,3 +158,35 @@ def test_create_bucket_file_reopens_stream(mocker, zenodo_client, tmp_path):
     assert len(calls) == 2
     assert all(payload == data for payload in calls)
     assert response.status_code == 200
+
+
+def test_sync_directory_skips_top_level_directories_and_ignored_files(
+    mocker, zenodo_client, tmp_path
+):
+    """Ensure only top-level files that survive ignore regexes are uploaded."""
+
+    keep_file = tmp_path / "keep.txt"
+    keep_file.write_text("keep", encoding="utf-8")
+    ignored_file = tmp_path / "ignore.parquet"
+    ignored_file.write_text("ignored", encoding="utf-8")
+    nested_dir = tmp_path / "ferc1_xbrl"
+    nested_dir.mkdir()
+    (nested_dir / "nested.txt").write_text("nested", encoding="utf-8")
+
+    zenodo_client.get_deposition = mocker.Mock(  # type: ignore[method-assign]
+        return_value=SimpleNamespace(
+            links=SimpleNamespace(bucket="https://sandbox.zenodo.org/api/files/123")
+        )
+    )
+    zenodo_client.create_bucket_file = mocker.Mock(  # type: ignore[method-assign]
+        return_value=_fake_response(200)
+    )
+
+    draft = EmptyDraft(record_id=123, zenodo_client=zenodo_client)
+    draft.sync_directory(str(tmp_path), ignore=(r".*\.parquet$",))
+
+    uploaded_paths = [
+        call.kwargs["file_path"].name
+        for call in zenodo_client.create_bucket_file.call_args_list
+    ]
+    assert uploaded_paths == ["keep.txt"]
