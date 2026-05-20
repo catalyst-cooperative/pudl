@@ -5,7 +5,7 @@ from textwrap import dedent
 import pytest
 import yaml
 
-from pudl.dbt_schema import DbtSchema, merge_schema
+from pudl.dbt_schema import DbtSchema, _prettier_yaml_dumps, merge_schema
 
 
 def _schema_from_yaml(schema_yaml: str) -> DbtSchema:
@@ -249,3 +249,17 @@ def test_validate_humanity_invalid(schema_yaml, match):
     """Fail humanity check when specifying structures not permitted for humans."""
     with pytest.raises(AssertionError, match=match):
         _schema_from_yaml(schema_yaml).validate_humanity()
+
+
+def test__prettier_yaml_dumps():
+    """Ensure our yaml hacks for dbt_schema don't contaminate other yaml-ful processes in the codebase."""
+    has_null = {"a": None}
+
+    # default yaml dump behavior
+    assert yaml.dump(has_null).find("a: null") >= 0
+
+    # our custom yaml dump behavior
+    assert _prettier_yaml_dumps(has_null).find("a: null") < 0
+
+    # revert to default
+    assert yaml.dump(has_null).find("a: null") >= 0
