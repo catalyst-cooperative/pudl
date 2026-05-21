@@ -100,7 +100,9 @@ def test_ferc_sqlite_provenance_is_compatible_skips_without_instance(
     caplog,
 ) -> None:
     """Provenance check is skipped with a warning when no Dagster instance is available."""
-    with caplog.at_level(logging.WARNING):
+    with caplog.at_level(
+        logging.WARNING, logger="dagster.builtin.catalystcoop.pudl.dagster.provenance"
+    ):
         assert (
             FercSqliteProvenanceRecord.from_dagster_instance(
                 instance=None, dataset="ferc1", data_format="dbf"
@@ -182,7 +184,10 @@ def test_ferc_sqlite_provenance_is_compatible_year_subset_check(
         ferc_xbrl_extractor_version="1.0.0",
     )
     if should_fail:
-        with caplog.at_level(logging.WARNING):
+        with caplog.at_level(
+            logging.WARNING,
+            logger="dagster.builtin.catalystcoop.pudl.dagster.provenance",
+        ):
             assert not ferc_sqlite_provenance_is_compatible(
                 observed_provenance=stored, required_provenance=required
             )
@@ -216,7 +221,9 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_doi_mismatch(
         years=[],
         ferc_xbrl_extractor_version="1.0.0",
     )
-    with caplog.at_level(logging.WARNING):
+    with caplog.at_level(
+        logging.WARNING, logger="dagster.builtin.catalystcoop.pudl.dagster.provenance"
+    ):
         assert not ferc_sqlite_provenance_is_compatible(
             observed_provenance=stored, required_provenance=required
         )
@@ -254,7 +261,10 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_xbrl_extractor_mismatch(
         ferc_xbrl_extractor_version="1.1.0",
     )
     if should_raise:
-        with caplog.at_level(logging.WARNING):
+        with caplog.at_level(
+            logging.WARNING,
+            logger="dagster.builtin.catalystcoop.pudl.dagster.provenance",
+        ):
             assert not ferc_sqlite_provenance_is_compatible(
                 observed_provenance=stored, required_provenance=required
             )
@@ -301,7 +311,9 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_non_complete_status(
         years=[],
         ferc_xbrl_extractor_version="1.0.0",
     )
-    with caplog.at_level(logging.WARNING):
+    with caplog.at_level(
+        logging.WARNING, logger="dagster.builtin.catalystcoop.pudl.dagster.provenance"
+    ):
         assert not ferc_sqlite_provenance_is_compatible(
             observed_provenance=stored, required_provenance=required
         )
