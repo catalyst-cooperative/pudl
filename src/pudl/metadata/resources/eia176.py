@@ -12,9 +12,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_source_text": "(Part 4, Line 3.0)",
             "additional_primary_key_text": (
                 "This table has no enforced primary key because some records do not "
-                "report a mode of transportation. Rows are deduplicated by operator, "
-                "report year, operating state, reference state, supplier, and mode of "
-                "transportation when the data are transformed."
+                "report a mode of transportation. The natural primary key would be one record"
+                "per report_year, operating_state, reference_state, supplier and mode of transportation."
             ),
         },
         "schema": {
