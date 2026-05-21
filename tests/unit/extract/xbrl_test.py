@@ -124,6 +124,16 @@ def test_xbrl2sqlite(data_config, forms, mocker):
         return_value=mock_datastore,
     )
 
+    # Mock compatibility check to avoid looking at local / remote dbs
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite._check_compatible_cached_db",
+        return_value=None,
+    )
+    # Skip writing provenance metadata to sqlite
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite.FercSqliteProvenanceRecord.to_sqlite"
+    )
+
     xbrl_assets: list[AssetsDefinition] = [
         ferc_to_sqlite.raw_ferc1_xbrl__sqlite,
         ferc_to_sqlite.raw_ferc2_xbrl__sqlite,
@@ -255,7 +265,27 @@ def _prep_cached_dbs(
         archive.write(nightly_provenance.sqlite_path, local_provenance.sqlite_path.name)
 
 
-def test_check_compatible_cached_db(mocker, tmp_path):
+def _run_ferc_to_sqlite_asset(
+    zenodo_doi: str, test_asset, data_config
+) -> FercSqliteProvenanceRecord:
+    """Run test ferc_to_sqlite asset then return provenance metadata output by it."""
+    result: ExecuteInProcessResult = dg.materialize(
+        assets=[test_asset],
+        resources={
+            "global_data_config": GlobalDataConfig(ferc_to_sqlite=data_config),
+            "datastore": ResourceDefinition.mock_resource(),
+            "runtime_settings": FercXbrlRuntimeSettings(),
+            "zenodo_dois": ZenodoDoiSettings(ferc1=zenodo_doi),
+        },
+    )
+    materialization_events = result.get_asset_materialization_events()
+
+    assert len(materialization_events) == 1
+    metadata = materialization_events[0].materialization.metadata["ferc_to_sqlite"].data
+    return FercSqliteProvenanceRecord(**metadata)
+
+
+def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
     """Test the logic for checking for a compatible cached FERC SQLite DB."""
     # Basic parameters
     dataset = "ferc1"
@@ -263,11 +293,22 @@ def test_check_compatible_cached_db(mocker, tmp_path):
     status = "complete"
     data_config = FercToSqliteDataConfig(ferc1_dbf=Ferc1DbfToSqliteDataConfig())
     years = data_config.get_dataset_years(dataset, data_format)
-    local_doi = "local_doi"
-    nightly_doi = "nightly_doi"
+    local_doi = "10.5072/zenodo.1"
+    nightly_doi = "10.5072/zenodo.2"
+    uncached_doi = "10.5072/zenodo.3"
     local_path = tmp_path / "local_ferc1_dbf.sqlite"
     nightly_path = tmp_path / "nightly_ferc1_dbf.sqlite"
     nightly_zip_path = tmp_path / "nightly.zip"
+
+    # Create test asset
+    mock_extract_function = mocker.MagicMock(
+        side_effect=lambda *_args: local_path.unlink()
+    )
+    test_asset = ferc_to_sqlite.ferc_to_sqlite_asset_factory(
+        dataset=dataset,
+        data_format=data_format,
+        extract_function=mock_extract_function,
+    )
 
     # Construct provenance records for local and nightly DB's
     local_provenance = FercSqliteProvenanceRecord(
@@ -290,6 +331,12 @@ def test_check_compatible_cached_db(mocker, tmp_path):
     )
     _prep_cached_dbs(local_provenance, nightly_provenance, nightly_zip_path)
 
+    # Mock local sqlite path
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite.PudlPaths.sqlite_db_path",
+        return_value=local_path,
+    )
+
     # Mock nightly downloads
     mocker.patch(
         "pudl.dagster.assets.raw.ferc_to_sqlite.fsspec.open",
@@ -297,33 +344,23 @@ def test_check_compatible_cached_db(mocker, tmp_path):
     )
 
     # Test with local doi to return local_provenance record
-    assert local_provenance == ferc_to_sqlite._check_compatible_cached_db(
-        dataset=dataset,
-        data_format=data_format,
-        zenodo_doi=local_doi,
-        sqlite_path=local_path,
-        ferc_to_sqlite=data_config,
+    assert local_provenance == _run_ferc_to_sqlite_asset(
+        local_doi, test_asset, data_config
     )
+    mock_extract_function.assert_not_called()
 
     # Test with nightly doi to return nightly_provenance record
     _prep_cached_dbs(local_provenance, nightly_provenance, nightly_zip_path)
-    assert nightly_provenance == ferc_to_sqlite._check_compatible_cached_db(
-        dataset=dataset,
-        data_format=data_format,
-        zenodo_doi=nightly_doi,
-        sqlite_path=local_path,
-        ferc_to_sqlite=data_config,
+    assert nightly_provenance == _run_ferc_to_sqlite_asset(
+        nightly_doi, test_asset, data_config
     )
+    mock_extract_function.assert_not_called()
 
-    # Test with doi from neither local / nightly, should return None
+    # Test with doi from neither local / nightly, which should trigger extraction
     _prep_cached_dbs(local_provenance, nightly_provenance, nightly_zip_path)
-    assert (
-        ferc_to_sqlite._check_compatible_cached_db(
-            dataset=dataset,
-            data_format=data_format,
-            zenodo_doi="uncached_doi",
-            sqlite_path=local_path,
-            ferc_to_sqlite=data_config,
-        )
-        is None
+    uncached_provenance = _run_ferc_to_sqlite_asset(
+        uncached_doi, test_asset, data_config
     )
+    assert uncached_provenance.zenodo_doi == uncached_doi
+    assert uncached_provenance == FercSqliteProvenanceRecord.from_sqlite(local_path)
+    mock_extract_function.assert_called_once()

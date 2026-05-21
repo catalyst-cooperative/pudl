@@ -178,7 +178,7 @@ def ferc_to_sqlite_asset_factory(
         if (
             provenance := _check_compatible_cached_db(
                 dataset=dataset,
-                data_format="xbrl",
+                data_format=data_format,
                 zenodo_doi=zenodo_doi,
                 sqlite_path=sqlite_path,
                 ferc_to_sqlite=ferc_to_sqlite,
@@ -196,6 +196,7 @@ def ferc_to_sqlite_asset_factory(
                 ),
                 data_config=ferc_to_sqlite,
                 sqlite_path=sqlite_path,
+                ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
             )
             provenance.to_sqlite()
         else:
