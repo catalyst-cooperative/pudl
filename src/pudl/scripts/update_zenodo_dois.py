@@ -5,7 +5,6 @@ having to hand-update DOI values, and eventually to auto-update records that don
 require hand mapping to extract in PUDL.
 """
 
-import importlib
 import re
 import sys
 from pathlib import Path
@@ -15,6 +14,7 @@ import requests
 import yaml
 
 from pudl.logging_helpers import get_logger
+from pudl.workspace.datastore import get_zenodo_dois_path
 
 logger = get_logger(__name__)
 
@@ -47,7 +47,11 @@ def update_yaml_dois(yaml_file: Path, datasets: tuple[str, ...]) -> dict[str, di
     for dataset_name, current_doi in data.items():
         if dataset_name in datasets:
             # Extract record ID from DOI (e.g, grab 123456 from 10.5281/zenodo.123456)
-            record_id = re.search(r"^10\.5281/zenodo\.(\d+)$", current_doi).group(1)
+            if (match := re.search(r"^10\.5281/zenodo\.(\d+)$", current_doi)) is None:
+                raise ValueError(
+                    f"Unexpected Zenodo DOI format for {dataset_name}: {current_doi}"
+                )
+            record_id = match.group(1)
 
             latest_id, latest_doi = get_latest_record_id(record_id)
 
@@ -88,24 +92,25 @@ def update_yaml_dois(yaml_file: Path, datasets: tuple[str, ...]) -> dict[str, di
     "datasets",
     nargs=-1,
 )
-def main(datasets: tuple[str, ...]):  # pragma: no cover
+def main(datasets: tuple[str, ...]) -> int:  # pragma: no cover
     """Auto-update Zenodo DOIs to the latest value."""
-    if not datasets:  # If no datasets to update
-        logger.warn("No datasets provided, nothing will be updated.")
-        sys.exit(0)
+    # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
 
-    yaml_file = importlib.resources.files("pudl.package_data.settings").joinpath(
-        "zenodo_dois.yml"
-    )
+    if not datasets:  # If no datasets to update
+        logger.warning("No datasets provided, nothing will be updated.")
+        return 0
+
+    yaml_file = get_zenodo_dois_path()
     if not yaml_file.exists():
-        logger.warn(f"❌ File not found: {yaml_file}")
-        sys.exit(1)
+        logger.warning(f"❌ File not found: {yaml_file}")
+        return 1
 
     logger.info(
         f"Checking {yaml_file} for newer Zenodo record versions {'of ' + ', '.join(datasets) if datasets else ''}"
     )
 
     update_yaml_dois(yaml_file, datasets)
+    return 0
 
 
 if __name__ == "__main__":

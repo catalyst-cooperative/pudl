@@ -1047,7 +1047,7 @@ class DataSource(PudlMeta):
     def add_datastore_metadata(self, datastore: Datastore | None = None) -> None:
         """Get source file metadata from the datastore."""
         if datastore is None:
-            datastore = Datastore(local_cache_path=PudlPaths().data_dir)
+            datastore = Datastore(local_cache_path=PudlPaths().pudl_input)
         dp_desc = datastore.get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
@@ -1191,7 +1191,7 @@ class PudlResourceDescriptor(PudlMeta):
         """
 
         table_type_code: (
-            Literal["assn", "codes", "entity", "scd", "timeseries"] | None
+            Literal["assn", "codes", "entity", "scd", "timeseries", "forensics"] | None
         ) = None
         """Indicates the type of asset stored in this resource.
 

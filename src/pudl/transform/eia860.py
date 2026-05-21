@@ -4,13 +4,14 @@ import numpy as np
 import pandas as pd
 from dagster import asset, asset_check
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
 from pudl.helpers import drop_records_with_null_in_column
-from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import DataSource
+from pudl.metadata.classes import PUDL_PACKAGE, DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.settings import Eia860DataConfig
 from pudl.transform.eia861 import clean_nerc
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -110,9 +111,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
             own_df.report_date.isin(
                 [
                     f"{year}-01-01"
-                    for year in range(
-                        2018, max(pudl.settings.Eia860Settings().years) + 1
-                    )
+                    for year in range(2018, max(Eia860DataConfig().years) + 1)
                 ]
             )
         )
@@ -1386,7 +1385,9 @@ def cooling_equipment_continuity(cooling_equipment):
     discontinuities that are worth investigating, but we're punting on that
     investigation since we're out of time.
     """
-    return pudl.validate.group_mean_continuity_check(
+    from pudl.dagster.asset_checks import group_mean_continuity_check
+
+    return group_mean_continuity_check(
         df=cooling_equipment,
         thresholds={
             "intake_rate_100pct_gallons_per_minute": 0.1,
@@ -1508,7 +1509,9 @@ def _core_eia860__fgd_equipment(
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
 def fgd_equipment_continuity(fgd):
     """Check to see if columns vary as slowly as expected."""
-    return pudl.validate.group_mean_continuity_check(
+    from pudl.dagster.asset_checks import group_mean_continuity_check
+
+    return group_mean_continuity_check(
         df=fgd,
         thresholds={
             "flue_gas_exit_rate_cubic_feet_per_minute": 0.1,

@@ -87,7 +87,7 @@ from pydantic import (
 
 import pudl.logging_helpers
 import pudl.transform.params.ferc1
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

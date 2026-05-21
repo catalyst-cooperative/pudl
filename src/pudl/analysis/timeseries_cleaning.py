@@ -1872,6 +1872,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     reported_value_col: str = "demand_reported_mwh",
     simulation_group_col: str | None = None,
     output_io_manager_key: str = "parquet_io_manager",
+    op_tags: dict[str, Any] | None = None,
     settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings(),
 ) -> pd.DataFrame:
     """Produces assets to impute values for a given timeseries table/column.
@@ -1910,6 +1911,9 @@ def impute_timeseries_asset_factory(  # noqa: C901
             a single imputation run (like BA/subregion demand), this column is used
             to compute simulation results for each set independently. This should
             point to a categorical column which defines which group a row belongs to.
+        op_tags: Tags applied to every op produced by the factory. Use
+            ``{"dagster/priority": N}`` to raise scheduling priority for assets on
+            the critical execution path.
         settings: Configurable options for imputation
             (see :class:`ImputeTimeseriesSettings`).
     """
@@ -1918,6 +1922,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     # Uses regex substitution so prefix starts with exactly one underscore even
     # if `output_asset_name` starts with an underscore
     asset_prefix = re.sub(r"^__", "_", f"_{output_asset_name}")
+    op_tags = op_tags or {}
 
     # Asset names
     timeseries_matrix_asset = f"{asset_prefix}_timeseries_matrix"
@@ -1938,6 +1943,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             aligned_input_asset: AssetOut(key=aligned_input_asset),
         },
         name=f"{asset_prefix}_prepare_timeseries_matrix",
+        op_tags=op_tags,
     )
     def _prepare_timeseries_matrix(
         input_df: pd.DataFrame,
@@ -1986,7 +1992,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             ),
             flags_asset: AssetOut(key=flags_asset),
         },
-        op_tags={"memory-use": "high"},
+        op_tags={"memory-use": "high"} | op_tags,
         name=f"{asset_prefix}_flag_timeseries_matrix",
     )
     def _flag_timeseries_matrix(
@@ -2011,13 +2017,14 @@ def impute_timeseries_asset_factory(  # noqa: C901
         )
 
     @asset(
-        required_resource_keys={"dataset_settings"},
+        required_resource_keys={"global_data_config"},
         ins={
             "matrix": AssetIn(cleaned_timeseries_matrix_asset),
             "flags": AssetIn(flags_asset),
             "aligned_df": AssetIn(aligned_input_asset),
         },
         name=imputed_asset,
+        op_tags=op_tags,
     )
     def _impute_timeseries(
         context,
@@ -2045,6 +2052,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
         },
         name=output_asset_name,
         io_manager_key=output_io_manager_key,
+        op_tags=op_tags,
     )
     def _create_output_asset(
         imputed_df: pd.DataFrame,
@@ -2073,6 +2081,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             simulated_flags_asset: AssetOut(key=simulated_flags_asset),
         },
         name=f"{asset_prefix}_simulate_flag_timeseries_matrix",
+        op_tags=op_tags,
     )
     def _simulate_flags(
         imputed_df: pd.DataFrame,
@@ -2118,13 +2127,14 @@ def impute_timeseries_asset_factory(  # noqa: C901
         )
 
     @asset(
-        required_resource_keys={"dataset_settings"},
+        required_resource_keys={"global_data_config"},
         ins={
             "aligned_df": AssetIn(aligned_input_asset),
             "matrix": AssetIn(simulated_timeseries_matrix_asset),
             "flags": AssetIn(simulated_flags_asset),
         },
         name=imputed_simulated_asset,
+        op_tags=op_tags,
     )
     def _impute_simulated_timeseries(
         context,
@@ -2153,6 +2163,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
         io_manager_key=settings.simulate_flags_settings.output_io_manager_key
         if settings.simulate_flags_settings
         else "io_manager",
+        op_tags=op_tags,
     )
     def _create_simulated_output_asset(
         imputed_df: pd.DataFrame,
@@ -2173,6 +2184,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             "simulated_df": AssetIn(imputed_simulated_asset),
         },
         name=imputation_score_asset,
+        op_tags=op_tags,
     )
     def _score_imputation(
         imputed_df: pd.DataFrame,

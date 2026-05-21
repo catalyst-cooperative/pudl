@@ -22,7 +22,7 @@ from typing import Literal
 import numpy as np
 import pandas as pd
 
-import pudl
+import pudl.logging_helpers
 
 # Create a logger to output any messages we might have...
 logger = pudl.logging_helpers.get_logger(__name__)

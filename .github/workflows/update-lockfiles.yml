@@ -10,6 +10,9 @@ on:
 # - workflow_dispatch: Whatever branch it was run against.
 # - schedule: Always runs on main
 
+env:
+  TODAY: ""
+
 jobs:
   update-lockfiles:
     runs-on: ubuntu-latest

@@ -2023,55 +2023,6 @@ def scale_by_ownership(
     return gens
 
 
-def get_dagster_execution_config(
-    num_workers: int = 0, tag_concurrency_limits: list[dict] = []
-):
-    """Get the dagster execution config for a given number of workers.
-
-    If num_workers is 0, then the dagster execution config will not include
-    any limits. With num_workers set to 1, we will use in-process serial
-    executor, otherwise multi-process executor with maximum of num_workers
-    will be used.
-
-    Args:
-        num_workers: The number of workers to use for the dagster execution config.
-            If 0, then the dagster execution config will not include a multiprocess
-            executor.
-        tag_concurrency_limits: A set of limits that are applied to steps with
-            particular tags. This is helpful for applying concurrency limits to
-            highly concurrent and memory intensive portions of the ETL like CEMS.
-
-            Dagster description: If a value is set, the limit is applied to
-            only that key-value pair. If no value is set, the limit is applied
-            across all values of that key. If the value is set to a dict with
-            ``applyLimitPerUniqueValue: true``, the limit will apply to the
-            number of unique values for that key. Note that these limits are
-            per run, not global.
-
-    Returns:
-        A dagster execution config.
-    """
-    if num_workers == 1:
-        return {
-            "execution": {
-                "config": {
-                    "in_process": {},
-                },
-            },
-        }
-
-    return {
-        "execution": {
-            "config": {
-                "multiprocess": {
-                    "max_concurrent": num_workers,
-                    "tag_concurrency_limits": tag_concurrency_limits,
-                },
-            },
-        },
-    }
-
-
 def assert_cols_areclose(
     df: pd.DataFrame,
     a_cols: list[str],
@@ -2574,6 +2525,39 @@ def normalize_year_fragments(
             f"Year out of expected range ({min_valid_year}-{max_valid_year}) in values: {bad}"
         )
     return year
+
+
+def make_changelog(df_all: pd.DataFrame, idx: list[str]):
+    """Make a changelog table with unique instances of values over start report and max report date."""
+    idx_no_date = [c for c in idx if c != "report_date"]
+    # assign a max report_date column for use in the valid_until_date column
+    df_all["report_date_max"] = df_all.groupby(idx_no_date)["report_date"].transform(
+        "max"
+    )
+
+    df_changelog = df_all.sort_values(
+        by=["report_date"], ascending=True
+    ).drop_duplicates(
+        subset=[c for c in df_all if c != "report_date"],
+        keep="first",
+    )
+
+    report_date_max_mask = (
+        df_changelog["report_date"] == df_changelog["report_date_max"]
+    )
+    df_changelog.loc[~report_date_max_mask, "valid_until_date"] = (
+        df_changelog.sort_values(idx, ascending=False)
+        .groupby(idx_no_date)["report_date"]
+        .transform("shift")
+        .fillna(df_changelog.report_date_max)
+    )
+
+    # for all of the last month records, use the next month as the valid until date
+    df_changelog.loc[report_date_max_mask, "valid_until_date"] = (
+        df_changelog.report_date + pd.DateOffset(months=1)
+    )
+
+    return df_changelog.sort_values(idx)
 
 
 def parse_address(addr: str):

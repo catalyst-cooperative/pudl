@@ -1,24 +1,31 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
+import warnings
+from pathlib import Path
+
+from dagster import PreviewWarning
+
 from pudl.logging_helpers import configure_root_logger
 
-from . import (
-    analysis,
-    convert,
-    extract,
-    ferc_to_sqlite,
-    glue,
-    helpers,
-    io_managers,
-    logging_helpers,
-    metadata,
-    output,
-    transform,
-    validate,
-    workspace,
+warnings.filterwarnings(
+    action="once",
+    message=r"Specifying a partitions_def on an AssetCheckSpec is currently in preview.*",
+    category=PreviewWarning,
 )
 
 configure_root_logger()
+
+# Paths to resources stored within the PUDL repository. Unlike PUDL_INPUT and
+# PUDL_OUTPUT these are not intended to be overridden by users or reset at runtime for
+# different environments.
+PUDL_ROOT_PATH: Path = Path(__file__).resolve().parents[2]
+"""Resolved absolute path to the repository root."""
+PUDL_SETTINGS_PATH: Path = PUDL_ROOT_PATH / "src/pudl/package_data/settings"
+"""Resolved absolute path to the package_data directory."""
+PUDL_DBT_PATH: Path = PUDL_ROOT_PATH / "dbt"
+"""Resolved absolute path to the dbt directory."""
+PUDL_DOCS_PATH: Path = PUDL_ROOT_PATH / "docs"
+"""Resolved absolute path to the docs directory."""
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"

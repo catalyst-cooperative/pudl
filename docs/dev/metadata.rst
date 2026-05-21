@@ -231,7 +231,7 @@ Example:
              PK [True]: respondent_id_ferc714, datetime_utc
        Warnings [2]:
     custom - The datetime_utc timestamps have been cleaned due to inconsistent datetime reporting. See below for additional details.
-    ferc_is_hard - FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
+    ferc_is_hard - FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, non-labeled total rows and lack of IDs. See `Notable Irregularities <https://docs.catalyst.coop/pudl/en/latest/data_sources/ferc1.html#notable-irregularities>`_ for details.
         Details [True]:
    This table includes data from the pre-2021 CSV raw source as well as the
    newer 2021 through present XBRL raw source.

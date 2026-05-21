@@ -46,7 +46,7 @@ jobs:
 
       - name: Update AWS S3 cache with any new Zenodo archives
         run: |
-          pixi run pudl_datastore --cloud-cache-path ${{ env.CLOUD_CACHE_PATH }} --bypass-local-cache --loglevel DEBUG
+          pixi run pudl_datastore --all --cloud-cache-path ${{ env.CLOUD_CACHE_PATH }} --bypass-local-cache --loglevel DEBUG
 
   zenodo-cache-sync-notify:
     runs-on: ubuntu-latest

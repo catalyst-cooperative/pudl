@@ -76,28 +76,21 @@ Updating table schemas
 dbt stores information about a table's schema and what tests are defined in a special
 YAML file that you need to keep up to date.
 
-That file lives in ``pudl/dbt/models/<data_source>/<table_name>/schema.yml``.
+We generate that file automatically by combining the existing metadata in
+``pudl.metadata.resources.RESOURCE_METADATA`` with human-generated data tests
+defined in ``pudl/dbt/schema_inputs/<data_source>/<table_name>/schemahuman.yml``.
 
-When you change a table's schema in ``pudl.metadata.resources``, you need to make a
-matching change to the corresponding dbt YAML file.
+The final generated file lives in
+``pudl/dbt/models/<data_source>/<table_name>/schema.yml``.
 
-In simple cases, ``dbt_helper`` can automatically update the schema of an existing
-table with:
+When you change a table's schema or update the data tests, you need to
+regenerate the dbt schema:
+
+For more details on adding data tests, see :ref:`adding_new_tables`.
 
 .. code-block:: bash
 
   dbt_helper update-tables --schema table_to_update
-
-This will work so long as none of the columns being updated have data tests or other
-manually defined metadata associated with them. If the script finds tests or metadata it
-will abort, leaving the schema unchanged, and you will have to update the schema
-manually, by editing the ``columns`` list in the appropriate ``schema.yml`` file. If you
-want to destructively replace an existing schema **including any manually added tests or
-metadata** you can use ``--clobber``:
-
-.. code-block:: bash
-
-  dbt_helper update-tables --schema --clobber table_to_replace_entirely
 
 .. _row_counts:
 
