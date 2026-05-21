@@ -122,7 +122,7 @@ The provenance check looks at three things:
 * The version of ``catalystcoop.ferc_xbrl_extractor`` that was used to perform the
   conversion when considering XBRL outputs.
 
-When either of these criteria aren't met, Dagster raises an error telling you to refresh
+When any of these criteria aren't met, Dagster raises an error telling you to refresh
 the FERC SQLite assets.
 
 Regenerating FERC SQLite assets
