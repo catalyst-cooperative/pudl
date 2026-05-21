@@ -58,7 +58,6 @@ class FercSqliteProvenanceRecord(BaseModel):
     zenodo_doi: str | None = None
     years: list[int] | None = None
     data_config: FercToSqliteDataConfig | None = None
-    sqlite_path: Path | None = None
     ferc_xbrl_extractor_version: str | None = None
 
     @classmethod
@@ -93,9 +92,9 @@ class FercSqliteProvenanceRecord(BaseModel):
 
         return cls(**payload)
 
-    def to_sqlite(self):
+    def to_sqlite(self, sqlite_path: Path):
         """Write Provenance data to sqlite."""
-        with sa.create_engine(f"sqlite:///{self.sqlite_path}").begin() as conn:
+        with sa.create_engine(f"sqlite:///{sqlite_path}").begin() as conn:
             conn.execute(
                 sa.text("""
                 CREATE TABLE IF NOT EXISTS _provenance_metadata (

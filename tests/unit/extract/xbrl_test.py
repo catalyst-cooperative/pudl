@@ -249,20 +249,22 @@ def test_ferc_dbf_extractor_skips_with_empty_years(mocker, tmp_path):
 def _prep_cached_dbs(
     local_provenance: FercSqliteProvenanceRecord,
     nightly_provenance: FercSqliteProvenanceRecord,
+    local_sqlite_path: Path,
+    nightly_sqlite_path: Path,
     nightly_zip_path: Path,
 ):
     """Prep cached dbs with provenance metadata."""
     # Delete db's if they exist for fresh start
-    local_provenance.sqlite_path.unlink(missing_ok=True)
-    nightly_provenance.sqlite_path.unlink(missing_ok=True)
+    local_sqlite_path.unlink(missing_ok=True)
+    nightly_sqlite_path.unlink(missing_ok=True)
 
     # Write records to DB's
-    local_provenance.to_sqlite()
-    nightly_provenance.to_sqlite()
+    local_provenance.to_sqlite(local_sqlite_path)
+    nightly_provenance.to_sqlite(nightly_sqlite_path)
 
     # Zip nightly db to simulate how FERC sqlite dbs are actually distributed
     with ZipFile(nightly_zip_path, mode="w") as archive:
-        archive.write(nightly_provenance.sqlite_path, local_provenance.sqlite_path.name)
+        archive.write(nightly_sqlite_path, local_sqlite_path.name)
 
 
 def _run_ferc_to_sqlite_asset(
@@ -317,7 +319,6 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
         status=status,
         zenodo_doi=local_doi,
         years=years,
-        sqlite_path=local_path,
         ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
     )
     nightly_provenance = FercSqliteProvenanceRecord(
@@ -326,10 +327,11 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
         status=status,
         zenodo_doi=nightly_doi,
         years=years,
-        sqlite_path=nightly_path,
         ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
     )
-    _prep_cached_dbs(local_provenance, nightly_provenance, nightly_zip_path)
+    _prep_cached_dbs(
+        local_provenance, nightly_provenance, local_path, nightly_path, nightly_zip_path
+    )
 
     # Mock local sqlite path
     mocker.patch(
@@ -350,14 +352,18 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
     mock_extract_function.assert_not_called()
 
     # Test with nightly doi to return nightly_provenance record
-    _prep_cached_dbs(local_provenance, nightly_provenance, nightly_zip_path)
+    _prep_cached_dbs(
+        local_provenance, nightly_provenance, local_path, nightly_path, nightly_zip_path
+    )
     assert nightly_provenance == _run_ferc_to_sqlite_asset(
         nightly_doi, test_asset, data_config
     )
     mock_extract_function.assert_not_called()
 
     # Test with doi from neither local / nightly, which should trigger extraction
-    _prep_cached_dbs(local_provenance, nightly_provenance, nightly_zip_path)
+    _prep_cached_dbs(
+        local_provenance, nightly_provenance, local_path, nightly_path, nightly_zip_path
+    )
     uncached_provenance = _run_ferc_to_sqlite_asset(
         uncached_doi, test_asset, data_config
     )

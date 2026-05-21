@@ -1,6 +1,5 @@
 """Unit tests for the FERC SQLite provenance helpers."""
 
-from pathlib import Path
 from typing import Literal
 
 import dagster as dg
@@ -29,7 +28,6 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
         zenodo_doi="fake DOI",
         years=[2018, 2019],
         data_config=data_config,
-        sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
         ferc_xbrl_extractor_version="1.0.0",
     )
     dagster_meta = {
@@ -57,12 +55,11 @@ def test_ferc_sqlite_provenance_record_round_trip_sqlite(tmp_path):
         zenodo_doi="fake DOI",
         years=[2018, 2019],
         data_config=data_config,
-        sqlite_path=sqlite_path,
         ferc_xbrl_extractor_version="1.0.0",
     )
 
     # Write to sqlite
-    record.to_sqlite()
+    record.to_sqlite(sqlite_path)
 
     # Recover and compare
     recovered = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)

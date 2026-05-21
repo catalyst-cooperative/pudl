@@ -10,6 +10,7 @@ import os
 from collections.abc import Callable
 from io import BytesIO
 from pathlib import Path
+from typing import Literal
 from zipfile import ZipFile
 
 import dagster as dg
@@ -39,6 +40,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 def _compare_provenance_metadata(
     required_provenance: FercSqliteProvenance,
     stored_provenance: FercSqliteProvenanceRecord | None,
+    db_source: Literal["Local", "Nightly"],
 ) -> FercSqliteProvenanceRecord | None:
     """Compare provenance metadata and return if compatible."""
     # Can be None for legacy SQLite DB's that don't contain metadata
@@ -52,7 +54,7 @@ def _compare_provenance_metadata(
         return stored_provenance
     except RuntimeError as e:
         logger.warning(
-            f"SQLite DB cached at {stored_provenance.sqlite_path} is not compatible. "
+            f"{db_source} SQLite DB is not compatible with provenance requirements of current run. "
             f"See the following for details: {e}"
         )
     return None
@@ -111,7 +113,9 @@ def _check_compatible_cached_db(
 
     # If not compatible, try nightly builds
     if (
-        compatible_metadata := _compare_provenance_metadata(provenance, stored_local)
+        compatible_metadata := _compare_provenance_metadata(
+            provenance, stored_local, "Local"
+        )
     ) is None:
         logger.info(
             f"Provenance metadata for local version of {sqlite_path.name} is incompatible."
@@ -119,7 +123,9 @@ def _check_compatible_cached_db(
         )
         _download_nightly_db(sqlite_path)
         stored_nightly = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
-        compatible_metadata = _compare_provenance_metadata(provenance, stored_nightly)
+        compatible_metadata = _compare_provenance_metadata(
+            provenance, stored_nightly, "Nightly"
+        )
     if compatible_metadata is None:
         logger.info(
             f"Can't find a cached version of {sqlite_path.name} with compatible provenance metadata."
@@ -195,10 +201,9 @@ def ferc_to_sqlite_asset_factory(
                     dataset=dataset, data_format=data_format
                 ),
                 data_config=ferc_to_sqlite,
-                sqlite_path=sqlite_path,
                 ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
             )
-            provenance.to_sqlite()
+            provenance.to_sqlite(sqlite_path)
         else:
             logger.info(
                 f"Found compatible cached SQLite DB for {sqlite_path.name}. Skipping extraction."
