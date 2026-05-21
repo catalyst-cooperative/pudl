@@ -5,7 +5,7 @@ from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
-from pudl.helpers import multi_index_stack, make_changelog
+from pudl.helpers import make_changelog, multi_index_stack
 from pudl.metadata.enums import (
     LOAN_STATUS_TYPES_RUS7,
     LOAN_UNIT_TYPES_RUS7,
