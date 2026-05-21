@@ -27,6 +27,11 @@ logger = pudl.logging_helpers.get_logger(__name__)
 FERC_TO_SQLITE_METADATA_KEY = "ferc_to_sqlite"
 
 
+def _get_ferc_to_sqlite_asset_key(dataset: str, data_format: str) -> dg.AssetKey:
+    """Return the asset key corresponding to a ferc_to_sqlite asset from dataset/format."""
+    return dg.AssetKey(f"raw_{dataset}_{data_format}__sqlite")
+
+
 @dataclass(frozen=True)
 class FercSqliteProvenance:
     """The provenance requirements derived from the current run's data config.
@@ -46,7 +51,7 @@ class FercSqliteProvenance:
     @property
     def asset_key(self) -> dg.AssetKey:
         """The AssetKey corresponding to the extracted SQLite database."""
-        return dg.AssetKey(f"raw_{self.dataset}_{self.data_format}__sqlite")
+        return _get_ferc_to_sqlite_asset_key(self.dataset, self.data_format)
 
 
 class FercSqliteProvenanceRecord(BaseModel):
@@ -64,19 +69,21 @@ class FercSqliteProvenanceRecord(BaseModel):
     def from_dagster_instance(
         cls,
         instance: Any | None,
-        desired_provenance: FercSqliteProvenance,
+        dataset: str,
+        data_format: str,
     ) -> "FercSqliteProvenanceRecord":
         """Return FercSqliteProvenanceRecord from dagster metadata if available."""
         if instance is None:
             logger.warning(
                 f"No Dagster instance is available; skipping FERC SQLite provenance "
-                f"check for {desired_provenance.dataset}_{desired_provenance.data_format}. This is "
+                f"check for {dataset}_{data_format}. This is "
                 "expected when running assets outside a Dagster execution context "
                 "(e.g. in unit tests)."
             )
             return None
 
-        event = instance.get_latest_materialization_event(desired_provenance.asset_key)
+        asset_key = _get_ferc_to_sqlite_asset_key(dataset, data_format)
+        event = instance.get_latest_materialization_event(asset_key)
         materialization = None if event is None else event.asset_materialization
         raw_payload = (
             None
@@ -87,7 +94,7 @@ class FercSqliteProvenanceRecord(BaseModel):
         if not isinstance(payload, dict):
             raise RuntimeError(
                 "No Dagster provenance metadata is available for "
-                f"{desired_provenance.asset_key.to_user_string()}. Refresh the FERC SQLite assets."
+                f"{asset_key.to_user_string()}. Refresh the FERC SQLite assets."
             )
 
         return cls(**payload)

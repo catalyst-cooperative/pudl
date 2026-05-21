@@ -676,7 +676,9 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
         if (instance := _get_dagster_instance_if_available(context)) is not None:
             assert_ferc_sqlite_compatible(
                 stored=FercSqliteProvenanceRecord.from_dagster_instance(
-                    instance, provenance
+                    instance=instance,
+                    dataset=self.dataset,
+                    data_format=self.data_format,
                 ),
                 provenance=provenance,
             )

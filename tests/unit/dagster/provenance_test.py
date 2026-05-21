@@ -101,16 +101,9 @@ def test_assert_ferc_sqlite_compatible_skips_without_instance(
     """Provenance check is skipped with a warning when no Dagster instance is available."""
     # TODO replace mocker with caplog
     mock_warn = mocker.patch("pudl.dagster.provenance.logger.warning")
-    provenance = FercSqliteProvenance(
-        dataset="ferc1",
-        data_format="dbf",
-        zenodo_doi="fake DOI",
-        years=[2018, 2019],
-        ferc_xbrl_extractor_version="1.0.0",
-    )
     assert (
         FercSqliteProvenanceRecord.from_dagster_instance(
-            instance=None, desired_provenance=provenance
+            instance=None, dataset="ferc1", data_format="dbf"
         )
         is None
     )
@@ -127,13 +120,6 @@ def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
         years=[2018, 2019],
         ferc_xbrl_extractor_version="1.0.0",
     )
-    required = FercSqliteProvenance(
-        dataset="ferc1",
-        data_format="dbf",
-        zenodo_doi="fake DOI",
-        years=[2018, 2019],
-        ferc_xbrl_extractor_version="1.0.0",
-    )
 
     # First try to fetch before correctly mocking instance to mimick no provenance being available
     instance = mocker.MagicMock()
@@ -141,7 +127,7 @@ def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
         RuntimeError, match="No Dagster provenance metadata is available for"
     ):
         FercSqliteProvenanceRecord.from_dagster_instance(
-            instance=instance, desired_provenance=required
+            instance=instance, dataset="ferc1", data_format="dbf"
         )
 
     stored_dagster_meta = {
@@ -154,7 +140,7 @@ def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
     )
 
     assert stored == FercSqliteProvenanceRecord.from_dagster_instance(
-        instance=instance, desired_provenance=required
+        instance=instance, dataset="ferc1", data_format="dbf"
     )
 
 
