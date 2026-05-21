@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Development Setup &#8212; PUDL 2026.5.1.dev5 documentation</title>
+    <title>Development Setup &#8212; PUDL 2026.5.1.dev6 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=0d1b8395"></script>
+    <script src="../_static/documentation_options.js?v=2daa197e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev5 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev6 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -836,6 +836,53 @@ Dagster project loads successfully:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>check<span class="w"> </span>defs<span class="w"> </span>--verbose
 </pre></div>
 </div>
+<section id="using-the-devcontainer">
+<h3>Using the Devcontainer<a class="headerlink" href="#using-the-devcontainer" title="Link to this heading">#</a></h3>
+<p>PUDL includes a <a class="reference external" href="https://containers.dev/">devcontainer</a> configuration under
+<code class="docutils literal notranslate"><span class="pre">.devcontainer/</span></code>. We set it up initially to make it possible to work with coding
+agents in YOLO mode without giving them free reign over your entire computer. It’s also
+useful if you want a reproducible Linux development environment. Several popular agent
+harnesses (Claude Code, Pi, etc.) are also installed inside the devcontainer.</p>
+<p>Many editors are compatible with devcontainers, not just VS Code, but for other editors
+you may need to add a configuration section to <code class="docutils literal notranslate"><span class="pre">.devcontainers/devcontainer.json</span></code>.</p>
+<p>The devcontainer requires the host to provide three directories through environment
+variables before the container starts:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PUDL_INPUT</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PUDL_OUTPUT</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DAGSTER_HOME</span></code></p></li>
+</ul>
+<p>It will also import environment variables typically used to hold API keys for various
+agents and LLM services, such as <code class="docutils literal notranslate"><span class="pre">ANTHROPHIC_API_KEY</span></code> and <code class="docutils literal notranslate"><span class="pre">OPENROUTER_API_KEY</span></code>. See
+<code class="docutils literal notranslate"><span class="pre">.devcontainer/devcontainer.json</span></code> for the full list.</p>
+<p>The simplest way to pass environment variables in is to export the paths in the shell
+that launches VS Code, then open the repository in the container. For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/input&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/output&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/dagster-home&quot;</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PUDL_INPUT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/input&quot;</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PUDL_OUTPUT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/output&quot;</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">DAGSTER_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/dagster-home&quot;</span>
+<span class="gp">$ </span>code<span class="w"> </span>/path/to/pudl/repo
+</pre></div>
+</div>
+<p>The in-container path is under <code class="docutils literal notranslate"><span class="pre">/workspaces/</span></code>. The extra host directories are
+bind-mounted separately and then exposed to PUDL as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PUDL_INPUT=/workspaces/pudl-input</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PUDL_OUTPUT=/workspaces/pudl-output</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DAGSTER_HOME=/workspaces/dagster-home</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If VS Code is launched from the macOS GUI instead of from a shell, it may not
+inherit these environment variables. When using the devcontainer, we recommend
+launching <code class="docutils literal notranslate"><span class="pre">code</span></code> from a shell, and not through the GUI.</p>
+</div>
+<p>If you are working on macOS, we recommend using <a class="reference external" href="https://orbstack.dev/">Orbstack</a>
+to run the devcontainer efficiently. The PUDL <code class="docutils literal notranslate"><span class="pre">pixi</span></code> environment specifies
+packages for the <code class="docutils literal notranslate"><span class="pre">linux-aarch64</span></code> platform so it should run well on Apple silicon.</p>
+<p>When working with the devcontainer, you can run the Dagster UI either from inside the
+container or outside it on your host machine.</p>
+</section>
 </section>
 <section id="updating-the-pudl-development-environment">
 <h2>Updating the PUDL Development Environment<a class="headerlink" href="#updating-the-pudl-development-environment" title="Link to this heading">#</a></h2>
@@ -1092,7 +1139,10 @@ be active in the current shell. Again, note that these are fake example paths:</
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fork-and-clone-the-pudl-repository">Fork and Clone the PUDL Repository</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-the-pudl-dev-environment">Create the PUDL Dev Environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-the-pudl-dev-environment">Create the PUDL Dev Environment</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-devcontainer">Using the Devcontainer</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-pudl-development-environment">Updating the PUDL Development Environment</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-up-code-linting">Set Up Code Linting</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#git-pre-commit-hooks">Git Pre-commit Hooks</a></li>
