@@ -3928,26 +3928,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Fuel content per unit of electricity generated. Coming from MCOE calculation."
         ),
-        "unit": "MMBTU_MWh",
+        "unit": "MMBTU_per_MWh",
     },
     "unit_heat_rate_mmbtu_per_mwh_eia": {
         "type": "number",
         "description": (
             "Fuel content per unit of electricity generated. Coming from MCOE calculation."
         ),
-        "unit": "MMBTU_MWh",
+        "unit": "MMBTU_per_MWh",
     },
     "unit_heat_rate_mmbtu_per_mwh_ferc1": {
         "type": "number",
         "description": (
             "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation."
         ),
-        "unit": "MMBTU_MWh",
+        "unit": "MMBTU_per_MWh",
     },
     "heat_rate_mmbtu_per_mwh": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated.",
-        "unit": "MMBTU_MWh",
+        "unit": "MMBTU_per_MWh",
     },
     "heat_rate_at_max_load_factor_mmbtu_per_mwh": {
         "type": "number",
@@ -4755,7 +4755,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "min_down_time_hr": {
+    "min_down_time_hours": {
         "type": "number",
         "description": (
             "Minimum observed duration of a consecutive non-operating run."
@@ -4769,7 +4769,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "load."
         ),
     },
-    "min_up_time_hr": {
+    "min_up_time_hours": {
         "type": "number",
         "description": (
             "Minimum observed duration of a consecutive run at or above the minimum "
