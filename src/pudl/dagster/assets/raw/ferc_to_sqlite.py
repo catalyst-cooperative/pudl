@@ -7,6 +7,7 @@ databases, rather than the downstream transforms that consume them.
 """
 
 import os
+from collections.abc import Callable
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
@@ -127,13 +128,17 @@ def _check_compatible_cached_db(
     return compatible_metadata
 
 
-def dbf_to_sqlite_asset_factory(
-    *, key: dg.AssetKey, dataset: str, extractor_class, op_tags: dict | None = None
+def ferc_to_sqlite_asset_factory(
+    *,
+    dataset: str,
+    data_format: str,
+    extract_function: Callable[[dg.AssetExecutionContext], None],
+    op_tags: dict | None = None,
 ) -> dg.AssetsDefinition:
-    """Create a DBF-to-SQLite prerequisite asset for a specific FERC dataset."""
+    """Create a FERC-to-SQLite prerequisite asset for a specific FERC dataset."""
 
     @dg.asset(
-        key=key,
+        key=f"raw_{dataset}_{data_format}__sqlite",
         group_name="raw_ferc_to_sqlite",
         required_resource_keys={
             "global_data_config",
@@ -141,54 +146,53 @@ def dbf_to_sqlite_asset_factory(
             "runtime_settings",
             "zenodo_dois",
         },
-        tags={"dataset": dataset, "data_format": "dbf"},
+        tags={"dataset": dataset, "data_format": data_format},
         op_tags=op_tags,
     )
     def _asset(context) -> dg.MaterializeResult[str]:
         ferc_to_sqlite = context.resources.global_data_config.ferc_to_sqlite
-        data_config = ferc_to_sqlite.get_data_config(dataset=dataset, data_format="dbf")
+        data_config = ferc_to_sqlite.get_data_config(
+            dataset=dataset, data_format=data_format
+        )
+        zenodo_doi = context.resources.zenodo_dois.get_doi(dataset)
         if data_config is None or not data_config.years:
-            logger.info(f"No years configured for {dataset}_dbf: skipping extraction.")
+            logger.info(
+                f"No years configured for {dataset}_{data_format}: skipping extraction."
+            )
             return dg.MaterializeResult(
                 value="not_configured",
                 metadata={
                     FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
                         FercSqliteProvenanceRecord(
                             dataset=dataset,
-                            data_format="dbf",
+                            data_format=data_format,
                             status="not_configured",
                         ).model_dump(mode="json")
                     )
                 },
             )
 
-        zenodo_doi = context.resources.zenodo_dois.get_doi(dataset)
-        sqlite_path = PudlPaths().sqlite_db_path(f"{dataset}_dbf")
+        sqlite_path = PudlPaths().sqlite_db_path(f"{dataset}_{data_format}")
 
         # Check if there's a cached SQLite DB that is compatible
         if (
             provenance := _check_compatible_cached_db(
                 dataset=dataset,
-                data_format="dbf",
+                data_format="xbrl",
                 zenodo_doi=zenodo_doi,
                 sqlite_path=sqlite_path,
                 ferc_to_sqlite=ferc_to_sqlite,
             )
         ) is None:
-            # If not, run extraction
-            extractor_class(
-                datastore=context.resources.datastore,
-                data_config=ferc_to_sqlite,
-                output_path=PudlPaths().output_dir,
-            ).execute()
+            extract_function(context)
 
             provenance = FercSqliteProvenanceRecord(
                 dataset=dataset,
-                data_format="dbf",
+                data_format=data_format,
                 status="complete",
                 zenodo_doi=zenodo_doi,
                 years=ferc_to_sqlite.get_dataset_years(
-                    dataset=dataset, data_format="dbf"
+                    dataset=dataset, data_format=data_format
                 ),
                 data_config=ferc_to_sqlite,
                 sqlite_path=sqlite_path,
@@ -212,140 +216,109 @@ def dbf_to_sqlite_asset_factory(
     return _asset
 
 
-def xbrl_to_sqlite_asset_factory(
-    *, key: dg.AssetKey, form: XbrlFormNumber, op_tags: dict | None = None
-) -> dg.AssetsDefinition:
-    """Create an XBRL-to-SQLite prerequisite asset for a specific FERC form."""
-
-    @dg.asset(
-        key=key,
-        group_name="raw_ferc_to_sqlite",
-        required_resource_keys={
-            "global_data_config",
-            "datastore",
-            "runtime_settings",
-            "zenodo_dois",
-        },
-        tags={"dataset": str(form), "data_format": "xbrl"},
-        op_tags=op_tags,
-    )
-    def _asset(context) -> dg.MaterializeResult[str]:
-        runtime_settings = context.resources.runtime_settings
-        ferc_to_sqlite = context.resources.global_data_config.ferc_to_sqlite
-        data_config = ferc_to_sqlite.get_data_config(dataset=form, data_format="xbrl")
-        dataset = str(form)
-        zenodo_doi = context.resources.zenodo_dois.get_doi(str(form))
-        if data_config is None or not data_config.years:
-            logger.info(f"No years configured for {form}_xbrl: skipping extraction.")
-            return dg.MaterializeResult(
-                value="not_configured",
-                metadata={
-                    FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
-                        FercSqliteProvenanceRecord(
-                            dataset=dataset,
-                            data_format="xbrl",
-                            status="not_configured",
-                        ).model_dump(mode="json")
-                    )
-                },
-            )
-
-        output_path = PudlPaths().output_dir
-        sqlite_path = PudlPaths().sqlite_db_path(f"{form}_xbrl")
-        if sqlite_path.exists():
-            sqlite_path.unlink()
-        duckdb_path = PudlPaths().duckdb_db_path(f"{form}_xbrl")
-        if duckdb_path.exists():
-            duckdb_path.unlink()
-
-        # Check if there's a cached SQLite DB that is compatible
-        if (
-            provenance := _check_compatible_cached_db(
-                dataset=dataset,
-                data_format="xbrl",
-                zenodo_doi=zenodo_doi,
-                sqlite_path=sqlite_path,
-                ferc_to_sqlite=ferc_to_sqlite,
-            )
-        ) is None:
-            convert_form(
-                form_data_config=data_config,
-                form=form,
-                datastore=FercXbrlDatastore(context.resources.datastore),
-                output_path=output_path,
-                sqlite_path=sqlite_path,
-                duckdb_path=duckdb_path,
-                batch_size=runtime_settings.xbrl_batch_size,
-                workers=runtime_settings.xbrl_num_workers,
-                loglevel=runtime_settings.xbrl_loglevel,
-            )
-            provenance = FercSqliteProvenanceRecord(
-                dataset=str(form),
-                data_format="xbrl",
-                status="complete",
-                zenodo_doi=zenodo_doi,
-                years=ferc_to_sqlite.get_dataset_years(
-                    dataset=form, data_format="xbrl"
-                ),
-                data_config=ferc_to_sqlite,
-                sqlite_path=PudlPaths().sqlite_db_path(f"{form}_xbrl"),
-                ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
-            )
-            provenance.to_sqlite()
-
-        return dg.MaterializeResult(
-            value="complete",
-            metadata={
-                FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
-                    provenance.model_dump(mode="json")
-                )
-            },
-        )
-
-    return _asset
-
-
-raw_ferc1_dbf__sqlite = dbf_to_sqlite_asset_factory(
-    key=dg.AssetKey("raw_ferc1_dbf__sqlite"),
+raw_ferc1_dbf__sqlite = ferc_to_sqlite_asset_factory(
     dataset="ferc1",
-    extractor_class=Ferc1DbfExtractor,
+    data_format="dbf",
+    extract_function=lambda context: Ferc1DbfExtractor(
+        datastore=context.resources.datastore,
+        data_config=context.resources.global_data_config.ferc_to_sqlite,
+        output_path=PudlPaths().output_dir,
+    ).execute(),
     op_tags={"dagster/priority": 10},
 )
-raw_ferc2_dbf__sqlite = dbf_to_sqlite_asset_factory(
-    key=dg.AssetKey("raw_ferc2_dbf__sqlite"),
+raw_ferc2_dbf__sqlite = ferc_to_sqlite_asset_factory(
     dataset="ferc2",
-    extractor_class=Ferc2DbfExtractor,
+    data_format="dbf",
+    extract_function=lambda context: Ferc2DbfExtractor(
+        datastore=context.resources.datastore,
+        data_config=context.resources.global_data_config.ferc_to_sqlite,
+        output_path=PudlPaths().output_dir,
+    ).execute(),
+    op_tags={"dagster/priority": 10},
 )
-raw_ferc6_dbf__sqlite = dbf_to_sqlite_asset_factory(
-    key=dg.AssetKey("raw_ferc6_dbf__sqlite"),
+raw_ferc6_dbf__sqlite = ferc_to_sqlite_asset_factory(
     dataset="ferc6",
-    extractor_class=Ferc6DbfExtractor,
+    data_format="dbf",
+    extract_function=lambda context: Ferc6DbfExtractor(
+        datastore=context.resources.datastore,
+        data_config=context.resources.global_data_config.ferc_to_sqlite,
+        output_path=PudlPaths().output_dir,
+    ).execute(),
+    op_tags={"dagster/priority": 10},
 )
-raw_ferc60_dbf__sqlite = dbf_to_sqlite_asset_factory(
-    key=dg.AssetKey("raw_ferc60_dbf__sqlite"),
+raw_ferc60_dbf__sqlite = ferc_to_sqlite_asset_factory(
     dataset="ferc60",
-    extractor_class=Ferc60DbfExtractor,
+    data_format="dbf",
+    extract_function=lambda context: Ferc60DbfExtractor(
+        datastore=context.resources.datastore,
+        data_config=context.resources.global_data_config.ferc_to_sqlite,
+        output_path=PudlPaths().output_dir,
+    ).execute(),
+    op_tags={"dagster/priority": 10},
 )
 
-raw_ferc1_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
-    key=dg.AssetKey("raw_ferc1_xbrl__sqlite"),
-    form=XbrlFormNumber.FORM1,
+raw_ferc1_xbrl__sqlite = ferc_to_sqlite_asset_factory(
+    dataset="ferc1",
+    data_format="xbrl",
+    extract_function=lambda context: convert_form(
+        ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
+        form=XbrlFormNumber.FORM1,
+        datastore=FercXbrlDatastore(context.resources.datastore),
+        batch_size=context.resources.runtime_settings.xbrl_batch_size,
+        workers=context.resources.runtime_settings.xbrl_num_workers,
+        loglevel=context.resources.runtime_settings.xbrl_loglevel,
+    ),
     op_tags={"dagster/priority": 10},
 )
-raw_ferc2_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
-    key=dg.AssetKey("raw_ferc2_xbrl__sqlite"),
-    form=XbrlFormNumber.FORM2,
+raw_ferc2_xbrl__sqlite = ferc_to_sqlite_asset_factory(
+    dataset="ferc2",
+    data_format="xbrl",
+    extract_function=lambda context: convert_form(
+        ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
+        form=XbrlFormNumber.FORM2,
+        datastore=FercXbrlDatastore(context.resources.datastore),
+        batch_size=context.resources.runtime_settings.xbrl_batch_size,
+        workers=context.resources.runtime_settings.xbrl_num_workers,
+        loglevel=context.resources.runtime_settings.xbrl_loglevel,
+    ),
+    op_tags={"dagster/priority": 10},
 )
-raw_ferc6_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
-    key=dg.AssetKey("raw_ferc6_xbrl__sqlite"),
-    form=XbrlFormNumber.FORM6,
+raw_ferc6_xbrl__sqlite = ferc_to_sqlite_asset_factory(
+    dataset="ferc6",
+    data_format="xbrl",
+    extract_function=lambda context: convert_form(
+        ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
+        form=XbrlFormNumber.FORM6,
+        datastore=FercXbrlDatastore(context.resources.datastore),
+        batch_size=context.resources.runtime_settings.xbrl_batch_size,
+        workers=context.resources.runtime_settings.xbrl_num_workers,
+        loglevel=context.resources.runtime_settings.xbrl_loglevel,
+    ),
+    op_tags={"dagster/priority": 10},
 )
-raw_ferc60_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
-    key=dg.AssetKey("raw_ferc60_xbrl__sqlite"),
-    form=XbrlFormNumber.FORM60,
+raw_ferc60_xbrl__sqlite = ferc_to_sqlite_asset_factory(
+    dataset="ferc60",
+    data_format="xbrl",
+    extract_function=lambda context: convert_form(
+        ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
+        form=XbrlFormNumber.FORM60,
+        datastore=FercXbrlDatastore(context.resources.datastore),
+        batch_size=context.resources.runtime_settings.xbrl_batch_size,
+        workers=context.resources.runtime_settings.xbrl_num_workers,
+        loglevel=context.resources.runtime_settings.xbrl_loglevel,
+    ),
+    op_tags={"dagster/priority": 10},
 )
-raw_ferc714_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
-    key=dg.AssetKey("raw_ferc714_xbrl__sqlite"),
-    form=XbrlFormNumber.FORM714,
+raw_ferc714_xbrl__sqlite = ferc_to_sqlite_asset_factory(
+    dataset="ferc714",
+    data_format="xbrl",
+    extract_function=lambda context: convert_form(
+        ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
+        form=XbrlFormNumber.FORM714,
+        datastore=FercXbrlDatastore(context.resources.datastore),
+        batch_size=context.resources.runtime_settings.xbrl_batch_size,
+        workers=context.resources.runtime_settings.xbrl_num_workers,
+        loglevel=context.resources.runtime_settings.xbrl_loglevel,
+    ),
     op_tags={"dagster/priority": 10},
 )

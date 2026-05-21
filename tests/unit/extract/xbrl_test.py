@@ -26,7 +26,6 @@ from pudl.settings import (
     Ferc6XbrlToSqliteDataConfig,
     Ferc60XbrlToSqliteDataConfig,
     Ferc714XbrlToSqliteDataConfig,
-    FercGenericXbrlToSqliteDataConfig,
     FercToSqliteDataConfig,
     GlobalDataConfig,
     XbrlFormNumber,
@@ -152,14 +151,9 @@ def test_xbrl2sqlite(data_config, forms, mocker):
 
     for form in forms:
         convert_form_mock.assert_any_call(
-            form_data_config=data_config.get_data_config(
-                dataset=form, data_format="xbrl"
-            ),
+            ferc_to_sqlite=data_config,
             form=form,
             datastore=mock_datastore,
-            output_path=PudlPaths().output_dir,
-            sqlite_path=PudlPaths().output_dir / f"{form}_xbrl.sqlite",
-            duckdb_path=PudlPaths().output_dir / f"{form}_xbrl.duckdb",
             batch_size=20,
             workers=10,
             loglevel="INFO",
@@ -179,8 +173,12 @@ def test_convert_form(mocker):
         def get_filings(self, year, form: XbrlFormNumber):
             return f"filings_{year}_{form.value}"
 
-    settings = FercGenericXbrlToSqliteDataConfig(
-        years=[2020, 2021],
+    settings = FercToSqliteDataConfig(
+        ferc1_xbrl=Ferc1XbrlToSqliteDataConfig(years=[2020, 2021]),
+        ferc2_xbrl=Ferc2XbrlToSqliteDataConfig(years=[2020, 2021]),
+        ferc6_xbrl=Ferc6XbrlToSqliteDataConfig(years=[2020, 2021]),
+        ferc60_xbrl=Ferc60XbrlToSqliteDataConfig(years=[2020, 2021]),
+        ferc714_xbrl=Ferc714XbrlToSqliteDataConfig(years=[2020, 2021]),
     )
 
     output_path: Path = PudlPaths().pudl_output
@@ -191,15 +189,15 @@ def test_convert_form(mocker):
             settings,
             form,
             FakeDatastore(),
-            output_path=output_path,
-            sqlite_path=output_path / f"{form}_xbrl.sqlite",
-            duckdb_path=output_path / f"{form}_xbrl.duckdb",
             batch_size=10,
             workers=5,
         )
 
         # Verify extractor is called correctly
-        filings: list[str] = [f"filings_{year}_{form.value}" for year in settings.years]
+        filings: list[str] = [
+            f"filings_{year}_{form.value}"
+            for year in settings.get_dataset_years("ferc1", "xbrl")
+        ]
         extractor_mock.assert_called_with(
             filings=filings,
             sqlite_path=output_path / f"{form}_xbrl.sqlite",
