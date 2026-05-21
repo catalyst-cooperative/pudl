@@ -96,7 +96,7 @@ def multi_index_stack(
 ) -> pd.DataFrame:
     """Stack multiple data columns - create categorical columns and data columns.
 
-    Many RUS tables are reported in a wide format, with several columns reporting
+    Many tables are reported in a wide format, with several columns reporting
     the same type of value, but within different categories. E.g. electricity sales by
     customer class, with each customer class in a separate column, and separate sets of
     customer class columns for the dollar value of sales, and the MWh of electricity
