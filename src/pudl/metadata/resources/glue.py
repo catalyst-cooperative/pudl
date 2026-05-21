@@ -19,7 +19,7 @@ The original EPA crosswalk runs on 2018 EIA data. We adapted the crosswalk code 
 each new year of EIA data, capturing changes in plant information over time.
 
 Our version of the crosswalk clarifies some of the column names and removes unmatched
-rows. The :func:`pudl.etl.glue_assets.core_epa__assn_eia_epacamd` function doc strings explain
+rows. The :func:`pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd` function doc strings explain
 what changes are made from the EPA's version.""",
         },
         "schema": {
@@ -67,7 +67,7 @@ EPA CAMD IDs ensure there is complete coverage of EPA CAMD reporting units. The 
 table addition ensures there is also complete coverage of those units as well.
 
 For more information about the how this subplant_id is made, see the documentation for
-:func:`pudl.etl.glue_assets.make_subplant_ids` and :func:`pudl.etl.glue_assets.update_subplant_ids`.
+:func:`pudl.dagster.assets.core.glue.make_subplant_ids` and :func:`pudl.dagster.assets.core.glue.update_subplant_ids`.
 
 But by analyzing the relationships between combustors and generators,
 as provided in the core_epa__assn_eia_epacamd crosswalk, we can identify distinct power plants.

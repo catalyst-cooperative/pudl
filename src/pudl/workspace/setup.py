@@ -13,9 +13,6 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 PotentialDirectoryPath = DirectoryPath | NewPath
 
-PUDL_ROOT_PATH = Path(__file__).parent.parent.parent.parent
-DBT_DIR: Path = PUDL_ROOT_PATH / "dbt"
-
 
 class PudlPaths(BaseSettings):
     """These settings provide access to various PUDL directories.
@@ -58,17 +55,6 @@ class PudlPaths(BaseSettings):
     def output_dir(self) -> Path:
         """Path to PUDL output directory."""
         return Path(self.pudl_output).absolute()
-
-    @property
-    def settings_dir(self) -> Path:
-        """Path to directory containing settings files."""
-        return self.input_dir.parent / "settings"
-
-    @property
-    def data_dir(self) -> Path:
-        """Path to PUDL data directory."""
-        # TODO(janrous): possibly deprecate this in favor of input_dir
-        return self.input_dir
 
     @property
     def pudl_db(self) -> str:

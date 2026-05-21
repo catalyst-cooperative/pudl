@@ -33,7 +33,7 @@ downloading it from one of our stable data releases or nightly build outputs, wh
 can be found in the PUDL :ref:`access-zenodo` or :ref:`access-cloud`.
 
 The conversion of the raw FERC data is represented in the PUDL Dagster project by the
-``raw_ferc_to_sqlite`` asset group which is defined in :data:`pudl.etl.defs`. If you
+``raw_ferc_to_sqlite`` asset group in the default PUDL Dagster code location. If you
 only need the raw FERC SQLite (or experimental DuckDB) outputs, use the dedicated
 ``ferc_to_sqlite`` job. If you are running the full ETL from scratch, use the
 ``pudl_with_ferc_to_sqlite`` job, which also includes FERC SQLite assets.
@@ -88,7 +88,7 @@ Form 1 outputs will include:
  * ``$PUDL_OUTPUT/ferc1_xbrl_datapackage.json``: `Frictionless data package
    <https://specs.frictionlessdata.io/data-package/>`__ descriptor for the XBRL derived
    database.
- * ``pudl_output/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the
+ * ``$PUDL_OUTPUT/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the
    XBRL Taxonomy, containing additional metadata.
 
 By default, the ``ferc_to_sqlite`` job converts all available years and tables of data
@@ -96,3 +96,68 @@ for all available FERC Data, which includes Forms 1, 2, 6, 60 and 714. You can a
 choose to materialize any combination of form an format (DBF or XBRL). Note that the
 earlier FERC 714 data (2006-2020) is distributed as CSVs, and PUDL does not yet load
 all available tables.
+
+FERC SQLite provenance compatibility
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PUDL records provenance metadata when FERC SQLite assets are materialized, including
+the Zenodo DOI and the years extracted.
+Before downstream ``pudl`` assets use those databases,
+PUDL checks the metadata to make sure they are compatible with the current run.
+This helps avoid scenarios where the FERC databases were built with old inputs
+or don't have all the years needed by the current run.
+
+Incompatible provenance metadata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The provenance check looks at two things:
+
+* Whether the Zenodo DOI changed for a FERC dataset. This would mean that the
+  raw input data used to build the existing SQLite DB is different from what is
+  expected.
+* Whether the current ETL config requests years of FERC data that are not present in the
+  existing SQLite DB.
+
+When either of these criteria aren't met, Dagster raises an error telling you to refresh
+the FERC SQLite assets.
+
+Regenerating FERC SQLite assets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To rebuild FERC SQLite databases so they match the current input data and configuration,
+rerun the raw FERC conversion step:
+
+.. code-block:: console
+
+  # Our task shortcut
+  $ pixi run ferc-to-sqlite
+  # Equivalent to
+  $ pixi run dg launch --job ferc_to_sqlite --config src/pudl/package_data/settings/dg_full.yml
+
+You can also materialize just the specific FERC SQLite assets that are out of date,
+either in the Dagster UI or using the command line:
+
+.. code-block:: console
+
+   $ pixi run dg launch --assets raw_ferc1_xbrl__sqlite --config src/pudl/package_data/settings/dg_full.yml
+
+After the FERC databases are refreshed, rerun the ``pudl`` job or selected downstream
+assets.
+
+Bypassing provenance checks for development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you need to use externally-downloaded FERC SQLite databases (for example, from
+nightly build outputs), you can bypass compatibility checks by setting:
+
+.. code-block:: console
+
+  $ export PUDL_SKIP_FERC_SQLITE_PROVENANCE=1
+
+Truthy values ``1``, ``true``, and ``yes`` are accepted.
+
+.. warning::
+
+  Skipping provenance checks is a development escape hatch. It can cause runtime
+  failures or incorrect results if your local prerequisites do not actually match the
+  current ETL configuration.

@@ -9,9 +9,9 @@ from typing import Self
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from pudl import PUDL_DBT_PATH
 from pudl.metadata.sources import SOURCES
 from pudl.metadata.warnings import USAGE_WARNINGS
-from pudl.workspace.setup import DBT_DIR
 
 LAYER_DESCRIPTIONS: dict = {
     "raw": (
@@ -45,7 +45,7 @@ LAYER_DESCRIPTIONS: dict = {
 }
 """Standard descriptive text to appear in the Processing section of resource descriptions."""
 
-# TODO: add link to https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/{datasource_name}.html
+# TODO: add link to https://docs.catalyst.coop/pudl/en/latest/data_sources/{datasource_name}.html
 # if we have a data_sources page for it.
 SOURCE_DESCRIPTIONS: dict = {
     source_name: SOURCES[source_name]["title"] for source_name in SOURCES
@@ -72,6 +72,7 @@ TABLE_TYPE_FRAGMENTS: dict[str, TableTypeFragments] = {
         "Slowly changing dimension (SCD) table", "describing attributes of"
     ),
     "timeseries": TableTypeFragments("time series", "of"),
+    "forensics": TableTypeFragments("Forensic table", "of"),
 }
 """Standard descriptive text to appear in the Summary (first line) of resource descriptions.
 
@@ -316,7 +317,7 @@ class ResourceDescriptionBuilder:
         """Compute an availability date from the most recent available partition for a resource, according to the row counts file."""
         rowcount_partition_lookups = (
             pd.read_csv(
-                DBT_DIR / "seeds" / "etl_full_row_counts.csv",
+                PUDL_DBT_PATH / "seeds" / "etl_full_row_counts.csv",
                 # [kmm dec 2025] currently all non-null row count partitions are integer years.
                 # if we add other kinds of partitions to the row counts file, we'll need to revise this code.
                 dtype={"partition": "Int64", "table_name": "string"},

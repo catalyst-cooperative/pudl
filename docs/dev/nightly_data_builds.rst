@@ -12,7 +12,7 @@ merged into ``main`` since the last time the builds ran, the builds are skipped.
 The builds are kicked off by the ``build-deploy-pudl`` GitHub Action, which builds and
 pushes a Docker image with PUDL installed to `Docker Hub <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
 and then launches a Google Batch job using that image. Inside the container,
-``docker/gcp_pudl_etl.sh`` runs the ETL and tests, saves the raw build outputs to
+``builds/pudl_batch.sh`` runs the ETL and tests, saves the raw build outputs to
 ``gs://builds.catalyst.coop``, and if successful publishes the distributable outputs to
 our public cloud buckets.
 
@@ -120,7 +120,7 @@ automatically.
 Docker
 ------
 The Docker image the VMs pull installs the PUDL pixi environment. The VMs
-are configured to run the ``docker/gcp_pudl_etl.sh`` script. This script:
+are configured to run the ``builds/pudl_batch.sh`` script. This script:
 
 1. Notifies the ``pudl-deployments`` Slack channel that a deployment has started.
    Note: if the container is manually stopped, slack will not be notified.
@@ -135,7 +135,7 @@ are configured to run the ``docker/gcp_pudl_etl.sh`` script. This script:
 6. Notifies the ``pudl-deployments`` Slack channel with the final build status,
    including per-stage status and durations.
 
-The ``gcp_pudl_etl.sh script`` is only intended to run on a Google Batch VM with
+The ``pudl_batch.sh script`` is only intended to run on a Google Batch VM with
 adequate permissions.
 
 The nightly ETL task, nightly pytest tasks, and the nightly build script all share the

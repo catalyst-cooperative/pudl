@@ -5,7 +5,7 @@ import re
 import duckdb
 from dagster import AssetOut, Output, asset, multi_asset
 
-import pudl
+import pudl.logging_helpers
 from pudl.helpers import (
     ParquetData,
     df_from_parquet,

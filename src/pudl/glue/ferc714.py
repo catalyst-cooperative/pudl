@@ -4,7 +4,7 @@ import importlib.resources
 
 import pandas as pd
 
-import pudl
+import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

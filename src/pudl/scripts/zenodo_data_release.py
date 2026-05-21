@@ -27,6 +27,7 @@ import datetime
 import logging
 import os
 import re
+import sys
 import tempfile
 import time
 from collections.abc import Callable
@@ -428,7 +429,13 @@ class EmptyDraft(State):
             protocol[0] if isinstance(protocol, (list, tuple)) else protocol
         )
         files = fsspec.open_files(
-            [f"{protocol_prefix}://{path}" for path in dir_fs.ls(dir_path)]
+            [
+                f"{protocol_prefix}://{entry['name']}"
+                for entry in dir_fs.ls(dir_path, detail=True)
+                # Only upload files, not subdirectories.
+                # Zenodo doesn't support nested folders.
+                if entry.get("type") == "file" or dir_fs.isfile(entry["name"])
+            ]
         )
         all_ignore_regex = re.compile("|".join(ignore)) if ignore else None
 
@@ -541,9 +548,7 @@ class CompleteDraft(State):
     "draft to be reviewed and approved manually.",
     show_default=True,
 )
-def pudl_zenodo_data_release(
-    env: str, source_dir: str, publish: bool, ignore: tuple[str]
-):
+def main(env: str, source_dir: str, publish: bool, ignore: tuple[str]) -> int:
     """Publish a new PUDL data release to Zenodo."""
     zenodo_client = ZenodoClient(env)
     if env == SANDBOX:
@@ -565,6 +570,8 @@ def pudl_zenodo_data_release(
     else:
         logger.info(f"Completed draft at {completed_draft.get_html_url()}")
 
+    return 0
+
 
 if __name__ == "__main__":
-    pudl_zenodo_data_release()
+    sys.exit(main())

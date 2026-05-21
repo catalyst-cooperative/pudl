@@ -35,7 +35,7 @@ jobs:
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
               - '!devtools/**'
-              - '!docker/**'
+              - '!builds/**'
               - '!docs/**'
               - '!.github/**/*.md'
               - '!.github/FUNDING.yml'
@@ -70,9 +70,10 @@ jobs:
               - '!.git-blame-ignore-revs'
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
+              - '!.env.example'
               - '!.taplo.toml'
               - '!terraform/**'
-              - '!test/unit/**'
+              - '!tests/unit/**'
               - '!skills-lock.json'
       - name: print out components
         run: |
