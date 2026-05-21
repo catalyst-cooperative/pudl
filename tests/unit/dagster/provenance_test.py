@@ -107,7 +107,9 @@ def test_ferc_sqlite_provenance_is_compatible_skips_without_instance(
             )
             is None
         )
-    assert "No Dagster instance is available" in caplog.text
+    assert any(
+        "No Dagster instance is available" in rec.message for rec in caplog.records
+    )
 
 
 def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
@@ -184,7 +186,9 @@ def test_ferc_sqlite_provenance_is_compatible_year_subset_check(
             assert not ferc_sqlite_provenance_is_compatible(
                 observed_provenance=stored, required_provenance=required
             )
-            assert "missing required years" in caplog.text
+            assert any(
+                "missing required years" in rec.message for rec in caplog.records
+            )
     else:
         assert ferc_sqlite_provenance_is_compatible(
             observed_provenance=stored, required_provenance=required
@@ -216,7 +220,7 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_doi_mismatch(
         assert not ferc_sqlite_provenance_is_compatible(
             observed_provenance=stored, required_provenance=required
         )
-        assert "Zenodo DOI mismatch" in caplog.text
+        assert any("Zenodo DOI mismatch" in rec.message for rec in caplog.records)
 
 
 @pytest.mark.parametrize(
@@ -254,9 +258,10 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_xbrl_extractor_mismatch(
             assert not ferc_sqlite_provenance_is_compatible(
                 observed_provenance=stored, required_provenance=required
             )
-            assert (
+            assert any(
                 "FERC SQLite DB created with incompatible version of the XBRL extractor"
-                in caplog.text
+                in rec.message
+                for rec in caplog.records
             )
     else:
         assert ferc_sqlite_provenance_is_compatible(
@@ -300,4 +305,4 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_non_complete_status(
         assert not ferc_sqlite_provenance_is_compatible(
             observed_provenance=stored, required_provenance=required
         )
-        assert expected_match in caplog.text
+        assert any(expected_match in rec.message for rec in caplog.records)
