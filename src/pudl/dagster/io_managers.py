@@ -40,7 +40,7 @@ import pudl.logging_helpers
 from pudl.dagster.provenance import (
     FercSqliteProvenance,
     FercSqliteProvenanceRecord,
-    assert_ferc_sqlite_compatible,
+    ferc_sqlite_provenance_is_compatible,
     get_xbrl_extractor_version,
 )
 from pudl.dagster.resources import (
@@ -673,14 +673,19 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
             ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
         )
 
-        if (instance := _get_dagster_instance_if_available(context)) is not None:
-            assert_ferc_sqlite_compatible(
-                stored=FercSqliteProvenanceRecord.from_dagster_instance(
+        if ((instance := _get_dagster_instance_if_available(context)) is not None) and (
+            not ferc_sqlite_provenance_is_compatible(
+                observed_provenance=FercSqliteProvenanceRecord.from_dagster_instance(
                     instance=instance,
                     dataset=self.dataset,
                     data_format=self.data_format,
                 ),
-                provenance=provenance,
+                required_provenance=provenance,
+            )
+        ):
+            raise RuntimeError(
+                f"{self.dataset}_{self.data_format} provenace metadata is not compatible"
+                " with requirements of current run. Refresh the FERC SQLite assets."
             )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:

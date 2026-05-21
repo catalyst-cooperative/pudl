@@ -138,14 +138,14 @@ def get_xbrl_extractor_version() -> str:
     return version("catalystcoop.ferc_xbrl_extractor")
 
 
-def assert_ferc_sqlite_compatible(  # noqa: C901
+def ferc_sqlite_provenance_is_compatible(
     *,
-    stored: FercSqliteProvenanceRecord,
-    provenance: FercSqliteProvenance,
-) -> None:
+    observed_provenance: FercSqliteProvenanceRecord | None,
+    required_provenance: FercSqliteProvenance,
+) -> bool:
     """Ensure a persisted FERC SQLite prerequisite is compatible with this run.
 
-    Compatibility requires two conditions to hold:
+    Compatibility requires three conditions to hold:
 
     1. The Zenodo DOI recorded when the FERC SQLite DB was built must match the
        current :class:`~pudl.workspace.datastore.ZenodoDoiSettings`. A mismatch
@@ -154,36 +154,45 @@ def assert_ferc_sqlite_compatible(  # noqa: C901
     2. The years stored in the FERC SQLite DB must be a *superset* of the years
        needed by the current downstream data config. This allows a "full" FERC SQLite DB
        to serve a "fast" downstream run without an expensive rebuild.
+    3. The version of ``ferc_xbrl_extractor`` is the same for XBRL derived data.
     """
-    if stored.status == "not_configured":
-        raise RuntimeError(
-            f"Stored provenance metadata for {provenance.asset_key.to_user_string()} has "
-            f"status={stored.status!r}: the DB was built from a run that had no years "
+    if observed_provenance is None:
+        logger.warning(
+            "No observed provenance provided. This usually indicates that a DB was "
+            "created before the provenance metadata feature was added."
+        )
+        return False
+    if observed_provenance.status == "not_configured":
+        logger.warning(
+            f"Stored provenance metadata for {required_provenance.asset_key.to_user_string()} has "
+            f"status={observed_provenance.status!r}: the DB was built from a run that had no years "
             "configured for this form. Refresh the FERC SQLite assets with years configured."
         )
-    if stored.status != "complete":
-        raise RuntimeError(
-            f"Stored provenance metadata for {provenance.asset_key.to_user_string()} has "
-            f"status={stored.status!r}. Refresh the FERC SQLite assets."
+        return False
+    if observed_provenance.status != "complete":
+        logger.warning(
+            f"Stored provenance metadata for {required_provenance.asset_key.to_user_string()} has "
+            f"status={observed_provenance.status!r}. Refresh the FERC SQLite assets."
         )
+        return False
 
-    if stored.zenodo_doi is None or stored.years is None:
+    if observed_provenance.zenodo_doi is None or observed_provenance.years is None:
         raise RuntimeError(
-            f"Stored provenance metadata for {provenance.asset_key.to_user_string()} is "
+            f"Stored provenance metadata for {required_provenance.asset_key.to_user_string()} is "
             "missing zenodo_doi or years. The DB may have been built before provenance "
             "tracking was added. Refresh the FERC SQLite assets."
         )
 
     mismatches: list[str] = []
-    if stored.zenodo_doi != provenance.zenodo_doi:
+    if observed_provenance.zenodo_doi != required_provenance.zenodo_doi:
         mismatches.append(
             "Zenodo DOI mismatch: "
-            f"stored={stored.zenodo_doi!r}, "
-            f"expected={provenance.zenodo_doi!r}"
+            f"stored={observed_provenance.zenodo_doi!r}, "
+            f"expected={required_provenance.zenodo_doi!r}"
         )
 
-    stored_years: set[int] = set(stored.years)
-    required_years: set[int] = set(provenance.years)
+    stored_years: set[int] = set(observed_provenance.years)
+    required_years: set[int] = set(required_provenance.years)
     missing_years: set[int] = required_years - stored_years
     if missing_years:
         mismatches.append(
@@ -194,18 +203,20 @@ def assert_ferc_sqlite_compatible(  # noqa: C901
         )
 
     if (
-        stored.ferc_xbrl_extractor_version != provenance.ferc_xbrl_extractor_version
-    ) and (provenance.data_format == "xbrl"):
+        observed_provenance.ferc_xbrl_extractor_version
+        != required_provenance.ferc_xbrl_extractor_version
+    ) and (required_provenance.data_format == "xbrl"):
         mismatches.append(
             "FERC SQLite DB created with incompatible version of the XBRL extractor: "
-            f"stored={stored.ferc_xbrl_extractor_version}, "
-            f"required={provenance.ferc_xbrl_extractor_version}"
+            f"stored={observed_provenance.ferc_xbrl_extractor_version}, "
+            f"required={required_provenance.ferc_xbrl_extractor_version}"
         )
 
     if mismatches:
         mismatch_summary: str = "; ".join(mismatches)
-        raise RuntimeError(
-            f"Stored prerequisite asset {provenance.asset_key.to_user_string()} is not "
+        logger.warning(
+            f"Stored prerequisite asset {required_provenance.asset_key.to_user_string()} is not "
             f"compatible with the current run configuration. {mismatch_summary}. "
-            "Refresh the FERC SQLite assets."
         )
+        return False
+    return True

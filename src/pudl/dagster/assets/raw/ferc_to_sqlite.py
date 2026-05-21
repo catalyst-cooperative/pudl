@@ -10,7 +10,6 @@ import os
 from collections.abc import Callable
 from io import BytesIO
 from pathlib import Path
-from typing import Literal
 from zipfile import ZipFile
 
 import dagster as dg
@@ -21,7 +20,7 @@ from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenance,
     FercSqliteProvenanceRecord,
-    assert_ferc_sqlite_compatible,
+    ferc_sqlite_provenance_is_compatible,
     get_xbrl_extractor_version,
 )
 from pudl.extract.ferc import (
@@ -35,29 +34,6 @@ from pudl.settings import FercToSqliteDataConfig, XbrlFormNumber
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-def _compare_provenance_metadata(
-    required_provenance: FercSqliteProvenance,
-    stored_provenance: FercSqliteProvenanceRecord | None,
-    db_source: Literal["Local", "Nightly"],
-) -> FercSqliteProvenanceRecord | None:
-    """Compare provenance metadata and return if compatible."""
-    # Can be None for legacy SQLite DB's that don't contain metadata
-    if stored_provenance is None:
-        return None
-
-    try:
-        assert_ferc_sqlite_compatible(
-            stored=stored_provenance, provenance=required_provenance
-        )
-        return stored_provenance
-    except RuntimeError as e:
-        logger.warning(
-            f"{db_source} SQLite DB is not compatible with provenance requirements of current run. "
-            f"See the following for details: {e}"
-        )
-    return None
 
 
 def _download_nightly_db(sqlite_path: Path):
@@ -107,25 +83,28 @@ def _check_compatible_cached_db(
         years=ferc_to_sqlite.get_dataset_years(dataset, data_format),
         ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
     )
+    compatible_metadata = None
 
     # Check local DB first
-    stored_local = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
+    local_provenance = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
 
-    # If not compatible, try nightly builds
-    if (
-        compatible_metadata := _compare_provenance_metadata(
-            provenance, stored_local, "Local"
-        )
-    ) is None:
+    # Check if local or nightly dbs contain compatible provenance metadata
+    if ferc_sqlite_provenance_is_compatible(
+        required_provenance=provenance, observed_provenance=local_provenance
+    ):
+        compatible_metadata = local_provenance
+    else:
         logger.info(
             f"Provenance metadata for local version of {sqlite_path.name} is incompatible."
             " Downloading version from nightly builds."
         )
         _download_nightly_db(sqlite_path)
-        stored_nightly = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
-        compatible_metadata = _compare_provenance_metadata(
-            provenance, stored_nightly, "Nightly"
-        )
+        nightly_provenance = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
+        if ferc_sqlite_provenance_is_compatible(
+            required_provenance=provenance, observed_provenance=nightly_provenance
+        ):
+            compatible_metadata = nightly_provenance
+
     if compatible_metadata is None:
         logger.info(
             f"Can't find a cached version of {sqlite_path.name} with compatible provenance metadata."

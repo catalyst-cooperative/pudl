@@ -1,5 +1,6 @@
 """Unit tests for the FERC SQLite provenance helpers."""
 
+import logging
 from typing import Literal
 
 import dagster as dg
@@ -9,7 +10,7 @@ from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenance,
     FercSqliteProvenanceRecord,
-    assert_ferc_sqlite_compatible,
+    ferc_sqlite_provenance_is_compatible,
 )
 from pudl.settings import FercToSqliteDataConfig
 
@@ -91,23 +92,22 @@ def test_ferc_sqlite_provenance_record_minimal_round_trip(
 
 
 # ---------------------------------------------------------------------------
-# assert_ferc_sqlite_compatible tests
+# ferc_sqlite_provenance_is_compatible tests
 # ---------------------------------------------------------------------------
 
 
-def test_assert_ferc_sqlite_compatible_skips_without_instance(
-    mocker,
+def test_ferc_sqlite_provenance_is_compatible_skips_without_instance(
+    caplog,
 ) -> None:
     """Provenance check is skipped with a warning when no Dagster instance is available."""
-    # TODO replace mocker with caplog
-    mock_warn = mocker.patch("pudl.dagster.provenance.logger.warning")
-    assert (
-        FercSqliteProvenanceRecord.from_dagster_instance(
-            instance=None, dataset="ferc1", data_format="dbf"
+    with caplog.at_level(logging.WARNING):
+        assert (
+            FercSqliteProvenanceRecord.from_dagster_instance(
+                instance=None, dataset="ferc1", data_format="dbf"
+            )
+            is None
         )
-        is None
-    )
-    assert mock_warn.call_count == 1
+    assert "No Dagster instance is available" in caplog.text
 
 
 def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
@@ -145,7 +145,7 @@ def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
 
 
 @pytest.mark.parametrize(
-    ("stored_years", "required_years", "should_raise"),
+    ("stored_years", "required_years", "should_fail"),
     [
         ([2020, 2021, 2022], [2020, 2021, 2022], False),  # exact match
         ([2020, 2021, 2022], [2021], False),  # stored ⊃ required
@@ -153,11 +153,12 @@ def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
         ([2020, 2021], [2022, 2023], True),  # all years missing
     ],
 )
-def test_assert_ferc_sqlite_compatible_year_subset_check(
+def test_ferc_sqlite_provenance_is_compatible_year_subset_check(
+    caplog,
     mocker,
     stored_years: list[int],
     required_years: list[int],
-    should_raise: bool,
+    should_fail: bool,
 ) -> None:
     """Compatibility requires stored years to be a superset of required years.
 
@@ -178,15 +179,21 @@ def test_assert_ferc_sqlite_compatible_year_subset_check(
         years=required_years,
         ferc_xbrl_extractor_version="1.0.0",
     )
-    if should_raise:
-        with pytest.raises(RuntimeError, match="missing required years"):
-            assert_ferc_sqlite_compatible(stored=stored, provenance=required)
+    if should_fail:
+        with caplog.at_level(logging.WARNING):
+            assert not ferc_sqlite_provenance_is_compatible(
+                observed_provenance=stored, required_provenance=required
+            )
+            assert "missing required years" in caplog.text
     else:
-        assert_ferc_sqlite_compatible(stored=stored, provenance=required)
+        assert ferc_sqlite_provenance_is_compatible(
+            observed_provenance=stored, required_provenance=required
+        )
 
 
-def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
+def test_ferc_sqlite_provenance_is_compatible_rejects_doi_mismatch(
     mocker,
+    caplog,
 ) -> None:
     """A Zenodo DOI mismatch should raise a descriptive RuntimeError."""
 
@@ -205,8 +212,11 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
         years=[],
         ferc_xbrl_extractor_version="1.0.0",
     )
-    with pytest.raises(RuntimeError, match="Zenodo DOI mismatch"):
-        assert_ferc_sqlite_compatible(stored=stored, provenance=required)
+    with caplog.at_level(logging.WARNING):
+        assert not ferc_sqlite_provenance_is_compatible(
+            observed_provenance=stored, required_provenance=required
+        )
+        assert "Zenodo DOI mismatch" in caplog.text
 
 
 @pytest.mark.parametrize(
@@ -216,8 +226,9 @@ def test_assert_ferc_sqlite_compatible_rejects_doi_mismatch(
         ("xbrl", True),
     ],
 )
-def test_assert_ferc_sqlite_compatible_rejects_xbrl_extractor_mismatch(
+def test_ferc_sqlite_provenance_is_compatible_rejects_xbrl_extractor_mismatch(
     mocker,
+    caplog,
     data_format: str,
     should_raise: bool,
 ) -> None:
@@ -239,13 +250,18 @@ def test_assert_ferc_sqlite_compatible_rejects_xbrl_extractor_mismatch(
         ferc_xbrl_extractor_version="1.1.0",
     )
     if should_raise:
-        with pytest.raises(
-            RuntimeError,
-            match="FERC SQLite DB created with incompatible version of the XBRL extractor",
-        ):
-            assert_ferc_sqlite_compatible(stored=stored, provenance=required)
+        with caplog.at_level(logging.WARNING):
+            assert not ferc_sqlite_provenance_is_compatible(
+                observed_provenance=stored, required_provenance=required
+            )
+            assert (
+                "FERC SQLite DB created with incompatible version of the XBRL extractor"
+                in caplog.text
+            )
     else:
-        assert_ferc_sqlite_compatible(stored=stored, provenance=required)
+        assert ferc_sqlite_provenance_is_compatible(
+            observed_provenance=stored, required_provenance=required
+        )
 
 
 @pytest.mark.parametrize(
@@ -255,8 +271,9 @@ def test_assert_ferc_sqlite_compatible_rejects_xbrl_extractor_mismatch(
         ("not_configured", "not_configured"),
     ],
 )
-def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
+def test_ferc_sqlite_provenance_is_compatible_rejects_non_complete_status(
     mocker,
+    caplog,
     status: Literal["skipped", "not_configured"],
     expected_match: str,
 ) -> None:
@@ -279,5 +296,8 @@ def test_assert_ferc_sqlite_compatible_rejects_non_complete_status(
         years=[],
         ferc_xbrl_extractor_version="1.0.0",
     )
-    with pytest.raises(RuntimeError, match=expected_match):
-        assert_ferc_sqlite_compatible(stored=stored, provenance=required)
+    with caplog.at_level(logging.WARNING):
+        assert not ferc_sqlite_provenance_is_compatible(
+            observed_provenance=stored, required_provenance=required
+        )
+        assert expected_match in caplog.text

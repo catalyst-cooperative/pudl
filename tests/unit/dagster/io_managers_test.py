@@ -1,5 +1,6 @@
 """Test Dagster IO Managers."""
 
+import logging
 from importlib.metadata import version
 from pathlib import Path
 
@@ -461,7 +462,7 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
     )
 
 
-def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
+def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker, caplog):
     """The migrated FERC DBF IO manager should fail fast on stale prerequisites."""
     pudl_data_config = PudlDataConfig(ferc1=Ferc1DataConfig(years=[2020, 2021]))
     global_data_config: GlobalDataConfig = GlobalDataConfig(
@@ -499,8 +500,12 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
         instance=instance,
     )
 
-    with pytest.raises(RuntimeError, match="Zenodo DOI mismatch"):
+    with (
+        pytest.raises(RuntimeError, match="provenace metadata is not compatible"),
+        caplog.at_level(logging.WARNING),
+    ):
         manager.load_input(context)
+        assert "Zenodo DOI mismatch" in caplog.text
 
     query.assert_not_called()
 
