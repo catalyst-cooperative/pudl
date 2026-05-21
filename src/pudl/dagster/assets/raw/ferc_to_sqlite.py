@@ -192,7 +192,6 @@ def dbf_to_sqlite_asset_factory(
                 ),
                 data_config=ferc_to_sqlite,
                 sqlite_path=sqlite_path,
-                ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
             )
             provenance.to_sqlite()
         else:
@@ -290,6 +289,7 @@ def xbrl_to_sqlite_asset_factory(
                 ),
                 data_config=ferc_to_sqlite,
                 sqlite_path=PudlPaths().sqlite_db_path(f"{form}_xbrl"),
+                ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
             )
             provenance.to_sqlite()
 
