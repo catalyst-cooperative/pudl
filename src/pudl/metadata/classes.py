@@ -764,6 +764,57 @@ class Field(PudlMeta):
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
+    def to_frictionless(self) -> frictionless.Field:  # noqa: C901
+        """Convert to a Frictionless Field.
+
+        Builds a typed frictionless Field via ``Field.from_descriptor()`` so that the
+        ``type`` (and any non-default constraints) appear in the serialised descriptor.
+        PUDL's ``geometry`` type has no frictionless equivalent and falls back to
+        ``"string"`` with a custom ``"geometry_format": "wkt"`` annotation.
+        """
+        # frictionless 5.x has no geometry type; the nearest equivalent is geojson but
+        # PUDL stores geometry as WKT, so fall back to string with an annotation.
+        field_type = "string" if self.type == "geometry" else self.type
+        descriptor: dict = {
+            "name": self.name,
+            "type": field_type,
+            "description": self.description,
+        }
+        if self.title:
+            descriptor["title"] = self.title
+        if self.unit:
+            descriptor["unit"] = self.unit
+        if self.type == "geometry":
+            descriptor["geometry_format"] = "wkt"
+        # Serialise non-default constraints (frictionless uses camelCase keys).
+        constraints: dict = {}
+        c = self.constraints
+        if c.required:
+            constraints["required"] = True
+        if c.unique:
+            constraints["unique"] = True
+        if c.minimum is not None:
+            val = c.minimum
+            constraints["minimum"] = (
+                val.isoformat() if hasattr(val, "isoformat") else val
+            )
+        if c.maximum is not None:
+            val = c.maximum
+            constraints["maximum"] = (
+                val.isoformat() if hasattr(val, "isoformat") else val
+            )
+        if c.min_length is not None:
+            constraints["minLength"] = c.min_length
+        if c.max_length is not None:
+            constraints["maxLength"] = c.max_length
+        if c.pattern is not None:
+            constraints["pattern"] = c.pattern.pattern
+        if c.enum is not None:
+            constraints["enum"] = list(c.enum)
+        if constraints:
+            descriptor["constraints"] = constraints
+        return frictionless.Field.from_descriptor(descriptor)
+
     def to_pandera_column(self, use_pandas_backend: bool) -> pr_polars.Column:
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
@@ -943,9 +994,9 @@ class Contributor(PudlMeta):
     title: String
     path: AnyHttpUrl | None = None
     email: EmailStr | None = None
-    role: Literal["author", "contributor", "maintainer", "publisher", "wrangler"] = (
-        "contributor"
-    )
+    roles: list[
+        Literal["author", "contributor", "maintainer", "publisher", "wrangler"]
+    ] = ["contributor"]
     zenodo_role: Literal[
         "contact person",
         "data collector",
@@ -1805,13 +1856,7 @@ class Resource(PudlMeta):
     def to_frictionless(self) -> frictionless.Resource:
         """Convert to a Frictionless Resource."""
         schema = frictionless.Schema(
-            fields=[
-                frictionless.Field(
-                    name=f.name,
-                    description=f.description,
-                )
-                for f in self.schema.fields
-            ],
+            fields=[f.to_frictionless() for f in self.schema.fields],
             primary_key=self.schema.primary_key,
             foreign_keys=[fk.to_frictionless() for fk in self.schema.foreign_keys],
         )
