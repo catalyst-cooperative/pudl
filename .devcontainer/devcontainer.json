@@ -34,7 +34,8 @@
                 "charliermarsh.ruff",
                 "ms-toolsai.jupyter",
                 "tamasfe.even-better-toml",
-                "renan-r-santos.pixi-code"
+                "renan-r-santos.pixi-code",
+                "anthropic.claude-code"
             ],
             "settings": {
                 "python.defaultInterpreterPath": "${workspaceFolder}/.pixi/envs/dev/bin/python",
