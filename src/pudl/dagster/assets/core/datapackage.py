@@ -8,7 +8,6 @@ the PUDL documentation page for each data source.
 """
 
 import hashlib
-import importlib.metadata
 import json
 import re
 import shutil
@@ -112,13 +111,24 @@ def _collect_git_provenance() -> dict:
     return provenance
 
 
-def _docs_version_slug(version: str) -> str:
+def _docs_version_slug(version: str | None = None) -> str:
     """Return the Sphinx documentation version slug for a PUDL version string.
 
-    Release versions start with ``v20`` (e.g. ``v2026.5.0``) and are used
-    as-is.  Anything else (dev builds, local versions) maps to ``nightly``.
+    All non-release versions should have a .devN suffix (e.g. ``v2026.5.1.dev6``) in
+    which case we point at the nightly docs. Otherwise we check that the version matches
+    our basic version pattern and if so we point at the versioned docs.
+
+    ``v0.0.0`` is a special case which means no version could be obtained via hatch-vcs
+    and is treated as a dev version.
     """
-    return "nightly" if "dev" in version else version
+    if version is None or "dev" in version or version == "v0.0.0":
+        return "nightly"
+
+    if not version.startswith("v20"):
+        raise ValueError(
+            f"Unexpected version format in datapackage compilation: {version}"
+        )
+    return version
 
 
 def _enrich_sources(
@@ -206,9 +216,6 @@ def build_pudl_datapackage_asset(
     def pudl_datapackage(
         context: dg.AssetExecutionContext,
     ) -> dg.MaterializeResult:
-        version = importlib.metadata.version("catalystcoop.pudl")
-        version_slug = _docs_version_slug(version)
-
         package = PUDL_PACKAGE.to_frictionless(
             exclude_pattern=_FERCEQR_EXCLUDE_PATTERN,
         )
@@ -222,7 +229,9 @@ def build_pudl_datapackage_asset(
         descriptor.update(_collect_git_provenance())
 
         zenodo_dois: ZenodoDoiSettings = context.resources.zenodo_dois
-        _enrich_sources(descriptor, zenodo_dois, version_slug)
+        _enrich_sources(
+            descriptor, zenodo_dois, _docs_version_slug(PUDL_PACKAGE.version)
+        )
 
         parquet_path = PudlPaths().parquet_path()
         enriched_count = _enrich_resources(descriptor, dag_metadata, parquet_path)

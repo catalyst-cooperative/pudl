@@ -12,6 +12,7 @@
 
 set -euo pipefail
 
+# Capture the canonical path to the repository root within the container
 WORKSPACE="$(cd "$(dirname "$0")/.." && pwd)"
 CONTAINER_GIT_MOUNT="/workspaces/pudl.git"
 GIT_FILE="${WORKSPACE}/.git"
