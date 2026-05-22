@@ -107,19 +107,6 @@ def assert_warning_message(log_mock, message: str):
     assert any(message in call_args.args[0] for call_args in log_mock.call_args_list)
 
 
-def test_ferc_sqlite_provenance_is_compatible_skips_without_instance(
-    warning_log,
-) -> None:
-    """Provenance check is skipped with a warning when no Dagster instance is available."""
-    assert (
-        FercSqliteProvenanceRecord.from_dagster_instance(
-            instance=None, dataset="ferc1", data_format="dbf"
-        )
-        is None
-    )
-    assert_warning_message(warning_log, "no Dagster instance is available")
-
-
 def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
     """Test loading stored metadata from dagster intance."""
     stored = FercSqliteProvenanceRecord(
