@@ -9,7 +9,7 @@
         "source=${localEnv:PUDL_INPUT},target=/workspaces/pudl-input,type=bind,consistency=cached",
         "source=${localEnv:PUDL_OUTPUT},target=/workspaces/pudl-output,type=bind,consistency=cached",
         "source=${localEnv:DAGSTER_HOME},target=/workspaces/dagster-home,type=bind,consistency=cached",
-        "source=${localEnv:PUDL_REPO}/.git,target=/workspaces/pudl.git,type=bind,consistency=cached"
+        "source=${localEnv:PUDL_ROOT_PATH}/.git,target=/workspaces/pudl.git,type=bind,consistency=cached"
     ],
     "containerEnv": {
         "PUDL_INPUT": "/workspaces/pudl-input",

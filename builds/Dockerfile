@@ -36,14 +36,14 @@ RUN pg_createcluster ${PG_VERSION} dagster -u "$PIXI_USER" -- -A trust
 USER $PIXI_USER
 WORKDIR ${CONTAINER_HOME}
 
-ENV PUDL_REPO=${CONTAINER_HOME}/pudl
+ENV PUDL_ROOT_PATH=${CONTAINER_HOME}/pudl
 
 ENV CONTAINER_PUDL_WORKSPACE=${CONTAINER_HOME}/pudl_work
 ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/input
 ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}/output
 ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 
-RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_REPO}
+RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_ROOT_PATH}
 
 # Copy dagster configuration file
 COPY builds/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
@@ -51,8 +51,8 @@ COPY builds/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 # Copy the entire PUDL repo into the image.
 # We can't install the PUDL package without .git/ because the version is dynamically
 # determined using hatch-vcs, which needs access to the git tags.
-COPY --chown=${PIXI_USER}:${PIXI_USER} . ${PUDL_REPO}
-WORKDIR ${PUDL_REPO}
+COPY --chown=${PIXI_USER}:${PIXI_USER} . ${PUDL_ROOT_PATH}
+WORKDIR ${PUDL_ROOT_PATH}
 
 # Install the pixi environment (includes the editable local package)
 RUN pixi install --locked

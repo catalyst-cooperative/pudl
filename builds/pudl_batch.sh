@@ -4,8 +4,8 @@
 # This script won't work locally because it needs adequate GCP permissions.
 # It assumes that the PUDL pixi environment is activated.
 
-# Assert that PUDL_REPO is set by the container and points to a valid directory.
-cd "${PUDL_REPO:?PUDL_REPO must be set by the build container}" || exit 1
+# Assert that PUDL_ROOT_PATH is set by the container and points to a valid directory.
+cd "${PUDL_ROOT_PATH:?PUDL_ROOT_PATH must be set by the build container}" || exit 1
 
 function send_slack_msg() {
     set +x &&

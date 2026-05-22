@@ -20,6 +20,7 @@ from pathlib import Path
 import dagster as dg
 
 import pudl.logging_helpers
+from pudl import PUDL_ROOT_PATH
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.datastore import ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
@@ -32,7 +33,7 @@ _FERCEQR_EXCLUDE_PATTERN = re.compile(r"^core_ferceqr")
 # *_child.rst.jinja templates.  The template filename prefix is the source name.
 # If the docs/templates directory is not present (e.g. in a non-editable install
 # that omitted the docs tree), the set is empty and no docs URLs are added.
-_TEMPLATES_DIR = Path(__file__).parents[5] / "docs" / "templates"
+_TEMPLATES_DIR = PUDL_ROOT_PATH / "docs" / "templates"
 _SOURCES_WITH_DOCS: frozenset[str] = (
     frozenset(
         p.name.removesuffix("_child.rst.jinja")
