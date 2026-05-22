@@ -14,6 +14,11 @@ from zipfile import ZipFile
 
 import dagster as dg
 import fsspec
+from botocore.exceptions import (
+    ConnectTimeoutError,
+    EndpointConnectionError,
+    ReadTimeoutError,
+)
 
 import pudl.logging_helpers
 from pudl import PUDL_NIGHTLY_BUILDS_BASE_PATH
@@ -33,6 +38,14 @@ from pudl.extract.ferc import (
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.settings import FercToSqliteDataConfig, XbrlFormNumber
 from pudl.workspace.setup import PudlPaths
+
+NETWORK_ERRORS = (
+    TimeoutError,
+    ConnectionError,
+    ConnectTimeoutError,
+    EndpointConnectionError,
+    ReadTimeoutError,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -104,7 +117,13 @@ def _check_for_cached_db_w_compatible_provenance(
             f"Provenance metadata for local version of {sqlite_path.name} is incompatible."
             " Downloading version from nightly builds."
         )
-        _download_nightly_db(sqlite_path)
+        # Fail gracefully if nightly builds download fails
+        try:
+            _download_nightly_db(sqlite_path)
+        except NETWORK_ERRORS as e:
+            logger.warning(
+                f"Failed to download {sqlite_path.name} from nightly builds. See: \n{e}"
+            )
         nightly_provenance = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
         if ferc_sqlite_provenance_is_compatible(
             required_provenance=provenance, observed_provenance=nightly_provenance
