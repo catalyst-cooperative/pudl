@@ -114,8 +114,7 @@ def _check_for_cached_db_w_compatible_provenance(
         compatible_metadata = local_provenance
     else:
         logger.info(
-            f"Provenance metadata for local version of {sqlite_path.name} is incompatible."
-            " Downloading version from nightly builds."
+            f"Downloading {sqlite_path.name} from nightly builds to check provenance."
         )
         # Fail gracefully if nightly builds download fails
         try:
