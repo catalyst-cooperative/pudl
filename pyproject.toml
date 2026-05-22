@@ -168,6 +168,7 @@ timezonefinder = ">=8"
 typos = ">=1.40"
 universal-pathlib = ">=0.3.10"
 urllib3 = ">=2.4"
+usaddress = ">=0.5.16"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
@@ -178,7 +179,6 @@ zip = ">=3.0"
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
 detect-secrets = ">=1.5"
-usaddress = ">=0.5.16,<0.6"
 
 [tool.pixi.feature.dev.dependencies]
 jq = ">=1.8" # Primarily for agent skills use
@@ -269,6 +269,7 @@ sqlalchemy = ">=2"
 timezonefinder = ">=8"
 universal-pathlib = ">=0.3.10"
 urllib3 = ">=2.4"
+usaddress = ">=0.5.16"
 xlsxwriter = ">=3.2"
 
 ########################################################################################
