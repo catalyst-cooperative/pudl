@@ -1,5 +1,7 @@
 """CLI for managing raw data inputs to the PUDL data processing pipeline."""
 
+from __future__ import annotations
+
 import pathlib
 import sys
 from typing import TYPE_CHECKING
@@ -14,7 +16,7 @@ if TYPE_CHECKING:
 _KNOWN_DATASETS = sorted(ZenodoDoiSettings.model_fields)
 
 
-def _print_partitions(dstore: "Datastore", datasets: list[str]) -> None:
+def _print_partitions(dstore: Datastore, datasets: list[str]) -> None:
     """Print known partition keys and values for each of the datasets."""
     from pudl.workspace.datastore import ZenodoFetcher  # noqa: PLC0415
 
