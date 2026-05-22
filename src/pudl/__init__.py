@@ -4,6 +4,7 @@ import warnings
 from pathlib import Path
 
 from dagster import PreviewWarning
+from upath import UPath
 
 from pudl.logging_helpers import configure_root_logger
 
@@ -26,6 +27,8 @@ PUDL_DBT_PATH: Path = PUDL_ROOT_PATH / "dbt"
 """Resolved absolute path to the dbt directory."""
 PUDL_DOCS_PATH: Path = PUDL_ROOT_PATH / "docs"
 """Resolved absolute path to the docs directory."""
+PUDL_NIGHTLY_BUILDS_BASE_PATH: UPath = UPath("s3://pudl.catalyst.coop/nightly/")
+"""Base path to PUDL nightly builds outputs."""
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"

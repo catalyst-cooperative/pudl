@@ -16,6 +16,7 @@ import dagster as dg
 import fsspec
 
 import pudl.logging_helpers
+from pudl import PUDL_NIGHTLY_BUILDS_BASE_PATH
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenance,
@@ -40,7 +41,9 @@ def _download_nightly_db(sqlite_path: Path):
     """Download nightly SQLite db and extract from zipfile, writing to local workspace."""
     with (
         fsspec.open(
-            f"s3://pudl.catalyst.coop/nightly/{sqlite_path.name}.zip", "rb", anon=True
+            str(PUDL_NIGHTLY_BUILDS_BASE_PATH / f"{sqlite_path.name}.zip"),
+            "rb",
+            anon=True,
         ) as f,
         ZipFile(BytesIO(f.read())) as archive,
         archive.open(sqlite_path.name) as nightly_sqlite,
