@@ -49,7 +49,7 @@ def _download_nightly_db(sqlite_path: Path):
         local_sqlite.write(nightly_sqlite.read())
 
 
-def _check_compatible_cached_db(
+def _check_for_cached_db_w_compatible_provenance(
     dataset: str,
     data_format: str,
     zenodo_doi: str,
@@ -70,6 +70,9 @@ def _check_compatible_cached_db(
 
     If the environment variable, ``PUDL_FORCE_FERC_TO_SQLITE``, is set to ``true``, then
     this function will immediately return ``None``, triggering the normal extraction.
+
+    Returns:
+        Compatible ``FercSqliteProvenanceRecord`` if one is found, otherwise ``None``.
     """
     # Check if configured to force extraction
     if os.getenv("PUDL_FORCE_FERC_TO_SQLITE", default="false").lower() == "true":
@@ -161,7 +164,7 @@ def ferc_to_sqlite_asset_factory(
 
         # Check if there's a cached SQLite DB that is compatible
         if (
-            provenance := _check_compatible_cached_db(
+            provenance := _check_for_cached_db_w_compatible_provenance(
                 dataset=dataset,
                 data_format=data_format,
                 zenodo_doi=zenodo_doi,

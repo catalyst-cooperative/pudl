@@ -126,7 +126,7 @@ def test_xbrl2sqlite(data_config, forms, mocker):
 
     # Mock compatibility check to avoid looking at local / remote dbs
     mocker.patch(
-        "pudl.dagster.assets.raw.ferc_to_sqlite._check_compatible_cached_db",
+        "pudl.dagster.assets.raw.ferc_to_sqlite._check_for_cached_db_w_compatible_provenance",
         return_value=None,
     )
     # Skip writing provenance metadata to sqlite
