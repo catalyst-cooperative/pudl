@@ -68,7 +68,7 @@ class FercSqliteProvenanceRecord(BaseModel):
     @classmethod
     def from_dagster_instance(
         cls,
-        instance: Any | None,
+        instance: dg.DagsterInstance,
         dataset: str,
         data_format: str,
     ) -> "FercSqliteProvenanceRecord":
