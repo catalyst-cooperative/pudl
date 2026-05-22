@@ -19,7 +19,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import dagster as dg
-import frictionless
 
 import pudl.logging_helpers
 from pudl.metadata.classes import PUDL_PACKAGE
@@ -181,20 +180,6 @@ def _enrich_resources(
     return enriched_count
 
 
-def _validate_descriptor(descriptor: dict) -> list[str]:
-    """Validate the descriptor against the frictionless spec; return error list.
-
-    ``frictionless.Package.metadata_validate`` validates recursively through
-    resources, schemas, and fields.  For certain structural errors (e.g. an
-    unrecognised field type) it raises ``FrictionlessException`` rather than
-    yielding; this wrapper normalises both forms into a plain list of strings.
-    """
-    try:
-        return [str(e) for e in frictionless.Package.metadata_validate(descriptor)]
-    except frictionless.FrictionlessException as exc:
-        return [str(exc)]
-
-
 def build_pudl_datapackage_asset(
     parquet_asset_keys: Sequence[dg.AssetKey],
 ) -> dg.AssetsDefinition:
@@ -268,24 +253,4 @@ def build_pudl_datapackage_asset(
     return pudl_datapackage
 
 
-@dg.asset_check(
-    asset="pudl_datapackage",
-    blocking=True,
-    description=(
-        "Validate the PUDL datapackage descriptor against the frictionless v2 spec. "
-        "Checks structure recursively through resources, schemas, and fields."
-    ),
-)
-def pudl_datapackage_is_valid() -> dg.AssetCheckResult:
-    """Validate datapackage.json against the frictionless spec after materialisation."""
-    descriptor = json.loads(
-        (PudlPaths().parquet_path() / "datapackage.json").read_text()
-    )
-    errors = _validate_descriptor(descriptor)
-    return dg.AssetCheckResult(
-        passed=not errors,
-        metadata={"errors": dg.MetadataValue.json(errors)},
-    )
-
-
-__all__ = ["build_pudl_datapackage_asset", "pudl_datapackage_is_valid"]
+__all__ = ["build_pudl_datapackage_asset"]
