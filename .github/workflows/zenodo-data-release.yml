@@ -19,7 +19,7 @@ on:
       ignore_regex:
         description: "Ignore files matching this regex:"
         required: false
-        default: '(^.*\.parquet$|^pudl_parquet_datapackage\.json$)'
+        default: '^.*\.parquet$'
       publish:
         description: "Automatically publish Zenodo record?"
         required: true

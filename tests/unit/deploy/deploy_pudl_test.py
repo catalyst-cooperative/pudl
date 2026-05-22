@@ -30,7 +30,7 @@ def test_prepare_outputs_for_distribution(tmp_path):
     (build_path / "pudl_dbt_tests.duckdb").write_text("test db")
     (parquet_dir / "table1.parquet").write_text("p1")
     (parquet_dir / "table2.parquet").write_text("p2")
-    (parquet_dir / "pudl_parquet_datapackage.json").write_text("{}")
+    (parquet_dir / "datapackage.json").write_text("{}")
 
     prepare_outputs_for_distribution(output_dir, UPath(build_path))
 
@@ -51,7 +51,8 @@ def test_prepare_outputs_for_distribution(tmp_path):
         names = zf.namelist()
         assert "table1.parquet" in names
         assert "table2.parquet" in names
-        assert "pudl_parquet_datapackage.json" in names
+        assert "datapackage.json" in names
+        assert "pudl_parquet_datapackage.json" not in names
 
     assert not (output_dir / "pudl_dbt_tests.duckdb").exists()
     assert not (output_dir / "parquet").exists()
