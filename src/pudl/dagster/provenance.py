@@ -75,10 +75,7 @@ class FercSqliteProvenanceRecord(BaseModel):
         """Return FercSqliteProvenanceRecord from dagster metadata if available."""
         if instance is None:
             logger.warning(
-                f"No Dagster instance is available; skipping FERC SQLite provenance "
-                f"check for {dataset}_{data_format}. This is "
-                "expected when running assets outside a Dagster execution context "
-                "(e.g. in unit tests)."
+                "Can't load FERC SQLite provenance metadata as no Dagster instance is available."
             )
             return None
 

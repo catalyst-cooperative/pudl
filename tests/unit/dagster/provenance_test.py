@@ -117,7 +117,7 @@ def test_ferc_sqlite_provenance_is_compatible_skips_without_instance(
         )
         is None
     )
-    assert_warning_message(warning_log, "No Dagster instance is available")
+    assert_warning_message(warning_log, "no Dagster instance is available")
 
 
 def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
