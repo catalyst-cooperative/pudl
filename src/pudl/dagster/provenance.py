@@ -14,7 +14,7 @@ import sqlite3
 from dataclasses import dataclass
 from importlib.metadata import version
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 import dagster as dg
 import sqlalchemy as sa
