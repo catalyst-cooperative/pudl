@@ -59,7 +59,7 @@ class FercSqliteProvenanceRecord(BaseModel):
 
     dataset: str
     data_format: Literal["dbf", "xbrl"]
-    status: Literal["complete", "skipped", "not_configured"]
+    status: Literal["complete", "not_configured"]
     zenodo_doi: str | None = None
     years: list[int] | None = None
     data_config: FercToSqliteDataConfig | None = None

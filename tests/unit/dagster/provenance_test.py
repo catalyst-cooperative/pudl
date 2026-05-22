@@ -1,7 +1,5 @@
 """Unit tests for the FERC SQLite provenance helpers."""
 
-from typing import Literal
-
 import dagster as dg
 import pytest
 
@@ -67,11 +65,9 @@ def test_ferc_sqlite_provenance_record_round_trip_sqlite(tmp_path):
     assert recovered.data_config == data_config
 
 
-@pytest.mark.parametrize("status", ["skipped", "not_configured"])
-def test_ferc_sqlite_provenance_record_minimal_round_trip(
-    status: Literal["skipped", "not_configured"],
-) -> None:
+def test_ferc_sqlite_provenance_record_minimal_round_trip() -> None:
     """A minimal record still round-trips through the nested Dagster metadata."""
+    status = "not_configured"
     record = FercSqliteProvenanceRecord(
         dataset="ferc714",
         data_format="xbrl",
@@ -258,24 +254,12 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_xbrl_extractor_mismatch(
         )
 
 
-@pytest.mark.parametrize(
-    ("status", "expected_match"),
-    [
-        ("skipped", "status="),
-        ("not_configured", "not_configured"),
-    ],
-)
 def test_ferc_sqlite_provenance_is_compatible_rejects_non_complete_status(
     mocker,
     warning_log,
-    status: Literal["skipped", "not_configured"],
-    expected_match: str,
 ) -> None:
-    """A DB materialized with a non-complete status should raise RuntimeError.
-
-    Both 'skipped' and 'not_configured' mean the SQLite file was never fully
-    populated, so downstream IO managers must refuse to read from it.
-    """
+    """A DB materialized with a non-complete status should raise RuntimeError."""
+    status = "not_configured"
 
     stored = FercSqliteProvenanceRecord(
         dataset="ferc1",
@@ -293,4 +277,4 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_non_complete_status(
     assert not ferc_sqlite_provenance_is_compatible(
         observed_provenance=stored, required_provenance=required
     )
-    assert_warning_message(warning_log, expected_match)
+    assert_warning_message(warning_log, status)
