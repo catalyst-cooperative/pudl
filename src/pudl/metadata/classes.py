@@ -8,6 +8,7 @@ import warnings
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
 from hashlib import sha1
+from importlib.metadata import version as _get_version
 from pathlib import Path
 from re import Pattern
 from typing import Annotated, Any, Literal, Self, TypeVar
@@ -833,6 +834,16 @@ class ForeignKey(PudlMeta):
             [f"{self.reference.resource}.{field}" for field in self.reference.fields],
         )
 
+    def to_frictionless(self) -> dict:
+        """Convert to a frictionless foreign key descriptor dict."""
+        return {
+            "fields": list(self.fields),
+            "reference": {
+                "resource": self.reference.resource,
+                "fields": list(self.reference.fields),
+            },
+        }
+
 
 class Schema(PudlMeta):
     """Table schema (`resource.schema`).
@@ -1097,12 +1108,33 @@ class DataSource(PudlMeta):
         else:
             sys.stdout.write(rendered)
 
+    def to_frictionless(self) -> dict:
+        """Serialize to a frictionless data source descriptor.
+
+        The frictionless spec defines ``title``, ``path``, and ``email`` as
+        standard source fields.  PUDL-specific fields (``name``,
+        ``description``, ``keywords``, ``concept_doi``) are included as
+        extensions and are preserved by the frictionless library.
+        """
+        source: dict = {"name": self.name}
+        if self.title:
+            source["title"] = self.title
+        if self.path:
+            source["path"] = str(self.path)
+        if self.email:
+            source["email"] = self.email
+        if self.description:
+            source["description"] = self.description
+        if self.keywords:
+            source["keywords"] = list(self.keywords)
+        if self.concept_doi:
+            source["concept_doi"] = f"https://doi.org/{self.concept_doi}"
+        return source
+
     @staticmethod
     def dict_from_id(x: str, sources: dict[str, Any]) -> dict:
         """Look up the source by source name in the metadata."""
-        # If ID ends with _xbrl strip end to find data source
-        lookup_id = x.replace("_xbrl", "")
-        return {"name": x, **copy.deepcopy(sources[lookup_id])}
+        return {"name": x, **copy.deepcopy(sources[x])}
 
     @classmethod
     def from_id(cls, x: str, sources: dict[str, Any] = SOURCES) -> "DataSource":
@@ -1496,7 +1528,6 @@ class Resource(PudlMeta):
     format_: String | None = pydantic.Field(alias="format", default=None)
     mediatype: String | None = None
     dialect: dict[str, str] | None = None
-    profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
     licenses: list[License] = []
     sources: list[DataSource] = []
@@ -1771,7 +1802,7 @@ class Resource(PudlMeta):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
-    def to_frictionless(self) -> dict:
+    def to_frictionless(self) -> frictionless.Resource:
         """Convert to a Frictionless Resource."""
         schema = frictionless.Schema(
             fields=[
@@ -1782,15 +1813,28 @@ class Resource(PudlMeta):
                 for f in self.schema.fields
             ],
             primary_key=self.schema.primary_key,
+            foreign_keys=[fk.to_frictionless() for fk in self.schema.foreign_keys],
         )
 
-        return frictionless.Resource(
+        resource = frictionless.Resource(
             name=self.name,
+            title=self.title,
             description=self.description,
+            sources=[s.to_frictionless() for s in self.sources],
+            licenses=[
+                lic.model_dump(mode="json", exclude_none=True) for lic in self.licenses
+            ],
             schema=schema,
             path=self.path,
             extrapaths=self.extrapaths,
         )
+        if self.keywords:
+            resource.custom["keywords"] = list(self.keywords)
+        if self.contributors:
+            resource.custom["contributors"] = [
+                c.model_dump(mode="json", exclude_none=True) for c in self.contributors
+            ]
+        return resource
 
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
@@ -2209,14 +2253,14 @@ class Package(PudlMeta):
     name: String
     title: String | None = None
     description: String | None = None
+    version: str | None = None
     keywords: list[String] = []
-    homepage: AnyHttpUrl = AnyHttpUrl("https://catalyst.coop/pudl")
+    homepage: AnyHttpUrl = AnyHttpUrl("https://docs.catalyst.coop/pudl")
     created: datetime.datetime = datetime.datetime.now(datetime.UTC)
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
     licenses: list[License] = []
     resources: StrictList[Resource]
-    profile: String = "tabular-data-package"
     model_config = ConfigDict(validate_assignment=False)
 
     @field_validator("resources")
@@ -2248,6 +2292,17 @@ class Package(PudlMeta):
             )
         return resources
 
+    @staticmethod
+    def _compile_from_resources(resources: list["Resource"]) -> dict[str, list[Any]]:
+        """Compile deduplicated contributors, licenses, keywords, and sources from resources.
+
+        Returns a dict with keys ``contributors``, ``licenses``, ``keywords``, and
+        ``sources``, each containing a deduplicated list of values drawn from
+        ``resources`` in order of first appearance.
+        """
+        keys = ("keywords", "contributors", "sources", "licenses")
+        return {key: _unique(*[getattr(r, key) for r in resources]) for key in keys}
+
     @model_validator(mode="after")
     def _populate_from_resources(self: Self):
         """Populate Package attributes from similar deduplicated Resource attributes.
@@ -2257,11 +2312,9 @@ class Package(PudlMeta):
         union of all the analogous values found in the Resources, but we don't want
         any duplicates. We may also get values directly from the Package inputs.
         """
-        for key in ("keywords", "contributors", "sources", "licenses"):
-            package_value = getattr(self, key)
-            resource_values = [getattr(resource, key) for resource in self.resources]
-            deduped_values = _unique(package_value, *resource_values)
-            setattr(self, key, deduped_values)
+        compiled = self._compile_from_resources(self.resources)
+        for key, values in compiled.items():
+            setattr(self, key, _unique(getattr(self, key), values))
         return self
 
     @classmethod
@@ -2271,6 +2324,9 @@ class Package(PudlMeta):
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
         excluded_etl_groups: tuple[str] = (),
+        title: str | None = None,
+        description: str | None = None,
+        version: str | None = None,
     ) -> "Package":
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -2289,6 +2345,9 @@ class Package(PudlMeta):
                 foreign keys.
             excluded_etl_groups: Collection of ETL groups used to filter resources
                 out of Package.
+            title: Human-readable title for the package.
+            description: Human-readable description of the package.
+            version: Version string for the package.
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
         if resolve_foreign_keys:
@@ -2312,7 +2371,13 @@ class Package(PudlMeta):
                 if resource["etl_group"] not in excluded_etl_groups
             ]
 
-        return cls(name="pudl", resources=resources)
+        return cls(
+            name="pudl",
+            title=title,
+            description=description,
+            version=version,
+            resources=resources,
+        )
 
     @staticmethod
     def get_etl_group_tables(
@@ -2449,8 +2514,8 @@ class Package(PudlMeta):
 
     def to_frictionless(
         self,
-        exclude_pattern: Pattern[str] | None = None,
-        include_pattern: Pattern[str] | None = None,
+        exclude_pattern: str | Pattern[str] | None = None,
+        include_pattern: str | Pattern[str] | None = None,
     ) -> frictionless.Package:
         """Convert to a Frictionless Datapackage.
 
@@ -2464,21 +2529,57 @@ class Package(PudlMeta):
             exclude_pattern: Exclude resources whose names exactly match this pattern.
             include_pattern: Only include resources whose names exactly match this pattern.
         """
-        resources = [r.to_frictionless() for r in self.resources]
-
+        pudl_resources = list(self.resources)
         if exclude_pattern is not None:
-            resources = [
-                r for r in resources if re.match(exclude_pattern, r.name) is None
+            pudl_resources = [
+                r for r in pudl_resources if re.match(exclude_pattern, r.name) is None
             ]
         if include_pattern is not None:
-            resources = [
-                r for r in resources if re.match(include_pattern, r.name) is not None
+            pudl_resources = [
+                r
+                for r in pudl_resources
+                if re.match(include_pattern, r.name) is not None
             ]
 
-        return frictionless.Package(name=self.name, resources=resources)
+        compiled = self._compile_from_resources(pudl_resources)
+
+        package = frictionless.Package(
+            name=self.name,
+            title=self.title,
+            description=self.description,
+            version=self.version,
+            homepage=str(self.homepage),
+            contributors=[
+                c.model_dump(mode="json", exclude_none=True)
+                for c in compiled["contributors"]
+            ],
+            licenses=[
+                lic.model_dump(mode="json", exclude_none=True)
+                for lic in compiled["licenses"]
+            ],
+            keywords=list(compiled["keywords"]),
+            resources=[r.to_frictionless() for r in pudl_resources],
+            sources=[s.to_frictionless() for s in compiled["sources"]],
+        )
+        package.custom["$schema"] = (
+            "https://datapackage.org/profiles/2.0/datapackage.json"
+        )
+        return package
 
 
-PUDL_PACKAGE = Package.from_resource_ids()
+PUDL_PACKAGE = Package.from_resource_ids(
+    title="The Public Utility Data Liberation Project (PUDL)",
+    version=_get_version("catalystcoop.pudl"),
+    description=(
+        "PUDL is a data processing pipeline created by Catalyst Cooperative that "
+        "cleans, integrates, and standardizes some of the most widely used public "
+        "energy datasets in the US. The data serve researchers, activists, "
+        "journalists, and policy makers that might not have the technical expertise "
+        "to access it in its raw form, the time to clean and prepare the data for "
+        "bulk analysis, or the means to purchase it from existing commercial "
+        "providers."
+    ),
+)
 """Define a global PUDL package object for use across the entire codebase.
 
 This needs to happen after the definition of the Package class above, and it is used in

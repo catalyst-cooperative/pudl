@@ -32,6 +32,7 @@ import polars as pl
 from pandera.errors import SchemaErrors
 
 from pudl.dagster.assets import all_asset_modules, asset_keys
+from pudl.dagster.assets.core.datapackage import pudl_datapackage_is_valid
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
@@ -371,6 +372,8 @@ default_asset_checks += [
     )
     if check is not None
 ]
+
+default_asset_checks.append(pudl_datapackage_is_valid)
 
 __all__ = [
     "asset_check_from_schema",

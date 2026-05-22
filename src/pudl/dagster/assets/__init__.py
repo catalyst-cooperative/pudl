@@ -25,6 +25,7 @@ import pudl.extract
 import pudl.output
 import pudl.transform
 from pudl.dagster.assets.core import eiaapi_electricity, glue, static
+from pudl.dagster.assets.core.datapackage import build_pudl_datapackage_asset
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 from pudl.dagster.assets.raw import ferc_to_sqlite
 
@@ -120,7 +121,7 @@ all_asset_modules = (
     | ferceqr_deployment_assets
 )
 
-default_assets = list(
+_base_assets = list(
     itertools.chain.from_iterable(
         dg.load_assets_from_modules(
             modules,
@@ -131,10 +132,43 @@ default_assets = list(
     )
 )
 
+# IO manager keys that write canonical parquet outputs.  Assets using any of
+# these are included as upstream dependencies of the datapackage asset.
+_PARQUET_IO_MANAGER_KEYS: frozenset[str] = frozenset(
+    {"parquet_io_manager", "geoparquet_io_manager", "pudl_io_manager"}
+)
 
-def get_keys_from_assets(
-    asset_def: dg.AssetsDefinition | dg.AssetSpec,
-) -> list[dg.AssetKey]:
+
+def _find_parquet_asset_keys(assets) -> list[dg.AssetKey]:
+    """Return the keys of every asset that writes to a parquet-based IO manager."""
+    keys: list[dg.AssetKey] = []
+    for asset_def in assets:
+        if isinstance(asset_def, dg.AssetsDefinition):
+            for spec in asset_def.specs:
+                if (
+                    asset_def.get_io_manager_key_for_asset_key(spec.key)
+                    in _PARQUET_IO_MANAGER_KEYS
+                ):
+                    keys.append(spec.key)
+        elif (
+            isinstance(asset_def, dg.AssetSpec)
+            and asset_def.metadata.get("dagster/io_manager_key")
+            in _PARQUET_IO_MANAGER_KEYS
+        ):
+            # Bare AssetSpec objects (e.g. raw FERC table reads backed by SQLite IO
+            # managers) expose their IO manager key directly on the spec.  None of
+            # them currently use parquet IO managers, so this branch is a no-op in
+            # practice, but handling them explicitly keeps the logic complete.
+            keys.append(asset_def.key)
+    return keys
+
+
+default_assets = _base_assets + [
+    build_pudl_datapackage_asset(_find_parquet_asset_keys(_base_assets))
+]
+
+
+def get_keys_from_assets(asset_def) -> list[dg.AssetKey]:
     """Get a list of asset keys for an asset definition or spec."""
     if isinstance(asset_def, dg.AssetsDefinition):
         return list(asset_def.keys)
