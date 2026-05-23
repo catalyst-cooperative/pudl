@@ -22,6 +22,12 @@ if [ ! -d "${CONTAINER_GIT_MOUNT}/objects" ]; then
     exit 0
 fi
 
+# If .git is a directory, this is the main checkout — no worktree fixup needed.
+if [ -d "${GIT_FILE}" ]; then
+    echo "fix-git-worktree.sh: .git is a directory (main checkout) — no worktree fixup needed." >&2
+    exit 0
+fi
+
 # The .git file contains: "gitdir: <host-path>/.git/worktrees/<name>"
 # Two levels up from worktrees/<name> gives the host's main .git path.
 CURRENT_GITDIR="$(sed 's/^gitdir: //' "${GIT_FILE}")"

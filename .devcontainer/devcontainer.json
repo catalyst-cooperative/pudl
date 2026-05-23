@@ -23,6 +23,9 @@
         "OPENROUTER_API_KEY": "${localEnv:OPENROUTER_API_KEY}",
         "NPM_CONFIG_CACHE": "${containerWorkspaceFolder}/.pixi/.npm-cache"
     },
+    "remoteEnv": {
+        "PATH": "/home/ubuntu/.pixi/bin:${containerEnv:PATH}"
+    },
     "waitFor": "postCreateCommand",
     "postCreateCommand": ".devcontainer/fix-git-worktree.sh && pixi run -e dev devcontainer-install",
     "remoteUser": "ubuntu",
@@ -41,7 +44,7 @@
                 "python.defaultInterpreterPath": "${workspaceFolder}/.pixi/envs/dev/bin/python",
                 "python.terminal.activateEnvironment": false,
                 "python.createEnvironment.trigger": "off",
-                "evenBetterToml.taplo.path": "${workspaceFolder}/.pixi/envs/dev/bin/taplo",
+                "evenBetterToml.taplo.path": "/home/ubuntu/.pixi/bin/taplo",
                 "[python]": {
                     "editor.defaultFormatter": "charliermarsh.ruff",
                     "editor.formatOnSave": true

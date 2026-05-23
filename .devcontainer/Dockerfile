@@ -32,7 +32,10 @@ RUN apt-get update && \
 USER ubuntu
 WORKDIR /workspaces
 
+
 # Activate the Pixi shell automatically in interactive bash sessions once the
 # environment has been installed by the post-create hook.
 # hadolint ignore=SC2016
-RUN echo 'eval "$(pixi shell-hook --shell bash -e dev 2>/dev/null || true)"' >> ~/.bashrc
+RUN echo 'eval "$(pixi shell-hook --shell bash -e dev 2>/dev/null || true)"' >> ~/.bashrc && \
+    pixi global install taplo=0.9.3 && \
+    echo 'export PATH="$HOME/.pixi/bin:$PATH"' >> ~/.bashrc
