@@ -11,6 +11,11 @@ SHELL ["/bin/bash", "-exo", "pipefail", "-c"]
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         ca-certificates \
+        gnupg \
+        software-properties-common && \
+    add-apt-repository ppa:git-core/ppa && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y \
         git \
         openssh-client \
         sudo \

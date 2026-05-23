@@ -8,7 +8,8 @@
         "source=pudl-pixi,target=${containerWorkspaceFolder}/.pixi,type=volume",
         "source=${localEnv:PUDL_INPUT},target=/workspaces/pudl-input,type=bind,consistency=cached",
         "source=${localEnv:PUDL_OUTPUT},target=/workspaces/pudl-output,type=bind,consistency=cached",
-        "source=${localEnv:DAGSTER_HOME},target=/workspaces/dagster-home,type=bind,consistency=cached"
+        "source=${localEnv:DAGSTER_HOME},target=/workspaces/dagster-home,type=bind,consistency=cached",
+        "source=${localEnv:PUDL_ROOT_PATH}/.git,target=/workspaces/pudl.git,type=bind,consistency=cached"
     ],
     "containerEnv": {
         "PUDL_INPUT": "/workspaces/pudl-input",
@@ -23,7 +24,7 @@
         "NPM_CONFIG_CACHE": "${containerWorkspaceFolder}/.pixi/.npm-cache"
     },
     "waitFor": "postCreateCommand",
-    "postCreateCommand": "pixi run -e dev devcontainer-install",
+    "postCreateCommand": ".devcontainer/fix-git-worktree.sh && pixi run -e dev devcontainer-install",
     "remoteUser": "ubuntu",
     "customizations": {
         "vscode": {
@@ -33,7 +34,8 @@
                 "charliermarsh.ruff",
                 "ms-toolsai.jupyter",
                 "tamasfe.even-better-toml",
-                "renan-r-santos.pixi-code"
+                "renan-r-santos.pixi-code",
+                "anthropic.claude-code"
             ],
             "settings": {
                 "python.defaultInterpreterPath": "${workspaceFolder}/.pixi/envs/dev/bin/python",
