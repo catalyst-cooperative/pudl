@@ -181,6 +181,7 @@ zip = ">=3.0"
 detect-secrets = ">=1.5"
 
 [tool.pixi.feature.dev.dependencies]
+gh = ">=2" # GitHub CLI
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.13"
 matplotx = ">=0.3.10"
