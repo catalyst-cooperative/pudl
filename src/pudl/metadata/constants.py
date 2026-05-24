@@ -265,6 +265,15 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "University of Minnesota",
         "orcid": "0000-0003-3969-505X",
     },
+    "switchbox": {
+        "name": "switchbox",
+        "title": "SwitchBox",
+        "email": "hello@switch.box",
+        "path": "https://www.switch.box/",
+        "roles": ["contributor"],
+        "zenodo_role": "project member",
+        "organization": "SwitchBox",
+    },
 }
 """PUDL Contributors for attribution.
 

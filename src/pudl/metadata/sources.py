@@ -83,7 +83,10 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "working_partitions": {"years": sorted(set(range(1997, 2025)))},
-        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["switchbox"],
+        ],
         "keywords": sorted(
             set(
                 [
@@ -115,7 +118,10 @@ SOURCES: dict[str, Any] = {
             "source_format": "JSON",
         },
         "working_partitions": {"years": sorted(set(range(2014, 2027)))},
-        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["switchbox"],
+        ],
         "keywords": sorted(
             set(
                 [
@@ -145,7 +151,10 @@ SOURCES: dict[str, Any] = {
             "source_format": "JSON",
         },
         "working_partitions": {"years": sorted({2012, 2014, 2017})},
-        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["switchbox"],
+        ],
         "keywords": sorted(
             set(
                 [
@@ -212,7 +221,9 @@ SOURCES: dict[str, Any] = {
             "Form EIA-860M as a supplement to Form EIA-860)"
         ),
         "concept_doi": "10.5281/zenodo.4281336",
-        "contributors": [],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "working_partitions": {
             "year_months": [
                 str(q).lower()
@@ -247,7 +258,9 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "years": sorted(set(range(2001, 2025))),
         },
-        "contributors": [],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "keywords": sorted(
             set(
                 [
@@ -451,6 +464,9 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
     },
     "epacems": {
         "title": "EPA Hourly Continuous Emission Monitoring System (CEMS)",
@@ -750,6 +766,9 @@ SOURCES: dict[str, Any] = {
                 + KEYWORDS["electricity"]
             )
         ),
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "working_partitions": {
             "year_quarters": _year_quarter_range(
                 start_quarter="2013q3", end_quarter="2026q1"
@@ -812,6 +831,7 @@ SOURCES: dict[str, Any] = {
         },
         "contributors": [
             CONTRIBUTORS["elaine-hart"],
+            CONTRIBUTORS["catalyst-cooperative"],
         ],
     },
     "mshamines": {
@@ -827,6 +847,9 @@ SOURCES: dict[str, Any] = {
         "keywords": sorted(set(KEYWORDS["msha"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
     },
     "nrelatb": {
         "title": "NREL Annual Technology Baseline (ATB) for Electricity",
@@ -880,6 +903,10 @@ SOURCES: dict[str, Any] = {
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["switchbox"],
+        ],
     },
     "pudl": {
         "title": "The Public Utility Data Liberation (PUDL) Project",
@@ -924,6 +951,9 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
     },
     "rus7": {
         "title": "USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution",
@@ -1040,7 +1070,10 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
         "working_partitions": {"years": sorted(set(range(2014, 2024)))},
-        "contributors": [CONTRIBUTORS["vibrant-clean-energy"]],
+        "contributors": [
+            CONTRIBUTORS["vibrant-clean-energy"],
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
     },
 }
 """Data source attributes by PUDL identifier."""

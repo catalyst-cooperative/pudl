@@ -2616,7 +2616,9 @@ class Package(PudlMeta):
             ],
             keywords=list(compiled["keywords"]),
             resources=[r.to_frictionless() for r in pudl_resources],
-            sources=[s.to_frictionless() for s in compiled["sources"]],
+            sources=[
+                DataSource.from_id(name).to_frictionless() for name in sorted(SOURCES)
+            ],
         )
         package.custom["$schema"] = (
             "https://datapackage.org/profiles/2.0/datapackage.json"
