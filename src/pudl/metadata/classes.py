@@ -1020,6 +1020,7 @@ class Contributor(PudlMeta):
     ] = "project member"
     organization: String | None = None
     orcid: String | None = None
+    name: String | None = None
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -1164,8 +1165,9 @@ class DataSource(PudlMeta):
 
         The frictionless spec defines ``title``, ``path``, and ``email`` as
         standard source fields.  PUDL-specific fields (``name``,
-        ``description``, ``keywords``, ``concept_doi``) are included as
-        extensions and are preserved by the frictionless library.
+        ``description``, ``keywords``, ``concept_doi``, ``license_raw``,
+        ``license_pudl``, ``contributors``) are included as extensions and
+        are preserved by the frictionless library.
         """
         source: dict = {"name": self.name}
         if self.title:
@@ -1180,6 +1182,16 @@ class DataSource(PudlMeta):
             source["keywords"] = list(self.keywords)
         if self.concept_doi:
             source["concept_doi"] = f"https://doi.org/{self.concept_doi}"
+        source["license_raw"] = self.license_raw.model_dump(
+            mode="json", exclude_none=True
+        )
+        source["license_pudl"] = self.license_pudl.model_dump(
+            mode="json", exclude_none=True
+        )
+        if self.contributors:
+            source["contributors"] = [
+                c.model_dump(mode="json", exclude_none=True) for c in self.contributors
+            ]
         return source
 
     @staticmethod

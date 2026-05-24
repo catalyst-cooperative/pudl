@@ -108,6 +108,7 @@ PERIODS: dict[str, Callable[[pd.Series], pd.Series]] = {
 
 CONTRIBUTORS: dict[str, dict] = {
     "catalyst-cooperative": {
+        "name": "catalyst-cooperative",
         "title": "Catalyst Cooperative",
         "email": "pudl@catalyst.coop",
         "path": "https://catalyst.coop",
@@ -116,6 +117,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Catalyst Cooperative",
     },
     "zane-selvans": {
+        "name": "zane-selvans",
         "title": "Zane Selvans",
         "email": "zane.selvans@catalyst.coop",
         "path": "https://amateurearthling.org",
@@ -125,6 +127,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "orcid": "0000-0002-9961-7208",
     },
     "christina-gosnell": {
+        "name": "christina-gosnell",
         "title": "Christina Gosnell",
         "email": "christina.gosnell@catalyst.coop",
         "roles": ["contributor"],
@@ -133,6 +136,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "orcid": "0009-0004-2979-6142",
     },
     "steven-winter": {
+        "name": "steven-winter",
         "title": "Steven Winter",
         "email": "steven.winter@catalyst.coop",
         "roles": ["contributor"],
@@ -140,6 +144,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Catalyst Cooperative",
     },
     "alana-wilson": {
+        "name": "alana-wilson",
         "title": "Alana Wilson",
         "email": "alana.wilson@catalyst.coop",
         "roles": ["contributor"],
@@ -147,6 +152,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Catalyst Cooperative",
     },
     "karl-dunkle-werner": {
+        "name": "karl-dunkle-werner",
         "title": "Karl Dunkle Werner",
         "email": "karldw@berkeley.edu",
         "path": "https://karldw.org",
@@ -156,6 +162,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "orcid": "0000-0003-0523-7309",
     },
     "greg-schivley": {
+        "name": "greg-schivley",
         "title": "Greg Schivley",
         "path": "https://gschivley.github.io",
         "roles": ["contributor"],
@@ -164,6 +171,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "orcid": "0000-0002-8947-694X",
     },
     "austen-sharpe": {
+        "name": "austen-sharpe",
         "title": "Austen Sharpe",
         "email": "austen.sharpe@catalyst.coop",
         "roles": ["contributor"],
@@ -171,6 +179,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Catalyst Cooperative",
     },
     "katherine-lamb": {
+        "name": "katherine-lamb",
         "title": "Katherine Lamb",
         "email": "katherine.lamb@catalyst.coop",
         "roles": ["contributor"],
@@ -178,6 +187,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Catalyst Cooperative",
     },
     "bennett-norman": {
+        "name": "bennett-norman",
         "title": "Bennett Norman",
         "email": "bennett.norman@catalyst.coop",
         "roles": ["contributor"],
@@ -185,6 +195,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Catalyst Cooperative",
     },
     "trenton-bush": {
+        "name": "trenton-bush",
         "title": "Trenton Bush",
         "email": "trenton.bush@catalyst.coop",
         "roles": ["contributor"],
@@ -192,6 +203,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Catalyst Cooperative",
     },
     "ethan-welty": {
+        "name": "ethan-welty",
         "title": "Ethan Welty",
         "email": "ethan.welty@gmail.com",
         "roles": ["contributor"],
@@ -200,6 +212,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "orcid": "0000-0001-8046-2210",
     },
     "dazhong-xia": {
+        "name": "dazhong-xia",
         "title": "Dazhong Xia",
         "email": "dazhong.xia@catalyst.coop",
         "roles": ["contributor"],
@@ -207,6 +220,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Catalyst Cooperative",
     },
     "ella-belfer": {
+        "name": "ella-belfer",
         "title": "Ella Belfer",
         "email": "ella.belfer@catalyst.coop",
         "roles": ["contributor"],
@@ -215,6 +229,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "orcid": "0000-0001-9784-8531",
     },
     "kathryn-mazaitis": {
+        "name": "kathryn-mazaitis",
         "title": "Kathryn Mazaitis",
         "email": "kathryn.mazaitis@catalyst.coop",
         "roles": ["contributor"],
@@ -223,6 +238,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "orcid": "0009-0009-9063-080X",
     },
     "vibrant-clean-energy": {
+        "name": "vibrant-clean-energy",
         "title": "Vibrant Clean Energy",
         "email": "info@vibrantcleanenergy.com",
         "path": "https://vibrantcleanenergy.com/",
@@ -231,6 +247,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Vibrant Clean Energy",
     },
     "elaine-hart": {
+        "name": "elaine-hart",
         "title": "Elaine Hart",
         "email": "elaine@sylvan.energy",
         "path": "https://www.sylvan.energy/",
@@ -239,6 +256,7 @@ CONTRIBUTORS: dict[str, dict] = {
         "organization": "Sylvan Energy Analytics",
     },
     "matthew-grimley": {
+        "name": "matthew-grimley",
         "title": "Matthew Grimley",
         "email": "griml011@umn.edu",
         "path": "https://www.hhh.umn.edu/directory/matthew-grimley",
