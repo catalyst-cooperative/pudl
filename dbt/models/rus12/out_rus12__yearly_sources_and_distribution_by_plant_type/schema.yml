@@ -36,4 +36,4 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>24'
+                    error_if: ">24"

@@ -77,8 +77,8 @@ sources:
                   arguments:
                     min_value: 0.0
                     max_value: 1.0
-                    warn_if: '>0'
-                    error_if: '>66'
+                    warn_if: ">0"
+                    error_if: ">66"
           - name: particulate_test_date
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:

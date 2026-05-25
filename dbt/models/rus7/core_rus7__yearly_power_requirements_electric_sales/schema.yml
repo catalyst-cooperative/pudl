@@ -28,7 +28,7 @@ sources:
                 total_label: total
                 tolerance: 10
               config:
-                error_if: '>8472'
+                error_if: ">8472"
               description: Check if revenue of customer classes sums to total revenue. Note that this calculation is wrong for almost every borrower.
         columns:
           - name: report_date

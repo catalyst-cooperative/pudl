@@ -23,5 +23,5 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>10'
+                    error_if: ">10"
                   description: No values should be negative here. Investigate.

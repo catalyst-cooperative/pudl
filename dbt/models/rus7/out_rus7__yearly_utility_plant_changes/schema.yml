@@ -23,7 +23,7 @@ sources:
                 expression: retirements + additions + adjustments_and_transfers <= ending_balance
               description: Check that annual changes don't exceed ending balance.
               config:
-                error_if: '>62'
+                error_if: ">62"
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -37,7 +37,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>11'
+                    error_if: ">11"
           - name: additions
           - name: adjustments_and_transfers
           - name: ending_balance

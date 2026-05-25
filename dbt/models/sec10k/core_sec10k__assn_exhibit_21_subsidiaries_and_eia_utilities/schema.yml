@@ -8,7 +8,7 @@ sources:
           - dbt_expectations.expect_table_row_count_to_be_between:
               description: Nightly builds and local ETL yield slightly different output.
               config:
-                enabled: '{{ target.name == ''etl-full''}}'
+                enabled: "{{ target.name == 'etl-full'}}"
               arguments:
                 min_value: 5691
                 max_value: 5701

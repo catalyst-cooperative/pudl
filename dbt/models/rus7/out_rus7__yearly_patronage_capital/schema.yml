@@ -11,7 +11,7 @@ sources:
                 column_B: patronage_report_year
                 or_equal: true
               config:
-                error_if: '>14'
+                error_if: ">14"
               description: Some 0 cumulative values and a handful of other values causing failure. Investigate.
           - check_row_counts_per_partition:
               arguments:
@@ -30,7 +30,7 @@ sources:
                 total_label: total_distributions_retirements
                 tolerance: 1
               config:
-                error_if: '>435'
+                error_if: ">435"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -44,7 +44,7 @@ sources:
                 total_label: total_distributions_retirements
                 tolerance: 1
               config:
-                error_if: '>1'
+                error_if: ">1"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -81,7 +81,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>2'
+                    error_if: ">2"
                   description: FL0026 and OH0071 each report one negative value. Investigate.
           - name: patronage_cumulative
             data_tests:

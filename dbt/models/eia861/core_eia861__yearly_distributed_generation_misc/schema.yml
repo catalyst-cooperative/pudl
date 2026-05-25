@@ -14,7 +14,7 @@ sources:
                 column_A: generators_number
                 column_B: generators_num_less_1_mw
                 or_equal: true
-                error_if: '>8'
+                error_if: ">8"
         columns:
           - name: backup_capacity_mw
             data_tests:

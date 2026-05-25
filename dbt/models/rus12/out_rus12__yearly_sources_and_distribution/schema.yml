@@ -22,7 +22,7 @@ sources:
                     min_value: 0.0
                   row_condition: source_of_energy != 'net_interchange'
                   config:
-                    error_if: '>22'
+                    error_if: ">22"
           - name: cost
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -30,4 +30,4 @@ sources:
                     min_value: 0.0
                   row_condition: net_energy_received_mwh >= 0
                   config:
-                    error_if: '>8'
+                    error_if: ">8"

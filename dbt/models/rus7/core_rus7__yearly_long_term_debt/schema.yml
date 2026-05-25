@@ -9,7 +9,7 @@ sources:
               arguments:
                 expression: debt_interest + debt_principal = debt_total
               config:
-                error_if: '>5'
+                error_if: ">5"
               description: Examine a few cases where interest + principal != total
           - check_row_counts_per_partition:
               arguments:
@@ -25,7 +25,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>38'
+                    error_if: ">38"
                   description: Investigate negative values.
           - name: debt_interest
             data_tests:
@@ -33,7 +33,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>11'
+                    error_if: ">11"
                   description: Investigate negative values.
           - name: debt_principal
             data_tests:
@@ -46,5 +46,5 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>5'
+                    error_if: ">5"
                   description: Investigate negative values.

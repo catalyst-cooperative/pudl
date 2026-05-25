@@ -13,7 +13,7 @@ sources:
               arguments:
                 expression: accruals + retirements_less_net_salvage + adjustments_and_transfers <= ending_balance
                 config:
-                  error_if: '>18'
+                  error_if: ">18"
                   where: depreciation_and_amortization_item != 'retirement_work_in_progress'
               description: Check that annual changes don't exceed ending balance.
           - subcomponents_sum_to_total:
@@ -71,7 +71,7 @@ sources:
                     max_value: 100.0
                   row_condition: depreciation_and_amortization_item !='retirement_work_in_progress'
                   config:
-                    error_if: '>1'
+                    error_if: ">1"
                   description: Check that most of the composite_depreciation_rate's within 0-100.
           - name: accruals
           - name: retirements_less_net_salvage
@@ -83,6 +83,6 @@ sources:
                     min_value: 0.0
                   row_condition: depreciation_and_amortization_item !='retirement_work_in_progress'
                   config:
-                    error_if: '>34'
+                    error_if: ">34"
                   description: Check that most of the ending_balance's are positive - excluding the retirement_work_in_progress.
           - name: is_total

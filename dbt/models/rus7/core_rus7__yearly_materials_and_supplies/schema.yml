@@ -14,7 +14,7 @@ sources:
                 expression: materials_purchased + materials_salvaged - materials_sold - materials_used + materials_adjustment <= materials_ending_balance
               description: Check that annual changes don't exceed ending balance.
               config:
-                error_if: '>3'
+                error_if: ">3"
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -26,32 +26,32 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>12'
+                    error_if: ">12"
           - name: materials_purchased
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>2'
+                    error_if: ">2"
           - name: materials_salvaged
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>16'
+                    error_if: ">16"
           - name: materials_sold
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>7'
+                    error_if: ">7"
           - name: materials_used
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>4'
+                    error_if: ">4"

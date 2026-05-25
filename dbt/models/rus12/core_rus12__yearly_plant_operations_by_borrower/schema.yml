@@ -17,11 +17,11 @@ sources:
               arguments:
                 expression: is_partly_owned_by_borrower IS FALSE
               config:
-                where: 'is_full_ownership_portion IS TRUE
+                where: "is_full_ownership_portion IS TRUE
 
                   AND is_partly_owned_by_borrower IS NOT NULL
 
-                  '
+                  "
               description: Partial ownership and full ownership are mutually exclusive.
         columns:
           - name: report_date

@@ -14,7 +14,7 @@ sources:
                 column_A: incremental_life_cycle_energy_savings_mwh
                 column_B: incremental_energy_savings_mwh
                 or_equal: true
-                error_if: '>29'
+                error_if: ">29"
         columns:
           - name: balancing_authority_code_eia
           - name: customer_class

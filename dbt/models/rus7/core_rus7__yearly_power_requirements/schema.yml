@@ -28,7 +28,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>400'
+                    error_if: ">400"
                   description: Commonly violated (~5% of data).
           - name: purchases_and_generation_cost
             data_tests:
@@ -56,7 +56,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>6'
+                    error_if: ">6"
                   description: VA0039 reports 4 negative generations, two other companies in 2006. Investigate.
           - name: interchange_mwh
             data_tests:

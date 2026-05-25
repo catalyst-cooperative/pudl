@@ -12,7 +12,7 @@ sources:
                 min_ratio: 0.05
                 max_ratio: 0.2
               config:
-                error_if: '>4300'
+                error_if: ">4300"
               description: Monthly spending should roughly equal 1/12 of the YTD budget (5-20% range).
           - expect_columns_ratio:
               arguments:
@@ -21,7 +21,7 @@ sources:
                 min_ratio: 0.75
                 max_ratio: 1.25
               config:
-                error_if: '>3667'
+                error_if: ">3667"
               description: Budgeted spending and YTD spending should be roughly equivalent.
           - check_row_counts_per_partition:
               arguments:
@@ -48,7 +48,7 @@ sources:
                 tolerance: 10
               row_condition: opex_group == 'operation_revenue_and_patronage_capital'
               config:
-                error_if: '>201'
+                error_if: ">201"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -60,7 +60,7 @@ sources:
                 tolerance: 10
               row_condition: opex_group == 'operation_revenue_and_patronage_capital'
               config:
-                error_if: '>184'
+                error_if: ">184"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -82,7 +82,7 @@ sources:
                 tolerance: 10
               row_condition: opex_group == 'operation_expense'
               config:
-                error_if: '>165'
+                error_if: ">165"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -94,7 +94,7 @@ sources:
                 tolerance: 10
               row_condition: opex_group == 'operation_expense'
               config:
-                error_if: '>138'
+                error_if: ">138"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -116,7 +116,7 @@ sources:
                 tolerance: 10
               row_condition: opex_group == 'maintenance_expense'
               config:
-                error_if: '>1'
+                error_if: ">1"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -166,7 +166,7 @@ sources:
                 total_label: total_cost_of_electric_service
                 tolerance: 10
               config:
-                error_if: '>202'
+                error_if: ">202"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -187,7 +187,7 @@ sources:
                 total_label: total_cost_of_electric_service
                 tolerance: 10
               config:
-                error_if: '>160'
+                error_if: ">160"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -215,7 +215,7 @@ sources:
                 total_label: operating_margins
                 tolerance: 10
               config:
-                error_if: '>204'
+                error_if: ">204"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -230,7 +230,7 @@ sources:
                 total_label: operating_margins
                 tolerance: 10
               config:
-                error_if: '>155'
+                error_if: ">155"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -270,7 +270,7 @@ sources:
                 total_label: total_net_patronage_capital_or_margins
                 tolerance: 10
               config:
-                error_if: '>2'
+                error_if: ">2"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -302,7 +302,7 @@ sources:
                     min_value: 0.0
                   row_condition: opex_type != 'interest_charged_to_construction_credit'
                   config:
-                    error_if: '>307'
+                    error_if: ">307"
           - name: opex_ytd
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -310,7 +310,7 @@ sources:
                     min_value: 0.0
                   row_condition: opex_type != 'interest_charged_to_construction_credit'
                   config:
-                    error_if: '>135'
+                    error_if: ">135"
           - name: opex_ytd_budget
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -318,5 +318,5 @@ sources:
                     min_value: 0.0
                   row_condition: opex_type != 'interest_charged_to_construction_credit'
                   config:
-                    error_if: '>43'
+                    error_if: ">43"
           - name: is_total

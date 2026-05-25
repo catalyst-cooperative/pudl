@@ -20,4 +20,4 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>18'
+                    error_if: ">18"

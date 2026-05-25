@@ -12,7 +12,7 @@ sources:
                 min_ratio: 0.05
                 max_ratio: 0.2
               config:
-                error_if: '>46000'
+                error_if: ">46000"
               description: Monthly spending should roughly equal 1/12 of the YTD budget (5-20% range).
           - expect_columns_ratio:
               arguments:
@@ -21,7 +21,7 @@ sources:
                 min_ratio: 0.75
                 max_ratio: 1.25
               config:
-                error_if: '>42000'
+                error_if: ">42000"
               description: Budgeted spending and YTD spending should be roughly equivalent.
           - check_row_counts_per_partition:
               arguments:
@@ -72,7 +72,7 @@ sources:
               row_condition: opex_group == 'opex'
               description: Sum all opex expenses other than operating_revenue.
               config:
-                error_if: '>74'
+                error_if: ">74"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -96,7 +96,7 @@ sources:
               row_condition: opex_group == 'opex'
               description: Sum all opex expenses other than operating_revenue.
               config:
-                error_if: '>70'
+                error_if: ">70"
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -108,7 +108,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>6750'
+                    error_if: ">6750"
                   row_condition: opex_type != 'interest_charged_to_construction_credit' and opex_group != 'patronage_capital_or_margins'
           - name: opex_ytd
             data_tests:
@@ -116,7 +116,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>1600'
+                    error_if: ">1600"
                   row_condition: opex_type != 'interest_charged_to_construction_credit' and opex_group != 'patronage_capital_or_margins'
           - name: opex_ytd_budget
             data_tests:
@@ -124,6 +124,6 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>810'
+                    error_if: ">810"
                   row_condition: opex_type != 'interest_charged_to_construction_credit' and opex_group != 'patronage_capital_or_margins'
           - name: is_total

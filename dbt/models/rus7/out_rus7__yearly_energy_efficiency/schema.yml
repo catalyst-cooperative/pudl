@@ -30,7 +30,7 @@ sources:
                 total_label: total
                 tolerance: 1
               config:
-                error_if: '>6'
+                error_if: ">6"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -42,7 +42,7 @@ sources:
                 total_label: total
                 tolerance: 1
               config:
-                error_if: '>11'
+                error_if: ">11"
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -67,5 +67,5 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>8'
+                    error_if: ">8"
                   description: KS0059 has negative values which don't follow from prior years of data.

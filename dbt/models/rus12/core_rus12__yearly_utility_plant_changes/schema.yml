@@ -54,7 +54,7 @@ sources:
                 expression: retirements + additions + adjustments_and_transfers <= ending_balance
               description: Check that annual changes don't exceed ending balance.
               config:
-                error_if: '>72'
+                error_if: ">72"
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -66,7 +66,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>21'
+                    error_if: ">21"
                   description: Check that most of the retirements are positive.
           - name: additions
             data_tests:
@@ -75,7 +75,7 @@ sources:
                     min_value: 0.0
                   row_condition: utility_plant_item!='construction_work_in_progress'
                   config:
-                    error_if: '>199'
+                    error_if: ">199"
                   description: Check that most of the additions are positive - expect construction_work_in_progress. This is about 1% of the table.
           - name: adjustments_and_transfers
           - name: ending_balance
@@ -84,6 +84,6 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>19'
+                    error_if: ">19"
                   description: Check that most of the ending balances are positive.
           - name: is_total

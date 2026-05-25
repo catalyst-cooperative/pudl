@@ -11,13 +11,13 @@ sources:
                 column_B: loan_balance
                 or_equal: true
               config:
-                error_if: '>38'
+                error_if: ">38"
               description: The original amount of the loan guarantee should be greater than or equal to the current balance of the loan.
           - dbt_utils.expression_is_true:
               arguments:
                 expression: date_trunc('year', report_date) <= date_trunc('year', loan_maturity_date)
               config:
-                error_if: '>58'
+                error_if: ">58"
               description: The report date year should be before or equal to the loan maturity date year.
           - check_row_counts_per_partition:
               arguments:
@@ -35,7 +35,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>4'
+                    error_if: ">4"
           - name: loan_maturity_date
           - name: loan_original_amount
             data_tests:
@@ -43,6 +43,6 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>1'
+                    error_if: ">1"
           - name: for_rural_development
           - name: is_loan_guarantee

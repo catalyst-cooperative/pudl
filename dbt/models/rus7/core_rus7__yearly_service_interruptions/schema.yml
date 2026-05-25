@@ -22,5 +22,5 @@ sources:
                     max_value: 525600
                   description: Expect SAIDI minutes don't exceed minutes in a year.
                   config:
-                    error_if: '>2'
+                    error_if: ">2"
           - name: is_total

@@ -18,7 +18,7 @@ sources:
                   arguments:
                     min_value: 0.0
                     row_condition: revenue_class != 'credits_or_adjustments'
-                    error_if: '>764'
+                    error_if: ">764"
           - name: revenue_class
           - name: state
           - name: utility_id_eia

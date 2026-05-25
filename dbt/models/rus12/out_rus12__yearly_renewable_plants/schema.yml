@@ -11,7 +11,7 @@ sources:
                 column_B: rus_funding
                 or_equal: true
               config:
-                error_if: '>14'
+                error_if: ">14"
               description: Expect that RUS will generally not invest more than is invested in a plant.
           - check_row_counts_per_partition:
               arguments:
@@ -64,7 +64,7 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>1'
+                    error_if: ">1"
                   description: Expect opex investments per mwh to be negative. Investigate IN0106 in 2021 as the only exception.
           - name: power_cost_per_mwh
             data_tests:

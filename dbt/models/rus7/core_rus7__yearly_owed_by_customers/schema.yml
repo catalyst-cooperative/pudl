@@ -18,11 +18,11 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>5'
+                    error_if: ">5"
           - name: amount_written_off_ytd
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: '>176'
+                    error_if: ">176"

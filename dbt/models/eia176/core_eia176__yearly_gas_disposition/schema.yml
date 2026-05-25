@@ -17,7 +17,7 @@ sources:
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   config:
-                    error_if: '>300'
+                    error_if: ">300"
                   arguments:
                     min_value: 0.8
                     max_value: 1.2
@@ -81,7 +81,7 @@ sources:
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   config:
-                    error_if: '>1'
+                    error_if: ">1"
                   arguments:
                     min_value: 0.0
                   description: This is currently failing for one record, ID 17690211AL in 2014.
