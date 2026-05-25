@@ -46,13 +46,20 @@ def ferceqr_deployment_sensor(context: dg.RunStatusSensorContext):
     ``handle_ferceqr_deployment_failure`` if any partition failed.
     """
     asset_statuses = {}
+    partition_keys = ferceqr_year_quarters.get_partition_keys()
 
     for asset_key in FERCEQR_TRANSFORM_ASSETS + ["extract_ferceqr"]:
         partition_statuses = context.instance.get_status_by_partition(
             asset_key=dg.AssetKey(asset_key),
-            partition_keys=ferceqr_year_quarters.get_partition_keys(),
+            partition_keys=partition_keys,
             partitions_def=ferceqr_year_quarters,
         )
+        if partition_statuses is None:
+            # No cache entry yet — backfill has not started materializing this asset.
+            logger.info(
+                f"No partition status cache for {asset_key} yet, backfill in progress."
+            )
+            return None
         asset_statuses[asset_key] = partition_statuses
 
     asset_statuses = pd.DataFrame(asset_statuses)
