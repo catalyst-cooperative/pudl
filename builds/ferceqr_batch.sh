@@ -29,7 +29,7 @@ function run_ferceqr_etl() {
     # Launch dagster deployment in the background
     initialize_postgres &&
         authenticate_gcp &&
-        dg dev
+        dg dev &
 
     # Kick off the ferceqr job asynchronously
     dagster job backfill --noprompt --job ferceqr --location pudl.definitions
