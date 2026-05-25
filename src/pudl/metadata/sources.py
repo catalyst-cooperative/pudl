@@ -210,6 +210,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
     },
     "eia860m": {
         "title": "EIA Form 860M -- Monthly Update to the Annual Electric Generator Report",
@@ -247,6 +248,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
     },
     "eia861": {
         "title": "EIA Form 861 -- Annual Electric Power Industry Report",
@@ -286,6 +288,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
     },
     "eia923": {
         "title": "EIA Form 923 -- Power Plant Operations Report",
@@ -327,6 +330,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
     },
     "eia930": {
         "title": "EIA Form 930 -- Hourly and Daily Balancing Authority Operations Report",
@@ -464,6 +468,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
@@ -585,6 +590,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "Form1@ferc.gov",
     },
     "ferc2": {
         "title": "FERC Form 2 -- Annual Report of Major Natural Gas Companies",
@@ -616,6 +622,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "Form2@ferc.gov",
     },
     "ferc6": {
         "title": "FERC Form 6 -- Annual Report of Oil Pipeline Companies",
@@ -646,6 +653,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "Form6@ferc.gov",
     },
     "ferc60": {
         "title": "FERC Form 60 -- Annual Report of Centralized Service Companies",
@@ -674,6 +682,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "Form60@ferc.gov",
     },
     "ferc714": {
         "title": "FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Report",
@@ -708,6 +717,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "form714@ferc.gov",
     },
     "ferccid": {
         "title": "FERC CID - Company Identifier Listing",
@@ -733,6 +743,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "concept_doi": "10.5281/zenodo.18176680",
+        "email": "CID@ferc.gov",
     },
     "ferceqr": {
         "title": "FERC Form 920 -- Electric Quarterly Report (EQR)",
@@ -776,6 +787,7 @@ SOURCES: dict[str, Any] = {
         },
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "eqr@ferc.gov",
     },
     "gridpathratoolkit": {
         "title": "GridPath Resource Adequacy Toolkit Data",
@@ -833,6 +845,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["elaine-hart"],
             CONTRIBUTORS["catalyst-cooperative"],
         ],
+        "email": "elaine@sylvan.energy",
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
@@ -907,6 +920,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["catalyst-cooperative"],
             CONTRIBUTORS["switchbox"],
         ],
+        "email": "phmsa.pipelinesafety@dot.gov",
     },
     "pudl": {
         "title": "The Public Utility Data Liberation (PUDL) Project",
@@ -920,6 +934,7 @@ SOURCES: dict[str, Any] = {
             "bulk analysis, or the means to purchase it from existing commercial "
             "providers."
         ),
+        "concept_doi": "10.5281/zenodo.3404014",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],

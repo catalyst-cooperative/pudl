@@ -1056,11 +1056,11 @@ class DataSource(PudlMeta):
     """
 
     name: SnakeCase
-    title: String | None = None
-    description: String | None = None
+    title: String
+    description: String
     keywords: list[str] = []
-    path: AnyHttpUrl | None = None
-    contributors: list[Contributor] = []
+    path: AnyHttpUrl
+    contributors: list[Contributor] = pydantic.Field(min_length=1)
     license_raw: License
     license_pudl: License
     concept_doi: ZenodoDoi | None = None
