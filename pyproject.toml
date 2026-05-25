@@ -517,6 +517,7 @@ pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
+what_tables = "pudl.scripts.what_tables:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.

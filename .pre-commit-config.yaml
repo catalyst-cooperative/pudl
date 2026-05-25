@@ -178,9 +178,20 @@ repos:
         language: system
         verbose: true
         files: "^(src/pudl/metadata/resources/[^_].*\\.py|dbt/schema_inputs/.*schema\\.human\\.yml)$"
-        pass_filenames: false
+        pass_filenames: true
         always_run: false
-        entry: pixi run dbt_helper update-tables --schema all
+        # 1. convert filenames inputs from space-delimited to newline-delimited so we can use grep/sed/etc
+        # 2. split inputs into just-metadata and just-human-schemas
+        # 3. extract tables from each set
+        # 4. combine both lists of tables and deduplicate
+        # 5. regenerate schema files
+        entry: bash -c '
+          JUST_METADATA_FILES=`echo "$@" | tr " " "\n" | grep metadata`;
+          JUST_HUMAN_SCHEMAS=`echo "$@" | tr " " "\n" | grep human`;
+          METADATA_TABLES=`if [ -n "${JUST_METADATA_FILES}" ]; then what_tables ${JUST_METADATA_FILES}; fi`;
+          HUSCHEMA_TABLES=`echo "${JUST_HUMAN_SCHEMAS}" | sed "s%/schema.human.yml$%%;s%.*/%%"`;
+          UNIQUE_TABLES=`echo -e "${METADATA_TABLES}\n${HUSCHEMA_TABLES}" | sort -u`;
+          pixi run dbt_helper update-tables --schema ${UNIQUE_TABLES}' --
 
 # Configuration for pre-commit.ci
 ci:
