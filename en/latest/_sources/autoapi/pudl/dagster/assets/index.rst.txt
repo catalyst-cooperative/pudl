@@ -71,7 +71,7 @@ Package Contents
 
 .. py:data:: default_assets
 
-.. py:function:: get_keys_from_assets(asset_def: dagster.AssetsDefinition | dagster.AssetSpec) -> list[dagster.AssetKey]
+.. py:function:: get_keys_from_assets(asset_def) -> list[dagster.AssetKey]
 
    Get a list of asset keys for an asset definition or spec.
 

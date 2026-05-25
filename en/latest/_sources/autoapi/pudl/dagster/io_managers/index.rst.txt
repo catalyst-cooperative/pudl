@@ -240,6 +240,18 @@ Module Contents
    IOManager that writes pudl tables to pyarrow parquet files.
 
 
+   .. py:method:: _record_parquet_file_metadata(context: dagster.OutputContext, parquet_path: pathlib.Path) -> None
+      :staticmethod:
+
+
+      Attach file size and SHA-256 hash to the Dagster output metadata.
+
+      This metadata is later retrieved by the ``pudl_datapackage`` asset to
+      populate the frictionless datapackage descriptor without re-reading the
+      parquet files.
+
+
+
    .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame | polars.LazyFrame) -> None
 
       Writes pudl dataframe to parquet file.

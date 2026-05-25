@@ -45,6 +45,7 @@ Functions
 
    pudl.dagster.asset_checks.group_mean_continuity_check
    pudl.dagster.asset_checks.asset_check_from_schema
+   pudl.dagster.asset_checks.valid_datapackage_check
 
 
 Module Contents
@@ -79,6 +80,32 @@ Module Contents
    return ``ParquetData`` objects, which are handled by the default io-manager. In
    this case, the resulting parquet file(s) will be scanned with Polars to produce
    a LazyFrame, then handled exactly the same as a typical asset.
+
+
+.. py:function:: valid_datapackage_check(asset_key: dagster.AssetKey | str, path_fn: collections.abc.Callable[[], pathlib.Path], *, description: str = 'Validate a frictionless datapackage descriptor against the spec.', blocking: bool = True) -> dagster.AssetChecksDefinition
+
+   Return a Dagster asset check that validates a frictionless datapackage descriptor.
+
+   The check reads the JSON descriptor from the path returned by *path_fn* at
+   run time and validates it recursively through resources, schemas, and fields
+   against the frictionless spec using
+   :func:`frictionless.Package.metadata_validate`.
+
+   :param asset_key: Key of the asset that produces the datapackage descriptor.
+   :param path_fn: Zero-argument callable that returns the :class:`~pathlib.Path`
+                   to the ``datapackage.json`` file.  Called at check-run time so the
+                   path can depend on run-time environment variables such as
+                   ``$PUDL_OUTPUT``.  A callable is required here (rather than a plain
+                   :class:`~pathlib.Path`) because :class:`~pudl.workspace.setup.PudlPaths`
+                   reads environment variables at instantiation time, which makes it
+                   unsafe to call at module import time (e.g. during unit tests where
+                   ``$PUDL_OUTPUT`` is not set).  Once ``PudlPaths`` is converted to a
+                   proper Dagster resource (see PR #5261), this argument should be
+                   replaced with a resource dependency so the path is injected by
+                   Dagster rather than resolved via a lambda.
+   :param description: Human-readable description attached to the check in the
+                       Dagster UI.
+   :param blocking: Whether the check is blocking (default ``True``).
 
 
 .. py:data:: default_asset_checks
