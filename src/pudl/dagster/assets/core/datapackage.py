@@ -53,7 +53,7 @@ def _collect_dagster_file_metadata(
     Each parquet IO manager stores ``bytes`` and ``sha256`` as output metadata
     at materialisation time.  This function aggregates those records into a
     dict keyed by the asset-key path tail (which equals the resource/table name).
-    Resources that have no event-log entry are simply absent from the result.
+    Resources that have no event-log entry are excluded from the result.
     """
     latest_events = instance.get_latest_materialization_events(list(parquet_asset_keys))
     file_metadata: dict[str, dict] = {}
