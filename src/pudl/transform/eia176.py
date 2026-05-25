@@ -24,7 +24,7 @@ DROP_OPERATING_STATES = (
     "other",
 )
 
-CONTINUATION_LINES_NON_SUBDIVISION_CODES = {
+CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES = {
     "operating_state": {"FX", "MX"},
     "reference_state": {
         "AG",
@@ -200,20 +200,20 @@ def _subdivision_code_map(
     return code_map.drop_duplicates("key").set_index("key")["subdivision_code"]
 
 
-def convert_continuation_lines_state_codes(
+def normalize_continuation_line_location_codes(
     df: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
     column: str,
 ) -> pd.DataFrame:
-    """Validate and normalize continuation line state codes.
+    """Validate and normalize EIA-176 continuation line location codes.
 
     Values matching ``core_pudl__codes_subdivisions`` by name or code are converted
-    to canonical subdivision codes. Observed country/import adjustment codes are
-    allowed through unchanged, because they are not subdivisions.
+    to canonical subdivision codes. Known EIA continuation line codes that are not
+    subdivisions are allowed through unchanged so unexpected values still fail loudly.
     """
     df = df.copy()
     code_map = _subdivision_code_map(core_pudl__codes_subdivisions)
-    allowed_codes = CONTINUATION_LINES_NON_SUBDIVISION_CODES.get(column, set())
+    allowed_codes = CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES.get(column, set())
 
     norm = df[column].astype("string").str.strip().str.casefold()
     converted = norm.map(code_map).astype("string")
@@ -562,12 +562,12 @@ def core_eia176__yearly_gas_imports(
     df = raw_eia176__continuation_text_lines[
         raw_eia176__continuation_text_lines["line"] == 300
     ].filter(keep)
-    df = convert_continuation_lines_state_codes(
+    df = normalize_continuation_line_location_codes(
         df,
         core_pudl__codes_subdivisions,
         column="operating_state",
     )
-    df = convert_continuation_lines_state_codes(
+    df = normalize_continuation_line_location_codes(
         df,
         core_pudl__codes_subdivisions,
         column="reference_state",
@@ -649,7 +649,7 @@ def core_eia176__yearly_supplemental_gaseous_fuel_supplies(
     df = raw_eia176__continuation_text_lines[
         raw_eia176__continuation_text_lines["line"] == 600
     ].filter(keep)
-    df = convert_continuation_lines_state_codes(
+    df = normalize_continuation_line_location_codes(
         df,
         core_pudl__codes_subdivisions,
         column="operating_state",
@@ -706,10 +706,15 @@ def core_eia176__yearly_gas_exports(
     df = raw_eia176__continuation_text_lines[
         raw_eia176__continuation_text_lines["line"] == 1400
     ].filter(keep)
-    df = convert_continuation_lines_state_codes(
+    df = normalize_continuation_line_location_codes(
         df,
         core_pudl__codes_subdivisions,
         column="operating_state",
+    )
+    df = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="reference_state",
     )
     df["destination_code"] = (
         df["reference_state"].astype("string").str.strip().str.upper()
@@ -793,7 +798,7 @@ def core_eia176__yearly_gas_disposition_other(
     df = raw_eia176__continuation_text_lines[
         raw_eia176__continuation_text_lines["line"] == 1840
     ].filter(keep)
-    df = convert_continuation_lines_state_codes(
+    df = normalize_continuation_line_location_codes(
         df,
         core_pudl__codes_subdivisions,
         column="operating_state",
