@@ -27,7 +27,7 @@
         "PATH": "/home/ubuntu/.pixi/bin:${containerEnv:PATH}"
     },
     "waitFor": "postCreateCommand",
-    "postCreateCommand": ".devcontainer/fix-git-worktree.sh && pixi run -e dev devcontainer-install",
+    "postCreateCommand": ".devcontainer/fix-git-worktree.sh && .devcontainer/fix-pixi-shebangs.sh && pixi run -e dev devcontainer-install",
     "remoteUser": "ubuntu",
     "customizations": {
         "vscode": {

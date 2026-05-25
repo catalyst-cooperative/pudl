@@ -478,8 +478,8 @@ description = "Update dbt dependencies"
 
 [tool.pixi.tasks.devcontainer-install]
 cmd = """
-pixi install -e dev \
-    && pixi run -e dev install-skills \
+pixi install \
+    && pixi run install-skills \
     && npm install -g \
       @anthropic-ai/claude-code \
       @google/gemini-cli \
