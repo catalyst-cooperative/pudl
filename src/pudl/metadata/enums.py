@@ -243,6 +243,26 @@ SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176: list[str] = [
     "vented_flared",
 ]
 
+OTHER_DISPOSITION_TYPES_EIA176: list[str] = [
+    "line_pressure",
+    "other",
+    "vented_flared",
+    "plant_fuel",
+    "plant_ptr",
+    "leaks_condensate",
+    "del_items",
+    "truck",
+    "lost_leaks_condensate",
+    "franchise_gas",
+    "rail_or_barge",
+    "gas_holders",
+    "propane_air",
+    "natural_gas",
+    "migration",
+    "refinery_gas",
+    "unknown",
+]
+
 RELIABILITY_STANDARDS: list[str] = ["ieee_standard", "other_standard"]
 
 FUEL_CLASSES: list[str] = [

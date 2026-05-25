@@ -15,7 +15,8 @@ sources:
           - name: operator_id_eia
           - name: report_year
           - name: operating_state
-          - name: reference_state
+          - name: supplier_location_code
+          - name: supplier_location_type
           - name: supplier_name
           - name: mode_of_transportation
           - name: volume_mcf

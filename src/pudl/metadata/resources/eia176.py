@@ -12,8 +12,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_source_text": "(Part 4, Line 3.0)",
             "additional_primary_key_text": (
                 "This table has no enforced primary key because some records do not "
-                "report a mode of transportation. The natural primary key would be one record"
-                "per report_year, operating_state, reference_state, supplier and mode of transportation."
+                "report a mode of transportation. The natural primary key would be "
+                "one record per report_year, operating_state, supplier_location_code, "
+                "supplier, and mode of transportation."
+            ),
+            "additional_details_text": (
+                "Approximately one thousand records contained more than one import "
+                "from a given destination. Where the supplier and mode of transport are identical, "
+                "volumes have been summed to produce a table with one row per year, operator, "
+                "operating state and supplier."
             ),
         },
         "schema": {
@@ -21,7 +28,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operator_id_eia",
                 "report_year",
                 "operating_state",
-                "reference_state",
+                "supplier_location_code",
+                "supplier_location_type",
                 "supplier_name",
                 "mode_of_transportation",
                 "volume_mcf",
@@ -37,6 +45,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "a company's detailed supplemental gaseous fuel supplies by fuel type."
             ),
             "additional_source_text": "(Part 4, Line 6.0)",
+            "additional_details_text": (
+                "The reported supplemental gaseous fuel types are normalized from "
+                "free-text continuation-line descriptions."
+            ),
         },
         "schema": {
             "fields": [
@@ -98,7 +110,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "within the report state and ask respondents to specify the type. "
                 "Some instructions also route producer vented/flared volumes and "
                 "extraction-loss volumes to this line, so the disposition type is "
-                "only lightly normalized from free text."
+                "normalized from free-text continuation-line descriptions."
             ),
         },
         "schema": {

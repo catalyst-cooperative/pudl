@@ -47,6 +47,7 @@ from pudl.metadata.enums import (
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
+    OTHER_DISPOSITION_TYPES_EIA176,
     PLANT_COST_TYPES_RUS12,
     PLANT_PARTS,
     PLANT_TYPE_RUS12,
@@ -7841,10 +7842,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner."
         ),
     },
-    "reference_state": {
+    "supplier_location_code": {
         "type": "string",
         "description": (
-            "State, territory, country, or other reporting code associated with the referenced gas receipt or delivery."
+            "State, territory, country, or other reporting code associated with the "
+            "supplier location for a gas receipt."
+        ),
+    },
+    "supplier_location_type": {
+        "type": "string",
+        "description": (
+            "Type of gas receipt supplier location represented by the supplier "
+            "location code."
         ),
     },
     "recipient_name": {
@@ -10418,9 +10427,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "core_eia176__yearly_supplemental_gaseous_fuel_supplies": {
         "fuel_type": {
-            "description": (
-                "Normalized supplemental gaseous fuel type reported by the operator."
-            ),
+            "description": "Supplemental gaseous fuel type reported by the operator.",
             "constraints": {"enum": SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176},
         },
         "volume_mcf": {
@@ -10440,7 +10447,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             ),
         },
         "destination_type": {
-            "constraints": {"enum": ["country_or_other", "subdivision"]},
+            "constraints": {"enum": ["national_or_other", "subnational"]},
         },
         "recipient_name": {
             "description": (
@@ -10455,13 +10462,15 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "unit": "Mcf",
         },
     },
+    "core_eia176__yearly_gas_imports": {
+        "supplier_location_type": {
+            "constraints": {"enum": ["national_or_other", "subnational"]},
+        },
+    },
     "core_eia176__yearly_gas_disposition_other": {
         "disposition_type": {
-            "description": (
-                "Lightly normalized free-text type of other disposition reported by "
-                "the operator. Missing and placeholder values are reported as "
-                "unknown."
-            ),
+            "description": "Type of other disposition reported by the operator.",
+            "constraints": {"enum": OTHER_DISPOSITION_TYPES_EIA176},
         },
     },
     "sector_consolidated_eia": {"code": {"type": "integer"}},

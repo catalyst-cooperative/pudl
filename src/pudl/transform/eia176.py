@@ -11,10 +11,12 @@ from dagster import (
     multi_asset,
 )
 
-from pudl.helpers import simplify_columns
+from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
+from pudl.helpers import cleanstrings_series, simplify_columns
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
+name_cleaner = CompanyNameCleaner()
 
 DROP_OPERATING_STATES = (
     "fed. gulf of mexico",
@@ -46,49 +48,66 @@ CONTINUATION_LINES_NON_SUBDIVISION_CODES = {
     },
 }
 
-SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP = {
-    "air injection": "air_injection",
-    "air injections": "air_injection",
-    "biomass": "biomass",
-    "biomass gas": "biomass_gas",
-    "blast furnance": "blast_furnace_gas",
-    "coke oven": "coke_oven_gas",
-    "coke oven gas": "coke_oven_gas",
-    "gas holders": "gas_holders",
-    "leaks condensate": "leaks_condensate",
-    "line pressure": "line_pressure",
-    "line pressure chan": "line_pressure",
-    "manufactured gas": "manufactured_gas",
-    "natural gas": "natural_gas",
-    "no label - bad cod": "unknown",
-    "no label - bad code 9004": "unknown",
-    "no label - bad code 9090": "unknown",
-    "not available": "unknown",
-    "other": "other",
-    "propane air": "propane_air",
-    "refinery gas": "refinery_gas",
-    "truck": "truck",
-    "vented flared": "vented_flared",
-}
-
-UNKNOWN_SUPPLEMENTAL_GASEOUS_FUEL_TYPES = {
-    "",
-    ".",
-    "na",
-    "n/a",
-    "n.a.",
-}
-
-UNKNOWN_OTHER_DISPOSITION_TYPES = {
+UNKNOWN_TYPES = (
     "",
     ".",
     "0",
     "na",
+    "nan",
     "n/a",
     "n.a.",
     "none",
     "not applicable",
     "not available",
+)
+
+SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP = {
+    "air_injection": ["air injection", "air injections"],
+    "biomass": ["biomass"],
+    "biomass_gas": ["biomass gas"],
+    "blast_furnace_gas": ["blast furnance"],
+    "coke_oven_gas": ["coke oven", "coke oven gas"],
+    "gas_holders": ["gas holders"],
+    "leaks_condensate": ["leaks condensate"],
+    "line_pressure": ["line pressure", "line pressure chan"],
+    "manufactured_gas": ["manufactured gas"],
+    "natural_gas": ["natural gas"],
+    "other": ["other"],
+    "propane_air": ["propane air"],
+    "refinery_gas": ["refinery gas"],
+    "truck": ["truck"],
+    "unknown": [
+        "no label - bad cod",
+        "no label - bad code 9004",
+        "no label - bad code 9090",
+        *UNKNOWN_TYPES,
+    ],
+    "vented_flared": ["vented flared"],
+}
+
+OTHER_DISPOSITION_TYPE_MAP = {
+    "del_items": ["del items from 2001 form"],
+    "franchise_gas": ["franchise gas"],
+    "gas_holders": ["gas holders"],
+    "leaks_condensate": ["leaks condensate"],
+    "line_pressure": ["line pressure"],
+    "lost_leaks_condensate": ["lost leaks condensate"],
+    "migration": ["migration"],
+    "natural_gas": ["natural gas"],
+    "other": ["other"],
+    "plant_fuel": ["plant fuel"],
+    "plant_ptr": ["plant ptr (extraction los"],
+    "propane_air": ["propane air"],
+    "rail_or_barge": ["rail or barge"],
+    "refinery_gas": ["refinery gas"],
+    "truck": ["truck"],
+    "unknown": [
+        "no label - bad code",
+        "no label - bad code 9001",
+        "no label - bad code 9006",
+        *UNKNOWN_TYPES,
+    ],
+    "vented_flared": ["vented flared"],
 }
 
 
@@ -209,53 +228,49 @@ def convert_continuation_lines_state_codes(
     return df
 
 
-def _normalize_supplemental_gaseous_fuel_type(raw_fuel_type: pd.Series) -> pd.Series:
-    """Normalize EIA-176 line 6.0 supplemental gaseous fuel type labels."""
-    raw_fuel_type = raw_fuel_type.astype("string").str.strip().str.casefold()
-    fuel_type = raw_fuel_type.map(SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP).astype("string")
-    fuel_type = fuel_type.mask(
-        raw_fuel_type.isin(UNKNOWN_SUPPLEMENTAL_GASEOUS_FUEL_TYPES), "unknown"
-    )
-
-    unmapped = sorted(raw_fuel_type[fuel_type.isna() & raw_fuel_type.notna()].unique())
-    assert not unmapped, f"Unmapped supplemental gaseous fuel types: {unmapped!r}"
-
-    return fuel_type
-
-
-def _normalize_line_1840_disposition_type(
-    raw_disposition_type: pd.Series,
-) -> pd.Series:
-    """Lightly normalize EIA-176 line 18.4 other disposition type labels."""
-    disposition_type = (
-        raw_disposition_type.astype("string")
-        .str.strip()
-        .str.casefold()
-        .str.replace(r"\s+", " ", regex=True)
-    )
-    return disposition_type.mask(
-        disposition_type.isna()
-        | disposition_type.isin(UNKNOWN_OTHER_DISPOSITION_TYPES),
-        "unknown",
-    )
-
-
-def _get_line_1400_destination_type(
-    destination_code: pd.Series,
+def _get_continuation_code_type(
+    continuation_code: pd.Series,
     core_pudl__codes_subdivisions: pd.DataFrame,
 ) -> pd.Series:
-    """Classify line 14.0 delivery destinations as subdivisions or other codes."""
+    """Classify EIA-176 continuation codes as subnational or national/other codes."""
     subdivision_codes = set(core_pudl__codes_subdivisions["subdivision_code"])
-    destination_code = destination_code.astype("string").str.strip().str.upper()
-    destination_type = pd.Series(
-        "country_or_other",
-        index=destination_code.index,
+    continuation_code = continuation_code.astype("string").str.strip().str.upper()
+    code_type = pd.Series(
+        "national_or_other",
+        index=continuation_code.index,
         dtype="string",
     )
-    destination_type = destination_type.mask(
-        destination_code.isin(subdivision_codes), "subdivision"
+    code_type = code_type.mask(continuation_code.isin(subdivision_codes), "subnational")
+    return code_type.mask(continuation_code.isna(), pd.NA)
+
+
+def _find_continuation_line_total_mismatches(
+    detail_records: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+    company_total_column: str,
+) -> pd.DataFrame:
+    """Compare detailed continuation line totals with reported company-level totals."""
+    primary_key = ["operator_id_eia", "report_year"]
+    company_totals = _core_eia176__yearly_company_data[
+        [
+            *primary_key,
+            company_total_column,
+        ]
+    ]
+    company_totals = company_totals[company_totals[company_total_column].notna()]
+    continuation_totals = detail_records.groupby(primary_key, as_index=False).agg(
+        {"volume_mcf": "sum"}
     )
-    return destination_type.mask(destination_code.isna(), pd.NA)
+    comparison = company_totals.merge(
+        continuation_totals,
+        how="outer",
+        on=primary_key,
+        validate="1:1",
+    )
+    return comparison[
+        (comparison[company_total_column] != comparison["volume_mcf"])
+        & (comparison[company_total_column].notna() | comparison["volume_mcf"].notna())
+    ]
 
 
 @asset_check(
@@ -531,7 +546,7 @@ def core_eia176__yearly_gas_imports(
         "operator_id_eia",
         "report_year",
         "operating_state",
-        "reference_state",
+        "supplier_location_code",
         "supplier_name",
         "mode_of_transportation",
     ]
@@ -557,11 +572,18 @@ def core_eia176__yearly_gas_imports(
         core_pudl__codes_subdivisions,
         column="reference_state",
     )
+    df["supplier_location_code"] = (
+        df["reference_state"].astype("string").str.strip().str.upper()
+    )
+    df["supplier_location_type"] = _get_continuation_code_type(
+        df["supplier_location_code"],
+        core_pudl__codes_subdivisions,
+    )
     df = df.rename(
         columns={
             "reference_company_or_line_description": "supplier_name",
         }
-    )
+    ).drop(columns="reference_state")
     df["mode_of_transportation"] = (
         df["mode_of_transportation"]
         .astype("string")
@@ -570,54 +592,43 @@ def core_eia176__yearly_gas_imports(
         .str.casefold()
     )
     df["report_year"] = df["report_year"].astype("int64")
-    df = df.groupby(primary_key, dropna=False, as_index=False).agg(
-        {"volume_mcf": "sum"}
-    )
+    df = df.groupby(
+        [*primary_key, "supplier_location_type"], dropna=False, as_index=False
+    ).agg({"volume_mcf": "sum"})
+    df = df[
+        [
+            "operator_id_eia",
+            "report_year",
+            "operating_state",
+            "supplier_location_code",
+            "supplier_location_type",
+            "supplier_name",
+            "mode_of_transportation",
+            "volume_mcf",
+        ]
+    ]
     assert not df.duplicated(subset=primary_key).any()
 
-    mismatches = _find_line_300_total_mismatches(
-        imports=df,
+    mismatches = _find_continuation_line_total_mismatches(
+        detail_records=df,
         _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+        company_total_column="receipts_from_state_or_us_border_volume",
     )
     assert len(mismatches) <= 2, "More than 2 line 300 total mismatches"
 
-    return df
+    df["supplier_name"] = name_cleaner.get_clean_data(df["supplier_name"])
 
-
-def _find_line_300_total_mismatches(
-    imports: pd.DataFrame,
-    _core_eia176__yearly_company_data: pd.DataFrame,
-) -> pd.DataFrame:
-    """Compare detailed line 300 imports with reported company-level totals."""
-    primary_key = ["operator_id_eia", "report_year"]
-    company_totals = _core_eia176__yearly_company_data[
+    return df.sort_values(
         [
-            *primary_key,
-            "receipts_from_state_or_us_border_volume",
+            "report_year",
+            "operator_id_eia",
+            "operating_state",
+            "supplier_location_code",
+            "supplier_location_type",
+            "supplier_name",
+            "mode_of_transportation",
         ]
-    ]
-    company_totals = company_totals[
-        company_totals["receipts_from_state_or_us_border_volume"].notna()
-    ]
-    continuation_totals = imports.groupby(primary_key, as_index=False).agg(
-        {"volume_mcf": "sum"}
-    )
-    comparison = company_totals.merge(
-        continuation_totals,
-        how="outer",
-        on=primary_key,
-        validate="1:1",
-    )
-    return comparison[
-        (
-            comparison["receipts_from_state_or_us_border_volume"]
-            != comparison["volume_mcf"]
-        )
-        & (
-            comparison["receipts_from_state_or_us_border_volume"].notna()
-            | comparison["volume_mcf"].notna()
-        )
-    ]
+    ).reset_index(drop=True)
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -643,8 +654,8 @@ def core_eia176__yearly_supplemental_gaseous_fuel_supplies(
         core_pudl__codes_subdivisions,
         column="operating_state",
     )
-    df["fuel_type"] = _normalize_supplemental_gaseous_fuel_type(
-        df["reference_company_or_line_description"]
+    df["fuel_type"] = cleanstrings_series(
+        df["reference_company_or_line_description"], SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP
     )
     df = df.drop(columns=["reference_company_or_line_description"])
     df["report_year"] = df["report_year"].astype("int64")
@@ -656,46 +667,16 @@ def core_eia176__yearly_supplemental_gaseous_fuel_supplies(
     ]
     assert not df.duplicated(subset=primary_key).any()
 
-    mismatches = _find_line_600_total_mismatches(
-        supplies=df,
+    mismatches = _find_continuation_line_total_mismatches(
+        detail_records=df,
         _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+        company_total_column="supplemental_gaseous_fuels_volume",
     )
     assert mismatches.empty, "Found line 600 total mismatches"
 
-    return df
-
-
-def _find_line_600_total_mismatches(
-    supplies: pd.DataFrame,
-    _core_eia176__yearly_company_data: pd.DataFrame,
-) -> pd.DataFrame:
-    """Compare detailed line 600 supplies with reported company-level totals."""
-    primary_key = ["operator_id_eia", "report_year"]
-    company_totals = _core_eia176__yearly_company_data[
-        [
-            *primary_key,
-            "supplemental_gaseous_fuels_volume",
-        ]
-    ]
-    company_totals = company_totals[
-        company_totals["supplemental_gaseous_fuels_volume"].notna()
-    ]
-    continuation_totals = supplies.groupby(primary_key, as_index=False).agg(
-        {"volume_mcf": "sum"}
-    )
-    comparison = company_totals.merge(
-        continuation_totals,
-        how="outer",
-        on=primary_key,
-        validate="1:1",
-    )
-    return comparison[
-        (comparison["supplemental_gaseous_fuels_volume"] != comparison["volume_mcf"])
-        & (
-            comparison["supplemental_gaseous_fuels_volume"].notna()
-            | comparison["volume_mcf"].notna()
-        )
-    ]
+    return df.sort_values(
+        ["report_year", "operator_id_eia", "operating_state", "fuel_type"]
+    ).reset_index(drop=True)
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -733,7 +714,7 @@ def core_eia176__yearly_gas_exports(
     df["destination_code"] = (
         df["reference_state"].astype("string").str.strip().str.upper()
     )
-    df["destination_type"] = _get_line_1400_destination_type(
+    df["destination_type"] = _get_continuation_code_type(
         df["destination_code"],
         core_pudl__codes_subdivisions,
     )
@@ -767,46 +748,26 @@ def core_eia176__yearly_gas_exports(
     ]
     assert not df.duplicated(subset=primary_key).any()
 
-    mismatches = _find_line_1400_total_mismatches(
-        exports=df,
+    mismatches = _find_continuation_line_total_mismatches(
+        detail_records=df,
         _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+        company_total_column="deliveries_out_of_state_volume",
     )
     assert len(mismatches) <= 4, "More than 4 line 1400 total mismatches"
 
-    return df
+    df["recipient_name"] = name_cleaner.get_clean_data(df["recipient_name"])
 
-
-def _find_line_1400_total_mismatches(
-    exports: pd.DataFrame,
-    _core_eia176__yearly_company_data: pd.DataFrame,
-) -> pd.DataFrame:
-    """Compare detailed line 14.0 exports with reported company-level totals."""
-    primary_key = ["operator_id_eia", "report_year"]
-    company_totals = _core_eia176__yearly_company_data[
+    return df.sort_values(
         [
-            *primary_key,
-            "deliveries_out_of_state_volume",
+            "report_year",
+            "operator_id_eia",
+            "operating_state",
+            "destination_code",
+            "destination_type",
+            "recipient_name",
+            "mode_of_transportation",
         ]
-    ]
-    company_totals = company_totals[
-        company_totals["deliveries_out_of_state_volume"].notna()
-    ]
-    continuation_totals = exports.groupby(primary_key, as_index=False).agg(
-        {"volume_mcf": "sum"}
-    )
-    comparison = company_totals.merge(
-        continuation_totals,
-        how="outer",
-        on=primary_key,
-        validate="1:1",
-    )
-    return comparison[
-        (comparison["deliveries_out_of_state_volume"] != comparison["volume_mcf"])
-        & (
-            comparison["deliveries_out_of_state_volume"].notna()
-            | comparison["volume_mcf"].notna()
-        )
-    ]
+    ).reset_index(drop=True)
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -837,8 +798,8 @@ def core_eia176__yearly_gas_disposition_other(
         core_pudl__codes_subdivisions,
         column="operating_state",
     )
-    df["disposition_type"] = _normalize_line_1840_disposition_type(
-        df["reference_company_or_line_description"]
+    df["disposition_type"] = cleanstrings_series(
+        df["reference_company_or_line_description"], OTHER_DISPOSITION_TYPE_MAP
     )
     df = df.drop(columns=["reference_company_or_line_description"])
     df["report_year"] = df["report_year"].astype("int64")
@@ -847,43 +808,16 @@ def core_eia176__yearly_gas_disposition_other(
     )
     assert not df.duplicated(subset=primary_key).any()
 
-    mismatches = _find_line_1840_total_mismatches(
-        disposition_other=df,
+    mismatches = _find_continuation_line_total_mismatches(
+        detail_records=df,
         _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+        company_total_column="disposition_to_other_volume",
     )
     assert len(mismatches) <= 6, "More than 6 line 1840 total mismatches"
 
-    return df
-
-
-def _find_line_1840_total_mismatches(
-    disposition_other: pd.DataFrame,
-    _core_eia176__yearly_company_data: pd.DataFrame,
-) -> pd.DataFrame:
-    """Compare detailed line 18.4 disposition with reported company-level totals."""
-    primary_key = ["operator_id_eia", "report_year"]
-    company_totals = _core_eia176__yearly_company_data[
-        [
-            *primary_key,
-            "disposition_to_other_volume",
-        ]
-    ]
-    continuation_totals = disposition_other.groupby(primary_key, as_index=False).agg(
-        {"volume_mcf": "sum"}
-    )
-    comparison = company_totals.merge(
-        continuation_totals,
-        how="outer",
-        on=primary_key,
-        validate="1:1",
-    )
-    return comparison[
-        (comparison["disposition_to_other_volume"] != comparison["volume_mcf"])
-        & (
-            comparison["disposition_to_other_volume"].notna()
-            | comparison["volume_mcf"].notna()
-        )
-    ]
+    return df.sort_values(
+        ["report_year", "operator_id_eia", "operating_state", "disposition_type"]
+    ).reset_index(drop=True)
 
 
 @asset(io_manager_key="pudl_io_manager")
