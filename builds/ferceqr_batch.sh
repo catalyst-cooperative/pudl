@@ -29,10 +29,10 @@ function run_ferceqr_etl() {
     # Launch dagster deployment in the background
     initialize_postgres &&
         authenticate_gcp &&
-        dg dev &
+        dagster dev &
 
     # Kick off the ferceqr job asynchronously
-    dagster job backfill --noprompt --job ferceqr
+    dagster job backfill --noprompt --job ferceqr --location pudl.definitions
     # Wait for a file called 'SUCCESS' or 'FAILURE' to be created in PUDL_OUTPUT indicating completion
     # Timeout after 6 hours if file still doesn't exist
     inotifywait -e create -t 21600 --include 'SUCCESS|FAILURE' "$PUDL_OUTPUT"
