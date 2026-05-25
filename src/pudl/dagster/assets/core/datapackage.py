@@ -184,12 +184,11 @@ def _enrich_resources(
 ) -> int:
     """Add ``bytes`` and ``hash`` to each resource descriptor; return enriched count.
 
-    Stats are sourced from *dag_metadata* (recorded by the IO managers at
-    materialisation time) when available.  For resources absent from *dag_metadata* —
-    typically resources materialised in a prior run — the parquet file is located on
-    disk and its stats are computed directly. The parquet filename is
-    ``{resource_name}.parquet``; the resource name already includes any leading
-    underscore that is part of the asset key (e.g. ``_core_eia860__cooling_equipment``).
+    Stats are sourced from Dagster metadata (recorded by the IO managers at
+    materialisation time) when available. For resources absent from the Dagster
+    metadata (typically resources materialised in a prior run) the parquet file is
+    located on disk and its stats are computed directly. The parquet filename is
+    ``{resource_name}.parquet``.
     """
     enriched_count = 0
     for resource_desc in descriptor.get("resources", []):
