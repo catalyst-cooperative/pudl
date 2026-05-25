@@ -261,7 +261,7 @@ def build_pudl_datapackage_asset(
             missing = total_resources - enriched_count
             logger.warning(
                 f"{missing} resource(s) in the datapackage descriptor are missing "
-                "file stats (bytes/hash). The affected resources were either not "
+                "file stats (bytes/hash). The affected resources were likely not "
                 "materialised in this run and have no parquet file on disk."
             )
 

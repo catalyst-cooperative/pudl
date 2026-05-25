@@ -351,7 +351,8 @@ def _validate_datapackage_descriptor(descriptor: dict) -> list[str]:
     ``frictionless.Package.metadata_validate`` validates recursively through
     resources, schemas, and fields.  For certain structural errors (e.g. an
     unrecognised field type) it raises ``FrictionlessException`` rather than
-    yielding; this wrapper normalises both forms into a plain list of strings.
+    yielding; this wrapper ensures list[str] output whether an error
+    occurs or not.
     """
     try:
         return [str(e) for e in frictionless.Package.metadata_validate(descriptor)]

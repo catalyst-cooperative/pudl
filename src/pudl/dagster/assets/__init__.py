@@ -157,8 +157,9 @@ def _find_parquet_asset_keys(assets) -> list[dg.AssetKey]:
         ):
             # Bare AssetSpec objects (e.g. raw FERC table reads backed by SQLite IO
             # managers) expose their IO manager key directly on the spec.  None of
-            # them currently use parquet IO managers, so this branch is a no-op in
-            # practice, but handling them explicitly keeps the logic complete.
+            # them currently use parquet IO managers, so this branch is a no-op as
+            # of May 2026, but handling them explicitly means we won't have to
+            # remember to update this code should that ever change.
             keys.append(asset_def.key)
     return keys
 
