@@ -39,24 +39,27 @@ This decision follows from 🐥 taking small steps.
 We know that something is better if:
 
 * It sets up an acceptable pausing point that someone else could pick up without
-  requiring extensive context
+  requiring extensive context.
 
   * Example: persisting an intermediate asset
 
-* It can be understood and expanded on by others
-* It has sufficient tests to be believable
+* It can be understood and expanded on by others. This includes writing clearly
+  understood code, using well-chosen variable names, adding function definitions and
+  in-line comments, and leaving enough context in the issue and PR to make it possible
+  for others to expand on this work.
+* It has sufficient tests to be believable.
 
   * Example: defending against load-bearing assumptions, but not checking every
     possible corner case
 
 We know something is worse if:
 
-* It makes a big mess in the code or output
+* It makes a big mess in the code or output.
 
   * Example: using custom identifiers when something already in PUDL would do
 
-* It causes previously-passing tests to fail
-* It lacks a clearly-explained purpose
+* It causes previously-passing tests to fail.
+* It lacks a clearly-explained purpose.
 
   * Example: dropping pre-existing data outputs without justification
 
@@ -133,8 +136,36 @@ We would close a contributor PR if:
   * Example: hand-compiled mappings for data subject to frequent updates
 
 -------------------------------------------------------------------------------
-General procedures
+General procedures and guidelines for contributor review
 -------------------------------------------------------------------------------
+
+Contributor project management
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When you notice a new PR, flag it in the #comdev/contributor-PRs channel in Zulip.
+If nobody has volunteered to take on review, it will be assigned at the next community
+development meeting. From that point on, we should aim to maintain continuity of
+reviewer as much as possible for that given PR.
+
+We aim to respond to reviews within one week (two at most). Initial responses should
+assess whether the PR is ready for review, address any high-level questions or missing
+information, and provide an expected timeline for review.
+
+A Catalyst reviewer should 
+
+
+Review timeline
+^^^^^^^^^^^^^^^
+
+
+
+Unresponsive contributors
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Our general protocol is to ping after a month of non-activity, and to close
+after a further two weeks if no response. We can always re-open a PR if need be.
+
+
 
 
 * Non-response
