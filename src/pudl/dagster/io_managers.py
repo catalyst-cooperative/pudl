@@ -44,13 +44,14 @@ from pudl.dagster.provenance import (
 )
 from pudl.dagster.resources import (
     GlobalDataConfigResource,
+    PudlPathsResource,
     ZenodoDoiSettingsResource,
     global_data_config_resource,
+    pudl_paths_resource,
     zenodo_doi_settings_resource,
 )
 from pudl.helpers import get_parquet_table, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -98,6 +99,8 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
     read_from_parquet: bool = True
     """If true, data will be read from parquet files instead of sqlite."""
 
+    pudl_paths: dg.ResourceDependency[PudlPathsResource]
+
     @model_validator(mode="after")
     def validate_parquet_settings(self) -> "PudlMixedFormatIOManager":
         """Ensure the configured read/write mode is internally consistent."""
@@ -111,14 +114,14 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
     def _sqlite_io_manager(self) -> "PudlSqliteIOManager":
         """Build the SQLite-backed runtime IO manager lazily."""
         return PudlSqliteIOManager(
-            base_dir=PudlPaths().output_dir,
+            base_dir=self.pudl_paths.pudl_output,
             db_name="pudl",
         )
 
     @cached_property
     def _parquet_io_manager(self) -> "PudlParquetIOManager":
         """Build the Parquet-backed runtime IO manager lazily."""
-        return PudlParquetIOManager()
+        return PudlParquetIOManager(pudl_paths=self.pudl_paths)
 
     def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame) -> None:
         """Passes the output to the appropriate IO manager instance."""
@@ -332,8 +335,10 @@ class SqliteIOManager(dg.IOManager):
             return df
 
 
-class PudlParquetIOManager(dg.IOManager):
+class PudlParquetIOManager(dg.ConfigurableIOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
+
+    pudl_paths: dg.ResourceDependency[PudlPathsResource]
 
     @staticmethod
     def _record_parquet_file_metadata(
@@ -364,7 +369,7 @@ class PudlParquetIOManager(dg.IOManager):
         """Writes pudl dataframe to parquet file."""
         table_name = get_table_name_from_context(context)
         res = Resource.from_id(table_name)
-        parquet_path = PudlPaths().parquet_path(table_name)
+        parquet_path = self.pudl_paths.parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
         if isinstance(obj, pd.DataFrame):
@@ -394,9 +399,9 @@ class PudlParquetIOManager(dg.IOManager):
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
         if context.dagster_type.typing_type == pl.LazyFrame:
-            df = get_parquet_table_polars(table_name)
+            df = get_parquet_table_polars(table_name, paths=self.pudl_paths)
         else:
-            df = get_parquet_table(table_name)
+            df = get_parquet_table(table_name, paths=self.pudl_paths)
         return df
 
 
@@ -440,7 +445,7 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
                 f"Only geopandas dataframes are supported, got {type(obj)}."
             )
         table_name = get_table_name_from_context(context)
-        parquet_path = PudlPaths().parquet_path(table_name)
+        parquet_path = self.pudl_paths.parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
         res = Resource.from_id(table_name)
@@ -602,9 +607,9 @@ class PudlSqliteIOManager(SqliteIOManager):
         return df
 
 
-pudl_mixed_format_io_manager = PudlMixedFormatIOManager()
-parquet_io_manager = PudlParquetIOManager()
-geoparquet_io_manager = PudlGeoParquetIOManager()
+pudl_mixed_format_io_manager = PudlMixedFormatIOManager(pudl_paths=pudl_paths_resource)
+parquet_io_manager = PudlParquetIOManager(pudl_paths=pudl_paths_resource)
+geoparquet_io_manager = PudlGeoParquetIOManager(pudl_paths=pudl_paths_resource)
 
 
 class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
@@ -619,6 +624,7 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     """
 
     global_data_config: dg.ResourceDependency[GlobalDataConfigResource]
+    pudl_paths: dg.ResourceDependency[PudlPathsResource]
     zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
     dataset: str
     data_format: ClassVar[str]
@@ -638,7 +644,7 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     @property
     def db_path(self) -> Path:
         """Return the canonical SQLite path for this dataset and data format."""
-        return PudlPaths().sqlite_db_path(self.db_name)
+        return self.pudl_paths.sqlite_db_path(self.db_name)
 
     @property
     def engine(self) -> sa.Engine:
@@ -824,16 +830,19 @@ class FercXbrlSqliteIOManager(FercSqliteIOManagerBase):
 
 ferc1_dbf_sqlite_io_manager = FercDbfSqliteIOManager(
     global_data_config=global_data_config_resource,
+    pudl_paths=pudl_paths_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     dataset="ferc1",
 )
 ferc1_xbrl_sqlite_io_manager = FercXbrlSqliteIOManager(
     global_data_config=global_data_config_resource,
+    pudl_paths=pudl_paths_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     dataset="ferc1",
 )
 ferc714_xbrl_sqlite_io_manager = FercXbrlSqliteIOManager(
     global_data_config=global_data_config_resource,
+    pudl_paths=pudl_paths_resource,
     zenodo_dois=zenodo_doi_settings_resource,
     dataset="ferc714",
 )
