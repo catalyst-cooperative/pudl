@@ -23,7 +23,6 @@ from pudl.scripts.dbt_helper import (
     update_table_schema,
     update_tables,
 )
-from pudl.workspace.setup import PudlPaths
 
 # Test helper machinery
 
@@ -702,6 +701,7 @@ def test_update_table_row_counts_clobber(
     expected_row_counts,
     tmp_path,
     mocker,
+    pudl_test_paths,
 ):
     # make test data
     test_schema = f"""
@@ -726,7 +726,7 @@ sources:
         dbt_dir / "models" / "source" / "test_source__table_name" / "schema.yml"
     )
     row_count_csv_path = dbt_dir / "seeds" / "etl_full_row_counts.csv"
-    parquet_path = PudlPaths().parquet_path("test_source__table_name")
+    parquet_path = pudl_test_paths.parquet_path("test_source__table_name")
 
     schema_path.parent.mkdir(parents=True, exist_ok=True)
     row_count_csv_path.parent.mkdir(parents=True, exist_ok=True)

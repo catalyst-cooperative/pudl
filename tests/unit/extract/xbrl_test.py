@@ -27,7 +27,6 @@ from pudl.settings import (
     XbrlFormNumber,
 )
 from pudl.workspace.datastore import ZenodoDoiSettings
-from pudl.workspace.setup import PudlPaths
 
 
 def test_ferc_xbrl_datastore_get_taxonomy(mocker):
@@ -107,7 +106,7 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
         ),
     ],
 )
-def test_xbrl2sqlite(data_config, forms, mocker):
+def test_xbrl2sqlite(data_config, forms, mocker, pudl_test_paths):
     convert_form_mock = mocker.MagicMock()
     mocker.patch(
         "pudl.dagster.assets.raw.ferc_to_sqlite.convert_form", new=convert_form_mock
@@ -133,6 +132,7 @@ def test_xbrl2sqlite(data_config, forms, mocker):
         resources={
             "global_data_config": GlobalDataConfig(ferc_to_sqlite=data_config),
             "datastore": ResourceDefinition.mock_resource(),
+            "pudl_paths": pudl_test_paths,
             "runtime_settings": FercXbrlRuntimeSettings(
                 xbrl_batch_size=20,
                 xbrl_num_workers=10,
@@ -152,16 +152,16 @@ def test_xbrl2sqlite(data_config, forms, mocker):
             ),
             form=form,
             datastore=mock_datastore,
-            output_path=PudlPaths().output_dir,
-            sqlite_path=PudlPaths().output_dir / f"{form}_xbrl.sqlite",
-            duckdb_path=PudlPaths().output_dir / f"{form}_xbrl.duckdb",
+            output_path=pudl_test_paths.pudl_output,
+            sqlite_path=pudl_test_paths.pudl_output / f"{form}_xbrl.sqlite",
+            duckdb_path=pudl_test_paths.pudl_output / f"{form}_xbrl.duckdb",
             batch_size=20,
             workers=10,
             loglevel="INFO",
         )
 
 
-def test_convert_form(mocker):
+def test_convert_form(mocker, pudl_test_paths: Path):
     """Test convert_form method is properly calling extractor."""
     extractor_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.run_main", new=extractor_mock)
@@ -178,7 +178,7 @@ def test_convert_form(mocker):
         years=[2020, 2021],
     )
 
-    output_path: Path = PudlPaths().pudl_output
+    output_path: Path = pudl_test_paths.pudl_output
 
     # Test convert_form for every form number
     for form in XbrlFormNumber:

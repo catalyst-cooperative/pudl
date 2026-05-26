@@ -35,6 +35,7 @@ jobs:
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
               - '!devtools/**'
+              - '.devcontainer/**'
               - '!builds/**'
               - '!docs/**'
               - '!.github/**/*.md'
