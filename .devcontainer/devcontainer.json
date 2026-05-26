@@ -1,0 +1,55 @@
+{
+    "name": "PUDL Sandbox",
+    "build": {
+        "context": "..",
+        "dockerfile": "Dockerfile"
+    },
+    "mounts": [
+        "source=pudl-pixi,target=${containerWorkspaceFolder}/.pixi,type=volume",
+        "source=${localEnv:PUDL_INPUT},target=/workspaces/pudl-input,type=bind,consistency=cached",
+        "source=${localEnv:PUDL_OUTPUT},target=/workspaces/pudl-output,type=bind,consistency=cached",
+        "source=${localEnv:DAGSTER_HOME},target=/workspaces/dagster-home,type=bind,consistency=cached",
+        "source=${localEnv:PUDL_ROOT_PATH}/.git,target=/workspaces/pudl.git,type=bind,consistency=cached"
+    ],
+    "containerEnv": {
+        "PUDL_INPUT": "/workspaces/pudl-input",
+        "PUDL_OUTPUT": "/workspaces/pudl-output",
+        "DAGSTER_HOME": "/workspaces/dagster-home",
+        "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+        "GEMINI_API_KEY": "${localEnv:GEMINI_API_KEY}",
+        "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+        "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
+        "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+        "OPENROUTER_API_KEY": "${localEnv:OPENROUTER_API_KEY}",
+        "NPM_CONFIG_CACHE": "${containerWorkspaceFolder}/.pixi/.npm-cache"
+    },
+    "remoteEnv": {
+        "PATH": "/home/ubuntu/.pixi/bin:${containerEnv:PATH}"
+    },
+    "waitFor": "postCreateCommand",
+    "postCreateCommand": ".devcontainer/fix-git-worktree.sh && pixi run -e dev devcontainer-install",
+    "remoteUser": "ubuntu",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.pylance",
+                "charliermarsh.ruff",
+                "ms-toolsai.jupyter",
+                "tamasfe.even-better-toml",
+                "renan-r-santos.pixi-code",
+                "anthropic.claude-code"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "${workspaceFolder}/.pixi/envs/dev/bin/python",
+                "python.terminal.activateEnvironment": false,
+                "python.createEnvironment.trigger": "off",
+                "evenBetterToml.taplo.path": "/home/ubuntu/.pixi/bin/taplo",
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.formatOnSave": true
+                }
+            }
+        }
+    }
+}

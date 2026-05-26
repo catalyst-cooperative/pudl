@@ -738,8 +738,8 @@ sources:
     with schema_path.open("w") as f:
         f.write(test_schema)
 
-    # patch out DBT_DIR so we use our lovely test schema + rowcounts
-    mocker.patch("pudl.scripts.dbt_helper.DBT_DIR", new=dbt_dir)
+    # patch out PUDL_DBT_PATH so we use our lovely test schema + rowcounts
+    mocker.patch("pudl.scripts.dbt_helper.PUDL_DBT_PATH", new=dbt_dir)
     # patch out ALL_TABLES so that we're allowed to run tests
     mocker.patch("pudl.scripts.dbt_helper.ALL_TABLES", new=["test_source__table_name"])
     runner = CliRunner()
