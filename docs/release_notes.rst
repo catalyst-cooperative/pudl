@@ -11,6 +11,20 @@ v2026.6.0 (2026-06-XX)
 Enhancements
 ^^^^^^^^^^^^
 
+* Overhauled PUDL's `Frictionless Data Package <https://datapackage.org/>`__ output to
+  conform to the v2 spec. The ``pudl_datapackage`` Dagster asset now generates
+  ``datapackage.json`` directly during the ETL, including full column types,
+  constraints, and foreign key relationships for every Parquet table.  The descriptor is
+  distributed as ``pudl_parquet_datapackage.json`` at the top level of the S3 bucket and
+  on Zenodo, allowing potential users to browse the PUDL schema without downloading any
+  data. The ``pudl_parquet.zip`` archive also contains a ``datapackage.json`` descriptor
+  so it can be used as a self-describing Frictionless package after extraction. A
+  reusable :func:`~pudl.dagster.asset_checks.valid_datapackage_check` factory is now
+  available in :mod:`pudl.dagster.asset_checks` to add frictionless v2 validation as an
+  asset check on any datapackage output. See issues :issue:`5122,5237` and PR
+  :pr:`5270`. Also makes progress towards `catalyst-cooperative/agent-skills#14
+  <https://github.com/catalyst-cooperative/agent-skills/issues/14>`__
+
 New Data
 ^^^^^^^^
 

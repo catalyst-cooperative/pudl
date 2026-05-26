@@ -10,6 +10,7 @@ module; it should focus on persistence, loading, and storage-compatibility conce
 For the underlying Dagster concept, see https://docs.dagster.io/guides/build/io-managers
 """
 
+import hashlib
 import json
 import re
 from functools import cached_property
@@ -350,6 +351,29 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
         """Return injected paths when available, else fall back to legacy env lookup."""
         return self.pudl_paths if self.pudl_paths is not None else PudlPaths()
 
+    @staticmethod
+    def _record_parquet_file_metadata(
+        context: dg.OutputContext, parquet_path: Path
+    ) -> None:
+        """Attach file size and SHA-256 hash to the Dagster output metadata.
+
+        This metadata is later retrieved by the ``pudl_datapackage`` asset to
+        populate the frictionless datapackage descriptor without re-reading the
+        parquet files.
+        """
+        parquet_meta = pq.read_metadata(parquet_path)
+        file_bytes = parquet_path.stat().st_size
+        sha256 = hashlib.sha256(parquet_path.read_bytes()).hexdigest()
+        context.add_output_metadata(
+            {
+                "dagster/row_count": dg.MetadataValue.int(parquet_meta.num_rows),
+                "dagster/column_count": dg.MetadataValue.int(parquet_meta.num_columns),
+                "dagster/uri": dg.MetadataValue.path(str(parquet_path)),
+                "bytes": dg.MetadataValue.int(file_bytes),
+                "sha256": dg.MetadataValue.text(sha256),
+            }
+        )
+
     def handle_output(
         self, context: dg.OutputContext, obj: pd.DataFrame | pl.LazyFrame
     ) -> None:
@@ -378,6 +402,7 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
                 "PudlParquetIOManager only supports pandas DataFrames and Polars LazyFrames"
                 f", got {type(obj)}."
             )
+        self._record_parquet_file_metadata(context, parquet_path)
 
     def load_input(
         self, context: dg.InputContext
@@ -461,6 +486,7 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
         metadata["geo"] = geo_metadata
         pa_table = pa_table.replace_schema_metadata(metadata)
         pq.write_table(pa_table, parquet_path)
+        self._record_parquet_file_metadata(context, parquet_path)
 
 
 class PudlSqliteIOManager(SqliteIOManager):

@@ -99,7 +99,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -136,7 +136,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -173,7 +173,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -218,7 +218,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -274,7 +274,7 @@ jobs:
         run: |
           find coverage -type f
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
