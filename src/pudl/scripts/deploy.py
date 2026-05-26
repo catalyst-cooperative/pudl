@@ -49,12 +49,12 @@ logger = get_logger(__name__)
 DEPLOYMENT_TYPE_STATIC_SETTINGS = {
     DeploymentType.NIGHTLY: {
         "zenodo_env": "sandbox",
-        "ignore_regex": r"(^.*\\\\.parquet$|^.*pudl_parquet_datapackage\\\\.json$)",
+        "ignore_regex": r"^.*\.parquet$",
         "publish": True,
     },
     DeploymentType.STABLE: {
         "zenodo_env": "production",
-        "ignore_regex": r"(^.*\\\\.parquet$|^.*pudl_parquet_datapackage\\\\.json$)",
+        "ignore_regex": r"^.*\.parquet$",
         "publish": False,
     },
 }
