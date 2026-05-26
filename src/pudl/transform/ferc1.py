@@ -61,9 +61,33 @@ def _core_ferc1_xbrl__metadata_json(
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Generate cleaned json xbrl metadata.
 
-    For now, this only runs :func:`add_source_tables_to_xbrl_metadata`.
+    For now, this adds a missing factoid via :func:`add_missing_factoid`
+    and runs :func:`add_source_tables_to_xbrl_metadata`.
     """
+    raw_ferc1_xbrl__metadata_json = add_missing_factoid(raw_ferc1_xbrl__metadata_json)
     return add_source_tables_to_xbrl_metadata(raw_ferc1_xbrl__metadata_json)
+
+
+def add_missing_factoid(raw_ferc1_xbrl__metadata_json):
+    """Add one missing factoid from core_ferc1__yearly_operating_expenses_sched320.
+
+    We are adding this here instead of within the table transform step because this
+    factoid is a calculation component in its table.
+    :func:`add_source_tables_to_xbrl_metadata` adds sources tables to all of the
+    calculation components and because this factoid was missing from the metadata,
+    it was not being assigned a source table which caused several downstream impacts.
+    """
+    missing_factoid = "maintenance_of_energy_storage_equipment_other_power_generation"
+    duration_facts = raw_ferc1_xbrl__metadata_json[
+        "core_ferc1__yearly_operating_expenses_sched320"
+    ]["duration"]
+    # If this factoid exists in the metadata in the future, we should remove
+    # this whole function
+    assert not [f for f in duration_facts if f["name"] == missing_factoid]
+    raw_ferc1_xbrl__metadata_json["core_ferc1__yearly_operating_expenses_sched320"][
+        "duration"
+    ] = duration_facts + [{"name": missing_factoid, "calculations": []}]
+    return raw_ferc1_xbrl__metadata_json
 
 
 def add_source_tables_to_xbrl_metadata(
@@ -99,6 +123,7 @@ def add_source_tables_to_xbrl_metadata(
         # to have no source_tables.
         if not calc_component["source_tables"]:
             logger.debug(f"Found no source table for {calc_component['name']}.")
+
         return calc_component
 
     tables_to_fields = extract_tables_to_fields(raw_ferc1_xbrl__metadata_json)
@@ -1233,9 +1258,6 @@ def calculate_values_from_components(
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
     calc_df.columns = calc_df.columns.str.removesuffix("_parent")
-    logger.info(
-        f"{data[data.duplicated(data_idx, keep=False)].set_index(data_idx).sort_index()}"
-    )
     try:
         calculated_df = pd.merge(
             left=data,
@@ -2449,7 +2471,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             raise AssertionError(
                 f"We've applied {len_fixes_applied} calculation fixes while we started "
                 f"with {len(calc_fixes)}. Length of applied and original fixes should "
-                f"be the same.\n{replace_me=}\n{add_me=}\n{delete_me=}"
+                f"be the same.\n{replace_me=}\n{add_me=}\n{delete_me=}\n"
             )
         return calc_components.reset_index()
 
@@ -6170,6 +6192,7 @@ class OperatingExpensesTableTransformer(Ferc1AbstractTableTransformer):
         :meth:`process_xbrl_metadata`.
         """
         tbl_meta = super().convert_xbrl_metadata_json_to_df(xbrl_metadata_json)
+
         dbf_only_facts = [
             {
                 "xbrl_factoid": dbf_only_fact,
@@ -6895,6 +6918,11 @@ def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
     calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
 
     # Defensive testing on this table!
+    nulls = calc_components[
+        calc_components[["table_name", "xbrl_factoid"]].isnull().any(axis=1)
+    ]
+    if not nulls.empty:
+        raise AssertionError(nulls)
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
 
     # Let's check that all calculated components that show up in our data are

@@ -3145,6 +3145,9 @@ TRANSFORM_PARAMS = {
                     "xbrl_factoid": {
                         "error_frequency": 0.018,
                         "relative_error_magnitude": 0.028,
+                        # mostly null bc they were added in 2025:
+                        # other_renewable_generation_maintenance_expense & other_renewable_generation_operations_expense
+                        "null_calculated_value_frequency": 0.76,
                     },
                     "utility_id_ferc1": {
                         "error_frequency": 0.017,
