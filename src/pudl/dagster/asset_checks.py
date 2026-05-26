@@ -22,8 +22,6 @@ should go in dbt.
 
 import itertools
 import json
-from collections.abc import Callable
-from pathlib import Path
 from typing import Any
 
 import dagster as dg
@@ -39,7 +37,6 @@ from pudl.dagster.assets import all_asset_modules, asset_keys
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
-from pudl.workspace.setup import PudlPaths
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
@@ -362,39 +359,37 @@ def _validate_datapackage_descriptor(descriptor: dict) -> list[str]:
 
 def valid_datapackage_check(
     asset_key: dg.AssetKey | str,
-    path_fn: Callable[[], Path],
     *,
     description: str = "Validate a frictionless datapackage descriptor against the spec.",
     blocking: bool = True,
 ) -> dg.AssetChecksDefinition:
     """Return a Dagster asset check that validates a frictionless datapackage descriptor.
 
-    The check reads the JSON descriptor from the path returned by *path_fn* at
-    run time and validates it recursively through resources, schemas, and fields
-    against the frictionless spec using
+    The check reads ``$PUDL_OUTPUT/parquet/datapackage.json`` from the injected
+    ``pudl_paths`` Dagster resource at run time and validates it recursively through
+    resources, schemas, and fields against the frictionless spec using
     :func:`frictionless.Package.metadata_validate`.
 
     Args:
         asset_key: Key of the asset that produces the datapackage descriptor.
-        path_fn: Zero-argument callable that returns the :class:`~pathlib.Path`
-            to the ``datapackage.json`` file.  Called at check-run time so the
-            path can depend on run-time environment variables such as
-            ``$PUDL_OUTPUT``.  A callable is required here (rather than a plain
-            :class:`~pathlib.Path`) because :class:`~pudl.workspace.setup.PudlPaths`
-            reads environment variables at instantiation time, which makes it
-            unsafe to call at module import time (e.g. during unit tests where
-            ``$PUDL_OUTPUT`` is not set).  Once ``PudlPaths`` is converted to a
-            proper Dagster resource (see PR #5261), this argument should be
-            replaced with a resource dependency so the path is injected by
-            Dagster rather than resolved via a lambda.
         description: Human-readable description attached to the check in the
             Dagster UI.
         blocking: Whether the check is blocking (default ``True``).
     """
 
-    @dg.asset_check(asset=asset_key, blocking=blocking, description=description)
-    def _datapackage_check() -> dg.AssetCheckResult:
-        descriptor = json.loads(path_fn().read_text())
+    @dg.asset_check(
+        asset=asset_key,
+        blocking=blocking,
+        description=description,
+        required_resource_keys={"pudl_paths"},
+    )
+    def _datapackage_check(
+        context: dg.AssetCheckExecutionContext,
+    ) -> dg.AssetCheckResult:
+        descriptor_path = (
+            context.resources.pudl_paths.parquet_path() / "datapackage.json"
+        )
+        descriptor = json.loads(descriptor_path.read_text())
         errors = _validate_datapackage_descriptor(descriptor)
         return dg.AssetCheckResult(
             passed=not errors,
@@ -439,7 +434,6 @@ default_asset_checks += [
 default_asset_checks.append(
     valid_datapackage_check(
         "pudl_datapackage",
-        lambda: PudlPaths().parquet_path() / "datapackage.json",
         description=(
             "Validate the PUDL datapackage descriptor against the frictionless v2 spec. "
             "Checks structure recursively through resources, schemas, and fields."
