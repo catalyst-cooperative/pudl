@@ -13,13 +13,13 @@ Catalyst developers reviewing external community contributions.
 Guidelines for contributors
 -------------------------------------------------------------------------------
 
-The guidelines for external contributors can be found at :doc:`../CONTRIBUTING`.
+Looking to contribute to PUDL? The guidelines for external contributors can be found at :doc:`../CONTRIBUTING`.
 
 -------------------------------------------------------------------------------
 Common contributor management decisions
 -------------------------------------------------------------------------------
 
-There are several decision points that commonly arise when tending to PRs from
+The following guidelines cover several decision points that commonly arise when tending to PRs from
 external contributors:
 
 * Deciding when to merge
@@ -32,7 +32,7 @@ When to merge
 The standard of code quality for external contributors should be no higher than
 the one we use internally, and the one we use internally is probably too high!
 All we really need from a proposed change is to know that it is (1) making
-something better without (2) making too many things too much worse.
+something better without (2) making something worse.
 
 This decision follows from 🐥 taking small steps.
 
