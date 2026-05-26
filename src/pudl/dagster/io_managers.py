@@ -52,7 +52,6 @@ from pudl.dagster.resources import (
 )
 from pudl.helpers import get_parquet_table, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -102,11 +101,6 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
 
     pudl_paths: dg.ResourceDependency[PudlPathsResource]
 
-    @property
-    def _resolved_pudl_paths(self) -> PudlPaths:
-        """Return injected paths when available, else fall back to legacy env lookup."""
-        return self.pudl_paths if self.pudl_paths is not None else PudlPaths()
-
     @model_validator(mode="after")
     def validate_parquet_settings(self) -> "PudlMixedFormatIOManager":
         """Ensure the configured read/write mode is internally consistent."""
@@ -120,14 +114,14 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
     def _sqlite_io_manager(self) -> "PudlSqliteIOManager":
         """Build the SQLite-backed runtime IO manager lazily."""
         return PudlSqliteIOManager(
-            base_dir=self._resolved_pudl_paths.pudl_output,
+            base_dir=self.pudl_paths.pudl_output,
             db_name="pudl",
         )
 
     @cached_property
     def _parquet_io_manager(self) -> "PudlParquetIOManager":
         """Build the Parquet-backed runtime IO manager lazily."""
-        return PudlParquetIOManager(pudl_paths=self._resolved_pudl_paths)
+        return PudlParquetIOManager(pudl_paths=self.pudl_paths)
 
     def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame) -> None:
         """Passes the output to the appropriate IO manager instance."""
@@ -346,11 +340,6 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
 
     pudl_paths: dg.ResourceDependency[PudlPathsResource]
 
-    @property
-    def _resolved_pudl_paths(self) -> PudlPaths:
-        """Return injected paths when available, else fall back to legacy env lookup."""
-        return self.pudl_paths if self.pudl_paths is not None else PudlPaths()
-
     @staticmethod
     def _record_parquet_file_metadata(
         context: dg.OutputContext, parquet_path: Path
@@ -380,7 +369,7 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
         """Writes pudl dataframe to parquet file."""
         table_name = get_table_name_from_context(context)
         res = Resource.from_id(table_name)
-        parquet_path = self._resolved_pudl_paths.parquet_path(table_name)
+        parquet_path = self.pudl_paths.parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
         if isinstance(obj, pd.DataFrame):
@@ -410,9 +399,9 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
         if context.dagster_type.typing_type == pl.LazyFrame:
-            df = get_parquet_table_polars(table_name, paths=self._resolved_pudl_paths)
+            df = get_parquet_table_polars(table_name, paths=self.pudl_paths)
         else:
-            df = get_parquet_table(table_name, paths=self._resolved_pudl_paths)
+            df = get_parquet_table(table_name, paths=self.pudl_paths)
         return df
 
 
@@ -456,7 +445,7 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
                 f"Only geopandas dataframes are supported, got {type(obj)}."
             )
         table_name = get_table_name_from_context(context)
-        parquet_path = self._resolved_pudl_paths.parquet_path(table_name)
+        parquet_path = self.pudl_paths.parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
         res = Resource.from_id(table_name)
@@ -644,11 +633,6 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     _metadata: sa.MetaData | None = PrivateAttr(default=None)
 
     @property
-    def _resolved_pudl_paths(self) -> PudlPaths:
-        """Return injected paths when available, else fall back to legacy env lookup."""
-        return self.pudl_paths if self.pudl_paths is not None else PudlPaths()
-
-    @property
     def _years_key(self) -> str:
         return f"{self.data_format}_years"
 
@@ -660,7 +644,7 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
     @property
     def db_path(self) -> Path:
         """Return the canonical SQLite path for this dataset and data format."""
-        return self._resolved_pudl_paths.sqlite_db_path(self.db_name)
+        return self.pudl_paths.sqlite_db_path(self.db_name)
 
     @property
     def engine(self) -> sa.Engine:
