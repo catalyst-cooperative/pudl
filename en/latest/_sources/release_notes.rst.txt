@@ -51,6 +51,12 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Refactored Dagster-managed path handling to use a dedicated ``pudl_paths`` resource
+  instead of constructing :class:`pudl.workspace.setup.PudlPaths` directly throughout
+  assets, IO managers, and tests. This makes path resolution more explicit in Dagster
+  contexts and allows interactive definitions to override ``pudl_input`` and
+  ``pudl_output`` directly when calling
+  :func:`pudl.dagster.build.build_interactive_defs`. See PR :pr:`5261`.
 * Added a PUDL devcontainer configuration to make it easier for contributors to get up
   and running, and to enable the safe use of coding agents in YOLO mode. See PR
   :pr:`5260`.

@@ -36,7 +36,7 @@ Module Contents
    other overrides replace the defaults entirely.
 
 
-.. py:function:: build_interactive_defs(*, global_data_config_path: str | None = None, zenodo_dois_path: str | None = None) -> dagster.Definitions
+.. py:function:: build_interactive_defs(*, global_data_config_path: str | None = None, pudl_input: str | None = None, pudl_output: str | None = None, zenodo_dois_path: str | None = None) -> dagster.Definitions
 
    Build defs for interactive in-process use with concrete default resources.
 
