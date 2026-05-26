@@ -21,7 +21,6 @@ from pudl.extract.ferc import (
 )
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.settings import XbrlFormNumber
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -37,6 +36,7 @@ def dbf_to_sqlite_asset_factory(
         required_resource_keys={
             "global_data_config",
             "datastore",
+            "pudl_paths",
             "runtime_settings",
             "zenodo_dois",
         },
@@ -45,6 +45,7 @@ def dbf_to_sqlite_asset_factory(
     )
     def _asset(context) -> dg.MaterializeResult[str]:
         ferc_to_sqlite = context.resources.global_data_config.ferc_to_sqlite
+        pudl_paths = context.resources.pudl_paths
         data_config = ferc_to_sqlite.get_data_config(dataset=dataset, data_format="dbf")
         if data_config is None or not data_config.years:
             logger.info(f"No years configured for {dataset}_dbf: skipping extraction.")
@@ -63,7 +64,7 @@ def dbf_to_sqlite_asset_factory(
         extractor_class(
             datastore=context.resources.datastore,
             data_config=ferc_to_sqlite,
-            output_path=PudlPaths().output_dir,
+            output_path=pudl_paths.pudl_output,
         ).execute()
         return dg.MaterializeResult(
             value="complete",
@@ -78,7 +79,7 @@ def dbf_to_sqlite_asset_factory(
                             dataset=dataset, data_format="dbf"
                         ),
                         data_config=ferc_to_sqlite,
-                        sqlite_path=PudlPaths().sqlite_db_path(f"{dataset}_dbf"),
+                        sqlite_path=pudl_paths.sqlite_db_path(f"{dataset}_dbf"),
                     ).model_dump(mode="json")
                 )
             },
@@ -98,6 +99,7 @@ def xbrl_to_sqlite_asset_factory(
         required_resource_keys={
             "global_data_config",
             "datastore",
+            "pudl_paths",
             "runtime_settings",
             "zenodo_dois",
         },
@@ -106,6 +108,7 @@ def xbrl_to_sqlite_asset_factory(
     )
     def _asset(context) -> dg.MaterializeResult[str]:
         runtime_settings = context.resources.runtime_settings
+        pudl_paths = context.resources.pudl_paths
         data_config = (
             context.resources.global_data_config.ferc_to_sqlite.get_data_config(
                 dataset=form, data_format="xbrl"
@@ -126,11 +129,11 @@ def xbrl_to_sqlite_asset_factory(
                 },
             )
 
-        output_path = PudlPaths().output_dir
-        sqlite_path = PudlPaths().sqlite_db_path(f"{form}_xbrl")
+        output_path = pudl_paths.pudl_output
+        sqlite_path = pudl_paths.sqlite_db_path(f"{form}_xbrl")
         if sqlite_path.exists():
             sqlite_path.unlink()
-        duckdb_path = PudlPaths().duckdb_db_path(f"{form}_xbrl")
+        duckdb_path = pudl_paths.duckdb_db_path(f"{form}_xbrl")
         if duckdb_path.exists():
             duckdb_path.unlink()
 
@@ -159,7 +162,7 @@ def xbrl_to_sqlite_asset_factory(
                             dataset=form, data_format="xbrl"
                         ),
                         data_config=context.resources.global_data_config.ferc_to_sqlite,
-                        sqlite_path=PudlPaths().sqlite_db_path(f"{form}_xbrl"),
+                        sqlite_path=pudl_paths.sqlite_db_path(f"{form}_xbrl"),
                     ).model_dump(mode="json")
                 )
             },
