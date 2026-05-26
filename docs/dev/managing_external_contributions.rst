@@ -151,7 +151,7 @@ We aim to respond to reviews within one week (two at most). Initial responses sh
 assess whether the PR is ready for review, address any high-level questions or missing
 information, and provide an expected timeline for review.
 
-A Catalyst reviewer should 
+A Catalyst reviewer should
 
 
 Review timeline
