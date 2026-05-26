@@ -32,7 +32,7 @@
         "PATH": "/home/ubuntu/.pixi/bin:${containerEnv:PATH}"
     },
     "waitFor": "postCreateCommand",
-    "postCreateCommand": "mkdir -p ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && chown ubuntu:ubuntu ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && pixi run -e dev devcontainer-install",
+    "postCreateCommand": "sudo mkdir -p ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && sudo chown ubuntu:ubuntu ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && pixi run -e dev devcontainer-install",
     "remoteUser": "ubuntu",
     "customizations": {
         "vscode": {
