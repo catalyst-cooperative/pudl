@@ -19,8 +19,8 @@ class PudlPaths(BaseSettings):
     variables. Other paths of relevance are derived from these.
     """
 
-    pudl_input: Path
-    pudl_output: Path
+    pudl_input: Path | str
+    pudl_output: Path | str
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @field_validator("pudl_input", "pudl_output", mode="before")

@@ -16,7 +16,6 @@ import os
 from typing import Any
 
 import dagster as dg
-from pydantic import Field
 from upath import UPath
 
 from pudl import PUDL_SETTINGS_PATH
@@ -33,28 +32,12 @@ class PudlPathsResource(dg.ConfigurableResource):
     and container-provided environment variables all share a single typed entry point.
     """
 
-    pudl_input: str | None = Field(default_factory=lambda: os.getenv("PUDL_INPUT"))
-    pudl_output: str | None = Field(default_factory=lambda: os.getenv("PUDL_OUTPUT"))
+    pudl_input: str = dg.EnvVar("PUDL_INPUT")
+    pudl_output: str = dg.EnvVar("PUDL_OUTPUT")
 
     def create_resource(self, context) -> PudlPaths:
         """Create validated runtime path settings for the current Dagster run."""
         del context  # Required by Dagster's hook signature; intentionally unused here.
-
-        missing = [
-            env_var
-            for env_var, value in {
-                "PUDL_INPUT": self.pudl_input,
-                "PUDL_OUTPUT": self.pudl_output,
-            }.items()
-            if value is None
-        ]
-        if missing:
-            raise ValueError(
-                "Missing required PUDL path settings: "
-                f"{', '.join(missing)}. Configure the `pudl_paths` Dagster resource "
-                "or set them in the environment / project .env file."
-            )
-
         return PudlPaths(pudl_input=self.pudl_input, pudl_output=self.pudl_output)
 
 

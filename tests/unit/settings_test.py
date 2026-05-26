@@ -2,6 +2,7 @@
 
 import importlib.resources
 import inspect
+import os
 from typing import Self
 
 import pandas as pd
@@ -377,14 +378,25 @@ class TestPudlPathsResource:
     """Test the PUDL path Dagster resource."""
 
     def test_loads_from_environment(self: Self, monkeypatch, tmp_path) -> None:
-        """Unset resource config should fall back to process environment."""
+        """EnvVar defaults are resolved from process environment by Dagster.
+
+        In production Dagster resolves ``EnvVar("PUDL_INPUT")`` from ``os.environ``
+        at config-resolution time (during ``dg launch`` / ``dg dev``).
+        ``build_init_resource_context`` bypasses that layer, so we read from
+        ``os.environ`` explicitly here to simulate what Dagster does at runtime.
+        """
         input_dir = tmp_path / "input"
         output_dir = tmp_path / "output"
         monkeypatch.setenv("PUDL_INPUT", str(input_dir))
         monkeypatch.setenv("PUDL_OUTPUT", str(output_dir))
 
         loaded_paths = PudlPathsResource.from_resource_context(
-            build_init_resource_context()
+            build_init_resource_context(
+                config={
+                    "pudl_input": os.environ["PUDL_INPUT"],
+                    "pudl_output": os.environ["PUDL_OUTPUT"],
+                }
+            )
         )
 
         assert isinstance(loaded_paths, PudlPaths)
