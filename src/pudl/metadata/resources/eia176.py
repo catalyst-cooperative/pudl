@@ -10,6 +10,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "U.S. border."
             ),
             "additional_source_text": "(Part 4, Line 3.0)",
+            "usage_warnings": [
+                {
+                    "type": "truncated_supplier_names",
+                    "description": (
+                        "Many supplier_name values appear to be cut off or "
+                        "incomplete in the raw EIA-176 continuation-line data."
+                    ),
+                },
+            ],
             "additional_primary_key_text": (
                 "This table has no enforced primary key because some records do not "
                 "report a mode of transportation. The natural primary key would be "
@@ -74,6 +83,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "a company's detailed natural gas deliveries out of the report state."
             ),
             "additional_source_text": "(Part 6, Line 14.0)",
+            "usage_warnings": [
+                {
+                    "type": "truncated_recipient_names",
+                    "description": (
+                        "Many recipient_name values may be cut off or incomplete in "
+                        "the raw EIA-176 continuation-line data."
+                    ),
+                },
+            ],
             "additional_primary_key_text": (
                 "This table has no enforced primary key because some records do not "
                 "report destination or mode of transportation details."
