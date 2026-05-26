@@ -51,6 +51,7 @@ from pudl.transform.classes import (
     enforce_snake_case,
 )
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -1957,6 +1958,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         params: TableTransformParams | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
+        pudl_paths: PudlPaths | None = None,
     ) -> None:
         """Augment inherited initializer to store XBRL metadata in the class."""
         super().__init__(
@@ -1964,6 +1966,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             cache_dfs=cache_dfs,
             clear_cached_dfs=clear_cached_dfs,
         )
+        self.pudl_paths = pudl_paths
         if xbrl_metadata_json:
             xbrl_metadata_converted = self.convert_xbrl_metadata_json_to_df(
                 xbrl_metadata_json
@@ -2618,7 +2621,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             table_name: filter_for_freshest_data_xbrl(
                 df,
                 get_primary_key_raw_xbrl(
-                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                    table_name.removeprefix("raw_ferc1_xbrl__"),
+                    "ferc1",
+                    pudl_paths=self.pudl_paths,
                 ),
             )
             for table_name, df in raw_xbrl_dfs.items()
@@ -3142,7 +3147,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
             table_name: filter_for_freshest_data_xbrl(
                 df,
                 get_primary_key_raw_xbrl(
-                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                    table_name.removeprefix("raw_ferc1_xbrl__"),
+                    "ferc1",
+                    pudl_paths=self.pudl_paths,
                 ),
             )
             for table_name, df in raw_xbrl_dfs.items()
@@ -6529,10 +6536,13 @@ def ferc1_transform_asset_factory(
     @asset(
         name=table_name,
         ins=ins,
+        required_resource_keys={"pudl_paths"},
         io_manager_key=io_manager_key,
         op_tags=op_tags or {},
     )
-    def ferc1_transform_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    def ferc1_transform_asset(
+        context, **kwargs: dict[str, pd.DataFrame]
+    ) -> pd.DataFrame:
         """Transform a FERC Form 1 table.
 
         Args:
@@ -6550,10 +6560,12 @@ def ferc1_transform_asset_factory(
             transformer = tfr_class(
                 xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
                 table_id=table_id,
+                pudl_paths=context.resources.pudl_paths,
             )
         else:
             transformer = tfr_class(
-                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name]
+                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
+                pudl_paths=context.resources.pudl_paths,
             )
 
         # Split the DBF and XBRL dfs into input dictionaries for transformation
