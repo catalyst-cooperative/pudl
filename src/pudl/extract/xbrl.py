@@ -91,6 +91,7 @@ def convert_form(
     ferc_to_sqlite: FercToSqliteDataConfig,
     form: XbrlFormNumber,
     datastore: FercXbrlDatastore,
+    pudl_paths: PudlPaths,
     batch_size: int | None = None,
     workers: int | None = None,
     loglevel: str = "INFO",
@@ -101,13 +102,14 @@ def convert_form(
         ferc_to_sqlite: Validated data configuration for converting FERC data to SQLite.
         form: FERC form number.
         datastore: Instance of a FERC XBRL datastore for retrieving data.
+        pudl_paths: ``PudlPaths`` resource.
         batch_size: Number of XBRL filings to process in a single CPU process.
         workers: Number of CPU processes to create for processing XBRL filings.
         loglevel: Log level to pass to ``ferc_xbrl_extractor``.
     """
-    output_path = PudlPaths().output_dir
-    sqlite_path = PudlPaths().sqlite_db_path(f"{form}_xbrl")
-    duckdb_path = PudlPaths().duckdb_db_path(f"{form}_xbrl")
+    output_path = pudl_paths.pudl_output
+    sqlite_path = pudl_paths.sqlite_db_path(f"{form}_xbrl")
+    duckdb_path = pudl_paths.duckdb_db_path(f"{form}_xbrl")
 
     # Delete existing sqlite / duckdb files
     if sqlite_path.exists():

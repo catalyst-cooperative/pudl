@@ -111,7 +111,7 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
         ),
     ],
 )
-def test_xbrl2sqlite(data_config, forms, mocker):
+def test_xbrl2sqlite(data_config, forms, mocker, pudl_test_paths):
     convert_form_mock = mocker.MagicMock()
     mocker.patch(
         "pudl.dagster.assets.raw.ferc_to_sqlite.convert_form", new=convert_form_mock
@@ -147,6 +147,7 @@ def test_xbrl2sqlite(data_config, forms, mocker):
         resources={
             "global_data_config": GlobalDataConfig(ferc_to_sqlite=data_config),
             "datastore": ResourceDefinition.mock_resource(),
+            "pudl_paths": pudl_test_paths,
             "runtime_settings": FercXbrlRuntimeSettings(
                 xbrl_batch_size=20,
                 xbrl_num_workers=10,
@@ -164,13 +165,14 @@ def test_xbrl2sqlite(data_config, forms, mocker):
             ferc_to_sqlite=data_config,
             form=form,
             datastore=mock_datastore,
+            pudl_paths=pudl_test_paths,
             batch_size=20,
             workers=10,
             loglevel="INFO",
         )
 
 
-def test_convert_form(mocker):
+def test_convert_form(mocker, pudl_test_paths: Path):
     """Test convert_form method is properly calling extractor."""
     extractor_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.run_main", new=extractor_mock)
@@ -191,7 +193,7 @@ def test_convert_form(mocker):
         ferc714_xbrl=Ferc714XbrlToSqliteDataConfig(years=[2020, 2021]),
     )
 
-    output_path: Path = PudlPaths().pudl_output
+    output_path: Path = pudl_test_paths.pudl_output
 
     # Test convert_form for every form number
     for form in XbrlFormNumber:
@@ -199,6 +201,7 @@ def test_convert_form(mocker):
             settings,
             form,
             FakeDatastore(),
+            pudl_test_paths,
             batch_size=10,
             workers=5,
         )
@@ -268,18 +271,20 @@ def _prep_cached_dbs(
 
 
 def _run_ferc_to_sqlite_asset(
-    zenodo_doi: str, test_asset, data_config
+    zenodo_doi: str, test_asset, data_config, mocker, local_path
 ) -> FercSqliteProvenanceRecord:
     """Run test ferc_to_sqlite asset then return provenance metadata output by it."""
-    result: ExecuteInProcessResult = dg.materialize(
-        assets=[test_asset],
-        resources={
-            "global_data_config": GlobalDataConfig(ferc_to_sqlite=data_config),
-            "datastore": ResourceDefinition.mock_resource(),
-            "runtime_settings": FercXbrlRuntimeSettings(),
-            "zenodo_dois": ZenodoDoiSettings(ferc1=zenodo_doi),
-        },
-    )
+    with mocker.patch.object(PudlPaths, "sqlite_db_path", return_value=local_path):
+        result: ExecuteInProcessResult = dg.materialize(
+            assets=[test_asset],
+            resources={
+                "global_data_config": GlobalDataConfig(ferc_to_sqlite=data_config),
+                "datastore": ResourceDefinition.mock_resource(),
+                "runtime_settings": FercXbrlRuntimeSettings(),
+                "zenodo_dois": ZenodoDoiSettings(ferc1=zenodo_doi),
+                "pudl_paths": PudlPaths(),
+            },
+        )
     materialization_events = result.get_asset_materialization_events()
 
     assert len(materialization_events) == 1
@@ -333,12 +338,6 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
         local_provenance, nightly_provenance, local_path, nightly_path, nightly_zip_path
     )
 
-    # Mock local sqlite path
-    mocker.patch(
-        "pudl.dagster.assets.raw.ferc_to_sqlite.PudlPaths.sqlite_db_path",
-        return_value=local_path,
-    )
-
     # Mock nightly downloads
     mocker.patch(
         "pudl.dagster.assets.raw.ferc_to_sqlite.fsspec.open",
@@ -347,7 +346,7 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
 
     # Test with local doi to return local_provenance record
     assert local_provenance == _run_ferc_to_sqlite_asset(
-        local_doi, test_asset, data_config
+        local_doi, test_asset, data_config, mocker, local_path
     )
     mock_extract_function.assert_not_called()
 
@@ -356,7 +355,7 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
         local_provenance, nightly_provenance, local_path, nightly_path, nightly_zip_path
     )
     assert nightly_provenance == _run_ferc_to_sqlite_asset(
-        nightly_doi, test_asset, data_config
+        nightly_doi, test_asset, data_config, mocker, local_path
     )
     mock_extract_function.assert_not_called()
 
@@ -365,7 +364,7 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
         local_provenance, nightly_provenance, local_path, nightly_path, nightly_zip_path
     )
     uncached_provenance = _run_ferc_to_sqlite_asset(
-        uncached_doi, test_asset, data_config
+        uncached_doi, test_asset, data_config, mocker, local_path
     )
     assert uncached_provenance.zenodo_doi == uncached_doi
     assert uncached_provenance == FercSqliteProvenanceRecord.from_sqlite(local_path)

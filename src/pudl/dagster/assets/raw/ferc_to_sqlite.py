@@ -37,7 +37,6 @@ from pudl.extract.ferc import (
 )
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.settings import FercToSqliteDataConfig, XbrlFormNumber
-from pudl.workspace.setup import PudlPaths
 
 NETWORK_ERRORS = (
     TimeoutError,
@@ -152,6 +151,7 @@ def ferc_to_sqlite_asset_factory(
         required_resource_keys={
             "global_data_config",
             "datastore",
+            "pudl_paths",
             "runtime_settings",
             "zenodo_dois",
         },
@@ -164,6 +164,7 @@ def ferc_to_sqlite_asset_factory(
             dataset=dataset, data_format=data_format
         )
         zenodo_doi = context.resources.zenodo_dois.get_doi(dataset)
+        pudl_paths = context.resources.pudl_paths
         if data_config is None or not data_config.years:
             logger.info(
                 f"No years configured for {dataset}_{data_format}: skipping extraction."
@@ -181,7 +182,7 @@ def ferc_to_sqlite_asset_factory(
                 },
             )
 
-        sqlite_path = PudlPaths().sqlite_db_path(f"{dataset}_{data_format}")
+        sqlite_path = pudl_paths.sqlite_db_path(f"{dataset}_{data_format}")
 
         # Check if there's a cached SQLite DB that is compatible
         if (
@@ -231,7 +232,7 @@ raw_ferc1_dbf__sqlite = ferc_to_sqlite_asset_factory(
     extract_function=lambda context: Ferc1DbfExtractor(
         datastore=context.resources.datastore,
         data_config=context.resources.global_data_config.ferc_to_sqlite,
-        output_path=PudlPaths().output_dir,
+        output_path=context.resources.pudl_paths.output_dir,
     ).execute(),
     op_tags={"dagster/priority": 10},
 )
@@ -241,7 +242,7 @@ raw_ferc2_dbf__sqlite = ferc_to_sqlite_asset_factory(
     extract_function=lambda context: Ferc2DbfExtractor(
         datastore=context.resources.datastore,
         data_config=context.resources.global_data_config.ferc_to_sqlite,
-        output_path=PudlPaths().output_dir,
+        output_path=context.resources.pudl_paths.output_dir,
     ).execute(),
     op_tags={"dagster/priority": 10},
 )
@@ -251,7 +252,7 @@ raw_ferc6_dbf__sqlite = ferc_to_sqlite_asset_factory(
     extract_function=lambda context: Ferc6DbfExtractor(
         datastore=context.resources.datastore,
         data_config=context.resources.global_data_config.ferc_to_sqlite,
-        output_path=PudlPaths().output_dir,
+        output_path=context.resources.pudl_paths.output_dir,
     ).execute(),
     op_tags={"dagster/priority": 10},
 )
@@ -261,7 +262,7 @@ raw_ferc60_dbf__sqlite = ferc_to_sqlite_asset_factory(
     extract_function=lambda context: Ferc60DbfExtractor(
         datastore=context.resources.datastore,
         data_config=context.resources.global_data_config.ferc_to_sqlite,
-        output_path=PudlPaths().output_dir,
+        output_path=context.resources.pudl_paths.output_dir,
     ).execute(),
     op_tags={"dagster/priority": 10},
 )
@@ -273,6 +274,7 @@ raw_ferc1_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
         form=XbrlFormNumber.FORM1,
         datastore=FercXbrlDatastore(context.resources.datastore),
+        pudl_paths=context.resources.pudl_paths,
         batch_size=context.resources.runtime_settings.xbrl_batch_size,
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,
@@ -286,6 +288,7 @@ raw_ferc2_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
         form=XbrlFormNumber.FORM2,
         datastore=FercXbrlDatastore(context.resources.datastore),
+        pudl_paths=context.resources.pudl_paths,
         batch_size=context.resources.runtime_settings.xbrl_batch_size,
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,
@@ -299,6 +302,7 @@ raw_ferc6_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
         form=XbrlFormNumber.FORM6,
         datastore=FercXbrlDatastore(context.resources.datastore),
+        pudl_paths=context.resources.pudl_paths,
         batch_size=context.resources.runtime_settings.xbrl_batch_size,
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,
@@ -312,6 +316,7 @@ raw_ferc60_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
         form=XbrlFormNumber.FORM60,
         datastore=FercXbrlDatastore(context.resources.datastore),
+        pudl_paths=context.resources.pudl_paths,
         batch_size=context.resources.runtime_settings.xbrl_batch_size,
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,
@@ -325,6 +330,7 @@ raw_ferc714_xbrl__sqlite = ferc_to_sqlite_asset_factory(
         ferc_to_sqlite=context.resources.global_data_config.ferc_to_sqlite,
         form=XbrlFormNumber.FORM714,
         datastore=FercXbrlDatastore(context.resources.datastore),
+        pudl_paths=context.resources.pudl_paths,
         batch_size=context.resources.runtime_settings.xbrl_batch_size,
         workers=context.resources.runtime_settings.xbrl_num_workers,
         loglevel=context.resources.runtime_settings.xbrl_loglevel,

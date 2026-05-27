@@ -340,7 +340,7 @@ def test_mixed_format_io_manager_initializes_backends(mocker):
         "pudl.dagster.io_managers.PudlParquetIOManager", return_value=parquet_manager
     )
 
-    manager = PudlMixedFormatIOManager()
+    manager = PudlMixedFormatIOManager(pudl_paths=mocker.MagicMock())
 
     assert manager._sqlite_io_manager is sqlite_manager
     assert manager._parquet_io_manager is parquet_manager
