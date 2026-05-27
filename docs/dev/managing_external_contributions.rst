@@ -2,6 +2,11 @@
 Managing External Contributions
 ===============================================================================
 
+.. note::
+
+    Looking to contribute to PUDL? The guidelines for external contributors can be found at
+    :doc:`../CONTRIBUTING`.
+
 -------------------------------------------------------------------------------
 Overview
 -------------------------------------------------------------------------------
@@ -10,17 +15,71 @@ This document outlines norms, practical tips, and expectations for internal
 Catalyst developers reviewing external community contributions.
 
 -------------------------------------------------------------------------------
-Guidelines for contributors
+Guidelines for contributor review
 -------------------------------------------------------------------------------
 
-Looking to contribute to PUDL? The guidelines for external contributors can be found at :doc:`../CONTRIBUTING`.
+Contributor project management
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When you notice a new PR, flag it in the #comdev/contributor-PRs channel in Zulip.
+If nobody has volunteered to take on review, it will be assigned at the next community
+development meeting. From that point on, we should aim to maintain continuity of
+reviewer as much as possible for that given PR.
+
+Contributor PRs should be tracked in the `Community Contributions <https://github.com/orgs/catalyst-cooperative/projects/19>`__
+project board on Github.
+
+Responsiveness
+^^^^^^^^^^^^^^
+
+We aim to respond to new issues, discussion posts and PRs from contributors within one
+week at most.
+
+* Discussion posts: Initial responses should attempt to answer the question or provide
+  additional resources (e.g., office hours).
+* Issues: Initial responses should communicate prioritization, clarify any necessary
+  information, and provide an expected timeline of response if one is known.
+* PRs: Initial responses should assess whether the PR is ready for review,
+  address any high-level questions or missing information, and provide an expected
+  timeline for review. If the assigned internal reviewer takes more than 2 weeks to
+  provide a review, we should check-in and consider re-assigning the review to someone
+  else.
+
+Communication guidelines
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+When reviewing an external contributor's PR, a reviewer should:
+
+* Assume good intent.
+* Favor tasklists and clear steps as much as possible, over vague requests such as
+  "normalize the data".
+* Provide pointers to relevant code, particularly where we've already implemented
+  helper methods. E.g., rather than say "add this field to our metadata", ask someone
+  to "add this field to the FIELD_METADATA dictionary in pudl.src.metadata.fields".
+* Be clear about what's blocking a merge or isn't. Describe changes as non-blocking when
+  they are either our personal preferences or changes we'd be willing to take over
+  ownership of. We recommend using the `labels <https://conventionalcomments.org/#labels>`__
+  from Conventional Comments and referring contributors to this as a reference.
+* Give people the option to stretch their skills (e.g., take on an additional fix,
+  learn a new skill), while also providing an out. For instance, "this is the 3rd
+  time we've done something similar in this dataset's transformation - any interest in
+  refactoring these into one unified function?".
+* Recognize that "data cleaning" and "schema finessing" are different skillsets, and
+  we tend to be pickier about the latter. Fine-tuning field descriptions or table
+  metadata may be a natural point at which to takeover a contributor PR.
+
+Unresponsive contributors
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Our general protocol is to ping after a month of non-activity, and to close
+after a further two weeks if no response. We can always re-open a PR if need be.
 
 -------------------------------------------------------------------------------
 Common contributor management decisions
 -------------------------------------------------------------------------------
 
-The following guidelines cover several decision points that commonly arise when tending to PRs from
-external contributors:
+The following guidelines cover several decision points that commonly arise when tending
+to PRs from external contributors:
 
 * Deciding when to merge
 * Deciding when to take over
@@ -38,6 +97,8 @@ This decision follows from 🐥 taking small steps.
 
 We know that something is better if:
 
+* It addresses all or part of an existing Github issue.
+
 * It sets up an acceptable pausing point that someone else could pick up without
   requiring extensive context.
 
@@ -47,7 +108,7 @@ We know that something is better if:
   understood code, using well-chosen variable names, adding function definitions and
   in-line comments, and leaving enough context in the issue and PR to make it possible
   for others to expand on this work.
-* It has sufficient tests to be believable.
+* It has sufficient tests to be believable and guard against likely future changes.
 
   * Example: defending against load-bearing assumptions, but not checking every
     possible corner case
@@ -136,43 +197,6 @@ We would close a contributor PR if:
   * Example: hand-compiled mappings for data subject to frequent updates
 
 -------------------------------------------------------------------------------
-General procedures and guidelines for contributor review
--------------------------------------------------------------------------------
-
-Contributor project management
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-When you notice a new PR, flag it in the #comdev/contributor-PRs channel in Zulip.
-If nobody has volunteered to take on review, it will be assigned at the next community
-development meeting. From that point on, we should aim to maintain continuity of
-reviewer as much as possible for that given PR.
-
-We aim to respond to reviews within one week (two at most). Initial responses should
-assess whether the PR is ready for review, address any high-level questions or missing
-information, and provide an expected timeline for review.
-
-A Catalyst reviewer should
-
-
-Review timeline
-^^^^^^^^^^^^^^^
-
-
-
-Unresponsive contributors
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Our general protocol is to ping after a month of non-activity, and to close
-after a further two weeks if no response. We can always re-open a PR if need be.
-
-
-
-
-* Non-response
-  * Ping after a month
-  * Close after 6 weeks
-
--------------------------------------------------------------------------------
 Github incantations
 -------------------------------------------------------------------------------
 
@@ -205,3 +229,8 @@ To push your local branch directly to a contributor's PR, run the following:
     # If you have a different local branch name from the remote, it
     # should instead look like this
     git push user-name local-branch-name:remote-branch-name
+
+
+.. todo::
+
+    * Add good first issue norms and template information once established.
