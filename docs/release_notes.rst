@@ -31,6 +31,12 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+FERC 1
+~~~~~~
+
+* Added 2025 data from FERC form 1. This update includes several new renewable and
+  energy storage fields in several tables. See issue :issue:`5214` and PR :pr:`5236`.
+
 Documentation
 ^^^^^^^^^^^^^
 
