@@ -23,7 +23,6 @@ import pudl.logging_helpers
 from pudl import PUDL_ROOT_PATH
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.datastore import ZenodoDoiSettings
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -226,7 +225,7 @@ def build_pudl_datapackage_asset(
         name="pudl_datapackage",
         group_name="core_pudl",
         deps=list(parquet_asset_keys),
-        required_resource_keys={"zenodo_dois"},
+        required_resource_keys={"zenodo_dois", "pudl_paths"},
         description=(
             "Frictionless v2 datapackage descriptor for PUDL parquet outputs. "
             "Written to $PUDL_OUTPUT/parquet/datapackage.json."
@@ -253,7 +252,7 @@ def build_pudl_datapackage_asset(
         )
         _propagate_source_enrichments(descriptor)
 
-        parquet_path = PudlPaths().parquet_path()
+        parquet_path = context.resources.pudl_paths.parquet_path()
         enriched_count = _enrich_resources(descriptor, dag_metadata, parquet_path)
 
         total_resources = len(descriptor.get("resources", []))
