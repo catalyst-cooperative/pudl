@@ -217,6 +217,7 @@ def deployment_status_asset(
             logger.error("FERCEQR deployment handler failed!")
             logger.error(traceback.format_exc())
             _write_status_file("FAILURE", context.resources.pudl_paths)
+            raise
 
     return _status_handler_asset
 

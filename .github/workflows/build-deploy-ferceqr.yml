@@ -97,7 +97,7 @@ jobs:
             --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env FERCEQR_BUILD=true \
-            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GCS_OUTPUT_BUCKET=${{ env.GCS_OUTPUT_BUCKET }} \
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
