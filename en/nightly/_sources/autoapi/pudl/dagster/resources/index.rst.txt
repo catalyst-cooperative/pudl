@@ -26,6 +26,7 @@ Attributes
 .. autoapisummary::
 
    pudl.dagster.resources.global_data_config_resource
+   pudl.dagster.resources.pudl_paths_resource
    pudl.dagster.resources.zenodo_doi_settings_resource
    pudl.dagster.resources.datastore_resource
    pudl.dagster.resources.ferc_xbrl_runtime_settings
@@ -38,6 +39,7 @@ Classes
 
 .. autoapisummary::
 
+   pudl.dagster.resources.PudlPathsResource
    pudl.dagster.resources.FercXbrlRuntimeSettings
    pudl.dagster.resources.GlobalDataConfigResource
    pudl.dagster.resources.ZenodoDoiSettingsResource
@@ -47,6 +49,32 @@ Classes
 
 Module Contents
 ---------------
+
+.. py:class:: PudlPathsResource
+
+   Bases: :py:obj:`dagster.ConfigurableResource`
+
+
+   Load the input/output paths used by Dagster-managed PUDL runs.
+
+   Explicit Dagster resource config takes precedence. Any unset field falls back to
+   the current process environment so `dg` runs, local `.env` files, test fixtures,
+   and container-provided environment variables all share a single typed entry point.
+
+
+   .. py:attribute:: pudl_input
+      :type:  str
+
+
+   .. py:attribute:: pudl_output
+      :type:  str
+
+
+   .. py:method:: create_resource(context) -> pudl.workspace.setup.PudlPaths
+
+      Create validated runtime path settings for the current Dagster run.
+
+
 
 .. py:class:: FercXbrlRuntimeSettings
 
@@ -135,6 +163,10 @@ Module Contents
       :type:  dagster.ResourceDependency[ZenodoDoiSettingsResource]
 
 
+   .. py:attribute:: pudl_paths
+      :type:  dagster.ResourceDependency[PudlPathsResource]
+
+
    .. py:attribute:: cloud_cache_path
       :type:  str
       :value: 's3://pudl.catalyst.coop/zenodo'
@@ -177,6 +209,8 @@ Module Contents
 
 
 .. py:data:: global_data_config_resource
+
+.. py:data:: pudl_paths_resource
 
 .. py:data:: zenodo_doi_settings_resource
 

@@ -112,6 +112,10 @@ Module Contents
       If true, data will be read from parquet files instead of sqlite.
 
 
+   .. py:attribute:: pudl_paths
+      :type:  dagster.ResourceDependency[pudl.dagster.resources.PudlPathsResource]
+
+
    .. py:method:: validate_parquet_settings() -> PudlMixedFormatIOManager
 
       Ensure the configured read/write mode is internally consistent.
@@ -232,12 +236,28 @@ Module Contents
 
 
 
-.. py:class:: PudlParquetIOManager
+.. py:class:: PudlParquetIOManager(**data: Any)
 
-   Bases: :py:obj:`dagster.IOManager`
+   Bases: :py:obj:`dagster.ConfigurableIOManager`
 
 
    IOManager that writes pudl tables to pyarrow parquet files.
+
+
+   .. py:attribute:: pudl_paths
+      :type:  dagster.ResourceDependency[pudl.dagster.resources.PudlPathsResource]
+
+
+   .. py:method:: _record_parquet_file_metadata(context: dagster.OutputContext, parquet_path: pathlib.Path) -> None
+      :staticmethod:
+
+
+      Attach file size and SHA-256 hash to the Dagster output metadata.
+
+      This metadata is later retrieved by the ``pudl_datapackage`` asset to
+      populate the frictionless datapackage descriptor without re-reading the
+      parquet files.
+
 
 
    .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame | polars.LazyFrame) -> None
@@ -252,7 +272,7 @@ Module Contents
 
 
 
-.. py:class:: PudlGeoParquetIOManager
+.. py:class:: PudlGeoParquetIOManager(**data: Any)
 
    Bases: :py:obj:`PudlParquetIOManager`
 
@@ -326,6 +346,10 @@ Module Contents
 
    .. py:attribute:: global_data_config
       :type:  dagster.ResourceDependency[pudl.dagster.resources.GlobalDataConfigResource]
+
+
+   .. py:attribute:: pudl_paths
+      :type:  dagster.ResourceDependency[pudl.dagster.resources.PudlPathsResource]
 
 
    .. py:attribute:: zenodo_dois

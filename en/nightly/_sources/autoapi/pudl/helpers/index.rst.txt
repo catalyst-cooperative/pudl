@@ -1077,7 +1077,7 @@ Module Contents
                   kwargs too.
 
 
-.. py:function:: get_parquet_table_polars(table_name: str, partitions: dict | None = None) -> polars.LazyFrame
+.. py:function:: get_parquet_table_polars(table_name: str, partitions: dict | None = None, paths: pudl.workspace.setup.PudlPaths | None = None) -> polars.LazyFrame
 
    Read a table from a parquet file and return as a polars LazyFrame.
 
@@ -1088,7 +1088,7 @@ Module Contents
    :returns: A polars LazyFrame representing the table.
 
 
-.. py:function:: get_parquet_table(table_name: str, columns: list[str] | None = None, filters: list[tuple[str, str, Any]] | list[list[tuple[str, str, Any]]] | None = None) -> pandas.DataFrame | geopandas.GeoDataFrame
+.. py:function:: get_parquet_table(table_name: str, columns: list[str] | None = None, filters: list[tuple[str, str, Any]] | list[list[tuple[str, str, Any]]] | None = None, paths: pudl.workspace.setup.PudlPaths | None = None) -> pandas.DataFrame | geopandas.GeoDataFrame
 
    Read a table from Parquet files with optional column selection and filtering.
 
