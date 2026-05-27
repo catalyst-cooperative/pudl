@@ -10,15 +10,15 @@ For the closest Dagster concept, see
 https://docs.dagster.io/guides/build/assets/metadata-and-tags
 """
 
-import sqlite3
+import json
 from dataclasses import dataclass
 from importlib.metadata import version
 from pathlib import Path
 from typing import Literal
 
 import dagster as dg
-import sqlalchemy as sa
 from pydantic import BaseModel
+from upath import UPath
 
 import pudl.logging_helpers
 from pudl.settings import FercToSqliteDataConfig
@@ -90,38 +90,32 @@ class FercSqliteProvenanceRecord(BaseModel):
 
         return cls(**payload)
 
-    def to_sqlite(self, sqlite_path: Path):
-        """Write Provenance data to sqlite."""
-        with sa.create_engine(f"sqlite:///{sqlite_path}").begin() as conn:
-            conn.execute(
-                sa.text("""
-                CREATE TABLE IF NOT EXISTS _provenance_metadata (
-                    id INTEGER PRIMARY KEY CHECK (id = 1),
-                    metadata TEXT NOT NULL
-                )
-            """)
-            )
-
-            conn.execute(
-                sa.text(
-                    "INSERT INTO _provenance_metadata (metadata) VALUES (:metadata)"
-                ),
-                {"metadata": self.model_dump_json()},
-            )
+    def to_datapackage(self, datapackage_path: Path):
+        """Write Provenance data to datapackage JSON file."""
+        json_dict = json.loads(datapackage_path.read_text())
+        json_dict["provenance_metadata"] = self.model_dump(mode="json")
+        datapackage_path.write_text(json.dumps(json_dict, indent=2))
 
     @classmethod
-    def from_sqlite(cls, sqlite_path: Path) -> "FercSqliteProvenanceRecord":
-        """Read SQLite provenance metadata from DB."""
-        try:
-            with sa.create_engine(f"sqlite:///{sqlite_path}").begin() as conn:
-                row = conn.execute(
-                    sa.text("SELECT metadata FROM _provenance_metadata WHERE id = 1")
-                ).scalar_one()
-        except (sa.exc.OperationalError, sqlite3.OperationalError):
-            logger.warning(f"No provenance metadata available for {sqlite_path}.")
-            return None
+    def from_datapackage(cls, datapackage_path: UPath) -> "FercSqliteProvenanceRecord":
+        """Read SQLite provenance metadata from datapackage JSON file.
 
-        return cls.model_validate_json(row)
+        Note that this method accepts ``datapackage_path`` as a ``UPath`` as we read
+        provenance metadata directly from nightly builds, but ``to_datapackage`` only
+        accepts a regular ``Path``, as we should never try to write directly to s3.
+        """
+        if datapackage_path.exists():
+            json_dict = json.loads(datapackage_path.read_text())
+            if (provenance := json_dict.get("provenance_metadata", None)) is not None:
+                return cls.model_validate(provenance)
+            # Handle legacy datapackages that didn't contain
+            logger.warning(f"{datapackage_path} does not contain provenance metadata.")
+        else:
+            # Handle missing datapackage, which typically means you haven't run ferc_sqlite yet
+            logger.warning(f"{datapackage_path} does not exist.")
+
+        # If we get here that means we couldn't find provenance metadata
+        return None
 
 
 def get_xbrl_extractor_version() -> str:
@@ -149,8 +143,9 @@ def ferc_sqlite_provenance_is_compatible(
     """
     if observed_provenance is None:
         logger.warning(
-            "No observed provenance provided. This usually indicates that a DB was "
-            "created before the provenance metadata feature was added."
+            "No observed provenance provided. This usually indicates that a datapackage was "
+            "created before the provenance metadata feature was added, or that the datapackage "
+            "does not exist locally."
         )
         return False
     if observed_provenance.status == "not_configured":

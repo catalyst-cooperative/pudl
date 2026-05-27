@@ -42,10 +42,11 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
     assert recovered.data_config == data_config
 
 
-def test_ferc_sqlite_provenance_record_round_trip_sqlite(tmp_path):
+def test_ferc_sqlite_provenance_record_round_trip_datapackage(tmp_path):
     """Test ``FercSqliteProvenanceRecord`` to sqlite and back again."""
     data_config = FercToSqliteDataConfig()
-    sqlite_path = tmp_path / "test.sqlite"
+    datapackage_path = tmp_path / "test_datapackage.json"
+    datapackage_path.write_text("{}")
     record = FercSqliteProvenanceRecord(
         dataset="ferc1",
         data_format="dbf",
@@ -57,10 +58,10 @@ def test_ferc_sqlite_provenance_record_round_trip_sqlite(tmp_path):
     )
 
     # Write to sqlite
-    record.to_sqlite(sqlite_path)
+    record.to_datapackage(datapackage_path)
 
     # Recover and compare
-    recovered = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
+    recovered = FercSqliteProvenanceRecord.from_datapackage(datapackage_path)
     assert recovered == record
     assert recovered.data_config == data_config
 

@@ -64,6 +64,11 @@ def _download_nightly_db(sqlite_path: Path):
         local_sqlite.write(nightly_sqlite.read())
 
 
+def _get_datapackage_name(dataset: str, data_format: str) -> str:
+    """Return name of datapackage JSON file."""
+    return f"{dataset}_{data_format}_datapackage.json"
+
+
 def _check_for_cached_db_w_compatible_provenance(
     dataset: str,
     data_format: str,
@@ -104,7 +109,10 @@ def _check_for_cached_db_w_compatible_provenance(
     compatible_metadata = None
 
     # Check local DB first
-    local_provenance = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
+    datapackage_name = _get_datapackage_name(dataset, data_format)
+    local_provenance = FercSqliteProvenanceRecord.from_datapackage(
+        sqlite_path.parent / datapackage_name
+    )
 
     # Check if local or nightly dbs contain compatible provenance metadata
     if ferc_sqlite_provenance_is_compatible(
@@ -115,18 +123,21 @@ def _check_for_cached_db_w_compatible_provenance(
         logger.info(
             f"Downloading {sqlite_path.name} from nightly builds to check provenance."
         )
-        # Fail gracefully if nightly builds download fails
-        try:
-            _download_nightly_db(sqlite_path)
-        except NETWORK_ERRORS as e:
-            logger.warning(
-                f"Failed to download {sqlite_path.name} from nightly builds. See: \n{e}"
-            )
-        nightly_provenance = FercSqliteProvenanceRecord.from_sqlite(sqlite_path)
+        nightly_provenance = FercSqliteProvenanceRecord.from_datapackage(
+            PUDL_NIGHTLY_BUILDS_BASE_PATH / datapackage_name
+        )
+
         if ferc_sqlite_provenance_is_compatible(
             required_provenance=provenance, observed_provenance=nightly_provenance
         ):
-            compatible_metadata = nightly_provenance
+            # Fail gracefully if nightly builds download fails
+            try:
+                _download_nightly_db(sqlite_path)
+                compatible_metadata = nightly_provenance
+            except NETWORK_ERRORS as e:
+                logger.warning(
+                    f"Failed to download {sqlite_path.name} from nightly builds. See: \n{e}"
+                )
 
     if compatible_metadata is None:
         logger.info(
@@ -207,10 +218,12 @@ def ferc_to_sqlite_asset_factory(
                 data_config=ferc_to_sqlite,
                 ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
             )
-            provenance.to_sqlite(sqlite_path)
+            provenance.to_datapackage(
+                sqlite_path.parent / f"{dataset}_{data_format}_datapackage.json"
+            )
         else:
             logger.info(
-                f"Found compatible cached SQLite DB for {sqlite_path.name}. Skipping extraction."
+                f"Found compatible cached SQLite DB for {dataset}_{data_format}. Skipping extraction."
             )
 
         # Return provenance metadata
@@ -232,7 +245,7 @@ raw_ferc1_dbf__sqlite = ferc_to_sqlite_asset_factory(
     extract_function=lambda context: Ferc1DbfExtractor(
         datastore=context.resources.datastore,
         data_config=context.resources.global_data_config.ferc_to_sqlite,
-        output_path=context.resources.pudl_paths.output_dir,
+        output_path=context.resources.pudl_paths.pudl_output,
     ).execute(),
     op_tags={"dagster/priority": 10},
 )
@@ -242,7 +255,7 @@ raw_ferc2_dbf__sqlite = ferc_to_sqlite_asset_factory(
     extract_function=lambda context: Ferc2DbfExtractor(
         datastore=context.resources.datastore,
         data_config=context.resources.global_data_config.ferc_to_sqlite,
-        output_path=context.resources.pudl_paths.output_dir,
+        output_path=context.resources.pudl_paths.pudl_output,
     ).execute(),
     op_tags={"dagster/priority": 10},
 )
@@ -252,7 +265,7 @@ raw_ferc6_dbf__sqlite = ferc_to_sqlite_asset_factory(
     extract_function=lambda context: Ferc6DbfExtractor(
         datastore=context.resources.datastore,
         data_config=context.resources.global_data_config.ferc_to_sqlite,
-        output_path=context.resources.pudl_paths.output_dir,
+        output_path=context.resources.pudl_paths.pudl_output,
     ).execute(),
     op_tags={"dagster/priority": 10},
 )
@@ -262,7 +275,7 @@ raw_ferc60_dbf__sqlite = ferc_to_sqlite_asset_factory(
     extract_function=lambda context: Ferc60DbfExtractor(
         datastore=context.resources.datastore,
         data_config=context.resources.global_data_config.ferc_to_sqlite,
-        output_path=context.resources.pudl_paths.output_dir,
+        output_path=context.resources.pudl_paths.pudl_output,
     ).execute(),
     op_tags={"dagster/priority": 10},
 )

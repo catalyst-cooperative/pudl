@@ -1,7 +1,7 @@
 """Tests for xbrl extraction module."""
 
+import json
 from pathlib import Path
-from zipfile import ZipFile
 
 import dagster as dg
 import pytest
@@ -11,6 +11,7 @@ from dagster._core.definitions.assets.definition.assets_definition import (
 )
 from dagster._core.execution.execute_in_process_result import ExecuteInProcessResult
 
+from pudl import PUDL_NIGHTLY_BUILDS_BASE_PATH
 from pudl.dagster.assets.raw import ferc_to_sqlite
 from pudl.dagster.provenance import (
     FercSqliteProvenanceRecord,
@@ -131,7 +132,7 @@ def test_xbrl2sqlite(data_config, forms, mocker, pudl_test_paths):
     )
     # Skip writing provenance metadata to sqlite
     mocker.patch(
-        "pudl.dagster.assets.raw.ferc_to_sqlite.FercSqliteProvenanceRecord.to_sqlite"
+        "pudl.dagster.assets.raw.ferc_to_sqlite.FercSqliteProvenanceRecord.to_datapackage"
     )
 
     xbrl_assets: list[AssetsDefinition] = [
@@ -249,27 +250,6 @@ def test_ferc_dbf_extractor_skips_with_empty_years(mocker, tmp_path):
     delete_schema_mock.assert_not_called()
 
 
-def _prep_cached_dbs(
-    local_provenance: FercSqliteProvenanceRecord,
-    nightly_provenance: FercSqliteProvenanceRecord,
-    local_sqlite_path: Path,
-    nightly_sqlite_path: Path,
-    nightly_zip_path: Path,
-):
-    """Prep cached dbs with provenance metadata."""
-    # Delete db's if they exist for fresh start
-    local_sqlite_path.unlink(missing_ok=True)
-    nightly_sqlite_path.unlink(missing_ok=True)
-
-    # Write records to DB's
-    local_provenance.to_sqlite(local_sqlite_path)
-    nightly_provenance.to_sqlite(nightly_sqlite_path)
-
-    # Zip nightly db to simulate how FERC sqlite dbs are actually distributed
-    with ZipFile(nightly_zip_path, mode="w") as archive:
-        archive.write(nightly_sqlite_path, local_sqlite_path.name)
-
-
 def _run_ferc_to_sqlite_asset(
     zenodo_doi: str, test_asset, data_config, mocker, local_path
 ) -> FercSqliteProvenanceRecord:
@@ -304,13 +284,17 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
     nightly_doi = "10.5072/zenodo.2"
     uncached_doi = "10.5072/zenodo.3"
     local_path = tmp_path / "local_ferc1_dbf.sqlite"
-    nightly_path = tmp_path / "nightly_ferc1_dbf.sqlite"
-    nightly_zip_path = tmp_path / "nightly.zip"
+    local_datapackage_path = local_path.parent / ferc_to_sqlite._get_datapackage_name(
+        dataset, data_format
+    )
+    nightly_datapackage_path = (
+        PUDL_NIGHTLY_BUILDS_BASE_PATH
+        / ferc_to_sqlite._get_datapackage_name(dataset, data_format)
+    )
+    local_datapackage_path.write_text("{}")
 
     # Create test asset
-    mock_extract_function = mocker.MagicMock(
-        side_effect=lambda *_args: local_path.unlink()
-    )
+    mock_extract_function = mocker.MagicMock()
     test_asset = ferc_to_sqlite.ferc_to_sqlite_asset_factory(
         dataset=dataset,
         data_format=data_format,
@@ -334,14 +318,19 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
         years=years,
         ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
     )
-    _prep_cached_dbs(
-        local_provenance, nightly_provenance, local_path, nightly_path, nightly_zip_path
+
+    # Mock load provenance
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite.FercSqliteProvenanceRecord.from_datapackage",
+        side_effect=lambda key: {
+            local_datapackage_path: local_provenance,
+            nightly_datapackage_path: nightly_provenance,
+        }.get(key),
     )
 
     # Mock nightly downloads
     mocker.patch(
-        "pudl.dagster.assets.raw.ferc_to_sqlite.fsspec.open",
-        side_effect=lambda _path, _mode, **kwargs: nightly_zip_path.open("rb"),
+        "pudl.dagster.assets.raw.ferc_to_sqlite._download_nightly_db",
     )
 
     # Test with local doi to return local_provenance record
@@ -351,21 +340,17 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
     mock_extract_function.assert_not_called()
 
     # Test with nightly doi to return nightly_provenance record
-    _prep_cached_dbs(
-        local_provenance, nightly_provenance, local_path, nightly_path, nightly_zip_path
-    )
     assert nightly_provenance == _run_ferc_to_sqlite_asset(
         nightly_doi, test_asset, data_config, mocker, local_path
     )
     mock_extract_function.assert_not_called()
 
     # Test with doi from neither local / nightly, which should trigger extraction
-    _prep_cached_dbs(
-        local_provenance, nightly_provenance, local_path, nightly_path, nightly_zip_path
-    )
     uncached_provenance = _run_ferc_to_sqlite_asset(
         uncached_doi, test_asset, data_config, mocker, local_path
     )
     assert uncached_provenance.zenodo_doi == uncached_doi
-    assert uncached_provenance == FercSqliteProvenanceRecord.from_sqlite(local_path)
+    assert uncached_provenance == FercSqliteProvenanceRecord.model_validate(
+        json.loads(local_datapackage_path.read_text())["provenance_metadata"]
+    )
     mock_extract_function.assert_called_once()
