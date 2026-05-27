@@ -127,7 +127,7 @@ class ZulipNotificationResource(dg.ConfigurableResource):
     """Send notifications to Zulip streams via the Zulip API."""
 
     base_url: str = "https://catalyst-cooperative.zulipchat.com"
-    bot_email: str = "deployment-bot@catalyst-cooperative.zulipchat.com"
+    bot_email: str = "build-status-bot@catalyst-cooperative.zulipchat.com"
     api_key: str = dg.EnvVar("ZULIP_API_KEY")
     timeout_seconds: int = 30
 
