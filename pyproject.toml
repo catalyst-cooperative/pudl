@@ -192,90 +192,6 @@ ty = ">=0.0.25" # Experimental, also for agent skills use
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
 
-########################################################################################
-# Conda package build configuration. This is used by pixi to build the conda package
-########################################################################################
-[tool.pixi.package]
-version = "v0.0.0"
-
-[tool.pixi.package.build.backend]
-name = "pixi-build-python"
-version = ">=0.4.3"
-channels = ["conda-forge"]
-
-[tool.pixi.package.build-dependencies]
-python = ">=3.13,<3.14.0"
-
-[tool.pixi.package.host-dependencies]
-hatchling = ">=1.29"
-hatch-vcs = ">=0.5"
-uv = ">=0.11"
-
-# This is a list of the minimal set of run-time dependencies required for PUDL to
-# be installed and function properly. These should be kept in sync with the more
-# expansive list in [tool.pixi.dependencies] above.
-[tool.pixi.package.run-dependencies]
-alembic = ">=1.17"
-boto3 = ">=1.35"
-bottleneck = ">=1.5.0"
-"catalystcoop.dbfread" = ">=3.0,<3.1"
-"catalystcoop.ferc_xbrl_extractor" = ">=1.10,<1.11"
-click = ">=8.3.3"
-coloredlogs = ">=14.0"
-dagster = ">=1.13"
-dagster-dbt = ">=0.29"
-dagster-postgres = ">=0.29"
-dagster-webserver = ">=1.13"
-dbt-core = ">=1.11.8"
-dbt-duckdb = ">=1.9.4"
-email-validator = ">=1.0.3"
-frictionless = ">=5,<6"
-fsspec = ">=2026"
-gcsfs = ">=2026"
-gdal = ">=3.12.4"
-geoarrow-pyarrow = ">=0.2"
-geopandas = ">=1.1"
-# grpcio packages all need to have same version to avoid conflicts.
-# They are also compiled and finnicky. Check compatibility before upgrading.
-grpcio = "==1.78.1"
-grpcio-health-checking = "==1.78.1"
-grpcio-status = "==1.78.1"
-jellyfish = ">=1"
-jinja2 = ">=3.1"
-matplotlib-base = ">=3.10"
-mlflow = ">=3.11"
-networkx = ">=3.6"
-numba = ">=0.65"
-numexpr = ">=2.10"
-numpy = ">=2.4"
-packaging = ">=25"
-pandas = ">=2.3"
-pandera-polars = ">=0.30"
-polars = ">=1.40"
-pyarrow = ">=23"
-pydantic = ">=2.13"
-pydantic-settings = ">=2.13"
-python-calamine = ">=0.6.1"
-python-dotenv = ">=1"
-python-duckdb = ">=1.4,<1.5"
-pytz = ">=2025"
-pyyaml = ">=6"
-requests = ">=2.32"
-s3fs = ">=2026"
-scikit-learn = ">=1.8"
-scipy = ">=1.17"
-shapely = ">=2.1.1"
-splink = ">=4.0.14"
-sqlalchemy = ">=2"
-timezonefinder = ">=8"
-universal-pathlib = ">=0.3.10"
-urllib3 = ">=2.4"
-usaddress = ">=0.5.16,<0.6"
-xlsxwriter = ">=3.2"
-
-########################################################################################
-########################################################################################
-
 [tool.pixi.activation.env]
 # Reusable variables for pixi tasks
 DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
@@ -478,9 +394,9 @@ description = "Update dbt dependencies"
 
 [tool.pixi.tasks.devcontainer-install]
 cmd = """
-pixi install -e dev \
-    && pixi run -e dev install-skills \
-    && npm install -g \
+pixi install --frozen --locked \
+    && pixi run install-skills \
+    && npm install -g --prefer-offline --no-audit --no-fund \
       @anthropic-ai/claude-code \
       @google/gemini-cli \
       @openai/codex \
@@ -491,10 +407,9 @@ description = "Set up the dev container: install pixi environment, skills, and a
 
 [tool.pixi.tasks.devcontainer-rebuild]
 cmd = """
-docker volume rm pudl-pixi || true \
-    && npx -y @devcontainers/cli build --workspace-folder . --log-level info
+npx -y @devcontainers/cli build --workspace-folder . --log-level info
 """
-description = "Rebuild the dev container image metadata and recreate the named pixi cache volume"
+description = "Rebuild devcontainer image metadata (workspace .pixi and caches are now separate volumes)"
 
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command

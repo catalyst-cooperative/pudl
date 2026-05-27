@@ -21,9 +21,11 @@ should go in dbt.
 """
 
 import itertools
+import json
 from typing import Any
 
 import dagster as dg
+import frictionless
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import pandera.pandas as pr_pandas
@@ -340,6 +342,63 @@ def asset_check_from_schema(  # noqa: C901
     return pandera_schema_check
 
 
+def _validate_datapackage_descriptor(descriptor: dict) -> list[str]:
+    """Validate the descriptor against the frictionless spec; return error list.
+
+    ``frictionless.Package.metadata_validate`` validates recursively through
+    resources, schemas, and fields.  For certain structural errors (e.g. an
+    unrecognised field type) it raises ``FrictionlessException`` rather than
+    yielding; this wrapper ensures list[str] output whether an error
+    occurs or not.
+    """
+    try:
+        return [str(e) for e in frictionless.Package.metadata_validate(descriptor)]
+    except frictionless.FrictionlessException as exc:
+        return [str(exc)]
+
+
+def valid_datapackage_check(
+    asset_key: dg.AssetKey | str,
+    *,
+    description: str = "Validate a frictionless datapackage descriptor against the spec.",
+    blocking: bool = True,
+) -> dg.AssetChecksDefinition:
+    """Return a Dagster asset check that validates a frictionless datapackage descriptor.
+
+    The check reads ``$PUDL_OUTPUT/parquet/datapackage.json`` from the injected
+    ``pudl_paths`` Dagster resource at run time and validates it recursively through
+    resources, schemas, and fields against the frictionless spec using
+    :func:`frictionless.Package.metadata_validate`.
+
+    Args:
+        asset_key: Key of the asset that produces the datapackage descriptor.
+        description: Human-readable description attached to the check in the
+            Dagster UI.
+        blocking: Whether the check is blocking (default ``True``).
+    """
+
+    @dg.asset_check(
+        asset=asset_key,
+        blocking=blocking,
+        description=description,
+        required_resource_keys={"pudl_paths"},
+    )
+    def _datapackage_check(
+        context: dg.AssetCheckExecutionContext,
+    ) -> dg.AssetCheckResult:
+        descriptor_path = (
+            context.resources.pudl_paths.parquet_path() / "datapackage.json"
+        )
+        descriptor = json.loads(descriptor_path.read_text())
+        errors = _validate_datapackage_descriptor(descriptor)
+        return dg.AssetCheckResult(
+            passed=not errors,
+            metadata={"errors": dg.MetadataValue.json(errors)},
+        )
+
+    return _datapackage_check
+
+
 default_asset_checks = list(
     itertools.chain.from_iterable(
         dg.load_asset_checks_from_modules(modules)
@@ -372,7 +431,18 @@ default_asset_checks += [
     if check is not None
 ]
 
+default_asset_checks.append(
+    valid_datapackage_check(
+        "pudl_datapackage",
+        description=(
+            "Validate the PUDL datapackage descriptor against the frictionless v2 spec. "
+            "Checks structure recursively through resources, schemas, and fields."
+        ),
+    )
+)
+
 __all__ = [
+    "valid_datapackage_check",
     "asset_check_from_schema",
     "group_mean_continuity_check",
     "default_asset_checks",

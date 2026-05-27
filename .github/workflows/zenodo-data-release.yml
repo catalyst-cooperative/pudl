@@ -19,7 +19,7 @@ on:
       ignore_regex:
         description: "Ignore files matching this regex:"
         required: false
-        default: '(^.*\.parquet$|^pudl_parquet_datapackage\.json$)'
+        default: '^.*\.parquet$'
       publish:
         description: "Automatically publish Zenodo record?"
         required: true
@@ -56,7 +56,7 @@ jobs:
           aws-region: "us-west-2"
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true

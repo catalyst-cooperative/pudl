@@ -30,6 +30,7 @@ def plants_ferc1_raw_df(
     tmp_path_factory: pytest.TempPathFactory,
     worker_id: str,
     global_data_config_path: Path,
+    pudl_test_paths,
 ) -> pd.DataFrame:
     """Return plants_ferc1_raw, computing it at most once across all xdist workers.
 
@@ -47,6 +48,12 @@ def plants_ferc1_raw_df(
                         "config": {
                             "global_data_config_path": str(global_data_config_path)
                         },
+                    },
+                    "pudl_paths": {
+                        "config": {
+                            "pudl_input": str(pudl_test_paths.pudl_input),
+                            "pudl_output": str(pudl_test_paths.pudl_output),
+                        }
                     },
                 },
             },

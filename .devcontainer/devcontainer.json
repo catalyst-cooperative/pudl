@@ -4,12 +4,17 @@
         "context": "..",
         "dockerfile": "Dockerfile"
     },
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/pudl,type=bind,consistency=cached",
+    "workspaceFolder": "/workspaces/pudl",
     "mounts": [
-        "source=pudl-pixi,target=${containerWorkspaceFolder}/.pixi,type=volume",
+        "source=pudl-pixi-${localWorkspaceFolderBasename},target=${containerWorkspaceFolder}/.pixi,type=volume",
+        "source=pudl-rattler-cache,target=/home/ubuntu/.cache/rattler,type=volume",
+        "source=pudl-pip-cache,target=/home/ubuntu/.cache/pip,type=volume",
+        "source=pudl-npm-cache,target=/home/ubuntu/.cache/npm,type=volume",
         "source=${localEnv:PUDL_INPUT},target=/workspaces/pudl-input,type=bind,consistency=cached",
         "source=${localEnv:PUDL_OUTPUT},target=/workspaces/pudl-output,type=bind,consistency=cached",
         "source=${localEnv:DAGSTER_HOME},target=/workspaces/dagster-home,type=bind,consistency=cached",
-        "source=${localEnv:PUDL_ROOT_PATH}/.git,target=/workspaces/pudl.git,type=bind,consistency=cached"
+        "source=${localEnv:PUDL_ROOT_PATH}/.git,target=${localEnv:PUDL_ROOT_PATH}/.git,type=bind,consistency=cached"
     ],
     "containerEnv": {
         "PUDL_INPUT": "/workspaces/pudl-input",
@@ -21,13 +26,13 @@
         "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
         "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
         "OPENROUTER_API_KEY": "${localEnv:OPENROUTER_API_KEY}",
-        "NPM_CONFIG_CACHE": "${containerWorkspaceFolder}/.pixi/.npm-cache"
+        "NPM_CONFIG_CACHE": "/home/ubuntu/.cache/npm"
     },
     "remoteEnv": {
         "PATH": "/home/ubuntu/.pixi/bin:${containerEnv:PATH}"
     },
     "waitFor": "postCreateCommand",
-    "postCreateCommand": ".devcontainer/fix-git-worktree.sh && pixi run -e dev devcontainer-install",
+    "postCreateCommand": "sudo mkdir -p ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && sudo chown ubuntu:ubuntu ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && pixi run -e dev devcontainer-install",
     "remoteUser": "ubuntu",
     "customizations": {
         "vscode": {
@@ -44,6 +49,11 @@
                 "python.defaultInterpreterPath": "${workspaceFolder}/.pixi/envs/dev/bin/python",
                 "python.terminal.activateEnvironment": false,
                 "python.createEnvironment.trigger": "off",
+                "chat.agent.sandbox.enabled": "off",
+                "chat.tools.global.autoApprove": true,
+                "chat.agent.sandbox.allowUnsandboxedCommands": true,
+                "claudeCode.allowDangerouslySkipPermissions": true,
+                "claudeCode.initialPermissionMode": "bypassPermissions",
                 "evenBetterToml.taplo.path": "/home/ubuntu/.pixi/bin/taplo",
                 "[python]": {
                     "editor.defaultFormatter": "charliermarsh.ruff",
