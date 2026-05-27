@@ -115,7 +115,7 @@ SOURCES: dict[str, Any] = {
                 "All companies that operate underground natural gas storage fields in "
                 "the United States."
             ),
-            "source_format": "CSV",
+            "source_format": "Comma Separated Value (.csv)",
         },
         "working_partitions": {"years": sorted(set(range(2014, 2027)))},
         "contributors": [
