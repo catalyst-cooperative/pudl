@@ -86,7 +86,6 @@ from pudl.extract.dbf import (
     add_key_constraints,
     deduplicate_by_year,
 )
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -424,7 +423,7 @@ raw_ferc1_assets = create_raw_ferc1_assets()
 # asset name.
 
 
-@asset(deps=[FERC1_XBRL_SQLITE_ASSET_KEY])
+@asset(deps=[FERC1_XBRL_SQLITE_ASSET_KEY], required_resource_keys={"pudl_paths"})
 def raw_ferc1_xbrl__metadata_json(
     context,
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -440,8 +439,7 @@ def raw_ferc1_xbrl__metadata_json(
         instead.
     """
     metadata_path = (
-        PudlPaths().output_dir  # type: ignore[call-arg]
-        / "ferc1_xbrl_taxonomy_metadata.json"
+        context.resources.pudl_paths.pudl_output / "ferc1_xbrl_taxonomy_metadata.json"
     )
     with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)

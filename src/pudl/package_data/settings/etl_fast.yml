@@ -51,7 +51,7 @@ pudl:
       years: [2020, 2024]
       eia860m: true
     eia860m:
-      year_months: ["2026-02", "2026-03"]
+      year_months: ["2026-03", "2026-04"]
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
       # This is a temporary hack to make the tests pass!
