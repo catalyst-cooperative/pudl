@@ -115,7 +115,7 @@ SOURCES: dict[str, Any] = {
                 "All companies that operate underground natural gas storage fields in "
                 "the United States."
             ),
-            "source_format": "JSON",
+            "source_format": "Comma Separated Value (.csv)",
         },
         "working_partitions": {"years": sorted(set(range(2014, 2027)))},
         "contributors": [
@@ -228,7 +228,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2026-03", freq="M")
+                for q in pd.period_range(start="2015-07", end="2026-04", freq="M")
             ],
         },
         "keywords": sorted(

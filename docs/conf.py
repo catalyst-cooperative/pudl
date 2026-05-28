@@ -265,6 +265,7 @@ INCLUDED_SOURCES = [
     "censuspep",
     "eiaapi",
     "eia176",
+    "eia191",
     "eia860",
     "eia861",
     "eia923",
