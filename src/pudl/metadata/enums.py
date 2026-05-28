@@ -188,6 +188,21 @@ CUSTOMER_CLASSES_EIA176: list[str] = [
     "vehicle_fuel",
 ]
 
+SUPPLY_TYPES_EIA176: list[str] = [
+    "natural_gas_production",
+    "synthetic_gas_production",
+    "underground_storage_withdrawals",
+    "lng_storage_withdrawals",
+    "above_ground_storage_withdrawals",
+    "receipts_from_state_or_us_border",
+    "total_citygate_receipts",
+    "citygate_receipts_sales_customers",
+    "citygate_receipts_transportation_customers",
+    "other_receipts",
+    "supplemental_gaseous_fuels",
+    "total",
+]
+
 TECH_CLASSES: list[str] = [
     "backup",  # WHERE Is this used? because removed from DG table b/c not a real component
     "chp_cogen",

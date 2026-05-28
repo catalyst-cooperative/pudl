@@ -13,6 +13,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
 supplemental gaseous fuels are reported as aggregate totals in this table. The original
 granular continuation-line records contain additional counterparty and fuel-type details,
 but they are not yet included in PUDL.
+
+Total citygate receipts are reported alongside the sales-customer and transportation-customer
+components that split out those receipts after 2010.
             """,
         },
         "schema": {
@@ -20,22 +23,13 @@ but they are not yet included in PUDL.
                 "operator_id_eia",
                 "report_year",
                 "operating_state",
-                "natural_gas_production_mcf",
-                "synthetic_gas_production_mcf",
-                "underground_storage_withdrawals_mcf",
-                "lng_storage_withdrawals_mcf",
-                "above_ground_storage_withdrawals_mcf",
-                "receipts_from_state_or_us_border_mcf",
-                "total_citygate_receipts_mcf",
-                "citygate_receipts_sales_customers_mcf",
-                "citygate_receipts_transportation_customers_mcf",
-                "other_receipts_mcf",
-                "supplemental_gaseous_fuels_mcf",
-                "total_supply_mcf",
+                "supply_type",
+                "volume_mcf",
             ],
             "primary_key": [
                 "operator_id_eia",
                 "report_year",
+                "supply_type",
             ],
         },
         "field_namespace": "eia",

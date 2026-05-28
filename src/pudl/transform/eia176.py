@@ -365,60 +365,41 @@ def core_eia176__yearly_gas_supply(
     """Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0)."""
     primary_key = ["operator_id_eia", "report_year"]
     extras = ["operating_state"]
-    keep = [
+    supply_type_map = {
         # 1.0
-        "production_volume",
-        "synthetic_production_volume",
+        "production_volume": "natural_gas_production",
+        "synthetic_production_volume": "synthetic_gas_production",
         # 2.0
-        "underground_storage_withdrawals_volume",
-        "lng_storage_withdrawals_volume",
-        "above_ground_storage_withdrawals_volume",
+        "underground_storage_withdrawals_volume": "underground_storage_withdrawals",
+        "lng_storage_withdrawals_volume": "lng_storage_withdrawals",
+        "above_ground_storage_withdrawals_volume": "above_ground_storage_withdrawals",
         # 3.0
-        "receipts_from_state_or_us_border_volume",
+        "receipts_from_state_or_us_border_volume": "receipts_from_state_or_us_border",
         # 4.0
-        "receipts_at_citygate_volume",
-        "receipts_at_citygate_delivered_to_sales_customers_volume",
-        "receipts_at_citygate_delivered_to_transportation_customers_volume",
+        "receipts_at_citygate_volume": "total_citygate_receipts",
+        "receipts_at_citygate_delivered_to_sales_customers_volume": (
+            "citygate_receipts_sales_customers"
+        ),
+        "receipts_at_citygate_delivered_to_transportation_customers_volume": (
+            "citygate_receipts_transportation_customers"
+        ),
         # 5.0
-        "other_receipts_volume",
+        "other_receipts_volume": "other_receipts",
         # 6.0
-        "supplemental_gaseous_fuels_volume",
+        "supplemental_gaseous_fuels_volume": "supplemental_gaseous_fuels",
         # 7.0
-        "total_supply_volume",
-    ]
+        "total_supply_volume": "total",
+    }
 
-    df = _core_eia176__yearly_company_data.filter([*primary_key, *extras, *keep])
+    df = _core_eia176__yearly_company_data.filter(
+        [*primary_key, *extras, *supply_type_map]
+    )
 
     df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
     df = df.dropna(subset=["operating_state"])
-    df = df.rename(
-        columns={
-            "production_volume": "natural_gas_production_mcf",
-            "synthetic_production_volume": "synthetic_gas_production_mcf",
-            "underground_storage_withdrawals_volume": (
-                "underground_storage_withdrawals_mcf"
-            ),
-            "lng_storage_withdrawals_volume": "lng_storage_withdrawals_mcf",
-            "above_ground_storage_withdrawals_volume": (
-                "above_ground_storage_withdrawals_mcf"
-            ),
-            "receipts_from_state_or_us_border_volume": (
-                "receipts_from_state_or_us_border_mcf"
-            ),
-            "receipts_at_citygate_volume": "total_citygate_receipts_mcf",
-            "receipts_at_citygate_delivered_to_sales_customers_volume": (
-                "citygate_receipts_sales_customers_mcf"
-            ),
-            "receipts_at_citygate_delivered_to_transportation_customers_volume": (
-                "citygate_receipts_transportation_customers_mcf"
-            ),
-            "other_receipts_volume": "other_receipts_mcf",
-            "supplemental_gaseous_fuels_volume": "supplemental_gaseous_fuels_mcf",
-            "total_supply_volume": "total_supply_mcf",
-        }
-    )
+    df = df.rename(columns=supply_type_map)
 
-    supply_cols = [col for col in df.columns if col.endswith("_mcf")]
+    supply_cols = list(supply_type_map.values())
     df = df.dropna(subset=supply_cols, how="all")
 
     # Validation
@@ -434,7 +415,7 @@ def core_eia176__yearly_gas_supply(
         df=df,
         raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
         line=300,
-        value_col="receipts_from_state_or_us_border_mcf",
+        value_col="receipts_from_state_or_us_border",
         continuation_col="continuation_receipts_from_state_or_us_border_mcf",
     )
     assert len(line_3_mismatches) <= 2, "More than 2 line 3.0 receipts mismatches"
@@ -443,33 +424,38 @@ def core_eia176__yearly_gas_supply(
         df=df,
         raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
         line=600,
-        value_col="supplemental_gaseous_fuels_mcf",
+        value_col="supplemental_gaseous_fuels",
         continuation_col="continuation_supplemental_gaseous_fuels_mcf",
     )
     assert line_6_mismatches.empty, (
         "Found line 6.0 supplemental gaseous fuels mismatches"
     )
 
-    return df
+    return df.melt(
+        id_vars=[*primary_key, *extras],
+        value_vars=supply_cols,
+        var_name="supply_type",
+        value_name="volume_mcf",
+    ).dropna(subset=["volume_mcf"])
 
 
 def _find_eia176_total_supply_mismatches(df: pd.DataFrame) -> pd.DataFrame:
     """Find EIA-176 records whose reported total supply does not match components."""
     total_supply_components = [
-        "natural_gas_production_mcf",
-        "synthetic_gas_production_mcf",
-        "underground_storage_withdrawals_mcf",
-        "lng_storage_withdrawals_mcf",
-        "above_ground_storage_withdrawals_mcf",
-        "receipts_from_state_or_us_border_mcf",
-        "other_receipts_mcf",
-        "supplemental_gaseous_fuels_mcf",
+        "natural_gas_production",
+        "synthetic_gas_production",
+        "underground_storage_withdrawals",
+        "lng_storage_withdrawals",
+        "above_ground_storage_withdrawals",
+        "receipts_from_state_or_us_border",
+        "other_receipts",
+        "supplemental_gaseous_fuels",
     ]
-    citygate_receipts_mcf = df["total_citygate_receipts_mcf"].fillna(
+    citygate_receipts_mcf = df["total_citygate_receipts"].fillna(
         df[
             [
-                "citygate_receipts_sales_customers_mcf",
-                "citygate_receipts_transportation_customers_mcf",
+                "citygate_receipts_sales_customers",
+                "citygate_receipts_transportation_customers",
             ]
         ]
         .fillna(0)
@@ -478,8 +464,8 @@ def _find_eia176_total_supply_mismatches(df: pd.DataFrame) -> pd.DataFrame:
     calculated_total_supply_mcf = (
         df[total_supply_components].fillna(0).sum(axis=1) + citygate_receipts_mcf
     )
-    total_supply_diff_mcf = calculated_total_supply_mcf - df["total_supply_mcf"]
-    mismatched = df["total_supply_mcf"].notna() & (total_supply_diff_mcf.abs() > 0.01)
+    total_supply_diff_mcf = calculated_total_supply_mcf - df["total"]
+    mismatched = df["total"].notna() & (total_supply_diff_mcf.abs() > 0.01)
 
     return df.loc[mismatched].assign(
         calculated_total_supply_mcf=calculated_total_supply_mcf[mismatched],
