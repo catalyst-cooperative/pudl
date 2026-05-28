@@ -14,6 +14,13 @@ Enhancements
 New Data
 ^^^^^^^^
 
+EIA-176
+~~~~~~~
+
+* Added detailed core EIA-176 continuation-line tables for natural gas imports,
+  supplemental gaseous fuel supplies, gas exports, and other gas disposition. See
+  :issue:`5240` and :pr:`5245`.
+
 FERC 1
 ~~~~~~
 
