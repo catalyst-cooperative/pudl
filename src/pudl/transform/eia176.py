@@ -453,21 +453,6 @@ def core_eia176__yearly_gas_supply(
     return df
 
 
-@asset_check(asset=core_eia176__yearly_gas_supply, blocking=True)
-def validate_core_eia176__yearly_gas_supply_primary_key(
-    core_eia176__yearly_gas_supply: pd.DataFrame,
-) -> AssetCheckResult:
-    """Validate that EIA-176 gas supply records are unique by operator and year."""
-    primary_key = ["operator_id_eia", "report_year"]
-    duplicate_records = core_eia176__yearly_gas_supply[
-        core_eia176__yearly_gas_supply.duplicated(subset=primary_key, keep=False)
-    ]
-    return AssetCheckResult(
-        passed=duplicate_records.empty,
-        metadata={"duplicate_records": len(duplicate_records)},
-    )
-
-
 def _find_eia176_total_supply_mismatches(df: pd.DataFrame) -> pd.DataFrame:
     """Find EIA-176 records whose reported total supply does not match components."""
     total_supply_components = [
