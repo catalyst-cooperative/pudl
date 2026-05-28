@@ -98,7 +98,6 @@ This decision follows from 🐥 taking small steps.
 We know that something is better if:
 
 * It addresses all or part of an existing Github issue.
-
 * It sets up an acceptable pausing point that someone else could pick up without
   requiring extensive context.
 
