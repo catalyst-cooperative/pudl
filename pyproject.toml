@@ -394,9 +394,9 @@ description = "Update dbt dependencies"
 
 [tool.pixi.tasks.devcontainer-install]
 cmd = """
-pixi install -e dev \
-    && pixi run -e dev install-skills \
-    && npm install -g \
+pixi install --frozen --locked \
+    && pixi run install-skills \
+    && npm install -g --prefer-offline --no-audit --no-fund \
       @anthropic-ai/claude-code \
       @google/gemini-cli \
       @openai/codex \
@@ -407,10 +407,9 @@ description = "Set up the dev container: install pixi environment, skills, and a
 
 [tool.pixi.tasks.devcontainer-rebuild]
 cmd = """
-docker volume rm pudl-pixi || true \
-    && npx -y @devcontainers/cli build --workspace-folder . --log-level info
+npx -y @devcontainers/cli build --workspace-folder . --log-level info
 """
-description = "Rebuild the dev container image metadata and recreate the named pixi cache volume"
+description = "Rebuild devcontainer image metadata (workspace .pixi and caches are now separate volumes)"
 
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command

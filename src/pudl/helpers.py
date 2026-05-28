@@ -2209,7 +2209,9 @@ def retry(
 
 
 def get_parquet_table_polars(
-    table_name: str, partitions: dict | None = None
+    table_name: str,
+    partitions: dict | None = None,
+    paths: PudlPaths | None = None,
 ) -> pl.LazyFrame:
     """Read a table from a parquet file and return as a polars LazyFrame.
 
@@ -2229,8 +2231,8 @@ def get_parquet_table_polars(
 
     # Get the Parquet file path
     if partitions is None:
-        paths = PudlPaths()
-        parquet_path = paths.parquet_path(table_name)
+        resolved_paths = PudlPaths() if paths is None else paths
+        parquet_path = resolved_paths.parquet_path(table_name)
     else:
         parquet_data = ParquetData(table_name=table_name, partitions=partitions)
         # Points to a directory of parquet files when there partitions is non None
@@ -2245,6 +2247,7 @@ def get_parquet_table(
     filters: list[tuple[str, str, Any]]
     | list[list[tuple[str, str, Any]]]
     | None = None,
+    paths: PudlPaths | None = None,
 ) -> pd.DataFrame | gpd.GeoDataFrame:
     """Read a table from Parquet files with optional column selection and filtering.
 
@@ -2276,8 +2279,8 @@ def get_parquet_table(
     pyarrow_schema = resource.to_pyarrow()
 
     # Get the Parquet file path
-    paths = PudlPaths()
-    parquet_path = paths.parquet_path(table_name)
+    resolved_paths = PudlPaths() if paths is None else paths
+    parquet_path = resolved_paths.parquet_path(table_name)
 
     is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
 

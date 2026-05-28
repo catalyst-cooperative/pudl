@@ -18,11 +18,16 @@ from pudl.dagster.assets import default_assets
 from pudl.dagster.io_managers import (
     FercDbfSqliteIOManager,
     FercXbrlSqliteIOManager,
+    PudlGeoParquetIOManager,
+    PudlMixedFormatIOManager,
+    PudlParquetIOManager,
     default_io_managers,
 )
 from pudl.dagster.jobs import default_jobs
 from pudl.dagster.resources import (
+    DatastoreResource,
     GlobalDataConfigResource,
+    PudlPathsResource,
     ZenodoDoiSettingsResource,
     default_resources,
 )
@@ -63,25 +68,36 @@ def build_defs(
     )
 
 
-def _build_interactive_ferc_io_managers(
+def _build_interactive_resources(
     *,
     global_data_config: GlobalDataConfigResource,
+    pudl_paths: PudlPathsResource,
     zenodo_dois: ZenodoDoiSettingsResource,
 ) -> dict[str, Any]:
-    """Build FERC IO managers wired to concrete local resource instances."""
+    """Build interactive-only resources wired to concrete local resource instances."""
     return {
+        "datastore": DatastoreResource(
+            zenodo_dois=zenodo_dois,
+            pudl_paths=pudl_paths,
+        ),
+        "parquet_io_manager": PudlParquetIOManager(pudl_paths=pudl_paths),
+        "geoparquet_io_manager": PudlGeoParquetIOManager(pudl_paths=pudl_paths),
+        "pudl_io_manager": PudlMixedFormatIOManager(pudl_paths=pudl_paths),
         "ferc1_dbf_sqlite_io_manager": FercDbfSqliteIOManager(
             global_data_config=global_data_config,
+            pudl_paths=pudl_paths,
             zenodo_dois=zenodo_dois,
             dataset="ferc1",
         ),
         "ferc1_xbrl_sqlite_io_manager": FercXbrlSqliteIOManager(
             global_data_config=global_data_config,
+            pudl_paths=pudl_paths,
             zenodo_dois=zenodo_dois,
             dataset="ferc1",
         ),
         "ferc714_xbrl_sqlite_io_manager": FercXbrlSqliteIOManager(
             global_data_config=global_data_config,
+            pudl_paths=pudl_paths,
             zenodo_dois=zenodo_dois,
             dataset="ferc714",
         ),
@@ -91,6 +107,8 @@ def _build_interactive_ferc_io_managers(
 def build_interactive_defs(
     *,
     global_data_config_path: str | None = None,
+    pudl_input: str | None = None,
+    pudl_output: str | None = None,
     zenodo_dois_path: str | None = None,
 ) -> dg.Definitions:
     """Build defs for interactive in-process use with concrete default resources.
@@ -107,14 +125,23 @@ def build_interactive_defs(
             global_data_config_path=global_data_config_path
         )
 
+    pudl_paths_kwargs: dict[str, str] = {}
+    if pudl_input is not None:
+        pudl_paths_kwargs["pudl_input"] = pudl_input
+    if pudl_output is not None:
+        pudl_paths_kwargs["pudl_output"] = pudl_output
+    pudl_paths = PudlPathsResource(**pudl_paths_kwargs)
+
     zenodo_dois = ZenodoDoiSettingsResource(zenodo_dois_path=zenodo_dois_path)
 
     return build_defs(
         resource_overrides={
             "global_data_config": global_data_config,
+            "pudl_paths": pudl_paths,
             "zenodo_dois": zenodo_dois,
-            **_build_interactive_ferc_io_managers(
+            **_build_interactive_resources(
                 global_data_config=global_data_config,
+                pudl_paths=pudl_paths,
                 zenodo_dois=zenodo_dois,
             ),
         }
