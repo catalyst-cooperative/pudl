@@ -41,7 +41,7 @@ EIA-176
   ``is_other_ownership_2`` fields (which never co-occur) are merged into a single
   ``is_other_ownership`` boolean.
   See :issue:`4697` and :pr:`5197`.
-  
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
