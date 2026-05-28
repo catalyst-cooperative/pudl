@@ -163,6 +163,30 @@ repos:
         always_run: true
         entry: bash -c 'pixi install --quiet && git add pixi.lock'
 
+      - id: pixi-lock-version-minimum
+        name: pixi-lock-version-minimum
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        files: '^pixi\.lock$'
+        pass_filenames: true
+        always_run: false
+        entry: |
+          bash -ceu '
+            for file in "$@"; do
+              version="$(sed -nE "1s/^version:[[:space:]]*['\\\"]?([0-9]+)['\\\"]?.*$/\\1/p" "$file")"
+              if [ -z "$version" ]; then
+                echo "ERROR: Could not parse version from line 1 of $file."
+                exit 1
+              fi
+              if [ "$version" -lt 7 ]; then
+                echo "ERROR: $file has version $version, but version must be >= 7."
+                echo "Update pixi to at least v0.69 using 'pixi self-update'"
+                exit 1
+              fi
+            done
+          ' --
+
       - id: unit-tests
         name: unit-tests
         stages: [pre-commit]
