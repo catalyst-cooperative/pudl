@@ -163,14 +163,14 @@ repos:
         always_run: true
         entry: bash -c 'pixi install --quiet && git add pixi.lock'
 
-      - id: pixi-lock-version-minimum
-        name: pixi-lock-version-minimum
+      - id: pixi-lockfile-minimum-version
+        name: pixi-lockfile-minimum-version
         stages: [pre-commit]
         language: system
         verbose: false
         files: '^pixi\.lock$'
         pass_filenames: true
-        always_run: false
+        always_run: true
         entry: |
           bash -ceu '
             for file in "$@"; do
@@ -181,7 +181,7 @@ repos:
               fi
               if [ "$version" -lt 7 ]; then
                 echo "ERROR: $file has version $version, but version must be >= 7."
-                echo "Update pixi to at least v0.69 using 'pixi self-update'"
+                echo "Update pixi to at least v0.69 using pixi self-update and regenerate the lockfile."
                 exit 1
               fi
             done
