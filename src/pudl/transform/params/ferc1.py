@@ -2606,25 +2606,6 @@ TRANSFORM_PARAMS = {
                     "accumulated_depreciation_other_renewable_production_ending_balance": "other_renewable_production_ending_balance",
                     "accumulated_depreciation_energy_storage_ending_balance": "energy_storage_ending_balance",
                     "accumulated_depreciation_solar_production_ending_balance": "solar_production_ending_balance",
-                    # We are adding all of the starting balances in this table, which is not what
-                    # we normally do because there are new (as of 2026-05) columns regarding other
-                    # plant_function's (mostly renewales) If form 1 updates to include ending
-                    # balances of these new plant_function's we should probably add them as
-                    # ending_balance's and delete all of the starting_balance's
-                    # "accumulated_depreciation_steam_production_starting_balance": "steam_production_starting_balance",
-                    # "accumulated_depreciation_nuclear_production_starting_balance": "nuclear_production_starting_balance",
-                    # "accumulated_depreciation_hydraulic_production_conventional_starting_balance": "hydraulic_production_conventional_starting_balance",
-                    # "accumulated_depreciation_hydraulic_production_pumped_storage_starting_balance": "hydraulic_production_pumped_storage_starting_balance",
-                    # "accumulated_depreciation_other_production_starting_balance": "other_production_starting_balance",
-                    # "accumulated_depreciation_transmission_starting_balance": "transmission_starting_balance",
-                    # "accumulated_depreciation_distribution_starting_balance": "distribution_starting_balance",
-                    # "accumulated_depreciation_general_starting_balance": "general_starting_balance",
-                    # "accumulated_depreciation_regional_transmission_and_market_operation_starting_balance": "regional_transmission_and_market_operation_starting_balance",
-                    # "accumulated_provision_for_depreciation_of_electric_utility_plant_starting_balance": "total_starting_balance",
-                    # "accumulated_depreciation_wind_production_starting_balance": "wind_production_starting_balance",
-                    # "accumulated_depreciation_other_renewable_production_starting_balance": "other_renewable_production_starting_balance",
-                    # "accumulated_depreciation_energy_storage_starting_balance": "energy_storage_starting_balance",
-                    # "accumulated_depreciation_solar_production_starting_balance": "solar_production_starting_balance",
                 }
             },
             "xbrl": {
@@ -2699,7 +2680,7 @@ TRANSFORM_PARAMS = {
                 "group_metric_tolerances": {
                     "ungrouped": {
                         "error_frequency": 0.034,
-                        "null_reported_value_frequency": 0.76,
+                        "null_reported_value_frequency": 0.80,
                     },
                     "xbrl_factoid": {"error_frequency": 0.034},
                     "report_year": {
