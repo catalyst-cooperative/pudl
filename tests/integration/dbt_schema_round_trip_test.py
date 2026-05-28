@@ -23,7 +23,7 @@ def test_merge_schema_roundtrip(resource_name):
     merged = merge_schema(machine_schema, human_schema)
     try:
         assert merged == reference
-    except AssertionError:
+    except AssertionError as e:
         # 2026-05 TODO: remove this warn and fail for real once we believe the ordering is stable
         warnings.warn(
             f"{resource_name} strict diff failed, trying order-insensitive",
@@ -32,4 +32,7 @@ def test_merge_schema_roundtrip(resource_name):
         diff = deepdiff.DeepDiff(
             merged, reference, ignore_order=True, report_repetition=True
         )
-        assert diff == {}
+        assert diff == {}, f"Strict and lax diff failed for {resource_name}"
+        raise AssertionError(
+            f"Strict diff failed for {resource_name} but lax diff was okay"
+        ) from e

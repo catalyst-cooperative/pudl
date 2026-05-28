@@ -15,7 +15,7 @@ sources:
                 column_list:
                   - county_id_fips
                   - datetime_utc
-                ignore_row_if: "any_value_is_missing"
+                ignore_row_if: any_value_is_missing
         columns:
           - name: state
             data_tests:
@@ -34,7 +34,7 @@ sources:
                   arguments:
                     value_set:
                       - oglala lakota
-                    row_condition: "county_id_fips = '46012'"
+                    row_condition: county_id_fips = '46012'
           - name: datetime_utc
             data_tests:
               - not_null

@@ -42,14 +42,26 @@ def _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str:
         def increase_indent(self, flow=False, indentless=False):
             return super().increase_indent(flow, False)
 
-    return yaml.dump(
-        yaml_contents,
-        default_flow_style=False,
-        Dumper=PrettierCompatibleDumper,
-        indent=2,
-        sort_keys=False,
-        width=float("inf"),
-    )
+    class BlankNullRepresenter(yaml.representer.Representer):
+        def represent_none(self, *_):
+            return self.represent_scalar("tag:yaml.org,2002:null", "")
+
+        def __enter__(self):
+            self.prior = PrettierCompatibleDumper.yaml_representers[type(None)]
+            yaml.add_representer(type(None), self.represent_none)
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            PrettierCompatibleDumper.yaml_representers[type(None)] = self.prior
+
+    with BlankNullRepresenter():
+        return yaml.dump(
+            yaml_contents,
+            default_flow_style=False,
+            Dumper=PrettierCompatibleDumper,
+            indent=2,
+            sort_keys=False,
+            width=float("inf"),
+        )
 
 
 class DbtColumn(BaseModel):

@@ -8,12 +8,12 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_rus12__yearly_lines_stations_labor_materials_cost
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
-          - name: borrower_name_rus
-          - name: state
           - name: report_date
           - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
           - name: labor_or_material
           - name: operation_or_maintenance
           - name: lines_or_stations

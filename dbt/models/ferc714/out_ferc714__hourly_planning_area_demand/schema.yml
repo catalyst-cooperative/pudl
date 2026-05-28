@@ -8,12 +8,12 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_ferc714__hourly_planning_area_demand
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_columns_are_close:
               arguments:
                 column_a: demand_reported_mwh
                 column_b: demand_imputed_pudl_mwh
-                row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL"
+                row_condition: demand_imputed_pudl_mwh_imputation_code IS NULL
                 atol: 1.0
           - expect_consistent_years:
               arguments:
@@ -55,7 +55,8 @@ sources:
             data_tests:
               - dbt_expectations.expect_column_values_to_not_be_in_set:
                   arguments:
-                    value_set: ["simulated"]
+                    value_set:
+                      - simulated
               - expect_missingness_between:
                   arguments:
                     lower_bound: 0.95

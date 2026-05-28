@@ -11,21 +11,21 @@ sources:
                 column_B: loan_balance
                 or_equal: true
               config:
-                error_if: ">1" #TODO: Investigate 1 case where loan balance exceeds original amount.
-              description: "The original amount of the loan should be greater than or equal to the current balance of the loan."
+                error_if: ">1"
+              description: The original amount of the loan should be greater than or equal to the current balance of the loan.
           - dbt_utils.expression_is_true:
               arguments:
                 expression: date_trunc('year', report_date) <= date_trunc('year', loan_maturity_date)
-              description: "The report date year should be before or equal to the loan maturity date year."
+              description: The report date year should be before or equal to the loan maturity date year.
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_rus12__yearly_loans
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
-          - name: borrower_name_rus
-          - name: state
           - name: report_date
           - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
           - name: loan_recipient
           - name: loan_maturity_date
           - name: loan_original_amount

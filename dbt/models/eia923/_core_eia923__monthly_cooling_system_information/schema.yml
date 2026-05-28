@@ -35,7 +35,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: _core_eia923__monthly_cooling_system_information
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_sum_close_to_total_column:
               name: monthly_withdrawal_discrepancy_rate
               description: "Discrepancy rate on etl-fast observed April 2025: 0.1002"

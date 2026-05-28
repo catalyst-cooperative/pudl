@@ -5,7 +5,7 @@ sources:
       - name: out_ferc1__yearly_rate_base
         data_tests:
           - dbt_expectations.expect_table_row_count_to_be_between:
-              description: "Nightly builds and local ETL yield slightly different output"
+              description: Nightly builds and local ETL yield slightly different output
               config:
                 enabled: "{{ target.name == 'etl-full' }}"
               arguments:
