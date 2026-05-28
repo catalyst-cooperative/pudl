@@ -106,7 +106,7 @@ top of that. Before running the local test for ID mapping, you'll also need
     $ unzip '*.zip'
 
     # Materialize the assets you modified on top of the fresh database
-    $ pixi run dg launch --assets "group:your_asset_group"
+    $ pixi run dg launch --assets "group:'your_asset_group'+"
 
 Once that's all set, you can run the following test to save unmapped IDs. This invokes
 a script that identifies plants and utilities which exist in the updated FERC 1 and
