@@ -244,7 +244,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "destination_type": {
         "type": "string",
-        "description": "Type of delivery destination represented by the destination code.",
+        "description": (
+            "Type of reported destination code. For EIA-176, subnational means the "
+            "code matched a recognized state, province, or territory code; "
+            "national_or_other means the code was preserved as another reported EIA "
+            "code."
+        ),
     },
     "disposition_type": {
         "type": "string",
@@ -7852,8 +7857,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "supplier_location_type": {
         "type": "string",
         "description": (
-            "Type of gas receipt supplier location represented by the supplier "
-            "location code."
+            "Type of reported supplier location code. For EIA-176, subnational "
+            "means the code matched a recognized state, province, or territory "
+            "code; national_or_other means the code was preserved as another "
+            "reported EIA code."
         ),
     },
     "recipient_name": {
@@ -10442,16 +10449,30 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_gas_exports": {
         "destination_code": {
             "description": (
-                "State, territory, country, or other reporting code associated with "
-                "the out-of-state gas delivery destination."
+                "EIA continuation-line reference code associated with the "
+                "out-of-state gas delivery. Recognized state, province, or "
+                "territory names are normalized to two-letter codes. Other values "
+                "are preserved as reported EIA codes and should not be interpreted "
+                "as ISO country codes."
             ),
         },
         "destination_type": {
             "constraints": {"enum": ["national_or_other", "subnational"]},
+            "description": (
+                "Type of the EIA continuation-line destination code. A value of "
+                "subnational means the code matched a recognized state, province, "
+                "or territory code. A value of national_or_other means the code "
+                "was preserved as another reported EIA code. This classifies the "
+                "code value only; the paired recipient_name is free text and may "
+                "describe a company, country, location, placeholder, or truncated "
+                "value."
+            ),
         },
         "recipient_name": {
             "description": (
-                "Reported recipient or counterparty for the out-of-state gas delivery."
+                "Free-text recipient, counterparty, country, location, or "
+                "placeholder reported on the EIA continuation line for the "
+                "out-of-state gas delivery."
             ),
         },
         "volume_mcf": {
@@ -10463,8 +10484,33 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
     },
     "core_eia176__yearly_gas_imports": {
+        "supplier_location_code": {
+            "description": (
+                "EIA continuation-line reference code associated with the gas "
+                "receipt supplier. Recognized state, province, or territory names "
+                "are normalized to two-letter codes. Other values are preserved as "
+                "reported EIA codes and should not be interpreted as ISO country "
+                "codes."
+            ),
+        },
         "supplier_location_type": {
             "constraints": {"enum": ["national_or_other", "subnational"]},
+            "description": (
+                "Type of the EIA continuation-line supplier location code. A value "
+                "of subnational means the code matched a recognized state, "
+                "province, or territory code. A value of national_or_other means "
+                "the code was preserved as another reported EIA code. This "
+                "classifies the code value only; the paired supplier_name is free "
+                "text and may describe a company, country, location, placeholder, "
+                "or truncated value."
+            ),
+        },
+        "supplier_name": {
+            "description": (
+                "Free-text supplier, counterparty, country, location, or "
+                "placeholder reported on the EIA continuation line for the gas "
+                "receipt."
+            ),
         },
     },
     "core_eia176__yearly_gas_disposition_other": {

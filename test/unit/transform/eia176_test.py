@@ -245,6 +245,25 @@ def test_normalize_continuation_line_location_codes():
     assert actual["reference_state"].tolist() == ["NM", "TX", "CN"]
 
 
+def test_normalize_continuation_line_location_codes_preserves_eia_ref_codes():
+    core_pudl__codes_subdivisions = pd.DataFrame(
+        {
+            "subdivision_name": ["New Mexico", "Texas"],
+            "subdivision_code": ["NM", "TX"],
+        }
+    )
+    # These are observed EIA REF_CODE values, not normalized ISO-3166 country codes.
+    df = pd.DataFrame({"reference_state": ["cn", "mx", "c2", "i2", "ja"]})
+
+    actual = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="reference_state",
+    )
+
+    assert actual["reference_state"].tolist() == ["CN", "MX", "C2", "I2", "JA"]
+
+
 def test_normalize_continuation_line_location_codes_rejects_unknown():
     core_pudl__codes_subdivisions = pd.DataFrame(
         {

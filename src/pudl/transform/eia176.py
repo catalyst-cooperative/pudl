@@ -25,6 +25,13 @@ DROP_OPERATING_STATES = (
 )
 
 CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES = {
+    # EIA's query-system user guide describes the raw REF_CODE field as the code
+    # associated with continuation cells, but does not publish a complete list of
+    # country/reference codes. These are non-state/province/territory REF_CODE
+    # values observed in the raw EIA-176 continuation lines. They are not normalized
+    # to ISO-3166: some match ISO alpha-2 country codes, while others are
+    # EIA-specific codes like CN for Canada, C2 for China, I2 for India, and JA for
+    # Japan.
     "operating_state": {"FX", "MX"},
     "reference_state": {
         "AC",
@@ -250,8 +257,10 @@ def normalize_continuation_line_location_codes(
     """Validate and normalize EIA-176 continuation line location codes.
 
     Values matching ``core_pudl__codes_subdivisions`` by name or code are converted
-    to canonical subdivision codes. Known EIA continuation line codes that are not
-    subdivisions are allowed through unchanged so unexpected values still fail loudly.
+    to canonical two-letter state, province, or territory codes. Known EIA
+    continuation line codes that are not state, province, or territory codes are
+    allowed through unchanged so unexpected values still fail loudly. These allowed
+    values are raw EIA ``REF_CODE`` values, not standardized ISO country codes.
     """
     df = df.copy()
     code_map = _subdivision_code_map(core_pudl__codes_subdivisions)

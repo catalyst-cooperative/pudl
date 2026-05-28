@@ -12,10 +12,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_source_text": "(Part 4, Line 3.0)",
             "usage_warnings": [
                 {
-                    "type": "truncated_supplier_names",
+                    "type": "ambiguous_supplier_names",
                     "description": (
-                        "Many supplier_name values appear to be cut off or "
-                        "incomplete in the raw EIA-176 continuation-line data."
+                        "The supplier_name field is a free-text EIA continuation-line "
+                        "description. It may contain a company name, country or "
+                        "location label, placeholder, or truncated text."
+                    ),
+                },
+                {
+                    "type": "inconsistent_supplier_location_codes",
+                    "description": (
+                        "The supplier_location_code values are reported EIA "
+                        "continuation-line codes, not a complete standardized "
+                        "country-code system. Some country-like supplier_name "
+                        "values are paired with codes that conflict with ISO "
+                        "country code meanings."
                     ),
                 },
             ],
@@ -29,7 +40,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "Approximately one thousand records contained more than one import "
                 "from a given destination. Where the supplier and mode of transport are identical, "
                 "volumes have been summed to produce a table with one row per year, operator, "
-                "operating state and supplier."
+                "operating state and supplier. EIA-176 continuation-line location "
+                "codes are not a complete standardized country-code system. PUDL "
+                "normalizes recognized state, province, and territory values and "
+                "otherwise preserves the reported EIA code."
             ),
         },
         "schema": {
@@ -85,10 +99,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_source_text": "(Part 6, Line 14.0)",
             "usage_warnings": [
                 {
-                    "type": "truncated_recipient_names",
+                    "type": "ambiguous_recipient_names",
                     "description": (
-                        "Many recipient_name values may be cut off or incomplete in "
-                        "the raw EIA-176 continuation-line data."
+                        "The recipient_name field is a free-text EIA continuation-line "
+                        "description. It may contain a company name, country or "
+                        "location label, placeholder, or truncated text."
+                    ),
+                },
+                {
+                    "type": "inconsistent_destination_codes",
+                    "description": (
+                        "The destination_code values are reported EIA "
+                        "continuation-line codes, not a complete standardized "
+                        "country-code system. Some country-like recipient_name "
+                        "values are paired with codes that conflict with ISO "
+                        "country code meanings."
                     ),
                 },
             ],
@@ -99,7 +124,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_details_text": (
                 "Rows are deduplicated by operator, report year, operating state, "
                 "destination code, recipient, and mode of transportation when the "
-                "data are transformed."
+                "data are transformed. EIA-176 continuation-line location codes are "
+                "not a complete standardized country-code system. PUDL normalizes "
+                "recognized state, province, and territory values and otherwise "
+                "preserves the reported EIA code."
             ),
         },
         "schema": {
