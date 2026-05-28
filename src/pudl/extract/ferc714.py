@@ -9,8 +9,7 @@ from typing import Any
 import pandas as pd
 from dagster import AssetKey, AssetsDefinition, AssetSpec, asset
 
-import pudl
-from pudl.workspace.setup import PudlPaths
+import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -95,7 +94,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
 
     @asset(
         name=f"raw_ferc714_csv__{table_name}",
-        required_resource_keys={"datastore", "etl_settings"},
+        required_resource_keys={"datastore", "global_data_config"},
         compute_kind="pandas",
     )
     def _extract_raw_ferc714_csv(context):
@@ -105,8 +104,8 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
             context: dagster keyword that provides access to resources and config.
         """
         ds = context.resources.datastore
-        ferc714_settings = context.resources.etl_settings.dataset_settings.ferc714
-        years = ", ".join(map(str, ferc714_settings.csv_years))
+        ferc714_data_config = context.resources.global_data_config.pudl.ferc714
+        years = ", ".join(map(str, ferc714_data_config.csv_years))
 
         logger.info(
             f"Extracting {table_name} from CSV into pandas DataFrame (years: {years})."
@@ -120,13 +119,13 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
                 encoding=FERC714_CSV_ENCODING[table_name]["encoding"],
             )
         if table_name != "respondent_id":
-            df = df.query("report_yr in @ferc714_settings.years")
+            df = df.query("report_yr in @ferc714_data_config.years")
         return df
 
     return _extract_raw_ferc714_csv
 
 
-@asset(deps=[FERC714_XBRL_SQLITE_ASSET_KEY])
+@asset(deps=[FERC714_XBRL_SQLITE_ASSET_KEY], required_resource_keys={"pudl_paths"})
 def raw_ferc714_xbrl__metadata_json(
     context,
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -140,7 +139,9 @@ def raw_ferc714_xbrl__metadata_json(
         structure, with each row annotating a separate XBRL concept from the FERC 714
         filings.
     """
-    metadata_path = PudlPaths().output_dir / "ferc714_xbrl_taxonomy_metadata.json"
+    metadata_path = (
+        context.resources.pudl_paths.pudl_output / "ferc714_xbrl_taxonomy_metadata.json"
+    )
     with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 

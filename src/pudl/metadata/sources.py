@@ -83,7 +83,10 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "working_partitions": {"years": sorted(set(range(1997, 2025)))},
-        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["switchbox"],
+        ],
         "keywords": sorted(
             set(
                 [
@@ -112,10 +115,13 @@ SOURCES: dict[str, Any] = {
                 "All companies that operate underground natural gas storage fields in "
                 "the United States."
             ),
-            "source_format": "JSON",
+            "source_format": "Comma Separated Value (.csv)",
         },
-        "working_partitions": {"years": sorted(set(range(2014, 2026)))},
-        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "working_partitions": {"years": sorted(set(range(2014, 2027)))},
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["switchbox"],
+        ],
         "keywords": sorted(
             set(
                 [
@@ -145,7 +151,10 @@ SOURCES: dict[str, Any] = {
             "source_format": "JSON",
         },
         "working_partitions": {"years": sorted({2012, 2014, 2017})},
-        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["switchbox"],
+        ],
         "keywords": sorted(
             set(
                 [
@@ -201,6 +210,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
     },
     "eia860m": {
         "title": "EIA Form 860M -- Monthly Update to the Annual Electric Generator Report",
@@ -212,11 +222,13 @@ SOURCES: dict[str, Any] = {
             "Form EIA-860M as a supplement to Form EIA-860)"
         ),
         "concept_doi": "10.5281/zenodo.4281336",
-        "contributors": [],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2026-02", freq="M")
+                for q in pd.period_range(start="2015-07", end="2026-04", freq="M")
             ],
         },
         "keywords": sorted(
@@ -236,6 +248,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
     },
     "eia861": {
         "title": "EIA Form 861 -- Annual Electric Power Industry Report",
@@ -247,7 +260,9 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "years": sorted(set(range(2001, 2025))),
         },
-        "contributors": [],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "keywords": sorted(
             set(
                 [
@@ -273,6 +288,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
     },
     "eia923": {
         "title": "EIA Form 923 -- Power Plant Operations Report",
@@ -314,6 +330,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
     },
     "eia930": {
         "title": "EIA Form 930 -- Hourly and Daily Balancing Authority Operations Report",
@@ -374,7 +391,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "JSON",
         },
         "working_partitions": {
-            "years": [2023, 2025],
+            "years": [2023, 2025, 2026],
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -451,6 +468,10 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "infoelectric@eia.gov",
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
     },
     "epacems": {
         "title": "EPA Hourly Continuous Emission Monitoring System (CEMS)",
@@ -569,6 +590,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "Form1@ferc.gov",
     },
     "ferc2": {
         "title": "FERC Form 2 -- Annual Report of Major Natural Gas Companies",
@@ -583,7 +605,7 @@ SOURCES: dict[str, Any] = {
             # Years 1991-1995 use strange formats that need to be investigated further.
             # Years 1996-1999 come in split archives and full archives and we are going
             # to be using the aggregated archives (part=None).
-            "years": sorted(set(range(1996, 2025))),
+            "years": sorted(set(range(1996, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -600,6 +622,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "Form2@ferc.gov",
     },
     "ferc6": {
         "title": "FERC Form 6 -- Annual Report of Oil Pipeline Companies",
@@ -613,7 +636,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # Years 2000-2020 are backed by DBF format.
             # Years 2021-present are backed by XBRL.
-            "years": sorted(set(range(2000, 2025))),
+            "years": sorted(set(range(2000, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -630,6 +653,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "Form6@ferc.gov",
     },
     "ferc60": {
         "title": "FERC Form 60 -- Annual Report of Centralized Service Companies",
@@ -641,7 +665,7 @@ SOURCES: dict[str, Any] = {
         ),
         "concept_doi": "10.5281/zenodo.7126434",
         "working_partitions": {
-            "years": sorted(set(range(2006, 2025))),
+            "years": sorted(set(range(2006, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -658,6 +682,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "Form60@ferc.gov",
     },
     "ferc714": {
         "title": "FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Report",
@@ -692,6 +717,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "form714@ferc.gov",
     },
     "ferccid": {
         "title": "FERC CID - Company Identifier Listing",
@@ -717,6 +743,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "concept_doi": "10.5281/zenodo.18176680",
+        "email": "CID@ferc.gov",
     },
     "ferceqr": {
         "title": "FERC Form 920 -- Electric Quarterly Report (EQR)",
@@ -750,6 +777,9 @@ SOURCES: dict[str, Any] = {
                 + KEYWORDS["electricity"]
             )
         ),
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
         "working_partitions": {
             "year_quarters": _year_quarter_range(
                 start_quarter="2013q3", end_quarter="2026q1"
@@ -757,6 +787,7 @@ SOURCES: dict[str, Any] = {
         },
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "email": "eqr@ferc.gov",
     },
     "gridpathratoolkit": {
         "title": "GridPath Resource Adequacy Toolkit Data",
@@ -812,7 +843,9 @@ SOURCES: dict[str, Any] = {
         },
         "contributors": [
             CONTRIBUTORS["elaine-hart"],
+            CONTRIBUTORS["catalyst-cooperative"],
         ],
+        "email": "elaine@sylvan.energy",
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
@@ -827,6 +860,9 @@ SOURCES: dict[str, Any] = {
         "keywords": sorted(set(KEYWORDS["msha"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
     },
     "nrelatb": {
         "title": "NREL Annual Technology Baseline (ATB) for Electricity",
@@ -880,6 +916,11 @@ SOURCES: dict[str, Any] = {
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["switchbox"],
+        ],
+        "email": "phmsa.pipelinesafety@dot.gov",
     },
     "pudl": {
         "title": "The Public Utility Data Liberation (PUDL) Project",
@@ -893,6 +934,7 @@ SOURCES: dict[str, Any] = {
             "bulk analysis, or the means to purchase it from existing commercial "
             "providers."
         ),
+        "concept_doi": "10.5281/zenodo.3404014",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
@@ -924,6 +966,9 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
     },
     "rus7": {
         "title": "USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution",
@@ -1040,7 +1085,10 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
         "working_partitions": {"years": sorted(set(range(2014, 2024)))},
-        "contributors": [CONTRIBUTORS["vibrant-clean-energy"]],
+        "contributors": [
+            CONTRIBUTORS["vibrant-clean-energy"],
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
     },
 }
 """Data source attributes by PUDL identifier."""

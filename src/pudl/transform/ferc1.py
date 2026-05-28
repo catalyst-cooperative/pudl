@@ -26,7 +26,9 @@ from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
 from pydantic import BaseModel, Field, field_validator
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
+import pudl.metadata.classes
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import (
     assert_cols_areclose,
@@ -35,10 +37,10 @@ from pudl.helpers import (
     parse_address,
     standardize_phone_column,
 )
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.settings import Ferc1Settings
+from pudl.settings import Ferc1DataConfig
 from pudl.transform.classes import (
     AbstractTableTransformer,
     InvalidRows,
@@ -49,6 +51,7 @@ from pudl.transform.classes import (
     enforce_snake_case,
 )
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -132,7 +135,7 @@ class TableIdFerc1(enum.Enum):
     """Enumeration of the allowed FERC 1 table IDs.
 
     Hard coding this doesn't seem ideal. Somehow it should be either defined in the
-    context of the Package, the Ferc1Settings, an etl_group, or DataSource. All of the
+    context of the Package, the Ferc1DataConfig, an etl_group, or DataSource. All of the
     table transformers associated with a given data source should have a table_id that's
     from that data source's subset of the database. Where should this really happen?
     Alternatively, the allowable values could be derived *from* the structure of the
@@ -1821,7 +1824,7 @@ def fill_dbf_to_xbrl_map(
         ``[report_year, row_number, xbrl_factoid]``
     """
     if not dbf_years:
-        dbf_years = Ferc1Settings().dbf_years
+        dbf_years = Ferc1DataConfig().dbf_years
     # If the first year that we're trying to produce isn't mapped, we won't be able to
     # forward fill.
     if min(dbf_years) not in df.report_year.unique():
@@ -1955,6 +1958,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         params: TableTransformParams | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
+        pudl_paths: PudlPaths | None = None,
     ) -> None:
         """Augment inherited initializer to store XBRL metadata in the class."""
         super().__init__(
@@ -1962,6 +1966,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             cache_dfs=cache_dfs,
             clear_cached_dfs=clear_cached_dfs,
         )
+        self.pudl_paths = pudl_paths
         if xbrl_metadata_json:
             xbrl_metadata_converted = self.convert_xbrl_metadata_json_to_df(
                 xbrl_metadata_json
@@ -2616,7 +2621,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             table_name: filter_for_freshest_data_xbrl(
                 df,
                 get_primary_key_raw_xbrl(
-                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                    table_name.removeprefix("raw_ferc1_xbrl__"),
+                    "ferc1",
+                    pudl_paths=self.pudl_paths,
                 ),
             )
             for table_name, df in raw_xbrl_dfs.items()
@@ -2911,7 +2918,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     axis="columns",
                 ).reset_index()
 
-        return out_df.loc[out_df.report_year.isin(Ferc1Settings().xbrl_years)]
+        return out_df.loc[out_df.report_year.isin(Ferc1DataConfig().xbrl_years)]
 
     @cache_df("process_instant_xbrl")
     def process_instant_xbrl(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -3086,6 +3093,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.debug(
             f"{self.table_id.value}: Assigning {source_ferc1.value} source utility IDs."
         )
+        # NOTE (2026-05-27): pudl.glue.ferc1_eia imports pudl.transform.ferc1
+        # so we we need to move this import into function level to avoid circular dependency.
+        import pudl.glue.ferc1_eia
+
         utility_map_ferc1 = pudl.glue.ferc1_eia.get_utility_map_ferc1()
         # use the source utility ID column to get a unique map and for merging
         util_id_col = f"utility_id_ferc1_{source_ferc1.value}"
@@ -3136,7 +3147,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
             table_name: filter_for_freshest_data_xbrl(
                 df,
                 get_primary_key_raw_xbrl(
-                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                    table_name.removeprefix("raw_ferc1_xbrl__"),
+                    "ferc1",
+                    pudl_paths=self.pudl_paths,
                 ),
             )
             for table_name, df in raw_xbrl_dfs.items()
@@ -6467,6 +6480,16 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_other_regulatory_assets_sched232": OtherRegulatoryAssetsTableTransformer,
 }
 
+_FERC1_PLANT_TABLES = frozenset(
+    {
+        "core_ferc1__yearly_steam_plants_fuel_sched402",
+        "core_ferc1__yearly_steam_plants_sched402",
+        "core_ferc1__yearly_small_plants_sched410",
+        "core_ferc1__yearly_hydroelectric_plants_sched406",
+        "core_ferc1__yearly_pumped_storage_plants_sched408",
+    }
+)
+
 
 def ferc1_transform_asset_factory(
     table_name: str,
@@ -6474,6 +6497,7 @@ def ferc1_transform_asset_factory(
     io_manager_key: str = "pudl_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
+    op_tags: dict[str, Any] | None = None,
 ) -> AssetsDefinition:
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
@@ -6509,8 +6533,16 @@ def ferc1_transform_asset_factory(
 
     table_id = TableIdFerc1(table_name)
 
-    @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
-    def ferc1_transform_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    @asset(
+        name=table_name,
+        ins=ins,
+        required_resource_keys={"pudl_paths"},
+        io_manager_key=io_manager_key,
+        op_tags=op_tags or {},
+    )
+    def ferc1_transform_asset(
+        context, **kwargs: dict[str, pd.DataFrame]
+    ) -> pd.DataFrame:
         """Transform a FERC Form 1 table.
 
         Args:
@@ -6528,10 +6560,12 @@ def ferc1_transform_asset_factory(
             transformer = tfr_class(
                 xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
                 table_id=table_id,
+                pudl_paths=context.resources.pudl_paths,
             )
         else:
             transformer = tfr_class(
-                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name]
+                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
+                pudl_paths=context.resources.pudl_paths,
             )
 
         # Split the DBF and XBRL dfs into input dictionaries for transformation
@@ -6561,14 +6595,19 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
     """
     assets = []
     for table_name, tfr_class in FERC1_TFR_CLASSES.items():
-        assets.append(ferc1_transform_asset_factory(table_name, tfr_class))
+        op_tags = (
+            {"dagster/priority": 10} if table_name in _FERC1_PLANT_TABLES else None
+        )
+        assets.append(
+            ferc1_transform_asset_factory(table_name, tfr_class, op_tags=op_tags)
+        )
     return assets
 
 
 ferc1_assets = create_ferc1_transform_assets()
 
 ##########################################
-# Post-core tables/XBLR Calculations Stuff
+# Post-core tables/XBRL Calculations Stuff
 ##########################################
 
 

@@ -7,7 +7,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 
-import pudl
+import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

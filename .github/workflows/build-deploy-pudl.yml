@@ -96,7 +96,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: docker/Dockerfile
+          file: builds/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
@@ -116,7 +116,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v3
 
       # Deploy PUDL image to GCE
-      # Dagster Postgres connection configured in docker/dagster.yaml - otherwise we get a str for port num
+      # Dagster Postgres connection configured in builds/dagster.yaml - otherwise we get a str for port num
       - name: Make GCP Batch config file
         if: ${{ env.SKIP_BUILD != 'true' }}
         env:
@@ -127,7 +127,7 @@ jobs:
             --container-command "pixi" \
             --container-arg="run" \
             --container-arg="bash" \
-            --container-arg="./docker/gcp_pudl_etl.sh" \
+            --container-arg="./builds/pudl_batch.sh" \
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \

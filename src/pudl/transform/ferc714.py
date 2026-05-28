@@ -22,12 +22,13 @@ from dagster import AssetIn, asset
 
 import pudl.logging_helpers
 from pudl.extract.ferc714 import TABLE_NAME_MAP_FERC714
-from pudl.settings import Ferc714Settings
+from pudl.settings import Ferc714DataConfig
 from pudl.transform.classes import (
     RenameColumns,
     rename_columns,
 )
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -401,6 +402,7 @@ def _filter_for_freshest_data_xbrl(
     raw_xbrl: pd.DataFrame,
     table_name: str,
     instant_or_duration: Literal["instant", "duration"],
+    pudl_paths: PudlPaths | None = None,
 ):
     """Wrapper around filter_for_freshest_data_xbrl.
 
@@ -412,7 +414,7 @@ def _filter_for_freshest_data_xbrl(
     )
     xbrl = filter_for_freshest_data_xbrl(
         raw_xbrl,
-        get_primary_key_raw_xbrl(table_name_raw_xbrl, "ferc714"),
+        get_primary_key_raw_xbrl(table_name_raw_xbrl, "ferc714", pudl_paths=pudl_paths),
     )
     return xbrl
 
@@ -464,7 +466,10 @@ class RespondentId:
 
     @classmethod
     def run(
-        cls, raw_csv: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+        cls,
+        raw_csv: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+        pudl_paths: PudlPaths,
     ) -> pd.DataFrame:
         """Build the table for the :ref:`core_ferc714__respondent_id` asset.
 
@@ -499,7 +504,12 @@ class RespondentId:
         )
         # XBRL STUFF
         xbrl = (
-            _filter_for_freshest_data_xbrl(raw_xbrl_duration, table_name, "duration")
+            _filter_for_freshest_data_xbrl(
+                raw_xbrl_duration,
+                table_name,
+                "duration",
+                pudl_paths=pudl_paths,
+            )
             .pipe(
                 rename_columns,
                 params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
@@ -670,10 +680,11 @@ class RespondentId:
             key="raw_ferc714_xbrl__identification_and_certification_01_1_duration"
         ),
     },
+    required_resource_keys={"pudl_paths"},
     compute_kind="pandas",
 )
 def core_ferc714__respondent_id(
-    raw_csv: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    context, raw_csv: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
 ) -> pd.DataFrame:
     """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
@@ -688,7 +699,9 @@ def core_ferc714__respondent_id(
     Returns:
         A clean(er) version of the FERC-714 respondents table.
     """
-    return RespondentId.run(raw_csv, raw_xbrl_duration)
+    return RespondentId.run(
+        raw_csv, raw_xbrl_duration, pudl_paths=context.resources.pudl_paths
+    )
 
 
 class HourlyPlanningAreaDemand:
@@ -708,6 +721,7 @@ class HourlyPlanningAreaDemand:
         raw_csv: pd.DataFrame,
         raw_xbrl_duration: pd.DataFrame,
         raw_xbrl_instant: pd.DataFrame,
+        pudl_paths: PudlPaths,
     ) -> pd.DataFrame:
         """Build the :ref:`core_ferc714__hourly_planning_area_demand` asset.
 
@@ -731,10 +745,16 @@ class HourlyPlanningAreaDemand:
         table_name = "core_ferc714__hourly_planning_area_demand"
         # XBRL STUFF
         duration_xbrl = _filter_for_freshest_data_xbrl(
-            raw_xbrl_duration, table_name, "duration"
+            raw_xbrl_duration,
+            table_name,
+            "duration",
+            pudl_paths=pudl_paths,
         ).pipe(cls.remove_yearly_records_duration_xbrl)
         instant_xbrl = _filter_for_freshest_data_xbrl(
-            raw_xbrl_instant, table_name, "instant"
+            raw_xbrl_instant,
+            table_name,
+            "instant",
+            pudl_paths=pudl_paths,
         )
         xbrl = (
             cls.merge_instant_and_duration_tables_xbrl(
@@ -957,8 +977,8 @@ class HourlyPlanningAreaDemand:
     def spot_fix_records_xbrl(xbrl: pd.DataFrame):
         """Spot fix some specific XBRL records."""
         xbrl_years_mask = (
-            xbrl.report_date.dt.year >= min(Ferc714Settings().xbrl_years)
-        ) & (xbrl.report_date.dt.year <= max(Ferc714Settings().xbrl_years))
+            xbrl.report_date.dt.year >= min(Ferc714DataConfig().xbrl_years)
+        ) & (xbrl.report_date.dt.year <= max(Ferc714DataConfig().xbrl_years))
         if (len_xbrl_years := len(xbrl[~xbrl_years_mask])) >= 100:
             raise AssertionError(
                 "We expected less than 100 XBRL records that have timestamps "
@@ -1117,11 +1137,13 @@ class HourlyPlanningAreaDemand:
             key="raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_instant"
         ),
     },
+    required_resource_keys={"pudl_paths"},
     io_manager_key="parquet_io_manager",
     op_tags={"memory-use": "high"},
     compute_kind="pandas",
 )
 def core_ferc714__hourly_planning_area_demand(
+    context,
     raw_csv: pd.DataFrame,
     raw_xbrl_duration: pd.DataFrame,
     raw_xbrl_instant: pd.DataFrame,
@@ -1132,7 +1154,12 @@ def core_ferc714__hourly_planning_area_demand(
     it seems you need to build an asset from a function - not a staticmethod of
     a class.
     """
-    return HourlyPlanningAreaDemand.run(raw_csv, raw_xbrl_duration, raw_xbrl_instant)
+    return HourlyPlanningAreaDemand.run(
+        raw_csv,
+        raw_xbrl_duration,
+        raw_xbrl_instant,
+        pudl_paths=context.resources.pudl_paths,
+    )
 
 
 class YearlyPlanningAreaDemandForecast:
@@ -1151,6 +1178,7 @@ class YearlyPlanningAreaDemandForecast:
         cls,
         raw_csv: pd.DataFrame,
         raw_xbrl_duration: pd.DataFrame,
+        pudl_paths: PudlPaths,
     ) -> pd.DataFrame:
         """Build the :ref:`core_ferc714__yearly_planning_area_demand_forecast` asset.
 
@@ -1166,7 +1194,12 @@ class YearlyPlanningAreaDemandForecast:
         table_name = "core_ferc714__yearly_planning_area_demand_forecast"
         # XBRL STUFF
         xbrl = (
-            _filter_for_freshest_data_xbrl(raw_xbrl_duration, table_name, "duration")
+            _filter_for_freshest_data_xbrl(
+                raw_xbrl_duration,
+                table_name,
+                "duration",
+                pudl_paths=pudl_paths,
+            )
             .pipe(
                 rename_columns,
                 params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
@@ -1314,10 +1347,12 @@ class YearlyPlanningAreaDemandForecast:
             key="raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2_duration"
         ),
     },
+    required_resource_keys={"pudl_paths"},
     io_manager_key="pudl_io_manager",
     compute_kind="pandas",
 )
 def core_ferc714__yearly_planning_area_demand_forecast(
+    context,
     raw_csv: pd.DataFrame,
     raw_xbrl_duration: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1327,4 +1362,8 @@ def core_ferc714__yearly_planning_area_demand_forecast(
     it seems you need to build an asset from a function - not a staticmethod of
     a class.
     """
-    return YearlyPlanningAreaDemandForecast.run(raw_csv, raw_xbrl_duration)
+    return YearlyPlanningAreaDemandForecast.run(
+        raw_csv,
+        raw_xbrl_duration,
+        pudl_paths=context.resources.pudl_paths,
+    )
