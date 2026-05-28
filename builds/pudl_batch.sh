@@ -4,8 +4,8 @@
 # This script won't work locally because it needs adequate GCP permissions.
 # It assumes that the PUDL pixi environment is activated.
 
-# Assert that PUDL_REPO is set by the container and points to a valid directory.
-cd "${PUDL_REPO:?PUDL_REPO must be set by the build container}" || exit 1
+# Assert that PUDL_ROOT_PATH is set by the container and points to a valid directory.
+cd "${PUDL_ROOT_PATH:?PUDL_ROOT_PATH must be set by the build container}" || exit 1
 
 function send_slack_msg() {
     set +x &&
@@ -42,12 +42,6 @@ function run_dagster() {
     initialize_postgres &&
         authenticate_gcp &&
         pixi run pudl-with-ferc-to-sqlite-nightly
-}
-
-function write_pudl_datapackage() {
-    echo "Writing PUDL datapackage."
-    python -c "from pudl.metadata.classes import PUDL_PACKAGE; print(PUDL_PACKAGE.to_frictionless(exclude_pattern=r'core_ferceqr.*').to_json())" >"$PUDL_OUTPUT/parquet/pudl_parquet_datapackage.json"
-    return $?
 }
 
 function save_outputs_to_gcs() {
@@ -254,7 +248,6 @@ function notify_slack() {
     message+="$(slack_stage_status "Integration Tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")\n"
     message+="$(slack_stage_status "Data Validations (FKs/dbt)" "$DATA_VALIDATION_STATUS" "$DATA_VALIDATION_DURATION")\n"
     message+="$(slack_stage_status "Row Count Checks (dbt)" "$ROW_COUNT_VALIDATION_STATUS" "$ROW_COUNT_VALIDATION_DURATION")\n"
-    message+="$(slack_stage_status "Write PUDL Datapackage" "$WRITE_DATAPACKAGE_STATUS" "$WRITE_DATAPACKAGE_DURATION")\n"
     message+="$(slack_stage_status "Save Build Outputs" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
     message+="$(slack_stage_status "Prep Outputs for Distribution" "$PREP_OUTPUTS_STATUS" "$PREP_OUTPUTS_DURATION")\n"
     message+="$(slack_stage_status "Update \`nightly\` Branch" "$UPDATE_NIGHTLY_STATUS" "$UPDATE_NIGHTLY_DURATION")\n"
@@ -313,11 +306,18 @@ function prep_outputs_for_distribution() {
         # Create a zip file of all the parquet outputs for distribution on Kaggle
         # Don't try to compress the already compressed Parquet files with Zip.
         pushd "$PUDL_OUTPUT/parquet" &&
-        zip -0 "$PUDL_OUTPUT/pudl_parquet.zip" ./*.parquet ./pudl_parquet_datapackage.json &&
+        zip -0 "$PUDL_OUTPUT/pudl_parquet.zip" ./*.parquet ./datapackage.json &&
         # Move the individual parquet outputs to the output directory for direct access
         mv ./*.parquet "$PUDL_OUTPUT" &&
         # Move the parquet datapackage to the output directory also!
-        mv ./pudl_parquet_datapackage.json "$PUDL_OUTPUT" &&
+        mv ./datapackage.json "$PUDL_OUTPUT"/pudl_parquet_datapackage.json &&
+        popd &&
+        pushd "$PUDL_OUTPUT" &&
+        zip -0 "$PUDL_OUTPUT/ferc1_xbrl.zip" ./ferc1_xbrl/*.parquet ./ferc1_xbrl/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc2_xbrl.zip" ./ferc2_xbrl/*.parquet ./ferc2_xbrl/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc6_xbrl.zip" ./ferc6_xbrl/*.parquet ./ferc6_xbrl/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc60_xbrl.zip" ./ferc60_xbrl/*.parquet ./ferc60_xbrl/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc714_xbrl.zip" ./ferc714_xbrl/*.parquet ./ferc714_xbrl/*.json &&
         popd &&
         # Remove any remaining files and directories we don't want to distribute
         rm -rf "$PUDL_OUTPUT/parquet" &&
@@ -328,7 +328,7 @@ function prep_outputs_for_distribution() {
 # MAIN SCRIPT
 ########################################################################################
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
-ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^.*pudl_parquet_datapackage\\\\.json$)"
+ZENODO_IGNORE_REGEX="^.*\\\\.parquet$"
 STAGE_SKIPPED="skipped"
 BUILD_START_EPOCH_SECONDS=$(date +%s)
 
@@ -341,7 +341,6 @@ ROW_COUNT_VALIDATION_STATUS="$STAGE_SKIPPED"
 SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
 UPDATE_NIGHTLY_STATUS="$STAGE_SKIPPED"
 UPDATE_STABLE_STATUS="$STAGE_SKIPPED"
-WRITE_DATAPACKAGE_STATUS="$STAGE_SKIPPED"
 PREP_OUTPUTS_STATUS="$STAGE_SKIPPED"
 DISTRIBUTION_BUCKET_STATUS="$STAGE_SKIPPED"
 TRIGGER_DATA_VIEWER_DEPLOY_STATUS="$STAGE_SKIPPED"
@@ -355,7 +354,6 @@ ROW_COUNT_VALIDATION_DURATION=""
 SAVE_OUTPUTS_DURATION=""
 UPDATE_NIGHTLY_DURATION=""
 UPDATE_STABLE_DURATION=""
-WRITE_DATAPACKAGE_DURATION=""
 PREP_OUTPUTS_DURATION=""
 DISTRIBUTION_BUCKET_DURATION=""
 TRIGGER_DATA_VIEWER_DEPLOY_DURATION=""
@@ -406,9 +404,6 @@ if ! any_stage_failed \
     "$ROW_COUNT_VALIDATION_STATUS"; then
     touch "$PUDL_OUTPUT/success"
 fi
-
-# Write out a datapackage.json for external consumption
-run_stage WRITE_DATAPACKAGE_STATUS WRITE_DATAPACKAGE_DURATION append write_pudl_datapackage
 
 # Generate new row counts for all tables in the PUDL database
 dbt_helper update-tables --clobber --row-counts all 2>&1 | tee -a "$LOGFILE"
@@ -506,7 +501,6 @@ if ! any_stage_failed \
     "$INTEGRATION_TEST_STATUS" \
     "$DATA_VALIDATION_STATUS" \
     "$ROW_COUNT_VALIDATION_STATUS" \
-    "$WRITE_DATAPACKAGE_STATUS" \
     "$SAVE_OUTPUTS_STATUS" \
     "$UPDATE_NIGHTLY_STATUS" \
     "$UPDATE_STABLE_STATUS" \

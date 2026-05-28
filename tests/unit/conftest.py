@@ -34,6 +34,6 @@ def unit_pudl_test_paths(
     )
 
     return PudlPaths(
-        pudl_input=pudl_test_paths.input_dir,
+        pudl_input=pudl_test_paths.pudl_input,
         pudl_output=out_tmp,
     )
