@@ -142,8 +142,8 @@ class FercEqrDeploymentTargetsResource(dg.ConfigurableResource):
     :class:`~upath.UPath`, so GCS, S3, and local paths are all supported.
 
     When ``deployment_targets`` is empty, :meth:`resolved_targets` falls back to
-    ``$PUDL_OUTPUT/ferceqr_deployment`` via the ``pudl_paths`` resource dependency, which is
-    safe for local development and tests without any cloud credentials.
+    ``$PUDL_OUTPUT/ferceqr_deployment`` via the ``pudl_paths`` resource dependency,
+    which is safe for local development and tests without any cloud credentials.
 
     ``build_id`` identifies the nightly build in notification messages.  It
     defaults to ``""`` so local runs and unit tests do not require ``BUILD_ID`` to
@@ -159,8 +159,8 @@ class FercEqrDeploymentTargetsResource(dg.ConfigurableResource):
         """Return the list of :class:`~upath.UPath` deployment destinations.
 
         When ``deployment_targets`` is non-empty, each entry is converted to a
-        :class:`~upath.UPath` using its ``storage_options``.  When empty, falls
-        back to the ``ferceqr_deployment/`` subdirectory of the configured PUDL output path.
+        :class:`~upath.UPath` using its ``storage_options``.  When empty, falls back to
+        the ``ferceqr_deployment/`` subdirectory of the configured PUDL output path.
         """
         if self.deployment_targets:
             return [UPath(t.path, **t.storage_options) for t in self.deployment_targets]
