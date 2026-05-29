@@ -1,0 +1,8 @@
+storage:
+  postgres:
+    postgres_db:
+      username: dagster
+      password: dagster_password
+      hostname: 127.0.0.1
+      db_name: dagster
+      port: 5433
