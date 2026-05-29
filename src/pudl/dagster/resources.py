@@ -16,7 +16,6 @@ import os
 from typing import Any
 
 import dagster as dg
-import requests
 from upath import UPath
 
 from pudl import PUDL_SETTINGS_PATH
@@ -123,34 +122,6 @@ class FercEqrDataConfig(dg.ConfigurableResource):
         return UPath(self.ferceqr_archive_uri)
 
 
-class ZulipNotificationResource(dg.ConfigurableResource):
-    """Send notifications to Zulip streams via the Zulip API."""
-
-    base_url: str = "https://catalyst-cooperative.zulipchat.com"
-    bot_email: str = "build-status-bot@catalyst-cooperative.zulipchat.com"
-    api_key: str = dg.EnvVar("ZULIP_API_KEY")
-    timeout_seconds: int = 30
-
-    def send_stream_message(self, *, stream: str, topic: str, content: str) -> dict:
-        """Send a message to a Zulip stream topic and return the API response."""
-        response = requests.post(
-            f"{self.base_url}/api/v1/messages",
-            auth=(self.bot_email, self.api_key),
-            data={
-                "type": "stream",
-                "to": stream,
-                "topic": topic,
-                "content": content,
-            },
-            timeout=self.timeout_seconds,
-        )
-        response.raise_for_status()
-        payload = response.json()
-        if payload.get("result") != "success":
-            raise RuntimeError(f"Zulip message failed: {payload}")
-        return payload
-
-
 class FercEqrBucketDeploymentResource(dg.ConfigurableResource):
     """Bucket deployment settings for publishing FERC EQR outputs."""
 
@@ -169,7 +140,6 @@ datastore_resource = DatastoreResource(
 )
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()
 ferceqr_data_config = FercEqrDataConfig()
-zulip_notification_resource = ZulipNotificationResource()
 ferceqr_bucket_deployment_resource = FercEqrBucketDeploymentResource()
 
 default_resources: dict[str, Any] = {
@@ -179,7 +149,6 @@ default_resources: dict[str, Any] = {
     "ferceqr_data_config": ferceqr_data_config,
     "runtime_settings": ferc_xbrl_runtime_settings,
     "zenodo_dois": zenodo_doi_settings_resource,
-    "zulip_notifications": zulip_notification_resource,
     "ferceqr_bucket_deployment": ferceqr_bucket_deployment_resource,
 }
 
@@ -190,7 +159,6 @@ __all__ = [
     "FercXbrlRuntimeSettings",
     "GlobalDataConfigResource",
     "PudlPathsResource",
-    "ZulipNotificationResource",
     "ZenodoDoiSettingsResource",
     "datastore_resource",
     "default_resources",
@@ -199,6 +167,5 @@ __all__ = [
     "ferc_xbrl_runtime_settings",
     "global_data_config_resource",
     "pudl_paths_resource",
-    "zulip_notification_resource",
     "zenodo_doi_settings_resource",
 ]

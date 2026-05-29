@@ -12,7 +12,6 @@ from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 
 def _build_deploy_context(tmp_path, mocker):
     """Build a Dagster asset context with a minimal pudl_paths resource."""
-    zulip_resource = SimpleNamespace(send_stream_message=mocker.Mock())
     cloud_deployment_resource = SimpleNamespace(
         gcs_output_bucket="gs://fake-output",
         s3_output_bucket="s3://fake-output",
@@ -22,7 +21,6 @@ def _build_deploy_context(tmp_path, mocker):
     return dg.build_asset_context(
         resources={
             "pudl_paths": SimpleNamespace(pudl_output=tmp_path),
-            "zulip_notifications": zulip_resource,
             "ferceqr_bucket_deployment": cloud_deployment_resource,
         }
     )
@@ -143,13 +141,12 @@ def test_deploy_ferceqr_raises_when_ferceqr_build_disabled(mocker, tmp_path):
 
 
 def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_path):
-    """Successful deployment should publish outputs, notify Zulip, and mark SUCCESS."""
+    """Successful deployment should publish outputs, notify Slack, and mark SUCCESS."""
     mocker.patch.dict(
         os.environ,
         {
             "FERCEQR_BUILD": "1",
-            "ZULIP_BOT_EMAIL": "bot@catalyst.coop",
-            "ZULIP_API_KEY": "fake-key",  # pragma: allowlist secret
+            "SLACK_TOKEN": "fake-slack-token",  # pragma: allowlist secret
             "BUILD_ID": "build-123",
             "GCS_OUTPUT_BUCKET": "gs://fake-output",
             "GCP_BILLING_PROJECT": "fake-project",
@@ -161,8 +158,8 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
     gcs_fs = mocker.Mock()
     s3_fs = mocker.Mock()
     deploy_context = _build_deploy_context(tmp_path, mocker)
-    send_zulip_message = (
-        deploy_context.resources.zulip_notifications.send_stream_message
+    notify_slack = mocker.patch.object(
+        deploy_ferceqr, "_notify_slack_deployments_channel"
     )
     frictionless = mocker.Mock()
     mock_package = mocker.Mock()
@@ -186,48 +183,43 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
         assert fs.put.call_count == len(deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS)
         fs.pipe.assert_called_once()
 
-    send_zulip_message.assert_called_once()
-    sent_message = send_zulip_message.call_args.kwargs["content"]
+    notify_slack.assert_called_once()
+    sent_message = notify_slack.call_args.kwargs["message"]
     assert "## FERC EQR Deployment Succeeded" in sent_message
     assert "### Failed Assets / Partitions" not in sent_message
     assert "### Step Status" in sent_message
     assert "Step Status" in sent_message
     assert "Count" in sent_message
-    assert send_zulip_message.call_args.kwargs["stream"] == "pudl-deployments"
-    assert send_zulip_message.call_args.kwargs["topic"] == "FERC EQR Builds"
 
 
 def test_handle_ferceqr_deployment_failure_writes_failure_and_notifies(
     mocker, tmp_path
 ):
-    """Failure handler should notify Zulip and write the FAILURE sentinel file."""
+    """Failure handler should notify Slack and write the FAILURE sentinel file."""
     mocker.patch.dict(
         os.environ,
         {
             "FERCEQR_BUILD": "1",
-            "ZULIP_BOT_EMAIL": "bot@catalyst.coop",
-            "ZULIP_API_KEY": "fake-key",  # pragma: allowlist secret
+            "SLACK_TOKEN": "fake-slack-token",  # pragma: allowlist secret
             "BUILD_ID": "build-456",
         },
         clear=False,
     )
     deploy_context = _build_deploy_context(tmp_path, mocker)
-    send_zulip_message = (
-        deploy_context.resources.zulip_notifications.send_stream_message
+    notify_slack = mocker.patch.object(
+        deploy_ferceqr, "_notify_slack_deployments_channel"
     )
 
     deploy_ferceqr.handle_ferceqr_deployment_failure(deploy_context)
 
     assert (tmp_path / "FAILURE").exists()
-    send_zulip_message.assert_called_once()
-    sent_message = send_zulip_message.call_args.kwargs["content"]
+    notify_slack.assert_called_once()
+    sent_message = notify_slack.call_args.kwargs["message"]
     assert "## FERC EQR Deployment Failed" in sent_message
     assert "### Failed Assets / Partitions" not in sent_message
     assert "### Step Status" in sent_message
     assert "Step Status" in sent_message
     assert "Count" in sent_message
-    assert send_zulip_message.call_args.kwargs["stream"] == "pudl-deployments"
-    assert send_zulip_message.call_args.kwargs["topic"] == "FERC EQR Builds"
 
 
 def test_build_message_includes_partition_and_failed_assets_table():

@@ -1,7 +1,7 @@
 """Define deployment helper assets for publishing FERC EQR outputs.
 
 These assets run during batch builds to publish transformed FERC EQR outputs,
-notify Zulip of success or failure, and create status files that tell the batch
+notify Slack of success or failure, and create status files that tell the batch
 job when deployment handling is complete.
 """
 
@@ -16,11 +16,11 @@ import dagster as dg
 import gcsfs
 import pandas as pd
 import s3fs
+from slack_sdk import WebClient
 from upath import UPath
 
 from pudl.dagster.resources import (
     FercEqrBucketDeploymentResource,
-    ZulipNotificationResource,
 )
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
@@ -28,9 +28,6 @@ from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
-
-ZULIP_STREAM = "pudl-deployments"
-ZULIP_TOPIC = "FERC EQR Builds"
 
 FERCEQR_SOURCE_RUN_ID_TAG = "ferceqr/source_run_id"
 FERCEQR_SOURCE_RUN_STATUS_TAG = "ferceqr/source_run_status"
@@ -56,6 +53,25 @@ def is_ferceqr_build_enabled() -> bool:
 
     normalized_value = raw_value.strip().lower()
     return normalized_value not in {"", "0", "false", "no", "off"}
+
+
+def _notify_slack_deployments_channel(
+    message: str, attached_file_path: str | None = None
+):
+    """Send string message to PUDL deployments channel."""
+    client = WebClient(token=os.environ["SLACK_TOKEN"])
+    channel = "C03FHB9N0PQ"
+    if attached_file_path is not None:
+        client.files_upload_v2(
+            channel=channel,
+            file=attached_file_path,
+            title=f"{os.environ['BUILD_ID']} Status",
+            initial_comment=message,
+        )
+    client.chat_postMessage(
+        channel=channel,
+        text=message,
+    )
 
 
 def _get_logfile_pointer_markdown(build_id: str) -> str:
@@ -240,7 +256,6 @@ def deployment_status_asset(
         name=handler.__name__,
         required_resource_keys={
             "pudl_paths",
-            "zulip_notifications",
             "ferceqr_bucket_deployment",
         },
     )
@@ -265,9 +280,6 @@ def deployment_status_asset(
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to cloud storage."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
-    zulip_notifications: ZulipNotificationResource = (
-        context.resources.zulip_notifications
-    )
     bucket_deployment: FercEqrBucketDeploymentResource = (
         context.resources.ferceqr_bucket_deployment
     )
@@ -318,8 +330,8 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
             value=datapackage_bytes,
         )
 
-    # Send Zulip notification about successful build.
-    logger.info("Notifying Zulip about successful build.")
+    # Send Slack notification about successful build.
+    logger.info("Notifying Slack about successful build.")
     notification_payload = FercEqrDeploymentNotificationPayload(
         outcome="SUCCESS",
         build_id=bucket_deployment.build_id,
@@ -330,10 +342,8 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         step_status_counts=step_status_counts,
         failed_step_keys=failed_step_keys,
     )
-    zulip_notifications.send_stream_message(
-        content=build_ferceqr_deployment_markdown_message(notification_payload),
-        stream=ZULIP_STREAM,
-        topic=ZULIP_TOPIC,
+    _notify_slack_deployments_channel(
+        message=build_ferceqr_deployment_markdown_message(notification_payload),
     )
     _write_status_file("SUCCESS", pudl_paths)
 
@@ -342,9 +352,6 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
 def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
     """Send notification if EQR deployment failed."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
-    zulip_notifications: ZulipNotificationResource = (
-        context.resources.zulip_notifications
-    )
     bucket_deployment: FercEqrBucketDeploymentResource = (
         context.resources.ferceqr_bucket_deployment
     )
@@ -356,7 +363,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
         source_partition,
     ) = _get_source_run_step_status_summary(context)
 
-    logger.error("Build failed, notifying Zulip.")
+    logger.error("Build failed, notifying Slack.")
     notification_payload = FercEqrDeploymentNotificationPayload(
         outcome="FAILURE",
         build_id=bucket_deployment.build_id,
@@ -367,9 +374,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
         step_status_counts=step_status_counts,
         failed_step_keys=failed_step_keys,
     )
-    zulip_notifications.send_stream_message(
-        content=build_ferceqr_deployment_markdown_message(notification_payload),
-        stream=ZULIP_STREAM,
-        topic=ZULIP_TOPIC,
+    _notify_slack_deployments_channel(
+        message=build_ferceqr_deployment_markdown_message(notification_payload),
     )
     _write_status_file("FAILURE", pudl_paths)
