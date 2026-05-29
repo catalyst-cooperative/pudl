@@ -1,36 +1,32 @@
 """Unit tests for Dagster resources used by FERCEQR deployment flows."""
 
+import os
+from pathlib import Path
+
+import pytest
+import yaml
 from upath import UPath
 
 from pudl.dagster.resources import (
-    FercEqrDeploymentTarget,
-    FercEqrDeploymentTargetsResource,
+    FercEqrDeploymentResource,
+    FercEqrDeploymentTargetConfig,
     default_resources,
 )
-from pudl.workspace.setup import PudlPaths
-
-
-def _make_pudl_paths(tmp_path) -> PudlPaths:
-    return PudlPaths(
-        pudl_input=str(tmp_path / "input"), pudl_output=str(tmp_path / "output")
-    )
 
 
 def test_ferceqr_deployment_targets_resource_loads_config_values(tmp_path):
     """Deployment targets resource should expose configured target paths and options."""
-    resource = FercEqrDeploymentTargetsResource(
-        pudl_paths=_make_pudl_paths(tmp_path),
+    resource = FercEqrDeploymentResource(
         deployment_targets=[
-            FercEqrDeploymentTarget(
+            FercEqrDeploymentTargetConfig(
                 path="gs://my-bucket",
                 storage_options={
                     "project": "my-billing-project",
                     "requester_pays": True,
                 },
             ),
-            FercEqrDeploymentTarget(path="s3://my-bucket"),
+            FercEqrDeploymentTargetConfig(path="s3://my-bucket"),
         ],
-        build_id="build-999",
     )
 
     assert len(resource.deployment_targets) == 2
@@ -42,18 +38,110 @@ def test_ferceqr_deployment_targets_resource_loads_config_values(tmp_path):
     assert resource.deployment_targets[0].storage_options["requester_pays"] is True
     assert resource.deployment_targets[1].path == "s3://my-bucket"
     assert resource.deployment_targets[1].storage_options == {}
-    assert resource.build_id == "build-999"
 
 
-def test_ferceqr_deployment_targets_resource_defaults_to_local_fallback(tmp_path):
-    """Resource with no explicit targets should fall back to $PUDL_OUTPUT/ferceqr_deployment."""
-    pudl_paths = _make_pudl_paths(tmp_path)
-    resource = FercEqrDeploymentTargetsResource(pudl_paths=pudl_paths)
+def test_ferceqr_deployment_target_config_accepts_local_filesystem_path(tmp_path):
+    """Deployment targets should accept existing absolute local directories."""
+    deploy_path = tmp_path / "deploy"
+    deploy_path.mkdir()
+    target = FercEqrDeploymentTargetConfig(path=str(deploy_path))
+
+    assert target.path == str(deploy_path)
+
+
+def test_ferceqr_deployment_target_config_accepts_file_uri(tmp_path):
+    """Deployment targets should accept existing absolute local file:// URIs."""
+    deploy_path = tmp_path / "deploy_uri"
+    deploy_path.mkdir()
+    target = FercEqrDeploymentTargetConfig(path=deploy_path.as_uri())
+
+    assert target.path == deploy_path.as_uri()
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "https://example.com/ferceqr",
+        "s3://",
+        "gs://",
+        "file://relative/path",
+        "   ",
+        "relative/path",
+    ],
+)
+def test_ferceqr_deployment_target_config_rejects_invalid_paths(path):
+    """Deployment targets should reject unsupported URL schemes and empty bucket URLs."""
+    with pytest.raises(ValueError):
+        FercEqrDeploymentTargetConfig(path=path)
+
+
+def test_ferceqr_deployment_target_config_rejects_missing_local_directory(tmp_path):
+    """Deployment targets should reject local directories that do not exist."""
+    with pytest.raises(ValueError, match="does not exist"):
+        FercEqrDeploymentTargetConfig(path=str(tmp_path / "missing"))
+
+
+def test_ferceqr_deployment_target_config_rejects_local_file(tmp_path):
+    """Deployment targets should reject local paths that are not directories."""
+    local_file = tmp_path / "deploy.txt"
+    local_file.write_text("not a directory")
+
+    with pytest.raises(ValueError, match="is not a directory"):
+        FercEqrDeploymentTargetConfig(path=str(local_file))
+
+
+def test_ferceqr_deployment_target_config_rejects_unwritable_directory(
+    tmp_path, monkeypatch
+):
+    """Deployment targets should reject local directories that are not writable."""
+    deploy_path = tmp_path / "deploy"
+    deploy_path.mkdir()
+
+    def fake_access(path, mode):
+        if Path(path) == deploy_path and mode == os.W_OK:
+            return False
+        return os.access(path, mode)
+
+    monkeypatch.setattr("pudl.dagster.resources.os.access", fake_access)
+
+    with pytest.raises(ValueError, match="is not writable"):
+        FercEqrDeploymentTargetConfig(path=str(deploy_path))
+
+
+def test_ferceqr_deployment_resource_defaults_to_no_targets(tmp_path):
+    """Resource with no explicit targets or config path should skip deployment."""
+    resource = FercEqrDeploymentResource()
+
+    configured_targets = resource.configured_targets()
+
+    assert configured_targets == []
+
+
+def test_ferceqr_deployment_resource_loads_override_config_path(tmp_path):
+    """Resource should support overriding deployment targets with an alternate YAML file."""
+    deployment_config_path = tmp_path / "ferceqr_targets.yml"
+    deploy_path = tmp_path / "deploy"
+    deploy_path.mkdir()
+    deployment_config_path.write_text(
+        yaml.safe_dump(
+            {
+                "deployment_targets": [
+                    {
+                        "path": str(deploy_path),
+                        "storage_options": {},
+                    }
+                ]
+            }
+        )
+    )
+
+    resource = FercEqrDeploymentResource(
+        deployment_config_path=str(deployment_config_path),
+    )
 
     targets = resource.resolved_targets()
 
-    assert targets == [UPath(pudl_paths.pudl_output) / "ferceqr_deployment"]
-    assert resource.build_id == ""
+    assert targets == [UPath(deploy_path)]
 
 
 def test_default_resources_include_ferceqr_deployment_targets():

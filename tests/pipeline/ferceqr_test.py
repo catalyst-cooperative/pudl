@@ -64,8 +64,28 @@ def ferceqr_dagster_home(tmp_path_factory) -> Path:
 
 
 @pytest.fixture(scope="session")
+def ferceqr_deployment_config_path(tmp_path_factory, ferceqr_deploy_dir: Path) -> Path:
+    """Temporary deployment-target YAML pointing at the local deploy directory."""
+    deployment_config_path = tmp_path_factory.mktemp("ferceqr_config") / "targets.yml"
+    deployment_config_path.write_text(
+        yaml.safe_dump(
+            {
+                "deployment_targets": [
+                    {
+                        "path": str(ferceqr_deploy_dir),
+                        "storage_options": {},
+                    }
+                ]
+            }
+        )
+    )
+    return deployment_config_path
+
+
+@pytest.fixture(scope="session")
 def ferceqr_outputs(
     ferceqr_dagster_home: Path,
+    ferceqr_deployment_config_path: Path,
     ferceqr_deploy_dir: Path,
     ferceqr_pudl_output: Path,
 ) -> Path:
@@ -77,9 +97,8 @@ def ferceqr_outputs(
     3. Poll for ``FERCEQR_SUCCESS`` or ``FERCEQR_FAILURE`` in ``ferceqr_pudl_output``.
     4. Stop the daemon.
 
-    The deployment target is configured via the ``GCS_OUTPUT_BUCKET`` env var that the
-    production ``FercEqrDeploymentTargetsResource`` singleton reads.  Here we point it
-    at the local ``ferceqr_deploy_dir`` so no cloud credentials are needed.
+    The deployment target is configured via a temporary deployment-target YAML file that
+    points at the local ``ferceqr_deploy_dir`` so no cloud credentials are needed.
     """
     dagster_daemon = shutil.which("dagster-daemon")
     dagster_cli = shutil.which("dagster")
@@ -89,12 +108,7 @@ def ferceqr_outputs(
     env = os.environ.copy()
     env["DAGSTER_HOME"] = str(ferceqr_dagster_home)
     env["PUDL_OUTPUT"] = str(ferceqr_pudl_output)
-    # Point the production deployment resource at the local temp dir by setting
-    # GCS_OUTPUT_BUCKET to an absolute path.  UPath treats an absolute local path as
-    # a plain filesystem path, so no cloud credentials are required.
-    env["GCS_OUTPUT_BUCKET"] = str(ferceqr_deploy_dir)
-    # Ensure S3_OUTPUT_BUCKET is unset so only one target is created.
-    env.pop("S3_OUTPUT_BUCKET", None)
+    env["PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH"] = str(ferceqr_deployment_config_path)
     env.pop("GCP_BILLING_PROJECT", None)
     env["BUILD_ID"] = "pytest-ferceqr"
 

@@ -7,9 +7,7 @@ on:
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
-  GCS_OUTPUT_BUCKET: gs://pudl.catalyst.coop/ferceqr
   GCS_LOGS_BUCKET: gs://builds.catalyst.coop/ferceqr_logs
-  S3_OUTPUT_BUCKET: s3://pudl.catalyst.coop/ferceqr
   BATCH_JOB_JSON: batch_job.json
   BUILD_ID: ""
   BATCH_JOB_ID: ""
@@ -97,11 +95,11 @@ jobs:
             --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env FERCEQR_BUILD=true \
+            --container-env PUDL_FERCEQR_ARCHIVE_PATH="gs://archives.catalyst.coop/ferceqr/published" \
+            --container-env PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH="/home/ubuntu/pudl/src/pudl/package_data/settings/ferceqr_deployment_targets.yml" \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
-            --container-env GCS_OUTPUT_BUCKET=${{ env.GCS_OUTPUT_BUCKET }} \
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
-            --container-env S3_OUTPUT_BUCKET=${{ env.S3_OUTPUT_BUCKET }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env OMP_NUM_THREADS=8 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \

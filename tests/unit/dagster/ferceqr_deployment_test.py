@@ -12,7 +12,6 @@ def _build_deploy_context(tmp_path, mocker):
     """Build a Dagster asset context with a minimal pudl_paths resource."""
     deployment_resource = SimpleNamespace(
         resolved_targets=list,
-        build_id="test-build",
     )
     return dg.build_asset_context(
         resources={

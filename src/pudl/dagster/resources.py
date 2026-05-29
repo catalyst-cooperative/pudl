@@ -13,15 +13,39 @@ https://docs.dagster.io/guides/build/external-resources
 """
 
 import os
+from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import dagster as dg
+import yaml
+from pydantic import field_validator
 from upath import UPath
 
 from pudl import PUDL_SETTINGS_PATH
 from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
+
+DEFAULT_FERCEQR_DEPLOYMENT_CONFIG_PATH = (
+    PUDL_SETTINGS_PATH / "ferceqr_deployment_targets.yml"
+)
+
+
+def validate_local_deployment_directory(local_path: Path) -> None:
+    """Validate a local deployment target directory."""
+    if not local_path.is_absolute():
+        raise ValueError(
+            "Local deployment target paths must be absolute filesystem paths."
+        )
+    if not local_path.exists():
+        raise ValueError(f"Local deployment target path {local_path} does not exist.")
+    if not local_path.is_dir():
+        raise ValueError(
+            f"Local deployment target path {local_path} is not a directory."
+        )
+    if not os.access(local_path, os.W_OK):
+        raise ValueError(f"Local deployment target path {local_path} is not writable.")
 
 
 class PudlPathsResource(dg.ConfigurableResource):
@@ -104,29 +128,27 @@ class DatastoreResource(dg.ConfigurableResource):
         return Datastore(**ds_kwargs)
 
 
-class FercEqrDataConfig(dg.ConfigurableResource):
+class FercEqrArchiveResource(dg.ConfigurableResource):
     """Configure which archived FERC EQR filings are available for extraction.
 
-    The default value of ``ferceqr_archive_uri`` points to the published archive of FERC
-    EQR filings on GCS which is what we use in production. For testing or development,
-    this can be overridden to point to a local path with a subset of the archive.
+    The default value of ``path`` points to the published archive of FERC EQR filings on
+    GCS which is what we use in production. For testing or development, this can be
+    overridden to point to a local path with a subset of the archive.
     """
 
-    ferceqr_archive_uri: str = os.getenv(
-        "FERCEQR_ARCHIVE_PATH", default="gs://archives.catalyst.coop/ferceqr/published"
-    )
+    path: str = dg.EnvVar("PUDL_FERCEQR_ARCHIVE_PATH")
 
     @property
-    def ferceqr_archive_path(self) -> UPath:
+    def upath(self) -> UPath:
         """Return UPath pointing to archive base path."""
-        return UPath(self.ferceqr_archive_uri)
+        return UPath(self.path)
 
 
-class FercEqrDeploymentTarget(dg.Config):
+class FercEqrDeploymentTargetConfig(dg.Config):
     """A single deployment destination for FERC EQR outputs.
 
-    ``path`` is a UPath-compatible string: an absolute local path, ``gs://`` URI,
-    or ``s3://`` URI.  ``storage_options`` is unpacked as ``**kwargs`` when
+    ``path`` is a UPath-compatible string: an absolute local directory path,
+    ``file://`` URI, ``gs://`` URI, or ``s3://`` URI.  ``storage_options`` is unpacked as ``**kwargs`` when
     constructing the :class:`~upath.UPath`, allowing per-target fsspec settings
     such as ``requester_pays=True`` for requester-pays GCS buckets.
     """
@@ -134,37 +156,93 @@ class FercEqrDeploymentTarget(dg.Config):
     path: str
     storage_options: dict[str, Any] = {}
 
+    @field_validator("path")
+    @classmethod
+    def validate_path(cls, value: str) -> str:
+        """Validate deployment targets as remote URLs or local directories."""
+        normalized_value = value.strip()
+        if not normalized_value:
+            raise ValueError("Deployment target path cannot be empty.")
 
-class FercEqrDeploymentTargetsResource(dg.ConfigurableResource):
+        if normalized_value.startswith(("s3://", "gs://")):
+            parsed_path = urlparse(normalized_value)
+            if parsed_path.scheme not in {"s3", "gs"} or not parsed_path.netloc:
+                raise ValueError(
+                    "Deployment target path must be a valid s3:// or gs:// URL."
+                )
+            return normalized_value
+
+        if normalized_value.startswith("file://"):
+            parsed_path = urlparse(normalized_value)
+            if parsed_path.scheme != "file" or parsed_path.netloc not in {
+                "",
+                "localhost",
+            }:
+                raise ValueError(
+                    "Deployment target path must be a valid file:// URI with an absolute local path."
+                )
+            local_path = Path(parsed_path.path)
+        else:
+            if "://" in normalized_value:
+                raise ValueError(
+                    "Deployment target path must be a valid s3:// URL, gs:// URL, "
+                    "file:// URI, or local filesystem path."
+                )
+
+            local_path = Path(normalized_value)
+
+        validate_local_deployment_directory(local_path)
+
+        return normalized_value
+
+
+class FercEqrDeploymentResource(dg.ConfigurableResource):
     """One or more deployment destinations for FERC EQR outputs.
 
-    Each entry is a :class:`FercEqrDeploymentTarget` whose ``path`` is resolved via
-    :class:`~upath.UPath`, so GCS, S3, and local paths are all supported.
-
-    When ``deployment_targets`` is empty, :meth:`resolved_targets` falls back to
-    ``$PUDL_OUTPUT/ferceqr_deployment`` via the ``pudl_paths`` resource dependency,
-    which is safe for local development and tests without any cloud credentials.
-
-    ``build_id`` identifies the nightly build in notification messages.  It
-    defaults to ``""`` so local runs and unit tests do not require ``BUILD_ID`` to
-    be set; the production singleton (below) overrides it with
-    :func:`dagster.EnvVar`.
+    Deployment targets can be provided directly as structured config or loaded from a
+    YAML file. Direct ``deployment_targets`` take precedence. When neither explicit
+    targets nor a deployment config path are provided, deployment is skipped.
     """
 
-    pudl_paths: dg.ResourceDependency[PudlPathsResource]
-    deployment_targets: list[FercEqrDeploymentTarget] = []
-    build_id: str = ""
+    deployment_targets: list[FercEqrDeploymentTargetConfig] = []
+    deployment_config_path: str | None = None
+
+    @classmethod
+    def from_yaml(
+        cls, deployment_config_path: str | Path
+    ) -> "FercEqrDeploymentResource":
+        """Create a FERC EQR deployment resource from a YAML config file."""
+        yaml_data = yaml.safe_load(Path(deployment_config_path).read_text()) or {}
+        resource = cls.model_validate(yaml_data)
+        return resource
+
+    def configured_targets(self) -> list[FercEqrDeploymentTargetConfig]:
+        """Return deployment-target config with explicit overrides taking precedence."""
+        if self.deployment_targets:
+            return self.deployment_targets
+
+        deployment_config_path = self.deployment_config_path
+        if deployment_config_path is None:
+            deployment_config_path = dg.EnvVar(
+                "PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH"
+            ).get_value(default=None)
+        if deployment_config_path is None:
+            return []
+
+        return self.from_yaml(
+            deployment_config_path=str(deployment_config_path)
+        ).deployment_targets
 
     def resolved_targets(self) -> list[UPath]:
         """Return the list of :class:`~upath.UPath` deployment destinations.
 
-        When ``deployment_targets`` is non-empty, each entry is converted to a
-        :class:`~upath.UPath` using its ``storage_options``.  When empty, falls back to
-        the ``ferceqr_deployment/`` subdirectory of the configured PUDL output path.
+        Each configured target is converted to a :class:`~upath.UPath` using its
+        provided ``storage_options``.
         """
-        if self.deployment_targets:
-            return [UPath(t.path, **t.storage_options) for t in self.deployment_targets]
-        return [UPath(self.pudl_paths.pudl_output) / "ferceqr_deployment"]
+        return [
+            UPath(str(target.path), **target.storage_options)
+            for target in self.configured_targets()
+        ]
 
 
 global_data_config_resource = GlobalDataConfigResource.configure_at_launch()
@@ -175,35 +253,32 @@ datastore_resource = DatastoreResource(
     pudl_paths=pudl_paths_resource,
 )
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()
-ferceqr_data_config = FercEqrDataConfig()
-ferceqr_deployment_targets_resource = FercEqrDeploymentTargetsResource(
-    pudl_paths=pudl_paths_resource,
-    build_id=os.getenv("BUILD_ID", ""),
-)
+ferceqr_archive = FercEqrArchiveResource()
+ferceqr_deployment_targets = FercEqrDeploymentResource()
 
 default_resources: dict[str, Any] = {
     "datastore": datastore_resource,
     "global_data_config": global_data_config_resource,
     "pudl_paths": pudl_paths_resource,
-    "ferceqr_data_config": ferceqr_data_config,
+    "ferceqr_data_config": ferceqr_archive,
     "runtime_settings": ferc_xbrl_runtime_settings,
     "zenodo_dois": zenodo_doi_settings_resource,
-    "ferceqr_deployment_targets": ferceqr_deployment_targets_resource,
+    "ferceqr_deployment_targets": ferceqr_deployment_targets,
 }
 
 __all__ = [
     "DatastoreResource",
-    "FercEqrDataConfig",
-    "FercEqrDeploymentTarget",
-    "FercEqrDeploymentTargetsResource",
+    "FercEqrArchiveResource",
+    "FercEqrDeploymentTargetConfig",
+    "FercEqrDeploymentResource",
     "FercXbrlRuntimeSettings",
     "GlobalDataConfigResource",
     "PudlPathsResource",
     "ZenodoDoiSettingsResource",
     "datastore_resource",
     "default_resources",
-    "ferceqr_data_config",
-    "ferceqr_deployment_targets_resource",
+    "ferceqr_archive",
+    "ferceqr_deployment_targets",
     "ferc_xbrl_runtime_settings",
     "global_data_config_resource",
     "pudl_paths_resource",

@@ -17,7 +17,7 @@ import pandas as pd
 from slack_sdk import WebClient
 
 from pudl.dagster.resources import (
-    FercEqrDeploymentTargetsResource,
+    FercEqrDeploymentResource,
 )
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
@@ -46,8 +46,7 @@ def _notify_slack_deployments_channel(
     Skips silently when ``SLACK_TOKEN`` is not set in the environment (e.g.
     during local development or pipeline tests).
     """
-    slack_token = os.environ.get("SLACK_TOKEN")
-    if not slack_token:
+    if not (slack_token := os.getenv("SLACK_TOKEN")):
         logger.info("SLACK_TOKEN not set; skipping Slack notification.")
         return
     client = WebClient(token=slack_token)
@@ -56,13 +55,18 @@ def _notify_slack_deployments_channel(
         client.files_upload_v2(
             channel=channel,
             file=attached_file_path,
-            title=f"{os.environ['BUILD_ID']} Status",
+            title=f"{os.getenv('BUILD_ID', 'no-build-id')} Status",
             initial_comment=message,
         )
     client.chat_postMessage(
         channel=channel,
         text=message,
     )
+
+
+def _get_build_id() -> str:
+    """Return the current build identifier for deployment notifications."""
+    return os.getenv("BUILD_ID", "no-build-id")
 
 
 def _get_logfile_pointer_markdown(build_id: str) -> str:
@@ -268,9 +272,7 @@ def deployment_status_asset(
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to configured deployment targets."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
-    deployment: FercEqrDeploymentTargetsResource = (
-        context.resources.ferceqr_deployment_targets
-    )
+    deployment: FercEqrDeploymentResource = context.resources.ferceqr_deployment_targets
     (
         step_status_counts,
         failed_step_keys,
@@ -304,7 +306,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     logger.info("Notifying Slack about successful build.")
     notification_payload = FercEqrDeploymentNotificationPayload(
         outcome="SUCCESS",
-        build_id=deployment.build_id,
+        build_id=_get_build_id(),
         distribution_paths=[str(t) for t in targets],
         source_run_id=source_run_id,
         source_run_status=source_run_status,
@@ -322,9 +324,6 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
 def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
     """Send notification if EQR deployment failed."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
-    deployment: FercEqrDeploymentTargetsResource = (
-        context.resources.ferceqr_deployment_targets
-    )
     (
         step_status_counts,
         failed_step_keys,
@@ -336,7 +335,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
     logger.error("Build failed, notifying Slack.")
     notification_payload = FercEqrDeploymentNotificationPayload(
         outcome="FAILURE",
-        build_id=deployment.build_id,
+        build_id=_get_build_id(),
         distribution_paths=None,
         source_run_id=source_run_id,
         source_run_status=source_run_status,

@@ -12,7 +12,7 @@ from duckdb import DuckDBPyConnection
 from upath import UPath
 
 from pudl.dagster.partitions import ferceqr_year_quarters
-from pudl.dagster.resources import FercEqrDataConfig
+from pudl.dagster.resources import FercEqrArchiveResource
 from pudl.helpers import ParquetData, persist_table_as_parquet
 from pudl.logging_helpers import get_logger
 
@@ -177,7 +177,7 @@ def _save_extract_errors(year_quarter: str, duckdb_connection: DuckDBPyConnectio
 )
 def extract_ferceqr(
     context: dg.AssetExecutionContext,
-    ferceqr_data_config: FercEqrDataConfig = FercEqrDataConfig(),
+    ferceqr_data_config: FercEqrArchiveResource = FercEqrArchiveResource(),
 ) -> tuple[ParquetData, ParquetData, ParquetData, ParquetData, ParquetData]:
     """Extract year quarter from CSVs and load to parquet files.
 
@@ -191,9 +191,7 @@ def extract_ferceqr(
 
     # Open top level zipfile
     with (
-        _get_csv(
-            ferceqr_data_config.ferceqr_archive_path, year_quarter
-        ) as quarter_archive,
+        _get_csv(ferceqr_data_config.upath, year_quarter) as quarter_archive,
         duckdb.connect() as conn,
     ):
         # Loop through all nested zipfiles (one for each filing in the quarter)
