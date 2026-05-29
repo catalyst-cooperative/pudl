@@ -19,8 +19,7 @@ function run_ferceqr_etl() {
     # Wait for a file called 'FERCEQR_SUCCESS' or 'FERCEQR_FAILURE' to be created in
     # PUDL_OUTPUT indicating completion. Timeout after 6 hours if file still doesn't exist.
     inotifywait -e create -t 21600 --include 'FERCEQR_SUCCESS|FERCEQR_FAILURE' "$PUDL_OUTPUT"
-    # Kill dagster-daemon (job %1 = background process started above)
-    kill %1
+    killall dagster-daemon
 }
 
 ########################################################################################
