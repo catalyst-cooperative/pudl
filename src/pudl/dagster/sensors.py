@@ -15,7 +15,6 @@ from pudl.dagster.assets.deploy.ferceqr import (
     FERCEQR_SOURCE_PARTITION_TAG,
     FERCEQR_SOURCE_RUN_ID_TAG,
     FERCEQR_SOURCE_RUN_STATUS_TAG,
-    is_ferceqr_build_enabled,
 )
 from pudl.dagster.jobs import ferceqr_deployment_job, ferceqr_job
 from pudl.logging_helpers import get_logger
@@ -38,11 +37,7 @@ FAILED_TERMINAL_RUN_STATUSES = {
     dg.DagsterRunStatus.CANCELED,
 }
 
-ferceqr_deployment_sensor_status = (
-    dg.DefaultSensorStatus.RUNNING
-    if is_ferceqr_build_enabled()
-    else dg.DefaultSensorStatus.STOPPED
-)
+ferceqr_deployment_sensor_status = dg.DefaultSensorStatus.RUNNING
 
 
 @dg.run_status_sensor(

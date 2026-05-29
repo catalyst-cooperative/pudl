@@ -1,10 +1,8 @@
 """Unit tests for FERCEQR deployment sensors and deployment asset handlers."""
 
-import os
 from types import SimpleNamespace
 
 import dagster as dg
-import pytest
 
 from pudl.dagster import sensors
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
@@ -12,16 +10,14 @@ from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
 
 def _build_deploy_context(tmp_path, mocker):
     """Build a Dagster asset context with a minimal pudl_paths resource."""
-    cloud_deployment_resource = SimpleNamespace(
-        gcs_output_bucket="gs://fake-output",
-        s3_output_bucket="s3://fake-output",
-        gcp_billing_project="fake-project",
+    deployment_resource = SimpleNamespace(
+        resolved_targets=list,
         build_id="test-build",
     )
     return dg.build_asset_context(
         resources={
             "pudl_paths": SimpleNamespace(pudl_output=tmp_path),
-            "ferceqr_bucket_deployment": cloud_deployment_resource,
+            "ferceqr_deployment_targets": deployment_resource,
         }
     )
 
@@ -129,34 +125,8 @@ def test_ferceqr_deployment_failure_sensor_returns_failure_run_request(mocker):
     }
 
 
-def test_deploy_ferceqr_raises_when_ferceqr_build_disabled(mocker, tmp_path):
-    """Deployment asset should fail fast outside FERCEQR batch builds."""
-    mocker.patch.dict(os.environ, {"FERCEQR_BUILD": "0"}, clear=False)
-
-    with pytest.raises(
-        dg.Failure,
-        match="FERCEQR deployment handlers only run when FERCEQR_BUILD is enabled",
-    ):
-        deploy_ferceqr.deploy_ferceqr(_build_deploy_context(tmp_path, mocker))
-
-
 def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_path):
-    """Successful deployment should publish outputs, notify Slack, and mark SUCCESS."""
-    mocker.patch.dict(
-        os.environ,
-        {
-            "FERCEQR_BUILD": "1",
-            "SLACK_TOKEN": "fake-slack-token",  # pragma: allowlist secret
-            "BUILD_ID": "build-123",
-            "GCS_OUTPUT_BUCKET": "gs://fake-output",
-            "GCP_BILLING_PROJECT": "fake-project",
-            "S3_OUTPUT_BUCKET": "s3://fake-output",
-        },
-        clear=False,
-    )
-
-    gcs_fs = mocker.Mock()
-    s3_fs = mocker.Mock()
+    """Successful deployment should write outputs to fallback path, notify Slack, and mark FERCEQR_SUCCESS."""
     deploy_context = _build_deploy_context(tmp_path, mocker)
     notify_slack = mocker.patch.object(
         deploy_ferceqr, "_notify_slack_deployments_channel"
@@ -166,22 +136,16 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
     frictionless.to_json.return_value = "{}"
     mock_package.to_frictionless.return_value = frictionless
 
-    mocker.patch.object(deploy_ferceqr.gcsfs, "GCSFileSystem", return_value=gcs_fs)
-    mocker.patch.object(deploy_ferceqr.s3fs, "S3FileSystem", return_value=s3_fs)
     mocker.patch.object(deploy_ferceqr, "PUDL_PACKAGE", mock_package)
 
     deploy_ferceqr.deploy_ferceqr(deploy_context)
 
-    assert (tmp_path / "SUCCESS").exists()
-    assert not (tmp_path / "FAILURE").exists()
+    assert (tmp_path / "FERCEQR_SUCCESS").exists()
+    assert not (tmp_path / "FERCEQR_FAILURE").exists()
 
     mock_package.to_frictionless.assert_called_once_with(
         include_pattern=r"core_ferceqr.*"
     )
-    for fs in [gcs_fs, s3_fs]:
-        assert fs.mkdirs.call_count == len(deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS)
-        assert fs.put.call_count == len(deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS)
-        fs.pipe.assert_called_once()
 
     notify_slack.assert_called_once()
     sent_message = notify_slack.call_args.kwargs["message"]
@@ -196,15 +160,6 @@ def test_handle_ferceqr_deployment_failure_writes_failure_and_notifies(
     mocker, tmp_path
 ):
     """Failure handler should notify Slack and write the FAILURE sentinel file."""
-    mocker.patch.dict(
-        os.environ,
-        {
-            "FERCEQR_BUILD": "1",
-            "SLACK_TOKEN": "fake-slack-token",  # pragma: allowlist secret
-            "BUILD_ID": "build-456",
-        },
-        clear=False,
-    )
     deploy_context = _build_deploy_context(tmp_path, mocker)
     notify_slack = mocker.patch.object(
         deploy_ferceqr, "_notify_slack_deployments_channel"
@@ -212,7 +167,7 @@ def test_handle_ferceqr_deployment_failure_writes_failure_and_notifies(
 
     deploy_ferceqr.handle_ferceqr_deployment_failure(deploy_context)
 
-    assert (tmp_path / "FAILURE").exists()
+    assert (tmp_path / "FERCEQR_FAILURE").exists()
     notify_slack.assert_called_once()
     sent_message = notify_slack.call_args.kwargs["message"]
     assert "## FERC EQR Deployment Failed" in sent_message

@@ -122,13 +122,49 @@ class FercEqrDataConfig(dg.ConfigurableResource):
         return UPath(self.ferceqr_archive_uri)
 
 
-class FercEqrBucketDeploymentResource(dg.ConfigurableResource):
-    """Bucket deployment settings for publishing FERC EQR outputs."""
+class FercEqrDeploymentTarget(dg.Config):
+    """A single deployment destination for FERC EQR outputs.
 
-    gcs_output_bucket: str = dg.EnvVar("GCS_OUTPUT_BUCKET")
-    s3_output_bucket: str = dg.EnvVar("S3_OUTPUT_BUCKET")
-    gcp_billing_project: str = dg.EnvVar("GCP_BILLING_PROJECT")
-    build_id: str = dg.EnvVar("BUILD_ID")
+    ``path`` is a UPath-compatible string: an absolute local path, ``gs://`` URI,
+    or ``s3://`` URI.  ``storage_options`` is unpacked as ``**kwargs`` when
+    constructing the :class:`~upath.UPath`, allowing per-target fsspec settings
+    such as ``requester_pays=True`` for requester-pays GCS buckets.
+    """
+
+    path: str
+    storage_options: dict[str, Any] = {}
+
+
+class FercEqrDeploymentTargetsResource(dg.ConfigurableResource):
+    """One or more deployment destinations for FERC EQR outputs.
+
+    Each entry is a :class:`FercEqrDeploymentTarget` whose ``path`` is resolved via
+    :class:`~upath.UPath`, so GCS, S3, and local paths are all supported.
+
+    When ``deployment_targets`` is empty, :meth:`resolved_targets` falls back to
+    ``$PUDL_OUTPUT/ferceqr_deployment`` via the ``pudl_paths`` resource dependency, which is
+    safe for local development and tests without any cloud credentials.
+
+    ``build_id`` identifies the nightly build in notification messages.  It
+    defaults to ``""`` so local runs and unit tests do not require ``BUILD_ID`` to
+    be set; the production singleton (below) overrides it with
+    :func:`dagster.EnvVar`.
+    """
+
+    pudl_paths: dg.ResourceDependency[PudlPathsResource]
+    deployment_targets: list[FercEqrDeploymentTarget] = []
+    build_id: str = ""
+
+    def resolved_targets(self) -> list[UPath]:
+        """Return the list of :class:`~upath.UPath` deployment destinations.
+
+        When ``deployment_targets`` is non-empty, each entry is converted to a
+        :class:`~upath.UPath` using its ``storage_options``.  When empty, falls
+        back to the ``ferceqr_deployment/`` subdirectory of the configured PUDL output path.
+        """
+        if self.deployment_targets:
+            return [UPath(t.path, **t.storage_options) for t in self.deployment_targets]
+        return [UPath(self.pudl_paths.pudl_output) / "ferceqr_deployment"]
 
 
 global_data_config_resource = GlobalDataConfigResource.configure_at_launch()
@@ -140,7 +176,10 @@ datastore_resource = DatastoreResource(
 )
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()
 ferceqr_data_config = FercEqrDataConfig()
-ferceqr_bucket_deployment_resource = FercEqrBucketDeploymentResource()
+ferceqr_deployment_targets_resource = FercEqrDeploymentTargetsResource(
+    pudl_paths=pudl_paths_resource,
+    build_id=os.getenv("BUILD_ID", ""),
+)
 
 default_resources: dict[str, Any] = {
     "datastore": datastore_resource,
@@ -149,13 +188,14 @@ default_resources: dict[str, Any] = {
     "ferceqr_data_config": ferceqr_data_config,
     "runtime_settings": ferc_xbrl_runtime_settings,
     "zenodo_dois": zenodo_doi_settings_resource,
-    "ferceqr_bucket_deployment": ferceqr_bucket_deployment_resource,
+    "ferceqr_deployment_targets": ferceqr_deployment_targets_resource,
 }
 
 __all__ = [
     "DatastoreResource",
     "FercEqrDataConfig",
-    "FercEqrBucketDeploymentResource",
+    "FercEqrDeploymentTarget",
+    "FercEqrDeploymentTargetsResource",
     "FercXbrlRuntimeSettings",
     "GlobalDataConfigResource",
     "PudlPathsResource",
@@ -163,7 +203,7 @@ __all__ = [
     "datastore_resource",
     "default_resources",
     "ferceqr_data_config",
-    "ferceqr_bucket_deployment_resource",
+    "ferceqr_deployment_targets_resource",
     "ferc_xbrl_runtime_settings",
     "global_data_config_resource",
     "pudl_paths_resource",

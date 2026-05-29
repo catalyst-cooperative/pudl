@@ -13,14 +13,11 @@ from pathlib import Path
 from typing import Literal
 
 import dagster as dg
-import gcsfs
 import pandas as pd
-import s3fs
 from slack_sdk import WebClient
-from upath import UPath
 
 from pudl.dagster.resources import (
-    FercEqrBucketDeploymentResource,
+    FercEqrDeploymentTargetsResource,
 )
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
@@ -41,25 +38,19 @@ FERCEQR_TRANSFORM_ASSETS = [
 ]
 
 
-def is_ferceqr_build_enabled() -> bool:
-    """Return whether FERCEQR batch-only deployment behavior is enabled.
-
-    Treat common false-like strings as disabled so ``FERCEQR_BUILD=0`` and
-    ``FERCEQR_BUILD=false`` don't enable deployment behavior.
-    """
-    raw_value = os.getenv("FERCEQR_BUILD")
-    if raw_value is None:
-        return False
-
-    normalized_value = raw_value.strip().lower()
-    return normalized_value not in {"", "0", "false", "no", "off"}
-
-
 def _notify_slack_deployments_channel(
     message: str, attached_file_path: str | None = None
 ):
-    """Send string message to PUDL deployments channel."""
-    client = WebClient(token=os.environ["SLACK_TOKEN"])
+    """Send string message to PUDL deployments channel.
+
+    Skips silently when ``SLACK_TOKEN`` is not set in the environment (e.g.
+    during local development or pipeline tests).
+    """
+    slack_token = os.environ.get("SLACK_TOKEN")
+    if not slack_token:
+        logger.info("SLACK_TOKEN not set; skipping Slack notification.")
+        return
+    client = WebClient(token=slack_token)
     channel = "C03FHB9N0PQ"
     if attached_file_path is not None:
         client.files_upload_v2(
@@ -82,7 +73,9 @@ def _get_logfile_pointer_markdown(build_id: str) -> str:
     )
 
 
-def _write_status_file(status: Literal["SUCCESS", "FAILURE"], pudl_paths: PudlPaths):
+def _write_status_file(
+    status: Literal["FERCEQR_SUCCESS", "FERCEQR_FAILURE"], pudl_paths: PudlPaths
+):
     """Notify build script that job is complete by creating a status file."""
     (Path(pudl_paths.pudl_output) / status).touch()
 
@@ -256,21 +249,16 @@ def deployment_status_asset(
         name=handler.__name__,
         required_resource_keys={
             "pudl_paths",
-            "ferceqr_bucket_deployment",
+            "ferceqr_deployment_targets",
         },
     )
     def _status_handler_asset(context: dg.AssetExecutionContext):
-        if not is_ferceqr_build_enabled():
-            raise dg.Failure(
-                "FERCEQR deployment handlers only run when FERCEQR_BUILD is enabled."
-            )
-
         try:
             handler(context)
         except Exception:
             logger.error("FERCEQR deployment handler failed!")
             logger.error(traceback.format_exc())
-            _write_status_file("FAILURE", context.resources.pudl_paths)
+            _write_status_file("FERCEQR_FAILURE", context.resources.pudl_paths)
             raise
 
     return _status_handler_asset
@@ -278,10 +266,10 @@ def deployment_status_asset(
 
 @deployment_status_asset
 def deploy_ferceqr(context: dg.AssetExecutionContext):
-    """Publish EQR outputs to cloud storage."""
+    """Publish EQR outputs to configured deployment targets."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
-    bucket_deployment: FercEqrBucketDeploymentResource = (
-        context.resources.ferceqr_bucket_deployment
+    deployment: FercEqrDeploymentTargetsResource = (
+        context.resources.ferceqr_deployment_targets
     )
     (
         step_status_counts,
@@ -291,51 +279,33 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         source_partition,
     ) = _get_source_run_step_status_summary(context)
 
-    # Get output locations for S3 and GCS
-    distribution_paths = [
-        (
-            UPath(bucket_deployment.gcs_output_bucket),
-            gcsfs.GCSFileSystem(
-                project=bucket_deployment.gcp_billing_project,
-                requester_pays=True,
-            ),
-        ),
-        (UPath(bucket_deployment.s3_output_bucket), s3fs.S3FileSystem()),
-    ]
-    # Get 'datapackage.json' data to write to distribution paths
+    targets = deployment.resolved_targets()
+
+    # Get 'datapackage.json' data to write to deployment targets.
     datapackage_bytes = (
         PUDL_PACKAGE.to_frictionless(include_pattern=r"core_ferceqr.*")
         .to_json()
         .encode(encoding="utf-8")
     )
 
-    # Loop through output locations and copy parquet files to buckets
     logger.info("Build successful, deploying ferceqr data.")
-    for distribution_path, fs in distribution_paths:
+    for dest in targets:
+        dest.mkdir(parents=True, exist_ok=True)
         for table in FERCEQR_TRANSFORM_ASSETS:
-            logger.info(f"Copying {table} to {distribution_path}.")
-            table_remote_path = distribution_path / table
-
-            # UPath's don't work well with requester pays buckets, so use the fsspec
-            # filesystem directly
-            fs.mkdirs(path=table_remote_path, exist_ok=True)
-            fs.put(
-                f"{ParquetData(table_name=table).parquet_directory}/",
-                f"{table_remote_path}/",
-                recursive=True,
-            )
-        # Copy datapackage to distribution path
-        fs.pipe(
-            f"{distribution_path}/ferceqr_parquet_datapackage.json",
-            value=datapackage_bytes,
-        )
+            logger.info(f"Copying {table} to {dest}.")
+            src_dir = Path(ParquetData(table_name=table).parquet_directory)
+            table_dest = dest / table
+            table_dest.mkdir(parents=True, exist_ok=True)
+            for parquet_file in src_dir.glob("*.parquet"):
+                (table_dest / parquet_file.name).write_bytes(parquet_file.read_bytes())
+        (dest / "ferceqr_parquet_datapackage.json").write_bytes(datapackage_bytes)
 
     # Send Slack notification about successful build.
     logger.info("Notifying Slack about successful build.")
     notification_payload = FercEqrDeploymentNotificationPayload(
         outcome="SUCCESS",
-        build_id=bucket_deployment.build_id,
-        distribution_paths=[str(path[0]) for path in distribution_paths],
+        build_id=deployment.build_id,
+        distribution_paths=[str(t) for t in targets],
         source_run_id=source_run_id,
         source_run_status=source_run_status,
         source_partition=source_partition,
@@ -345,15 +315,15 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     _notify_slack_deployments_channel(
         message=build_ferceqr_deployment_markdown_message(notification_payload),
     )
-    _write_status_file("SUCCESS", pudl_paths)
+    _write_status_file("FERCEQR_SUCCESS", pudl_paths)
 
 
 @deployment_status_asset
 def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
     """Send notification if EQR deployment failed."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
-    bucket_deployment: FercEqrBucketDeploymentResource = (
-        context.resources.ferceqr_bucket_deployment
+    deployment: FercEqrDeploymentTargetsResource = (
+        context.resources.ferceqr_deployment_targets
     )
     (
         step_status_counts,
@@ -366,7 +336,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
     logger.error("Build failed, notifying Slack.")
     notification_payload = FercEqrDeploymentNotificationPayload(
         outcome="FAILURE",
-        build_id=bucket_deployment.build_id,
+        build_id=deployment.build_id,
         distribution_paths=None,
         source_run_id=source_run_id,
         source_run_status=source_run_status,
@@ -377,4 +347,4 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
     _notify_slack_deployments_channel(
         message=build_ferceqr_deployment_markdown_message(notification_payload),
     )
-    _write_status_file("FAILURE", pudl_paths)
+    _write_status_file("FERCEQR_FAILURE", pudl_paths)

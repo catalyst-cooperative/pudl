@@ -3,7 +3,6 @@ FROM ghcr.io/prefix-dev/pixi:0.69.0-noble
 # The pixi base image uses 'ubuntu' as the non-root user (UID 1000)
 ENV PIXI_USER=ubuntu
 ENV CONTAINER_HOME=/home/$PIXI_USER
-ENV PGDATA=${CONTAINER_HOME}/pgdata
 
 USER root
 
@@ -12,25 +11,13 @@ SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
 # Install some linux packages
 # hadolint ignore=DL3008
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y git postgresql inotify-tools psmisc ca-certificates && \
+    apt-get install --no-install-recommends -y git inotify-tools ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Configure gcloud authentication
 # hadolint ignore=DL3059
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
-
-# Add pixi user to postgres group
-# hadolint ignore=DL3059
-RUN usermod -aG postgres "$PIXI_USER"
-
-# We use an environment variable to set the Postgres version because it is also used in
-# the nightly build script and this makes it easier to ensure they are all the same.
-# Remember to bump the Postgres version. Postgres 17 was released in September, 2024.
-ENV PG_VERSION=16
-# Create new cluster for Dagster usage that's owned by $PIXI_USER.
-# hadolint ignore=DL3059
-RUN pg_createcluster ${PG_VERSION} dagster -u "$PIXI_USER" -- -A trust
 
 # Switch back to being non-root user and get into the home directory
 USER $PIXI_USER
@@ -45,8 +32,10 @@ ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_ROOT_PATH}
 
-# Copy dagster configuration file
-COPY builds/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
+# Copy job-specific dagster configuration files; each batch script selects
+# the appropriate one at startup by copying it to $DAGSTER_HOME/dagster.yaml.
+COPY builds/dagster-pudl.yaml ${DAGSTER_HOME}/dagster-pudl.yaml
+COPY builds/dagster-ferceqr.yaml ${DAGSTER_HOME}/dagster-ferceqr.yaml
 
 # Copy the entire PUDL repo into the image.
 # We can't install the PUDL package without .git/ because the version is dynamically

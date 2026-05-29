@@ -53,7 +53,6 @@ pudl_with_ferc_to_sqlite_job = dg.define_asset_job(
 ferceqr_job = dg.define_asset_job(
     name="ferceqr",
     description="This job processes the FERC EQR data.",
-    config=default_execution_config,
     selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
 )
 
