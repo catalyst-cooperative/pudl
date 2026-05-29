@@ -31,6 +31,11 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860M
+~~~~~~~~
+
+* Added EIA-860M data through April 2026. See issue :issue:`5277` and PR :pr:`5284`.
+
 Documentation
 ^^^^^^^^^^^^^
 

@@ -400,13 +400,7 @@ alembic if you used Dagster to materialize the raw and clean assets.
 
 A. FERC 1 & EIA Plants & Utilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-**6.A.1)** Run the following command in the terminal, and refer to the
-:doc:`pudl_id_mapping` page for further instructions.
-
-
-.. code-block:: console
-
-    $ make unmapped-ids
+**6.A.1)** Refer to the :doc:`pudl_id_mapping` page for further instructions.
 
 .. note::
 
