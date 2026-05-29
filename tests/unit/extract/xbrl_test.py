@@ -32,7 +32,6 @@ from pudl.settings import (
     XbrlFormNumber,
 )
 from pudl.workspace.datastore import ZenodoDoiSettings
-from pudl.workspace.setup import PudlPaths
 
 
 def test_ferc_xbrl_datastore_get_taxonomy(mocker):
@@ -251,20 +250,19 @@ def test_ferc_dbf_extractor_skips_with_empty_years(mocker, tmp_path):
 
 
 def _run_ferc_to_sqlite_asset(
-    zenodo_doi: str, test_asset, data_config, mocker, local_path
+    zenodo_doi: str, test_asset, data_config, pudl_paths
 ) -> FercSqliteProvenanceRecord:
     """Run test ferc_to_sqlite asset then return provenance metadata output by it."""
-    with mocker.patch.object(PudlPaths, "sqlite_db_path", return_value=local_path):
-        result: ExecuteInProcessResult = dg.materialize(
-            assets=[test_asset],
-            resources={
-                "global_data_config": GlobalDataConfig(ferc_to_sqlite=data_config),
-                "datastore": ResourceDefinition.mock_resource(),
-                "runtime_settings": FercXbrlRuntimeSettings(),
-                "zenodo_dois": ZenodoDoiSettings(ferc1=zenodo_doi),
-                "pudl_paths": PudlPaths(),
-            },
-        )
+    result: ExecuteInProcessResult = dg.materialize(
+        assets=[test_asset],
+        resources={
+            "global_data_config": GlobalDataConfig(ferc_to_sqlite=data_config),
+            "datastore": ResourceDefinition.mock_resource(),
+            "runtime_settings": FercXbrlRuntimeSettings(),
+            "zenodo_dois": ZenodoDoiSettings(ferc1=zenodo_doi),
+            "pudl_paths": pudl_paths,
+        },
+    )
     materialization_events = result.get_asset_materialization_events()
 
     assert len(materialization_events) == 1
@@ -272,7 +270,7 @@ def _run_ferc_to_sqlite_asset(
     return FercSqliteProvenanceRecord(**metadata)
 
 
-def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
+def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
     """Test the logic for checking for a compatible cached FERC SQLite DB."""
     # Basic parameters
     dataset = "ferc1"
@@ -283,9 +281,9 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
     local_doi = "10.5072/zenodo.1"
     nightly_doi = "10.5072/zenodo.2"
     uncached_doi = "10.5072/zenodo.3"
-    local_path = tmp_path / "local_ferc1_dbf.sqlite"
-    local_datapackage_path = local_path.parent / ferc_to_sqlite._get_datapackage_name(
-        dataset, data_format
+    local_datapackage_path = (
+        pudl_test_paths.pudl_output
+        / ferc_to_sqlite._get_datapackage_name(dataset, data_format)
     )
     nightly_datapackage_path = (
         PUDL_NIGHTLY_BUILDS_BASE_PATH
@@ -320,34 +318,40 @@ def test_ferc_to_sqlite_asset_factory(mocker, tmp_path):
     )
 
     # Mock load provenance
+    original_from_datapackage = FercSqliteProvenanceRecord.from_datapackage
     mocker.patch(
         "pudl.dagster.assets.raw.ferc_to_sqlite.FercSqliteProvenanceRecord.from_datapackage",
-        side_effect=lambda key: {
-            local_datapackage_path: local_provenance,
-            nightly_datapackage_path: nightly_provenance,
-        }.get(key),
-    )
-
-    # Mock nightly downloads
-    mocker.patch(
-        "pudl.dagster.assets.raw.ferc_to_sqlite._download_nightly_db",
+        side_effect=lambda path: (
+            nightly_provenance
+            if path == nightly_datapackage_path
+            else original_from_datapackage(path)
+        ),
     )
 
     # Test with local doi to return local_provenance record
+    local_provenance.to_datapackage(local_datapackage_path)
     assert local_provenance == _run_ferc_to_sqlite_asset(
-        local_doi, test_asset, data_config, mocker, local_path
+        local_doi, test_asset, data_config, pudl_test_paths
     )
     mock_extract_function.assert_not_called()
 
     # Test with nightly doi to return nightly_provenance record
+    # Mock nightly downloads
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite._download_nightly_outputs",
+        side_effect=lambda *args, **kwargs: nightly_provenance.to_datapackage(
+            local_datapackage_path
+        ),
+    )
+
     assert nightly_provenance == _run_ferc_to_sqlite_asset(
-        nightly_doi, test_asset, data_config, mocker, local_path
+        nightly_doi, test_asset, data_config, pudl_test_paths
     )
     mock_extract_function.assert_not_called()
 
     # Test with doi from neither local / nightly, which should trigger extraction
     uncached_provenance = _run_ferc_to_sqlite_asset(
-        uncached_doi, test_asset, data_config, mocker, local_path
+        uncached_doi, test_asset, data_config, pudl_test_paths
     )
     assert uncached_provenance.zenodo_doi == uncached_doi
     assert uncached_provenance == FercSqliteProvenanceRecord.model_validate(

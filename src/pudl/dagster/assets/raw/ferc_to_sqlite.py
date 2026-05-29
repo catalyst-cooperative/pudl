@@ -37,6 +37,7 @@ from pudl.extract.ferc import (
 )
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.settings import FercToSqliteDataConfig, XbrlFormNumber
+from pudl.workspace.setup import PudlPaths
 
 NETWORK_ERRORS = (
     TimeoutError,
@@ -49,7 +50,7 @@ NETWORK_ERRORS = (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def _download_nightly_db(sqlite_path: Path):
+def _download_sqlite_db(sqlite_path: Path):
     """Download nightly SQLite db and extract from zipfile, writing to local workspace."""
     with (
         fsspec.open(
@@ -69,11 +70,61 @@ def _get_datapackage_name(dataset: str, data_format: str) -> str:
     return f"{dataset}_{data_format}_datapackage.json"
 
 
+def _download_nightly_outputs(
+    dataset: str,
+    data_format: str,
+    datapackage_name: str,
+    paths: PudlPaths,
+):
+    """Download ``ferc_to_sqlite`` outputs from s3.
+
+    This will download all outputs produced by the ``ferc_to_sqlite`` process for the
+    provided ``dataset`` and ``data_format``. For the 'DBF' format, this includes the
+    SQLite db and a datapackage JSON file, while 'XBRL' will include both of these
+    plus a DuckDB file, parquet files, and the taxonomy JSON file.
+    """
+    # Download sqlite DB
+    sqlite_path = paths.sqlite_db_path(f"{dataset}_{data_format}")
+    _download_sqlite_db(sqlite_path)
+
+    # Download datapckage JSON
+    datapackage_path = paths.pudl_output / datapackage_name
+    datapackage_path.write_text(
+        (PUDL_NIGHTLY_BUILDS_BASE_PATH / datapackage_name).read_text()
+    )
+
+    # DBF only produces sqlite and datapackage, so return
+    if data_format == "DBF":
+        return
+
+    # Download duckdb DB
+    duckdb_path = paths.duckdb_db_path(f"{dataset}_{data_format}.duckdb")
+    taxonomy_json_path = (
+        paths.pudl_output / f"{dataset}_{data_format}_taxonomy_metadata.json"
+    )
+    duckdb_path.write_bytes(
+        (PUDL_NIGHTLY_BUILDS_BASE_PATH / duckdb_path.name).read_bytes()
+    )
+
+    # Download taxonomy JSON
+    taxonomy_json_path.write_bytes(
+        (PUDL_NIGHTLY_BUILDS_BASE_PATH / taxonomy_json_path.name).read_bytes()
+    )
+
+    # Iterate through parquet dir and download files
+    parquet_dir_path = paths.pudl_output / f"{dataset}_{data_format}/"
+    parquet_dir_path.mkdir(exist_ok=True)
+    for parquet_file in (
+        PUDL_NIGHTLY_BUILDS_BASE_PATH / parquet_dir_path.name
+    ).iterdir():
+        (parquet_dir_path / parquet_file.name).write_bytes(parquet_file.read_bytes())
+
+
 def _check_for_cached_db_w_compatible_provenance(
     dataset: str,
     data_format: str,
     zenodo_doi: str,
-    sqlite_path: Path,
+    paths: PudlPaths,
     ferc_to_sqlite: FercToSqliteDataConfig,
 ) -> FercSqliteProvenanceRecord | None:
     """Check to see if there is a compatible SQLite DB either locally, or in nightly builds.
@@ -110,38 +161,60 @@ def _check_for_cached_db_w_compatible_provenance(
 
     # Check local DB first
     datapackage_name = _get_datapackage_name(dataset, data_format)
+    local_datapackage_path = paths.pudl_output / datapackage_name
     local_provenance = FercSqliteProvenanceRecord.from_datapackage(
-        sqlite_path.parent / datapackage_name
+        local_datapackage_path
     )
 
     # Check if local or nightly dbs contain compatible provenance metadata
     if ferc_sqlite_provenance_is_compatible(
         required_provenance=provenance, observed_provenance=local_provenance
     ):
-        compatible_metadata = local_provenance
-    else:
         logger.info(
-            f"Downloading {sqlite_path.name} from nightly builds to check provenance."
+            f"Local outputs for {dataset}_{data_format} are compatible with current run."
         )
+        return local_provenance
+
+    # Check nightly provenance
+    try:
         nightly_provenance = FercSqliteProvenanceRecord.from_datapackage(
             PUDL_NIGHTLY_BUILDS_BASE_PATH / datapackage_name
         )
+    except NETWORK_ERRORS:
+        logger.warning(
+            f"Failed to download {dataset}_{data_format} datapackage to check provenance."
+        )
+        # This will cause ferc_sqlite_provenance_is_compatible to return False
+        nightly_provenance = None
 
-        if ferc_sqlite_provenance_is_compatible(
-            required_provenance=provenance, observed_provenance=nightly_provenance
-        ):
-            # Fail gracefully if nightly builds download fails
-            try:
-                _download_nightly_db(sqlite_path)
-                compatible_metadata = nightly_provenance
-            except NETWORK_ERRORS as e:
-                logger.warning(
-                    f"Failed to download {sqlite_path.name} from nightly builds. See: \n{e}"
-                )
+    if ferc_sqlite_provenance_is_compatible(
+        required_provenance=provenance,
+        observed_provenance=nightly_provenance,
+    ):
+        try:
+            _download_nightly_outputs(
+                dataset=dataset,
+                data_format=data_format,
+                datapackage_name=datapackage_name,
+                paths=paths,
+            )
+
+            # At this point the local datapackage is overwritten by the nightly one
+            compatible_metadata = FercSqliteProvenanceRecord.from_datapackage(
+                local_datapackage_path
+            )
+            logger.info(
+                f"Nightly outputs for {dataset}_{data_format} are compatible with current run."
+            )
+        except NETWORK_ERRORS:
+            logger.warning(
+                f"Failed to download {dataset}_{data_format} outputs from"
+                " nightly builds. See: \n{e}"
+            )
 
     if compatible_metadata is None:
         logger.info(
-            f"Can't find a cached version of {sqlite_path.name} with compatible provenance metadata."
+            f"Can't find a cached version of {dataset}_{data_format} with compatible provenance metadata."
             " Extracting from scratch."
         )
     return compatible_metadata
@@ -193,15 +266,13 @@ def ferc_to_sqlite_asset_factory(
                 },
             )
 
-        sqlite_path = pudl_paths.sqlite_db_path(f"{dataset}_{data_format}")
-
         # Check if there's a cached SQLite DB that is compatible
         if (
             provenance := _check_for_cached_db_w_compatible_provenance(
                 dataset=dataset,
                 data_format=data_format,
                 zenodo_doi=zenodo_doi,
-                sqlite_path=sqlite_path,
+                paths=pudl_paths,
                 ferc_to_sqlite=ferc_to_sqlite,
             )
         ) is None:
@@ -219,7 +290,7 @@ def ferc_to_sqlite_asset_factory(
                 ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
             )
             provenance.to_datapackage(
-                sqlite_path.parent / f"{dataset}_{data_format}_datapackage.json"
+                pudl_paths.pudl_output / f"{dataset}_{data_format}_datapackage.json"
             )
         else:
             logger.info(
