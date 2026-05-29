@@ -4010,9 +4010,11 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         """
         df = (
             self.spot_fix_values(df)
+            .pipe(self.remove_messy_plant_name_duplicates)
             .pipe(self.normalize_strings)
             .pipe(self.nullify_outliers)
             .pipe(self.convert_units)
+            # special step for hydro plants
             .pipe(self.extract_ferc1_license)
             .pipe(self.label_row_types)
             .pipe(self.prep_header_fuel_and_plant_types)
@@ -4027,6 +4029,30 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
             .drop(columns=["row_type"])
         )
 
+        return df
+
+    def remove_messy_plant_name_duplicates(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Remove a small number of duplicate records from messy plant names.
+
+        The record ID takes the messy plant name and cleans it up ever so
+        slightly w/ enforce_snake_case. but there are instances of almost identical
+        plant names but with extra whitespace and such. Because the name is core to the
+        factoid, these don't get filtered out with filter_for_freshest_data_xbrl. So we
+        are going to drop these records that are exactly the same except for their messy
+        plant names.
+        """
+        assert df.duplicated(["record_id"]).any()
+        last_messy_plant_dupes_mask = df.duplicated(
+            [
+                c
+                for c in df
+                if c not in ["plant_name_ferc1", "generating_plant_statistics"]
+            ],
+            keep="last",
+        )
+        assert len(df[last_messy_plant_dupes_mask]) <= 18
+        df = df.loc[~last_messy_plant_dupes_mask]
+        assert (~df.duplicated(["record_id"])).all()
         return df
 
     def extract_ferc1_license(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -6122,6 +6148,24 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         mixed-total records, we add a validation step to ward against large-scale data
         loss in :class:`pudl.output.ferc1.Exploder`.
         """
+        # ONE utility (id 449) added a utility_type == "total" into this table
+        # despite the fact that the taxonomy for the table only allows electric
+        # as a utility type. If this persisted, it would means this table would have
+        # THREE dimension columns. We could make that work but it'd be even more
+        # complicated. Plus, it only has one non-null value - which is a
+        # total/total/total ! So we are gonna drop this one utils bad records.
+        # the record's value is different from the total/total/electric value -
+        # which is the record we are going to retain. but the total/total/electric
+        # value gets that calculation validated and its perfectly calculable, whereas
+        # the total/total/total record was less than the subcomponents. Which makes
+        # me think we should keep the total/total/electric bc: easier, better #s.
+        util_total_mask = df.utility_type == "total"
+        assert len(df[util_total_mask]) <= 14
+        assert df[util_total_mask].utility_id_ferc1.unique() == [449]
+        assert len(df[util_total_mask & df.ending_balance.notnull()]) <= 1
+        df = df.loc[~util_total_mask]
+
+        # okay now for the rest...
         df = super().transform_end(df)
         dimension_cols = ["plant_function", "plant_status"]
         correction_mask = df.depreciation_type.str.endswith("_correction")
@@ -6147,9 +6191,22 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         double_totals = df.loc[
             double_total_mask & ~correction_mask, gb_idx + [value_col]
         ].rename(columns={value_col: f"{value_col}_double_total"})
+        logger.info(
+            f"double_totals:\n{double_totals[double_totals.duplicated(gb_idx, keep=False)].set_index(gb_idx).sort_index()}\n\n"
+            f"single_total_sum:\n{single_total_sum[single_total_sum.duplicated(gb_idx, keep=False)]}\n\n"
+            f"children_sum:\n{children_sum[children_sum.duplicated(gb_idx, keep=False)]}\n\n"
+        )
         total_test = double_totals.merge(
-            single_total_sum, on=gb_idx, validate="one_to_one", how="outer"
-        ).merge(children_sum, on=gb_idx, validate="one_to_one", how="outer")
+            single_total_sum,
+            on=gb_idx,
+            validate="one_to_one",
+            how="outer",
+        ).merge(
+            children_sum,
+            on=gb_idx,
+            validate="one_to_one",
+            how="outer",
+        )
         total_test = total_test[
             total_test.ending_balance_double_total.isnull()
             & total_test.ending_balance_single_total.notnull()
