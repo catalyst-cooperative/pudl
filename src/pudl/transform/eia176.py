@@ -402,15 +402,6 @@ def core_eia176__yearly_gas_supply(
     supply_cols = list(supply_type_map.values())
     df = df.dropna(subset=supply_cols, how="all")
 
-    # Validation
-
-    total_supply_mismatches = _find_eia176_total_supply_mismatches(df)
-    max_total_supply_mismatches = 215
-    assert len(total_supply_mismatches) <= max_total_supply_mismatches, (
-        f"Found {len(total_supply_mismatches)} mismatched total supply records, "
-        f"expected no more than {max_total_supply_mismatches}."
-    )
-
     line_3_mismatches = _compare_eia176_continuation_line_total(
         df=df,
         raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
@@ -437,40 +428,6 @@ def core_eia176__yearly_gas_supply(
         var_name="supply_type",
         value_name="volume_mcf",
     ).dropna(subset=["volume_mcf"])
-
-
-def _find_eia176_total_supply_mismatches(df: pd.DataFrame) -> pd.DataFrame:
-    """Find EIA-176 records whose reported total supply does not match components."""
-    total_supply_components = [
-        "natural_gas_production",
-        "synthetic_gas_production",
-        "underground_storage_withdrawals",
-        "lng_storage_withdrawals",
-        "above_ground_storage_withdrawals",
-        "receipts_from_state_or_us_border",
-        "other_receipts",
-        "supplemental_gaseous_fuels",
-    ]
-    citygate_receipts_mcf = df["total_citygate_receipts"].fillna(
-        df[
-            [
-                "citygate_receipts_sales_customers",
-                "citygate_receipts_transportation_customers",
-            ]
-        ]
-        .fillna(0)
-        .sum(axis=1)
-    )
-    calculated_total_supply_mcf = (
-        df[total_supply_components].fillna(0).sum(axis=1) + citygate_receipts_mcf
-    )
-    total_supply_diff_mcf = calculated_total_supply_mcf - df["total"]
-    mismatched = df["total"].notna() & (total_supply_diff_mcf.abs() > 0.01)
-
-    return df.loc[mismatched].assign(
-        calculated_total_supply_mcf=calculated_total_supply_mcf[mismatched],
-        total_supply_diff_mcf=total_supply_diff_mcf[mismatched],
-    )
 
 
 def _compare_eia176_continuation_line_total(

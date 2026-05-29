@@ -10,6 +10,53 @@ sources:
               arguments:
                 table_name: core_eia176__yearly_gas_supply
                 partition_expr: "report_year"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [operator_id_eia, report_year]
+                categorical_column: supply_type
+                value_column: volume_mcf
+                total_label: "total"
+                subcomponents_list:
+                  [
+                    "natural_gas_production",
+                    "synthetic_gas_production",
+                    "underground_storage_withdrawals",
+                    "lng_storage_withdrawals",
+                    "above_ground_storage_withdrawals",
+                    "receipts_from_state_or_us_border",
+                    "total_citygate_receipts",
+                    "other_receipts",
+                    "supplemental_gaseous_fuels",
+                  ]
+                tolerance: 100
+              row_condition: "report_year <= 2010"
+              config:
+                error_if: ">90"
+              description: "Check pre-2011 gas supply totals against subcomponents, using total citygate receipts."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [operator_id_eia, report_year]
+                categorical_column: supply_type
+                value_column: volume_mcf
+                total_label: "total"
+                subcomponents_list:
+                  [
+                    "natural_gas_production",
+                    "synthetic_gas_production",
+                    "underground_storage_withdrawals",
+                    "lng_storage_withdrawals",
+                    "above_ground_storage_withdrawals",
+                    "receipts_from_state_or_us_border",
+                    "citygate_receipts_sales_customers",
+                    "citygate_receipts_transportation_customers",
+                    "other_receipts",
+                    "supplemental_gaseous_fuels",
+                  ]
+                tolerance: 100
+              row_condition: "report_year > 2010"
+              config:
+                error_if: ">97"
+              description: "Check post-2010 gas supply totals against subcomponents, using split citygate receipts."
 
         columns:
           - name: operator_id_eia
