@@ -34,6 +34,7 @@ ZULIP_TOPIC = "FERC EQR Builds"
 
 FERCEQR_SOURCE_RUN_ID_TAG = "ferceqr/source_run_id"
 FERCEQR_SOURCE_RUN_STATUS_TAG = "ferceqr/source_run_status"
+FERCEQR_SOURCE_PARTITION_TAG = "ferceqr/source_partition"
 
 FERCEQR_TRANSFORM_ASSETS = [
     "core_ferceqr__contracts",
@@ -81,20 +82,21 @@ def _status_name(value: object) -> str:
 
 def _get_source_run_step_status_summary(
     context: dg.AssetExecutionContext,
-) -> tuple[dict[str, int], list[str], str | None, str | None]:
+) -> tuple[dict[str, int], list[str], str | None, str | None, str | None]:
     """Return step-status counts, failed step keys, and source-run metadata."""
     try:
         run = context.run
     except Exception:
         # Dagster direct-invocation contexts in tests may not have run metadata.
         # We intentionally treat this as missing source-run data for notifications.
-        return {}, [], None, None
+        return {}, [], None, None, None
 
     run_tags = run.tags if run else {}
     source_run_id = run_tags.get(FERCEQR_SOURCE_RUN_ID_TAG)
     source_run_status = run_tags.get(FERCEQR_SOURCE_RUN_STATUS_TAG)
+    source_partition = run_tags.get(FERCEQR_SOURCE_PARTITION_TAG)
     if not source_run_id:
-        return {}, [], None, source_run_status
+        return {}, [], None, source_run_status, source_partition
 
     step_stats = context.instance.get_run_step_stats(source_run_id)
     status_counts: dict[str, int] = {}
@@ -104,7 +106,43 @@ def _get_source_run_step_status_summary(
         status_counts[step_status] = status_counts.get(step_status, 0) + 1
         if step_status == "FAILURE":
             failed_steps.append(step.step_key)
-    return status_counts, failed_steps, source_run_id, source_run_status
+    return (
+        status_counts,
+        failed_steps,
+        source_run_id,
+        source_run_status,
+        source_partition,
+    )
+
+
+def _parse_failed_step_key(
+    step_key: str, source_partition: str | None
+) -> dict[str, str]:
+    """Extract asset and partition details from a Dagster step key."""
+    if "[" in step_key and step_key.endswith("]"):
+        asset_name, raw_partition = step_key.rsplit("[", 1)
+        return {
+            "Asset": asset_name,
+            "Partition": raw_partition[:-1],
+            "Step Key": step_key,
+        }
+
+    return {
+        "Asset": step_key,
+        "Partition": source_partition or "UNKNOWN",
+        "Step Key": step_key,
+    }
+
+
+def _format_failed_assets_partitions_markdown_table(
+    failed_step_keys: list[str], source_partition: str | None
+) -> str:
+    """Format failed steps as an asset/partition/step-key Markdown table."""
+    rows = [
+        _parse_failed_step_key(step_key=step_key, source_partition=source_partition)
+        for step_key in failed_step_keys
+    ]
+    return pd.DataFrame(rows).to_markdown(index=False)
 
 
 def _format_step_status_markdown_table(status_counts: dict[str, int]) -> str:
@@ -139,6 +177,7 @@ class FercEqrDeploymentNotificationPayload:
     distribution_paths: list[str] | None
     source_run_id: str | None
     source_run_status: str | None
+    source_partition: str | None
     step_status_counts: dict[str, int]
     failed_step_keys: list[str]
 
@@ -160,6 +199,8 @@ def build_ferceqr_deployment_markdown_message(
         lines.append(f"- Source Dagster run: `{payload.source_run_id}`")
     if payload.source_run_status:
         lines.append(f"- Source run status: `{payload.source_run_status}`")
+    if payload.source_partition:
+        lines.append(f"- Source partition: `{payload.source_partition}`")
     lines.extend(
         [
             "",
@@ -169,18 +210,16 @@ def build_ferceqr_deployment_markdown_message(
     )
 
     if payload.failed_step_keys:
-        shown_failed_steps = payload.failed_step_keys[:10]
         lines.extend(
             [
                 "",
-                "### Failed Steps",
-                *[f"- `{step}`" for step in shown_failed_steps],
+                "### Failed Assets / Partitions",
+                _format_failed_assets_partitions_markdown_table(
+                    failed_step_keys=payload.failed_step_keys,
+                    source_partition=payload.source_partition,
+                ),
             ]
         )
-        if len(payload.failed_step_keys) > len(shown_failed_steps):
-            lines.append(
-                f"- _...and {len(payload.failed_step_keys) - len(shown_failed_steps)} more._"
-            )
 
     lines.extend(["", "### Logs", _get_logfile_pointer_markdown(payload.build_id)])
     return "\n".join(lines)
@@ -232,9 +271,13 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     bucket_deployment: FercEqrBucketDeploymentResource = (
         context.resources.ferceqr_bucket_deployment
     )
-    step_status_counts, failed_step_keys, source_run_id, source_run_status = (
-        _get_source_run_step_status_summary(context)
-    )
+    (
+        step_status_counts,
+        failed_step_keys,
+        source_run_id,
+        source_run_status,
+        source_partition,
+    ) = _get_source_run_step_status_summary(context)
 
     # Get output locations for S3 and GCS
     distribution_paths = [
@@ -283,6 +326,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         distribution_paths=[str(path[0]) for path in distribution_paths],
         source_run_id=source_run_id,
         source_run_status=source_run_status,
+        source_partition=source_partition,
         step_status_counts=step_status_counts,
         failed_step_keys=failed_step_keys,
     )
@@ -304,9 +348,13 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
     bucket_deployment: FercEqrBucketDeploymentResource = (
         context.resources.ferceqr_bucket_deployment
     )
-    step_status_counts, failed_step_keys, source_run_id, source_run_status = (
-        _get_source_run_step_status_summary(context)
-    )
+    (
+        step_status_counts,
+        failed_step_keys,
+        source_run_id,
+        source_run_status,
+        source_partition,
+    ) = _get_source_run_step_status_summary(context)
 
     logger.error("Build failed, notifying Zulip.")
     notification_payload = FercEqrDeploymentNotificationPayload(
@@ -315,6 +363,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
         distribution_paths=None,
         source_run_id=source_run_id,
         source_run_status=source_run_status,
+        source_partition=source_partition,
         step_status_counts=step_status_counts,
         failed_step_keys=failed_step_keys,
     )
