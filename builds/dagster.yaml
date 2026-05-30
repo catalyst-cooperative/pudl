@@ -2,7 +2,7 @@ storage:
   postgres:
     postgres_db:
       username: dagster
-      password: dagster_password
+      password: dagster_password # pragma: allowlist secret
       hostname: 127.0.0.1
       db_name: dagster
       port: 5433

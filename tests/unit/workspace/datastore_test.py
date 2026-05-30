@@ -179,12 +179,12 @@ class TestZenodoFetcher:
             {
                 "name": "first",
                 "path": "http://localhost/first",
-                "hash": "6f1ed002ab5595859014ebf0951522d9",
+                "hash": "6f1ed002ab5595859014ebf0951522d9",  # pragma: allowlist secret
             },  # md5sum of "blah"
             {
                 "name": "second",
                 "path": "http://localhost/second",
-                "hash": "6f1ed002ab5595859014ebf0951522d9",
+                "hash": "6f1ed002ab5595859014ebf0951522d9",  # pragma: allowlist secret
             },
         ]
     }
