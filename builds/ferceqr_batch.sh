@@ -46,6 +46,13 @@ echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
 set -x
 
+authenticate_gcp
+python -m pudl.scripts.ferceqr_deployment_preflight \
+    --archive-path "$PUDL_FERCEQR_ARCHIVE_PATH" \
+    --deployment-config-path "${PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH:-}" \
+    --logs-path "$GCS_LOGS_BUCKET" \
+    --build-id "$BUILD_ID"
+
 run_ferceqr_etl 2>&1 | tee "$LOGFILE"
 
 # Copy logs to GCS build directory
