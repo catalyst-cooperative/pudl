@@ -5,6 +5,7 @@ notify Slack of success or failure, and create status files that tell the batch
 job when deployment handling is complete.
 """
 
+import json
 import os
 import traceback
 from collections.abc import Callable
@@ -29,6 +30,7 @@ logger = get_logger(__name__)
 FERCEQR_SOURCE_RUN_ID_TAG = "ferceqr/source_run_id"
 FERCEQR_SOURCE_RUN_STATUS_TAG = "ferceqr/source_run_status"
 FERCEQR_SOURCE_PARTITION_TAG = "ferceqr/source_partition"
+FERCEQR_SOURCE_PARTITIONS_TAG = "ferceqr/source_partitions"
 
 FERCEQR_TRANSFORM_ASSETS = [
     "core_ferceqr__contracts",
@@ -135,6 +137,29 @@ def _get_source_run_step_status_summary(
     )
 
 
+def _get_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
+    """Return the source partitions attached to the deployment run tags."""
+    try:
+        run = context.run
+    except Exception as exc:  # pragma: no cover - direct invocation fallback
+        raise RuntimeError(
+            "FERCEQR deployment run is missing source partitions."
+        ) from exc
+
+    run_tags = run.tags if run else {}
+    source_partitions = run_tags.get(FERCEQR_SOURCE_PARTITIONS_TAG)
+    if source_partitions is None:
+        raise RuntimeError("FERCEQR deployment run is missing source partitions.")
+
+    parsed_partitions = json.loads(source_partitions)
+    if not isinstance(parsed_partitions, list) or not parsed_partitions:
+        raise RuntimeError("FERCEQR deployment run has no deployable partitions.")
+    if any(not isinstance(partition, str) for partition in parsed_partitions):
+        raise RuntimeError("FERCEQR deployment run has invalid source partitions.")
+
+    return parsed_partitions
+
+
 def _parse_failed_step_key(
     step_key: str, source_partition: str | None
 ) -> dict[str, str]:
@@ -195,6 +220,7 @@ class FercEqrDeploymentNotificationPayload:
     outcome: Literal["SUCCESS", "FAILURE"]
     build_id: str
     distribution_paths: list[str] | None
+    deployed_partitions: list[str] | None
     source_run_id: str | None
     source_run_status: str | None
     source_partition: str | None
@@ -214,6 +240,8 @@ def build_ferceqr_deployment_markdown_message(
     lines = [title, ""]
     if payload.distribution_paths:
         lines.append(f"- Published to: {', '.join(payload.distribution_paths)}")
+    if payload.deployed_partitions:
+        lines.append(f"- Deployed partitions: {', '.join(payload.deployed_partitions)}")
     lines.append(f"- Build ID: {payload.build_id}")
     if payload.source_run_id:
         lines.append(f"- Source Dagster run: `{payload.source_run_id}`")
@@ -288,6 +316,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         source_run_status,
         source_partition,
     ) = _get_source_run_step_status_summary(context)
+    source_partitions = _get_source_partitions(context)
 
     targets = deployment.resolved_targets()
 
@@ -306,7 +335,12 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
             src_dir = Path(ParquetData(table_name=table).parquet_directory)
             table_dest = dest / table
             table_dest.mkdir(parents=True, exist_ok=True)
-            for parquet_file in src_dir.glob("*.parquet"):
+            for source_partition_name in source_partitions:
+                parquet_file = src_dir / f"{source_partition_name}.parquet"
+                if not parquet_file.exists():
+                    raise FileNotFoundError(
+                        f"Expected parquet output for {table} partition {source_partition_name}: {parquet_file}"
+                    )
                 (table_dest / parquet_file.name).write_bytes(parquet_file.read_bytes())
         (dest / "ferceqr_parquet_datapackage.json").write_bytes(datapackage_bytes)
 
@@ -316,6 +350,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         outcome="SUCCESS",
         build_id=_get_build_id(),
         distribution_paths=[str(t) for t in targets],
+        deployed_partitions=source_partitions,
         source_run_id=source_run_id,
         source_run_status=source_run_status,
         source_partition=source_partition,
@@ -345,6 +380,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
         outcome="FAILURE",
         build_id=_get_build_id(),
         distribution_paths=None,
+        deployed_partitions=None,
         source_run_id=source_run_id,
         source_run_status=source_run_status,
         source_partition=source_partition,

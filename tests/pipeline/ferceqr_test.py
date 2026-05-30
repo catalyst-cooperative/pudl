@@ -209,12 +209,14 @@ def ferceqr_outputs(
 
 
 def test_ferceqr_parquet_outputs_exist(ferceqr_outputs: Path):
-    """Every FERCEQR_TRANSFORM_ASSETS table must have at least one Parquet file."""
+    """Every FERCEQR_TRANSFORM_ASSETS table must contain only the requested partitions."""
     for table in FERCEQR_TRANSFORM_ASSETS:
         table_dir = ferceqr_outputs / table
         assert table_dir.is_dir(), f"Missing deploy directory for table: {table}"
-        parquet_files = list(table_dir.glob("*.parquet"))
-        assert parquet_files, f"No Parquet files found for table: {table}"
+        parquet_files = sorted(path.stem for path in table_dir.glob("*.parquet"))
+        assert parquet_files == FERCEQR_TEST_PARTITIONS, (
+            f"Unexpected Parquet partitions for table {table}: {parquet_files}"
+        )
 
 
 def test_ferceqr_datapackage_written(ferceqr_outputs: Path):

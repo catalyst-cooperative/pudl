@@ -9,10 +9,13 @@ the module focused on automation entrypoints and their shared defaults.
 For the underlying Dagster concept, see https://docs.dagster.io/guides/automate/sensors
 """
 
+import json
+
 import dagster as dg
 
 from pudl.dagster.assets.deploy.ferceqr import (
     FERCEQR_SOURCE_PARTITION_TAG,
+    FERCEQR_SOURCE_PARTITIONS_TAG,
     FERCEQR_SOURCE_RUN_ID_TAG,
     FERCEQR_SOURCE_RUN_STATUS_TAG,
 )
@@ -58,6 +61,7 @@ def ferceqr_deployment_sensor(context: dg.RunStatusSensorContext):
     """
     source_partition = context.dagster_run.tags.get("dagster/partition")
     backfill_id = context.dagster_run.tags.get(FERCEQR_BACKFILL_TAG)
+    source_partitions = [source_partition] if source_partition else []
 
     run_key = f"ferceqr_deployment_success:{context.dagster_run.run_id}"
     if backfill_id:
@@ -84,6 +88,14 @@ def ferceqr_deployment_sensor(context: dg.RunStatusSensorContext):
                 f"FERCEQR backfill {backfill_id} has failed or canceled runs; skipping deployment success trigger."
             )
 
+        source_partitions = sorted(
+            {
+                run.tags.get("dagster/partition")
+                for run in backfill_runs
+                if run.tags.get("dagster/partition")
+            }
+        )
+
         run_key = f"ferceqr_deployment_success_backfill:{backfill_id}"
 
     tags = {
@@ -92,6 +104,7 @@ def ferceqr_deployment_sensor(context: dg.RunStatusSensorContext):
     }
     if source_partition:
         tags[FERCEQR_SOURCE_PARTITION_TAG] = source_partition
+    tags[FERCEQR_SOURCE_PARTITIONS_TAG] = json.dumps(source_partitions)
 
     return dg.RunRequest(
         run_key=run_key,
@@ -116,6 +129,7 @@ def ferceqr_deployment_failure_sensor(context: dg.RunStatusSensorContext):
     }
     if source_partition:
         tags[FERCEQR_SOURCE_PARTITION_TAG] = source_partition
+        tags[FERCEQR_SOURCE_PARTITIONS_TAG] = json.dumps([source_partition])
 
     logger.error(
         f"FERC EQR job run {context.dagster_run.run_id} failed; triggering deployment failure handler."
