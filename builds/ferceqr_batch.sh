@@ -8,8 +8,13 @@ function authenticate_gcp() {
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
+function cleanup_ferceqr_status_files() {
+    rm -f "${PUDL_OUTPUT}/FERCEQR_SUCCESS" "${PUDL_OUTPUT}/FERCEQR_FAILURE"
+}
+
 function run_ferceqr_etl() {
     echo "Running FERC EQR ETL"
+    cleanup_ferceqr_status_files
     # Launch dagster-daemon in the background (handles the backfill queue)
     authenticate_gcp &&
         dagster-daemon run &
@@ -49,7 +54,9 @@ gcloud storage --billing-project="$GCP_BILLING_PROJECT" --quiet cp "$LOGFILE" "$
 # Check if build was successful and return appropriate return value
 if [ ! -f "${PUDL_OUTPUT}/FERCEQR_SUCCESS" ]; then
     echo "Build failed!"
+    cleanup_ferceqr_status_files
     exit 1
 fi
 
 echo "Build successful!"
+cleanup_ferceqr_status_files

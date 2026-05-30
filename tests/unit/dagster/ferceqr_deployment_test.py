@@ -127,6 +127,7 @@ def test_ferceqr_deployment_failure_sensor_returns_failure_run_request(mocker):
 def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_path):
     """Successful deployment should write outputs to fallback path, notify Slack, and mark FERCEQR_SUCCESS."""
     deploy_context = _build_deploy_context(tmp_path, mocker)
+    (tmp_path / "FERCEQR_FAILURE").write_text("stale failure")
     notify_slack = mocker.patch.object(
         deploy_ferceqr, "_notify_slack_deployments_channel"
     )
@@ -160,6 +161,7 @@ def test_handle_ferceqr_deployment_failure_writes_failure_and_notifies(
 ):
     """Failure handler should notify Slack and write the FAILURE sentinel file."""
     deploy_context = _build_deploy_context(tmp_path, mocker)
+    (tmp_path / "FERCEQR_SUCCESS").write_text("stale success")
     notify_slack = mocker.patch.object(
         deploy_ferceqr, "_notify_slack_deployments_channel"
     )
@@ -167,6 +169,7 @@ def test_handle_ferceqr_deployment_failure_writes_failure_and_notifies(
     deploy_ferceqr.handle_ferceqr_deployment_failure(deploy_context)
 
     assert (tmp_path / "FERCEQR_FAILURE").exists()
+    assert not (tmp_path / "FERCEQR_SUCCESS").exists()
     notify_slack.assert_called_once()
     sent_message = notify_slack.call_args.kwargs["message"]
     assert "## FERC EQR Deployment Failed" in sent_message

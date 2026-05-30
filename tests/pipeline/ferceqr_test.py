@@ -199,6 +199,8 @@ def ferceqr_outputs(
                 daemon_proc.wait(timeout=10)
             except subprocess.TimeoutExpired:
                 daemon_proc.kill()
+        for status_name in ("FERCEQR_SUCCESS", "FERCEQR_FAILURE"):
+            (ferceqr_pudl_output / status_name).unlink(missing_ok=True)
 
 
 # ---------------------------------------------------------------------------

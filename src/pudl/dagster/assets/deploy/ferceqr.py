@@ -84,6 +84,13 @@ def _write_status_file(
     (Path(pudl_paths.pudl_output) / status).touch()
 
 
+def _clear_status_files(pudl_paths: PudlPaths) -> None:
+    """Remove any stale FERCEQR status files from the output directory."""
+    for status_name in ("FERCEQR_SUCCESS", "FERCEQR_FAILURE"):
+        status_path = Path(pudl_paths.pudl_output) / status_name
+        status_path.unlink(missing_ok=True)
+
+
 def _status_name(value: object) -> str:
     """Return normalized uppercase status name from a Dagster status object."""
     if hasattr(value, "name"):
@@ -258,6 +265,7 @@ def deployment_status_asset(
     )
     def _status_handler_asset(context: dg.AssetExecutionContext):
         try:
+            _clear_status_files(context.resources.pudl_paths)
             handler(context)
         except Exception:
             logger.error("FERCEQR deployment handler failed!")
