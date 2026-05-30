@@ -155,6 +155,7 @@ class FercEqrDeploymentTargetConfig(dg.Config):
 
     path: str
     storage_options: dict[str, Any] = {}
+    append_build_id: bool = False
 
     @field_validator("path")
     @classmethod
@@ -239,10 +240,19 @@ class FercEqrDeploymentResource(dg.ConfigurableResource):
         Each configured target is converted to a :class:`~upath.UPath` using its
         provided ``storage_options``.
         """
-        return [
-            UPath(str(target.path), **target.storage_options)
-            for target in self.configured_targets()
-        ]
+        resolved_targets: list[UPath] = []
+        for target in self.configured_targets():
+            resolved_target = UPath(str(target.path), **target.storage_options)
+            if target.append_build_id:
+                build_id = os.getenv("BUILD_ID")
+                if not build_id:
+                    raise ValueError(
+                        "BUILD_ID must be set for deployment targets with append_build_id enabled."
+                    )
+                resolved_target = resolved_target / build_id
+            resolved_targets.append(resolved_target)
+
+        return resolved_targets
 
 
 global_data_config_resource = GlobalDataConfigResource.configure_at_launch()

@@ -2,6 +2,29 @@
 name: build-deploy-ferceqr
 on:
   workflow_dispatch:
+    inputs:
+      start_partition:
+        description: First FERCEQR partition to process (optional; requires end_partition too)
+        required: false
+        type: string
+      end_partition:
+        description: Last FERCEQR partition to process (optional; requires start_partition too)
+        required: false
+        type: string
+      deployment_mode:
+        description: Deployment target profile for this run
+        required: false
+        default: test
+        type: choice
+        options:
+          - test
+          - production
+          - none
+      archive_path:
+        description: FERCEQR archive path to process
+        required: false
+        default: gs://archives.catalyst.coop/ferceqr/published
+        type: string
   schedule:
     - cron: "48 0 3 * *" # 00:48 UTC on the third of every month
 
@@ -94,9 +117,13 @@ jobs:
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
+            --container-env FERCEQR_DEPLOYMENT_MODE=${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode || 'production' }} \
+            --container-env FERCEQR_START_PARTITION=${{ github.event_name == 'workflow_dispatch' && inputs.start_partition || '' }} \
+            --container-env FERCEQR_END_PARTITION=${{ github.event_name == 'workflow_dispatch' && inputs.end_partition || '' }} \
             --container-env FERCEQR_BUILD=true \
-            --container-env PUDL_FERCEQR_ARCHIVE_PATH="gs://archives.catalyst.coop/ferceqr/published" \
-            --container-env PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH="/home/ubuntu/pudl/src/pudl/package_data/settings/ferceqr_deployment_targets.yml" \
+            --container-env PUDL_FERCEQR_ARCHIVE_PATH=${{ github.event_name == 'workflow_dispatch' && inputs.archive_path || 'gs://archives.catalyst.coop/ferceqr/published' }} \
+            --container-env PUDL_FERCEQR_PRODUCTION_DEPLOYMENT_CONFIG_PATH="/home/ubuntu/pudl/src/pudl/package_data/settings/ferceqr_deployment_targets.yml" \
+            --container-env PUDL_FERCEQR_TEST_DEPLOYMENT_CONFIG_PATH="/home/ubuntu/pudl/src/pudl/package_data/settings/ferceqr_test_deployment_targets.yml" \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \

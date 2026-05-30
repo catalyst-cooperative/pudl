@@ -144,6 +144,41 @@ def test_ferceqr_deployment_resource_loads_override_config_path(tmp_path):
     assert targets == [UPath(deploy_path)]
 
 
+def test_ferceqr_deployment_resource_appends_build_id(monkeypatch):
+    """Targets can opt into build-scoped destinations by appending BUILD_ID."""
+    monkeypatch.setenv("BUILD_ID", "build-123")
+    resource = FercEqrDeploymentResource(
+        deployment_targets=[
+            FercEqrDeploymentTargetConfig(
+                path="gs://test.catalyst.coop",
+                append_build_id=True,
+            )
+        ]
+    )
+
+    assert resource.resolved_targets() == [
+        UPath("gs://test.catalyst.coop") / "build-123"
+    ]
+
+
+def test_ferceqr_deployment_resource_requires_build_id_for_appended_targets(
+    monkeypatch,
+):
+    """Build-scoped targets should fail if BUILD_ID is unavailable at runtime."""
+    monkeypatch.delenv("BUILD_ID", raising=False)
+    resource = FercEqrDeploymentResource(
+        deployment_targets=[
+            FercEqrDeploymentTargetConfig(
+                path="gs://test.catalyst.coop",
+                append_build_id=True,
+            )
+        ]
+    )
+
+    with pytest.raises(ValueError, match="BUILD_ID must be set"):
+        resource.resolved_targets()
+
+
 def test_default_resources_include_ferceqr_deployment_targets():
     """Default Dagster resources should include the FERCEQR deployment targets resource."""
     assert "ferceqr_deployment_targets" in default_resources
