@@ -8,6 +8,17 @@ function authenticate_gcp() {
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
+function write_aws_credentials() {
+    # set +x / set -x is used to avoid printing the AWS credentials in the logs
+    echo "Setting AWS credentials"
+    mkdir -p ~/.aws
+    echo "[default]" >~/.aws/credentials
+    set +x
+    echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
+    echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
+    set -x
+}
+
 function validate_partition_range_inputs() {
     if [[ -n "${FERCEQR_START_PARTITION:-}" || -n "${FERCEQR_END_PARTITION:-}" ]]; then
         if [[ -z "${FERCEQR_START_PARTITION:-}" || -z "${FERCEQR_END_PARTITION:-}" ]]; then
@@ -34,17 +45,20 @@ function run_ferceqr_etl() {
     killall dagster-daemon
 }
 
-function copy_logfile_to_gcs() {
+function cleanup_on_exit() {
     if [[ -z "${LOGFILE:-}" || ! -f "$LOGFILE" ]]; then
+        rm -f ~/.aws/credentials
         return 0
     fi
 
     if [[ -z "${GCS_LOGS_BUCKET:-}" || -z "${GCP_BILLING_PROJECT:-}" ]]; then
         echo "Skipping log upload because GCS_LOGS_BUCKET or GCP_BILLING_PROJECT is unset." >&2
+        rm -f ~/.aws/credentials
         return 0
     fi
 
     gcloud storage --billing-project="$GCP_BILLING_PROJECT" --quiet cp "$LOGFILE" "${GCS_LOGS_BUCKET}/${BUILD_ID}.log"
+    rm -f ~/.aws/credentials
 }
 
 ########################################################################################
@@ -56,21 +70,13 @@ cp "${DAGSTER_HOME}/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
 
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
 
+write_aws_credentials
+
 touch "$LOGFILE"
 exec > >(tee -a "$LOGFILE") 2>&1
 # Bash runs this trap on any script exit path, so the log upload still happens
 # after an early failure as well as after a successful run.
-trap copy_logfile_to_gcs EXIT
-
-# Save credentials for working with AWS S3
-# set +x / set -x is used to avoid printing the AWS credentials in the logs
-echo "Setting AWS credentials"
-mkdir -p ~/.aws
-echo "[default]" >~/.aws/credentials
-set +x
-echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
-echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
-set -x
+trap cleanup_on_exit EXIT
 
 # An empty string from the workflow means "do not deploy", which should behave the
 # same as the variable being unset inside the container.
