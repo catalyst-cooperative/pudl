@@ -147,10 +147,10 @@ class FercEqrArchiveResource(dg.ConfigurableResource):
 class FercEqrDeploymentTargetConfig(dg.Config):
     """A single deployment destination for FERC EQR outputs.
 
-    ``path`` is a UPath-compatible string: an absolute local directory path,
-    ``file://`` URI, ``gs://`` URI, or ``s3://`` URI.  ``storage_options`` is unpacked as ``**kwargs`` when
-    constructing the :class:`~upath.UPath`, allowing per-target fsspec settings
-    such as ``requester_pays=True`` for requester-pays GCS buckets.
+    ``path`` is a UPath-compatible string: an absolute local directory path, ``file://``
+    URI, ``gs://`` URI, or ``s3://`` URI.  ``storage_options`` is unpacked as
+    ``**kwargs`` when constructing the :class:`~upath.UPath`, allowing per-target fsspec
+    settings such as ``requester_pays=True`` for requester-pays GCS buckets.
     """
 
     path: str

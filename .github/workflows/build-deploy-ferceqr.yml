@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       start_partition:
-        description: First FERCEQR partition to process (optional; requires end_partition too)
+        description: First partition (e.g. 2013q3). Optional. If set, requires end_partition. If both unset, process all available data.
         required: false
         type: string
       end_partition:
-        description: Last FERCEQR partition to process (optional; requires start_partition too)
+        description: Last partition (e.g. 2013q4). Optional. If set, requires start_partition. If both unset, process all available data.
         required: false
         type: string
       deployment_mode:
-        description: Deployment target profile for this run
+        description: Deployment target. If none, do not deploy the data.
         required: false
         default: test
         type: choice
@@ -21,7 +21,7 @@ on:
           - production
           - none
       archive_path:
-        description: FERCEQR archive path to process
+        description: Path to raw FERC EQR archives to process
         required: false
         default: gs://archives.catalyst.coop/ferceqr/published
         type: string

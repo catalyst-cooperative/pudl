@@ -8,10 +8,6 @@ function authenticate_gcp() {
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
-function cleanup_ferceqr_status_files() {
-    rm -f "${PUDL_OUTPUT}/FERCEQR_SUCCESS" "${PUDL_OUTPUT}/FERCEQR_FAILURE"
-}
-
 function configure_ferceqr_deployment() {
     case "${FERCEQR_DEPLOYMENT_MODE:-production}" in
         production)
@@ -41,10 +37,8 @@ function validate_partition_range_inputs() {
 
 function run_ferceqr_etl() {
     echo "Running FERC EQR ETL"
-    cleanup_ferceqr_status_files
     # Launch dagster-daemon in the background (handles the backfill queue)
-    authenticate_gcp &&
-        dagster-daemon run &
+    dagster-daemon run &
 
     # Kick off the ferceqr job asynchronously
     BACKFILL_ARGS=(job backfill --noprompt --job ferceqr)
@@ -58,6 +52,19 @@ function run_ferceqr_etl() {
     killall dagster-daemon
 }
 
+function copy_logfile_to_gcs() {
+    if [[ -z "${LOGFILE:-}" || ! -f "$LOGFILE" ]]; then
+        return 0
+    fi
+
+    if [[ -z "${GCS_LOGS_BUCKET:-}" || -z "${GCP_BILLING_PROJECT:-}" ]]; then
+        echo "Skipping log upload because GCS_LOGS_BUCKET or GCP_BILLING_PROJECT is unset." >&2
+        return 0
+    fi
+
+    gcloud storage --billing-project="$GCP_BILLING_PROJECT" --quiet cp "$LOGFILE" "${GCS_LOGS_BUCKET}/${BUILD_ID}.log"
+}
+
 ########################################################################################
 # MAIN SCRIPT
 ########################################################################################
@@ -66,6 +73,12 @@ function run_ferceqr_etl() {
 cp "${DAGSTER_HOME}/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
 
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
+
+touch "$LOGFILE"
+exec > >(tee -a "$LOGFILE") 2>&1
+# Bash runs this trap on any script exit path, so the log upload still happens
+# after an early failure as well as after a successful run.
+trap copy_logfile_to_gcs EXIT
 
 # Save credentials for working with AWS S3
 # set +x / set -x is used to avoid printing the AWS credentials in the logs
@@ -77,23 +90,20 @@ echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
 set -x
 
-validate_partition_range_inputs
-configure_ferceqr_deployment
-authenticate_gcp
-check_path_permissions --read "$PUDL_FERCEQR_ARCHIVE_PATH"
-check_path_permissions --write --check-ferceqr-deployment-paths "$GCS_LOGS_BUCKET"
+if ! validate_partition_range_inputs && \
+    configure_ferceqr_deployment && \
+    authenticate_gcp && \
+    check_path_permissions --read "$PUDL_FERCEQR_ARCHIVE_PATH" && \
+    check_path_permissions --write --check-ferceqr-deployment-paths "$GCS_LOGS_BUCKET"; then
+    exit 1
+fi
 
-run_ferceqr_etl 2>&1 | tee "$LOGFILE"
-
-# Copy logs to GCS build directory
-gcloud storage --billing-project="$GCP_BILLING_PROJECT" --quiet cp "$LOGFILE" "${GCS_LOGS_BUCKET}/${BUILD_ID}.log"
+run_ferceqr_etl
 
 # Check if build was successful and return appropriate return value
 if [ ! -f "${PUDL_OUTPUT}/FERCEQR_SUCCESS" ]; then
     echo "Build failed!"
-    cleanup_ferceqr_status_files
     exit 1
 fi
 
 echo "Build successful!"
-cleanup_ferceqr_status_files
