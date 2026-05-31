@@ -158,6 +158,25 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
         "_get_source_partitions",
         return_value=["2013q3", "2013q4"],
     )
+    mocker.patch.object(
+        deploy_ferceqr,
+        "_get_source_run_step_status_summary",
+        return_value=(
+            {
+                "core_ferceqr__contracts": {
+                    "2013q3": "SUCCESS",
+                    "2013q4": "SUCCESS",
+                },
+                "core_ferceqr__transactions": {
+                    "2013q3": "SUCCESS",
+                    "2013q4": "SUCCESS",
+                },
+            },
+            "run-123",
+            "SUCCESS",
+            "2013q3",
+        ),
+    )
 
     class FakeParquetData:
         def __init__(self, table_name: str):
@@ -192,11 +211,9 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
     notify_slack.assert_called_once()
     sent_message = notify_slack.call_args.kwargs["message"]
     assert "## FERC EQR Deployment Succeeded" in sent_message
-    assert "- Deployed partitions: 2013q3, 2013q4" in sent_message
-    assert "### Failed Assets / Partitions" not in sent_message
-    assert "### Step Status" in sent_message
-    assert "Step Status" in sent_message
-    assert "Count" in sent_message
+    assert "### Asset / Partition Status" in sent_message
+    assert "core_ferceqr__contracts" in sent_message
+    assert ":check:" in sent_message
 
 
 def test_deploy_ferceqr_requires_source_partitions(mocker, tmp_path):
@@ -224,35 +241,41 @@ def test_handle_ferceqr_deployment_failure_writes_failure_and_notifies(
     notify_slack.assert_called_once()
     sent_message = notify_slack.call_args.kwargs["message"]
     assert "## FERC EQR Deployment Failed" in sent_message
-    assert "### Failed Assets / Partitions" not in sent_message
-    assert "### Step Status" in sent_message
-    assert "Step Status" in sent_message
-    assert "Count" in sent_message
+    assert "### Asset / Partition Status" in sent_message
 
 
-def test_build_message_includes_partition_and_failed_assets_table():
-    """Verbose message includes source partition and failed asset/partition table."""
+def test_build_message_includes_asset_partition_status_table():
+    """Verbose message includes source partition and the asset/partition status table."""
     message = deploy_ferceqr.build_ferceqr_deployment_markdown_message(
         deploy_ferceqr.FercEqrDeploymentNotificationPayload(
             outcome="FAILURE",
             build_id="build-789",
             distribution_paths=None,
-            deployed_partitions=None,
+            deployed_partitions=["2013q3", "2013q4"],
             source_run_id="run-789",
             source_run_status="FAILURE",
             source_partition="2013q4",
-            step_status_counts={"SUCCESS": 10, "FAILURE": 2},
-            failed_step_keys=[
-                "core_ferceqr__transactions[2013q4]",
-                "core_ferceqr__quarterly_identity[2013q4]",
-            ],
+            asset_partition_statuses={
+                "core_ferceqr__transactions": {
+                    "2013q3": "SUCCESS",
+                    "2013q4": "FAILURE",
+                },
+                "core_ferceqr__quarterly_identity": {
+                    "2013q3": "SKIPPED",
+                },
+            },
         )
     )
 
-    assert "- Source partition: `2013q4`" in message
-    assert "### Failed Assets / Partitions" in message
+    print("\nFERCEQR deployment notification example:\n")
+    print(message)
+
+    assert "### Asset / Partition Status" in message
     assert "Asset" in message
-    assert "Partition" in message
-    assert "Step Key" in message
-    assert "core_ferceqr__transactions" in message
+    assert "2013q3" in message
     assert "2013q4" in message
+    assert "core_ferceqr__transactions" in message
+    assert ":check:" in message
+    assert ":x:" in message
+    assert ":ghost:" in message
+    assert ":question:" in message

@@ -31,6 +31,7 @@ FERCEQR_SOURCE_RUN_ID_TAG = "ferceqr/source_run_id"
 FERCEQR_SOURCE_RUN_STATUS_TAG = "ferceqr/source_run_status"
 FERCEQR_SOURCE_PARTITION_TAG = "ferceqr/source_partition"
 FERCEQR_SOURCE_PARTITIONS_TAG = "ferceqr/source_partitions"
+FERCEQR_BACKFILL_TAG = "dagster/backfill"
 
 FERCEQR_TRANSFORM_ASSETS = [
     "core_ferceqr__contracts",
@@ -87,7 +88,7 @@ def _write_status_file(
 
 
 def _clear_status_files(pudl_paths: PudlPaths) -> None:
-    """Remove any stale FERCEQR status files from the output directory."""
+    """Remove any stale FERC EQR status files from the output directory."""
     for status_name in ("FERCEQR_SUCCESS", "FERCEQR_FAILURE"):
         status_path = Path(pudl_paths.pudl_output) / status_name
         status_path.unlink(missing_ok=True)
@@ -95,46 +96,61 @@ def _clear_status_files(pudl_paths: PudlPaths) -> None:
 
 def _status_name(value: object) -> str:
     """Return normalized uppercase status name from a Dagster status object."""
-    if hasattr(value, "name"):
-        return str(value.name).upper()
-    if hasattr(value, "value"):
-        return str(value.value).upper()
+    if (name := getattr(value, "name", None)) is not None:
+        return str(name).upper()
+    if (raw_value := getattr(value, "value", None)) is not None:
+        return str(raw_value).upper()
     return str(value).split(".")[-1].upper()
 
 
 def _get_source_run_step_status_summary(
     context: dg.AssetExecutionContext,
-) -> tuple[dict[str, int], list[str], str | None, str | None, str | None]:
-    """Return step-status counts, failed step keys, and source-run metadata."""
+) -> tuple[dict[str, dict[str, str]], str | None, str | None, str | None]:
+    """Return asset/partition step statuses and source-run metadata."""
     try:
         run = context.run
     except Exception:
         # Dagster direct-invocation contexts in tests may not have run metadata.
         # We intentionally treat this as missing source-run data for notifications.
-        return {}, [], None, None, None
+        return {}, None, None, None
 
     run_tags = run.tags if run else {}
     source_run_id = run_tags.get(FERCEQR_SOURCE_RUN_ID_TAG)
     source_run_status = run_tags.get(FERCEQR_SOURCE_RUN_STATUS_TAG)
     source_partition = run_tags.get(FERCEQR_SOURCE_PARTITION_TAG)
     if not source_run_id:
-        return {}, [], None, source_run_status, source_partition
+        return {}, None, source_run_status, source_partition
 
-    step_stats = context.instance.get_run_step_stats(source_run_id)
-    status_counts: dict[str, int] = {}
-    failed_steps: list[str] = []
-    for step in step_stats:
-        step_status = _status_name(step.status)
-        status_counts[step_status] = status_counts.get(step_status, 0) + 1
-        if step_status == "FAILURE":
-            failed_steps.append(step.step_key)
-    return (
-        status_counts,
-        failed_steps,
-        source_run_id,
-        source_run_status,
-        source_partition,
-    )
+    source_runs = []
+    source_run = context.instance.get_run_by_id(source_run_id)
+    if source_run is not None:
+        backfill_id = source_run.tags.get(FERCEQR_BACKFILL_TAG)
+        if backfill_id:
+            source_runs = context.instance.get_runs(
+                filters=dg.RunsFilter(
+                    job_name=source_run.job_name,
+                    tags={FERCEQR_BACKFILL_TAG: backfill_id},
+                )
+            )
+        else:
+            source_runs = [source_run]
+
+    if not source_runs:
+        return {}, source_run_id, source_run_status, source_partition
+
+    asset_partition_statuses: dict[str, dict[str, str]] = {}
+    for run_record in source_runs:
+        default_partition = run_record.tags.get("dagster/partition") or source_partition
+        for step in context.instance.get_run_step_stats(run_record.run_id):
+            asset_name, partition_name = _parse_step_key(
+                step_key=step.step_key,
+                source_partition=default_partition,
+            )
+            asset_partition_statuses.setdefault(asset_name, {})[partition_name] = (
+                _status_name(step.status)
+            )
+
+    return asset_partition_statuses, source_run_id, source_run_status, source_partition
 
 
 def _get_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
@@ -160,57 +176,67 @@ def _get_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
     return parsed_partitions
 
 
-def _parse_failed_step_key(
-    step_key: str, source_partition: str | None
-) -> dict[str, str]:
+def _parse_step_key(step_key: str, source_partition: str | None) -> tuple[str, str]:
     """Extract asset and partition details from a Dagster step key."""
     if "[" in step_key and step_key.endswith("]"):
         asset_name, raw_partition = step_key.rsplit("[", 1)
-        return {
-            "Asset": asset_name,
-            "Partition": raw_partition[:-1],
-            "Step Key": step_key,
-        }
+        return asset_name, raw_partition[:-1]
 
-    return {
-        "Asset": step_key,
-        "Partition": source_partition or "UNKNOWN",
-        "Step Key": step_key,
-    }
+    return step_key, source_partition or "UNKNOWN"
 
 
-def _format_failed_assets_partitions_markdown_table(
-    failed_step_keys: list[str], source_partition: str | None
+def _format_step_status_markdown_table(
+    asset_partition_statuses: dict[str, dict[str, str]],
+    partitions: list[str] | None,
 ) -> str:
-    """Format failed steps as an asset/partition/step-key Markdown table."""
-    rows = [
-        _parse_failed_step_key(step_key=step_key, source_partition=source_partition)
-        for step_key in failed_step_keys
-    ]
-    return pd.DataFrame(rows).to_markdown(index=False)
-
-
-def _format_step_status_markdown_table(status_counts: dict[str, int]) -> str:
-    """Format step status counts as a compact Markdown table."""
-    if not status_counts:
-        table = pd.DataFrame([{"Step Status": "NO_DATA", "Count": 0}])
+    """Format terminal step statuses as an asset-by-partition Markdown table."""
+    if not asset_partition_statuses:
+        partition_order = list(partitions or [])
+        if partition_order:
+            row = {"Asset": "NO_DATA"}
+            for partition_name in partition_order:
+                row[partition_name] = ":question:"
+            table = pd.DataFrame([row])
+        else:
+            table = pd.DataFrame([{"Asset": "NO_DATA", "Status": ":question:"}])
         return table.to_markdown(index=False)
 
-    table = pd.DataFrame(
+    status_symbols = {
+        "FAILURE": ":x:",
+        "SUCCESS": ":check:",
+        "SKIPPED": ":ghost:",
+        "UNKNOWN": ":question:",
+        "NO_DATA": ":question:",
+    }
+    discovered_partitions = sorted(
         {
-            "Step Status": list(status_counts.keys()),
-            "Count": list(status_counts.values()),
+            partition_name
+            for partition_statuses in asset_partition_statuses.values()
+            for partition_name in partition_statuses
         }
     )
-    preferred_order = ["SUCCESS", "FAILURE", "SKIPPED", "IN_PROGRESS", "STARTED"]
-    table["status_order"] = pd.Categorical(
-        table["Step Status"], categories=preferred_order, ordered=True
+    partition_order = list(partitions or [])
+    partition_order.extend(
+        partition_name
+        for partition_name in discovered_partitions
+        if partition_name not in partition_order
     )
-    table["is_unknown_status"] = table["status_order"].isna()
-    table = table.sort_values(
-        by=["is_unknown_status", "status_order", "Step Status"], kind="stable"
-    ).drop(columns=["status_order", "is_unknown_status"])
-    return table.to_markdown(index=False)
+
+    rows = []
+    for asset_name in sorted(asset_partition_statuses):
+        row = {"Asset": asset_name}
+        for partition_name in partition_order:
+            status_name = asset_partition_statuses[asset_name].get(partition_name)
+            row[partition_name] = status_symbols.get(
+                status_name or "UNKNOWN", ":question:"
+            )
+        rows.append(row)
+
+    table = pd.DataFrame(rows)
+    return table.to_markdown(
+        index=False,
+        colalign=("left", *["center"] * (len(table.columns) - 1)),
+    )
 
 
 @dataclass(frozen=True)
@@ -224,8 +250,7 @@ class FercEqrDeploymentNotificationPayload:
     source_run_id: str | None
     source_run_status: str | None
     source_partition: str | None
-    step_status_counts: dict[str, int]
-    failed_step_keys: list[str]
+    asset_partition_statuses: dict[str, dict[str, str]]
 
 
 def build_ferceqr_deployment_markdown_message(
@@ -233,41 +258,32 @@ def build_ferceqr_deployment_markdown_message(
 ) -> str:
     """Build reusable Markdown notification text for deployment outcomes."""
     title = (
-        "## FERC EQR Deployment Succeeded"
+        "\n## FERC EQR Deployment Succeeded"
         if payload.outcome == "SUCCESS"
-        else "## FERC EQR Deployment Failed"
+        else "\n## FERC EQR Deployment Failed"
     )
     lines = [title, ""]
     if payload.distribution_paths:
-        lines.append(f"- Published to: {', '.join(payload.distribution_paths)}")
-    if payload.deployed_partitions:
-        lines.append(f"- Deployed partitions: {', '.join(payload.deployed_partitions)}")
+        lines.append("- Deployment Targets:")
+        lines.extend(f"  - {path}" for path in payload.distribution_paths)
     lines.append(f"- Build ID: {payload.build_id}")
     if payload.source_run_id:
         lines.append(f"- Source Dagster run: `{payload.source_run_id}`")
-    if payload.source_run_status:
-        lines.append(f"- Source run status: `{payload.source_run_status}`")
-    if payload.source_partition:
-        lines.append(f"- Source partition: `{payload.source_partition}`")
     lines.extend(
         [
             "",
-            "### Step Status",
-            _format_step_status_markdown_table(payload.step_status_counts),
+            "### Asset / Partition Status",
+            "- :check: = SUCCESS",
+            "- :x: = FAILURE",
+            "- :ghost: = SKIPPED",
+            "- :question: = UNKNOWN / NO_DATA",
+            "",
+            _format_step_status_markdown_table(
+                asset_partition_statuses=payload.asset_partition_statuses,
+                partitions=payload.deployed_partitions,
+            ),
         ]
     )
-
-    if payload.failed_step_keys:
-        lines.extend(
-            [
-                "",
-                "### Failed Assets / Partitions",
-                _format_failed_assets_partitions_markdown_table(
-                    failed_step_keys=payload.failed_step_keys,
-                    source_partition=payload.source_partition,
-                ),
-            ]
-        )
 
     lines.extend(["", "### Logs", _get_logfile_pointer_markdown(payload.build_id)])
     return "\n".join(lines)
@@ -296,7 +312,7 @@ def deployment_status_asset(
             _clear_status_files(context.resources.pudl_paths)
             handler(context)
         except Exception:
-            logger.error("FERCEQR deployment handler failed!")
+            logger.error("FERC EQR deployment handler failed!")
             logger.error(traceback.format_exc())
             _write_status_file("FERCEQR_FAILURE", context.resources.pudl_paths)
             raise
@@ -310,8 +326,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     pudl_paths: PudlPaths = context.resources.pudl_paths
     deployment: FercEqrDeploymentResource = context.resources.ferceqr_deployment_targets
     (
-        step_status_counts,
-        failed_step_keys,
+        asset_partition_statuses,
         source_run_id,
         source_run_status,
         source_partition,
@@ -354,8 +369,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         source_run_id=source_run_id,
         source_run_status=source_run_status,
         source_partition=source_partition,
-        step_status_counts=step_status_counts,
-        failed_step_keys=failed_step_keys,
+        asset_partition_statuses=asset_partition_statuses,
     )
     _notify_slack_deployments_channel(
         message=build_ferceqr_deployment_markdown_message(notification_payload),
@@ -368,8 +382,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
     """Send notification if EQR deployment failed."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
     (
-        step_status_counts,
-        failed_step_keys,
+        asset_partition_statuses,
         source_run_id,
         source_run_status,
         source_partition,
@@ -380,12 +393,11 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
         outcome="FAILURE",
         build_id=_get_build_id(),
         distribution_paths=None,
-        deployed_partitions=None,
+        deployed_partitions=[source_partition] if source_partition else None,
         source_run_id=source_run_id,
         source_run_status=source_run_status,
         source_partition=source_partition,
-        step_status_counts=step_status_counts,
-        failed_step_keys=failed_step_keys,
+        asset_partition_statuses=asset_partition_statuses,
     )
     _notify_slack_deployments_channel(
         message=build_ferceqr_deployment_markdown_message(notification_payload),
