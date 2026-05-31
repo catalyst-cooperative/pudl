@@ -29,6 +29,7 @@ pudl_job = dg.define_asset_job(
         "raw_ferc_to_sqlite",
         "raw_ferceqr",
         "core_ferceqr",
+        "ferceqr_deployment",
     ),
 )
 
@@ -47,7 +48,11 @@ pudl_with_ferc_to_sqlite_job = dg.define_asset_job(
     ),
     config=default_pudl_job_config,
     selection=dg.AssetSelection.all()
-    - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
+    - dg.AssetSelection.groups(
+        "raw_ferceqr",
+        "core_ferceqr",
+        "ferceqr_deployment",
+    ),
 )
 
 ferceqr_job = dg.define_asset_job(
