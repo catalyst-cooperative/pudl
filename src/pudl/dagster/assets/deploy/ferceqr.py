@@ -302,9 +302,11 @@ def build_ferceqr_deployment_markdown_message(
         lines.extend(f"  - {path}" for path in payload.distribution_paths)
     lines.append(f"- Build ID: {payload.build_id}")
     if payload.source_run_id:
-        lines.append(f"- Source Dagster run: `{payload.source_run_id}`")
+        lines.append(f"- Dagster run ID: `{payload.source_run_id}`")
     if payload.source_run_duration:
-        lines.append(f"- Source Dagster runtime: `[{payload.source_run_duration}]`")
+        lines.append(
+            f"- :time: Dagster run duration: `[{payload.source_run_duration}]`"
+        )
     lines.extend(
         [
             "",
