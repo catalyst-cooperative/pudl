@@ -175,6 +175,7 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
             "run-123",
             "SUCCESS",
             "2013q3",
+            "01:23:45",
         ),
     )
 
@@ -210,7 +211,8 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
 
     notify_slack.assert_called_once()
     sent_message = notify_slack.call_args.kwargs["message"]
-    assert "## FERC EQR Deployment Succeeded" in sent_message
+    assert "## :check: FERC EQR Deployment Succeeded" in sent_message
+    assert "Source Dagster runtime: `[01:23:45]`" in sent_message
     assert "### Asset / Partition Status" in sent_message
     assert "core_ferceqr__contracts" in sent_message
     assert ":check:" in sent_message
@@ -240,7 +242,7 @@ def test_handle_ferceqr_deployment_failure_writes_failure_and_notifies(
     assert not (tmp_path / "FERCEQR_SUCCESS").exists()
     notify_slack.assert_called_once()
     sent_message = notify_slack.call_args.kwargs["message"]
-    assert "## FERC EQR Deployment Failed" in sent_message
+    assert "## :x: FERC EQR Deployment Failed" in sent_message
     assert "### Asset / Partition Status" in sent_message
 
 
@@ -253,6 +255,7 @@ def test_build_message_includes_asset_partition_status_table():
             distribution_paths=None,
             deployed_partitions=["2013q3", "2013q4"],
             source_run_id="run-789",
+            source_run_duration="00:12:34",
             source_run_status="FAILURE",
             source_partition="2013q4",
             asset_partition_statuses={
@@ -270,6 +273,7 @@ def test_build_message_includes_asset_partition_status_table():
     print("\nFERCEQR deployment notification example:\n")
     print(message)
 
+    assert "Source Dagster runtime: `[00:12:34]`" in message
     assert "### Asset / Partition Status" in message
     assert "Asset" in message
     assert "2013q3" in message

@@ -103,26 +103,47 @@ def _status_name(value: object) -> str:
     return str(value).split(".")[-1].upper()
 
 
+def _format_elapsed_seconds(elapsed_seconds: float) -> str:
+    """Format elapsed seconds as HH:MM:SS for Slack notifications."""
+    total_seconds = max(int(elapsed_seconds), 0)
+    elapsed_hours, remainder = divmod(total_seconds, 3600)
+    elapsed_minutes, remaining_seconds = divmod(remainder, 60)
+    return f"{elapsed_hours:02d}:{elapsed_minutes:02d}:{remaining_seconds:02d}"
+
+
+def _get_run_duration(run_record: dg.RunRecord | None) -> str | None:
+    """Return a formatted runtime for a Dagster run record when available."""
+    if run_record is None:
+        return None
+    if run_record.start_time is None or run_record.end_time is None:
+        return None
+    return _format_elapsed_seconds(run_record.end_time - run_record.start_time)
+
+
 def _get_source_run_step_status_summary(
     context: dg.AssetExecutionContext,
-) -> tuple[dict[str, dict[str, str]], str | None, str | None, str | None]:
+) -> tuple[dict[str, dict[str, str]], str | None, str | None, str | None, str | None]:
     """Return asset/partition step statuses and source-run metadata."""
     try:
         run = context.run
     except Exception:
         # Dagster direct-invocation contexts in tests may not have run metadata.
         # We intentionally treat this as missing source-run data for notifications.
-        return {}, None, None, None
+        return {}, None, None, None, None
 
     run_tags = run.tags if run else {}
     source_run_id = run_tags.get(FERCEQR_SOURCE_RUN_ID_TAG)
     source_run_status = run_tags.get(FERCEQR_SOURCE_RUN_STATUS_TAG)
     source_partition = run_tags.get(FERCEQR_SOURCE_PARTITION_TAG)
     if not source_run_id:
-        return {}, None, source_run_status, source_partition
+        return {}, None, source_run_status, source_partition, None
 
     source_runs = []
-    source_run = context.instance.get_run_by_id(source_run_id)
+    source_run_record = context.instance.get_run_record_by_id(source_run_id)
+    source_run_duration = _get_run_duration(source_run_record)
+    source_run = (
+        source_run_record.dagster_run if source_run_record is not None else None
+    )
     if source_run is not None:
         backfill_id = source_run.tags.get(FERCEQR_BACKFILL_TAG)
         if backfill_id:
@@ -136,7 +157,13 @@ def _get_source_run_step_status_summary(
             source_runs = [source_run]
 
     if not source_runs:
-        return {}, source_run_id, source_run_status, source_partition
+        return (
+            {},
+            source_run_id,
+            source_run_status,
+            source_partition,
+            source_run_duration,
+        )
 
     asset_partition_statuses: dict[str, dict[str, str]] = {}
     for run_record in source_runs:
@@ -150,7 +177,13 @@ def _get_source_run_step_status_summary(
                 _status_name(step.status)
             )
 
-    return asset_partition_statuses, source_run_id, source_run_status, source_partition
+    return (
+        asset_partition_statuses,
+        source_run_id,
+        source_run_status,
+        source_partition,
+        source_run_duration,
+    )
 
 
 def _get_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
@@ -191,7 +224,7 @@ def _format_step_status_markdown_table(
 ) -> str:
     """Format terminal step statuses as an asset-by-partition Markdown table."""
     if not asset_partition_statuses:
-        partition_order = list(partitions or [])
+        partition_order = sorted(partitions or [])
         if partition_order:
             row = {"Asset": "NO_DATA"}
             for partition_name in partition_order:
@@ -215,7 +248,7 @@ def _format_step_status_markdown_table(
             for partition_name in partition_statuses
         }
     )
-    partition_order = list(partitions or [])
+    partition_order = sorted(partitions or [])
     partition_order.extend(
         partition_name
         for partition_name in discovered_partitions
@@ -248,6 +281,7 @@ class FercEqrDeploymentNotificationPayload:
     distribution_paths: list[str] | None
     deployed_partitions: list[str] | None
     source_run_id: str | None
+    source_run_duration: str | None
     source_run_status: str | None
     source_partition: str | None
     asset_partition_statuses: dict[str, dict[str, str]]
@@ -258,9 +292,9 @@ def build_ferceqr_deployment_markdown_message(
 ) -> str:
     """Build reusable Markdown notification text for deployment outcomes."""
     title = (
-        "\n## FERC EQR Deployment Succeeded"
+        "\n## :check: FERC EQR Deployment Succeeded"
         if payload.outcome == "SUCCESS"
-        else "\n## FERC EQR Deployment Failed"
+        else "\n## :x: FERC EQR Deployment Failed"
     )
     lines = [title, ""]
     if payload.distribution_paths:
@@ -269,6 +303,8 @@ def build_ferceqr_deployment_markdown_message(
     lines.append(f"- Build ID: {payload.build_id}")
     if payload.source_run_id:
         lines.append(f"- Source Dagster run: `{payload.source_run_id}`")
+    if payload.source_run_duration:
+        lines.append(f"- Source Dagster runtime: `[{payload.source_run_duration}]`")
     lines.extend(
         [
             "",
@@ -330,6 +366,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         source_run_id,
         source_run_status,
         source_partition,
+        source_run_duration,
     ) = _get_source_run_step_status_summary(context)
     source_partitions = _get_source_partitions(context)
 
@@ -367,6 +404,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         distribution_paths=[str(t) for t in targets],
         deployed_partitions=source_partitions,
         source_run_id=source_run_id,
+        source_run_duration=source_run_duration,
         source_run_status=source_run_status,
         source_partition=source_partition,
         asset_partition_statuses=asset_partition_statuses,
@@ -386,6 +424,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
         source_run_id,
         source_run_status,
         source_partition,
+        source_run_duration,
     ) = _get_source_run_step_status_summary(context)
 
     logger.error("Build failed, notifying Slack.")
@@ -395,6 +434,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
         distribution_paths=None,
         deployed_partitions=[source_partition] if source_partition else None,
         source_run_id=source_run_id,
+        source_run_duration=source_run_duration,
         source_run_status=source_run_status,
         source_partition=source_partition,
         asset_partition_statuses=asset_partition_statuses,
