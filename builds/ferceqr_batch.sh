@@ -8,24 +8,6 @@ function authenticate_gcp() {
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
-function configure_ferceqr_deployment() {
-    case "${FERCEQR_DEPLOYMENT_MODE:-production}" in
-        production)
-            export PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH="$PUDL_FERCEQR_PRODUCTION_DEPLOYMENT_CONFIG_PATH"
-            ;;
-        test)
-            export PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH="$PUDL_FERCEQR_TEST_DEPLOYMENT_CONFIG_PATH"
-            ;;
-        none)
-            unset PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH
-            ;;
-        *)
-            echo "Unknown FERCEQR_DEPLOYMENT_MODE: ${FERCEQR_DEPLOYMENT_MODE}" >&2
-            return 1
-            ;;
-    esac
-}
-
 function validate_partition_range_inputs() {
     if [[ -n "${FERCEQR_START_PARTITION:-}" || -n "${FERCEQR_END_PARTITION:-}" ]]; then
         if [[ -z "${FERCEQR_START_PARTITION:-}" || -z "${FERCEQR_END_PARTITION:-}" ]]; then
@@ -90,11 +72,19 @@ echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
 set -x
 
-if ! validate_partition_range_inputs && \
-    configure_ferceqr_deployment && \
+# An empty string from the workflow means "do not deploy", which should behave the
+# same as the variable being unset inside the container.
+if [[ -z "${PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH:-}" ]]; then
+    unset PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH
+fi
+
+if ! {
+    validate_partition_range_inputs && \
     authenticate_gcp && \
     check_path_permissions --read "$PUDL_FERCEQR_ARCHIVE_PATH" && \
-    check_path_permissions --write --check-ferceqr-deployment-paths "$GCS_LOGS_BUCKET"; then
+    check_path_permissions --write --check-ferceqr-deployment-paths "$GCS_LOGS_BUCKET" && \
+    python -c "from dagster import DagsterInstance; DagsterInstance.get()"
+}; then
     exit 1
 fi
 
