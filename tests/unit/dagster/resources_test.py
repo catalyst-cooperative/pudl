@@ -108,8 +108,9 @@ def test_ferceqr_deployment_target_config_rejects_unwritable_directory(
         FercEqrDeploymentTargetConfig(path=str(deploy_path))
 
 
-def test_ferceqr_deployment_resource_defaults_to_no_targets(tmp_path):
+def test_ferceqr_deployment_resource_defaults_to_no_targets(monkeypatch, tmp_path):
     """Resource with no explicit targets or config path should skip deployment."""
+    monkeypatch.delenv("PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH", raising=False)
     resource = FercEqrDeploymentResource()
 
     configured_targets = resource.configured_targets()

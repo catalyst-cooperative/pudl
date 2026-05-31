@@ -80,11 +80,8 @@ set -x
 validate_partition_range_inputs
 configure_ferceqr_deployment
 authenticate_gcp
-python -m pudl.scripts.ferceqr_deployment_preflight \
-    --archive-path "$PUDL_FERCEQR_ARCHIVE_PATH" \
-    --deployment-config-path "${PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH:-}" \
-    --logs-path "$GCS_LOGS_BUCKET" \
-    --build-id "$BUILD_ID"
+check_path_permissions --read "$PUDL_FERCEQR_ARCHIVE_PATH"
+check_path_permissions --write --check-ferceqr-deployment-paths "$GCS_LOGS_BUCKET"
 
 run_ferceqr_etl 2>&1 | tee "$LOGFILE"
 
