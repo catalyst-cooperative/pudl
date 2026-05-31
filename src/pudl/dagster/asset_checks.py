@@ -413,9 +413,10 @@ duckdb_assets = [
     "core_ferceqr__transactions",
 ]
 high_memory_assets = [
-    "out_vcerare__hourly_available_capacity_factor",
-    "core_epacems__hourly_emissions",
-    "core_ferceqr__transactions",
+    # Testing whether polars memory leak fix helps with these...
+    # "out_vcerare__hourly_available_capacity_factor",
+    # "core_epacems__hourly_emissions",
+    # "core_ferceqr__transactions",
 ]
 
 default_asset_checks += [
