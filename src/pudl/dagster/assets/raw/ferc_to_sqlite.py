@@ -8,6 +8,7 @@ databases, rather than the downstream transforms that consume them.
 
 import os
 from collections.abc import Callable
+from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
@@ -19,6 +20,7 @@ from botocore.exceptions import (
     EndpointConnectionError,
     ReadTimeoutError,
 )
+from upath import UPath
 
 import pudl.logging_helpers
 from pudl import PUDL_NIGHTLY_BUILDS_BASE_PATH
@@ -50,31 +52,81 @@ NETWORK_ERRORS = (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def _download_sqlite_db(sqlite_path: Path):
+@dataclass
+class FercPaths:
+    """Helper class to get paths to various FERC paths both local and remote."""
+
+    local_datapackage_path: Path
+    nightly_datapackage_path: UPath
+    local_sqlite_path: Path
+    nightly_sqlite_path: UPath
+    local_duckdb_path: Path | None
+    nightly_duckdb_path: UPath | None
+    local_taxonomy_json_path: Path | None
+    nightly_taxonomy_json_path: UPath | None
+    local_parquet_dir_path: Path | None
+    nightly_parquet_dir_path: Path | None
+
+    @classmethod
+    def from_dataset_format(
+        cls, dataset: str, data_format: str, paths: PudlPaths
+    ) -> "FercPaths":
+        """Initialize class based on ``dataset`` and ``data_format``."""
+        dataset_format = f"{dataset}_{data_format}"
+        datapackage_name = f"{dataset_format}_datapackage.json"
+        local_sqlite_name = f"{dataset_format}.sqlite"
+        # Nightly sqlite files are zipped
+        nightly_sqlite_name = f"{dataset_format}.zip"
+        duckdb_name = f"{dataset_format}.duckdb"
+        taxonomy_json_name = f"{dataset_format}_taxonomy_metadata.json"
+        parquet_dir_name = f"{dataset_format}/"
+
+        return cls(
+            local_datapackage_path=paths.pudl_output / datapackage_name,
+            nightly_datapackage_path=PUDL_NIGHTLY_BUILDS_BASE_PATH / datapackage_name,
+            local_sqlite_path=paths.pudl_output / local_sqlite_name,
+            nightly_sqlite_path=PUDL_NIGHTLY_BUILDS_BASE_PATH / nightly_sqlite_name,
+            local_duckdb_path=paths.pudl_output / duckdb_name
+            if dataset_format == "xbrl"
+            else None,
+            nightly_duckdb_path=PUDL_NIGHTLY_BUILDS_BASE_PATH / duckdb_name
+            if dataset_format == "xbrl"
+            else None,
+            local_taxonomy_json_path=paths.pudl_output / taxonomy_json_name
+            if dataset_format == "xbrl"
+            else None,
+            nightly_taxonomy_json_path=PUDL_NIGHTLY_BUILDS_BASE_PATH
+            / taxonomy_json_name
+            if dataset_format == "xbrl"
+            else None,
+            local_parquet_dir_path=paths.pudl_output / parquet_dir_name
+            if dataset_format == "xbrl"
+            else None,
+            nightly_parquet_dir_path=PUDL_NIGHTLY_BUILDS_BASE_PATH / parquet_dir_name
+            if dataset_format == "xbrl"
+            else None,
+        )
+
+
+def _download_sqlite_db(paths: FercPaths):
     """Download nightly SQLite db and extract from zipfile, writing to local workspace."""
     with (
         fsspec.open(
-            str(PUDL_NIGHTLY_BUILDS_BASE_PATH / f"{sqlite_path.name}.zip"),
+            str(paths.nightly_sqlite_path),
             "rb",
             anon=True,
         ) as f,
         ZipFile(BytesIO(f.read())) as archive,
-        archive.open(sqlite_path.name) as nightly_sqlite,
-        sqlite_path.open("wb") as local_sqlite,
+        archive.open(paths.local_sqlite_path.name) as nightly_sqlite,
+        paths.local_sqlite_path.open("wb") as local_sqlite,
     ):
         local_sqlite.write(nightly_sqlite.read())
-
-
-def _get_datapackage_name(dataset: str, data_format: str) -> str:
-    """Return name of datapackage JSON file."""
-    return f"{dataset}_{data_format}_datapackage.json"
 
 
 def _download_nightly_outputs(
     dataset: str,
     data_format: str,
-    datapackage_name: str,
-    paths: PudlPaths,
+    paths: FercPaths,
 ):
     """Download ``ferc_to_sqlite`` outputs from s3.
 
@@ -84,47 +136,36 @@ def _download_nightly_outputs(
     plus a DuckDB file, parquet files, and the taxonomy JSON file.
     """
     # Download sqlite DB
-    sqlite_path = paths.sqlite_db_path(f"{dataset}_{data_format}")
-    _download_sqlite_db(sqlite_path)
+    _download_sqlite_db(paths)
 
     # Download datapckage JSON
-    datapackage_path = paths.pudl_output / datapackage_name
-    datapackage_path.write_text(
-        (PUDL_NIGHTLY_BUILDS_BASE_PATH / datapackage_name).read_text()
-    )
+    paths.local_datapackage_path.write_text(paths.nightly_datapackage_path.read_text())
 
     # DBF only produces sqlite and datapackage, so return
     if data_format == "DBF":
         return
 
     # Download duckdb DB
-    duckdb_path = paths.duckdb_db_path(f"{dataset}_{data_format}.duckdb")
-    taxonomy_json_path = (
-        paths.pudl_output / f"{dataset}_{data_format}_taxonomy_metadata.json"
-    )
-    duckdb_path.write_bytes(
-        (PUDL_NIGHTLY_BUILDS_BASE_PATH / duckdb_path.name).read_bytes()
-    )
+    paths.local_duckdb_path.write_bytes(paths.nightly_duckdb_path.read_bytes())
 
     # Download taxonomy JSON
-    taxonomy_json_path.write_bytes(
-        (PUDL_NIGHTLY_BUILDS_BASE_PATH / taxonomy_json_path.name).read_bytes()
+    paths.local_taxonomy_json_path.write_bytes(
+        paths.nightly_taxonomy_json_path.read_bytes()
     )
 
     # Iterate through parquet dir and download files
-    parquet_dir_path = paths.pudl_output / f"{dataset}_{data_format}/"
-    parquet_dir_path.mkdir(exist_ok=True)
-    for parquet_file in (
-        PUDL_NIGHTLY_BUILDS_BASE_PATH / parquet_dir_path.name
-    ).iterdir():
-        (parquet_dir_path / parquet_file.name).write_bytes(parquet_file.read_bytes())
+    paths.local_parquet_dir_name.mkdir(exist_ok=True)
+    for parquet_file in paths.nightly_parquet_dir_name.iterdir():
+        (paths.local_parquet_dir_name / parquet_file.name).write_bytes(
+            parquet_file.read_bytes()
+        )
 
 
 def _check_for_cached_db_w_compatible_provenance(
     dataset: str,
     data_format: str,
     zenodo_doi: str,
-    paths: PudlPaths,
+    paths: FercPaths,
     ferc_to_sqlite: FercToSqliteDataConfig,
 ) -> FercSqliteProvenanceRecord | None:
     """Check to see if there is a compatible SQLite DB either locally, or in nightly builds.
@@ -160,10 +201,8 @@ def _check_for_cached_db_w_compatible_provenance(
     compatible_metadata = None
 
     # Check local DB first
-    datapackage_name = _get_datapackage_name(dataset, data_format)
-    local_datapackage_path = paths.pudl_output / datapackage_name
     local_provenance = FercSqliteProvenanceRecord.from_datapackage(
-        local_datapackage_path
+        paths.local_datapackage_path
     )
 
     # Check if local or nightly dbs contain compatible provenance metadata
@@ -178,7 +217,7 @@ def _check_for_cached_db_w_compatible_provenance(
     # Check nightly provenance
     try:
         nightly_provenance = FercSqliteProvenanceRecord.from_datapackage(
-            PUDL_NIGHTLY_BUILDS_BASE_PATH / datapackage_name
+            paths.nightly_datapackage_path
         )
     except NETWORK_ERRORS:
         logger.warning(
@@ -195,13 +234,13 @@ def _check_for_cached_db_w_compatible_provenance(
             _download_nightly_outputs(
                 dataset=dataset,
                 data_format=data_format,
-                datapackage_name=datapackage_name,
                 paths=paths,
             )
 
             # At this point the local datapackage is overwritten by the nightly one
+            # This means we can grab the nightly provenance metadata from the local file
             compatible_metadata = FercSqliteProvenanceRecord.from_datapackage(
-                local_datapackage_path
+                paths.local_datapackage_path
             )
             logger.info(
                 f"Nightly outputs for {dataset}_{data_format} are compatible with current run."
@@ -249,6 +288,9 @@ def ferc_to_sqlite_asset_factory(
         )
         zenodo_doi = context.resources.zenodo_dois.get_doi(dataset)
         pudl_paths = context.resources.pudl_paths
+        ferc_paths = FercPaths.from_dataset_format(
+            dataset=dataset, data_format=data_format, paths=pudl_paths
+        )
         if data_config is None or not data_config.years:
             logger.info(
                 f"No years configured for {dataset}_{data_format}: skipping extraction."
@@ -272,7 +314,7 @@ def ferc_to_sqlite_asset_factory(
                 dataset=dataset,
                 data_format=data_format,
                 zenodo_doi=zenodo_doi,
-                paths=pudl_paths,
+                paths=ferc_paths,
                 ferc_to_sqlite=ferc_to_sqlite,
             )
         ) is None:
@@ -289,9 +331,7 @@ def ferc_to_sqlite_asset_factory(
                 data_config=ferc_to_sqlite,
                 ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
             )
-            provenance.to_datapackage(
-                pudl_paths.pudl_output / f"{dataset}_{data_format}_datapackage.json"
-            )
+            provenance.to_datapackage(ferc_paths.local_datapackage_path)
         else:
             logger.info(
                 f"Found compatible cached SQLite DB for {dataset}_{data_format}. Skipping extraction."

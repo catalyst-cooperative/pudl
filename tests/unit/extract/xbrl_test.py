@@ -282,12 +282,10 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
     nightly_doi = "10.5072/zenodo.2"
     uncached_doi = "10.5072/zenodo.3"
     local_datapackage_path = (
-        pudl_test_paths.pudl_output
-        / ferc_to_sqlite._get_datapackage_name(dataset, data_format)
+        pudl_test_paths.pudl_output / f"{dataset}_{data_format}_datapackage.json"
     )
     nightly_datapackage_path = (
-        PUDL_NIGHTLY_BUILDS_BASE_PATH
-        / ferc_to_sqlite._get_datapackage_name(dataset, data_format)
+        PUDL_NIGHTLY_BUILDS_BASE_PATH / f"{dataset}_{data_format}_datapackage.json"
     )
     local_datapackage_path.write_text("{}")
 
