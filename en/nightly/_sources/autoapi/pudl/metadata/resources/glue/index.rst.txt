@@ -23,7 +23,7 @@ Module Contents
 .. py:data:: RESOURCE_METADATA
    :type:  dict[str, dict[str, Any]]
 
-   PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
+   PUDL-specific resource attributes by PUDL identifier (``resource.name``).
 
    Keys are in alphabetical order.
 
