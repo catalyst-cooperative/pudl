@@ -60,12 +60,13 @@ class FercPaths:
     nightly_datapackage_path: UPath
     local_sqlite_path: Path
     nightly_sqlite_path: UPath
-    local_duckdb_path: Path | None
-    nightly_duckdb_path: UPath | None
-    local_taxonomy_json_path: Path | None
-    nightly_taxonomy_json_path: UPath | None
-    local_parquet_dir_path: Path | None
-    nightly_parquet_dir_path: Path | None
+    # XBRL specific outputs
+    local_duckdb_path: Path | None = None
+    nightly_duckdb_path: UPath | None = None
+    local_taxonomy_json_path: Path | None = None
+    nightly_taxonomy_json_path: UPath | None = None
+    local_parquet_dir_path: Path | None = None
+    nightly_parquet_dir_path: Path | None = None
 
     @classmethod
     def from_dataset_format(
@@ -73,39 +74,34 @@ class FercPaths:
     ) -> "FercPaths":
         """Initialize class based on ``dataset`` and ``data_format``."""
         dataset_format = f"{dataset}_{data_format}"
-        datapackage_name = f"{dataset_format}_datapackage.json"
-        local_sqlite_name = f"{dataset_format}.sqlite"
-        # Nightly sqlite files are zipped
-        nightly_sqlite_name = f"{dataset_format}.zip"
-        duckdb_name = f"{dataset_format}.duckdb"
-        taxonomy_json_name = f"{dataset_format}_taxonomy_metadata.json"
-        parquet_dir_name = f"{dataset_format}/"
 
-        return cls(
-            local_datapackage_path=paths.pudl_output / datapackage_name,
-            nightly_datapackage_path=PUDL_NIGHTLY_BUILDS_BASE_PATH / datapackage_name,
-            local_sqlite_path=paths.pudl_output / local_sqlite_name,
-            nightly_sqlite_path=PUDL_NIGHTLY_BUILDS_BASE_PATH / nightly_sqlite_name,
-            local_duckdb_path=paths.pudl_output / duckdb_name
-            if dataset_format == "xbrl"
-            else None,
-            nightly_duckdb_path=PUDL_NIGHTLY_BUILDS_BASE_PATH / duckdb_name
-            if dataset_format == "xbrl"
-            else None,
-            local_taxonomy_json_path=paths.pudl_output / taxonomy_json_name
-            if dataset_format == "xbrl"
-            else None,
-            nightly_taxonomy_json_path=PUDL_NIGHTLY_BUILDS_BASE_PATH
-            / taxonomy_json_name
-            if dataset_format == "xbrl"
-            else None,
-            local_parquet_dir_path=paths.pudl_output / parquet_dir_name
-            if dataset_format == "xbrl"
-            else None,
-            nightly_parquet_dir_path=PUDL_NIGHTLY_BUILDS_BASE_PATH / parquet_dir_name
-            if dataset_format == "xbrl"
-            else None,
-        )
+        filenames = {
+            "datapackage": f"{dataset_format}_datapackage.json",
+            "sqlite": f"{dataset_format}.sqlite",
+        }
+        # XBRL has extra outputs
+        if dataset_format == "xbrl":
+            filenames |= {
+                "duckdb": f"{dataset_format}.duckdb",
+                "taxonomy_json": f"{dataset_format}_taxonomy_metadata.json",
+                "parquet_dir": f"{dataset_format}/",
+            }
+
+        # Generate local paths
+        paths = {
+            f"local_{key}_path": paths.pudl_output / name
+            for key, name in filenames.items()
+        }
+        # Generate nightly paths
+        paths |= {
+            f"nightly_{key}_path": PUDL_NIGHTLY_BUILDS_BASE_PATH / name
+            # SQLite nightly build outputs are in zip files
+            if key != "sqlite"
+            else PUDL_NIGHTLY_BUILDS_BASE_PATH / name.replace("sqlite", "zip")
+            for key, name in filenames.items()
+        }
+
+        return cls(**paths)
 
 
 def _download_sqlite_db(paths: FercPaths):
