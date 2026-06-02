@@ -75,7 +75,7 @@ class FercSqliteProvenanceRecord(BaseModel):
         """Return FercSqliteProvenanceRecord from dagster metadata if available.
 
         Raises:
-            RuntimeError: if no metadata is available.
+            RuntimeError: if no Dagster provenance metadata is available.
         """
         asset_key = _get_ferc_to_sqlite_asset_key(dataset, data_format)
         event = instance.get_latest_materialization_event(asset_key)
