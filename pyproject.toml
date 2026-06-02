@@ -273,6 +273,7 @@ description = "Run unit tests and doctests"
 [tool.pixi.tasks.pytest-integration]
 cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
 description = "Run integration and (non-row-count) validation tests."
+env = { PUDL_INTEGRATION_TESTS = "true" }
 
 [tool.pixi.tasks.pytest-validate]
 cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py"

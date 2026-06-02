@@ -141,13 +141,18 @@ def _download_nightly_outputs(
     if data_format == "dbf":
         return
 
-    # Download duckdb DB
-    paths.local_duckdb_path.write_bytes(paths.nightly_duckdb_path.read_bytes())
-
     # Download taxonomy JSON
     paths.local_taxonomy_json_path.write_bytes(
         paths.nightly_taxonomy_json_path.read_bytes()
     )
+
+    # Downstream assets only consume SQLite / JSON files
+    # To save space during CI integration tests we skip downloading unnecessary outputs
+    if (os.getenv("PUDL_INTEGRATION_TESTS")) and (os.getenv("GITHUB_ACTIONS")):
+        return
+
+    # Download duckdb DB
+    paths.local_duckdb_path.write_bytes(paths.nightly_duckdb_path.read_bytes())
 
     # Iterate through parquet dir and download files
     paths.local_parquet_dir_path.mkdir(exist_ok=True)
