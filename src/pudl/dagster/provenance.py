@@ -167,11 +167,7 @@ def ferc_sqlite_provenance_is_compatible(
         return False
 
     if observed_provenance.zenodo_doi is None or observed_provenance.years is None:
-        raise RuntimeError(
-            f"Stored provenance metadata for {required_provenance.asset_key.to_user_string()} is "
-            "missing zenodo_doi or years. The DB may have been built before provenance "
-            "tracking was added. Refresh the FERC SQLite assets."
-        )
+        return False
 
     mismatches: list[str] = []
     if observed_provenance.zenodo_doi != required_provenance.zenodo_doi:

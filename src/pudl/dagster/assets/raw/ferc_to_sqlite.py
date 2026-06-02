@@ -169,17 +169,17 @@ def _check_for_cached_db_w_compatible_provenance(
     paths: FercPaths,
     ferc_to_sqlite: FercToSqliteDataConfig,
 ) -> FercSqliteProvenanceRecord | None:
-    """Check to see if there is a compatible SQLite DB either locally, or in nightly builds.
+    """Check to see if there is a compatible outputs either locally, or in nightly builds.
 
-    This function will first check the local SQLite DB for the specified ``dataset``
+    This function will first check the local datapackage for the specified ``dataset``
     and ``data_format`` to see if it contains a ``FercSqliteProvenanceRecord`` that
-    is compatible with the requirements of the current run. If the local DB doesn't
-    exist or contains an incompatible record, it will then download the DB produced
-    by the most recent nightly build and perform the same check. If one of the DBs
-    is found to be compatible, then it will return the associated ``FercSqliteProvenanceRecord``,
-    which will trigger the ``ferc_to_sqlite`` process to skip the normal extraction,
-    and use the cached DB. If this function returns ``None``, then the extraction will
-    go forward as normal.
+    is compatible with the requirements of the current run. If the local datapckage doesn't
+    exist or contains an incompatible record, it will then download the datapackage produced
+    by the most recent nightly build and perform the same check. If the nightly
+    outputs are found to be compatible with the current run, then it will
+    download all associated outputs from that run. For DBF outputs, this includes
+    the SQLite file and the datapackage JSON file, while XBRL outputs also
+    include a duckdb file, parquet files, and a taxonomy JSON file.
 
     If the environment variable, ``PUDL_FORCE_FERC_TO_SQLITE``, is set to ``true``, then
     this function will immediately return ``None``, triggering the normal extraction.
@@ -201,12 +201,12 @@ def _check_for_cached_db_w_compatible_provenance(
     )
     compatible_metadata = None
 
-    # Check local DB first
+    # Check local datapackage first
     local_provenance = FercSqliteProvenanceRecord.from_datapackage(
         paths.local_datapackage_path
     )
 
-    # Check if local or nightly dbs contain compatible provenance metadata
+    # Check if local or nightly datapackage contain compatible provenance metadata
     if ferc_sqlite_provenance_is_compatible(
         required_provenance=provenance, observed_provenance=local_provenance
     ):
