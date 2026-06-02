@@ -80,7 +80,7 @@ class FercPaths:
             "sqlite": f"{dataset_format}.sqlite",
         }
         # XBRL has extra outputs
-        if dataset_format == "xbrl":
+        if data_format == "xbrl":
             filenames |= {
                 "duckdb": f"{dataset_format}.duckdb",
                 "taxonomy_json": f"{dataset_format}_taxonomy_metadata.json",
@@ -138,7 +138,7 @@ def _download_nightly_outputs(
     paths.local_datapackage_path.write_text(paths.nightly_datapackage_path.read_text())
 
     # DBF only produces sqlite and datapackage, so return
-    if data_format == "DBF":
+    if data_format == "dbf":
         return
 
     # Download duckdb DB
@@ -150,9 +150,9 @@ def _download_nightly_outputs(
     )
 
     # Iterate through parquet dir and download files
-    paths.local_parquet_dir_name.mkdir(exist_ok=True)
-    for parquet_file in paths.nightly_parquet_dir_name.iterdir():
-        (paths.local_parquet_dir_name / parquet_file.name).write_bytes(
+    paths.local_parquet_dir_path.mkdir(exist_ok=True)
+    for parquet_file in paths.nightly_parquet_dir_path.iterdir():
+        (paths.local_parquet_dir_path / parquet_file.name).write_bytes(
             parquet_file.read_bytes()
         )
 

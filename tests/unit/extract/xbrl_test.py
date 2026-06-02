@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from zipfile import ZipFile
 
 import dagster as dg
 import pytest
@@ -356,3 +357,60 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
         json.loads(local_datapackage_path.read_text())["provenance_metadata"]
     )
     mock_extract_function.assert_called_once()
+
+
+@pytest.mark.parametrize("dataset,data_format", [("ferc1", "dbf"), ("ferc1", "xbrl")])
+def test_download_nightly_outputs(
+    dataset, data_format, pudl_test_paths, tmp_path, mocker
+):
+    """Test that all nightly build outputs are downloaded correctly."""
+    # Prepare directory full of mock nightly build outputs
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite.PUDL_NIGHTLY_BUILDS_BASE_PATH", tmp_path
+    )
+    ferc_paths = ferc_to_sqlite.FercPaths.from_dataset_format(
+        dataset, data_format, pudl_test_paths
+    )
+    ferc_paths.nightly_datapackage_path.write_text("test datapackage")
+
+    # Create zip file for sqlite file
+    with (
+        ZipFile(ferc_paths.nightly_sqlite_path, mode="w") as archive,
+        archive.open(ferc_paths.local_sqlite_path.name, mode="w") as sqlite_file,
+    ):
+        sqlite_file.write(b"test sqlite")
+
+    if data_format == "xbrl":
+        ferc_paths.nightly_taxonomy_json_path.write_text("test taxonomy json")
+        ferc_paths.nightly_duckdb_path.write_text("test duckdb")
+        ferc_paths.nightly_parquet_dir_path.mkdir()
+        (ferc_paths.nightly_parquet_dir_path / "test1.parquet").write_text(
+            "test parquet 1"
+        )
+        (ferc_paths.nightly_parquet_dir_path / "test2.parquet").write_text(
+            "test parquet 2"
+        )
+
+    ferc_to_sqlite._download_nightly_outputs(dataset, data_format, ferc_paths)
+
+    assert (
+        ferc_paths.nightly_datapackage_path.read_bytes()
+        == ferc_paths.local_datapackage_path.read_bytes()
+    )
+    assert ferc_paths.local_sqlite_path.read_text() == "test sqlite"
+
+    if data_format == "xbrl":
+        assert (
+            ferc_paths.nightly_duckdb_path.read_bytes()
+            == ferc_paths.local_duckdb_path.read_bytes()
+        )
+        assert (
+            ferc_paths.nightly_taxonomy_json_path.read_bytes()
+            == ferc_paths.local_taxonomy_json_path.read_bytes()
+        )
+        assert (ferc_paths.nightly_parquet_dir_path / "test1.parquet").read_bytes() == (
+            ferc_paths.local_parquet_dir_path / "test1.parquet"
+        ).read_bytes()
+        assert (ferc_paths.nightly_parquet_dir_path / "test2.parquet").read_bytes() == (
+            ferc_paths.local_parquet_dir_path / "test2.parquet"
+        ).read_bytes()
