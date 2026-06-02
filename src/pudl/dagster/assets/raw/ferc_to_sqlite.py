@@ -110,7 +110,7 @@ class FercPaths:
         }
         # Generate nightly paths
         paths |= {
-            f"nightly_{key}_path": PUDL_NIGHTLY_BUILDS_BASE_PATH / name
+            f"nightly_{key}_path": PUDL_NIGHTLY_BUILDS_BASE_PATH / "eel_hole" / name
             # SQLite nightly build outputs are in zip files
             if key != "sqlite"
             else PUDL_NIGHTLY_BUILDS_BASE_PATH / name.replace("sqlite", "zip")
