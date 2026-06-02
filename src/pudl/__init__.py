@@ -31,6 +31,8 @@ PUDL_NIGHTLY_BUILDS_BASE_PATH: UPath = UPath(
     "s3://pudl.catalyst.coop/nightly/", anon=True
 )
 """Base path to PUDL nightly builds outputs."""
+PUDL_EEL_HOLE_BASE_PATH: UPath = UPath("s3://pudl.catalyst.coop/eel-hole/", anon=True)
+"""Base path to eel-hole s3 outputs."""
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"

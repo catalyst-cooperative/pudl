@@ -22,7 +22,7 @@ from botocore.exceptions import (
 from upath import UPath
 
 import pudl.logging_helpers
-from pudl import PUDL_NIGHTLY_BUILDS_BASE_PATH
+from pudl import PUDL_EEL_HOLE_BASE_PATH
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenance,
@@ -110,10 +110,10 @@ class FercPaths:
         }
         # Generate nightly paths
         paths |= {
-            f"nightly_{key}_path": PUDL_NIGHTLY_BUILDS_BASE_PATH / "eel_hole" / name
+            f"nightly_{key}_path": PUDL_EEL_HOLE_BASE_PATH / name
             # SQLite nightly build outputs are in zip files
             if key != "sqlite"
-            else PUDL_NIGHTLY_BUILDS_BASE_PATH / name.replace("sqlite", "zip")
+            else PUDL_EEL_HOLE_BASE_PATH / name.replace("sqlite", "zip")
             for key, name in filenames.items()
         }
 

@@ -12,7 +12,7 @@ from dagster._core.definitions.assets.definition.assets_definition import (
 )
 from dagster._core.execution.execute_in_process_result import ExecuteInProcessResult
 
-from pudl import PUDL_NIGHTLY_BUILDS_BASE_PATH
+from pudl import PUDL_EEL_HOLE_BASE_PATH
 from pudl.dagster.assets.raw import ferc_to_sqlite
 from pudl.dagster.provenance import (
     FercSqliteProvenanceRecord,
@@ -286,9 +286,7 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
         pudl_test_paths.pudl_output / f"{dataset}_{data_format}_datapackage.json"
     )
     nightly_datapackage_path = (
-        PUDL_NIGHTLY_BUILDS_BASE_PATH
-        / "eel_hole"
-        / f"{dataset}_{data_format}_datapackage.json"
+        PUDL_EEL_HOLE_BASE_PATH / f"{dataset}_{data_format}_datapackage.json"
     )
 
     # Create test asset
@@ -370,9 +368,8 @@ def test_download_nightly_outputs(
     """Test that all nightly build outputs are downloaded correctly."""
     # Prepare directory full of mock nightly build outputs
     mocker.patch(
-        "pudl.dagster.assets.raw.ferc_to_sqlite.PUDL_NIGHTLY_BUILDS_BASE_PATH", tmp_path
+        "pudl.dagster.assets.raw.ferc_to_sqlite.PUDL_EEL_HOLE_BASE_PATH", tmp_path
     )
-    (tmp_path / "eel_hole").mkdir()
     ferc_paths = ferc_to_sqlite.FercPaths.from_dataset_format(
         dataset, data_format, pudl_test_paths
     )
