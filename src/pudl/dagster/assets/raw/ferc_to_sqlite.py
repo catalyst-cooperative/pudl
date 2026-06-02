@@ -6,7 +6,6 @@ resource requirements, and materialization metadata specific to those prerequisi
 databases, rather than the downstream transforms that consume them.
 """
 
-import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from io import BytesIO
@@ -38,6 +37,7 @@ from pudl.extract.ferc import (
     Ferc60DbfExtractor,
 )
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form
+from pudl.helpers import env_var_is_true
 from pudl.settings import FercToSqliteDataConfig, XbrlFormNumber
 from pudl.workspace.setup import PudlPaths
 
@@ -164,7 +164,9 @@ def _download_nightly_outputs(
 
     # Downstream assets only consume SQLite / JSON files
     # To save space during CI integration tests we skip downloading unnecessary outputs
-    if (os.getenv("PUDL_INTEGRATION_TESTS")) and (os.getenv("GITHUB_ACTIONS")):
+    if (env_var_is_true("PUDL_INTEGRATION_TESTS")) and (
+        env_var_is_true("GITHUB_ACTIONS")
+    ):
         return
 
     # Download duckdb DB
@@ -204,7 +206,7 @@ def _check_for_cached_db_w_compatible_provenance(
         Compatible ``FercSqliteProvenanceRecord`` if one is found, otherwise ``None``.
     """
     # Check if configured to force extraction
-    if os.getenv("PUDL_FORCE_FERC_TO_SQLITE", default="false").lower() == "true":
+    if env_var_is_true("PUDL_FORCE_FERC_TO_SQLITE"):
         return None
 
     # Assemble required provenance for current run
