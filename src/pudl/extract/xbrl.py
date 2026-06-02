@@ -111,12 +111,6 @@ def convert_form(
     sqlite_path = pudl_paths.sqlite_db_path(f"{form}_xbrl")
     duckdb_path = pudl_paths.duckdb_db_path(f"{form}_xbrl")
 
-    # Delete existing sqlite / duckdb files
-    if sqlite_path.exists():
-        sqlite_path.unlink()
-    if duckdb_path.exists():
-        duckdb_path.unlink()
-
     taxonomy_archive = datastore.get_taxonomy(form)
     # Process XBRL filings for each year requested
     filings_archives: list[BytesIO] = [

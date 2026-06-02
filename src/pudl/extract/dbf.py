@@ -1,6 +1,5 @@
 """Generalized DBF extractor for FERC data."""
 
-import contextlib
 import csv
 import importlib.resources
 import json
@@ -19,7 +18,6 @@ from dagster import op
 from dbfread import DBF, FieldParser
 from sqlalchemy.engine.base import Engine
 
-import pudl.helpers
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
 from pudl.settings import FercDbfToSqliteDataConfig, FercToSqliteDataConfig
@@ -551,17 +549,14 @@ class FercDbfExtractor:
             logger.warning(f"Dataset {self.DATASET} has no years configured, skipping")
             return
 
-        self.delete_schema()
+        self.initialize_database()
         self.create_sqlite_tables()
         self.load_table_data()
         self.postprocess()
         self.to_frictionless()
 
-    def delete_schema(self):
-        """Drops all tables from the existing sqlite database."""
-        with contextlib.suppress(sa.exc.OperationalError):
-            pudl.helpers.drop_tables(self.sqlite_engine, clobber=True)
-
+    def initialize_database(self):
+        """Create sqlalchemy engine and metadata."""
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)

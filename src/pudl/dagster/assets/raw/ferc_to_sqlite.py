@@ -56,6 +56,9 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class FercPaths:
     """Helper class to get paths to various FERC paths both local and remote."""
 
+    # Store data_format so we can use it in ``delete_local_outputs``.
+    data_format: str
+    # DBF and XBRL outputs
     local_datapackage_path: Path
     nightly_datapackage_path: UPath
     local_sqlite_path: Path
@@ -67,6 +70,19 @@ class FercPaths:
     nightly_taxonomy_json_path: UPath | None = None
     local_parquet_dir_path: Path | None = None
     nightly_parquet_dir_path: Path | None = None
+
+    def delete_local_outputs(self):
+        """Helper function to delete local outputs before starting extraction."""
+        self.local_sqlite_path.unlink(missing_ok=True)
+        self.local_datapackage_path.unlink(missing_ok=True)
+
+        if self.data_format == "xbrl":
+            self.local_duckdb_path.unlink(missing_ok=True)
+            self.local_taxonomy_json_path.unlink(missing_ok=True)
+
+            # Delete files in parquet dir
+            if self.local_parquet_dir_path.exists():
+                [path.unlink() for path in self.local_parquet_dir_path.iterdir()]
 
     @classmethod
     def from_dataset_format(
@@ -101,7 +117,7 @@ class FercPaths:
             for key, name in filenames.items()
         }
 
-        return cls(**paths)
+        return cls(**paths, data_format=data_format)
 
 
 def _download_sqlite_db(paths: FercPaths):
@@ -319,6 +335,10 @@ def ferc_to_sqlite_asset_factory(
                 ferc_to_sqlite=ferc_to_sqlite,
             )
         ) is None:
+            # Delete local outputs before starting extraction
+            ferc_paths.delete_local_outputs()
+
+            # Run extraction
             extract_function(context)
 
             provenance = FercSqliteProvenanceRecord(

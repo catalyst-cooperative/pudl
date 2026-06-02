@@ -244,10 +244,10 @@ def test_ferc_dbf_extractor_skips_with_empty_years(mocker, tmp_path):
         output_path=tmp_path,
     )
 
-    delete_schema_mock = mocker.patch.object(extractor, "delete_schema")
+    initialize_database_mock = mocker.patch.object(extractor, "initialize_database")
     extractor.execute()
 
-    delete_schema_mock.assert_not_called()
+    initialize_database_mock.assert_not_called()
 
 
 def _run_ferc_to_sqlite_asset(
@@ -288,10 +288,11 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
     nightly_datapackage_path = (
         PUDL_NIGHTLY_BUILDS_BASE_PATH / f"{dataset}_{data_format}_datapackage.json"
     )
-    local_datapackage_path.write_text("{}")
 
     # Create test asset
-    mock_extract_function = mocker.MagicMock()
+    mock_extract_function = mocker.MagicMock(
+        side_effect=lambda _: local_datapackage_path.write_text("{}")
+    )
     test_asset = ferc_to_sqlite.ferc_to_sqlite_asset_factory(
         dataset=dataset,
         data_format=data_format,
@@ -328,6 +329,7 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
     )
 
     # Test with local doi to return local_provenance record
+    local_datapackage_path.write_text("{}")
     local_provenance.to_datapackage(local_datapackage_path)
     assert local_provenance == _run_ferc_to_sqlite_asset(
         local_doi, test_asset, data_config, pudl_test_paths
