@@ -72,7 +72,11 @@ class FercSqliteProvenanceRecord(BaseModel):
         dataset: str,
         data_format: str,
     ) -> "FercSqliteProvenanceRecord":
-        """Return FercSqliteProvenanceRecord from dagster metadata if available."""
+        """Return FercSqliteProvenanceRecord from dagster metadata if available.
+
+        Raises:
+            RuntimeError: if no metadata is available.
+        """
         asset_key = _get_ferc_to_sqlite_asset_key(dataset, data_format)
         event = instance.get_latest_materialization_event(asset_key)
         materialization = None if event is None else event.asset_materialization
