@@ -224,11 +224,16 @@ jobs:
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
-      - name: Restore Zenodo datastore from cache if possible
+      - name: Restore Zenodo datastore and FERC sqlite outputs from cache if possible
         uses: actions/cache@v5
         id: cache-zenodo-datastore
         with:
-          path: ${{ env.PUDL_INPUT }}
+          path: |
+            ${{ env.PUDL_INPUT }}
+            ${{ env.PUDL_OUTPUT }}/*_xbrl.sqlite
+            ${{ env.PUDL_OUTPUT }}/*_dbf.sqlite
+            ${{ env.PUDL_OUTPUT }}/*_datapackage.json
+            ${{ env.PUDL_OUTPUT }}/*_taxonomy_metadata.json
           key: zenodo-datastore-${{ hashFiles('src/pudl/package_data/settings/zenodo_dois.yml') }}
           restore-keys: |
             zenodo-datastore-
