@@ -38,7 +38,7 @@ Plants, as defined by this mapping process, are considered co-located generation
 Records that have the same ``plant_id_eia`` should also have the same ``plant_id_pudl``.
 
 .. warning::
-    PUDL IDs should never be hard-coded into any analysis or transformation functions as
+    PUDL IDs should **never** be hard-coded into any analysis or transformation functions as
     they may come to represent different plants or utilities as new records are added
     and mapped.
 
@@ -85,22 +85,32 @@ Checking for Unmapped Records
 
 With every new year of data comes the possibility of new plants and utilities. Once
 you've integrated the new data into PUDL :doc:`(see instructions)
-<existing_data_updates>`, you'll need to check for unmapped utility and plants. To do
-this, run the following command:
+<existing_data_updates>`, you'll need to check for unmapped utility and plants.
+There are a few options for how to do this.
+
+The quickest way is to download and unzip the most recent nightly build version of
+``pudl.sqlite`` from the s3 cloud bucket and materialize the assets you modified on
+top of that. Before running the local test for ID mapping, you'll also need
+``ferc1_xbrl`` and ``ferc1_dbf`` sqlite and json files downloaded locally.
 
 .. code-block:: console
 
-    $ pixi run unmapped-ids
+    # Pull fresh database from the nightly builds aws s3 bucket
+    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip ./
+    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/ferc1_dbf_datapackage.json ./
+    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.zip ./
+    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/ferc1_xbrl_datapackage.json ./
+    $ aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.zip ./
 
-This invokes a script that identifies plants and utilities which exist in the updated
-FERC 1 and EIA datasets that do not yet appear in the stored ID maps. This will generate
-a complete database based on the settings files stored in
-``pudl/package_data/settings/etl_full.yml`` without foreign-key constraints and save any
-unmapped IDs to the ``devtools/ferc1-eia-glue`` directory that correspond to unmapped
-plants and utilities from FERC 1 and EIA.
+    # Unzip the databases
+    $ unzip '*.zip'
 
-If you have already generated a database without foreign-key constraints, you can run
-just the script that extracts the unmapped IDs with:
+    # Materialize the assets you modified on top of the fresh database
+    $ pixi run dg launch --assets "group:'your_asset_group'+"
+
+Once that's all set, you can run the following test to save unmapped IDs. This invokes
+a script that identifies plants and utilities which exist in the updated FERC 1 and
+EIA datasets that do not yet appear in the stored ID maps.
 
 .. code-block:: console
 
@@ -108,6 +118,21 @@ just the script that extracts the unmapped IDs with:
 
 The ``--save-unmapped-ids`` flag saves unmapped plants and utilities in the
 ``devtools/ferc1-eia-glue`` folder by default.
+
+If you don't have access to the ETL outputs, you can also get unmapped IDs by running
+the full ETL locally. The following command runs the full ETL and saves unmapped-ids.
+Beware that the full ETL can take several hours to run and requires a computer with
+substantial processing power. If you can avoid running the full ETL, that's probably
+best!
+
+.. code-block:: console
+
+    $ pixi run unmapped-ids
+
+This will generate a complete database based on the settings files stored in
+``pudl/package_data/settings/etl_full.yml`` without foreign-key constraints and save any
+unmapped IDs to the ``devtools/ferc1-eia-glue`` directory that correspond to unmapped
+plants and utilities from FERC 1 and EIA.
 
 Assigning PUDL IDs to Unmapped Records
 --------------------------------------

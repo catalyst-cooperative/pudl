@@ -101,8 +101,8 @@ def _raise_if_live_output_mixes_unit_and_integration(config: pytest.Config) -> N
     if not config.getoption("--live-pudl-output", default=False):
         return
 
-    has_unit = _target_includes_suite(config, "test/unit")
-    has_integration = _target_includes_suite(config, "test/integration")
+    has_unit = _target_includes_suite(config, "tests/unit")
+    has_integration = _target_includes_suite(config, "tests/integration")
     if has_unit and has_integration:
         raise pytest.UsageError(
             "Cannot combine unit and integration tests in one session with "
@@ -124,7 +124,7 @@ def pytest_collection_finish(session) -> None:
     """Abort if unit and integration tests are collected together with --live-pudl-output.
 
     When both suites run in a single pytest process with ``--live-pudl-output``, the
-    unit-scoped ``pudl_test_paths`` override in ``test/unit/conftest.py`` would
+    unit-scoped ``pudl_test_paths`` override in ``tests/unit/conftest.py`` would
     overwrite ``os.environ["PUDL_OUTPUT"]`` to a temporary directory *after* the
     top-level fixture has set it to the live path.  Integration tests that construct
     ``PudlPaths()`` directly (rather than via the fixture) would then silently resolve
@@ -136,9 +136,9 @@ def pytest_collection_finish(session) -> None:
     if not session.config.getoption("--live-pudl-output", default=False):
         return
 
-    has_unit = any(item.nodeid.startswith("test/unit/") for item in session.items)
+    has_unit = any(item.nodeid.startswith("tests/unit/") for item in session.items)
     has_integration = any(
-        item.nodeid.startswith("test/integration/") for item in session.items
+        item.nodeid.startswith("tests/integration/") for item in session.items
     )
     if has_unit and has_integration:
         pytest.exit(
@@ -640,7 +640,7 @@ def pudl_test_paths(tmp_path_factory, request) -> PudlPaths:
     Set ``--live-pudl-output`` to force PUDL_OUTPUT to *NOT* be a temporary directory
     and instead inherit from environment.
 
-    Note: ``test/unit/conftest.py`` defines ``unit_pudl_test_paths`` which overrides
+    Note: ``tests/unit/conftest.py`` defines ``unit_pudl_test_paths`` which overrides
     this fixture for the unit test subtree. It ignores ``--live-pudl-output`` and always
     forces a temporary ``PUDL_OUTPUT`` so unit tests can never write to the live output
     directory.
