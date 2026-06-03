@@ -343,11 +343,11 @@ def out_eia923__fuel_receipts_costs(
         )
         frc_df = _add_fuel_cost_per_mmbtu_source_col(frc_df, "rolling_avg")
     # Calculate useful frequency-independent totals:
-    frc_df["fuel_consumed_mmbtu"] = (
+    frc_df["fuel_received_mmbtu"] = (
         frc_df["fuel_mmbtu_per_unit"] * frc_df["fuel_received_units"]
     )
     frc_df["total_fuel_cost"] = (
-        frc_df["fuel_consumed_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
+        frc_df["fuel_received_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
     )
     return denorm_by_plant(frc_df, pu=_out_eia__plants_utilities)
 
