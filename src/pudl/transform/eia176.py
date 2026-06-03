@@ -11,7 +11,7 @@ from dagster import (
     multi_asset,
 )
 
-from pudl.helpers import simplify_columns
+from pudl.helpers import multi_index_stack, simplify_columns
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
@@ -528,6 +528,67 @@ def core_eia176__yearly_gas_disposition(
     ] = df.loc[
         (df.operator_id_eia == "17617106KS") & (df.report_year == 2008), "losses_mcf"
     ].abs()
+
+    return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_liquefied_natural_gas_inventory(
+    _core_eia176__yearly_company_data: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+):
+    """Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2)."""
+    pk = ["operator_id_eia", "report_year"]
+    other = ["operating_state"]
+    keep = [
+        "lng_inventory_at_end_of_year_volume",
+        "lng_facility_year_end_capacity",
+        "lng_facility_year_end_volume",
+        "marine_terminal_facility_year_end_capacity",
+        "marine_terminal_facility_year_end_volume",
+    ]
+    df = _core_eia176__yearly_company_data.filter(pk + other + keep)
+    # ensure uniueness
+    assert not df.duplicated(pk, keep=False).any()
+
+    # lng_inventory_at_end_of_year_volume is used prior to 2010
+    assert not (
+        df["lng_inventory_at_end_of_year_volume"].notna()
+        & df["lng_facility_year_end_volume"].notna()
+    ).any()
+    df["lng_facility_year_end_volume"] = df["lng_facility_year_end_volume"].fillna(
+        df["lng_inventory_at_end_of_year_volume"]
+    )
+
+    df = df.set_index(pk).reset_index().dropna(subset=keep, how="all")
+    df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
+    df = df.dropna(subset=["operating_state"])
+
+    id_cols = pk + other
+
+    data_cols = ["year_end_volume", "year_end_capacity"]
+    df = multi_index_stack(
+        df,
+        idx_ish=id_cols,
+        data_cols=data_cols,
+        pattern=rf"^(marine_terminal_facility|lng_facility)_({'|'.join(data_cols)})$",
+        match_names=["facility_type", "data_cols"],
+        unstack_level=["facility_type"],
+        expected_dropped_cols=1,
+    )
+    df["facility_type"] = df["facility_type"].replace(
+        {
+            "lng_facility": "lng_terminal",
+            "marine_terminal_facility": "marine_terminal",
+        }
+    )
+    df = df.rename(
+        columns={
+            "year_end_volume": "volume_mcf",
+            "year_end_capacity": "capacity_mmcfd",
+        }
+    )
+    df = df.dropna(subset=["volume_mcf", "capacity_mmcfd"], how="all")
 
     return df
 

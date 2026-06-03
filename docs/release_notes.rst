@@ -28,6 +28,11 @@ Enhancements
 New Data
 ^^^^^^^^
 
+* Added :ref:`core_eia176__yearly_liquefied_natural_gas_inventory`, a new table
+  containing annual LNG storage volume and capacity reported by operators on EIA Form
+  176 Part 5. Data covers 2002-2024 and includes LNG terminal and marine terminal
+  records. See issue :issue:`4695` and PR :pr:`5219`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
