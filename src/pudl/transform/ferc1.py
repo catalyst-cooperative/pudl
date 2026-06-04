@@ -84,24 +84,28 @@ def add_missing_factoid(raw_ferc1_xbrl__metadata_json):
             "missing_factoid": "maintenance_of_energy_storage_equipment_other_power_generation",
             "table_period": "duration",
             "calculations": [],
+            "balance": "debit",
         },
         {
             "table_name": "core_ferc1__yearly_plant_in_service_sched204",
             "missing_factoid": "energy_storage_equipment_distribution_plant",
             "table_period": "instant",
             "calculations": [],
+            "balance": "debit",
         },
         {
             "table_name": "core_ferc1__yearly_plant_in_service_sched204",
             "missing_factoid": "energy_storage_equipment_other_production",
             "table_period": "instant",
             "calculations": [],
+            "balance": "debit",
         },
         {
             "table_name": "core_ferc1__yearly_plant_in_service_sched204",
             "missing_factoid": "energy_storage_equipment_transmission_plant",
             "table_period": "instant",
             "calculations": [],
+            "balance": "debit",
         },
     ]
     for missing_fact in missing_facts:
@@ -119,6 +123,7 @@ def add_missing_factoid(raw_ferc1_xbrl__metadata_json):
             {
                 "name": missing_fact["missing_factoid"],
                 "calculations": missing_fact["calculations"],
+                "balance": missing_fact["balance"],
             }
         ]
     return raw_ferc1_xbrl__metadata_json
@@ -3925,7 +3930,7 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
         return tbl_meta_cleaned
 
     def apply_sign_conventions(self, df) -> pd.DataFrame:
-        """Adjust rows and column sign conventsion to enable aggregation by summing.
+        """Adjust rows and column sign convention to enable aggregation by summing.
 
         Columns have uniform sign conventions, which we have manually inferred from the
         original metadata. This can and probably should be done programmatically in the
@@ -3944,7 +3949,8 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
         # Set row weights based on the value of the "balance" field
         df.loc[df.balance == "debit", "row_weight"] = 1.0
         df.loc[df.balance == "credit", "row_weight"] = -1.0
-
+        if not (null_balances := df[df.balance.isnull()]).empty:
+            raise AssertionError(f" aaaahjhhh {null_balances}")
         # Apply column weightings. Can this be done all at once in a vectorized way?
         for col in column_weights:
             df.loc[:, col] *= column_weights[col]
@@ -3970,11 +3976,11 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
             & (df.report_year == 2018)
             & (df.utility_id_ferc1_dbf == 187)
         )
-        all_dupes = df[dupe_mask]
+        all_dupes = df.loc[dupe_mask]
         # The observed pairs of duplicate records have NA values in all of the
         # additions, retirements, adjustments, and transfers columns. This selects
         # only those duplicates that have *any* non-null value in those rows.
-        good_dupes = all_dupes[
+        good_dupes = all_dupes.loc[
             all_dupes[["additions", "retirements", "adjustments", "transfers"]]
             .notnull()
             .any(axis="columns")
@@ -3984,8 +3990,8 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
             good_dupes.set_index(pk).index,
             all_dupes.set_index(pk).index.drop_duplicates(),
         )
-        deduped = pd.concat([df[~dupe_mask], good_dupes], axis="index")
-        remaining_dupes = deduped[deduped.duplicated(subset=pk)]
+        deduped = pd.concat([df.loc[~dupe_mask], good_dupes], axis="index")
+        remaining_dupes = deduped.loc[deduped.duplicated(subset=pk)]
         logger.info(
             f"{self.table_id.value}: {len(remaining_dupes)} dupes remaining after "
             "targeted deduplication."
