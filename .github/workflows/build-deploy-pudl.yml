@@ -152,7 +152,7 @@ jobs:
           if [[ ${{ env.SKIP_BUILD }} == 'true' ]]; then
             echo "notification_content=:ghost: Skipping nightly build for $(date +%Y-%m-%d)" >> "$GITHUB_ENV"
           else
-            echo "notification_content=:check: Kicking off build: ${{ env.BUILD_ID }}" >> "$GITHUB_ENV"
+            echo "notification_content=:rocket: Launching PUDL Build: ${{ env.BUILD_ID }}" >> "$GITHUB_ENV"
           fi
 
       - name: Send notification to Zulip build status stream
@@ -168,7 +168,7 @@ jobs:
           content: "${{ env.notification_content }}"
 
       # Start the batch job
-      - name: Kick off batch job
+      - name: Launch Google Batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: gcloud batch jobs submit run-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
@@ -194,4 +194,4 @@ jobs:
           to: "pudl-deployments"
           topic: "build-deploy-pudl"
           content: >
-            ${{ env.emoji }} Google Batch job for ${{ env.BUILD_ID }} started with status: ${{ job.status }}.
+            ${{ env.emoji }} Google Batch job for ${{ env.BUILD_ID }} launched with status: ${{ job.status }}.
