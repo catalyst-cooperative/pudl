@@ -5,6 +5,10 @@ on:
     types: [opened]
   discussion:
     types: [created]
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [opened]
 
 env:
   username: ""
@@ -28,6 +32,18 @@ jobs:
           echo "username=${{ github.event.discussion.user.login }}" >> "${GITHUB_ENV}"
           echo "url=${{ github.event.discussion.html_url }}" >> "${GITHUB_ENV}"
 
+      - name: Get username if a comment was created
+        if: ${{ github.event_name == 'issue_comment' }}
+        run: |
+          echo "username=${{ github.event.issue_comment.user.login }}" >> "${GITHUB_ENV}"
+          echo "url=${{ github.event.issue_comment.html_url }}" >> "${GITHUB_ENV}"
+
+      - name: Get username if a pull request was opened
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          echo "username=${{ github.event.pull_request.user.login }}" >> "${GITHUB_ENV}"
+          echo "url=${{ github.event.pull_request.html_url }}" >> "${GITHUB_ENV}"
+
       - name: Check if organization member
         id: is_organization_member
         uses: JamesSingleton/is-organization-member@1.1.0
@@ -36,24 +52,17 @@ jobs:
           username: ${{ env.username }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Post to a Slack channel user isn't a part of Catalyst
+      - name: Sent message to ComDev Zulip channel
         if: ${{ !steps.is_organization_member.outputs.result }}
-        id: slack
-        uses: slackapi/slack-github-action@v3
-
+        uses: zulip/github-actions-zulip/send-message@v2
         with:
-          method: chat.postMessage
-          token: ${{ secrets.COMMUNITY_DEV_SLACK_BOT_TOKEN }}
-          payload: |
-            {
-              "channel": "community-dev",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "<https://github.com/${{ env.username }}|${{ env.username }}> created ${{ env.url }}"
-                  }
-                }
-              ]
-            }
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "com-dev"
+          topic: "Community GitHub Activity"
+          content: >
+            [@${{ env.username }}](https://github.com/${{ env.username }})
+            created [this issue/discussion](${{ env.url }})
+            in [${{ github.repository }}](https://github.com/${{ github.repository }}).

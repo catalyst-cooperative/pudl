@@ -53,8 +53,7 @@ jobs:
     if: ${{ always() }}
     needs: zenodo-cache-sync
     steps:
-      - name: Determine status
-        id: determine_status
+      - name: Status emoji
         run: |
           if [[ "${{ needs.zenodo-cache-sync.result }}" == "success" ]]; then
             echo "emoji=:check:" >> "$GITHUB_ENV"
