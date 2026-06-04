@@ -23,10 +23,11 @@ logger = logging.getLogger(__name__)
 
 
 class DeploymentType(Enum):
-    """Deployments can be 'nightly' or 'stable'."""
+    """Deployments can be 'nightly', 'branch', or 'stable'."""
 
     NIGHTLY = "nightly"
     STABLE = "stable"
+    BRANCH = "branch"
 
 
 def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> None:
@@ -331,11 +332,13 @@ def get_build_from_tag(tag: str) -> UPath:
 
 
 def get_deployment_type_from_tag(git_tag: str) -> DeploymentType:
-    """Check if tag looks like a 'nightly' or 'stable' tag."""
+    """Check if tag looks like a 'nightly', 'branch', or 'stable' tag."""
     if re.match(r"v\d{4}\.\d{1,2}\.\d{1,2}", git_tag):
         deploy_type = DeploymentType.STABLE
     elif re.match(r"nightly-\d{4}-\d{2}-\d{2}", git_tag):
         deploy_type = DeploymentType.NIGHTLY
+    elif re.match(r"branch-.+-\d{4}-\d{2}-\d{2}", git_tag):
+        deploy_type = DeploymentType.BRANCH
     else:
         raise RuntimeError(
             f"Git tag does not look like a stable or nightly tag. Input tag: {git_tag}"

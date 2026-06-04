@@ -52,6 +52,26 @@ function save_outputs_to_gcs() {
         rm -f "$PUDL_OUTPUT/success"
 }
 
+function trigger_deployment() {
+    set +x &&
+        echo "Triggerng deployment of build outputs" &&
+        curl --fail-with-body -sS -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
+            https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/deploy-pudl.yml/dispatches \
+            -d @<(
+                cat <<JSON
+{
+  "ref": "${BUILD_REF}",
+  "inputs": {
+    "git_tag": "${GIT_TAG}",
+  }
+}
+JSON
+            ) &&
+        set -x
+}
+
 function slack_stage_status() {
     local stage_name=$1
     local stage_status=$2
@@ -172,6 +192,7 @@ function notify_slack() {
     message+="$(slack_stage_status "Data Validations (FKs/dbt)" "$DATA_VALIDATION_STATUS" "$DATA_VALIDATION_DURATION")\n"
     message+="$(slack_stage_status "Row Count Checks (dbt)" "$ROW_COUNT_VALIDATION_STATUS" "$ROW_COUNT_VALIDATION_DURATION")\n"
     message+="$(slack_stage_status "Save Build Outputs" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
+    message+="$(slack_stage_status "Trigger Deployment" "$TRIGGER_DEPLOYMENT_STATUS" "$TRIGGER_DEPLOYMENT_DURATION")\n"
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
     message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
     message+="<https://storage.cloud.google.com/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log|*Download logs to your computer*>\n\n"
@@ -194,6 +215,7 @@ INTEGRATION_TEST_STATUS="$STAGE_SKIPPED"
 DATA_VALIDATION_STATUS="$STAGE_SKIPPED"
 ROW_COUNT_VALIDATION_STATUS="$STAGE_SKIPPED"
 SAVE_OUTPUTS_STATUS="$STAGE_SKIPPED"
+TRIGGER_DEPLOYMENT_STATUS="$STAGE_SKIPPED"
 
 DAGSTER_DURATION=""
 UNIT_TEST_DURATION=""
@@ -201,6 +223,7 @@ INTEGRATION_TEST_DURATION=""
 DATA_VALIDATION_DURATION=""
 ROW_COUNT_VALIDATION_DURATION=""
 SAVE_OUTPUTS_DURATION=""
+TRIGGER_DEPLOYMENT_DURATION=""
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
@@ -238,6 +261,8 @@ exit_on_stage_failure "$INTEGRATION_TEST_STATUS"
 exit_on_stage_failure "$DATA_VALIDATION_STATUS"
 exit_on_stage_failure "$ROW_COUNT_VALIDATION_STATUS"
 
+run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION append trigger_deployment
+
 # Notify slack about entire pipeline's success or failure;
 if ! any_stage_failed \
     "$DAGSTER_STATUS" \
@@ -245,7 +270,8 @@ if ! any_stage_failed \
     "$INTEGRATION_TEST_STATUS" \
     "$DATA_VALIDATION_STATUS" \
     "$ROW_COUNT_VALIDATION_STATUS" \
-    "$SAVE_OUTPUTS_STATUS"; then
+    "$SAVE_OUTPUTS_STATUS" \
+    "$TRIGGER_DEPLOYMENT_STATUS"; then
     notify_slack "success"
 else
     notify_slack "failure"

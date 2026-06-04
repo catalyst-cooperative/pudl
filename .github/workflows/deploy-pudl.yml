@@ -1,6 +1,9 @@
 ---
 name: deploy-pudl
 on:
+  push:
+    tags:
+      - "v20*"
   workflow_dispatch:
     inputs:
       git_tag:
@@ -13,29 +16,23 @@ on:
         default: true
         type: boolean
 
-  workflow_run:
-    workflows: ["build-pudl"]
-    branches:
-      - main
-    types:
-      - completed
-
 jobs:
   deploy_pudl:
-    # Only run if manually triggered or build workflow was successful
-    if: >
-      github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
-
     permissions:
       contents: write
       id-token: write
     name: Deploy PUDL build from GCS bucket
     runs-on: ubuntu-latest
+    env:
+      # 'git_tag' and 'staging' will not be set when triggered by a stable tag push
+      GIT_TAG: ${{ inputs.git_tag || github.ref_name }}
+      BUILD_ENVIRONMENT: ${{ inputs.staging && 'staging' || 'production' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
       - name: Docker Metadata
         id: docker_metadata
         uses: docker/metadata-action@v5
@@ -81,11 +78,6 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v3
 
-      - name: Use manually supplied tag
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "GIT_TAG=${{ inputs.git_tag }}" >> $GITHUB_ENV
-
       - name: Find matching release tag
         if: github.event_name == 'workflow_run'
         run: |
@@ -101,8 +93,8 @@ jobs:
             --container-arg="run" \
             --container-arg="pudl_deploy" \
             --container-arg="${{ env.GIT_TAG }}" \
-            --container-arg="--staging" \
-            --container-arg="${{ inputs.staging }}" \
+            --container-arg="--environment" \
+            --container-arg="${{ env.BUILD_ENVIRONMENT }}" \
             --container-env GITHUB_TOKEN=${{ secrets.PUDL_BOT_PAT }} \
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \

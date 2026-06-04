@@ -2,9 +2,6 @@
 name: build-pudl
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v20*"
   schedule:
     # 6am UTC daily (11pm PDT, 2am EDT)
     # But only if there are changes since the last nightly build.
@@ -15,7 +12,7 @@ env:
   GCS_OUTPUT_BUCKET: gs://builds.catalyst.coop
   BATCH_JOB_JSON: batch_job.json
   SKIP_BUILD: "false"
-  NIGHTLY_TAG: ""
+  GIT_TAG: ""
   BUILD_ID: ""
   BATCH_JOB_ID: ""
 
@@ -43,11 +40,19 @@ jobs:
             exit 0
           fi
 
+      - name: Set git tag based on build type
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: |
+          if [[ ${{ github.event_name }} == "schedule" ]]; then
+              echo "GIT_TAG=nightly-$(date +%Y-%m-%d)";
+          elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
+              echo "GIT_TAG=branch-${{ github.ref_name }}-$(date +%Y-%m-%d)";
+          fi
+
       - name: Set action environment variables
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           {
-              echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)";
               echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}";
               echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)";
           } >> "$GITHUB_ENV"
@@ -55,17 +60,17 @@ jobs:
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
-          echo "NIGHTLY_TAG: $NIGHTLY_TAG"
+          echo "GIT_TAG: $GIT_TAG"
           echo "BUILD_ID: $BUILD_ID"
           echo "BATCH_JOB_ID: $BATCH_JOB_ID"
 
-      - name: Tag nightly build
+      - name: Tag build
         if: ${{ (github.event_name == 'schedule') && (env.SKIP_BUILD != 'true') }}
         run: |
           git config user.email "pudl@catalyst.coop"
           git config user.name "pudlbot"
-          git tag -a -m "$NIGHTLY_TAG" "$NIGHTLY_TAG" ${{ github.ref_name }}
-          git push origin "$NIGHTLY_TAG"
+          git tag -a -m "$GIT_TAG" "$GIT_TAG" ${{ github.ref_name }}
+          git push origin "$GIT_TAG"
 
       - name: Docker Metadata
         id: docker_metadata
@@ -135,7 +140,7 @@ jobs:
             --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
-            --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
+            --container-env GIT_TAG=${{ env.GIT_TAG }} \
             --container-env OMP_NUM_THREADS=4 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \

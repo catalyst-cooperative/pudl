@@ -5,7 +5,7 @@ storage (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deploym
 
 The script takes a git tag, and an optional staging flag for safe testing. It will
 use the git tag to identify builds associated with the tag, and determine whether
-the deployment is intended to be a nightly or stable deployment. It expects nightly
+the deployment is intended to be a nightly, stable, or branch deployment. It expects nightly
 deployments to have tags conforming to the pattern 'nightly-YYYY-MM-DD' and stable
 deployments 'vYYYY.M.D'.
 
@@ -132,18 +132,18 @@ def _deploy_outputs(
     type=str,
 )
 @click.option(
-    "--staging",
-    type=bool,
-    default=False,
+    "--environment",
+    type=click.Choice(["staging", "production"]),
+    default="staging",
     help=(
-        "Upload to staging locations for validation. Skips Zenodo triggers "
-        "and Cloud Run deployments."
+        "Switch between a staging and production deployment. If staging this will"
+        " skip the zenodo cloud run deployments."
     ),
     show_default=True,
 )
 def main(
     git_tag: str,
-    staging: bool,
+    environment: str,
 ) -> int:
     """Deploy PUDL ETL outputs to cloud storage and external services.
 
@@ -155,8 +155,16 @@ def main(
     5. Trigger Zenodo release (if not staging)
     6. Update Cloud Run service (nightly only, not staging)
     """
+    # Check if staging deployment
+    staging = environment == "staging"
+
     # Check if tag is a nightly or stable build
     deploy_type = get_deployment_type_from_tag(git_tag)
+
+    if (deploy_type == DeploymentType.BRANCH) and (not staging):
+        raise RuntimeError(
+            "Branch builds should never be used to deploy to production!"
+        )
 
     # Find build associated with tag
     build_path = get_build_from_tag(git_tag)
