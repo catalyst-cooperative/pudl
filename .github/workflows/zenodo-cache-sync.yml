@@ -57,11 +57,11 @@ jobs:
         id: determine_status
         run: |
           if [[ "${{ needs.zenodo-cache-sync.result }}" == "success" ]]; then
-            echo "emoji=':check:'" >> "$GITHUB_ENV"
+            echo "emoji=:check:" >> "$GITHUB_ENV"
           elif [[ "${{ needs.zenodo-cache-sync.result }}" == "failure" ]]; then
-            echo "emoji=':x:'" >> "$GITHUB_ENV"
+            echo "emoji=:x:" >> "$GITHUB_ENV"
           else
-            echo "emoji=':warning:'" >> "$GITHUB_ENV"
+            echo "emoji=:warning:" >> "$GITHUB_ENV"
           fi
       - name: Notify Zulip of cache sync status
         uses: zulip/github-actions-zulip/send-message@v2
@@ -73,5 +73,5 @@ jobs:
           to: "pudl-deployments"
           topic: "zenodo-cache-sync"
           content: >
-            ${{ env.emoji }} Zenodo cache sync on `${{ github.ref_name }}` had status ${{ needs.zenodo-cache-sync.result }}
-            [GitHub Action logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            ${{ env.emoji }} Zenodo cache sync on `${{ github.head_ref || github.ref_name }}` had status **${{ needs.zenodo-cache-sync.result }}**
+            ([GHA logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}))
