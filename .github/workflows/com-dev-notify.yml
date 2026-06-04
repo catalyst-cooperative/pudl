@@ -35,8 +35,8 @@ jobs:
       - name: Get username if a comment was created
         if: ${{ github.event_name == 'issue_comment' }}
         run: |
-          echo "username=${{ github.event.issue_comment.user.login }}" >> "${GITHUB_ENV}"
-          echo "url=${{ github.event.issue_comment.html_url }}" >> "${GITHUB_ENV}"
+          echo "username=${{ github.event.comment.user.login }}" >> "${GITHUB_ENV}"
+          echo "url=${{ github.event.comment.html_url }}" >> "${GITHUB_ENV}"
 
       - name: Get username if a pull request was opened
         if: ${{ github.event_name == 'pull_request' }}
@@ -52,7 +52,7 @@ jobs:
           username: ${{ env.username }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Sent message to ComDev Zulip channel
+      - name: Send message to ComDev Zulip channel
         if: ${{ !steps.is_organization_member.outputs.result }}
         uses: zulip/github-actions-zulip/send-message@v2
         with:
@@ -64,5 +64,5 @@ jobs:
           topic: "Community GitHub Activity"
           content: >
             [@${{ env.username }}](https://github.com/${{ env.username }})
-            created [this issue/discussion](${{ env.url }})
+            [is active here](${{ env.url }})
             in [${{ github.repository }}](https://github.com/${{ github.repository }}).

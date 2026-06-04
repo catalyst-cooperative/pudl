@@ -149,13 +149,13 @@ jobs:
 
       - name: Compile notification content
         run: |
-          if [[ ${{ env.SKIP_BUILD }} == 'true' ]]; then
+          if [[ "${{ env.SKIP_BUILD }}" == 'true' ]]; then
             echo "notification_content=:ghost: Skipping nightly build for $(date +%Y-%m-%d)" >> "$GITHUB_ENV"
           else
             echo "notification_content=:rocket: Launching PUDL Build: ${{ env.BUILD_ID }}" >> "$GITHUB_ENV"
           fi
 
-      - name: Send notification to Zulip build status stream
+      - name: Notify Zulip of build start or skip
         if: ${{ always() }}
         uses: zulip/github-actions-zulip/send-message@v2
         with:
@@ -183,7 +183,7 @@ jobs:
             echo "emoji=:warning:" >> "$GITHUB_ENV"
           fi
 
-      - name: Send notification to Zulip build status stream
+      - name: Notify Zulip of build launch status
         if: ${{ env.SKIP_BUILD != 'true' }}
         uses: zulip/github-actions-zulip/send-message@v2
         with:

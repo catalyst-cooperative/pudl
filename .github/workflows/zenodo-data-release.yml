@@ -73,6 +73,16 @@ jobs:
             ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
             --${{ inputs.publish }}
 
+      - name: Status emoji
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "emoji=:check:" >> "$GITHUB_ENV"
+          elif [[ "${{ job.status }}" == "failure" ]]; then
+            echo "emoji=:x:" >> "$GITHUB_ENV"
+          else
+            echo "emoji=:warning:" >> "$GITHUB_ENV"
+          fi
+
       - name: Post status to pudl-deployments channel
         if: always()
         uses: zulip/github-actions-zulip/send-message@v2
@@ -84,7 +94,7 @@ jobs:
           to: "pudl-deployments"
           topic: "build-deploy-pudl"
           content: >
-            ${{job.status == 'success' && ':check:' || ':x:'}} zenodo-data-release
-            on `${{ github.head_ref || github.ref_name }}`
+            ${{ env.emoji }} zenodo-data-release
+            on `${{ github.ref_name }}`
             finished with status: ${{ job.status }}.
             [See the logs here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
