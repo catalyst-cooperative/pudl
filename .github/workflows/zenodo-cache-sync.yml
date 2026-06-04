@@ -73,5 +73,5 @@ jobs:
           to: "pudl-deployments"
           topic: "zenodo-cache-sync"
           content: >
-            ${{ env.emoji }} Zenodo cache sync on `${{ github.head_ref || github.ref_name }}` had status **${{ needs.zenodo-cache-sync.result }}**
-            ([GHA logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}))
+            ${{ env.emoji }} Zenodo cache sync on `${{ github.head_ref || github.ref_name }}`.
+            [See the logs here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
