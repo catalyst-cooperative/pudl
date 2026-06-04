@@ -76,7 +76,7 @@ jobs:
           organization-url: "https://catalyst-cooperative.zulipchat.com"
           type: "stream"
           to: "pudl-deployments"
-          topic: "build-deploy-pudl"
+          topic: "pudl-release"
           content: >
             ${{ needs.create-github-release.result == 'success' && ':check:' || ':x:' }}
             ${{ github.repository }} release (`${{ github.ref_name }}`)
