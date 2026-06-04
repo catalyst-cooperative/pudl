@@ -14,35 +14,37 @@ import pytest
 import sqlalchemy as sa
 import yaml
 from dagster import (
+    AssetKey,
     AssetValueLoader,
     DagsterInstance,
     build_init_resource_context,
+    build_input_context,
     materialize_to_memory,
 )
 
-import pudl.dagster.resources as resources
 import pudl.logging_helpers
-from pudl.dagster.build import build_defs
+from pudl import PUDL_SETTINGS_PATH
+from pudl.dagster.build import build_interactive_defs
 from pudl.dagster.io_managers import (
-    PudlMixedFormatIOManager,
-    _FercSqliteConfigurableIOManagerBase,
-    ferc1_dbf_sqlite_io_manager,
-    ferc1_xbrl_sqlite_io_manager,
-    ferc714_xbrl_sqlite_io_manager,
-    pudl_mixed_format_io_manager,
+    FercDbfSqliteIOManager,
+    FercXbrlSqliteIOManager,
+)
+from pudl.dagster.resources import (
+    DatastoreResource,
+    GlobalDataConfigResource,
+    PudlPathsResource,
+    ZenodoDoiSettingsResource,
 )
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
 from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.settings import (
-    GlobalDataConfig,
-)
-from pudl.workspace.datastore import Datastore
+from pudl.settings import GlobalDataConfig
+from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
 
-DG_CONFIG_PATH_DEFAULT = "src/pudl/package_data/settings/dg_pytest.yml"
+DG_PYTEST_CONFIG_PATH = PUDL_SETTINGS_PATH / "dg_pytest.yml"
 
 # Preamble: before pytest starts handling this module's CLI options and fixtures, we
 # do a small amount of one-time environment setup and controller-side validation. The
@@ -66,13 +68,15 @@ def _requested_test_targets(config: pytest.Config) -> list[Path]:
     """Return normalized path targets requested on the pytest command line."""
     raw_targets = config.args or ["test"]
     targets: list[Path] = []
-
-    for raw_target in raw_targets:
-        path_text = raw_target.split("::", maxsplit=1)[0]
-        if not path_text:
+    for target_str in raw_targets:
+        if target_str.startswith("-"):
             continue
 
-        target = Path(path_text)
+        target_str = target_str.split("::", maxsplit=1)[0]
+        if not target_str:
+            continue
+
+        target = Path(target_str)
         if not target.is_absolute():
             target = (Path(config.rootpath) / target).resolve()
         else:
@@ -97,8 +101,8 @@ def _raise_if_live_output_mixes_unit_and_integration(config: pytest.Config) -> N
     if not config.getoption("--live-pudl-output", default=False):
         return
 
-    has_unit = _target_includes_suite(config, "test/unit")
-    has_integration = _target_includes_suite(config, "test/integration")
+    has_unit = _target_includes_suite(config, "tests/unit")
+    has_integration = _target_includes_suite(config, "tests/integration")
     if has_unit and has_integration:
         raise pytest.UsageError(
             "Cannot combine unit and integration tests in one session with "
@@ -120,7 +124,7 @@ def pytest_collection_finish(session) -> None:
     """Abort if unit and integration tests are collected together with --live-pudl-output.
 
     When both suites run in a single pytest process with ``--live-pudl-output``, the
-    unit-scoped ``pudl_test_paths`` override in ``test/unit/conftest.py`` would
+    unit-scoped ``pudl_test_paths`` override in ``tests/unit/conftest.py`` would
     overwrite ``os.environ["PUDL_OUTPUT"]`` to a temporary directory *after* the
     top-level fixture has set it to the live path.  Integration tests that construct
     ``PudlPaths()`` directly (rather than via the fixture) would then silently resolve
@@ -132,9 +136,9 @@ def pytest_collection_finish(session) -> None:
     if not session.config.getoption("--live-pudl-output", default=False):
         return
 
-    has_unit = any(item.nodeid.startswith("test/unit/") for item in session.items)
+    has_unit = any(item.nodeid.startswith("tests/unit/") for item in session.items)
     has_integration = any(
-        item.nodeid.startswith("test/integration/") for item in session.items
+        item.nodeid.startswith("tests/integration/") for item in session.items
     )
     if has_unit and has_integration:
         pytest.exit(
@@ -167,11 +171,11 @@ def pytest_addoption(parser):
     parser.addoption(
         "--dg-config",
         action="store",
-        default=DG_CONFIG_PATH_DEFAULT,
+        default=DG_PYTEST_CONFIG_PATH,
         help=(
             "Path to a Dagster dg launch config YAML file for integration tests. "
             "Relative paths are resolved from the repository root. "
-            f"Defaults to {DG_CONFIG_PATH_DEFAULT}."
+            f"Defaults to {DG_PYTEST_CONFIG_PATH}."
         ),
     )
     parser.addoption(
@@ -218,8 +222,8 @@ def _pudl_etl(
     ]
     env = os.environ.copy()
     # Force dg launch to read/write within pytest-managed paths.
-    env["PUDL_INPUT"] = str(pudl_test_paths.input_dir)
-    env["PUDL_OUTPUT"] = str(pudl_test_paths.output_dir)
+    env["PUDL_INPUT"] = str(pudl_test_paths.pudl_input)
+    env["PUDL_OUTPUT"] = str(pudl_test_paths.pudl_output)
     env["DAGSTER_HOME"] = str(dagster_home)
     env["PYTHONUNBUFFERED"] = "1"
     logger.info("Starting PUDL pytest ETL using dg launch.")
@@ -254,9 +258,9 @@ def _pudl_etl(
 def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
     """Validate that required FERC SQLite databases exist after prebuild."""
     required = [
-        pudl_test_paths.output_dir / "ferc1_dbf.sqlite",
-        pudl_test_paths.output_dir / "ferc1_xbrl.sqlite",
-        pudl_test_paths.output_dir / "ferc714_xbrl.sqlite",
+        pudl_test_paths.pudl_output / "ferc1_dbf.sqlite",
+        pudl_test_paths.pudl_output / "ferc1_xbrl.sqlite",
+        pudl_test_paths.pudl_output / "ferc714_xbrl.sqlite",
     ]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
@@ -265,19 +269,51 @@ def _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths: PudlPaths) -> None:
         )
 
 
-def _engine_from_io_manager(
-    io_manager_factory: PudlMixedFormatIOManager | _FercSqliteConfigurableIOManagerBase,
-    global_data_config: GlobalDataConfig | None = None,
+def _initialize_ferc_engine(
+    io_manager: FercDbfSqliteIOManager | FercXbrlSqliteIOManager,
+    *,
+    asset_key: str,
+    dagster_instance: DagsterInstance,
 ) -> sa.Engine:
-    """Return the SQLAlchemy engine exposed by a Dagster IO manager resource."""
-    io_manager = io_manager_factory
-    if global_data_config is not None:
-        io_manager = io_manager_factory.model_copy(
-            update={"global_data_config": global_data_config}
-        )
-    if isinstance(io_manager, PudlMixedFormatIOManager):
-        return io_manager._sqlite_io_manager.engine
+    """Initialize a FERC IO manager through Dagster before exposing its engine.
+
+    This probe only needs to confirm that the sqlite database exists, metadata can be
+    reflected, and the FERC provenance check passes against the shared Dagster
+    instance.
+    """
+    context = build_input_context(
+        asset_key=AssetKey(asset_key),
+        instance=dagster_instance,
+    )
+    _ = io_manager.metadata  # noqa: SLF001
+    io_manager._check_provenance(context)  # noqa: SLF001
     return io_manager.engine
+
+
+def _initialize_ferc_io_manager[
+    FercSqliteIOManager: (
+        FercDbfSqliteIOManager,
+        FercXbrlSqliteIOManager,
+    )
+](
+    io_manager_cls: type[FercSqliteIOManager],
+    *,
+    global_data_config: GlobalDataConfig,
+    pudl_paths: PudlPaths,
+    zenodo_dois,
+    dataset: str,
+) -> Generator[FercSqliteIOManager]:
+    """Initialize a FERC sqlite IO manager through Dagster resource context."""
+    init_context = build_init_resource_context(config={"dataset": dataset})
+    with io_manager_cls.from_resource_context_cm(
+        init_context,
+        nested_resources={
+            "global_data_config": global_data_config,
+            "pudl_paths": pudl_paths,
+            "zenodo_dois": zenodo_dois,
+        },
+    ) as io_manager:
+        yield io_manager
 
 
 @pytest.fixture(scope="session")
@@ -317,12 +353,16 @@ def dagster_home(tmp_path_factory, request) -> Path:
     if request.config.getoption("--live-pudl-output") and os.environ.get(
         "DAGSTER_HOME"
     ):
-        return Path(os.environ["DAGSTER_HOME"]).resolve()
+        dagster_home = Path(os.environ["DAGSTER_HOME"]).resolve()
+        logger.info(f"Using pre-existing DAGSTER_HOME: {dagster_home}")
+        return dagster_home
 
     dagster_home = tmp_path_factory.mktemp("dagster_home")
     (dagster_home / "dagster.yaml").touch()
     os.environ["DAGSTER_HOME"] = str(dagster_home)
-    return dagster_home.resolve()
+    dagster_home = dagster_home.resolve()
+    logger.info(f"Using temporary DAGSTER_HOME: {dagster_home}")
+    return dagster_home
 
 
 @pytest.fixture(scope="session")
@@ -335,6 +375,7 @@ def dagster_instance(dagster_home: Path) -> DagsterInstance:
 def asset_value_loader(
     prebuilt_outputs,
     global_data_config_path: Path,
+    pudl_paths_resource: PudlPathsResource,
     dagster_instance: DagsterInstance,
 ) -> Generator[AssetValueLoader]:
     """Fixture that initializes an asset value loader.
@@ -343,12 +384,10 @@ def asset_value_loader(
     ``defs.load_asset_value`` to not reinitialize the asset value loader over and over
     again.
     """
-    configured_defs = build_defs(
-        resource_overrides={
-            "global_data_config": resources.GlobalDataConfigResource(
-                global_data_config_path=str(global_data_config_path)
-            )
-        }
+    configured_defs = build_interactive_defs(
+        global_data_config_path=str(global_data_config_path),
+        pudl_input=pudl_paths_resource.pudl_input,
+        pudl_output=pudl_paths_resource.pudl_output,
     )
     with configured_defs.get_asset_value_loader(instance=dagster_instance) as loader:
         yield loader
@@ -361,9 +400,77 @@ def save_unmapped_ids(request) -> bool:
 
 
 @pytest.fixture(scope="session")
-def global_data_config(global_data_config_path: Path) -> GlobalDataConfig:
-    """Read global data config referenced by Dagster integration config."""
-    return GlobalDataConfig.from_yaml(str(global_data_config_path))
+def global_data_config(
+    global_data_config_path: Path,
+) -> Generator[GlobalDataConfig]:
+    """Load the global data config through its Dagster resource."""
+    init_context = build_init_resource_context(
+        config={"global_data_config_path": str(global_data_config_path)}
+    )
+    with GlobalDataConfigResource.from_resource_context_cm(
+        init_context
+    ) as dagster_config:
+        yield dagster_config
+
+
+@pytest.fixture(scope="session")
+def zenodo_dois() -> Generator[ZenodoDoiSettings]:
+    """Load Zenodo DOI settings through the Dagster resource."""
+    with ZenodoDoiSettingsResource.from_resource_context_cm(
+        build_init_resource_context()
+    ) as doi_settings:
+        yield doi_settings
+
+
+@pytest.fixture(scope="session")
+def ferc1_dbf_io_manager(
+    prebuilt_outputs,
+    global_data_config: GlobalDataConfig,
+    pudl_test_paths: PudlPaths,
+    zenodo_dois,
+) -> Generator[FercDbfSqliteIOManager]:
+    """Initialize the FERC Form 1 DBF IO manager through Dagster."""
+    yield from _initialize_ferc_io_manager(
+        FercDbfSqliteIOManager,
+        global_data_config=global_data_config,
+        pudl_paths=pudl_test_paths,
+        zenodo_dois=zenodo_dois,
+        dataset="ferc1",
+    )
+
+
+@pytest.fixture(scope="session")
+def ferc1_xbrl_io_manager(
+    prebuilt_outputs,
+    global_data_config: GlobalDataConfig,
+    pudl_test_paths: PudlPaths,
+    zenodo_dois,
+) -> Generator[FercXbrlSqliteIOManager]:
+    """Initialize the FERC Form 1 XBRL IO manager through Dagster."""
+    yield from _initialize_ferc_io_manager(
+        FercXbrlSqliteIOManager,
+        global_data_config=global_data_config,
+        pudl_paths=pudl_test_paths,
+        zenodo_dois=zenodo_dois,
+        dataset="ferc1",
+    )
+
+
+@pytest.fixture(scope="session")
+def ferc714_xbrl_io_manager(
+    prebuilt_outputs,
+    global_data_config: GlobalDataConfig,
+    pudl_test_paths: PudlPaths,
+    zenodo_dois,
+) -> Generator[FercXbrlSqliteIOManager]:
+    """Initialize the FERC Form 714 XBRL IO manager through Dagster."""
+    yield from _initialize_ferc_io_manager(
+        FercXbrlSqliteIOManager,
+        global_data_config=global_data_config,
+        pudl_paths=pudl_test_paths,
+        zenodo_dois=zenodo_dois,
+        dataset="ferc714",
+    )
 
 
 @pytest.fixture(scope="session")
@@ -406,12 +513,14 @@ def dbt_target(global_data_config_path: Path) -> str:
 
 @pytest.fixture(scope="session")
 def ferc1_engine_dbf(
-    prebuilt_outputs, global_data_config: GlobalDataConfig
+    ferc1_dbf_io_manager: FercDbfSqliteIOManager,
+    dagster_instance: DagsterInstance,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database."""
-    return _engine_from_io_manager(
-        ferc1_dbf_sqlite_io_manager,
-        global_data_config,
+    return _initialize_ferc_engine(
+        ferc1_dbf_io_manager,
+        asset_key="raw_ferc1_dbf__f1_respondent_id",
+        dagster_instance=dagster_instance,
     )
 
 
@@ -432,7 +541,7 @@ def prebuilt_outputs(
         return
 
     logger.info(
-        f"Prebuilding PUDL outputs in temporary directory: {pudl_test_paths.output_dir}"
+        f"Prebuilding PUDL outputs in temporary directory: {pudl_test_paths.pudl_output}"
     )
     logger.info(
         f"Initializing empty pudl.sqlite with current schema at {pudl_test_paths.pudl_db}."
@@ -447,23 +556,31 @@ def prebuilt_outputs(
 
 @pytest.fixture(scope="session")
 def ferc1_engine_xbrl(
-    prebuilt_outputs, global_data_config: GlobalDataConfig
+    ferc1_xbrl_io_manager: FercXbrlSqliteIOManager,
+    dagster_instance: DagsterInstance,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database."""
-    return _engine_from_io_manager(
-        ferc1_xbrl_sqlite_io_manager,
-        global_data_config,
+    return _initialize_ferc_engine(
+        ferc1_xbrl_io_manager,
+        asset_key="raw_ferc1_xbrl__identification_001_duration",
+        dagster_instance=dagster_instance,
     )
 
 
 @pytest.fixture(scope="session")
-def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
+def ferc1_xbrl_taxonomy_metadata(
+    ferc1_engine_xbrl: sa.Engine,
+    pudl_paths_resource: PudlPathsResource,
+):
     """Read the FERC 1 XBRL taxonomy metadata from JSON.
 
     ``ferc1_engine_xbrl`` is an ordering-only dependency that ensures the FERC 1 XBRL
     database is prebuilt before this fixture runs. Its return value is not used here.
     """
-    result = materialize_to_memory([raw_ferc1_xbrl__metadata_json])
+    result = materialize_to_memory(
+        [raw_ferc1_xbrl__metadata_json],
+        resources={"pudl_paths": pudl_paths_resource},
+    )
     assert result.success
 
     return result.output_for_node("raw_ferc1_xbrl__metadata_json")
@@ -471,37 +588,45 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
 
 @pytest.fixture(scope="session")
 def ferc714_engine_xbrl(
-    prebuilt_outputs, global_data_config: GlobalDataConfig
+    ferc714_xbrl_io_manager: FercXbrlSqliteIOManager,
+    dagster_instance: DagsterInstance,
 ) -> sa.Engine:
     """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database."""
-    return _engine_from_io_manager(
-        ferc714_xbrl_sqlite_io_manager,
-        global_data_config,
+    return _initialize_ferc_engine(
+        ferc714_xbrl_io_manager,
+        asset_key="raw_ferc714_xbrl__identification_and_certification_01_1_duration",
+        dagster_instance=dagster_instance,
     )
 
 
 @pytest.fixture(scope="session")
-def ferc714_xbrl_taxonomy_metadata(ferc714_engine_xbrl: sa.Engine):
+def ferc714_xbrl_taxonomy_metadata(
+    ferc714_engine_xbrl: sa.Engine,
+    pudl_paths_resource: PudlPathsResource,
+):
     """Read the FERC 714 XBRL taxonomy metadata from JSON.
 
     ``ferc714_engine_xbrl`` is an ordering-only dependency that ensures the FERC 714
     XBRL database is prebuilt before this fixture runs. Its return value is not used
     here.
     """
-    result = materialize_to_memory([raw_ferc714_xbrl__metadata_json])
+    result = materialize_to_memory(
+        [raw_ferc714_xbrl__metadata_json],
+        resources={"pudl_paths": pudl_paths_resource},
+    )
     assert result.success
 
     return result.output_for_node("raw_ferc714_xbrl__metadata_json")
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(prebuilt_outputs, global_data_config: GlobalDataConfig) -> sa.Engine:
+def pudl_engine(prebuilt_outputs, pudl_test_paths: PudlPaths) -> sa.Engine:
     """Return the SQLAlchemy engine for the prepared PUDL integration database."""
-    return _engine_from_io_manager(pudl_mixed_format_io_manager, global_data_config)
+    return sa.create_engine(pudl_test_paths.pudl_db)
 
 
 @pytest.fixture(scope="session", autouse=True)
-def pudl_test_paths(tmp_path_factory, request, dagster_home: Path):
+def pudl_test_paths(tmp_path_factory, request) -> PudlPaths:
     """Configures PudlPaths for tests.
 
     Default behavior:
@@ -515,7 +640,7 @@ def pudl_test_paths(tmp_path_factory, request, dagster_home: Path):
     Set ``--live-pudl-output`` to force PUDL_OUTPUT to *NOT* be a temporary directory
     and instead inherit from environment.
 
-    Note: ``test/unit/conftest.py`` defines ``unit_pudl_test_paths`` which overrides
+    Note: ``tests/unit/conftest.py`` defines ``unit_pudl_test_paths`` which overrides
     this fixture for the unit test subtree. It ignores ``--live-pudl-output`` and always
     forces a temporary ``PUDL_OUTPUT`` so unit tests can never write to the live output
     directory.
@@ -547,16 +672,10 @@ def pudl_test_paths(tmp_path_factory, request, dagster_home: Path):
         output_dir = out_tmp.resolve()
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
 
-    os.environ["DAGSTER_HOME"] = str(dagster_home)
-    logger.info(f"Using temporary DAGSTER_HOME: {dagster_home}")
-
     PudlPaths.set_path_overrides(
         input_dir=str(input_dir),
         output_dir=str(output_dir),
     )
-    # Keep process env in sync so subprocesses inherit the same locations.
-    os.environ["PUDL_INPUT"] = str(input_dir)
-    os.environ["PUDL_OUTPUT"] = str(output_dir)
 
     try:
         return PudlPaths(
@@ -567,6 +686,17 @@ def pudl_test_paths(tmp_path_factory, request, dagster_home: Path):
         pytest.exit(
             f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --temp-pudl-input, --live-pudl-output flags. Error: {err}."
         )
+
+
+@pytest.fixture(scope="session")
+def pudl_paths_resource(
+    pudl_test_paths: PudlPaths,
+) -> PudlPathsResource:
+    """Adapt the canonical pytest path fixture into Dagster resource config."""
+    return PudlPathsResource(
+        pudl_input=str(pudl_test_paths.pudl_input),
+        pudl_output=str(pudl_test_paths.pudl_output),
+    )
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -591,18 +721,24 @@ def logger_config():
 
 
 @pytest.fixture(scope="session")
-def zenodo_datastore(request) -> Generator[Datastore]:
+def zenodo_datastore(
+    request,
+    pudl_test_paths: PudlPaths,
+) -> Generator[Datastore]:
     """Create a Zenodo Datastore resource."""
-    with resources.ZenodoDoiSettingsResource.from_resource_context_cm(
+    with ZenodoDoiSettingsResource.from_resource_context_cm(
         build_init_resource_context()
     ) as zenodo_dois:
         init_context = build_init_resource_context(
             config={
                 "use_local_cache": not request.config.getoption("--bypass-local-cache"),
             },
-            resources={"zenodo_dois": zenodo_dois},
         )
-        with resources.DatastoreResource.from_resource_context_cm(
-            init_context
+        with DatastoreResource.from_resource_context_cm(
+            init_context,
+            nested_resources={
+                "zenodo_dois": zenodo_dois,
+                "pudl_paths": pudl_test_paths,
+            },
         ) as datastore:
             yield datastore

@@ -61,9 +61,13 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
     for parquet_file in parquet_dir.glob("*.parquet"):
         shutil.move(str(parquet_file), str(local_path / parquet_file.name))
 
-    datapackage = parquet_dir / "pudl_parquet_datapackage.json"
+    datapackage = parquet_dir / "datapackage.json"
     if datapackage.exists():
-        shutil.move(str(datapackage), str(local_path / datapackage.name))
+        shutil.move(str(datapackage), str(local_path / "pudl_parquet_datapackage.json"))
+    else:
+        logger.warning(
+            f"datapackage.json not found in {parquet_dir}; pudl_parquet_datapackage.json will not be distributed and pudl_parquet.zip will have no descriptor."
+        )
 
     shutil.rmtree(parquet_dir)
 
@@ -88,7 +92,11 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
 
         datapackage = local_path / "pudl_parquet_datapackage.json"
         if datapackage.exists():
-            zf.write(datapackage, arcname=datapackage.name)
+            zf.write(datapackage, arcname="datapackage.json")
+        else:
+            logger.warning(
+                f"pudl_parquet_datapackage.json not found in {local_path}; pudl_parquet.zip will have no frictionless descriptor."
+            )
 
     logger.info(f"Created parquet archive: {archive_path}")
 

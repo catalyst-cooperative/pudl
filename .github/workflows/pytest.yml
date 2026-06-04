@@ -35,6 +35,7 @@ jobs:
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
               - '!devtools/**'
+              - '!.devcontainer/**'
               - '!builds/**'
               - '!docs/**'
               - '!.github/**/*.md'
@@ -70,6 +71,7 @@ jobs:
               - '!.git-blame-ignore-revs'
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
+              - '!.env.example'
               - '!.taplo.toml'
               - '!terraform/**'
               - '!tests/unit/**'
@@ -97,7 +99,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -134,7 +136,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -171,7 +173,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -216,7 +218,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -272,7 +274,7 @@ jobs:
         run: |
           find coverage -type f
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true

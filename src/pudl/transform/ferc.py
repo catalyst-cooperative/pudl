@@ -86,7 +86,7 @@ def __compare_dedupe_methodologies(
 
 
 def filter_for_freshest_data_xbrl(
-    xbrl_table: pd.DataFrame, primary_keys, compare_methods: bool = False
+    xbrl_table: pd.DataFrame, primary_keys: list[str], compare_methods: bool = False
 ) -> pd.DataFrame:
     """Get most updated values for each XBRL context.
 
@@ -106,7 +106,7 @@ def filter_for_freshest_data_xbrl(
     we keep the old non-null value, which may be erroneous. This appears to
     be fairly rare, affecting < 0.005% of reported values.
     """
-    if not xbrl_table.empty:
+    if (not xbrl_table.empty) and primary_keys:
         filing_metadata_cols = {"publication_time", "filing_name"}
         xbrl_context_cols = [c for c in primary_keys if c not in filing_metadata_cols]
         original = xbrl_table.sort_values("publication_time")
@@ -127,21 +127,43 @@ def filter_for_freshest_data_xbrl(
         xbrl_table = pd.concat([never_duped, applied_diffs], ignore_index=True).drop(
             columns=["publication_time"]
         )
+    elif xbrl_table.empty and (not primary_keys):
+        logger.debug(
+            "No input table or primary keys - skipping filtering on this table"
+        )
+    else:
+        missing = "dataframe" if xbrl_table.empty else "primary_keys"
+        raise AssertionError(
+            "Something is wrong. I am trying to filter for freshest data "
+            f"with missing {missing}. We expect to have either a dataframe "
+            "and primary keys or no dataframe and no primary keys."
+        )
     return xbrl_table
 
 
 def get_primary_key_raw_xbrl(
-    sched_table_name: str, ferc_form: Literal["ferc1", "ferc714"]
+    sched_table_name: str,
+    ferc_form: Literal["ferc1", "ferc714"],
+    pudl_paths: PudlPaths,
 ) -> list[str]:
-    """Get the primary key for a raw XBRL table from the XBRL datapackage."""
+    """Get the primary key for a raw XBRL table from the XBRL datapackage.
+
+    If the sched_table_name does not exist in the datapackage, an empty list
+    will be returned. This is expected often because we attempt to grab both
+    the instant and the duration raw tables, despite those not always
+    existing in the original data.
+    """
     # TODO (daz): as of 2023-10-13, our datapackage.json is merely
     # "frictionless-like" so we manually parse it as JSON. once we make our
     # datapackage.json conformant, we will need to at least update the
     # "primary_key" to "primaryKey", but maybe there will be other changes
     # as well.
-    with (PudlPaths().output_dir / f"{ferc_form}_xbrl_datapackage.json").open() as f:
+    with (pudl_paths.pudl_output / f"{ferc_form}_xbrl_datapackage.json").open() as f:
         datapackage = json.loads(f.read())
-    [table_resource] = [
+    table_resource = [
         tr for tr in datapackage["resources"] if tr["name"] == sched_table_name
     ]
-    return table_resource["schema"]["primary_key"]
+    primary_key = []
+    if table_resource:
+        primary_key = table_resource[0]["schema"]["primary_key"]
+    return primary_key

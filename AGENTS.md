@@ -477,13 +477,13 @@ Before marking a PR as ready for review:
 
 ## Sandbox safe execution
 
-**zsh autocorrect**: the `.pixi/` directory in the project root causes zsh to suggest
-correcting `pixi` → `.pixi`. This is always wrong. Disable autocorrect before running
-any pixi commands:
+**Shell autocorrect**: the `.pixi/` directory in the project root can trigger shell
+autocorrect/spellcheck behavior (especially in zsh) that suggests correcting
+`pixi` → `.pixi`. This is always wrong. Use a shell-safe guard before running pixi
+commands:
 
 ```bash
-unsetopt CORRECT CORRECT_ALL
-pixi run ...
+command -v unsetopt >/dev/null 2>&1 && unsetopt CORRECT CORRECT_ALL; pixi run ...
 ```
 
 **Frozen execution**: use `pixi run --frozen` to prevent pixi from updating the

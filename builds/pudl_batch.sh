@@ -4,8 +4,8 @@
 # This script won't work locally because it needs adequate GCP permissions.
 # It assumes that the PUDL pixi environment is activated.
 
-# Assert that PUDL_REPO is set by the container and points to a valid directory.
-cd "${PUDL_REPO:?PUDL_REPO must be set by the build container}" || exit 1
+# Assert that PUDL_ROOT_PATH is set by the container and points to a valid directory.
+cd "${PUDL_ROOT_PATH:?PUDL_ROOT_PATH must be set by the build container}" || exit 1
 
 function send_slack_msg() {
     set +x &&
@@ -42,12 +42,6 @@ function run_dagster() {
     initialize_postgres &&
         authenticate_gcp &&
         pixi run pudl-with-ferc-to-sqlite-nightly
-}
-
-function write_pudl_datapackage() {
-    echo "Writing PUDL datapackage."
-    python -c "from pudl.metadata.classes import PUDL_PACKAGE; print(PUDL_PACKAGE.to_frictionless(exclude_pattern=r'core_ferceqr.*').to_json())" >"$PUDL_OUTPUT/parquet/pudl_parquet_datapackage.json"
-    return $?
 }
 
 function save_outputs_to_gcs() {
@@ -177,7 +171,6 @@ function notify_slack() {
     message+="$(slack_stage_status "Integration Tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")\n"
     message+="$(slack_stage_status "Data Validations (FKs/dbt)" "$DATA_VALIDATION_STATUS" "$DATA_VALIDATION_DURATION")\n"
     message+="$(slack_stage_status "Row Count Checks (dbt)" "$ROW_COUNT_VALIDATION_STATUS" "$ROW_COUNT_VALIDATION_DURATION")\n"
-    message+="$(slack_stage_status "Write PUDL Datapackage" "$WRITE_DATAPACKAGE_STATUS" "$WRITE_DATAPACKAGE_DURATION")\n"
     message+="$(slack_stage_status "Save Build Outputs" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")\n"
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
     message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
@@ -231,9 +224,6 @@ if ! any_stage_failed \
     touch "$PUDL_OUTPUT/success"
 fi
 
-# Write out a datapackage.json for external consumption
-run_stage WRITE_DATAPACKAGE_STATUS WRITE_DATAPACKAGE_DURATION append write_pudl_datapackage
-
 # Generate new row counts for all tables in the PUDL database
 dbt_helper update-tables --clobber --row-counts all 2>&1 | tee -a "$LOGFILE"
 
@@ -255,7 +245,6 @@ if ! any_stage_failed \
     "$INTEGRATION_TEST_STATUS" \
     "$DATA_VALIDATION_STATUS" \
     "$ROW_COUNT_VALIDATION_STATUS" \
-    "$WRITE_DATAPACKAGE_STATUS" \
     "$SAVE_OUTPUTS_STATUS"; then
     notify_slack "success"
 else
