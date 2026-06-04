@@ -62,19 +62,23 @@ jobs:
             --repo '${{ github.repository }}' \
             --clobber
 
-  notify-slack:
+  notify-zulip:
     runs-on: ubuntu-latest
     needs:
       - create-github-release
     steps:
-      - name: Inform the Codemonkeys
-        uses: slackapi/slack-github-action@v3
+      - name: Notify Zulip of release status
+        uses: zulip/github-actions-zulip/send-message@v2
         continue-on-error: true
         with:
-          method: chat.postMessage
-          token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
-          payload: |
-            {
-              "text": "${{ needs.create-github-release.result == 'success' && ':check:' || ':x:' }} ${{ github.repository }} release (`${{ github.ref_name }}`) finished with status: ${{ needs.create-github-release.result }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-              "channel": "C03FHB9N0PQ"
-            }
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: >
+            ${{ needs.create-github-release.result == 'success' && ':check:' || ':x:' }}
+            ${{ github.repository }} release (`${{ github.ref_name }}`)
+            finished with status: ${{ needs.create-github-release.result }}.
+            [See the logs here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
