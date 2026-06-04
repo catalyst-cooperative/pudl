@@ -114,7 +114,7 @@ COMPANY_4 = [
     "2022",
     VOLUME_4,
     "[10.2]",
-    "some other volume",
+    "lng inventory at end of year volume",
 ]
 
 DROP_COLS = ["form_line_numbers", "unit_type", "line"]
@@ -139,11 +139,27 @@ def test_core_eia176__numeric_data(df):
         [
             ("new mexico", "new mexico gas company"),
             ("new mexico", "total of all companies"),
+            # temporarily include alaska for ci debugging
+            ("alaska", "alaska gas inc"),
         ]
     ].reset_index()
     wide_company, wide_aggregate = (
         o.value for o in _core_eia176__numeric_data(eav_model)
     )
+
+    # temporarily include alaska for ci debugging
+    assert wide_company.shape == (2, 6)
+    wide_company = wide_company.loc[
+        wide_company.operating_state == "new mexico",
+        [
+            "report_year",
+            "operating_state",
+            "operator_id_eia",
+            "operator_name",
+            "residential_sales_volume",
+        ],
+    ].reset_index(drop=True)  # /temporarily
+
     assert wide_company.shape == (1, 5)
 
     company_row = wide_company.loc[0]
@@ -195,8 +211,8 @@ def test_get_wide_table(df):
         "operating_state",
         "operator_id_eia",
         "operator_name",
+        "lng_inventory_at_end_of_year_volume",
         "residential_sales_volume",
-        "some_other_volume",
     ]
     # Row 0: only some_other_volume is present; residential_sales_volume is NA
     row0 = wide_table.loc[0]
@@ -205,7 +221,7 @@ def test_get_wide_table(df):
     assert row0["operator_id_eia"] == ID_4
     assert row0["operator_name"] == "alaska gas inc"
     assert pd.isna(row0["residential_sales_volume"])  # no value for this metric
-    assert row0["some_other_volume"] == VOLUME_4
+    assert row0["lng_inventory_at_end_of_year_volume"] == VOLUME_4
 
     # Row 1: residential_sales_volume present; some_other_volume is NA
     row1 = wide_table.loc[1]
@@ -214,7 +230,9 @@ def test_get_wide_table(df):
     assert row1["operator_id_eia"] == ID_2
     assert row1["operator_name"] == "west texas gas inc"
     assert row1["residential_sales_volume"] == VOLUME_2
-    assert pd.isna(row1["some_other_volume"])  # no value for this metric
+    assert pd.isna(
+        row1["lng_inventory_at_end_of_year_volume"]
+    )  # no value for this metric
 
     # Row 2: residential_sales_volume present; some_other_volume is NA
     row2 = wide_table.loc[2]
@@ -223,7 +241,9 @@ def test_get_wide_table(df):
     assert row2["operator_id_eia"] == ID_1
     assert row2["operator_name"] == "new mexico gas company"
     assert row2["residential_sales_volume"] == VOLUME_1
-    assert pd.isna(row2["some_other_volume"])  # no value for this metric
+    assert pd.isna(
+        row2["lng_inventory_at_end_of_year_volume"]
+    )  # no value for this metric
 
 
 def test_validate__totals(df):
