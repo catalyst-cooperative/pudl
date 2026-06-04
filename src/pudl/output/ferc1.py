@@ -2426,7 +2426,11 @@ class XbrlCalculationForestFerc1(BaseModel):
             zip(self.table_names, colors[: len(self.table_names)], strict=True)
         )
 
-        pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
+        pos = graphviz_layout(
+            graph,
+            prog="dot",
+            args='-Grankdir="LR"',
+        )
         for table, color in color_map.items():
             nodes = [node for node in graph.nodes if node.table_name == table]
             nx.draw_networkx_nodes(nodes, pos, node_color=color, label=table)

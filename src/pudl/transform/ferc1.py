@@ -78,16 +78,49 @@ def add_missing_factoid(raw_ferc1_xbrl__metadata_json):
     calculation components and because this factoid was missing from the metadata,
     it was not being assigned a source table which caused several downstream impacts.
     """
-    missing_factoid = "maintenance_of_energy_storage_equipment_other_power_generation"
-    duration_facts = raw_ferc1_xbrl__metadata_json[
-        "core_ferc1__yearly_operating_expenses_sched320"
-    ]["duration"]
-    # If this factoid exists in the metadata in the future, we should remove
-    # this whole function
-    assert not [f for f in duration_facts if f["name"] == missing_factoid]
-    raw_ferc1_xbrl__metadata_json["core_ferc1__yearly_operating_expenses_sched320"][
-        "duration"
-    ] = duration_facts + [{"name": missing_factoid, "calculations": []}]
+    missing_facts = [
+        {
+            "table_name": "core_ferc1__yearly_operating_expenses_sched320",
+            "missing_factoid": "maintenance_of_energy_storage_equipment_other_power_generation",
+            "table_period": "duration",
+            "calculations": [],
+        },
+        {
+            "table_name": "core_ferc1__yearly_plant_in_service_sched204",
+            "missing_factoid": "energy_storage_equipment_distribution_plant",
+            "table_period": "instant",
+            "calculations": [],
+        },
+        {
+            "table_name": "core_ferc1__yearly_plant_in_service_sched204",
+            "missing_factoid": "energy_storage_equipment_other_production",
+            "table_period": "instant",
+            "calculations": [],
+        },
+        {
+            "table_name": "core_ferc1__yearly_plant_in_service_sched204",
+            "missing_factoid": "energy_storage_equipment_transmission_plant",
+            "table_period": "instant",
+            "calculations": [],
+        },
+    ]
+    for missing_fact in missing_facts:
+        table_facts = raw_ferc1_xbrl__metadata_json[missing_fact["table_name"]][
+            missing_fact["table_period"]
+        ]
+        # If this factoid exists in the metadata in the future, we should remove
+        # this whole function
+        assert not [
+            f for f in table_facts if f["name"] == missing_fact["missing_factoid"]
+        ]
+        raw_ferc1_xbrl__metadata_json[missing_fact["table_name"]][
+            missing_fact["table_period"]
+        ] = table_facts + [
+            {
+                "name": missing_fact["missing_factoid"],
+                "calculations": missing_fact["calculations"],
+            }
+        ]
     return raw_ferc1_xbrl__metadata_json
 
 
@@ -1622,6 +1655,7 @@ def add_corrections(
             rtol=is_close_tolerance.isclose_rtol,
             atol=is_close_tolerance.isclose_atol,
         )
+        # TODO: Enable a correction
         & calculated_df["abs_diff"].notnull()
     ].copy()
     # fill in the nulls with zeros so we get a correction for records
@@ -4250,8 +4284,8 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         # Identify the first (and only) group_col value for each group and count
         # how many rows are in each group.
         clump_groups_df = clump_groups.agg(
-            header_or_note=("possible_header_or_note", "first"),
-            rows_per_clump=("possible_header_or_note", "count"),
+            header_or_note=pd.NamedAgg("possible_header_or_note", "first"),
+            rows_per_clump=pd.NamedAgg("possible_header_or_note", "count"),
         )
 
         return clump_groups, clump_groups_df
