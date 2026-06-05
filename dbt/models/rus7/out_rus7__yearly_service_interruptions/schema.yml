@@ -8,21 +8,23 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_rus7__yearly_service_interruptions
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
-                  [borrower_id_rus, report_date, observation_period]
+                  - borrower_id_rus
+                  - report_date
+                  - observation_period
                 categorical_column: service_interruption_cause
                 value_column: saidi_minutes
-                total_label: "total"
+                total_label: total
                 tolerance: 1
                 row_condition: observation_period = 'annual'
         columns:
-          - name: borrower_name_rus
-          - name: state
           - name: report_date
           - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
           - name: service_interruption_cause
           - name: observation_period
           - name: saidi_minutes
@@ -31,7 +33,7 @@ sources:
                   arguments:
                     min_value: 0.0
                     max_value: 525600
-                  description: "Expect SAIDI minutes don't exceed minutes in a year."
+                  description: Expect SAIDI minutes don't exceed minutes in a year.
                   config:
                     error_if: ">2"
           - name: is_total
