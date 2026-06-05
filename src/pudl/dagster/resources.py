@@ -14,6 +14,7 @@ https://docs.dagster.io/guides/build/external-resources
 
 import json
 import os
+from pathlib import Path
 from typing import Any
 
 import dagster as dg
@@ -134,13 +135,48 @@ class ZulipNotificationResource(dg.ConfigurableResource):
     api_key: str = dg.EnvVar("ZULIP_API_KEY")
     timeout_seconds: int = 30
 
-    def send_stream_message(self, *, stream: str, topic: str, content: str) -> dict:
+    def send_stream_message(
+        self,
+        *,
+        stream: str,
+        topic: str,
+        content: str,
+        file_path: str | Path | None = None,
+    ) -> dict:
         """Send a message to a Zulip stream topic and return the API response.
 
-        Sends are best-effort: all failures are logged as warnings and returned
-        in the result dict so callers can inspect them, but no exception is
-        raised. This ensures a notification hiccup never crashes an asset.
+        Optionally upload a file and attach a download link to the message content.
+
+        Sends are best-effort: all failures are logged as warnings and returned in the
+        result dict so callers can inspect them, but no exception is raised. This
+        ensures a notification hiccup never crashes an asset.
         """
+        # Optionally upload a file and embed a Markdown link in the content.
+        if file_path is not None:
+            try:
+                with Path(file_path).open("rb") as f:
+                    upload_response = requests.post(
+                        f"{self.base_url}/api/v1/user_uploads",
+                        auth=(self.bot_email, self.api_key),
+                        files={"file": f},
+                        timeout=self.timeout_seconds,
+                    )
+                    upload_response.raise_for_status()
+                    upload_payload = upload_response.json()
+                if upload_payload.get("result") == "success":
+                    file_url = upload_payload.get("url") or upload_payload.get(
+                        "uri", ""
+                    )
+                    filename = upload_payload.get("filename", "attachment")
+                    link = f"[{filename}]({self.base_url}{file_url})"
+                    content = f"{content}\n\n{link}"
+                else:
+                    logger.warning(
+                        f"Zulip file upload returned error: {upload_payload}"
+                    )
+            except Exception as e:
+                logger.warning(f"Zulip file upload failed: {e}")
+
         try:
             response = requests.post(
                 f"{self.base_url}/api/v1/messages",

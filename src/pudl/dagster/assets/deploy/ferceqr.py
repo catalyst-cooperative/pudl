@@ -8,6 +8,7 @@ job when deployment handling is complete.
 import os
 import traceback
 from collections.abc import Callable
+from pathlib import Path
 from typing import Literal
 
 import dagster as dg
@@ -47,6 +48,10 @@ def _get_logfile_list(build_id: str) -> str:
         f"* [Download FERC EQR logs to review locally]({download_url})\n"
         f"* [Review FERC EQR logs in the Google Cloud Console]({console_url})\n"
     )
+
+
+def _get_etl_status_csv_path(pudl_paths: PudlPaths) -> Path:
+    return pudl_paths.pudl_output / "ferceqr_etl_status.csv"
 
 
 def _write_status_file(status: Literal["SUCCESS", "FAILURE"], pudl_paths: PudlPaths):
@@ -158,5 +163,6 @@ def handle_ferceqr_deployment_failure(
             ":x: FERC EQR deployment **FAILURE**!\n\n"
             + _get_logfile_list(os.getenv("BUILD_ID", "no-build-id"))
         ),
+        file_path=_get_etl_status_csv_path(pudl_paths),
     )
     _write_status_file("FAILURE", pudl_paths)

@@ -141,3 +141,63 @@ def test_zulip_notification_resource_handles_bad_json(mocker):
 
     assert payload["result"] == "error"
     assert "invalid JSON" in payload["msg"]
+
+
+def test_zulip_notification_resource_uploads_and_sends_message(mocker, tmp_path):
+    """Zulip resource should upload file and append link to message content."""
+    init_context = build_init_resource_context(
+        config={
+            "base_url": "https://zulip.example.com",
+            "bot_email": "bot@example.com",
+            "api_key": "test-key",  # pragma: allowlist secret
+        }
+    )
+    resource = ZulipNotificationResource.from_resource_context(init_context)
+
+    # Create a temp file to "upload"
+    csv_file = tmp_path / "status.csv"
+    csv_file.write_text("table,row_count\ncore_ferceqr__contracts,42\n")
+
+    # Mock the upload POST
+    upload_response = mocker.Mock()
+    upload_response.json.return_value = {
+        "result": "success",
+        "url": "/user_uploads/1/abc/status.csv",
+        "filename": "status.csv",
+    }
+    upload_response.raise_for_status.return_value = None
+
+    # Mock the message POST
+    msg_response = mocker.Mock()
+    msg_response.json.return_value = {"result": "success", "id": 456}
+
+    mocked_post = mocker.patch.object(
+        dagster_resources.requests,
+        "post",
+        side_effect=[upload_response, msg_response],
+    )
+
+    payload = resource.send_stream_message(
+        stream="pudl-deployments",
+        topic="FERC EQR Builds",
+        content="Build failed!",
+        file_path=str(csv_file),
+    )
+
+    assert payload == {"result": "success", "id": 456}
+
+    # First call: upload
+    assert (
+        mocked_post.call_args_list[0]
+        .args[0]
+        .startswith("https://zulip.example.com/api/v1/user_uploads")
+    )
+    assert "file" in mocked_post.call_args_list[0].kwargs["files"]
+
+    # Second call: message with appended download link
+    second_call = mocked_post.call_args_list[1]
+    assert second_call.args[0] == "https://zulip.example.com/api/v1/messages"
+    msg_data = second_call.kwargs["data"]
+    assert msg_data["content"].endswith(
+        "[status.csv](https://zulip.example.com/user_uploads/1/abc/status.csv)"
+    )
