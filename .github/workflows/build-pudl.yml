@@ -1,0 +1,11 @@
+---
+name: build-pudl
+
+on:
+  workflow_dispatch:
+
+jobs:
+  no_op:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
