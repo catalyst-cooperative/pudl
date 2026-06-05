@@ -12,6 +12,7 @@ For the underlying Dagster concept, see
 https://docs.dagster.io/guides/build/external-resources
 """
 
+import json
 import os
 from typing import Any
 
@@ -19,10 +20,12 @@ import dagster as dg
 import requests
 from upath import UPath
 
-from pudl import PUDL_SETTINGS_PATH
+from pudl import PUDL_SETTINGS_PATH, logging_helpers
 from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
+
+logger = logging_helpers.get_logger(__name__)
 
 
 class PudlPathsResource(dg.ConfigurableResource):
@@ -132,22 +135,40 @@ class ZulipNotificationResource(dg.ConfigurableResource):
     timeout_seconds: int = 30
 
     def send_stream_message(self, *, stream: str, topic: str, content: str) -> dict:
-        """Send a message to a Zulip stream topic and return the API response."""
-        response = requests.post(
-            f"{self.base_url}/api/v1/messages",
-            auth=(self.bot_email, self.api_key),
-            data={
-                "type": "stream",
-                "to": stream,
-                "topic": topic,
-                "content": content,
-            },
-            timeout=self.timeout_seconds,
-        )
-        response.raise_for_status()
-        payload = response.json()
+        """Send a message to a Zulip stream topic and return the API response.
+
+        Sends are best-effort: all failures are logged as warnings and returned
+        in the result dict so callers can inspect them, but no exception is
+        raised. This ensures a notification hiccup never crashes an asset.
+        """
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/v1/messages",
+                auth=(self.bot_email, self.api_key),
+                data={
+                    "type": "stream",
+                    "to": stream,
+                    "topic": topic,
+                    "content": content,
+                },
+                timeout=self.timeout_seconds,
+            )
+            response.raise_for_status()
+        except requests.RequestException as e:
+            logger.warning(f"Zulip notification failed (request error): {e}")
+            return {"result": "error", "msg": str(e)}
+
+        try:
+            payload = response.json()
+        except json.JSONDecodeError as e:
+            logger.warning(
+                f"Zulip returned 200 with invalid JSON body: {e}. "
+                f"Message was almost certainly delivered."
+            )
+            return {"result": "error", "msg": f"invalid JSON: {e}"}
+
         if payload.get("result") != "success":
-            raise RuntimeError(f"Zulip message failed: {payload}")
+            logger.warning(f"Zulip notification returned error payload: {payload}")
         return payload
 
 
