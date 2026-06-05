@@ -44,7 +44,7 @@ def _get_logfile_list(build_id: str) -> str:
     )
     return (
         "### Review FERC EQR Build Logs\n\n"
-        f"* GCS URL: `gs://builds.catalyst.coop/ferceqr_logs/{build_id}.log`\n\n"
+        f"* GCS URL: `gs://builds.catalyst.coop/ferceqr_logs/{build_id}.log`\n"
         f"* [Download FERC EQR logs to review locally]({download_url})\n"
         f"* [Review FERC EQR logs in the Google Cloud Console]({console_url})\n"
     )
