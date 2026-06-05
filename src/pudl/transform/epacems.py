@@ -199,13 +199,19 @@ def transform_epacems(
         "so2_mass_measurement_code",
         "co2_mass_measurement_code",
     ]
-    null_measurement_codes = ["Unknown Code", "Not Applicable", "Undetermined"]
+    mapped_measurement_codes = {
+        "CALC": "Calculated",
+        "OTHER": "Other",
+        "MEASSUB": "Measured and Substitute",
+        "MEASURE": "Measured",
+        "SUB": "Substitute",
+        "Unknown Code": None,
+        "Not Applicable": None,
+        "Undetermined": None,
+    }
     return (
         raw_lf.with_columns(
-            pl.when(pl.col(col).is_in(null_measurement_codes))
-            .then(None)
-            .otherwise(pl.col(col))
-            .alias(col)
+            pl.col(col).replace(mapped_measurement_codes).alias(col)
             for col in measurement_cols
         )
         .pipe(apply_pudl_dtypes_polars, group="epacems")

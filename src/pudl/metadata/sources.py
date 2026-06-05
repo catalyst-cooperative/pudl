@@ -488,7 +488,7 @@ SOURCES: dict[str, Any] = {
         },
         "working_partitions": {
             "year_quarters": _year_quarter_range(
-                start_quarter="1995q1", end_quarter="2025q4"
+                start_quarter="1995q1", end_quarter="2026q1"
             )
         },
         "contributors": [
