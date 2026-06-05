@@ -226,7 +226,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pillow-12.2.0-py313h80991f8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pixman-0.46.4-h54a6638_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/polars-runtime-32-1.41.2-py310h49dadd8_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/prek-0.4.3-hb17b654_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/prek-0.4.4-hb17b654_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/prettier-3.8.3-hdf27b9d_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/proj-9.8.1-he0df7b0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/prometheus-cpp-1.3.0-ha5d0236_0.conda
@@ -611,7 +611,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/simpleeval-1.0.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/skops-0.14-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.42.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/smmap-5.0.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sniffio-1.3.1-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/snowballstemmer-3.1.0-pyhd8ed1ab_0.conda
@@ -903,7 +902,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pillow-12.2.0-py313h20c1486_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pixman-0.46.4-h7ac5ae9_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/polars-runtime-32-1.41.2-py310h32c7c23_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prek-0.4.3-h069e38c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prek-0.4.4-h069e38c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prettier-3.8.3-ha6c2a1b_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/proj-9.8.1-hd211770_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prometheus-cpp-1.3.0-h7938499_0.conda
@@ -1287,7 +1286,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/simpleeval-1.0.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/skops-0.14-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.42.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/smmap-5.0.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sniffio-1.3.1-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/snowballstemmer-3.1.0-pyhd8ed1ab_0.conda
@@ -1672,7 +1670,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/simpleeval-1.0.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/skops-0.14-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.42.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/smmap-5.0.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sniffio-1.3.1-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/snowballstemmer-3.1.0-pyhd8ed1ab_0.conda
@@ -1930,7 +1927,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pillow-12.2.0-py313h23d381d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pixman-0.46.4-ha059160_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/polars-runtime-32-1.41.2-py310h3769acf_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/prek-0.4.3-h19f9e61_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/prek-0.4.4-h19f9e61_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/prettier-3.8.3-h810254c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/proj-9.8.1-he69a98e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/prometheus-cpp-1.3.0-h7802330_0.conda
@@ -2302,7 +2299,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/simpleeval-1.0.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/skops-0.14-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.42.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/smmap-5.0.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sniffio-1.3.1-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/snowballstemmer-3.1.0-pyhd8ed1ab_0.conda
@@ -2560,7 +2556,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pillow-12.2.0-py313h45e5a15_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pixman-0.46.4-h81086ad_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/polars-runtime-32-1.41.2-py310hb2fc7d1_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prek-0.4.3-h6fdd925_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prek-0.4.4-h6fdd925_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prettier-3.8.3-he13c965_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/proj-9.8.1-ha88f16d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prometheus-cpp-1.3.0-h0967b3e_0.conda
@@ -2858,7 +2854,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pillow-12.2.0-py313h80991f8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pixman-0.46.4-h54a6638_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/polars-runtime-32-1.41.2-py310h49dadd8_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/prek-0.4.3-hb17b654_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/prek-0.4.4-hb17b654_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/prettier-3.8.3-hdf27b9d_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/proj-9.8.1-he0df7b0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/prometheus-cpp-1.3.0-ha5d0236_0.conda
@@ -3256,7 +3252,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/simpleeval-1.0.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/skops-0.14-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.42.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/smmap-5.0.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sniffio-1.3.1-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/snowballstemmer-3.1.0-pyhd8ed1ab_0.conda
@@ -3559,7 +3554,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pillow-12.2.0-py313h20c1486_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pixman-0.46.4-h7ac5ae9_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/polars-runtime-32-1.41.2-py310h32c7c23_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prek-0.4.3-h069e38c_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prek-0.4.4-h069e38c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prettier-3.8.3-ha6c2a1b_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/proj-9.8.1-hd211770_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prometheus-cpp-1.3.0-h7938499_0.conda
@@ -3957,7 +3952,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/simpleeval-1.0.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/skops-0.14-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.42.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/smmap-5.0.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sniffio-1.3.1-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/snowballstemmer-3.1.0-pyhd8ed1ab_0.conda
@@ -4345,7 +4339,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/simpleeval-1.0.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/skops-0.14-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.42.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/smmap-5.0.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sniffio-1.3.1-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/snowballstemmer-3.1.0-pyhd8ed1ab_0.conda
@@ -4610,7 +4603,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pillow-12.2.0-py313h23d381d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pixman-0.46.4-ha059160_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/polars-runtime-32-1.41.2-py310h3769acf_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/prek-0.4.3-h19f9e61_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/prek-0.4.4-h19f9e61_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/prettier-3.8.3-h810254c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/proj-9.8.1-he69a98e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/prometheus-cpp-1.3.0-h7802330_0.conda
@@ -4987,7 +4980,6 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/simpleeval-1.0.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/skops-0.14-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.42.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/smmap-5.0.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sniffio-1.3.1-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/snowballstemmer-3.1.0-pyhd8ed1ab_0.conda
@@ -5252,7 +5244,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pillow-12.2.0-py313h45e5a15_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pixman-0.46.4-h81086ad_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/polars-runtime-32-1.41.2-py310hb2fc7d1_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prek-0.4.3-h6fdd925_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prek-0.4.4-h6fdd925_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prettier-3.8.3-he13c965_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/proj-9.8.1-ha88f16d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prometheus-cpp-1.3.0-h0967b3e_0.conda
@@ -8736,19 +8728,19 @@ packages:
   - pkg:pypi/polars-runtime-32?source=compressed-mapping
   size: 42611524
   timestamp: 1780146392384
-- conda: https://conda.anaconda.org/conda-forge/linux-64/prek-0.4.3-hb17b654_0.conda
-  sha256: f00765799c073f99e3d2f937b33519ba0a0181777f32dfa28998cb3841d1fb52
-  md5: be1e3c52122ccc764eab58b5db31615f
+- conda: https://conda.anaconda.org/conda-forge/linux-64/prek-0.4.4-hb17b654_0.conda
+  sha256: bf7ff3ff97b09ce0af65a8ca4309d23fe4d6ed294ff790b95ec6d9b3880cf89c
+  md5: f1576a64b697e9fd2d92b74175cef62a
   depends:
-  - libgcc >=14
   - __glibc >=2.17,<3.0.a0
+  - libgcc >=14
   constrains:
   - __glibc >=2.17
   license: MIT
   license_family: MIT
   purls: []
-  size: 5988505
-  timestamp: 1779866648161
+  size: 5991507
+  timestamp: 1780574090659
 - conda: https://conda.anaconda.org/conda-forge/linux-64/prettier-3.8.3-hdf27b9d_1.conda
   sha256: 98773d009c1b3ba066324f5880ab4e977a224b9ddb320e6c9917d77558d90c39
   md5: a7fce19049bf1a3be817d7a152444f9b
@@ -13281,9 +13273,9 @@ packages:
   - pkg:pypi/polars-runtime-32?source=hash-mapping
   size: 38736753
   timestamp: 1780146367652
-- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prek-0.4.3-h069e38c_0.conda
-  sha256: 6c4206b222b1ae6ae4158e91b34cbeeb288a46668110e27054bbb975dee70dd0
-  md5: b7983574480581e320d1dfe7f7d398f3
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prek-0.4.4-h069e38c_0.conda
+  sha256: 63446ec9720e99591a8607d2438a19bdb355dc49a2b1f9f183b334bfd408933b
+  md5: 0e485aa5cd829410bd3019cc95b9bb1c
   depends:
   - libgcc >=14
   constrains:
@@ -13291,8 +13283,8 @@ packages:
   license: MIT
   license_family: MIT
   purls: []
-  size: 5778880
-  timestamp: 1779866652425
+  size: 5803734
+  timestamp: 1780574098338
 - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/prettier-3.8.3-ha6c2a1b_1.conda
   sha256: bd35abf607e0a9bf1529ea6d823a85a9efae6365c62a53374706ed026078dc1c
   md5: dd15dba5c751dd922bdf0ca65f07be4a
@@ -19041,18 +19033,6 @@ packages:
   - pkg:pypi/skops?source=hash-mapping
   size: 104485
   timestamp: 1776757468143
-- conda: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.42.0-pyhcf101f3_0.conda
-  sha256: e9de7e7352cd4f8f0ee1c471ae00b6412131315b2d95f59c12ce0a470da3d621
-  md5: 40776b66bfe5a63227dc1b38cb4f07dc
-  depends:
-  - python >=3.10
-  - python
-  license: MIT
-  license_family: MIT
-  purls:
-  - pkg:pypi/slack-sdk?source=hash-mapping
-  size: 169284
-  timestamp: 1779155204079
 - conda: https://conda.anaconda.org/conda-forge/noarch/smmap-5.0.3-pyhd8ed1ab_0.conda
   sha256: ae723ba6ab7b1998a04ef16b357c1e0043ffd4f4ac9b0da71e393680343a3c86
   md5: 69db183edbe5b7c3e6c157980057a9d0
@@ -22751,9 +22731,9 @@ packages:
   - pkg:pypi/polars-runtime-32?source=compressed-mapping
   size: 41188306
   timestamp: 1780146275328
-- conda: https://conda.anaconda.org/conda-forge/osx-64/prek-0.4.3-h19f9e61_0.conda
-  sha256: 93b4a3a50bdce2aec722a49e8157bd6c543a5be77cc4b9cd223e2834a2d330aa
-  md5: 372d6f2a2358ecc3f09b7b9ce41e74cf
+- conda: https://conda.anaconda.org/conda-forge/osx-64/prek-0.4.4-h19f9e61_0.conda
+  sha256: 6360528d6bd7f50a55bf715e2ae9f3e13373454959db6250037c46af040f335e
+  md5: f96ebde5b803bed8a570d10c64f0ab37
   depends:
   - __osx >=11.0
   constrains:
@@ -22761,8 +22741,8 @@ packages:
   license: MIT
   license_family: MIT
   purls: []
-  size: 5972443
-  timestamp: 1779866836578
+  size: 6001816
+  timestamp: 1780574246606
 - conda: https://conda.anaconda.org/conda-forge/osx-64/prettier-3.8.3-h810254c_1.conda
   sha256: 575a973035c7faf8fbc62a49f7dab9077bf695d40b3296957d7ef83c8a7d168f
   md5: 64e41935803dc7bf622a5b284d40dee2
@@ -26455,9 +26435,9 @@ packages:
   - pkg:pypi/polars-runtime-32?source=hash-mapping
   size: 36292549
   timestamp: 1780146248330
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/prek-0.4.3-h6fdd925_0.conda
-  sha256: 9c3ba8b4f4ce6694c35c69504fe943b7f70f72d12ab63db1da58cbc008c6ef4a
-  md5: 7366341afac9204b6bae9eb30dab0558
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/prek-0.4.4-h6fdd925_0.conda
+  sha256: b48f6b02aac8f814429686170e4329dd60e3b11f68391335cc5e8d6f23b88310
+  md5: d635d25984684211202c98d05a1fa1a1
   depends:
   - __osx >=11.0
   constrains:
@@ -26465,8 +26445,8 @@ packages:
   license: MIT
   license_family: MIT
   purls: []
-  size: 5570177
-  timestamp: 1779866818732
+  size: 5571662
+  timestamp: 1780574364292
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prettier-3.8.3-he13c965_1.conda
   sha256: 813307f913a4a56df1563ce213d1c5da7e5c7aa41f935fbe8cc52fe67360cb6f
   md5: 7f5629c5d2bd20d4e08392ac473a302a
