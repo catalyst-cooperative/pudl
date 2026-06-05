@@ -560,7 +560,7 @@ def time_aggregated_eia923_asset_factory(
             .agg(
                 {
                     "fuel_received_units": pudl.helpers.sum_na,
-                    "fuel_consumed_mmbtu": pudl.helpers.sum_na,
+                    "fuel_received_mmbtu": pudl.helpers.sum_na,
                     "total_fuel_cost": pudl.helpers.sum_na,
                     "total_sulfur_content": pudl.helpers.sum_na,
                     "total_ash_content": pudl.helpers.sum_na,
@@ -573,9 +573,9 @@ def time_aggregated_eia923_asset_factory(
                 }
             )
             .assign(
-                fuel_cost_per_mmbtu=lambda x: x.total_fuel_cost / x.fuel_consumed_mmbtu,
+                fuel_cost_per_mmbtu=lambda x: x.total_fuel_cost / x.fuel_received_mmbtu,
                 fuel_mmbtu_per_unit=lambda x: (
-                    x.fuel_consumed_mmbtu / x.fuel_received_units
+                    x.fuel_received_mmbtu / x.fuel_received_units
                 ),
                 ash_content_pct=lambda x: x.total_ash_content / x.fuel_received_units,
                 sulfur_content_pct=lambda x: (
