@@ -80,8 +80,7 @@ Quality of Life Improvements
   to send Zulip stream messages from within assets, with best-effort error handling. The
   FERC EQR deployment helpers in :mod:`pudl.dagster.assets.deploy.ferceqr` were updated
   to use it. Notification coverage was also expanded to include community activity
-  (issues, discussions, comments, and pull requests from non-Catalyst contributors) and
-  the ``com-dev`` Zulip stream. See PR :pr:`5298`.
+  (issues, discussions, comments, and pull requests from non-Catalyst contributors). See PR :pr:`5298`.
 
 .. _release-v2026.5.0:
 
