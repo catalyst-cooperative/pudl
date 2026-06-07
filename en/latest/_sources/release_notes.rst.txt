@@ -97,6 +97,15 @@ Quality of Life Improvements
   outside of a ``dg``-spawned environment:
   :func:`pudl.dagster.build.build_interactive_defs`. See issue :issue:`5118` and PR
   :pr:`5242`.
+* Migrated build and deployment notifications from Slack to Zulip. All GitHub Actions
+  workflows that previously posted to Slack now send notifications to the Catalyst
+  Cooperative Zulip instance via the ``zulip/github-actions-zulip`` action. A new
+  :class:`~pudl.dagster.resources.ZulipNotificationResource` Dagster resource was added
+  to send Zulip stream messages from within assets, with best-effort error handling. The
+  FERC EQR deployment helpers in :mod:`pudl.dagster.assets.deploy.ferceqr` were updated
+  to use it. Notification coverage was also expanded to include community activity
+  (issues, discussions, comments, and pull requests from non-Catalyst contributors).
+  See PR :pr:`5298`.
 
 .. _release-v2026.5.0:
 
