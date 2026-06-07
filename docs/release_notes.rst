@@ -31,10 +31,34 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-191
+~~~~~~~
+
+* Updated :doc:`EIA-191 <data_sources/eia191>` data to include additional 2026 data. See
+  PR :pr:`5292`.
+
 EIA-860M
 ~~~~~~~~
 
 * Added EIA-860M data through April 2026. See issue :issue:`5277` and PR :pr:`5284`.
+
+EIA Electricity API
+~~~~~~~~~~~~~~~~~~~
+
+* Updated the bulk EIA Electricity API data used to fill in redacted fuel prices.
+  See PR :pr:`5292`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data to include 2026Q1. See PR
+  :pr:`5292`.
+
+FERC Forms 2 & 6
+~~~~~~~~~~~~~~~~
+
+* Updated the raw FERC Form 2 and 6 archives to include 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR :pr:`5292`.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -80,8 +104,8 @@ Quality of Life Improvements
   to send Zulip stream messages from within assets, with best-effort error handling. The
   FERC EQR deployment helpers in :mod:`pudl.dagster.assets.deploy.ferceqr` were updated
   to use it. Notification coverage was also expanded to include community activity
-  (issues, discussions, comments, and pull requests from non-Catalyst contributors) and
-  the ``com-dev`` Zulip stream. See PR :pr:`5298`.
+  (issues, discussions, comments, and pull requests from non-Catalyst contributors).
+  See PR :pr:`5298`.
 
 .. _release-v2026.5.0:
 
