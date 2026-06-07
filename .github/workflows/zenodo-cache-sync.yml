@@ -48,26 +48,29 @@ jobs:
         run: |
           pixi run pudl_datastore --all --cloud-cache-path ${{ env.CLOUD_CACHE_PATH }} --bypass-local-cache --loglevel DEBUG
 
-  zenodo-cache-sync-notify:
+  zulip-notify:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs: zenodo-cache-sync
     steps:
-      - name: Inform the Codemonkeys
-        uses: 8398a7/action-slack@v3
+      - name: Status emoji
+        run: |
+          if [[ "${{ needs.zenodo-cache-sync.result }}" == "success" ]]; then
+            echo "emoji=:check:" >> "$GITHUB_ENV"
+          elif [[ "${{ needs.zenodo-cache-sync.result }}" == "failure" ]]; then
+            echo "emoji=:x:" >> "$GITHUB_ENV"
+          else
+            echo "emoji=:warning:" >> "$GITHUB_ENV"
+          fi
+      - name: Notify Zulip of cache sync status
+        uses: zulip/github-actions-zulip/send-message@v2
         with:
-          status: custom
-          fields: workflow,job,commit,repo,ref,author,took
-          custom_payload: |
-            {
-              username: 'action-slack',
-              icon_emoji: ':octocat:',
-              attachments: [{
-                color: '${{ needs.zenodo-cache-sync.result }}' === 'success' ? 'good' : '${{ needs.zenodo-cache-sync.result }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_REPO}@${process.env.AS_REF}\n ${process.env.AS_WORKFLOW} (${process.env.AS_COMMIT})\n by ${process.env.AS_AUTHOR}\n Status: ${{ needs.zenodo-cache-sync.result }}`,
-              }]
-            }
-        env:
-          GITHUB_TOKEN: ${{ github.token }} # required
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-          MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "zenodo-cache-sync"
+          content: >
+            ${{ env.emoji }} Zenodo cache sync on `${{ github.head_ref || github.ref_name }}`.
+            [See the logs here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
