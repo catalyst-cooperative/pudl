@@ -201,7 +201,12 @@ class ZulipNotificationResource(dg.ConfigurableResource):
                 f"Zulip returned 200 with invalid JSON body: {e}. "
                 f"Message was almost certainly delivered."
             )
-            return {"result": "error", "msg": f"invalid JSON: {e}"}
+            return {
+                "result": "error",
+                "msg": f"invalid JSON: {e}",
+                # Include the raw response for debugging
+                "response_text": response.text,
+            }
 
         if payload.get("result") != "success":
             logger.warning(f"Zulip notification returned error payload: {payload}")

@@ -116,6 +116,7 @@ def test_zulip_notification_resource_handles_bad_json(mocker, zulip_resource):
 
     assert payload["result"] == "error"
     assert "invalid JSON" in payload["msg"]
+    assert "response_text" in payload
 
 
 def test_zulip_notification_resource_uploads_and_sends_message(
@@ -133,7 +134,6 @@ def test_zulip_notification_resource_uploads_and_sends_message(
         "url": "/user_uploads/1/abc/status.csv",
         "filename": "status.csv",
     }
-    upload_response.raise_for_status.return_value = None
 
     # Mock the message POST
     msg_response = mocker.Mock()
