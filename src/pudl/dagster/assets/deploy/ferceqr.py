@@ -284,7 +284,7 @@ class FercEqrDeploymentNotificationPayload:
             lines.append(f"- Dagster Run ID: `{self.source_run_id}`")
         if self.distribution_paths:
             lines.append("## Deployment Targets:")
-            lines.extend(f"  - {path}" for path in self.distribution_paths)
+            lines.extend(f"  - `{path}`" for path in self.distribution_paths)
         if self.source_run_duration:
             lines.append(
                 f"## :time: Dagster run duration: `[{self.source_run_duration}]`"
