@@ -3950,7 +3950,12 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
         df.loc[df.balance == "debit", "row_weight"] = 1.0
         df.loc[df.balance == "credit", "row_weight"] = -1.0
         if not (null_balances := df[df.balance.isnull()]).empty:
-            raise AssertionError(f" aaaahjhhh {null_balances}")
+            raise AssertionError(
+                "None of the fields in the balance column are expected to be null. "
+                "This will result in nulling of $ in ending_balance. The balance "
+                "column originates from the metadata."
+                f"\n{null_balances}"
+            )
         # Apply column weightings. Can this be done all at once in a vectorized way?
         for col in column_weights:
             df.loc[:, col] *= column_weights[col]
