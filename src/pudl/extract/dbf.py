@@ -3,6 +3,7 @@
 import contextlib
 import csv
 import importlib.resources
+import json
 import warnings
 import zipfile
 from collections import defaultdict
@@ -11,14 +12,13 @@ from functools import lru_cache
 from pathlib import Path
 from typing import IO, Any, Protocol, Self
 
+import frictionless
 import pandas as pd
 import sqlalchemy as sa
 from dagster import op
 from dbfread import DBF, FieldParser
-from pydantic import BaseModel, Field
 from sqlalchemy.engine.base import Engine
 
-import pudl.helpers
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
 from pudl.settings import FercDbfToSqliteDataConfig, FercToSqliteDataConfig
@@ -468,9 +468,53 @@ class FercDbfExtractor:
         db_path = str(Path(self.output_path) / self.DATABASE_NAME)
         return f"sqlite:///{db_path}"
 
-    def get_datapackage_path(self) -> Path:
+    def _clean_frictionless_types(self, type_: str) -> str:
+        """Normalize types from SQLite to frictionless."""
+        type_ = type_.lower()
+        type_ = "string" if type_.startswith(("varchar", "text")) else type_
+        type_ = "number" if type_.startswith("float") else type_
+        return type_
+
+    @property
+    def datapackage_path(self) -> Path:
         """Returns the path to the datapackage for this resource."""
         return Path(self.output_path) / f"{self.DATASET}_dbf_datapackage.json"
+
+    def to_frictionless(self):
+        """Create a frictionless DataPackage describing the DBF DB and write to a JSON file."""
+        resources = []
+        types = []
+        for table in self.sqlite_meta.sorted_tables:
+            for c in table.columns:
+                types.append(str(c.type))
+
+        for table in self.sqlite_meta.sorted_tables:
+            resources.append(
+                frictionless.Resource(
+                    path=self.get_db_path(),
+                    name=table.name,
+                    title=table.name,
+                    description=table.description,
+                    schema=frictionless.Schema(
+                        fields=[
+                            frictionless.Field.from_descriptor(
+                                {
+                                    "name": c.name,
+                                    "type": self._clean_frictionless_types(str(c.type)),
+                                }
+                            )
+                            for c in table.columns
+                        ]
+                    ),
+                )
+            )
+
+        package = frictionless.Package(
+            name=self.datapackage_path.stem,
+            title=f"{self.DATASET} data extracted from DBF filings",
+            resources=resources,
+        )
+        self.datapackage_path.write_text(json.dumps(package.to_dict(), indent=2))
 
     @classmethod
     def get_dagster_op(cls) -> Callable:
@@ -507,54 +551,19 @@ class FercDbfExtractor:
             return
 
         self.delete_schema()
+        self.initialize_database()
         self.create_sqlite_tables()
         self.load_table_data()
         self.postprocess()
-
-    # TODO: who should call as_pydantic?
-    def as_pydantic(self):
-        """Generate a pydantic model based on the database schema."""
-        resources = []
-        for table in self.sqlite_meta.sorted_tables():
-            resources.append(
-                Resource(
-                    path=self.get_db_path(),
-                    name=table.name,
-                    dialect=Dialect(table=table.name),
-                    # TODO: what is in table.description?
-                    # should title be table.description, and description be empty?
-                    title="??",
-                    description=table.description,
-                    schema=Schema(
-                        fields=[
-                            Field(
-                                name=c.name,
-                                type=c.type,
-                            )
-                            for c in table.columns
-                        ]
-                    ),
-                )
-            )
-
-        return Datapackage(
-            name=f"{self.DATASET}-extracted-dbf",
-            title=f"{self.DATASET} data extracted from DBF filings",
-            resources=resources,
-        )
-        ## Alt approach: dynamic model definition
-        # package = create_model(
-        #     profile=(str, "tabular-data-package"),
-        #     name=(str, f"{self.DATASET}-extracted-dbf"),
-        #     title=(str,f"{self.DATASET} data extracted from DBF filings"),
-        #     resources=(list[Resource],resources)
-        # )
+        self.to_frictionless()
 
     def delete_schema(self):
         """Drops all tables from the existing sqlite database."""
         with contextlib.suppress(sa.exc.OperationalError):
             pudl.helpers.drop_tables(self.sqlite_engine, clobber=True)
 
+    def initialize_database(self):
+        """Create sqlalchemy engine and metadata."""
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)
@@ -709,58 +718,3 @@ def deduplicate_by_year(
         .drop_duplicates(subset=pk_column, keep="last")
         .drop(columns="report_yr")
     )
-
-
-class Field(BaseModel):
-    """A generic field descriptor, as per Frictionless Data specs.
-
-    See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
-    """
-
-    name: str
-    type_: str = Field(alias="type", default="string")
-    format_: str = Field(alias="format", default="default")
-
-
-class Schema(BaseModel):
-    """A generic table schema, as per Frictionless Data specs.
-
-    See https://specs.frictionlessdata.io/table-schema/.
-    """
-
-    fields: list[Field]
-    primary_key: list[str]
-
-
-class Dialect(BaseModel):
-    """Dialect used for frictionless SQL resources."""
-
-    table: str
-
-
-class Resource(BaseModel):
-    """Resource schema for sqlite, as per Frictionless Data specs."""
-
-    path: str
-    profile: str = "tabular-data-resource"
-    name: str
-    dialect: Dialect
-    title: str
-    description: str
-    # TODO: what's up with this:
-    # E   pydantic_core._pydantic_core.ValidationError: 1 validation error for Field
-    # E   name
-    # E     Field required [type=missing, input_value={'alias': 'format', 'default': 'sqlite'}, input_type=dict]
-    # E       For further information visit https://errors.pydantic.dev/2.13/v/missing
-    format_: str = Field(alias="format", default="sqlite")
-    mediatype: str = "application/vnd.sqlite3"
-    schema_: Schema = Field(alias="schema")
-
-
-class Datapackage(BaseModel):
-    """Datapackage schema for tabular data, as per Frictionless Data specs."""
-
-    profile: str = "tabular-data-package"
-    name: str
-    title: str
-    resources: list[Resource]
