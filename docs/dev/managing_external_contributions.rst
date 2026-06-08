@@ -12,7 +12,40 @@ Overview
 -------------------------------------------------------------------------------
 
 This document outlines norms, practical tips, and expectations for internal
-Catalyst developers reviewing external community contributions.
+Catalyst developers supporting external community contributions.
+
+-------------------------------------------------------------------------------
+Creating 'good first issues'
+-------------------------------------------------------------------------------
+
+The 'good first issue' label on a Github issue is used to identify issues well-suited
+for first-time contributors to the PUDL repository. Issues with this label are
+compiled by Github into a `contribution page <https://github.com/catalyst-cooperative/pudl/contribute>`__,
+indexed on sites such as `Climate Triage <https://climatetriage.com/>`__.
+
+To be a truly good first issue, an issue should:
+
+* be a small discrete task with clear checkpoints and well-defined outcomes
+  (e.g., create one new core table, not 'integrate this dataset').
+* be low context: the issue should not touch multiple complex parts of the
+  code (e.g., harvesting) or require knowledge of existing bespoke workarounds in
+  our code.
+* be relatively easy to test and review. Relatedly, the issue should have
+  constrained downstream impacts: e.g., a change to the I/O manager we use for all
+  tables is probably not a great good first issue.
+* have a clear implementation solution in mind: while soliciting external feedback on
+  implementation design can be useful, an issue which requires us to do further research
+  and decide what to do, or to weigh different options as a team is a poor choice for a
+  good first issue.
+* have a satisfying outcome - a new table, a bug fix, a performance improvement!
+  We value our contributor's time and want them to get to work on exciting stuff,
+  not chores.
+* have no active blockers: while you can write up an issue to be an eventual good first
+  issue, you should avoid applying the label until the blocking issue is resolved.
+* not be highly time sensitive: data updates, breaking issues, and other tasks
+  that need to happen on a predictable timeline are best handled by Catalyst developers.
+
+To create a good first issue, use the issue template on Github to get started!
 
 -------------------------------------------------------------------------------
 Guidelines for contributor review
@@ -228,8 +261,3 @@ To push your local branch directly to a contributor's PR, run the following:
     # If you have a different local branch name from the remote, it
     # should instead look like this
     git push user-name local-branch-name:remote-branch-name
-
-
-.. todo::
-
-    * Add good first issue norms and template information once established.
