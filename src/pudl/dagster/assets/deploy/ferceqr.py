@@ -1,7 +1,7 @@
 """Define deployment helper assets for publishing FERC EQR outputs.
 
 These assets run during batch builds to publish transformed FERC EQR outputs,
-notify Slack of success or failure, and create status files that tell the batch
+notify Zulip of success or failure, and create status files that tell the batch
 job when deployment handling is complete.
 """
 
@@ -14,9 +14,9 @@ from typing import Literal
 import dagster as dg
 import gcsfs
 import s3fs
-from slack_sdk import WebClient
 from upath import UPath
 
+from pudl.dagster.resources import ZulipNotificationResource
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
@@ -32,35 +32,26 @@ FERCEQR_TRANSFORM_ASSETS = [
 ]
 
 
-def _notify_slack_deployments_channel(
-    message: str, attached_file_path: str | None = None
-):
-    """Send string message to PUDL deployments channel."""
-    client = WebClient(token=os.environ["SLACK_TOKEN"])
-    channel = "C03FHB9N0PQ"
-    if attached_file_path is not None:
-        client.files_upload_v2(
-            channel=channel,
-            file=attached_file_path,
-            title=f"{os.environ['BUILD_ID']} Status",
-            initial_comment=message,
-        )
-    client.chat_postMessage(
-        channel=channel,
-        text=message,
+def _get_logfile_list(build_id: str) -> str:
+    """Return pointer to logs to send in Zulip message."""
+    download_url = (
+        "https://storage.cloud.google.com/builds.catalyst.coop/"
+        f"ferceqr_logs/{build_id}.log"
+    )
+    console_url = (
+        "https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/"
+        f"run-ferceqr-etl-{build_id}/logs?project=catalyst-cooperative-pudl"
+    )
+    return (
+        "### Review FERC EQR Build Logs\n\n"
+        f"* GCS URL: `gs://builds.catalyst.coop/ferceqr_logs/{build_id}.log`\n"
+        f"* [Download FERC EQR logs to review locally]({download_url})\n"
+        f"* [Review FERC EQR logs in the Google Cloud Console]({console_url})\n"
     )
 
 
 def _get_etl_status_csv_path(pudl_paths: PudlPaths) -> Path:
     return pudl_paths.pudl_output / "ferceqr_etl_status.csv"
-
-
-def _get_logfile_pointer() -> str:
-    """Return pointer to logs to send in slack message."""
-    return (
-        f"<https://storage.cloud.google.com/builds.catalyst.coop/ferceqr_logs/{os.environ['BUILD_ID']}.log|*Download ferceqr logs to your computer*>\n\n"
-        f"<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-ferceqr-etl-{os.environ['BUILD_ID']}/logs?project=catalyst-cooperative-pudl|*Query ferceqr logs online*>\n\n"
-    )
 
 
 def _write_status_file(status: Literal["SUCCESS", "FAILURE"], pudl_paths: PudlPaths):
@@ -79,10 +70,16 @@ def deployment_status_asset(
     running until it eventually times out.
     """
 
-    @dg.asset(name=handler.__name__, required_resource_keys={"pudl_paths"})
+    @dg.asset(
+        name=handler.__name__,
+        required_resource_keys={"pudl_paths", "zulip_notifications"},
+    )
     def _status_handler_asset(context):
         try:
-            handler(context.resources.pudl_paths)
+            handler(
+                context.resources.pudl_paths,
+                context.resources.zulip_notifications,
+            )
         except Exception:
             logger.error("FERCEQR deployment handler failed!")
             logger.error(traceback.format_exc())
@@ -92,10 +89,13 @@ def deployment_status_asset(
 
 
 @deployment_status_asset
-def deploy_ferceqr(pudl_paths: PudlPaths):
+def deploy_ferceqr(
+    pudl_paths: PudlPaths,
+    zulip: ZulipNotificationResource,
+):
     """Publish EQR outputs to cloud storage."""
-    # Get output locations for S3 and GCS
-    distribution_paths = [
+    # Build list of (cloud_path, filesystem) pairs for distribution
+    distribution_targets = [
         (
             UPath(os.environ["GCS_OUTPUT_BUCKET"]),
             gcsfs.GCSFileSystem(
@@ -105,6 +105,7 @@ def deploy_ferceqr(pudl_paths: PudlPaths):
         ),
         (UPath(os.environ["S3_OUTPUT_BUCKET"]), s3fs.S3FileSystem()),
     ]
+
     # Get 'datapackage.json' data to write to distribution paths
     datapackage_bytes = (
         PUDL_PACKAGE.to_frictionless(include_pattern=r"core_ferceqr.*")
@@ -114,7 +115,7 @@ def deploy_ferceqr(pudl_paths: PudlPaths):
 
     # Loop through output locations and copy parquet files to buckets
     logger.info("Build successful, deploying ferceqr data.")
-    for distribution_path, fs in distribution_paths:
+    for distribution_path, fs in distribution_targets:
         for table in FERCEQR_TRANSFORM_ASSETS:
             logger.info(f"Copying {table} to {distribution_path}.")
             table_remote_path = distribution_path / table
@@ -133,30 +134,35 @@ def deploy_ferceqr(pudl_paths: PudlPaths):
             value=datapackage_bytes,
         )
 
-    # Send slack notification about successful build
-    logger.info("Notifying slack about successful build.")
-    _notify_slack_deployments_channel(
-        (
-            ":large_green_circle: :sunglasses: :unicorn_face: :rainbow: ferceqr deployment succeeded!!"
-            " :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
-            f"Parquet files published to: {', '.join(str(p[0]) for p in distribution_paths)}\n"
-            f"Logfile can be found at: {os.environ['GCS_LOGS_BUCKET']}\n\n"
+    # Send Zulip notification about successful build
+    published_paths = [str(path) for path, _fs in distribution_targets]
+    logger.info("FERC EQR build succeeded. Notifying Zulip.")
+    zulip.send_stream_message(
+        stream="pudl-deployments",
+        topic="build-deploy-pudl",
+        content=(
+            ":check: FERC EQR deployment **SUCCESS**!\n\n"
+            f"Parquet files published to: {', '.join(published_paths)}\n\n"
         )
-        + _get_logfile_pointer()
+        + _get_logfile_list(os.getenv("BUILD_ID", "no-build-id")),
     )
     _write_status_file("SUCCESS", pudl_paths)
 
 
 @deployment_status_asset
-def handle_ferceqr_deployment_failure(pudl_paths: PudlPaths):
+def handle_ferceqr_deployment_failure(
+    pudl_paths: PudlPaths,
+    zulip: ZulipNotificationResource,
+):
     """Send notification if EQR deployment failed."""
-    logger.error("Build failed, notifying slack.")
-    _notify_slack_deployments_channel(
-        message=(
-            ":x: ferceqr deployment failed!\n\n"
-            + _get_logfile_pointer()
-            + "See individual step status in attached file: "
+    logger.error("FERC EQR build failed. Notifying Zulip.")
+    zulip.send_stream_message(
+        stream="pudl-deployments",
+        topic="build-deploy-pudl",
+        content=(
+            ":x: FERC EQR deployment **FAILURE**!\n\n"
+            + _get_logfile_list(os.getenv("BUILD_ID", "no-build-id"))
         ),
-        attached_file_path=str(_get_etl_status_csv_path(pudl_paths)),
+        file_path=_get_etl_status_csv_path(pudl_paths),
     )
     _write_status_file("FAILURE", pudl_paths)

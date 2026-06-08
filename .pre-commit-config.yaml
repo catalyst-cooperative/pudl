@@ -31,7 +31,7 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.14
+    rev: v0.15.16
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -62,7 +62,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.46.3
+    rev: v1.47.2
     hooks:
       - id: typos
         exclude: |
@@ -98,7 +98,7 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.95.3
+    rev: v3.95.5
     hooks:
       - id: trufflehog
         name: TruffleHog
@@ -162,6 +162,30 @@ repos:
         pass_filenames: false
         always_run: true
         entry: bash -c 'pixi install --quiet && git add pixi.lock'
+
+      - id: pixi-lockfile-minimum-version
+        name: pixi-lockfile-minimum-version
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        files: '^pixi\.lock$'
+        pass_filenames: true
+        always_run: true
+        entry: |
+          bash -ceu '
+            for file in "$@"; do
+              version="$(sed -nE "1s/^version:[[:space:]]*['\\\"]?([0-9]+)['\\\"]?.*$/\\1/p" "$file")"
+              if [ -z "$version" ]; then
+                echo "ERROR: Could not parse version from line 1 of $file."
+                exit 1
+              fi
+              if [ "$version" -lt 7 ]; then
+                echo "ERROR: $file has version $version, but version must be >= 7."
+                echo "Update pixi to at least v0.69 using pixi self-update and regenerate the lockfile."
+                exit 1
+              fi
+            done
+          ' --
 
       - id: unit-tests
         name: unit-tests

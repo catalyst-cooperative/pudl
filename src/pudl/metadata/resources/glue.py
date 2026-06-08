@@ -88,7 +88,7 @@ These are the smallest coherent units of aggregation.""",
         "sources": ["epacamd_eia"],
     },
 }
-"""PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
+"""PUDL-specific resource attributes by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 
