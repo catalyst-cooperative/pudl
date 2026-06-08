@@ -16,10 +16,12 @@ def _build_deploy_context(tmp_path, mocker, targets=None):
     deployment_resource = SimpleNamespace(
         resolved_targets=lambda: targets or [],
     )
+    zulip_mock = mocker.Mock(spec=["send_stream_message"])
     return dg.build_asset_context(
         resources={
             "pudl_paths": SimpleNamespace(pudl_output=tmp_path),
             "ferceqr_deployment_targets": deployment_resource,
+            "zulip_notification": zulip_mock,
         }
     )
 
@@ -137,16 +139,14 @@ def test_ferceqr_deployment_failure_sensor_returns_failure_run_request(mocker):
 
 
 def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_path):
-    """Successful deployment should write outputs to fallback path, notify Slack, and mark FERCEQR_SUCCESS."""
+    """Successful deployment should write outputs to fallback path, notify Zulip, and mark FERCEQR_SUCCESS."""
     source_root = tmp_path / "source"
     deploy_root = tmp_path / "deploy"
     deploy_context = _build_deploy_context(
         tmp_path, mocker, targets=[UPath(deploy_root)]
     )
     (tmp_path / "FERCEQR_FAILURE").write_text("stale failure")
-    notify_slack = mocker.patch.object(
-        deploy_ferceqr, "_notify_slack_deployments_channel"
-    )
+    zulip_mock = deploy_context.resources.zulip_notification
     frictionless = mocker.Mock()
     mock_package = mocker.Mock()
     frictionless.to_json.return_value = "{}"
@@ -209,9 +209,9 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
         include_pattern=r"core_ferceqr.*"
     )
 
-    notify_slack.assert_called_once()
-    sent_message = notify_slack.call_args.kwargs["message"]
-    assert "core_ferceqr__contracts" in sent_message
+    zulip_mock.send_stream_message.assert_called_once()
+    sent_content = zulip_mock.send_stream_message.call_args.kwargs["content"]
+    assert "core_ferceqr__contracts" in sent_content
 
 
 def test_deploy_ferceqr_requires_source_partitions(mocker, tmp_path):
@@ -225,43 +225,39 @@ def test_deploy_ferceqr_requires_source_partitions(mocker, tmp_path):
 def test_handle_ferceqr_deployment_failure_writes_failure_and_notifies(
     mocker, tmp_path
 ):
-    """Failure handler should notify Slack and write the FAILURE sentinel file."""
+    """Failure handler should notify Zulip and write the FAILURE sentinel file."""
     deploy_context = _build_deploy_context(tmp_path, mocker)
     (tmp_path / "FERCEQR_SUCCESS").write_text("stale success")
-    notify_slack = mocker.patch.object(
-        deploy_ferceqr, "_notify_slack_deployments_channel"
-    )
+    zulip_mock = deploy_context.resources.zulip_notification
 
     deploy_ferceqr.handle_ferceqr_deployment_failure(deploy_context)
 
     assert (tmp_path / "FERCEQR_FAILURE").exists()
     assert not (tmp_path / "FERCEQR_SUCCESS").exists()
-    notify_slack.assert_called_once()
+    zulip_mock.send_stream_message.assert_called_once()
 
 
 def test_build_message_includes_asset_partition_status_table():
     """Verbose message includes source partition and the asset/partition status table."""
-    message = deploy_ferceqr.build_ferceqr_deployment_markdown_message(
-        deploy_ferceqr.FercEqrDeploymentNotificationPayload(
-            outcome="FAILURE",
-            build_id="build-789",
-            distribution_paths=None,
-            deployed_partitions=["2013q3", "2013q4"],
-            source_run_id="run-789",
-            source_run_duration="00:12:34",
-            source_run_status="FAILURE",
-            source_partition="2013q4",
-            asset_partition_statuses={
-                "core_ferceqr__transactions": {
-                    "2013q3": "SUCCESS",
-                    "2013q4": "FAILURE",
-                },
-                "core_ferceqr__quarterly_identity": {
-                    "2013q3": "SKIPPED",
-                },
+    message = deploy_ferceqr.FercEqrDeploymentNotificationPayload(
+        outcome="FAILURE",
+        build_id="build-789",
+        distribution_paths=None,
+        deployed_partitions=["2013q3", "2013q4"],
+        source_run_id="run-789",
+        source_run_duration="00:12:34",
+        source_run_status="FAILURE",
+        source_partition="2013q4",
+        asset_partition_statuses={
+            "core_ferceqr__transactions": {
+                "2013q3": "SUCCESS",
+                "2013q4": "FAILURE",
             },
-        )
-    )
+            "core_ferceqr__quarterly_identity": {
+                "2013q3": "SKIPPED",
+            },
+        },
+    ).to_markdown()
 
     print("\nFERCEQR deployment notification example:\n")
     print(message)

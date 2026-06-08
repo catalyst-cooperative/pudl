@@ -1,7 +1,7 @@
 """Define deployment helper assets for publishing FERC EQR outputs.
 
 These assets run during batch builds to publish transformed FERC EQR outputs,
-notify Slack of success or failure, and create status files that tell the batch
+notify Zulip of success or failure, and create status files that tell the batch
 job when deployment handling is complete.
 """
 
@@ -15,10 +15,10 @@ from typing import Literal
 
 import dagster as dg
 import pandas as pd
-from slack_sdk import WebClient
 
 from pudl.dagster.resources import (
     FercEqrDeploymentResource,
+    ZulipNotificationResource,
 )
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
@@ -41,29 +41,21 @@ FERCEQR_TRANSFORM_ASSETS = [
 ]
 
 
-def _notify_slack_deployments_channel(
-    message: str, attached_file_path: str | None = None
-):
-    """Send string message to PUDL deployments channel.
-
-    Skips silently when ``SLACK_TOKEN`` is not set in the environment (e.g.
-    during local development or pipeline tests).
-    """
-    if not (slack_token := os.getenv("SLACK_TOKEN")):
-        logger.info("SLACK_TOKEN not set; skipping Slack notification.")
-        return
-    client = WebClient(token=slack_token)
-    channel = "C03FHB9N0PQ"
-    if attached_file_path is not None:
-        client.files_upload_v2(
-            channel=channel,
-            file=attached_file_path,
-            title=f"{os.getenv('BUILD_ID', 'no-build-id')} Status",
-            initial_comment=message,
-        )
-    client.chat_postMessage(
-        channel=channel,
-        text=message,
+def _get_logfile_list(build_id: str) -> str:
+    """Return pointer to logs to send in Zulip message."""
+    download_url = (
+        "https://storage.cloud.google.com/builds.catalyst.coop/"
+        f"ferceqr_logs/{build_id}.log"
+    )
+    console_url = (
+        "https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/"
+        f"run-ferceqr-etl-{build_id}/logs?project=catalyst-cooperative-pudl"
+    )
+    return (
+        "## Review FERC EQR Build Logs\n\n"
+        f"* GCS URL: `gs://builds.catalyst.coop/ferceqr_logs/{build_id}.log`\n"
+        f"* [Download FERC EQR logs to review locally]({download_url})\n"
+        f"* [Review FERC EQR logs in the Google Cloud Console]({console_url})\n"
     )
 
 
@@ -72,16 +64,9 @@ def _get_build_id() -> str:
     return os.getenv("BUILD_ID", "no-build-id")
 
 
-def _get_logfile_pointer_markdown(build_id: str) -> str:
-    """Return markdown links to logs for notifications."""
-    return (
-        f"- [Download ferceqr logs](https://storage.cloud.google.com/builds.catalyst.coop/ferceqr_logs/{build_id}.log)\n"
-        f"- [Query ferceqr logs online](https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-ferceqr-etl-{build_id}/logs?project=catalyst-cooperative-pudl)\n"
-    )
-
-
 def _write_status_file(
-    status: Literal["FERCEQR_SUCCESS", "FERCEQR_FAILURE"], pudl_paths: PudlPaths
+    status: Literal["FERCEQR_SUCCESS", "FERCEQR_FAILURE"],
+    pudl_paths: PudlPaths,
 ):
     """Notify build script that job is complete by creating a status file."""
     (Path(pudl_paths.pudl_output) / status).touch()
@@ -104,7 +89,7 @@ def _status_name(value: object) -> str:
 
 
 def _format_elapsed_seconds(elapsed_seconds: float) -> str:
-    """Format elapsed seconds as HH:MM:SS for Slack notifications."""
+    """Format elapsed seconds as HH:MM:SS for Zulip notifications."""
     total_seconds = max(int(elapsed_seconds), 0)
     elapsed_hours, remainder = divmod(total_seconds, 3600)
     elapsed_minutes, remaining_seconds = divmod(remainder, 60)
@@ -192,19 +177,19 @@ def _get_source_partitions(context: dg.AssetExecutionContext) -> list[str]:
         run = context.run
     except Exception as exc:  # pragma: no cover - direct invocation fallback
         raise RuntimeError(
-            "FERCEQR deployment run is missing source partitions."
+            "FERC EQR deployment run is missing source partitions."
         ) from exc
 
     run_tags = run.tags if run else {}
     source_partitions = run_tags.get(FERCEQR_SOURCE_PARTITIONS_TAG)
     if source_partitions is None:
-        raise RuntimeError("FERCEQR deployment run is missing source partitions.")
+        raise RuntimeError("FERC EQR deployment run is missing source partitions.")
 
     parsed_partitions = json.loads(source_partitions)
     if not isinstance(parsed_partitions, list) or not parsed_partitions:
-        raise RuntimeError("FERCEQR deployment run has no deployable partitions.")
+        raise RuntimeError("FERC EQR deployment run has no deployable partitions.")
     if any(not isinstance(partition, str) for partition in parsed_partitions):
-        raise RuntimeError("FERCEQR deployment run has invalid source partitions.")
+        raise RuntimeError("FERC EQR deployment run has invalid source partitions.")
 
     return parsed_partitions
 
@@ -274,7 +259,7 @@ def _format_step_status_markdown_table(
 
 @dataclass(frozen=True)
 class FercEqrDeploymentNotificationPayload:
-    """Input payload for FERCEQR deployment notification markdown."""
+    """Input payload for FERC EQR deployment notification markdown."""
 
     outcome: Literal["SUCCESS", "FAILURE"]
     build_id: str
@@ -286,45 +271,38 @@ class FercEqrDeploymentNotificationPayload:
     source_partition: str | None
     asset_partition_statuses: dict[str, dict[str, str]]
 
-
-def build_ferceqr_deployment_markdown_message(
-    payload: FercEqrDeploymentNotificationPayload,
-) -> str:
-    """Build reusable Markdown notification text for deployment outcomes."""
-    title = (
-        "\n## :check: FERC EQR Deployment Succeeded"
-        if payload.outcome == "SUCCESS"
-        else "\n## :x: FERC EQR Deployment Failed"
-    )
-    lines = [title, ""]
-    if payload.distribution_paths:
-        lines.append("- Deployment Targets:")
-        lines.extend(f"  - {path}" for path in payload.distribution_paths)
-    lines.append(f"- Build ID: {payload.build_id}")
-    if payload.source_run_id:
-        lines.append(f"- Dagster run ID: `{payload.source_run_id}`")
-    if payload.source_run_duration:
-        lines.append(
-            f"- :time: Dagster run duration: `[{payload.source_run_duration}]`"
+    def to_markdown(self) -> str:
+        """Build reusable Markdown notification text for deployment outcomes."""
+        title = (
+            "\n# :check: FERC EQR Deployment Succeeded"
+            if self.outcome == "SUCCESS"
+            else "\n# :x: FERC EQR Deployment Failed"
         )
-    lines.extend(
-        [
-            "",
-            "### Asset / Partition Status",
-            "- :check: = SUCCESS",
-            "- :x: = FAILURE",
-            "- :ghost: = SKIPPED",
-            "- :question: = UNKNOWN / NO_DATA",
-            "",
-            _format_step_status_markdown_table(
-                asset_partition_statuses=payload.asset_partition_statuses,
-                partitions=payload.deployed_partitions,
-            ),
-        ]
-    )
-
-    lines.extend(["", "### Logs", _get_logfile_pointer_markdown(payload.build_id)])
-    return "\n".join(lines)
+        lines = [title, ""]
+        lines.append(f"- Build ID: `{self.build_id}`")
+        if self.source_run_id:
+            lines.append(f"- Dagster Run ID: `{self.source_run_id}`")
+        if self.distribution_paths:
+            lines.append("## Deployment Targets:")
+            lines.extend(f"  - {path}" for path in self.distribution_paths)
+        if self.source_run_duration:
+            lines.append(
+                f"## :time: Dagster run duration: `[{self.source_run_duration}]`"
+            )
+        lines.extend(
+            [
+                "",
+                "## Asset / Partition Status",
+                ":check: = SUCCESS; :x: = FAILURE; :ghost: = SKIPPED; :question: = UNKNOWN / NO_DATA",
+                "",
+                _format_step_status_markdown_table(
+                    asset_partition_statuses=self.asset_partition_statuses,
+                    partitions=self.deployed_partitions,
+                ),
+                _get_logfile_list(self.build_id),
+            ]
+        )
+        return "\n".join(lines)
 
 
 def deployment_status_asset(
@@ -343,6 +321,7 @@ def deployment_status_asset(
         required_resource_keys={
             "pudl_paths",
             "ferceqr_deployment_targets",
+            "zulip_notification",
         },
     )
     def _status_handler_asset(context: dg.AssetExecutionContext):
@@ -362,6 +341,7 @@ def deployment_status_asset(
 def deploy_ferceqr(context: dg.AssetExecutionContext):
     """Publish EQR outputs to configured deployment targets."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
+    zulip: ZulipNotificationResource = context.resources.zulip_notification
     deployment: FercEqrDeploymentResource = context.resources.ferceqr_deployment_targets
     (
         asset_partition_statuses,
@@ -371,8 +351,18 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         source_run_duration,
     ) = _get_source_run_step_status_summary(context)
     source_partitions = _get_source_partitions(context)
-
-    targets = deployment.resolved_targets()
+    distribution_paths = deployment.resolved_targets()
+    notification_payload = FercEqrDeploymentNotificationPayload(
+        outcome="SUCCESS",
+        build_id=_get_build_id(),
+        distribution_paths=distribution_paths,
+        source_run_id=source_run_id,
+        source_partition=source_partition,
+        source_run_status=source_run_status,
+        source_run_duration=source_run_duration,
+        asset_partition_statuses=asset_partition_statuses,
+        deployed_partitions=[source_partition] if source_partition else None,
+    )
 
     # Get 'datapackage.json' data to write to deployment targets.
     datapackage_bytes = (
@@ -382,12 +372,11 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     )
 
     logger.info("Build successful, deploying ferceqr data.")
-    for dest in targets:
-        dest.mkdir(parents=True, exist_ok=True)
+    for dist_path in distribution_paths:
         for table in FERCEQR_TRANSFORM_ASSETS:
-            logger.info(f"Copying {table} to {dest}.")
+            logger.info(f"Copying {table} to {dist_path}.")
             src_dir = Path(ParquetData(table_name=table).parquet_directory)
-            table_dest = dest / table
+            table_dest = dist_path / table
             table_dest.mkdir(parents=True, exist_ok=True)
             for source_partition_name in source_partitions:
                 parquet_file = src_dir / f"{source_partition_name}.parquet"
@@ -396,23 +385,14 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
                         f"Expected parquet output for {table} partition {source_partition_name}: {parquet_file}"
                     )
                 (table_dest / parquet_file.name).write_bytes(parquet_file.read_bytes())
-        (dest / "ferceqr_parquet_datapackage.json").write_bytes(datapackage_bytes)
+        (dist_path / "ferceqr_parquet_datapackage.json").write_bytes(datapackage_bytes)
 
-    # Send Slack notification about successful build.
-    logger.info("Notifying Slack about successful build.")
-    notification_payload = FercEqrDeploymentNotificationPayload(
-        outcome="SUCCESS",
-        build_id=_get_build_id(),
-        distribution_paths=[str(t) for t in targets],
-        deployed_partitions=source_partitions,
-        source_run_id=source_run_id,
-        source_run_duration=source_run_duration,
-        source_run_status=source_run_status,
-        source_partition=source_partition,
-        asset_partition_statuses=asset_partition_statuses,
-    )
-    _notify_slack_deployments_channel(
-        message=build_ferceqr_deployment_markdown_message(notification_payload),
+    # Send Zulip notification about successful build
+    logger.info("FERC EQR build succeeded. Notifying Zulip.")
+    zulip.send_stream_message(
+        stream="pudl-deployments",
+        topic="build-deploy-ferceqr",
+        content=notification_payload.to_markdown(),
     )
     _write_status_file("FERCEQR_SUCCESS", pudl_paths)
 
@@ -421,6 +401,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
 def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
     """Send notification if EQR deployment failed."""
     pudl_paths: PudlPaths = context.resources.pudl_paths
+    zulip: ZulipNotificationResource = context.resources.zulip_notification
     (
         asset_partition_statuses,
         source_run_id,
@@ -429,7 +410,7 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
         source_run_duration,
     ) = _get_source_run_step_status_summary(context)
 
-    logger.error("Build failed, notifying Slack.")
+    logger.error("Build failed, notifying Zulip.")
     notification_payload = FercEqrDeploymentNotificationPayload(
         outcome="FAILURE",
         build_id=_get_build_id(),
@@ -441,7 +422,10 @@ def handle_ferceqr_deployment_failure(context: dg.AssetExecutionContext):
         source_partition=source_partition,
         asset_partition_statuses=asset_partition_statuses,
     )
-    _notify_slack_deployments_channel(
-        message=build_ferceqr_deployment_markdown_message(notification_payload),
+    logger.error("FERC EQR build failed. Notifying Zulip.")
+    zulip.send_stream_message(
+        stream="pudl-deployments",
+        topic="build-deploy-ferceqr",
+        content=notification_payload.to_markdown(),
     )
     _write_status_file("FERCEQR_FAILURE", pudl_paths)
