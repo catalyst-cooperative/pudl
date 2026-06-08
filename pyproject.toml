@@ -147,7 +147,7 @@ responses = ">=0.25"
 ruff = ">=0.15"
 ruff-lsp = ">=0.0.62"
 s3fs = ">=2026"
-scikit-learn = ">=1.8"
+scikit-learn = ">=1.8,<1.9" # 1.9 column naming issues in embed_dataframe
 scipy = ">=1.17"
 shapely = ">=2.1.1"
 sphinx = ">=9"
