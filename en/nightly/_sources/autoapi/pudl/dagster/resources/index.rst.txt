@@ -31,6 +31,7 @@ Attributes
    pudl.dagster.resources.datastore_resource
    pudl.dagster.resources.ferc_xbrl_runtime_settings
    pudl.dagster.resources.ferceqr_data_config
+   pudl.dagster.resources.zulip_notification_resource
    pudl.dagster.resources.default_resources
 
 
@@ -45,6 +46,7 @@ Classes
    pudl.dagster.resources.ZenodoDoiSettingsResource
    pudl.dagster.resources.DatastoreResource
    pudl.dagster.resources.FercEqrDataConfig
+   pudl.dagster.resources.ZulipNotificationResource
 
 
 Module Contents
@@ -208,6 +210,48 @@ Module Contents
       Return UPath pointing to archive base path.
 
 
+.. py:class:: ZulipNotificationResource
+
+   Bases: :py:obj:`dagster.ConfigurableResource`
+
+
+   Send notifications to Zulip streams via the Zulip API.
+
+
+   .. py:attribute:: base_url
+      :type:  str
+      :value: 'https://catalyst-cooperative.zulipchat.com'
+
+
+
+   .. py:attribute:: bot_email
+      :type:  str
+      :value: 'build-status-bot@catalyst-cooperative.zulipchat.com'
+
+
+
+   .. py:attribute:: api_key
+      :type:  str
+
+
+   .. py:attribute:: timeout_seconds
+      :type:  int
+      :value: 30
+
+
+
+   .. py:method:: send_stream_message(*, stream: str, topic: str, content: str, file_path: str | pathlib.Path | None = None) -> dict
+
+      Send a message to a Zulip stream topic and return the API response.
+
+      Optionally upload a file and attach a download link to the message content.
+
+      Sends are best-effort: all failures are logged as warnings and returned in the
+      result dict so callers can inspect them, but no exception is raised. This
+      ensures a notification hiccup never crashes an asset.
+
+
+
 .. py:data:: global_data_config_resource
 
 .. py:data:: pudl_paths_resource
@@ -219,6 +263,8 @@ Module Contents
 .. py:data:: ferc_xbrl_runtime_settings
 
 .. py:data:: ferceqr_data_config
+
+.. py:data:: zulip_notification_resource
 
 .. py:data:: default_resources
    :type:  dict[str, Any]
