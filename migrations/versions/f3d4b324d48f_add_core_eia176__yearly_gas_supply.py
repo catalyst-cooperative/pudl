@@ -1,7 +1,7 @@
 """Add core_eia176__yearly_gas_supply
 
 Revision ID: f3d4b324d48f
-Revises: 4f252e9e2ce3
+Revises: f98868d3f5cb
 Create Date: 2026-05-28 11:35:43.484819
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "f3d4b324d48f"
-down_revision = "4f252e9e2ce3"
+down_revision = "f98868d3f5cb"
 branch_labels = None
 depends_on = None
 
@@ -47,7 +47,7 @@ def upgrade() -> None:
                 "lng_storage_withdrawals",
                 "above_ground_storage_withdrawals",
                 "receipts_from_state_or_us_border",
-                "total_citygate_receipts",
+                "citygate_receipts_total",
                 "citygate_receipts_sales_customers",
                 "citygate_receipts_transportation_customers",
                 "other_receipts",

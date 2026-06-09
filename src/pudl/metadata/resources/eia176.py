@@ -9,13 +9,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "a company's natural and supplemental gas supply for the report state."
             ),
             "additional_source_text": "(Part 4, Lines 1.0-7.0)",
+            "usage_warnings": [
+                {
+                    "type": "split-field",
+                    "description": (
+                        "Note that citygate receipts were split into sales customer and transportation customer "
+                        "sub-components in 2011. The ``citygate_receipts_total`` field has not been forward-filled to avoid "
+                        "data duplication, and is accordingly null after 2010."
+                    ),
+                },
+            ],
             "additional_details_text": """Line 3.0 receipts from the state or U.S. border and Line 6.0
-supplemental gaseous fuels are reported as aggregate totals in this table. The original
-granular continuation-line records contain additional counterparty and fuel-type details,
-but they are not yet included in PUDL.
-
-Total citygate receipts are reported alongside the sales-customer and transportation-customer
-components that split out those receipts after 2010.
+supplemental gaseous fuels are reported as aggregated totals, with one value per operator ID and year in this table.
+The disaggregated records are reported in core_eia176__yearly_gas_imports and core_eia176__yearly_supplemental_gaseous_fuel_supplies.
+During transformation, the reported totals and the sum of the disaggregated data are compared to ensure consistency in
+reporting from the original EIA data.
             """,
         },
         "schema": {

@@ -195,7 +195,7 @@ SUPPLY_TYPES_EIA176: list[str] = [
     "lng_storage_withdrawals",
     "above_ground_storage_withdrawals",
     "receipts_from_state_or_us_border",
-    "total_citygate_receipts",
+    "citygate_receipts_total",
     "citygate_receipts_sales_customers",
     "citygate_receipts_transportation_customers",
     "other_receipts",

@@ -376,7 +376,7 @@ def core_eia176__yearly_gas_supply(
         # 3.0
         "receipts_from_state_or_us_border_volume": "receipts_from_state_or_us_border",
         # 4.0
-        "receipts_at_citygate_volume": "total_citygate_receipts",
+        "receipts_at_citygate_volume": "citygate_receipts_total",
         "receipts_at_citygate_delivered_to_sales_customers_volume": (
             "citygate_receipts_sales_customers"
         ),
@@ -402,6 +402,10 @@ def core_eia176__yearly_gas_supply(
     supply_cols = list(supply_type_map.values())
     df = df.dropna(subset=supply_cols, how="all")
 
+    # This compares the total values reported in this table with the
+    # disaggregated values reported in the continuation lines data
+    # for lines 3.0 and 6.0.
+    # We expect these records to be near-identical.
     line_3_mismatches = _compare_eia176_continuation_line_total(
         df=df,
         raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
