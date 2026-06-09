@@ -64,7 +64,7 @@ function trigger_deployment() {
 {
   "ref": "${BUILD_REF}",
   "inputs": {
-    "git_tag": "${GIT_TAG}",
+    "git_tag": "${GIT_TAG}"
   }
 }
 JSON
