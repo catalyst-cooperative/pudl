@@ -357,6 +357,125 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
 
 @asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_supply(
+    _core_eia176__yearly_company_data: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0)."""
+    primary_key = ["operator_id_eia", "report_year"]
+    extras = ["operating_state"]
+    supply_type_map = {
+        # 1.0
+        "production_volume": "natural_gas_production",
+        "synthetic_production_volume": "synthetic_gas_production",
+        # 2.0
+        "underground_storage_withdrawals_volume": "underground_storage_withdrawals",
+        "lng_storage_withdrawals_volume": "lng_storage_withdrawals",
+        "above_ground_storage_withdrawals_volume": "above_ground_storage_withdrawals",
+        # 3.0
+        "receipts_from_state_or_us_border_volume": "receipts_from_state_or_us_border",
+        # 4.0
+        "receipts_at_citygate_volume": "citygate_receipts_total",
+        "receipts_at_citygate_delivered_to_sales_customers_volume": (
+            "citygate_receipts_sales_customers"
+        ),
+        "receipts_at_citygate_delivered_to_transportation_customers_volume": (
+            "citygate_receipts_transportation_customers"
+        ),
+        # 5.0
+        "other_receipts_volume": "other_receipts",
+        # 6.0
+        "supplemental_gaseous_fuels_volume": "supplemental_gaseous_fuels",
+        # 7.0
+        "total_supply_volume": "total",
+    }
+
+    df = _core_eia176__yearly_company_data.filter(
+        [*primary_key, *extras, *supply_type_map]
+    )
+
+    df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
+    df = df.dropna(subset=["operating_state"])
+    df = df.rename(columns=supply_type_map)
+
+    supply_cols = list(supply_type_map.values())
+    df = df.dropna(
+        subset=[col for col in supply_cols if col in df.columns], how="all"
+    )  # Handle fast ETL edge case
+
+    # This compares the total values reported in this table with the
+    # disaggregated values reported in the continuation lines data
+    # for lines 3.0 and 6.0.
+    # We expect these records to be near-identical.
+    line_3_mismatches = _compare_eia176_continuation_line_total(
+        df=df,
+        raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
+        line=300,
+        value_col="receipts_from_state_or_us_border",
+        continuation_col="continuation_receipts_from_state_or_us_border_mcf",
+    )
+    assert len(line_3_mismatches) <= 2, "More than 2 line 3.0 receipts mismatches"
+
+    line_6_mismatches = _compare_eia176_continuation_line_total(
+        df=df,
+        raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
+        line=600,
+        value_col="supplemental_gaseous_fuels",
+        continuation_col="continuation_supplemental_gaseous_fuels_mcf",
+    )
+    assert line_6_mismatches.empty, (
+        "Found line 6.0 supplemental gaseous fuels mismatches"
+    )
+
+    return df.melt(
+        id_vars=[*primary_key, *extras],
+        value_vars=[
+            col for col in supply_cols if col in df.columns
+        ],  # Handle fast ETL edge case
+        var_name="supply_type",
+        value_name="volume_mcf",
+    ).dropna(subset=["volume_mcf"])
+
+
+def _compare_eia176_continuation_line_total(
+    df: pd.DataFrame,
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    *,
+    line: int,
+    value_col: str,
+    continuation_col: str,
+) -> pd.DataFrame:
+    """Compare a wide EIA-176 value column against summed continuation-line values."""
+    primary_key = ["operator_id_eia", "report_year"]
+    continuation_values = (
+        raw_eia176__continuation_text_lines.groupby([*primary_key, "line"])
+        .agg({"volume_mcf": "sum"})
+        .reset_index()
+    )
+    continuation_values = (
+        continuation_values.pivot(
+            index=primary_key,
+            columns="line",
+            values="volume_mcf",
+        )
+        .reset_index()
+        .filter([*primary_key, line])
+        .rename(columns={line: continuation_col})
+    )
+
+    comparison = df.filter([*primary_key, "operating_state", value_col]).merge(
+        continuation_values,
+        how="left",
+        validate="1:1",
+    )
+    mismatch = (comparison[value_col] != comparison[continuation_col]) & (
+        comparison[value_col].notna() | comparison[continuation_col].notna()
+    )
+    return comparison.loc[mismatch]
+
+
+@asset(io_manager_key="pudl_io_manager")
 def core_eia176__yearly_gas_disposition(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,

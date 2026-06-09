@@ -60,6 +60,7 @@ from pudl.metadata.enums import (
     SERVICE_STATUS_RUS7,
     SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
+    SUPPLY_TYPES_EIA176,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_EIAAEO,
@@ -246,10 +247,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state."
         ),
     },
+    "supply_type": {
+        "type": "string",
+        "description": "Natural or supplemental gas supply category reported on EIA Form 176.",
+        "constraints": {"enum": SUPPLY_TYPES_EIA176},
+    },
     "volume_mcf": {
         "type": "number",
         "description": (
-            "Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            "Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
     },
