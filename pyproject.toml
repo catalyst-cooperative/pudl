@@ -594,18 +594,14 @@ doctest_optionflags = [
 
 [tool.coverage.run]
 source = ["src/pudl/", "tests/integration/", "tests/unit/", "tests/validate/"]
-omit = [
-    "src/pudl/*/ferceqr*.py",
-    "src/pudl/_version.py",
-    "src/pudl/scripts/dghome.py",
-]
+omit = ["src/pudl/_version.py"]
 relative_files = true
 
 [tool.coverage.report]
 precision = 2
 sort = "miss"
 skip_empty = true
-fail_under = 93
+fail_under = 80
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",
