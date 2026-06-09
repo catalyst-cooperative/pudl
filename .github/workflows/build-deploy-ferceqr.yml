@@ -137,8 +137,8 @@ jobs:
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env OMP_NUM_THREADS=8 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
-            --vcpu 8 \
-            --mem-gb 63 \
+            --vcpu 16 \
+            --mem-gb 127 \
             --disk-gb 1000 \
             --output ${{ env.BATCH_JOB_JSON }}
 
