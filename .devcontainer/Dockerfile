@@ -1,4 +1,4 @@
-FROM ghcr.io/prefix-dev/pixi:0.69.0-noble
+FROM ghcr.io/prefix-dev/pixi:0.70.1-noble
 
 # Reuse the nightly build's Pixi base image, but keep the devcontainer lean:
 # the repository is bind-mounted at runtime and Dagster falls back to its

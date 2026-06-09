@@ -514,7 +514,7 @@ core_eia191__monthly_gas_storage,2022,4937
 core_eia191__monthly_gas_storage,2023,4945
 core_eia191__monthly_gas_storage,2024,4961
 core_eia191__monthly_gas_storage,2025,4896
-core_eia191__monthly_gas_storage,2026,816
+core_eia191__monthly_gas_storage,2026,1224
 core_eia860__assn_boiler_cooling,2009,2586
 core_eia860__assn_boiler_cooling,2010,2834
 core_eia860__assn_boiler_cooling,2011,2963
@@ -1483,7 +1483,7 @@ core_eia__yearly_fuel_receipts_costs_aggs,2022,33083
 core_eia__yearly_fuel_receipts_costs_aggs,2023,32676
 core_eia__yearly_fuel_receipts_costs_aggs,2024,32531
 core_eia__yearly_fuel_receipts_costs_aggs,2025,32423
-core_eia__yearly_fuel_receipts_costs_aggs,2026,3808
+core_eia__yearly_fuel_receipts_costs_aggs,2026,7590
 core_eiaaeo__yearly_projected_electric_sales,2023,51376
 core_eiaaeo__yearly_projected_electric_sales,2025,33800
 core_eiaaeo__yearly_projected_electric_sales,2026,29744
@@ -1506,7 +1506,7 @@ core_epa__assn_eia_epacamd,2021,6410
 core_epa__assn_eia_epacamd,2022,6410
 core_epa__assn_eia_epacamd,2023,6371
 core_epa__assn_eia_epacamd,2024,6340
-core_epa__assn_eia_epacamd_subplant_ids,,44409
+core_epa__assn_eia_epacamd_subplant_ids,,44411
 core_epacems__hourly_emissions,1995,3846120
 core_epacems__hourly_emissions,1996,3645432
 core_epacems__hourly_emissions,1997,17660784
@@ -1537,7 +1537,8 @@ core_epacems__hourly_emissions,2021,35380968
 core_epacems__hourly_emissions,2022,35166792
 core_epacems__hourly_emissions,2023,34800312
 core_epacems__hourly_emissions,2024,34399800
-core_epacems__hourly_emissions,2025,33957864
+core_epacems__hourly_emissions,2025,33988776
+core_epacems__hourly_emissions,2026,8123760
 core_ferc1__codes_power_purchase_types,,9
 core_ferc1__yearly_balance_sheet_assets_sched110,1994,9096
 core_ferc1__yearly_balance_sheet_assets_sched110,1995,8769

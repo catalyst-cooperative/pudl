@@ -73,15 +73,28 @@ jobs:
             ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
             --${{ inputs.publish }}
 
+      - name: Status emoji
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "emoji=:check:" >> "$GITHUB_ENV"
+          elif [[ "${{ job.status }}" == "failure" ]]; then
+            echo "emoji=:x:" >> "$GITHUB_ENV"
+          else
+            echo "emoji=:warning:" >> "$GITHUB_ENV"
+          fi
+
       - name: Post status to pudl-deployments channel
         if: always()
-        id: slack
-        uses: slackapi/slack-github-action@v3
+        uses: zulip/github-actions-zulip/send-message@v2
         with:
-          method: chat.postMessage
-          token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
-          payload: |
-            {
-              "text": "${{job.status == 'success' && ':white_check_mark:' || ':x:'}} zenodo-data-release (`${{ github.ref }}`) finished with status: ${{ job.status }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-              "channel": "C03FHB9N0PQ"
-            }
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: >
+            ${{ env.emoji }} zenodo-data-release
+            on `${{ github.ref_name }}`
+            finished with status: ${{ job.status }}.
+            [See the logs here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
