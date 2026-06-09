@@ -582,7 +582,7 @@ def core_eia176__yearly_liquefied_natural_gas_inventory(
         pattern=rf"^(marine_terminal_facility|lng_facility)_({'|'.join(data_cols)})$",
         match_names=["facility_type", "data_cols"],
         unstack_level=["facility_type"],
-        expected_dropped_cols=1,
+        expected_dropped_cols=1,  # lng_inventory_at_end_of_year_volume
     )
     df["facility_type"] = df["facility_type"].replace(
         {
