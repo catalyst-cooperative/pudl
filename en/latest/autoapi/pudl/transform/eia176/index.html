@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia176 &#8212; PUDL 2026.5.1.dev28 documentation</title>
+    <title>pudl.transform.eia176 &#8212; PUDL 2026.5.1.dev29 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../../../_static/documentation_options.js?v=c146eec5"></script>
+    <script src="../../../../_static/documentation_options.js?v=68069aa3"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev28 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev28 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev29 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -799,7 +799,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition" title="pudl.transform.eia176.core_eia176__yearly_gas_disposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176._normalize_operating_states" title="pudl.transform.eia176._normalize_operating_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_operating_states</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory" title="pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_liquefied_natural_gas_inventory</span></code></a>(...)</p></td>
+<td><p>Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176._normalize_operating_states" title="pudl.transform.eia176._normalize_operating_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_operating_states</span></code></a>(...)</p></td>
 <td><p>Map full state names to their postal abbreviations.</p></td>
 </tr>
 </tbody>
@@ -902,6 +905,12 @@ unknown <code class="docutils literal notranslate"><span class="pre">operating_s
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">core_eia176__yearly_liquefied_natural_gas_inventory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_core_eia176__yearly_company_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_pudl__codes_subdivisions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#core_eia176__yearly_liquefied_natural_gas_inventory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory" title="Link to this definition">#</a></dt>
+<dd><p>Operator’s LNG storage volume and capacity (EIA176, lines 8.0-8.2).</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pudl.transform.eia176._normalize_operating_states">
 <span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">_normalize_operating_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_pudl__codes_subdivisions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#_normalize_operating_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176._normalize_operating_states" title="Link to this definition">#</a></dt>
 <dd><p>Map full state names to their postal abbreviations.</p>
@@ -970,6 +979,7 @@ unknown <code class="docutils literal notranslate"><span class="pre">operating_s
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.core_eia176__yearly_gas_supply"><code class="docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_supply()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176._compare_eia176_continuation_line_total"><code class="docutils literal notranslate"><span class="pre">_compare_eia176_continuation_line_total()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition"><code class="docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory"><code class="docutils literal notranslate"><span class="pre">core_eia176__yearly_liquefied_natural_gas_inventory()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176._normalize_operating_states"><code class="docutils literal notranslate"><span class="pre">_normalize_operating_states()</span></code></a></li>
 </ul>
 </li>

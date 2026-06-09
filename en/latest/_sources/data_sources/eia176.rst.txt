@@ -46,6 +46,9 @@ PUDL Database Tables
    * - :ref:`core_eia176__yearly_gas_supply`
      - https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_supply
    
+   * - :ref:`core_eia176__yearly_liquefied_natural_gas_inventory`
+     - https://data.catalyst.coop/preview/pudl/core_eia176__yearly_liquefied_natural_gas_inventory
+   
 
 
 Background

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.5.1.dev28 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.5.1.dev29 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../_static/documentation_options.js?v=c146eec5"></script>
+    <script src="../../_static/documentation_options.js?v=68069aa3"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev28 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev28 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev29 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -952,6 +952,86 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">from_col</span><span class="p">])</span>
         <span class="o">.</span><span class="n">to_records</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
     <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="multi_index_stack">
+<a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.multi_index_stack">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">multi_index_stack</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">idx_ish</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">data_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">match_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">unstack_level</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">drop_zero_rows</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">expected_dropped_cols</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stack multiple data columns - create categorical columns and data columns.</span>
+
+<span class="sd">    Many tables are reported in a wide format, with several columns reporting</span>
+<span class="sd">    the same type of value, but within different categories. E.g. electricity sales by</span>
+<span class="sd">    customer class, with each customer class in a separate column, and separate sets of</span>
+<span class="sd">    customer class columns for the dollar value of sales, and the MWh of electricity</span>
+<span class="sd">    sold.</span>
+
+<span class="sd">    This function takes those groups of columns and stacks each of them into a single</span>
+<span class="sd">    data column creating another categorical column describing the class to which each</span>
+<span class="sd">    record pertains.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: table to edit.</span>
+<span class="sd">        idx_ish: columns in df you want to set as index of stacked table.</span>
+<span class="sd">        pattern: a regex pattern of the df&#39;s column names you want to stack. This</span>
+<span class="sd">            pattern should have match groups that correspond to the levels of the</span>
+<span class="sd">            multi-index that will be created. One of these match groups must include</span>
+<span class="sd">            the string values of the ``data_cols``. For example, the</span>
+<span class="sd">            ``raw_rus7__power_requirements`` table contains a set of columns which</span>
+<span class="sd">            have sales_kwh and revenue pertaining to many different customer</span>
+<span class="sd">            classifications. The raw columns always have many different types of</span>
+<span class="sd">            customer_classifications at the beginning and either the sales or revenue</span>
+<span class="sd">            at the end. So the pattern for this table is:</span>
+<span class="sd">            ``rf&quot;^(.+)_(sales_kwh|revenue)$&quot;``</span>
+<span class="sd">        data_cols: names of data columns - these are strings within the df&#39;s original</span>
+<span class="sd">            column names that you will leave unstacked. The resulting dataframe will</span>
+<span class="sd">            include these columns. Using the same ``raw_rus7__power_requirements``</span>
+<span class="sd">            example, the data columns would be: ``[&quot;sales_kwh&quot;, &quot;revenue&quot;]``</span>
+<span class="sd">        match_names: the assigned names of each of the match groups in the regex</span>
+<span class="sd">            pattern - in the order they appear in the pattern. The match group&#39;s name</span>
+<span class="sd">            we won&#39;t use is the group containing the data_cols values - this can be</span>
+<span class="sd">            named anything but for clarity name this &#39;data_cols&#39;. Using the same</span>
+<span class="sd">            ``raw_rus7__power_requirements`` example, the ``match_names`` would be</span>
+<span class="sd">            ``[&quot;customer_classification&quot;, &quot;data_cols&quot;]`` because the customer</span>
+<span class="sd">            classification is the first match in the ``pattern`` and the data columns</span>
+<span class="sd">            are the second match in the pattern.</span>
+<span class="sd">        unstack_level: list of match_names to unstack. These are the names of the</span>
+<span class="sd">            matches that get unstacked - these end up as columns in the resulting</span>
+<span class="sd">            table. Presumably this will be all of the match_names except &#39;data_cols&#39;.</span>
+<span class="sd">        drop_zero_rows: if True, drop rows where all data_cols are 0. Function</span>
+<span class="sd">            already drops rows where data_cols are all NaN.</span>
+<span class="sd">        expected_dropped_cols: The number of cols we expect to be dropping during the</span>
+<span class="sd">            stack. Defaults to zero.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">og_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_ish</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">pattern</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">col_diff</span> <span class="o">:=</span> <span class="n">og_columns</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+    <span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">col_diff</span><span class="p">)</span> <span class="o">!=</span> <span class="n">expected_dropped_cols</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;We are dropping </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">col_diff</span><span class="p">)</span><span class="si">}</span><span class="s2"> when we expected to drop </span><span class="si">{</span><span class="n">expected_dropped_cols</span><span class="si">}</span><span class="s2"> cols. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Dropped columns: </span><span class="se">\n</span><span class="si">{</span><span class="p">(</span><span class="n">col_diff</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_frame</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">set_names</span><span class="p">(</span><span class="n">match_names</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">unstack_level</span><span class="p">,</span> <span class="n">future_stack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="c1"># remove the remaining multi-index</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">drop_zero_rows</span><span class="p">:</span>
+        <span class="n">all_zero_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">data_cols</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">all_zero_mask</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
 
 
 
