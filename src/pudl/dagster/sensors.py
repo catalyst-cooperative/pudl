@@ -15,6 +15,7 @@ from collections.abc import Sequence
 import dagster as dg
 
 from pudl.dagster.assets.deploy.ferceqr import (
+    FERCEQR_BACKFILL_TAG,
     FERCEQR_SOURCE_PARTITIONS_TAG,
     FERCEQR_SOURCE_RUN_ID_TAG,
 )
@@ -22,8 +23,6 @@ from pudl.dagster.jobs import ferceqr_deployment_job, ferceqr_job
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
-
-FERCEQR_BACKFILL_TAG = "dagster/backfill"
 
 NON_TERMINAL_RUN_STATUSES = {
     dg.DagsterRunStatus.QUEUED,
