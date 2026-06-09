@@ -558,7 +558,7 @@ def core_eia176__yearly_liquefied_natural_gas_inventory(
     # For the fast CI, we need to construct the inventory
     # column first as it is not reported in newer data.
     if "lng_inventory_at_end_of_year_volume" not in df.columns:
-        df["lng_inventory_at_end_of_year_volume"] = pd.NA
+        df["lng_inventory_at_end_of_year_volume"] = pd.Series(pd.NA, dtype="Int64")
 
     assert not (
         df["lng_inventory_at_end_of_year_volume"].notna()
