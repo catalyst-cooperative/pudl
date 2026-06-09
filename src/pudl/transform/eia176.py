@@ -400,7 +400,9 @@ def core_eia176__yearly_gas_supply(
     df = df.rename(columns=supply_type_map)
 
     supply_cols = list(supply_type_map.values())
-    df = df.dropna(subset=supply_cols, how="all")
+    df = df.dropna(
+        subset=[col for col in supply_cols if col in df.columns], how="all"
+    )  # Handle fast ETL edge case
 
     # This compares the total values reported in this table with the
     # disaggregated values reported in the continuation lines data
@@ -428,7 +430,9 @@ def core_eia176__yearly_gas_supply(
 
     return df.melt(
         id_vars=[*primary_key, *extras],
-        value_vars=supply_cols,
+        value_vars=[
+            col for col in supply_cols if col in df.columns
+        ],  # Handle fast ETL edge case
         var_name="supply_type",
         value_name="volume_mcf",
     ).dropna(subset=["volume_mcf"])
