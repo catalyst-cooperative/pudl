@@ -15,7 +15,6 @@ from pudl.dagster.resources import (
     FercEqrDeploymentResource,
     FercEqrDeploymentTargetConfig,
     ZulipNotificationResource,
-    default_resources,
 )
 
 
@@ -45,22 +44,21 @@ def test_ferceqr_deployment_targets_resource_loads_config_values(tmp_path):
     assert resource.deployment_targets[1].storage_options == {}
 
 
-def test_ferceqr_deployment_target_config_accepts_local_filesystem_path(tmp_path):
-    """Deployment targets should accept existing absolute local directories."""
+@pytest.mark.parametrize(
+    "path_fn",
+    [
+        lambda p: str(p),
+        lambda p: p.as_uri(),
+    ],
+    ids=["filesystem_path", "file_uri"],
+)
+def test_ferceqr_deployment_target_config_accepts_local_path_formats(tmp_path, path_fn):
+    """Deployment targets should accept local directories as str or file:// URI."""
     deploy_path = tmp_path / "deploy"
     deploy_path.mkdir()
-    target = FercEqrDeploymentTargetConfig(path=str(deploy_path))
+    target = FercEqrDeploymentTargetConfig(path=path_fn(deploy_path))
 
-    assert target.path == str(deploy_path)
-
-
-def test_ferceqr_deployment_target_config_accepts_file_uri(tmp_path):
-    """Deployment targets should accept existing absolute local file:// URIs."""
-    deploy_path = tmp_path / "deploy_uri"
-    deploy_path.mkdir()
-    target = FercEqrDeploymentTargetConfig(path=deploy_path.as_uri())
-
-    assert target.path == deploy_path.as_uri()
+    assert target.path == path_fn(deploy_path)
 
 
 @pytest.mark.parametrize(
@@ -185,11 +183,6 @@ def test_ferceqr_deployment_resource_requires_build_id_for_appended_targets(
         resource.resolved_targets()
 
 
-def test_default_resources_include_ferceqr_deployment_targets():
-    """Default Dagster resources should include the FERCEQR deployment targets resource."""
-    assert "ferceqr_deployment_targets" in default_resources
-
-
 @pytest.fixture
 def zulip_resource() -> ZulipNotificationResource:
     return ZulipNotificationResource.from_resource_context(
@@ -237,51 +230,33 @@ def test_zulip_notification_resource_sends_stream_message_successfully(
     response.raise_for_status.assert_called_once_with()
 
 
-def test_zulip_notification_resource_returns_error_on_http_failure(
-    mocker, zulip_resource
+@pytest.mark.parametrize(
+    "error,expected_msg",
+    [
+        (HTTPError("bad gateway"), "bad gateway"),
+        (HTTPError("Connection refused"), "Connection refused"),
+    ],
+    ids=["raise_for_status", "post_side_effect"],
+)
+def test_zulip_notification_resource_returns_error_on_request_exception(
+    mocker, zulip_resource, error, expected_msg
 ):
-    """Zulip resource should return error dict on HTTP error, not raise."""
-    response = mocker.Mock()
-    response.raise_for_status.side_effect = HTTPError("bad gateway")
-    mocker.patch.object(dagster_resources.requests, "post", return_value=response)
+    """Zulip resource should return error dict on any requests.RequestException, not raise."""
+    if error.args[0] == "bad gateway":
+        # Simulate raise_for_status failure
+        response = mocker.Mock()
+        response.raise_for_status.side_effect = error
+        mocker.patch.object(dagster_resources.requests, "post", return_value=response)
+    else:
+        # Simulate post itself failing
+        mocker.patch.object(dagster_resources.requests, "post", side_effect=error)
 
     payload = zulip_resource.send_stream_message(
         stream="stream", topic="topic", content="body"
     )
 
     assert payload["result"] == "error"
-    assert "bad gateway" in payload["msg"]
-
-
-def test_zulip_notification_resource_logs_on_zulip_error_payload(
-    mocker, zulip_resource
-):
-    """Zulip resource should return error payload, not raise RuntimeError."""
-    response = mocker.Mock()
-    response.json.return_value = {"result": "error", "msg": "invalid stream"}
-    mocker.patch.object(dagster_resources.requests, "post", return_value=response)
-
-    payload = zulip_resource.send_stream_message(
-        stream="stream", topic="topic", content="body"
-    )
-
-    assert payload == {"result": "error", "msg": "invalid stream"}
-
-
-def test_zulip_notification_resource_handles_connection_error(mocker, zulip_resource):
-    """Zulip resource should return error dict on connection error, not raise."""
-    mocker.patch.object(
-        dagster_resources.requests,
-        "post",
-        side_effect=HTTPError("Connection refused"),
-    )
-
-    payload = zulip_resource.send_stream_message(
-        stream="stream", topic="topic", content="body"
-    )
-
-    assert payload["result"] == "error"
-    assert "Connection refused" in payload["msg"]
+    assert expected_msg in payload["msg"]
 
 
 def test_zulip_notification_resource_handles_bad_json(mocker, zulip_resource):

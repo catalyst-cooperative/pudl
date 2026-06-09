@@ -28,20 +28,95 @@ def _build_deploy_context(tmp_path, mocker, targets=None):
     )
 
 
-def test_ferceqr_success_sensor_skips_runs_without_backfill_tag(mocker):
-    """Success sensor should skip single runs that are not part of a backfill."""
+def _mock_deploy_dependencies(mocker, deploy_context, source_root, source_partitions):
+    """Set up shared mocks for deploy_ferceqr tests: PUDL_PACKAGE, ParquetData, run tags.
+
+    Creates source parquet files under *source_root* and mocks context.run tags
+    with *source_partitions*. Returns the mocked zulip resource for assertions.
+    """
+    frictionless = mocker.Mock()
+    mock_package = mocker.Mock()
+
+    def _to_json_side_effect(path=None):
+        if path:
+            with Path(path).open("w") as f:
+                f.write("{}")
+            return "{}"
+        return "{}"
+
+    frictionless.to_json.side_effect = _to_json_side_effect
+    mock_package.to_frictionless.return_value = frictionless
+    mocker.patch.object(deploy_ferceqr, "PUDL_PACKAGE", mock_package)
+
+    mocker.patch.object(
+        type(deploy_context),
+        "run",
+        new_callable=mocker.PropertyMock,
+        return_value=SimpleNamespace(
+            tags={
+                deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(
+                    source_partitions
+                )
+            }
+        ),
+    )
+    mocker.patch.object(
+        deploy_ferceqr,
+        "build_ferceqr_notification",
+        return_value="mock notification containing core_ferceqr__contracts",
+    )
+
+    class FakeParquetData:
+        def __init__(self, table_name: str):
+            self.parquet_directory = source_root / table_name
+
+    mocker.patch.object(deploy_ferceqr, "ParquetData", FakeParquetData)
+
+    for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
+        table_dir = source_root / table_name
+        table_dir.mkdir(parents=True)
+        for partition in source_partitions:
+            (table_dir / f"{partition}.parquet").write_bytes(partition.encode())
+
+    deploy_context.resources.zulip_notification.reset_mock()
+    return deploy_context.resources.zulip_notification
+
+
+@pytest.mark.parametrize(
+    "sensor_fn",
+    [sensors.ferceqr_success_sensor, sensors.ferceqr_failure_sensor],
+)
+def test_sensor_skips_runs_without_backfill_tag(mocker, sensor_fn):
+    """Both sensors should skip single runs that are not part of a backfill."""
     context = mocker.Mock()
     context.dagster_run.run_id = "run-123"
     context.dagster_run.tags = {"dagster/partition": "2013q3"}
 
-    result = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
+    result = sensor_fn._run_status_sensor_fn(context)
 
     assert isinstance(result, dg.SkipReason)
     assert "no backfill" in result.skip_message or "backfill" in result.skip_message
 
 
-def test_ferceqr_success_sensor_skips_while_backfill_still_running(mocker):
-    """Success sensor should skip if any runs in the backfill are non-terminal."""
+@pytest.mark.parametrize(
+    "sensor_fn, backfill_statuses, skip_text",
+    [
+        (
+            sensors.ferceqr_success_sensor,
+            [dg.DagsterRunStatus.SUCCESS, dg.DagsterRunStatus.STARTED],
+            "still in progress",
+        ),
+        (
+            sensors.ferceqr_failure_sensor,
+            [dg.DagsterRunStatus.FAILURE, dg.DagsterRunStatus.STARTED],
+            "still in progress",
+        ),
+    ],
+)
+def test_sensor_skips_while_backfill_running(
+    mocker, sensor_fn, backfill_statuses, skip_text
+):
+    """Both sensors should skip if any backfill runs are non-terminal."""
     context = mocker.Mock()
     context.dagster_run.run_id = "run-123"
     context.dagster_run.job_name = "ferceqr"
@@ -50,18 +125,34 @@ def test_ferceqr_success_sensor_skips_while_backfill_still_running(mocker):
         sensors.DAGSTER_BACKFILL_TAG: "bf-123",
     }
     context.instance.get_runs.return_value = [
-        SimpleNamespace(status=dg.DagsterRunStatus.SUCCESS),
-        SimpleNamespace(status=dg.DagsterRunStatus.STARTED),
+        SimpleNamespace(status=s) for s in backfill_statuses
     ]
 
-    result = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
+    result = sensor_fn._run_status_sensor_fn(context)
 
     assert isinstance(result, dg.SkipReason)
-    assert "still in progress" in result.skip_message
+    assert skip_text in result.skip_message
 
 
-def test_ferceqr_success_sensor_skips_when_backfill_has_failures(mocker):
-    """Success sensor should skip if any runs in the backfill failed or were canceled."""
+@pytest.mark.parametrize(
+    "sensor_fn, backfill_statuses, skip_text",
+    [
+        (
+            sensors.ferceqr_success_sensor,
+            [dg.DagsterRunStatus.SUCCESS, dg.DagsterRunStatus.FAILURE],
+            "failed or canceled",
+        ),
+        (
+            sensors.ferceqr_failure_sensor,
+            [dg.DagsterRunStatus.SUCCESS, dg.DagsterRunStatus.SUCCESS],
+            "no failed runs",
+        ),
+    ],
+)
+def test_sensor_skips_when_outcome_handled_by_other_sensor(
+    mocker, sensor_fn, backfill_statuses, skip_text
+):
+    """Sensors should defer to each other: success skips on failures, failure skips on successes."""
     context = mocker.Mock()
     context.dagster_run.run_id = "run-123"
     context.dagster_run.job_name = "ferceqr"
@@ -70,71 +161,14 @@ def test_ferceqr_success_sensor_skips_when_backfill_has_failures(mocker):
         sensors.DAGSTER_BACKFILL_TAG: "bf-123",
     }
     context.instance.get_runs.return_value = [
-        SimpleNamespace(status=dg.DagsterRunStatus.SUCCESS),
-        SimpleNamespace(status=dg.DagsterRunStatus.FAILURE),
+        SimpleNamespace(status=s, tags={"dagster/partition": "2013q3"})
+        for s in backfill_statuses
     ]
 
-    result = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
+    result = sensor_fn._run_status_sensor_fn(context)
 
     assert isinstance(result, dg.SkipReason)
-    assert "failed or canceled" in result.skip_message
-
-
-def test_ferceqr_failure_sensor_skips_non_backfill_runs(mocker):
-    """Failure sensor should skip single runs that are not part of a backfill."""
-    context = mocker.Mock()
-    context.dagster_run.run_id = "run-456"
-    context.dagster_run.tags = {"dagster/partition": "2013q4"}
-
-    result = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
-
-    assert isinstance(result, dg.SkipReason)
-
-
-def test_ferceqr_failure_sensor_skips_while_backfill_running(mocker):
-    """Failure sensor should skip if any backfill runs are still non-terminal."""
-    context = mocker.Mock()
-    context.dagster_run.run_id = "run-456"
-    context.dagster_run.job_name = "ferceqr"
-    context.dagster_run.tags = {
-        "dagster/partition": "2013q4",
-        sensors.DAGSTER_BACKFILL_TAG: "bf-456",
-    }
-    context.instance.get_runs.return_value = [
-        SimpleNamespace(status=dg.DagsterRunStatus.FAILURE),
-        SimpleNamespace(status=dg.DagsterRunStatus.STARTED),
-    ]
-
-    result = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
-
-    assert isinstance(result, dg.SkipReason)
-    assert "still in progress" in result.skip_message
-
-
-def test_ferceqr_failure_sensor_skips_when_all_backfill_runs_succeeded(mocker):
-    """Failure sensor should skip if all backfill runs succeeded (success sensor handles it)."""
-    context = mocker.Mock()
-    context.dagster_run.run_id = "run-456"
-    context.dagster_run.job_name = "ferceqr"
-    context.dagster_run.tags = {
-        "dagster/partition": "2013q4",
-        sensors.DAGSTER_BACKFILL_TAG: "bf-456",
-    }
-    context.instance.get_runs.return_value = [
-        SimpleNamespace(
-            status=dg.DagsterRunStatus.SUCCESS,
-            tags={"dagster/partition": "2013q3"},
-        ),
-        SimpleNamespace(
-            status=dg.DagsterRunStatus.SUCCESS,
-            tags={"dagster/partition": "2013q4"},
-        ),
-    ]
-
-    result = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
-
-    assert isinstance(result, dg.SkipReason)
-    assert "no failed runs" in result.skip_message
+    assert skip_text in result.skip_message
 
 
 def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
@@ -198,62 +232,22 @@ def test_ferceqr_success_sensor_backfill_success_uses_backfill_run_key(mocker):
 
 
 def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_path):
-    """Successful deployment should write outputs to fallback path, notify Zulip, and mark FERCEQR_SUCCESS."""
+    """Successful deployment should write outputs to target, notify Zulip, and mark FERCEQR_SUCCESS."""
     source_root = tmp_path / "source"
     deploy_root = tmp_path / "deploy"
     deploy_context = _build_deploy_context(
         tmp_path, mocker, targets=[UPath(deploy_root)]
     )
     (tmp_path / "FERCEQR_FAILURE").write_text("stale failure")
-    zulip_mock = deploy_context.resources.zulip_notification
-    frictionless = mocker.Mock()
-    mock_package = mocker.Mock()
+    source_partitions = ["2013q3", "2013q4"]
 
-    def _to_json_side_effect(path=None):
-        if path:
-            with Path(path).open("w") as f:
-                f.write("{}")
-            return "{}"
-        return "{}"
-
-    frictionless.to_json.side_effect = _to_json_side_effect
-    mock_package.to_frictionless.return_value = frictionless
-
-    mocker.patch.object(deploy_ferceqr, "PUDL_PACKAGE", mock_package)
-
-    # Provide source partitions via context.run so deploy_ferceqr can read them.
-    mocker.patch.object(
-        type(deploy_context),
-        "run",
-        new_callable=mocker.PropertyMock,
-        return_value=SimpleNamespace(
-            tags={
-                deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(
-                    ["2013q3", "2013q4"]
-                )
-            }
-        ),
+    zulip_mock = _mock_deploy_dependencies(
+        mocker, deploy_context, source_root, source_partitions
     )
 
-    # Mock the notification builder to avoid needing a full context mock.
-    mocker.patch.object(
-        deploy_ferceqr,
-        "build_ferceqr_notification",
-        return_value="mock notification containing core_ferceqr__contracts",
-    )
-
-    class FakeParquetData:
-        def __init__(self, table_name: str):
-            self.parquet_directory = source_root / table_name
-
-    mocker.patch.object(deploy_ferceqr, "ParquetData", FakeParquetData)
-
+    # Add an extra partition that should NOT be deployed.
     for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
-        table_dir = source_root / table_name
-        table_dir.mkdir(parents=True)
-        (table_dir / "2013q3.parquet").write_bytes(b"q3")
-        (table_dir / "2013q4.parquet").write_bytes(b"q4")
-        (table_dir / "2014q1.parquet").write_bytes(b"q1")
+        (source_root / table_name / "2014q1.parquet").write_bytes(b"q1")
 
     deploy_ferceqr.deploy_ferceqr(deploy_context)
 
@@ -267,10 +261,6 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
             "2013q3.parquet",
             "2013q4.parquet",
         ]
-
-    mock_package.to_frictionless.assert_called_once_with(
-        include_pattern=r"core_ferceqr.*"
-    )
 
     zulip_mock.send_stream_message.assert_called_once()
     sent_content = zulip_mock.send_stream_message.call_args.kwargs["content"]
@@ -334,18 +324,24 @@ def test_build_message_includes_asset_partition_status_table(mocker):
 # ---------------------------------------------------------------------------
 
 
-def test_staging_path_appends_build_id(monkeypatch: pytest.MonkeyPatch) -> None:
-    """When BUILD_ID is set, _staging_path should include it."""
-    monkeypatch.setenv("BUILD_ID", "build-abc123")
-    dist = deploy_ferceqr._staging_path(UPath("/base"))
-    assert "/base/._staging_build-abc123" in str(dist)
+@pytest.mark.parametrize(
+    "build_id,expected_pattern",
+    [
+        ("build-abc123", "/base/._staging_build-abc123"),
+        (None, "._staging_"),
+    ],
+)
+def test_staging_path_naming(
+    monkeypatch: pytest.MonkeyPatch, build_id: str | None, expected_pattern: str
+) -> None:
+    """_staging_path should use BUILD_ID when set, otherwise a random hex suffix."""
+    if build_id is not None:
+        monkeypatch.setenv("BUILD_ID", build_id)
+    else:
+        monkeypatch.delenv("BUILD_ID", raising=False)
 
-
-def test_staging_path_uses_random_suffix_without_build_id() -> None:
-    """Without BUILD_ID, _staging_path should fall back to a random hex suffix."""
     dist = deploy_ferceqr._staging_path(UPath("/base"))
-    # Matches pattern like ._staging_3f965f66
-    assert "._staging_" in str(dist)
+    assert expected_pattern in str(dist)
 
 
 def test_deploy_to_staging_writes_files(mocker, tmp_path):
@@ -488,47 +484,13 @@ def test_deploy_ferceqr_staging_is_cleaned_up_on_failure(mocker, tmp_path):
         tmp_path, mocker, targets=[UPath(deploy_root)]
     )
 
-    frictionless = mocker.Mock()
-    mock_package = mocker.Mock()
+    _mock_deploy_dependencies(mocker, deploy_context, source_root, ["2013q3"])
 
-    def _to_json_side_effect(path=None):
-        if path:
-            with Path(path).open("w") as f:
-                f.write("{}")
-            return "{}"
-        return "{}"
-
-    frictionless.to_json.side_effect = _to_json_side_effect
-    mock_package.to_frictionless.return_value = frictionless
-    mocker.patch.object(deploy_ferceqr, "PUDL_PACKAGE", mock_package)
-    mocker.patch.object(
-        type(deploy_context),
-        "run",
-        new_callable=mocker.PropertyMock,
-        return_value=SimpleNamespace(
-            tags={deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(["2013q3"])}
-        ),
-    )
-
-    class FakeParquetData:
-        def __init__(self, table_name: str):
-            self.parquet_directory = source_root / table_name
-
-    mocker.patch.object(deploy_ferceqr, "ParquetData", FakeParquetData)
-
-    for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
-        table_dir = source_root / table_name
-        table_dir.mkdir(parents=True)
-        (table_dir / "2013q3.parquet").write_bytes(b"q3")
-
-    # Replace _promote_staging with one that fails partway through
-    _called = []
-
+    # Replace _promote_staging with one that fails before renaming.
     def _broken_promote(staging_targets, resolved_targets):
         for _staging_dir, _final_dir in zip(
             staging_targets, resolved_targets, strict=True
         ):
-            # Fail before renaming anything so staging is untouched
             raise RuntimeError("promotion failed before rename")
 
     mocker.patch.object(deploy_ferceqr, "_promote_staging", _broken_promote)

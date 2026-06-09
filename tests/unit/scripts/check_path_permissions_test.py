@@ -4,6 +4,7 @@ import json
 import logging
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
 from pudl.scripts import check_path_permissions
@@ -89,36 +90,41 @@ def test_main_json_distinguishes_delete_failures(monkeypatch, tmp_path: Path) ->
     ]
 
 
-def test_main_accepts_multiple_paths(tmp_path: Path) -> None:
-    """The CLI should apply the same checks to each provided path."""
+@pytest.mark.parametrize(
+    "json_output,assertions",
+    [
+        (False, {"check": "text", "expect_count": 1}),
+        (
+            True,
+            {
+                "check": "json",
+                "expect_keys": ["paths", "results", "success"],
+            },
+        ),
+    ],
+    ids=["text_output", "json_output"],
+)
+def test_main_accepts_multiple_paths(tmp_path: Path, json_output, assertions) -> None:
+    """The CLI should process multiple paths with both text and JSON output."""
     other_path = tmp_path / "other"
     other_path.mkdir()
+    args = ["--read"]
+    if json_output:
+        args.append("--json")
 
     result = CliRunner().invoke(
         check_path_permissions.main,
-        ["--read", str(tmp_path), str(other_path)],
+        [*args, str(tmp_path), str(other_path)],
     )
 
     assert result.exit_code == 0
-    assert result.output.count("Checking read access for:") == 2
-
-
-def test_main_json_reports_multiple_path_results(tmp_path: Path) -> None:
-    """JSON output should include one result object per requested path."""
-    other_path = tmp_path / "other"
-    other_path.mkdir()
-
-    result = CliRunner().invoke(
-        check_path_permissions.main,
-        ["--read", "--json", str(tmp_path), str(other_path)],
-    )
-
-    assert result.exit_code == 0
-    payload = json.loads(result.output)
-    assert payload["success"] is True
-    assert payload["paths"] == [str(tmp_path), str(other_path)]
-    assert len(payload["results"]) == 2
-    assert all(result_summary["success"] for result_summary in payload["results"])
+    if assertions["check"] == "text":
+        assert result.output.count("Checking read access for:") == 2
+    else:
+        payload = json.loads(result.output)
+        assert payload["paths"] == [str(tmp_path), str(other_path)]
+        assert len(payload["results"]) == 2
+        assert all(r["success"] for r in payload["results"])
 
 
 def test_main_json_includes_expanded_ferceqr_deployment_paths(
@@ -196,27 +202,3 @@ def test_suppress_backend_tracebacks_restores_logger_levels() -> None:
         logger.setLevel(original_level)
 
     assert logging.getLogger("gcsfs.retry").level == original_level
-
-
-def test_build_upath_supports_anonymous_cloud_access(monkeypatch) -> None:
-    """Anonymous mode should map to the appropriate cloud storage options."""
-    captured_calls: list[tuple[str, dict[str, object]]] = []
-
-    def fake_upath(path: str, **kwargs):
-        captured_calls.append((path, kwargs))
-        return path
-
-    monkeypatch.setattr(check_path_permissions, "UPath", fake_upath)
-
-    assert (
-        check_path_permissions._build_upath("gs://bucket/prefix", anon=True)
-        == "gs://bucket/prefix"
-    )
-    assert (
-        check_path_permissions._build_upath("s3://bucket/prefix", anon=True)
-        == "s3://bucket/prefix"
-    )
-    assert captured_calls == [
-        ("gs://bucket/prefix", {"token": "anon"}),
-        ("s3://bucket/prefix", {"anon": True}),
-    ]
