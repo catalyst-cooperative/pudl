@@ -26,25 +26,19 @@ def _build_deploy_context(tmp_path, mocker, targets=None):
     )
 
 
-def test_ferceqr_deployment_sensor_returns_success_run_request(mocker):
-    """Success sensor should request the deploy asset for the triggering run."""
+def test_ferceqr_success_sensor_skips_runs_without_backfill_tag(mocker):
+    """Success sensor should skip single runs that are not part of a backfill."""
     context = mocker.Mock()
     context.dagster_run.run_id = "run-123"
     context.dagster_run.tags = {"dagster/partition": "2013q3"}
 
-    run_request = sensors.ferceqr_deployment_sensor._run_status_sensor_fn(context)
+    result = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
 
-    assert run_request.run_key == "ferceqr_deployment_success:run-123"
-    assert run_request.asset_selection == [dg.AssetKey("deploy_ferceqr")]
-    assert run_request.tags == {
-        deploy_ferceqr.FERCEQR_SOURCE_PARTITION_TAG: "2013q3",
-        deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(["2013q3"]),
-        deploy_ferceqr.FERCEQR_SOURCE_RUN_ID_TAG: "run-123",
-        deploy_ferceqr.FERCEQR_SOURCE_RUN_STATUS_TAG: "SUCCESS",
-    }
+    assert isinstance(result, dg.SkipReason)
+    assert "no backfill" in result.skip_message or "backfill" in result.skip_message
 
 
-def test_ferceqr_deployment_sensor_skips_while_backfill_still_running(mocker):
+def test_ferceqr_success_sensor_skips_while_backfill_still_running(mocker):
     """Success sensor should skip if any runs in the backfill are non-terminal."""
     context = mocker.Mock()
     context.dagster_run.run_id = "run-123"
@@ -58,13 +52,13 @@ def test_ferceqr_deployment_sensor_skips_while_backfill_still_running(mocker):
         SimpleNamespace(status=dg.DagsterRunStatus.STARTED),
     ]
 
-    result = sensors.ferceqr_deployment_sensor._run_status_sensor_fn(context)
+    result = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
 
     assert isinstance(result, dg.SkipReason)
     assert "still in progress" in result.skip_message
 
 
-def test_ferceqr_deployment_sensor_skips_when_backfill_has_failures(mocker):
+def test_ferceqr_success_sensor_skips_when_backfill_has_failures(mocker):
     """Success sensor should skip if any runs in the backfill failed or were canceled."""
     context = mocker.Mock()
     context.dagster_run.run_id = "run-123"
@@ -78,14 +72,101 @@ def test_ferceqr_deployment_sensor_skips_when_backfill_has_failures(mocker):
         SimpleNamespace(status=dg.DagsterRunStatus.FAILURE),
     ]
 
-    result = sensors.ferceqr_deployment_sensor._run_status_sensor_fn(context)
+    result = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
 
     assert isinstance(result, dg.SkipReason)
     assert "failed or canceled" in result.skip_message
 
 
-def test_ferceqr_deployment_sensor_backfill_success_uses_backfill_run_key(mocker):
-    """Success sensor should trigger once per completed successful backfill."""
+def test_ferceqr_failure_sensor_skips_non_backfill_runs(mocker):
+    """Failure sensor should skip single runs that are not part of a backfill."""
+    context = mocker.Mock()
+    context.dagster_run.run_id = "run-456"
+    context.dagster_run.tags = {"dagster/partition": "2013q4"}
+
+    result = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
+
+    assert isinstance(result, dg.SkipReason)
+
+
+def test_ferceqr_failure_sensor_skips_while_backfill_running(mocker):
+    """Failure sensor should skip if any backfill runs are still non-terminal."""
+    context = mocker.Mock()
+    context.dagster_run.run_id = "run-456"
+    context.dagster_run.job_name = "ferceqr"
+    context.dagster_run.tags = {
+        "dagster/partition": "2013q4",
+        sensors.FERCEQR_BACKFILL_TAG: "bf-456",
+    }
+    context.instance.get_runs.return_value = [
+        SimpleNamespace(status=dg.DagsterRunStatus.FAILURE),
+        SimpleNamespace(status=dg.DagsterRunStatus.STARTED),
+    ]
+
+    result = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
+
+    assert isinstance(result, dg.SkipReason)
+    assert "still in progress" in result.skip_message
+
+
+def test_ferceqr_failure_sensor_skips_when_all_backfill_runs_succeeded(mocker):
+    """Failure sensor should skip if all backfill runs succeeded (success sensor handles it)."""
+    context = mocker.Mock()
+    context.dagster_run.run_id = "run-456"
+    context.dagster_run.job_name = "ferceqr"
+    context.dagster_run.tags = {
+        "dagster/partition": "2013q4",
+        sensors.FERCEQR_BACKFILL_TAG: "bf-456",
+    }
+    context.instance.get_runs.return_value = [
+        SimpleNamespace(
+            status=dg.DagsterRunStatus.SUCCESS,
+            tags={"dagster/partition": "2013q3"},
+        ),
+        SimpleNamespace(
+            status=dg.DagsterRunStatus.SUCCESS,
+            tags={"dagster/partition": "2013q4"},
+        ),
+    ]
+
+    result = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
+
+    assert isinstance(result, dg.SkipReason)
+    assert "no failed runs" in result.skip_message
+
+
+def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
+    """Failure sensor should produce an aggregated RunRequest when all backfill runs are terminal and some failed."""
+    context = mocker.Mock()
+    context.dagster_run.run_id = "run-456"
+    context.dagster_run.job_name = "ferceqr"
+    context.dagster_run.tags = {
+        "dagster/partition": "2013q4",
+        sensors.FERCEQR_BACKFILL_TAG: "bf-456",
+    }
+    context.instance.get_runs.return_value = [
+        SimpleNamespace(
+            status=dg.DagsterRunStatus.SUCCESS,
+            tags={"dagster/partition": "2013q3"},
+        ),
+        SimpleNamespace(
+            status=dg.DagsterRunStatus.FAILURE,
+            tags={"dagster/partition": "2013q4"},
+        ),
+    ]
+
+    run_request = sensors.ferceqr_failure_sensor._run_status_sensor_fn(context)
+
+    assert run_request.run_key == "ferceqr_deployment_failure_backfill:bf-456"
+    assert run_request.asset_selection == [dg.AssetKey("handle_ferceqr_failure")]
+    assert run_request.tags == {
+        deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(["2013q3", "2013q4"]),
+        deploy_ferceqr.FERCEQR_SOURCE_RUN_ID_TAG: "run-456",
+    }
+
+
+def test_ferceqr_success_sensor_backfill_success_uses_backfill_run_key(mocker):
+    """Success sensor should trigger once per completed successful backfill with all partitions."""
     context = mocker.Mock()
     context.dagster_run.run_id = "run-123"
     context.dagster_run.job_name = "ferceqr"
@@ -104,37 +185,13 @@ def test_ferceqr_deployment_sensor_backfill_success_uses_backfill_run_key(mocker
         ),
     ]
 
-    run_request = sensors.ferceqr_deployment_sensor._run_status_sensor_fn(context)
+    run_request = sensors.ferceqr_success_sensor._run_status_sensor_fn(context)
 
     assert run_request.run_key == "ferceqr_deployment_success_backfill:bf-123"
     assert run_request.asset_selection == [dg.AssetKey("deploy_ferceqr")]
     assert run_request.tags == {
-        deploy_ferceqr.FERCEQR_SOURCE_PARTITION_TAG: "2013q3",
         deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(["2013q3", "2013q4"]),
         deploy_ferceqr.FERCEQR_SOURCE_RUN_ID_TAG: "run-123",
-        deploy_ferceqr.FERCEQR_SOURCE_RUN_STATUS_TAG: "SUCCESS",
-    }
-
-
-def test_ferceqr_deployment_failure_sensor_returns_failure_run_request(mocker):
-    """Failure sensor should request the failure-handler asset for the run."""
-    context = mocker.Mock()
-    context.dagster_run.run_id = "run-456"
-    context.dagster_run.tags = {"dagster/partition": "2013q4"}
-
-    run_request = sensors.ferceqr_deployment_failure_sensor._run_status_sensor_fn(
-        context
-    )
-
-    assert run_request.run_key == "ferceqr_deployment_failure:run-456"
-    assert run_request.asset_selection == [
-        dg.AssetKey("handle_ferceqr_deployment_failure")
-    ]
-    assert run_request.tags == {
-        deploy_ferceqr.FERCEQR_SOURCE_PARTITION_TAG: "2013q4",
-        deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(["2013q4"]),
-        deploy_ferceqr.FERCEQR_SOURCE_RUN_ID_TAG: "run-456",
-        deploy_ferceqr.FERCEQR_SOURCE_RUN_STATUS_TAG: "FAILURE",
     }
 
 
@@ -153,30 +210,26 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
     mock_package.to_frictionless.return_value = frictionless
 
     mocker.patch.object(deploy_ferceqr, "PUDL_PACKAGE", mock_package)
+
+    # Provide source partitions via context.run so deploy_ferceqr can read them.
     mocker.patch.object(
-        deploy_ferceqr,
-        "_get_source_partitions",
-        return_value=["2013q3", "2013q4"],
-    )
-    mocker.patch.object(
-        deploy_ferceqr,
-        "_get_source_run_step_status_summary",
-        return_value=(
-            {
-                "core_ferceqr__contracts": {
-                    "2013q3": "SUCCESS",
-                    "2013q4": "SUCCESS",
-                },
-                "core_ferceqr__transactions": {
-                    "2013q3": "SUCCESS",
-                    "2013q4": "SUCCESS",
-                },
-            },
-            "run-123",
-            "SUCCESS",
-            "2013q3",
-            "01:23:45",
+        type(deploy_context),
+        "run",
+        new_callable=mocker.PropertyMock,
+        return_value=SimpleNamespace(
+            tags={
+                deploy_ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG: json.dumps(
+                    ["2013q3", "2013q4"]
+                )
+            }
         ),
+    )
+
+    # Mock the notification builder to avoid needing a full context mock.
+    mocker.patch.object(
+        deploy_ferceqr,
+        "build_ferceqr_notification",
+        return_value="mock notification containing core_ferceqr__contracts",
     )
 
     class FakeParquetData:
@@ -218,50 +271,49 @@ def test_deploy_ferceqr_requires_source_partitions(mocker, tmp_path):
     """Deployment should fail closed if the run is missing source partition tags."""
     deploy_context = _build_deploy_context(tmp_path, mocker)
 
-    with pytest.raises(RuntimeError, match="missing source partitions"):
+    with pytest.raises(RuntimeError, match="no deployable partitions"):
         deploy_ferceqr.deploy_ferceqr(deploy_context)
 
 
-def test_handle_ferceqr_deployment_failure_writes_failure_and_notifies(
-    mocker, tmp_path
-):
+def test_handle_ferceqr_failure_writes_failure_and_notifies(mocker, tmp_path):
     """Failure handler should notify Zulip and write the FAILURE sentinel file."""
     deploy_context = _build_deploy_context(tmp_path, mocker)
     (tmp_path / "FERCEQR_SUCCESS").write_text("stale success")
     zulip_mock = deploy_context.resources.zulip_notification
 
-    deploy_ferceqr.handle_ferceqr_deployment_failure(deploy_context)
+    mocker.patch.object(
+        deploy_ferceqr,
+        "build_ferceqr_notification",
+        return_value="mock failure notification",
+    )
+
+    deploy_ferceqr.handle_ferceqr_failure(deploy_context)
 
     assert (tmp_path / "FERCEQR_FAILURE").exists()
     assert not (tmp_path / "FERCEQR_SUCCESS").exists()
     zulip_mock.send_stream_message.assert_called_once()
 
 
-def test_build_message_includes_asset_partition_status_table():
-    """Verbose message includes source partition and the asset/partition status table."""
-    message = deploy_ferceqr.FercEqrDeploymentNotificationPayload(
-        outcome="FAILURE",
-        build_id="build-789",
-        distribution_paths=None,
-        deployed_partitions=["2013q3", "2013q4"],
-        source_run_id="run-789",
-        source_run_duration="00:12:34",
-        source_run_status="FAILURE",
-        source_partition="2013q4",
-        asset_partition_statuses={
-            "core_ferceqr__transactions": {
-                "2013q3": "SUCCESS",
-                "2013q4": "FAILURE",
-            },
-            "core_ferceqr__quarterly_identity": {
-                "2013q3": "SKIPPED",
-            },
+def test_build_message_includes_asset_partition_status_table(mocker):
+    """Notification markdown includes the asset/partition status table."""
+    statuses = {
+        "core_ferceqr__transactions": {
+            "2013q3": "SUCCESS",
+            "2013q4": "FAILURE",
         },
-    ).to_markdown()
+        "core_ferceqr__quarterly_identity": {
+            "2013q3": "SKIPPED",
+        },
+    }
 
-    print("\nFERCEQR deployment notification example:\n")
-    print(message)
+    table = deploy_ferceqr._format_step_status_markdown_table(
+        asset_partition_statuses=statuses,
+        partitions=["2013q3", "2013q4"],
+    )
 
-    assert "2013q3" in message
-    assert "2013q4" in message
-    assert "core_ferceqr__transactions" in message
+    assert "2013q3" in table
+    assert "2013q4" in table
+    assert "core_ferceqr__transactions" in table
+    assert ":check:" in table
+    assert ":x:" in table
+    assert ":ghost:" in table

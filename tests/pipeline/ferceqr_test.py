@@ -2,9 +2,10 @@
 
 These tests exercise the full batch pipeline mechanics: starting a Dagster daemon,
 submitting a backfill, waiting for the deployment sentinel, and asserting that Parquet
-outputs land in the expected location.  They require real FERC EQR raw data in
-``$PUDL_INPUT`` and are not gated behind ``--live-pudl-output`` — the point is to
-produce and validate the outputs from scratch.
+outputs land in the expected location. They require real FERC EQR raw data be available
+from ``$PUDL_FERCEQR_ARCHIVE_PATH`` (required to be a local directory, for testing) and
+are not gated behind ``--live-pudl-output`` — the point is to produce and validate the
+outputs from scratch.
 
 Run explicitly::
 
@@ -43,13 +44,13 @@ def _get_local_ferceqr_archive_path(year_quarter: str) -> str:
     archive_path = os.environ.get("PUDL_FERCEQR_ARCHIVE_PATH")
     if not archive_path:
         pytest.skip(
-            "FERCEQR pipeline test requires PUDL_FERCEQR_ARCHIVE_PATH to point "
+            "The FERC EQR pipeline test requires PUDL_FERCEQR_ARCHIVE_PATH to point "
             "at a local archive directory. No archive path was provided."
         )
 
     if not isinstance(UPath(archive_path), LocalPath):
         pytest.skip(
-            "FERCEQR pipeline test requires PUDL_FERCEQR_ARCHIVE_PATH to point "
+            "The FERC EQR pipeline test requires PUDL_FERCEQR_ARCHIVE_PATH to point "
             f"at a local archive directory. Received non-local path: {archive_path}"
         )
 
@@ -59,8 +60,8 @@ def _get_local_ferceqr_archive_path(year_quarter: str) -> str:
             archive_stream.read(1)
     except Exception as exc:
         pytest.skip(
-            "FERCEQR pipeline test requires a readable local archive directory at "
-            f"PUDL_FERCEQR_ARCHIVE_PATH. Could not read {archive_file}: {exc}"
+            "The FERC EQR pipeline test requires a readable local archive directory "
+            f"at PUDL_FERCEQR_ARCHIVE_PATH. Could not read {archive_file}: {exc}"
         )
 
     return archive_path
@@ -159,7 +160,7 @@ def ferceqr_outputs(
         [
             shutil.which("python") or "python",
             "-c",
-            "from dagster import DagsterInstance\nwith DagsterInstance.get(): pass",
+            "from dagster import DagsterInstance; DagsterInstance.get()",
         ],
         env=env,
         check=True,

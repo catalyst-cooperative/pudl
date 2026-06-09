@@ -67,7 +67,7 @@ ferceqr_deployment_job = dg.define_asset_job(
     config=default_execution_config,
     selection=dg.AssetSelection.assets(
         "deploy_ferceqr",
-        "handle_ferceqr_deployment_failure",
+        "handle_ferceqr_failure",
     ),
 )
 
