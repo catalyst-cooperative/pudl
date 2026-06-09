@@ -124,8 +124,6 @@ def _ensure_directory_like_path(path: UPath) -> None:
                     f"Path must be a directory-like location, not an existing file: {path}"
                 ),
             )
-    except PathPermissionError:
-        raise
     except Exception as exc:
         raise PathPermissionError(
             check=PermissionCheck.WRITE,
@@ -146,8 +144,6 @@ def check_read_access(path: UPath) -> None:
 
         with suppress(StopIteration):
             next(path.iterdir())
-    except PathPermissionError:
-        raise
     except Exception as exc:
         raise PathPermissionError(
             check=PermissionCheck.READ,
@@ -180,8 +176,6 @@ def check_write_access(path: UPath) -> None:
                     f"Canary verification failed for {canary_path}: content mismatch"
                 ),
             )
-    except PathPermissionError:
-        raise
     except Exception as exc:
         raise PathPermissionError(
             check=PermissionCheck.WRITE,
@@ -197,40 +191,42 @@ def check_write_access(path: UPath) -> None:
         ) from exc
 
 
-def _emit(message: str, *, json_output: bool, summary: PathReport) -> None:
-    """Record a message in JSON mode or print it for humans."""
-    if not json_output:
-        click.echo(message)
-
-
-def _emit_error(message: str, *, json_output: bool, summary: PathReport) -> None:
-    """Record an error in JSON mode or print it for humans."""
-    if not json_output:
-        click.echo(message, err=True)
-
-
-def _emit_check_message(
+def _record_check_output(
     *,
     check_name: PermissionCheck,
     message: str,
     json_output: bool,
     summary: PathReport,
+    is_error: bool = False,
 ) -> None:
-    """Record a message for a specific check in JSON mode or print it for humans."""
-    summary.checks[check_name].messages.append(message)
-    _emit(message, json_output=json_output, summary=summary)
+    """Record a result message in the summary and optionally print it."""
+    target_list = (
+        summary.checks[check_name].errors
+        if is_error
+        else summary.checks[check_name].messages
+    )
+    target_list.append(message)
+    if not json_output:
+        click.echo(message, err=is_error)
 
 
-def _emit_check_error(
+def _record_check_outcome(
     *,
     check_name: PermissionCheck,
+    success: bool,
     message: str,
     json_output: bool,
     summary: PathReport,
 ) -> None:
-    """Record an error for a specific check in JSON mode or print it for humans."""
-    summary.checks[check_name].errors.append(message)
-    _emit_error(message, json_output=json_output, summary=summary)
+    """Set the check outcome and record the message in one step."""
+    summary.checks[check_name].success = success
+    _record_check_output(
+        check_name=check_name,
+        message=message,
+        json_output=json_output,
+        summary=summary,
+        is_error=not success,
+    )
 
 
 def _run_check(
@@ -242,7 +238,7 @@ def _run_check(
 ) -> None:
     """Run a single permission check and update the structured summary."""
     if action is PermissionCheck.READ:
-        _emit_check_message(
+        _record_check_output(
             check_name=PermissionCheck.READ,
             message=f"Checking read access for: {resolved_path}",
             json_output=json_output,
@@ -251,24 +247,24 @@ def _run_check(
         try:
             check_read_access(resolved_path)
         except PathPermissionError as exc:
-            summary.checks[PermissionCheck.READ].success = False
-            _emit_check_error(
+            _record_check_outcome(
                 check_name=PermissionCheck.READ,
+                success=False,
                 message=str(exc),
                 json_output=json_output,
                 summary=summary,
             )
         else:
-            summary.checks[PermissionCheck.READ].success = True
-            _emit_check_message(
+            _record_check_outcome(
                 check_name=PermissionCheck.READ,
+                success=True,
                 message=f"Read check passed for: {resolved_path}",
                 json_output=json_output,
                 summary=summary,
             )
         return
 
-    _emit_check_message(
+    _record_check_output(
         check_name=PermissionCheck.WRITE,
         message=f"Checking write/delete access for: {resolved_path}",
         json_output=json_output,
@@ -279,33 +275,32 @@ def _run_check(
     except PathPermissionError as exc:
         if exc.check is PermissionCheck.DELETE:
             summary.checks[PermissionCheck.WRITE].success = True
-            summary.checks[PermissionCheck.DELETE].success = False
-            _emit_check_error(
+            _record_check_outcome(
                 check_name=PermissionCheck.DELETE,
+                success=False,
                 message=str(exc),
                 json_output=json_output,
                 summary=summary,
             )
         else:
-            summary.checks[PermissionCheck.WRITE].success = False
-            summary.checks[PermissionCheck.DELETE].success = False
-            _emit_check_error(
+            _record_check_outcome(
                 check_name=PermissionCheck.WRITE,
+                success=False,
                 message=str(exc),
                 json_output=json_output,
                 summary=summary,
             )
     else:
-        summary.checks[PermissionCheck.WRITE].success = True
-        summary.checks[PermissionCheck.DELETE].success = True
-        _emit_check_message(
+        _record_check_outcome(
             check_name=PermissionCheck.WRITE,
+            success=True,
             message=f"Write/delete check passed for: {resolved_path}",
             json_output=json_output,
             summary=summary,
         )
-        _emit_check_message(
+        _record_check_outcome(
             check_name=PermissionCheck.DELETE,
+            success=True,
             message=f"Delete check passed for: {resolved_path}",
             json_output=json_output,
             summary=summary,
@@ -355,20 +350,22 @@ def _check_single_path(
     except PathPermissionError as exc:
         if exc.check in summary.checks:
             summary.checks[exc.check].success = False
-            _emit_check_error(
+            _record_check_output(
                 check_name=exc.check,
                 message=str(exc),
                 json_output=json_output,
                 summary=summary,
+                is_error=True,
             )
     except Exception as exc:
-        _emit_check_error(
+        _record_check_output(
             check_name=(
                 PermissionCheck.READ if read_requested else PermissionCheck.WRITE
             ),
             message=f"Unexpected error while checking path permissions for {path}: {exc}",
             json_output=json_output,
             summary=summary,
+            is_error=True,
         )
 
     summary.success = all(
