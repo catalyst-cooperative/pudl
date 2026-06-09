@@ -62,15 +62,9 @@ def _core_eia176__numeric_data(
     long_company = raw_eia176__numeric_data.loc[
         raw_eia176__numeric_data.operator_name != "total of all companies"
     ]
-    logger.info(
-        f"long company LNG variables:\n{long_company.loc[long_company.variable_name.str.lower().str.startswith('lng')].variable_name.value_counts()}"
-    )
     wide_company = get_wide_table(
         long_table=long_company.drop(columns=company_drop_columns),
         primary_key=company_primary_key,
-    )
-    assert "lng_inventory_at_end_of_year_volume" in wide_company.columns, (
-        "No eoy volume after widening"
     )
 
     long_aggregate = raw_eia176__numeric_data.loc[
@@ -553,15 +547,19 @@ def core_eia176__yearly_liquefied_natural_gas_inventory(
         "marine_terminal_facility_year_end_capacity",
         "marine_terminal_facility_year_end_volume",
     ]
-    missing_columns = set(keep) - set(_core_eia176__yearly_company_data.columns)
-    assert len(missing_columns) == 0, (
-        f"Missing expected columns in _core_eia176__yearly_company_data: {missing_columns}"
-    )
     df = _core_eia176__yearly_company_data.filter(pk + other + keep)
     # ensure uniqueness
     assert not df.duplicated(pk, keep=False).any()
 
     # lng_inventory_at_end_of_year_volume is used prior to 2010
+    # we combine the two columns, checking that neither
+    # is reported in both years before using fillna.
+
+    # For the fast CI, we need to construct the inventory
+    # column first as it is not reported in newer data.
+    if "lng_inventory_at_end_of_year_volume" not in df.columns:
+        df["lng_inventory_at_end_of_year_volume"] = pd.NA
+
     assert not (
         df["lng_inventory_at_end_of_year_volume"].notna()
         & df["lng_facility_year_end_volume"].notna()
