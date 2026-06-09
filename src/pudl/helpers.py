@@ -2132,7 +2132,9 @@ def retry(
 
 
 def get_parquet_table_polars(
-    table_name: str, partitions: dict | None = None
+    table_name: str,
+    partitions: dict | None = None,
+    paths: PudlPaths | None = None,
 ) -> pl.LazyFrame:
     """Read a table from a parquet file and return as a polars LazyFrame.
 
@@ -2152,8 +2154,8 @@ def get_parquet_table_polars(
 
     # Get the Parquet file path
     if partitions is None:
-        paths = PudlPaths()
-        parquet_path = paths.parquet_path(table_name)
+        resolved_paths = PudlPaths() if paths is None else paths
+        parquet_path = resolved_paths.parquet_path(table_name)
     else:
         parquet_data = ParquetData(table_name=table_name, partitions=partitions)
         # Points to a directory of parquet files when there partitions is non None
@@ -2168,6 +2170,7 @@ def get_parquet_table(
     filters: list[tuple[str, str, Any]]
     | list[list[tuple[str, str, Any]]]
     | None = None,
+    paths: PudlPaths | None = None,
 ) -> pd.DataFrame | gpd.GeoDataFrame:
     """Read a table from Parquet files with optional column selection and filtering.
 
@@ -2199,8 +2202,8 @@ def get_parquet_table(
     pyarrow_schema = resource.to_pyarrow()
 
     # Get the Parquet file path
-    paths = PudlPaths()
-    parquet_path = paths.parquet_path(table_name)
+    resolved_paths = PudlPaths() if paths is None else paths
+    parquet_path = resolved_paths.parquet_path(table_name)
 
     is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
 
@@ -2525,6 +2528,39 @@ def normalize_year_fragments(
             f"Year out of expected range ({min_valid_year}-{max_valid_year}) in values: {bad}"
         )
     return year
+
+
+def make_changelog(df_all: pd.DataFrame, idx: list[str]):
+    """Make a changelog table with unique instances of values over start report and max report date."""
+    idx_no_date = [c for c in idx if c != "report_date"]
+    # assign a max report_date column for use in the valid_until_date column
+    df_all["report_date_max"] = df_all.groupby(idx_no_date)["report_date"].transform(
+        "max"
+    )
+
+    df_changelog = df_all.sort_values(
+        by=["report_date"], ascending=True
+    ).drop_duplicates(
+        subset=[c for c in df_all if c != "report_date"],
+        keep="first",
+    )
+
+    report_date_max_mask = (
+        df_changelog["report_date"] == df_changelog["report_date_max"]
+    )
+    df_changelog.loc[~report_date_max_mask, "valid_until_date"] = (
+        df_changelog.sort_values(idx, ascending=False)
+        .groupby(idx_no_date)["report_date"]
+        .transform("shift")
+        .fillna(df_changelog.report_date_max)
+    )
+
+    # for all of the last month records, use the next month as the valid until date
+    df_changelog.loc[report_date_max_mask, "valid_until_date"] = (
+        df_changelog.report_date + pd.DateOffset(months=1)
+    )
+
+    return df_changelog.sort_values(idx)
 
 
 def parse_address(addr: str):

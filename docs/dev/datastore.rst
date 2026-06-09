@@ -29,7 +29,7 @@ For example, to download the full :doc:`/data_sources/eia860` dataset
 
 .. code-block:: console
 
-    $ pudl_datastore --dataset eia860
+    $ pudl_datastore eia860
 
 For more detailed usage information, see:
 

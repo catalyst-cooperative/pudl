@@ -8,7 +8,7 @@ association tables for various technology types are also concatenated together.
 import pandas as pd
 from dagster import asset
 
-import pudl
+import pudl.helpers
 
 
 def _transform_capacity_factors(

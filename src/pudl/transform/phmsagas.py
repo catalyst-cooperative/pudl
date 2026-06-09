@@ -14,11 +14,11 @@ from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.enums import (
     DAMAGE_SUB_TYPES_PHMSAGAS,
     DAMAGE_TYPES_PHMSAGAS,
-    INSTALL_DECADE_PATTERN_PHMSAGAS,
     LEAK_SOURCE_PHMSAGAS,
     MAIN_PIPE_SIZES_PHMSAGAS,
     MATERIAL_TYPES_PHMSAGAS,
 )
+from pudl.metadata.patterns import INSTALL_DECADE_PHMSAGAS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -118,8 +118,8 @@ MELT_PATTERNS = {
         "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})$",
     },
     "_core_phmsagas__yearly_distribution_by_install_decade": {
-        "main_pattern": "main_" + INSTALL_DECADE_PATTERN_PHMSAGAS + "_miles",
-        "services_pattern": "services_" + INSTALL_DECADE_PATTERN_PHMSAGAS,
+        "main_pattern": "main_" + INSTALL_DECADE_PHMSAGAS + "_miles",
+        "services_pattern": "services_" + INSTALL_DECADE_PHMSAGAS,
     },
     "_core_phmsagas__yearly_distribution_leaks": {
         "main_pattern": rf"^(all_leaks|hazardous_leaks)_({'|'.join(LEAK_SOURCE_PHMSAGAS)})_mains$",
@@ -527,7 +527,7 @@ def _core_phmsagas__yearly_distribution_by_install_decade(
         MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
             "services_pattern"
         ],
-        {"install_decade": INSTALL_DECADE_PATTERN_PHMSAGAS},
+        {"install_decade": INSTALL_DECADE_PHMSAGAS},
     )
 
 

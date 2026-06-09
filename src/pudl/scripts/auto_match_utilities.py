@@ -1,6 +1,7 @@
 """A CLI tool for matching FERC and EIA utilities."""
 
 import importlib
+import sys
 from pathlib import Path
 from typing import Literal
 
@@ -269,7 +270,7 @@ def write_updated_matches(test_run: bool, dataframe: pd.DataFrame):
     default=False,
     help="If passed, will save the updated spreadsheet to a test file rather than overwriting the existing package data.",
 )
-def main(test_run: bool):
+def main(test_run: bool) -> int:
     """Match EIA and FERC utilities based on utility name alone."""
     # Read in the data, keeping only utility IDs and name
     eia_df = get_parquet_table(
@@ -331,9 +332,11 @@ def main(test_run: bool):
         matches_new=matched_utilities, existing_glue_df=existing_glue_df
     )
 
-    if not updated_spreadsheet.empty:
+    if updated_spreadsheet and not updated_spreadsheet.empty:
         write_updated_matches(test_run=test_run, dataframe=updated_spreadsheet)
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

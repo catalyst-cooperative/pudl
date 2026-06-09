@@ -16,7 +16,7 @@ import mlflow
 from dagster import Config, op
 from pydantic import BaseModel
 
-import pudl
+import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
