@@ -44,16 +44,22 @@ ferceqr_sensor_status = dg.DefaultSensorStatus.RUNNING
 def _backfill_sensor_skip_reason_or_runs(
     context: dg.RunStatusSensorContext,
 ) -> dg.SkipReason | tuple[str, Sequence[dg.DagsterRun]]:
-    """Return a SkipReason if the backfill isn't ready, or all runs are terminal.
+    """Return SkipReason while backfill runs, ``(backfill_id, runs)`` when finished.
 
     Shared by the success and failure sensors so they both coordinate on the same
     backfill state checks. Only one sensor invocation per backfill will make it past
     this gate — the last one to reach terminal state.
 
     Returns a ``SkipReason`` when:
+
     - The triggering run is not part of a backfill.
     - No backfill sibling runs are found yet (state still settling).
     - Any sibling runs are still non-terminal (queued, starting, etc.).
+
+    Returns ``(backfill_id, backfill_runs)`` when all backfill runs have reached a
+    terminal status (success, failure, or canceled). Callers inspect the run statuses
+    to decide whether the success sensor or the failure sensor should produce a
+    ``RunRequest``.
     """
     backfill_id = context.dagster_run.tags.get(DAGSTER_BACKFILL_TAG)
     if not backfill_id:
