@@ -152,6 +152,8 @@ def _gather_step_statuses(
     asset_partition_statuses: StepStatusTable = {}
 
     source_run_record = context.instance.get_run_record_by_id(source_run_id)
+
+    # If we can't find the triggering run we can't look up its backfill siblings.
     source_run = (
         source_run_record.dagster_run if source_run_record is not None else None
     )
@@ -159,6 +161,8 @@ def _gather_step_statuses(
         return asset_partition_statuses, None
 
     backfill_id = source_run.tags.get(DAGSTER_BACKFILL_TAG)
+
+    # Fetch all runs in the same backfill, or just the single run if not a backfill.
     if backfill_id:
         source_run_records = context.instance.get_run_records(
             filters=dg.RunsFilter(
@@ -169,26 +173,30 @@ def _gather_step_statuses(
     else:
         source_run_records = [source_run_record]
 
-    # Gather step statuses and track the overall time window.
+    # Collect timing and step statuses across all source runs.
     start_times: list[float] = []
     end_times: list[float] = []
 
     for run_record in source_run_records:
+        # Track the earliest start and latest end for the total elapsed time.
         if run_record.start_time is not None:
             start_times.append(run_record.start_time)
         if run_record.end_time is not None:
             end_times.append(run_record.end_time)
 
+        # Parse each step's asset name and partition from its step key.
         default_partition = run_record.dagster_run.tags.get("dagster/partition")
         for step in context.instance.get_run_step_stats(run_record.dagster_run.run_id):
             asset_name, partition_name = _parse_step_key(
                 step_key=step.step_key,
                 source_partition=default_partition,
             )
+            # Record the terminal status of each asset/partition combination.
             asset_partition_statuses.setdefault(asset_name, {})[partition_name] = (
                 step.status.name
             )
 
+    # Compute total elapsed time: earliest start → latest end.
     if not start_times or not end_times:
         return asset_partition_statuses, None
 
