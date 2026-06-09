@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia176 &#8212; PUDL 2026.5.1.dev27 documentation</title>
+    <title>pudl.transform.eia176 &#8212; PUDL 2026.5.1.dev28 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../../../_static/documentation_options.js?v=63311f82"></script>
+    <script src="../../../../_static/documentation_options.js?v=c146eec5"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev27 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev27 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev28 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev28 documentation - Home"/>
   
   
 </a></div>
@@ -790,6 +790,12 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer" title="pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition_by_consumer</span></code></a>(...)</p></td>
 <td><p>Produce annual company-level gas disposition by consumer class (EIA-176).</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_supply" title="pudl.transform.eia176.core_eia176__yearly_gas_supply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_supply</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176._compare_eia176_continuation_line_total" title="pudl.transform.eia176._compare_eia176_continuation_line_total"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compare_eia176_continuation_line_total</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Compare a wide EIA-176 value column against summed continuation-line values.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition" title="pudl.transform.eia176.core_eia176__yearly_gas_disposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).</p></td>
 </tr>
@@ -878,6 +884,18 @@ unknown <code class="docutils literal notranslate"><span class="pre">operating_s
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.eia176.core_eia176__yearly_gas_supply">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">core_eia176__yearly_gas_supply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_core_eia176__yearly_company_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_pudl__codes_subdivisions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_eia176__continuation_text_lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#core_eia176__yearly_gas_supply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176.core_eia176__yearly_gas_supply" title="Link to this definition">#</a></dt>
+<dd><p>Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.eia176._compare_eia176_continuation_line_total">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">_compare_eia176_continuation_line_total</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_eia176__continuation_text_lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuation_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#_compare_eia176_continuation_line_total"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176._compare_eia176_continuation_line_total" title="Link to this definition">#</a></dt>
+<dd><p>Compare a wide EIA-176 value column against summed continuation-line values.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pudl.transform.eia176.core_eia176__yearly_gas_disposition">
 <span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">core_eia176__yearly_gas_disposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_core_eia176__yearly_company_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_pudl__codes_subdivisions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_eia176__continuation_text_lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#core_eia176__yearly_gas_disposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition" title="Link to this definition">#</a></dt>
 <dd><p>Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).</p>
@@ -949,6 +967,8 @@ unknown <code class="docutils literal notranslate"><span class="pre">operating_s
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.get_wide_table"><code class="docutils literal notranslate"><span class="pre">get_wide_table()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.validate_totals"><code class="docutils literal notranslate"><span class="pre">validate_totals()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer"><code class="docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition_by_consumer()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.core_eia176__yearly_gas_supply"><code class="docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_supply()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176._compare_eia176_continuation_line_total"><code class="docutils literal notranslate"><span class="pre">_compare_eia176_continuation_line_total()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition"><code class="docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176._normalize_operating_states"><code class="docutils literal notranslate"><span class="pre">_normalize_operating_states()</span></code></a></li>
 </ul>

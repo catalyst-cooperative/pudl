@@ -20930,7 +20930,119 @@ Columns
     - Source of revenue: whether revenue originates from gas owned directly by the operator (sales) or gas transported by the operator (transport).
   * - volume_mcf
     - number
-    - Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+    - Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+
+.. _core_eia176__yearly_gas_supply:
+
+-------------------------------------------------------------------------------
+core_eia176__yearly_gas_supply
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia176__yearly_gas_supply>`__
+
+Annual time series of a company's natural and supplemental gas supply for the report state.
+
+
+Most-recent data:
+  2024
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition (Part 4, Lines 1.0-7.0)
+
+Primary key:
+  operator_id_eia, report_year, supply_type
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Note that citygate receipts were split into sales customer and transportation customer sub-components in 2011. The ``citygate_receipts_total`` field has not been forward-filled to avoid data duplication, and is accordingly null after 2010.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+Line 3.0 receipts from the state or U.S. border and Line 6.0
+supplemental gaseous fuels are reported as aggregated totals, with one value per operator ID and year in this table.
+The disaggregated records are reported in core_eia176__yearly_gas_imports and core_eia176__yearly_supplemental_gaseous_fuel_supplies.
+During transformation, the reported totals and the sum of the disaggregated data are compared to ensure consistency in
+reporting from the original EIA data.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_supply>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - operating_state
+    - string
+    - State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.
+  * - operator_id_eia
+    - string
+    - The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - supply_type
+    - string
+    - Natural or supplemental gas supply category reported on EIA Form 176.
+  * - volume_mcf
+    - number
+    - Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
 
 .. _core_eia191__monthly_gas_storage:
 

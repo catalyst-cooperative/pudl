@@ -43,6 +43,9 @@ PUDL Database Tables
    * - :ref:`core_eia176__yearly_gas_disposition_by_consumer`
      - https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_disposition_by_consumer
    
+   * - :ref:`core_eia176__yearly_gas_supply`
+     - https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_supply
+   
 
 
 Background

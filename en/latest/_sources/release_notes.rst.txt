@@ -28,6 +28,13 @@ Enhancements
 New Data
 ^^^^^^^^
 
+EIA-176
+~~~~~~~
+
+* Added :ref:`core_eia176__yearly_gas_supply`, which contains cleaned
+  company-level natural and supplemental gas supply data from Part 4 of the EIA-176
+  survey. See :issue:`4711` and :pr:`5227`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
