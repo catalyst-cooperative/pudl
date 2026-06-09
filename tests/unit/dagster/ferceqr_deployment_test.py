@@ -45,7 +45,7 @@ def test_ferceqr_success_sensor_skips_while_backfill_still_running(mocker):
     context.dagster_run.job_name = "ferceqr"
     context.dagster_run.tags = {
         "dagster/partition": "2013q3",
-        sensors.FERCEQR_BACKFILL_TAG: "bf-123",
+        sensors.DAGSTER_BACKFILL_TAG: "bf-123",
     }
     context.instance.get_runs.return_value = [
         SimpleNamespace(status=dg.DagsterRunStatus.SUCCESS),
@@ -65,7 +65,7 @@ def test_ferceqr_success_sensor_skips_when_backfill_has_failures(mocker):
     context.dagster_run.job_name = "ferceqr"
     context.dagster_run.tags = {
         "dagster/partition": "2013q3",
-        sensors.FERCEQR_BACKFILL_TAG: "bf-123",
+        sensors.DAGSTER_BACKFILL_TAG: "bf-123",
     }
     context.instance.get_runs.return_value = [
         SimpleNamespace(status=dg.DagsterRunStatus.SUCCESS),
@@ -96,7 +96,7 @@ def test_ferceqr_failure_sensor_skips_while_backfill_running(mocker):
     context.dagster_run.job_name = "ferceqr"
     context.dagster_run.tags = {
         "dagster/partition": "2013q4",
-        sensors.FERCEQR_BACKFILL_TAG: "bf-456",
+        sensors.DAGSTER_BACKFILL_TAG: "bf-456",
     }
     context.instance.get_runs.return_value = [
         SimpleNamespace(status=dg.DagsterRunStatus.FAILURE),
@@ -116,7 +116,7 @@ def test_ferceqr_failure_sensor_skips_when_all_backfill_runs_succeeded(mocker):
     context.dagster_run.job_name = "ferceqr"
     context.dagster_run.tags = {
         "dagster/partition": "2013q4",
-        sensors.FERCEQR_BACKFILL_TAG: "bf-456",
+        sensors.DAGSTER_BACKFILL_TAG: "bf-456",
     }
     context.instance.get_runs.return_value = [
         SimpleNamespace(
@@ -142,7 +142,7 @@ def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
     context.dagster_run.job_name = "ferceqr"
     context.dagster_run.tags = {
         "dagster/partition": "2013q4",
-        sensors.FERCEQR_BACKFILL_TAG: "bf-456",
+        sensors.DAGSTER_BACKFILL_TAG: "bf-456",
     }
     context.instance.get_runs.return_value = [
         SimpleNamespace(
@@ -172,7 +172,7 @@ def test_ferceqr_success_sensor_backfill_success_uses_backfill_run_key(mocker):
     context.dagster_run.job_name = "ferceqr"
     context.dagster_run.tags = {
         "dagster/partition": "2013q3",
-        sensors.FERCEQR_BACKFILL_TAG: "bf-123",
+        sensors.DAGSTER_BACKFILL_TAG: "bf-123",
     }
     context.instance.get_runs.return_value = [
         SimpleNamespace(

@@ -15,7 +15,7 @@ from collections.abc import Sequence
 import dagster as dg
 
 from pudl.dagster.assets.deploy.ferceqr import (
-    FERCEQR_BACKFILL_TAG,
+    DAGSTER_BACKFILL_TAG,
     FERCEQR_SOURCE_PARTITIONS_TAG,
     FERCEQR_SOURCE_RUN_ID_TAG,
 )
@@ -55,23 +55,23 @@ def _backfill_sensor_skip_reason_or_runs(
     - No backfill sibling runs are found yet (state still settling).
     - Any sibling runs are still non-terminal (queued, starting, etc.).
     """
-    backfill_id = context.dagster_run.tags.get(FERCEQR_BACKFILL_TAG)
+    backfill_id = context.dagster_run.tags.get(DAGSTER_BACKFILL_TAG)
     if not backfill_id:
         return dg.SkipReason(
-            f"Run {context.dagster_run.run_id} has no {FERCEQR_BACKFILL_TAG} tag; "
+            f"Run {context.dagster_run.run_id} has no {DAGSTER_BACKFILL_TAG} tag; "
             "FERC EQR deployment sensor only triggers on backfill runs."
         )
 
     backfill_runs = context.instance.get_runs(
         filters=dg.RunsFilter(
             job_name=context.dagster_run.job_name,
-            tags={FERCEQR_BACKFILL_TAG: backfill_id},
+            tags={DAGSTER_BACKFILL_TAG: backfill_id},
         )
     )
 
     if not backfill_runs:
         return dg.SkipReason(
-            f"No runs found for FERCEQR backfill {backfill_id}; "
+            f"No runs found for FERC EQR backfill {backfill_id}; "
             "waiting for backfill state to settle."
         )
 

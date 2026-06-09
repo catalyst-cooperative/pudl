@@ -30,7 +30,7 @@ logger = get_logger(__name__)
 
 FERCEQR_SOURCE_RUN_ID_TAG = "ferceqr/source_run_id"
 FERCEQR_SOURCE_PARTITIONS_TAG = "ferceqr/source_partitions"
-FERCEQR_BACKFILL_TAG = "dagster/backfill"
+DAGSTER_BACKFILL_TAG = "dagster/backfill"
 
 FERCEQR_TRANSFORM_ASSETS = [
     "core_ferceqr__contracts",
@@ -158,12 +158,12 @@ def _gather_step_statuses(
     if source_run is None:
         return asset_partition_statuses, None
 
-    backfill_id = source_run.tags.get(FERCEQR_BACKFILL_TAG)
+    backfill_id = source_run.tags.get(DAGSTER_BACKFILL_TAG)
     if backfill_id:
         source_run_records = context.instance.get_run_records(
             filters=dg.RunsFilter(
                 job_name=source_run.job_name,
-                tags={FERCEQR_BACKFILL_TAG: backfill_id},
+                tags={DAGSTER_BACKFILL_TAG: backfill_id},
             )
         )
     else:
