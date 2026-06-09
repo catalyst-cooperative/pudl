@@ -381,7 +381,7 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         (dist_path / "ferceqr_parquet_datapackage.json").write_bytes(datapackage_bytes)
 
     # Send Zulip notification about successful build
-    logger.info("FERC EQR build succeeded. Notifying Zulip.")
+    logger.info("FERC EQR deployment succeeded. Notifying Zulip.")
     # Build notification markdown content
     notification_markdown = build_ferceqr_notification(context, outcome="SUCCESS")
     zulip.send_stream_message(
