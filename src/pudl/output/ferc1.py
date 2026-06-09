@@ -2585,13 +2585,13 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
 
 def _propagate_tag(
     annotated_forest: nx.DiGraph,
-    tag_name: Literal["in_rate_base"],
+    tag_name: Literal["in_rate_base", "rate_base_category"],
     propagation_direction: Literal["rootward", "leafward"],
 ) -> nx.DiGraph:
-    """Set the tag for nodes when all of its children have same tag.
+    """Set the tag for nodes when all of its successors or predecessorshave same tag.
 
-    This function returns the value of a tag, but also sets node attributes
-    down the tree when all children of a node share the same tag.
+    This function returns an updated annotated_forest with tags updated for nodes
+    when all down the tree when all children or parents of a node share the same tag.
     """
 
     def _get_tag(annotated_forest, node, tag_name):
@@ -2604,7 +2604,6 @@ def _propagate_tag(
     climbing_direction = (
         "successors" if propagation_direction == "rootward" else "predecessors"
     )
-    logger.info(climbing_direction)
     for gen in directional_gens:
         untagged_nodes = {
             node_id
