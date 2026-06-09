@@ -28,6 +28,20 @@ Enhancements
 New Data
 ^^^^^^^^
 
+EIA-176
+~~~~~~~
+
+* Added :ref:`core_eia176__yearly_company_characteristics` with company operation
+  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
+  (Lines A-F). Includes ``alternative_fleet_size``,
+  ``customer_choice_residential_eligible``,
+  ``customer_choice_residential_participating``, ``has_sales_or_acquisitions``, and
+  ``natural_gas_pump_price`` (2014-2016 only). National-level adjustment records
+  (operating_state FX, MX, BL, OO) are excluded. The raw ``is_other_ownership`` and
+  ``is_other_ownership_2`` fields (which never co-occur) are merged into a single
+  ``is_other_ownership`` boolean.
+  See :issue:`4697` and :pr:`5197`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -69,6 +83,8 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
+  was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5197`.
 * Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
   directories when deciding what to upload to Zenodo, which caused release failures
   once we started leaving the ``ferc*_xbrl`` directories laying around. See PR

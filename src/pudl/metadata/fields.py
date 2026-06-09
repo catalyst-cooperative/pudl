@@ -355,6 +355,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether the utility plants to operate alternative-fueled vehicles this coming year."
         ),
     },
+    "alternative_fleet_size": {
+        "type": "integer",
+        "description": (
+            "Number of alternative-fuel vehicles in the company's fleet "
+            "(EIA Form 176 Part 3, Line B)."
+        ),
+    },
     "alternative_fuel_vehicle_activity": {
         "type": "boolean",
         "description": (
@@ -1478,6 +1485,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The most recently updated effective date on which the generator is scheduled to start operation"
         ),
     },
+    "customer_choice_residential_eligible": {
+        "type": "integer",
+        "description": (
+            "Number of residential customers eligible for customer choice programs "
+            "(EIA Form 176 Part 3, Line C)."
+        ),
+    },
+    "customer_choice_residential_participating": {
+        "type": "integer",
+        "description": (
+            "Number of residential customers participating in customer choice programs "
+            "(EIA Form 176 Part 3, Line C)."
+        ),
+    },
     "customer_class": {
         "type": "string",
         "description": (
@@ -1708,6 +1729,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": (
             "Whether limited on-site fuel storage is a factor that limits the generator's ability to switch between oil and natural gas."
+        ),
+    },
+    "has_alternative_fuel_fleet": {
+        "type": "boolean",
+        "description": "Whether the company operated a fleet of alternative-fuel vehicles during the report year.",
+    },
+    "has_sales_or_acquisitions": {
+        "type": "boolean",
+        "description": (
+            "Whether the company completed sales or acquisitions of natural gas "
+            "distribution assets during the report year "
+            "(EIA Form 176 Part 3, Line D)."
         ),
     },
     "debt_ending_balance": {
@@ -4325,11 +4358,47 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Continuous Emissions Monitoring System."
         ),
     },
+    "is_distribution_company_cooperative": {
+        "type": "boolean",
+        "description": "Whether the company is a cooperative distribution company.",
+    },
+    "is_distribution_company_investor_owned": {
+        "type": "boolean",
+        "description": "Whether the company is an investor-owned distribution company.",
+    },
+    "is_distribution_company_municipally_owned": {
+        "type": "boolean",
+        "description": "Whether the company is a municipally-owned distribution company.",
+    },
+    "is_distribution_company_privately_owned": {
+        "type": "boolean",
+        "description": "Whether the company is a privately-owned distribution company.",
+    },
+    "is_gatherer": {
+        "type": "boolean",
+        "description": "Whether the company operates as a natural gas gatherer.",
+    },
     "is_generation_only": {
         "type": "boolean",
         "description": (
             "Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand."
         ),
+    },
+    "is_interstate_pipeline": {
+        "type": "boolean",
+        "description": "Whether the company operates an interstate natural gas pipeline.",
+    },
+    "is_intrastate_pipeline": {
+        "type": "boolean",
+        "description": "Whether the company operates an intrastate natural gas pipeline.",
+    },
+    "is_liquid_natural_gas_marine_terminal": {
+        "type": "boolean",
+        "description": "Whether the company operates a liquefied natural gas marine terminal.",
+    },
+    "is_liquid_natural_gas_peak_facility_operator": {
+        "type": "boolean",
+        "description": "Whether the company operates a liquefied natural gas peak-shaving facility.",
     },
     "is_loan_guarantee": {
         "type": "boolean",
@@ -4337,6 +4406,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates a third-party loan that the reporting utility (referred as a borrower) "
             "has co-signed, taking on responsibility for repayment if the primary borrower defaults."
         ),
+    },
+    "is_other_ownership": {
+        "type": "boolean",
+        "description": "Whether the company reported an ownership type other than investor-owned, cooperative, municipal, or private.",
+    },
+    "is_producer": {
+        "type": "boolean",
+        "description": "Whether the company operates as a natural gas producer.",
+    },
+    "is_public_compressed_natural_gas_fueling_station": {
+        "type": "boolean",
+        "description": "Whether the company operates a public compressed natural gas (CNG) fueling station.",
+    },
+    "is_public_lng_fueling_station": {
+        "type": "boolean",
+        "description": "Whether the company operates a public liquefied natural gas (LNG) fueling station.",
+    },
+    "is_storage_operator": {
+        "type": "boolean",
+        "description": "Whether the company operates natural gas storage facilities.",
+    },
+    "is_synthetic_natural_gas_plant_operator": {
+        "type": "boolean",
+        "description": "Whether the company operates a synthetic natural gas production plant.",
     },
     "iso_rto_code": {
         "type": "string",
@@ -4895,6 +4988,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The name of the owner or operator of natural gas pipeline that connects directly to this facility or that connects to a lateral pipeline owned by this facility."
         ),
+    },
+    "natural_gas_pump_price": {
+        "type": "number",
+        "description": (
+            "Price of natural gas at public fueling stations operated by the company "
+            "(EIA Form 176 Part 3, Line E). Reported 2014-2016 only."
+        ),
+        "unit": "USD_per_Mcf",
     },
     "natural_gas_storage": {
         "type": "boolean",
@@ -5715,6 +5816,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Planned effective date that the generator is scheduled to enter commercial operation after any other planned modification is complete."
         ),
+    },
+    "other_ownership_description": {
+        "type": "string",
+        "description": "Free-text description of ownership type when 'other' ownership is indicated.",
     },
     "other_planned_modifications": {
         "type": "boolean",
@@ -10410,6 +10515,14 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
+    "core_eia176__yearly_company_characteristics": {
+        # Non-US codes (FX, OO, BL, MX) are dropped in transform before this constraint
+        # is checked — they represent national-level adjustment records, not state data.
+        "operating_state": {
+            "description": "State that the operator is reporting for.",
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+        },
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
             "description": "State that the operator is reporting for.",
