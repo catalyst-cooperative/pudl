@@ -14,36 +14,32 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 {
                     "type": "ambiguous_supplier_names",
                     "description": (
-                        "The supplier_name field is a free-text EIA continuation-line "
-                        "description. It may contain a company name, country or "
-                        "location label, placeholder, or truncated text."
+                        "The supplier_name field is a free-text field with observed inconsistency in reporting "
+                        "standards. It may contain a company or country name,"
+                        "non-standard locations such as 'outside usa', or not be reported at all. Truncation of text has "
+                        "also been observed in earlier years of data."
                     ),
                 },
                 {
-                    "type": "inconsistent_supplier_location_codes",
+                    "type": "inconsistent_supplier_locations",
                     "description": (
-                        "The supplier_location_code values are reported EIA "
-                        "continuation-line codes, not a complete standardized "
-                        "country-code system. Some country-like supplier_name "
-                        "values are paired with codes that conflict with ISO "
-                        "country code meanings."
+                        "The supplier_location field is a free-text field that contains "
+                        "U.S. state codes, country codes that don't conform to the ISO 3166-1 alpha-2 "
+                        "standards (e.g., C2, JA), and codes that do not appear to correspond to other "
+                        "geographies (e.g., FX for Gulf of Mexico). Notably, there are a few instances "
+                        "where supplier names and supplier locations do not appear to correspond. "
+                        "Exercise caution when using this field, which requires further normalization."
+                        "To focus on imports within the U.S. vs. outside of it, filter on the supplier_location_type"
+                        "column."
                     ),
                 },
             ],
             "additional_primary_key_text": (
-                "This table has no enforced primary key because some records do not "
-                "report a mode of transportation. The natural primary key would be "
-                "one record per report_year, operating_state, supplier_location_code, "
-                "supplier, and mode of transportation."
-            ),
-            "additional_details_text": (
-                "Approximately one thousand records contained more than one import "
-                "from a given destination. Where the supplier and mode of transport are identical, "
-                "volumes have been summed to produce a table with one row per year, operator, "
-                "operating state and supplier. EIA-176 continuation-line location "
-                "codes are not a complete standardized country-code system. PUDL "
-                "normalizes recognized state, province, and territory values and "
-                "otherwise preserves the reported EIA code."
+                "This table has no enforced primary key because some operators do not "
+                "report a supplier name, a few operators report more than one shipment from a supplier within a given year, "
+                "and transportation mode was not reported prior to 2014. "
+                "The natural primary key would be one record per report_year, operating_state, supplier_location, "
+                "supplier_name, and mode of transportation."
             ),
         },
         "schema": {
@@ -51,9 +47,63 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operator_id_eia",
                 "report_year",
                 "operating_state",
-                "supplier_location_code",
+                "supplier_location",
                 "supplier_location_type",
                 "supplier_name",
+                "mode_of_transportation",
+                "volume_mcf",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia176"],
+        "etl_group": "eia176",
+    },
+    "core_eia176__yearly_gas_exports": {
+        "description": {
+            "additional_summary_text": (
+                "a company's detailed natural gas deliveries out of the report state."
+            ),
+            "additional_source_text": "(Part 6, Line 14.0)",
+            "usage_warnings": [
+                {
+                    "type": "ambiguous_recipient_names",
+                    "description": (
+                        "The recipient_name field is a free-text field with observed inconsistency in reporting "
+                        "standards. It may contain a company or country name,"
+                        "non-standard locations such as 'outside usa', or not be reported at all. Truncation of text has "
+                        "also been observed in earlier years of data."
+                    ),
+                },
+                {
+                    "type": "inconsistent_destination_codes",
+                    "description": (
+                        "The recipient_location field is a free-text field that contains "
+                        "U.S. state codes, country codes that don't conform to the ISO 3166-1 alpha-2 "
+                        "standards (e.g., C2, JA), and codes that do not appear to correspond to other "
+                        "geographies (e.g., FX for Gulf of Mexico). Notably, there are a few instances "
+                        "where recipient names and locations do not appear to correspond. "
+                        "Exercise caution when using this field, which requires further normalization."
+                        "To focus on imports within the U.S. vs. outside of it, filter on the recipient_location_type"
+                        "column."
+                    ),
+                },
+            ],
+            "additional_primary_key_text": (
+                "This table has no enforced primary key because some records do not "
+                "report a recipient name, location or mode of transportation details. "
+                "Additionally, over a hundred operators report more than one delivery to a recipient within a given year. "
+                "The natural primary key would be one record per report_year, operating_state, supplier_location, "
+                "supplier_name, and mode of transportation."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "recipient_location",
+                "recipient_location_type",
+                "recipient_name",
                 "mode_of_transportation",
                 "volume_mcf",
             ],
@@ -69,8 +119,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ),
             "additional_source_text": "(Part 4, Line 6.0)",
             "additional_details_text": (
-                "The reported supplemental gaseous fuel types are normalized from "
-                "free-text continuation-line descriptions."
+                "The reported supplemental gaseous fuel types are normalized into categories from "
+                "free-text descriptions."
             ),
         },
         "schema": {
@@ -91,74 +141,29 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia176"],
         "etl_group": "eia176",
     },
-    "core_eia176__yearly_gas_exports": {
-        "description": {
-            "additional_summary_text": (
-                "a company's detailed natural gas deliveries out of the report state."
-            ),
-            "additional_source_text": "(Part 6, Line 14.0)",
-            "usage_warnings": [
-                {
-                    "type": "ambiguous_recipient_names",
-                    "description": (
-                        "The recipient_name field is a free-text EIA continuation-line "
-                        "description. It may contain a company name, country or "
-                        "location label, placeholder, or truncated text."
-                    ),
-                },
-                {
-                    "type": "inconsistent_destination_codes",
-                    "description": (
-                        "The destination_code values are reported EIA "
-                        "continuation-line codes, not a complete standardized "
-                        "country-code system. Some country-like recipient_name "
-                        "values are paired with codes that conflict with ISO "
-                        "country code meanings."
-                    ),
-                },
-            ],
-            "additional_primary_key_text": (
-                "This table has no enforced primary key because some records do not "
-                "report destination or mode of transportation details."
-            ),
-            "additional_details_text": (
-                "Rows are deduplicated by operator, report year, operating state, "
-                "destination code, recipient, and mode of transportation when the "
-                "data are transformed. EIA-176 continuation-line location codes are "
-                "not a complete standardized country-code system. PUDL normalizes "
-                "recognized state, province, and territory values and otherwise "
-                "preserves the reported EIA code."
-            ),
-        },
-        "schema": {
-            "fields": [
-                "operator_id_eia",
-                "report_year",
-                "operating_state",
-                "destination_code",
-                "destination_type",
-                "recipient_name",
-                "mode_of_transportation",
-                "volume_mcf",
-            ],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia176"],
-        "etl_group": "eia176",
-    },
     "core_eia176__yearly_gas_disposition_other": {
         "description": {
             "additional_summary_text": (
                 "a company's detailed other natural gas disposition within the report "
                 "state."
             ),
+            "usage_warnings": [
+                {
+                    "type": "duplicate_fuel_types",
+                    "description": (
+                        "Where an operator has reported multiple dispositions of the same 'other' type "
+                        "within a year, we aggregate volumes to be able to enforce the table's natural primary key."
+                    ),
+                }
+            ],
             "additional_source_text": "(Part 6, Line 18.4)",
             "additional_details_text": (
                 "The EIA-176 instructions describe Line 18.4 as other disposition "
                 "within the report state and ask respondents to specify the type. "
-                "Some instructions also route producer vented/flared volumes and "
-                "extraction-loss volumes to this line, so the disposition type is "
-                "normalized from free-text continuation-line descriptions."
+                "Reporting instructions also note that vented/flared volumes and "
+                "extraction loss volumes should be reported on this line. "
+                "A number of records originally reported as 'no label' are "
+                "reported as 'unknown' in this table, otherwise reported values are lightly cleaned."
             ),
         },
         "schema": {

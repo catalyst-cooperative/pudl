@@ -247,14 +247,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Number of end-use consumers within the report state.",
     },
-    "destination_code": {
+    "recipient_location": {
         "type": "string",
         "description": (
             "State, territory, country, or other reporting code associated with a "
             "delivery destination."
         ),
     },
-    "destination_type": {
+    "recipient_location_type": {
         "type": "string",
         "description": (
             "Type of reported destination code. For EIA-176, subnational means the "
@@ -7859,7 +7859,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner."
         ),
     },
-    "supplier_location_code": {
+    "supplier_location": {
         "type": "string",
         "description": (
             "State, territory, country, or other reporting code associated with the "
@@ -7869,11 +7869,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "supplier_location_type": {
         "type": "string",
         "description": (
-            "Type of reported supplier location code. For EIA-176, subnational "
+            "Type of reported supplier location. Subnational "
             "means the code matched a recognized state, province, or territory "
-            "code; national_or_other means the code was preserved as another "
-            "reported EIA code."
+            "code; national_or_other means the code corresponds to a country or region "
+            " (e.g., Gulf of Mexico)."
         ),
+        "constraints": {"enum": ("subnational", "national_or_other")},
     },
     "recipient_name": {
         "type": "string",
@@ -10504,7 +10505,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
     },
     "core_eia176__yearly_gas_exports": {
-        "destination_code": {
+        "recipient_location": {
             "description": (
                 "EIA continuation-line reference code associated with the "
                 "out-of-state gas delivery. Recognized state, province, or "
@@ -10513,7 +10514,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "as ISO country codes."
             ),
         },
-        "destination_type": {
+        "recipient_location_type": {
             "constraints": {"enum": ["national_or_other", "subnational"]},
             "description": (
                 "Type of the EIA continuation-line destination code. A value of "
@@ -10541,7 +10542,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
     },
     "core_eia176__yearly_gas_imports": {
-        "supplier_location_code": {
+        "supplier_location": {
             "description": (
                 "EIA continuation-line reference code associated with the gas "
                 "receipt supplier. Recognized state, province, or territory names "

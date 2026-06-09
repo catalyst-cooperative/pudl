@@ -135,7 +135,7 @@ SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP = {
 }
 
 OTHER_DISPOSITION_TYPE_MAP = {
-    "del_items": ["del items from 2001 form"],
+    "del_items_from_2001_form": ["del items from 2001 form"],
     "franchise_gas": ["franchise gas"],
     "gas_holders": ["gas holders"],
     "leaks_condensate": ["leaks condensate"],
@@ -145,7 +145,7 @@ OTHER_DISPOSITION_TYPE_MAP = {
     "natural_gas": ["natural gas"],
     "other": ["other"],
     "plant_fuel": ["plant fuel"],
-    "plant_ptr": ["plant ptr (extraction los"],
+    "plant_thermal_reduction": ["plant ptr (extraction los"],
     "propane_air": ["propane air"],
     "rail_or_barge": ["rail or barge"],
     "refinery_gas": ["refinery gas"],
@@ -593,14 +593,6 @@ def core_eia176__yearly_gas_imports(
     _core_eia176__yearly_company_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Produce company-level detailed annual gas imports (EIA-176, Line 3.0)."""
-    primary_key = [
-        "operator_id_eia",
-        "report_year",
-        "operating_state",
-        "supplier_location_code",
-        "supplier_name",
-        "mode_of_transportation",
-    ]
     keep = [
         "operator_id_eia",
         "report_year",
@@ -613,6 +605,8 @@ def core_eia176__yearly_gas_imports(
     df = raw_eia176__continuation_text_lines[
         raw_eia176__continuation_text_lines["line"] == 300
     ].filter(keep)
+
+    # Clean up the existing codes
     df = normalize_continuation_line_location_codes(
         df,
         core_pudl__codes_subdivisions,
@@ -623,18 +617,24 @@ def core_eia176__yearly_gas_imports(
         core_pudl__codes_subdivisions,
         column="reference_state",
     )
-    df["supplier_location_code"] = (
+
+    # Clean up the supplier location
+    df["supplier_location"] = (
         df["reference_state"].astype("string").str.strip().str.upper()
     )
+    # Create a categorical column noting whether data is a state code
+    # or something else.
     df["supplier_location_type"] = _get_continuation_code_type(
-        df["supplier_location_code"],
+        df["supplier_location"],
         core_pudl__codes_subdivisions,
     )
+
     df = df.rename(
         columns={
             "reference_company_or_line_description": "supplier_name",
         }
     ).drop(columns="reference_state")
+
     df["mode_of_transportation"] = (
         df["mode_of_transportation"]
         .astype("string")
@@ -642,24 +642,20 @@ def core_eia176__yearly_gas_imports(
         .replace({".": pd.NA, "0": pd.NA})
         .str.casefold()
     )
-    df["report_year"] = df["report_year"].astype("int64")
-    df = df.groupby(
-        [*primary_key, "supplier_location_type"], dropna=False, as_index=False
-    ).agg({"volume_mcf": "sum"})
     df = df[
         [
             "operator_id_eia",
             "report_year",
             "operating_state",
-            "supplier_location_code",
+            "supplier_location",
             "supplier_location_type",
             "supplier_name",
             "mode_of_transportation",
             "volume_mcf",
         ]
     ]
-    assert not df.duplicated(subset=primary_key).any()
 
+    # check that data isn't too far off from the EIA aggregated data
     mismatches = _find_continuation_line_total_mismatches(
         detail_records=df,
         _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
@@ -667,14 +663,16 @@ def core_eia176__yearly_gas_imports(
     )
     assert len(mismatches) <= 2, "More than 2 line 300 total mismatches"
 
+    # Clean supplier name and map a few values to N/A
     df["supplier_name"] = name_cleaner.get_clean_data(df["supplier_name"])
+    df["supplier_name"] = df["supplier_name"].replace(list(UNKNOWN_TYPES), pd.NA)
 
     return df.sort_values(
         [
             "report_year",
             "operator_id_eia",
             "operating_state",
-            "supplier_location_code",
+            "supplier_location",
             "supplier_location_type",
             "supplier_name",
             "mode_of_transportation",
@@ -707,9 +705,12 @@ def core_eia176__yearly_supplemental_gaseous_fuel_supplies(
     )
     df["fuel_type"] = cleanstrings_series(
         df["reference_company_or_line_description"], SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP
+    ).drop(columns=["reference_company_or_line_description"])
+
+    # We combine two pairs of duplicate rows here, one set of which are zero values.
+    assert df.duplicated(subset=primary_key).any().sum() <= 2, (
+        f"{df.duplicated(subset=primary_key).any()}"
     )
-    df = df.drop(columns=["reference_company_or_line_description"])
-    df["report_year"] = df["report_year"].astype("int64")
     df = df.groupby(
         [*primary_key, "operating_state"], dropna=False, as_index=False
     ).agg({"volume_mcf": "sum"})
@@ -737,14 +738,6 @@ def core_eia176__yearly_gas_exports(
     _core_eia176__yearly_company_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Produce detailed annual out-of-state gas deliveries (EIA-176, Line 14.0)."""
-    primary_key = [
-        "operator_id_eia",
-        "report_year",
-        "operating_state",
-        "destination_code",
-        "recipient_name",
-        "mode_of_transportation",
-    ]
     keep = [
         "operator_id_eia",
         "report_year",
@@ -757,6 +750,8 @@ def core_eia176__yearly_gas_exports(
     df = raw_eia176__continuation_text_lines[
         raw_eia176__continuation_text_lines["line"] == 1400
     ].filter(keep)
+
+    # Clean up location codes
     df = normalize_continuation_line_location_codes(
         df,
         core_pudl__codes_subdivisions,
@@ -767,11 +762,13 @@ def core_eia176__yearly_gas_exports(
         core_pudl__codes_subdivisions,
         column="reference_state",
     )
-    df["destination_code"] = (
+
+    # Clean and categorize destination
+    df["recipient_location"] = (
         df["reference_state"].astype("string").str.strip().str.upper()
     )
-    df["destination_type"] = _get_continuation_code_type(
-        df["destination_code"],
+    df["recipient_location_type"] = _get_continuation_code_type(
+        df["recipient_location"],
         core_pudl__codes_subdivisions,
     )
     df = df.rename(
@@ -786,23 +783,18 @@ def core_eia176__yearly_gas_exports(
         .replace({".": pd.NA, "0": pd.NA})
         .str.casefold()
     )
-    df["report_year"] = df["report_year"].astype("int64")
-    df = df.groupby(
-        [*primary_key, "destination_type"], dropna=False, as_index=False
-    ).agg({"volume_mcf": "sum"})
     df = df[
         [
             "operator_id_eia",
             "report_year",
             "operating_state",
-            "destination_code",
-            "destination_type",
+            "recipient_location",
+            "recipient_location_type",
             "recipient_name",
             "mode_of_transportation",
             "volume_mcf",
         ]
     ]
-    assert not df.duplicated(subset=primary_key).any()
 
     mismatches = _find_continuation_line_total_mismatches(
         detail_records=df,
@@ -812,14 +804,15 @@ def core_eia176__yearly_gas_exports(
     assert len(mismatches) <= 4, "More than 4 line 1400 total mismatches"
 
     df["recipient_name"] = name_cleaner.get_clean_data(df["recipient_name"])
+    df["recipient_name"] = df["recipient_name"].replace(list(UNKNOWN_TYPES), pd.NA)
 
     return df.sort_values(
         [
             "report_year",
             "operator_id_eia",
             "operating_state",
-            "destination_code",
-            "destination_type",
+            "recipient_location",
+            "recipient_location_type",
             "recipient_name",
             "mode_of_transportation",
         ]
@@ -859,6 +852,8 @@ def core_eia176__yearly_gas_disposition_other(
     )
     df = df.drop(columns=["reference_company_or_line_description"])
     df["report_year"] = df["report_year"].astype("int64")
+
+    # Several hundred records have duplicated values by fuel type. We combine them here.
     df = df.groupby(primary_key, dropna=False, as_index=False).agg(
         {"volume_mcf": "sum"}
     )
