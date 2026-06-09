@@ -301,10 +301,8 @@ def build_ferceqr_notification(
     return "\n".join(lines)
 
 
-def deployment_status_asset(
-    asset_fn: Callable,
-) -> dg.AssetsDefinition:
-    """Create a wrapper for deployment handler assets.
+def deployment_status_asset(asset_fn: Callable) -> dg.AssetsDefinition:
+    """Create a custom decorator for deployment handler assets.
 
     This allows us to gracefully handle errors if the deployment assets fail for any
     reason. When these assets fail, sometimes the logs don't show up in the batch job
@@ -343,7 +341,9 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
     )
     source_partitions: list[str] = []
 
-    # Extract source partitions from run tags for parquet copy
+    # Extract source partitions from run tags for parquet copy. Getting the
+    # *specific* partitions that were built helps avoid copying a bunch of other
+    # data that might be laying around... in the case of local runs especially.
     try:
         run = context.run
         partitions_raw = (run.tags or {}).get(FERCEQR_SOURCE_PARTITIONS_TAG)
