@@ -1,7 +1,7 @@
 """Add core_eia176__yearly_liquefied_natural_gas_inventory
 
 Revision ID: 19ec11f1ed95
-Revises: f98868d3f5cb
+Revises: f3d4b324d48f
 Create Date: 2026-05-05 10:06:29.419910
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '19ec11f1ed95'
-down_revision = 'f98868d3f5cb'
+down_revision = 'f3d4b324d48f'
 branch_labels = None
 depends_on = None
 
