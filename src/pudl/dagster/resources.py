@@ -34,22 +34,6 @@ DEFAULT_FERCEQR_DEPLOYMENT_CONFIG_PATH = (
 )
 
 
-def validate_local_deployment_directory(local_path: Path) -> None:
-    """Validate a local deployment target directory."""
-    if not local_path.is_absolute():
-        raise ValueError(
-            "Local deployment target paths must be absolute filesystem paths."
-        )
-    if not local_path.exists():
-        raise ValueError(f"Local deployment target path {local_path} does not exist.")
-    if not local_path.is_dir():
-        raise ValueError(
-            f"Local deployment target path {local_path} is not a directory."
-        )
-    if not os.access(local_path, os.W_OK):
-        raise ValueError(f"Local deployment target path {local_path} is not writable.")
-
-
 logger = logging_helpers.get_logger(__name__)
 
 
@@ -164,7 +148,7 @@ class FercEqrDeploymentTargetConfig(dg.Config):
 
     @field_validator("path")
     @classmethod
-    def validate_path(cls, value: str) -> str:
+    def validate_path(cls, value: str) -> str:  # noqa: C901
         """Validate deployment targets as remote URLs or local directories."""
         normalized_value = value.strip()
         if not normalized_value:
@@ -194,11 +178,23 @@ class FercEqrDeploymentTargetConfig(dg.Config):
                     "Deployment target path must be a valid s3:// URL, gs:// URL, "
                     "file:// URI, or local filesystem path."
                 )
-
             local_path = Path(normalized_value)
-
-        validate_local_deployment_directory(local_path)
-
+        if not local_path.is_absolute():
+            raise ValueError(
+                "Local deployment target paths must be absolute filesystem paths."
+            )
+        if not local_path.exists():
+            raise ValueError(
+                f"Local deployment target path {local_path} does not exist."
+            )
+        if not local_path.is_dir():
+            raise ValueError(
+                f"Local deployment target path {local_path} is not a directory."
+            )
+        if not os.access(local_path, os.W_OK):
+            raise ValueError(
+                f"Local deployment target path {local_path} is not writable."
+            )
         return normalized_value
 
 
