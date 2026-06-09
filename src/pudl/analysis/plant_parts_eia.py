@@ -173,7 +173,8 @@ import numpy as np
 import pandas as pd
 from dagster import AssetIn, AssetKey, AssetsDefinition, asset
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
 from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -326,7 +327,10 @@ FIRST_COLS = [
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    op_tags={"memory-use": "high"},
+    op_tags={
+        "memory-use": "high",
+        "dagster/priority": 10,
+    },
 )
 def out_eia__yearly_generators_by_ownership(
     out_eia__yearly_generators: pd.DataFrame, out_eia860__yearly_ownership: pd.DataFrame
@@ -345,6 +349,7 @@ def plant_part_asset_factory(part_name: str) -> AssetsDefinition:
     @asset(
         name=asset_name,
         compute_kind="Python",
+        op_tags={"dagster/priority": 10},
     )
     def plant_part_asset(
         out_eia__yearly_generators_by_ownership: pd.DataFrame,
@@ -367,7 +372,10 @@ plant_parts_assets = [
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    op_tags={"memory-use": "high"},
+    op_tags={
+        "memory-use": "high",
+        "dagster/priority": 10,
+    },
     ins={
         part_name: AssetIn(key=AssetKey(f"_out_eia__plant_part_{part_name}"))
         for part_name in PLANT_PARTS
@@ -1627,6 +1635,7 @@ def reassign_id_ownership_dupes(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
+    op_tags={"dagster/priority": 10},
 )
 def out_eia__yearly_assn_plant_parts_plant_gen(
     out_eia__yearly_plant_parts: pd.DataFrame,

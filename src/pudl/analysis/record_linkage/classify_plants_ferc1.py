@@ -12,7 +12,7 @@ import mlflow
 import pandas as pd
 from dagster import graph, op
 
-import pudl
+import pudl.logging_helpers
 from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
@@ -84,7 +84,7 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 )
 
 
-@op
+@op(tags={"dagster/priority": 10})
 def plants_steam_validate_ids(
     ferc_to_ferc_tracker: experiment_tracking.ExperimentTracker,
     ferc1_steam_df: pd.DataFrame,
@@ -134,7 +134,7 @@ def plants_steam_validate_ids(
     return ferc1_steam_df
 
 
-@op
+@op(tags={"dagster/priority": 10})
 def merge_steam_fuel_dfs(
     ferc1_steam_df: pd.DataFrame,
     fuel_fractions: pd.DataFrame,

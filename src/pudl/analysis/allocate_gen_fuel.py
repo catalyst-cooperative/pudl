@@ -141,7 +141,9 @@ import numpy as np
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, Field, asset
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
+import pudl.output.eia923
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -2121,7 +2123,7 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
         "The % of the original data that has been allocated from the generation fuel "
         f"table for each column is:\n{total_allocation_test}"
     )
-    expected_allocation_pct = 95.06
+    expected_allocation_pct = 94.6  # based on allocation error from Q2 2026 release.
     # we know that with the fast ETL this coverage is weird bad because the last year
     # of data is often a ytd year that doesn't get allocated.
     if len(gf.report_date.dt.year.unique()) <= 2:

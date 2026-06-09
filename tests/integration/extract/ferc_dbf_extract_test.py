@@ -1,0 +1,102 @@
+"""PyTest based testing of the FERC DBF Extraction logic."""
+
+import os
+
+import pytest
+import sqlalchemy as sa
+
+from pudl.extract.dbf import FercDbfReader
+from pudl.extract.ferc1 import Ferc1DbfExtractor
+from pudl.extract.ferc2 import Ferc2DbfExtractor
+from pudl.extract.ferc6 import Ferc6DbfExtractor
+from pudl.extract.ferc60 import Ferc60DbfExtractor
+from pudl.logging_helpers import get_logger
+from pudl.settings import GlobalDataConfig
+
+logger = get_logger(__name__)
+
+
+def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
+    """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
+    assert isinstance(ferc1_engine_dbf, sa.Engine)
+    assert "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
+
+
+@pytest.mark.parametrize(
+    "extractor_class",
+    [
+        pytest.param(Ferc1DbfExtractor, id="ferc1"),
+        pytest.param(Ferc2DbfExtractor, id="ferc2"),
+        pytest.param(Ferc6DbfExtractor, id="ferc6"),
+        pytest.param(Ferc60DbfExtractor, id="ferc60"),
+    ],
+)
+@pytest.mark.order(1)
+def test_ferc_schema(
+    global_data_config: GlobalDataConfig, zenodo_datastore, extractor_class
+):
+    """Check to make sure we aren't missing any old FERC Form N tables or fields.
+
+    Exhaustively enumerate all historical sets of FERC Form N database tables and their
+    constituent fields. Check to make sure that the current database definition, based
+    on the given reference year includes every single table and field that appears in the
+    historical FERC Form N data.
+    """
+    if os.getenv("GITHUB_ACTIONS", False):
+        pytest.skip(
+            reason="Downloading these datasets exceeds free GHA runner disk space."
+        )
+
+    dataset = extractor_class.DATASET
+    dbf_data_config = getattr(global_data_config.ferc_to_sqlite, f"{dataset}_dbf")
+    refyear = dbf_data_config.refyear
+    dbf_reader = FercDbfReader(zenodo_datastore, dataset=dataset)
+    ref_archive = dbf_reader.get_archive(year=refyear, data_format="dbf")
+
+    logger.info(f"Checking for new, unrecognized {dataset} tables in {refyear}.")
+    table_schemas = ref_archive.get_db_schema()
+    for table in table_schemas:
+        if table not in dbf_reader.get_table_names():
+            raise AssertionError(
+                f"New {dataset} table '{table}' in {refyear} "
+                f"does not exist in canonical list of tables"
+            )
+
+    # Retrieve all supported partitions for the dataset
+    descriptor = zenodo_datastore.get_datapackage_descriptor(dataset)
+    parts = list(descriptor.get_partition_filters(data_format="dbf"))
+    for yr in dbf_data_config.years:
+        # Check that for each year in the settings, there are partitions defined.
+        yr_parts = [p for p in parts if p.get("year", None) == yr]
+        if not yr_parts:
+            logger.debug(f"Partitions supported by {dataset} are: {parts}")
+            raise AssertionError(f"No partitions found for {dataset} in year {yr}.")
+        # Check that validation function picks exactly one partition for each year.
+        yr_valid_parts = [p for p in yr_parts if extractor_class.is_valid_partition(p)]
+        if len(yr_valid_parts) != 1:
+            logger.debug(
+                f"Filter for {dataset} for year {yr} is: {yr_valid_parts} "
+                f"(from {yr_parts})"
+            )
+            raise AssertionError(
+                f"is_valid_partition() function for {dataset} "
+                f"should select exactly one partition for year {yr}."
+            )
+        logger.info(f"Searching for lost {dataset} tables and fields in {yr}.")
+        yr_archive = dbf_reader.get_archive(**yr_valid_parts[0])
+        for table in yr_archive.get_db_schema():
+            if table not in dbf_reader.get_table_names():
+                raise AssertionError(
+                    f"Long lost FERC1 table: '{table}' found in year {yr}. "
+                    f"Refyear: {refyear}"
+                )
+            # Check that legacy fields have not been lost (i.e. they're present in refyear)
+            yr_columns = yr_archive.get_table_schema(table).get_column_names()
+            ref_columns = ref_archive.get_table_schema(table).get_column_names()
+            unknowns = yr_columns.difference(ref_columns)
+            if unknowns:
+                raise AssertionError(
+                    f"Long lost FERC1 fields '{sorted(unknowns)}' found in table "
+                    f"'{table}' from year {yr}. "
+                    f"Refyear: {refyear}"
+                )

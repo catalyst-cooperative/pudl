@@ -27,6 +27,7 @@ from collections.abc import Callable
 import dagster as dg
 import duckdb
 
+from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import (
     ParquetData,
     duckdb_relation_from_parquet,
@@ -34,7 +35,6 @@ from pudl.helpers import (
 )
 from pudl.logging_helpers import get_logger
 from pudl.metadata.classes import Resource
-from pudl.settings import ferceqr_year_quarters
 
 logger = get_logger(__name__)
 

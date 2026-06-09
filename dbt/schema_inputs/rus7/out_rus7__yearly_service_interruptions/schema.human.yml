@@ -1,0 +1,30 @@
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus7__yearly_service_interruptions
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_rus7__yearly_service_interruptions
+                partition_expr: EXTRACT(YEAR FROM report_date)
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, observation_period]
+                categorical_column: service_interruption_cause
+                value_column: saidi_minutes
+                total_label: "total"
+                tolerance: 1
+              row_condition: observation_period = 'annual'
+              description: Check that SAIDI minutes by cause sum to total for annual observations.
+        columns:
+          - name: saidi_minutes
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 525600
+                  description: Expect SAIDI minutes don't exceed minutes in a year.
+                  config:
+                    error_if: ">2"

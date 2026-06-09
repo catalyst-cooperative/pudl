@@ -1,6 +1,7 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
 import warnings
+from pathlib import Path
 
 from dagster import PreviewWarning
 
@@ -12,22 +13,19 @@ warnings.filterwarnings(
     category=PreviewWarning,
 )
 
-from . import (  # noqa: E402
-    analysis,
-    convert,
-    extract,
-    glue,
-    helpers,
-    io_managers,
-    logging_helpers,
-    metadata,
-    output,
-    transform,
-    validate,
-    workspace,
-)
-
 configure_root_logger()
+
+# Paths to resources stored within the PUDL repository. Unlike PUDL_INPUT and
+# PUDL_OUTPUT these are not intended to be overridden by users or reset at runtime for
+# different environments.
+PUDL_ROOT_PATH: Path = Path(__file__).resolve().parents[2]
+"""Resolved absolute path to the repository root."""
+PUDL_SETTINGS_PATH: Path = PUDL_ROOT_PATH / "src/pudl/package_data/settings"
+"""Resolved absolute path to the package_data directory."""
+PUDL_DBT_PATH: Path = PUDL_ROOT_PATH / "dbt"
+"""Resolved absolute path to the dbt directory."""
+PUDL_DOCS_PATH: Path = PUDL_ROOT_PATH / "docs"
+"""Resolved absolute path to the docs directory."""
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"

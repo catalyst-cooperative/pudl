@@ -254,8 +254,19 @@ And then download the full PUDL SQLite database from the nightly build outputs:
 Direct Links for Bulk Download
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The links below allow bulk download the most recent ``nightly`` builds of all the SQLite
-databases produced by PUDL, as well as their associated metadata in JSON.
+The links below allow bulk download the most recent ``nightly`` builds of the PUDL
+parquet and SQLite outputs, as well as their associated metadata in JSON.
+
+Fully Processed Parquet Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* `PUDL Parquet Datapackage (JSON) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl_parquet_datapackage.json>`__:
+  a `Frictionless Data Package v2 <https://datapackage.org/>`__ descriptor listing all
+  PUDL Parquet tables with full column types, constraints, and foreign keys. Browse the
+  schema of every table without downloading any data.
+* `PUDL Parquet Archive (ZIP) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl_parquet.zip>`__:
+  all PUDL Parquet files bundled together with the ``datapackage.json`` descriptor
+  inside. Suitable for bulk download to a local machine.
 
 Fully Processed SQLite Databases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -413,11 +424,14 @@ long-lived DOIs to each archive, suitable for citation in academic journals and 
 publications. The most recent versioned PUDL data release can always be found using this
 Concept DOI: https://doi.org/10.5281/zenodo.3653158
 
-From Zenodo you can download individual SQLite databases and a zipfile containing all
-the Parquet files bundled together.
+From Zenodo you can download individual SQLite databases, a zipfile containing all the
+Parquet files bundled together (``pudl_parquet.zip``, which includes a
+``datapackage.json`` descriptor), and the standalone
+``pudl_parquet_datapackage.json`` descriptor for browsing the schema without
+downloading any data.
 
 The documentation for the latest such stable build is `here
-<https://catalystcoop-pudl.readthedocs.io/en/stable/>`__. You can access the
+<https://docs.catalyst.coop/pudl/en/stable/>`__. You can access the
 documentation for a specific version by hovering over the version selector at the bottom
 left of the page.
 

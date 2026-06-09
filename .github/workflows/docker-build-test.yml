@@ -33,7 +33,40 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: docker/Dockerfile
+          file: builds/Dockerfile
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  pudl_devcontainer_smoke_test:
+    name: Test building and running the PUDL devcontainer
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      PUDL_OUTPUT: /home/runner/pudl-work/output/
+      PUDL_INPUT: /home/runner/pudl-work/input/
+      DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
+      PUDL_ROOT_PATH: ${{ github.workspace }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Make input, output and dagster dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT }} ${{ env.DAGSTER_HOME }}
+
+      - name: Build and run the devcontainer smoke test
+        uses: devcontainers/ci@v0.3
+        env:
+          PUDL_OUTPUT: ${{ env.PUDL_OUTPUT }}
+          PUDL_INPUT: ${{ env.PUDL_INPUT }}
+          DAGSTER_HOME: ${{ env.DAGSTER_HOME }}
+          PUDL_ROOT_PATH: ${{ env.PUDL_ROOT_PATH }}
+        with:
+          push: never
+          # Required by the action, but this image tag is only used as a local
+          # build identifier in CI and is never pushed to GHCR.
+          imageName: ghcr.io/catalyst-cooperative/pudl-devcontainer
+          runCmd: pixi run --frozen pytest-unit

@@ -37,7 +37,6 @@ from pudl.metadata.enums import (
     GENERATION_ENERGY_SOURCES_EIA930,
     IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
-    INSTALL_DECADE_PATTERN_PHMSAGAS,
     LEAK_SOURCE_PHMSAGAS,
     LIABILITY_TYPES_FERC1,
     LIABILITY_TYPES_RUS7,
@@ -75,6 +74,19 @@ from pudl.metadata.enums import (
     UTILITY_PLANT_ITEM_RUS12,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
+from pudl.metadata.patterns import (
+    BORROWER_ID_RUS,
+    EXHIBIT21_VERSION_SEC10K,
+    FISCAL_YEAR_END_MMDD_SEC10K,
+    HTTP_URL,
+    INDUSTRY_ID_SIC,
+    INSTALL_DECADE_PHMSAGAS,
+    STATE_ID_FIPS,
+    TAXPAYER_ID,
+    YEAR_QUARTER,
+    ZIP4,
+    ZIP5,
+)
 from pudl.metadata.sources import SOURCES
 
 # from pudl.transform.params.ferc1 import (
@@ -1196,7 +1208,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "6-4. This is the county where the coal mine is located."
         ),
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "commodity": {
@@ -1429,7 +1441,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "County ID from the Federal Information Processing Standard Publication 6-4."
         ),
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "county_name_census": {
@@ -3103,7 +3115,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Version of exhibit 21 submitted (if applicable).",
         "constraints": {
-            "pattern": r"^21\.*\d*$",
+            "pattern": EXHIBIT21_VERSION_SEC10K,
         },
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
@@ -3392,9 +3404,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         # This REGEXP constraint was causing issues w/ SQLAlchemy / SQLite.
         # https://github.com/sqlalchemy/sqlalchemy/discussions/12498
         "constraints": {
-            "pattern": (
-                r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$"
-            ),
+            "pattern": FISCAL_YEAR_END_MMDD_SEC10K,
         },
     },
     "flow_rate_method": {
@@ -3915,7 +3925,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zipcode where an operator's headquarters are located.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "heat_content_mmbtu": {
@@ -4240,7 +4250,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "https://www.osha.gov/data/sic-manual for code definitions."
         ),
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": INDUSTRY_ID_SIC,
         },
     },
     "initial_filing_date": {
@@ -4250,7 +4260,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "install_decade": {
         "type": "string",
         "description": "The decade the distribution pipeline was installed.",
-        "constraints": {"pattern": INSTALL_DECADE_PATTERN_PHMSAGAS},
+        "constraints": {
+            "pattern": INSTALL_DECADE_PHMSAGAS,
+        },
     },
     "installation_year": {
         "type": "integer",
@@ -4309,7 +4321,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Taxpayer ID of the company with the IRS.",
         "constraints": {
-            "pattern": r"^\d{2}-\d{7}$",
+            "pattern": TAXPAYER_ID,
         },
     },
     "is_epacems_state": {
@@ -5259,7 +5271,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zipcode where an operator's office is located.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "oil_fraction_cost": {
@@ -5765,7 +5777,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of owner.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "ownership_record_type": {
@@ -5820,14 +5832,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the parent company's place of business.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "parent_company_business_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the company's place of business.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "parent_company_incorporation_state": {
@@ -5871,14 +5883,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the parent company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "parent_company_mail_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the parent company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "parent_company_name": {
@@ -5893,7 +5905,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Taxpayer ID of the parent company with the IRS.",
         "constraints": {
-            "pattern": r"^\d{2}-\d{7}$",
+            "pattern": TAXPAYER_ID,
         },
     },
     "parent_company_utility_id_eia": {
@@ -7376,7 +7388,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "URL pointing to the original source of the data in the record.",
         "constraints": {
-            "pattern": r"^https?://.+",
+            "pattern": HTTP_URL,
         },
     },
     "specifications_of_coal_ash": {
@@ -7500,7 +7512,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Two digit state FIPS code.",
         "constraints": {
-            "pattern": r"^\d{2}$",
+            "pattern": STATE_ID_FIPS,
         },
     },
     "state_name": {
@@ -7650,14 +7662,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the subsidiary company's place of business.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "subsidiary_company_business_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the subsidiary company's place of business.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "subsidiary_company_incorporation_state": {
@@ -7720,14 +7732,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the subsidiary company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "subsidiary_company_mail_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the subsidiary company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "subsidiary_company_name": {
@@ -7742,7 +7754,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Taxpayer ID of the subsidiary company with the IRS.",
         "constraints": {
-            "pattern": r"^\d{2}-\d{7}$",
+            "pattern": TAXPAYER_ID,
         },
     },
     "subsidiary_company_utility_id_eia": {
@@ -8521,14 +8533,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Five digit US Zip Code.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "zip_code_4": {
         "type": "string",
         "description": "Four digit US Zip Code suffix.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "design_wind_speed_mph": {
@@ -9044,14 +9056,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the company's place of business.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "business_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the company's place of business.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "business_postal_code": {
@@ -9086,14 +9098,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "mail_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "mail_postal_code": {
@@ -9174,7 +9186,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Year-quarter corresponding to record. Formatted like YYYYq{1-4}.",
         "constraints": {
-            "pattern": r"\d{4}q[1-4]",
+            "pattern": YEAR_QUARTER,
         },
     },
     "contract_unique_id": {
@@ -9651,7 +9663,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "are structured as: two character state acronyms followed by four digits."
         ),
         "constraints": {
-            "pattern": r"^[A-Z]{2}\d{4}$",
+            "pattern": BORROWER_ID_RUS,
         },
     },
     "borrower_name_rus": {
@@ -10255,8 +10267,53 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "This field did not exist prior to FERC publishing Form 1 as XBRL and thus is always null prior to 2021."
         ),
     },
+    "column_name": {
+        "type": "string",
+        "description": "The name of the column.",
+    },
+    "record_value": {
+        "type": "string",
+        "description": (
+            "The original values found in PUDL _core table records that were used as ingredients "
+            "to the entity resolution process."
+        ),
+    },
+    "entity_occurrences": {
+        "type": "integer",
+        "description": (
+            "The number of times this entity - aka this particular utility, plant, etc - "
+            "occurs across the pre-entity resolution tables."
+        ),
+    },
+    "record_occurrences": {
+        "type": "integer",
+        "description": (
+            "The number of times this particular ``record_value`` occurs across the pre-entity resolution "
+            "tables in association with this particular entity."
+        ),
+    },
+    "consistent_rate": {
+        "type": "number",
+        "description": (
+            "What portion of the entity's records were reported with this particular ``record_value``. "
+            "This is calculated by dividing the ``record_occurrences`` by the ``entity_occurrences``."
+        ),
+    },
+    "is_candidate": {
+        "type": "boolean",
+        "description": (
+            "Is this record a candidate for being the canonical value? This is based on "
+            "``consistent_rate``. By "
+            "default PUDL requires values to be at least 70 percent consistent to pass this "
+            "consistency check. There are exceptions to the default 70 percent consistency check "
+            "for columns like plant or utility names when we always want a value - for those "
+            "instances we choose the most frequently occurring value regardless of how consistently "
+            "it was reported."
+        ),
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
+
 
 FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "epacems": {

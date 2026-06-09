@@ -39,7 +39,7 @@ import pandas as pd
 from dagster import Out, graph, op
 from splink import DuckDBAPI, Linker, SettingsCreator
 
-import pudl
+import pudl.logging_helpers
 from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe, name_cleaner
 from pudl.analysis.record_linkage.eia_ferc1_inputs import (
@@ -133,7 +133,7 @@ col_cleaner = embed_dataframe.dataframe_cleaner_factory(
 )
 
 
-@op
+@op(tags={"dagster/priority": 10})
 def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
     """Get :class:`InputManager` object with compiled inputs for model."""
     inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
@@ -142,7 +142,10 @@ def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
     return inputs
 
 
-@op(out={"eia_df": Out(), "ferc_df": Out()})
+@op(
+    out={"eia_df": Out(), "ferc_df": Out()},
+    tags={"dagster/priority": 10},
+)
 def get_input_dfs(inputs):
     """Get EIA and FERC inputs for the model."""
     eia_df = (
@@ -170,7 +173,9 @@ def get_input_dfs(inputs):
     return eia_df, ferc_df
 
 
-@op
+@op(
+    tags={"dagster/priority": 10},
+)
 def prepare_for_matching(df, transformed_df):
     """Prepare the input dataframes for matching with splink."""
 
@@ -192,7 +197,9 @@ def prepare_for_matching(df, transformed_df):
     return df
 
 
-@op
+@op(
+    tags={"dagster/priority": 10},
+)
 def get_training_data_df(inputs):
     """Get the manually created training data."""
     train_df = inputs.get_train_df().reset_index()
@@ -207,7 +214,9 @@ def get_training_data_df(inputs):
     return train_df
 
 
-@op
+@op(
+    tags={"dagster/priority": 10},
+)
 def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     """Train splink model and output predicted matches."""
     settings = SettingsCreator(
@@ -237,7 +246,9 @@ def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     return preds_df.as_pandas_dataframe()
 
 
-@op()
+@op(
+    tags={"dagster/priority": 10},
+)
 def get_best_matches(
     preds_df,
     inputs,
@@ -290,7 +301,10 @@ def get_best_matches(
             io_manager_key="pudl_io_manager"
         )
     },
-    tags={"memory-use": "high"},
+    tags={
+        "memory-use": "high",
+        "dagster/priority": 10,
+    },
 )
 def get_full_records_with_overrides(best_match_df, inputs, experiment_tracker):
     """Join full dataframe onto matches to make usable and get stats.
