@@ -306,7 +306,7 @@ def test_build_message_includes_asset_partition_status_table(mocker):
         },
     }
 
-    table = deploy_ferceqr._format_step_status_markdown_table(
+    table = deploy_ferceqr._markdown_step_status_table(
         asset_partition_statuses=statuses,
         partitions=["2013q3", "2013q4"],
     )
