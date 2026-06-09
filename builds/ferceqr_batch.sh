@@ -39,13 +39,33 @@ function run_ferceqr_etl() {
         BACKFILL_ARGS+=(--from "$FERCEQR_START_PARTITION" --to "$FERCEQR_END_PARTITION")
     fi
     dagster "${BACKFILL_ARGS[@]}"
+
     # Wait for a file called 'FERCEQR_SUCCESS' or 'FERCEQR_FAILURE' to be created in
-    # PUDL_OUTPUT indicating completion. Timeout after 6 hours if file still doesn't exist.
-    inotifywait -e create -t 21600 --include 'FERCEQR_SUCCESS|FERCEQR_FAILURE' "$PUDL_OUTPUT"
+    # PUDL_OUTPUT indicating completion.
+    inotifywait -e create -t "$FERCEQR_BUILD_TIMEOUT_SECONDS" \
+        --include 'FERCEQR_SUCCESS|FERCEQR_FAILURE' "$PUDL_OUTPUT"
+    inotifywait_exit=$?
+
+    if [[ $inotifywait_exit -eq 2 ]]; then
+        echo "ERROR: FERC EQR build timed out after ${FERCEQR_BUILD_TIMEOUT_HOURS}h waiting for deployment sentinel."
+        echo "The backfill may have completed but the deployment sensor never wrote FERCEQR_SUCCESS or FERCEQR_FAILURE."
+        echo "Contents of PUDL_OUTPUT (${PUDL_OUTPUT}):"
+        ls -la "$PUDL_OUTPUT"
+        # Write a failure sentinel so the main script correctly reports the timeout as a failure.
+        touch "$PUDL_OUTPUT/FERCEQR_FAILURE"
+    elif [[ $inotifywait_exit -ne 0 ]]; then
+        echo "ERROR: inotifywait failed with exit code ${inotifywait_exit}."
+        touch "$PUDL_OUTPUT/FERCEQR_FAILURE"
+    fi
+
     killall dagster-daemon
 }
 
 function cleanup_on_exit() {
+    # If the deployment timed out or failed mid-upload, clean up any partial
+    # staging directories on deployment targets so they don't accumulate.
+    remove_staging_dirs || true
+
     if [[ -z "${LOGFILE:-}" || ! -f "$LOGFILE" ]]; then
         rm -f ~/.aws/credentials
         return 0
@@ -61,9 +81,24 @@ function cleanup_on_exit() {
     rm -f ~/.aws/credentials
 }
 
+function remove_staging_dirs() {
+    # Remove any leftover ._staging_* directories from the deployment targets.
+    # These can be left behind if the build times out during data upload.
+    if [[ -z "${PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH:-}" ]]; then
+        return 0
+    fi
+    python3 "${PUDL_ROOT_PATH}/builds/ferceqr_cleanup_staging.py" 2>&1 \
+        || echo "Warning: staging directory cleanup failed." >&2
+}
+
 ########################################################################################
 # MAIN SCRIPT
 ########################################################################################
+
+# How long to wait for the deployment sentinel before timing out.
+# Reads from FERCEQR_BUILD_TIMEOUT_HOURS env var, defaults to 8 hours if not set.
+FERCEQR_BUILD_TIMEOUT_HOURS="${FERCEQR_BUILD_TIMEOUT_HOURS:-8}"
+FERCEQR_BUILD_TIMEOUT_SECONDS=$((FERCEQR_BUILD_TIMEOUT_HOURS * 3600))
 
 # Select the FERC EQR-specific dagster configuration.
 cp "${DAGSTER_HOME}/dagster-ferceqr.yaml" "${DAGSTER_HOME}/dagster.yaml"
@@ -98,8 +133,8 @@ run_ferceqr_etl
 
 # Check if build was successful and return appropriate return value
 if [ ! -f "${PUDL_OUTPUT}/FERCEQR_SUCCESS" ]; then
-    echo "Build failed!"
+    echo "FERC EQR Build failed!"
     exit 1
 fi
 
-echo "Build successful!"
+echo "FERC EQR Build succeeded!"
