@@ -2601,34 +2601,38 @@ def _propagate_tag(
     directional_gens = (
         reversed(generations) if propagation_direction == "rootward" else generations
     )
-
+    climbing_direction = (
+        "successors" if propagation_direction == "rootward" else "predecessors"
+    )
+    logger.info(climbing_direction)
     for gen in directional_gens:
         untagged_nodes = {
             node_id
             for node_id in gen
             if _get_tag(annotated_forest, node_id, tag_name) is None
         }
-        for parent_node in untagged_nodes:
-            nodes_to_propagate = (
-                annotated_forest.successors(parent_node)
-                if propagation_direction == "rootward"
-                else annotated_forest.predecessors(parent_node)
-            )
-            child_or_parent_tags = {
+        for node_to_tag in untagged_nodes:
+            inheritable_tags = {
                 _get_tag(annotated_forest, c, tag_name)
-                for c in nodes_to_propagate
+                for c in getattr(annotated_forest, climbing_direction)(node_to_tag)
                 if not c.xbrl_factoid.endswith("_correction")
             }
-            non_null_tags = child_or_parent_tags - {None}
-            # sometimes, all children can share same tag but it's null.
-            if len(child_or_parent_tags) == 1 and non_null_tags:
+            inherited_from = [
+                node.xbrl_factoid
+                for node in getattr(annotated_forest, climbing_direction)(node_to_tag)
+            ]
+            non_null_tags = inheritable_tags - {None}
+            # sometimes, all children or parent can share same tag but it's null.
+            if len(inheritable_tags) == 1 and non_null_tags:
                 # actually assign the tag here but don't wipe out any other tags
                 new_node_tag = non_null_tags.pop()
                 existing_tags = nx.get_node_attributes(annotated_forest, "tags")
                 node_tags = {
-                    parent_node: {
+                    node_to_tag: {
                         "tags": {tag_name: new_node_tag}
-                        | existing_tags.get(parent_node, {})
+                        | existing_tags.get(node_to_tag, {})
+                        # For forensic purposes
+                        | {"inherited_from": inherited_from}
                     }
                 }
                 nx.set_node_attributes(annotated_forest, node_tags)
