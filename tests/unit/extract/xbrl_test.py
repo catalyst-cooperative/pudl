@@ -385,13 +385,15 @@ def test_download_nightly_outputs(
     if data_format == "xbrl":
         ferc_paths.nightly_taxonomy_json_path.write_text("test taxonomy json")
         ferc_paths.nightly_duckdb_path.write_text("test duckdb")
-        ferc_paths.nightly_parquet_dir_path.mkdir()
-        (ferc_paths.nightly_parquet_dir_path / "test1.parquet").write_text(
-            "test parquet 1"
-        )
-        (ferc_paths.nightly_parquet_dir_path / "test2.parquet").write_text(
-            "test parquet 2"
-        )
+        with ZipFile(ferc_paths.nightly_parquet_dir_path, mode="w") as archive:
+            with archive.open(
+                f"{dataset}_{data_format}/test1.parquet", mode="w"
+            ) as pq_file_1:
+                pq_file_1.write(b"test parquet 1")
+            with archive.open(
+                f"{dataset}_{data_format}/test2.parquet", mode="w"
+            ) as pq_file_2:
+                pq_file_2.write(b"test parquet 2")
 
     ferc_to_sqlite._download_nightly_outputs(dataset, data_format, ferc_paths)
 
@@ -410,9 +412,9 @@ def test_download_nightly_outputs(
             ferc_paths.nightly_taxonomy_json_path.read_bytes()
             == ferc_paths.local_taxonomy_json_path.read_bytes()
         )
-        assert (ferc_paths.nightly_parquet_dir_path / "test1.parquet").read_bytes() == (
+        assert (
             ferc_paths.local_parquet_dir_path / "test1.parquet"
-        ).read_bytes()
-        assert (ferc_paths.nightly_parquet_dir_path / "test2.parquet").read_bytes() == (
+        ).read_text() == "test parquet 1"
+        assert (
             ferc_paths.local_parquet_dir_path / "test2.parquet"
-        ).read_bytes()
+        ).read_text() == "test parquet 2"

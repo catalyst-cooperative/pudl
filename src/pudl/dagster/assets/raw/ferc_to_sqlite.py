@@ -10,10 +10,10 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
+from typing import Literal
 from zipfile import ZipFile
 
 import dagster as dg
-import fsspec
 from botocore.exceptions import (
     ConnectTimeoutError,
     EndpointConnectionError,
@@ -69,7 +69,7 @@ class FercPaths:
     local_taxonomy_json_path: Path | None = None
     nightly_taxonomy_json_path: UPath | None = None
     local_parquet_dir_path: Path | None = None
-    nightly_parquet_dir_path: Path | None = None
+    nightly_parquet_dir_path: UPath | None = None
 
     def delete_local_outputs(self):
         """Helper function to delete local outputs before starting extraction."""
@@ -100,7 +100,7 @@ class FercPaths:
             filenames |= {
                 "duckdb": f"{dataset_format}.duckdb",
                 "taxonomy_json": f"{dataset_format}_taxonomy_metadata.json",
-                "parquet_dir": f"{dataset_format}/",
+                "parquet_dir": f"{dataset_format}",
             }
 
         # Generate local paths
@@ -111,35 +111,41 @@ class FercPaths:
         # Generate nightly paths
         paths |= {
             f"nightly_{key}_path": PUDL_EEL_HOLE_BASE_PATH / name
-            # SQLite nightly build outputs are in zip files
-            if key != "sqlite"
-            else PUDL_EEL_HOLE_BASE_PATH / name.replace("sqlite", "zip")
+            # SQLite and parquet nightly build outputs are in zip files
+            if key not in ["sqlite", "parquet_dir"]
+            else PUDL_EEL_HOLE_BASE_PATH / f"{name}.zip"
             for key, name in filenames.items()
         }
 
         return cls(**paths, data_format=data_format)
 
 
-def _download_sqlite_db(paths: FercPaths):
-    """Download nightly SQLite db and extract from zipfile, writing to local workspace."""
-    with (
-        fsspec.open(
-            str(paths.nightly_sqlite_path),
-            "rb",
-            anon=True,
-        ) as f,
-        ZipFile(BytesIO(f.read())) as archive,
-        archive.open(paths.local_sqlite_path.name) as nightly_sqlite,
-        paths.local_sqlite_path.open("wb") as local_sqlite,
-    ):
-        local_sqlite.write(nightly_sqlite.read())
+def _download_zipped_outputs(
+    paths: FercPaths, output_format: Literal["sqlite", "parquet"]
+):
+    """Download nightly zipfile containing sqlite or parquet outputs and extract to local cache."""
+    if output_format == "sqlite":
+        nightly_path = paths.nightly_sqlite_path
+        local_path = paths.local_sqlite_path.parent
+    else:
+        nightly_path = paths.nightly_parquet_dir_path
+        local_path = paths.local_parquet_dir_path
+
+    local_path.mkdir(exist_ok=True)
+    with ZipFile(BytesIO(nightly_path.read_bytes())) as archive:
+        for member in archive.namelist():
+            if not member.endswith(f".{output_format}"):
+                continue
+            filename = Path(member).name
+            with archive.open(member) as f:
+                (local_path / filename).write_bytes(f.read())
 
 
 def _download_nightly_outputs(
     dataset: str,
     data_format: str,
     paths: FercPaths,
-):
+) -> None:
     """Download ``ferc_to_sqlite`` outputs from s3.
 
     This will download all outputs produced by the ``ferc_to_sqlite`` process for the
@@ -148,7 +154,7 @@ def _download_nightly_outputs(
     plus a DuckDB file, parquet files, and the taxonomy JSON file.
     """
     # Download sqlite DB
-    _download_sqlite_db(paths)
+    _download_zipped_outputs(paths, output_format="sqlite")
 
     # Download datapckage JSON
     paths.local_datapackage_path.write_text(paths.nightly_datapackage_path.read_text())
@@ -171,13 +177,7 @@ def _download_nightly_outputs(
 
     # Download duckdb DB
     paths.local_duckdb_path.write_bytes(paths.nightly_duckdb_path.read_bytes())
-
-    # Iterate through parquet dir and download files
-    paths.local_parquet_dir_path.mkdir(exist_ok=True)
-    for parquet_file in paths.nightly_parquet_dir_path.iterdir():
-        (paths.local_parquet_dir_path / parquet_file.name).write_bytes(
-            parquet_file.read_bytes()
-        )
+    _download_zipped_outputs(paths, output_format="parquet")
 
 
 def _check_for_cached_db_w_compatible_provenance(
