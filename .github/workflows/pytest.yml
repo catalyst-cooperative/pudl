@@ -224,19 +224,50 @@ jobs:
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
-      - name: Restore Zenodo datastore and FERC sqlite outputs from cache if possible
+      - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v5
         id: cache-zenodo-datastore
         with:
           path: |
             ${{ env.PUDL_INPUT }}
-            ${{ env.PUDL_OUTPUT }}/*_xbrl.sqlite
-            ${{ env.PUDL_OUTPUT }}/*_dbf.sqlite
-            ${{ env.PUDL_OUTPUT }}/*_datapackage.json
-            ${{ env.PUDL_OUTPUT }}/*_taxonomy_metadata.json
           key: zenodo-datastore-${{ hashFiles('src/pudl/package_data/settings/zenodo_dois.yml') }}
           restore-keys: |
             zenodo-datastore-
+
+      - name: Generate FERC Provenance Hashes
+        run: |
+          echo "FERC1_XBRL_HASH=$(pixi run ferc_provenance ferc1 xbrl | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "FERC1_DBF_HASH=$(pixi run ferc_provenance ferc1 dbf | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "FERC714_XBRL_HASH=$(pixi run ferc_provenance ferc714 xbrl | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+
+      - name: Restore ferc1 XBRL outputs from cache if possible
+        uses: actions/cache@v5
+        id: cache-ferc1-xbrl
+        with:
+          path: |
+            ${{ env.PUDL_OUTPUT }}/ferc1_xbrl.sqlite
+            ${{ env.PUDL_OUTPUT }}/ferc1_xbrl_datapackage.json
+            ${{ env.PUDL_OUTPUT }}/ferc1_xbrl_taxonomy_metadata.json
+          key: ferc1-xbrl-${{ env.FERC1_XBRL_HASH }}
+
+      - name: Restore ferc1 DBF from cache if possible
+        uses: actions/cache@v5
+        id: cache-ferc1-dbf
+        with:
+          path: |
+            ${{ env.PUDL_OUTPUT }}/ferc1_dbf.sqlite
+            ${{ env.PUDL_OUTPUT }}/ferc1_dbf_datapackage.json
+          key: ferc1-dbf-${{ env.FERC1_DBF_HASH }}
+
+      - name: Restore ferc714 XBRL from cache if possible
+        uses: actions/cache@v5
+        id: cache-ferc714-xbrl
+        with:
+          path: |
+            ${{ env.PUDL_OUTPUT }}/ferc714_xbrl.sqlite
+            ${{ env.PUDL_OUTPUT }}/ferc714_xbrl_datapackage.json
+            ${{ env.PUDL_OUTPUT }}/ferc714_xbrl_taxonomy_metadata.json
+          key: ferc714-xbrl-${{ env.FERC714_XBRL_HASH }}
 
       - name: Run the integration tests
         run: |
