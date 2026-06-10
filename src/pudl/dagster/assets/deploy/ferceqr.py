@@ -139,7 +139,10 @@ def _promote_staging(
     data re-upload occurs. On local filesystems the rename is a fast inode-level
     operation.
 
-    After promotion the (now empty) staging directory is removed.
+    After promotion the (now empty) staging directory is removed using the
+    filesystem's ``rm(path, recursive=True)`` rather than ``rmdir()``, because
+    cloud storage (GCS, S3) uses virtual prefixes rather than real directories
+    and ``rmdir()`` would raise ``NotADirectoryError``.
     """
     for staging_dir, final_dir in zip(staging_targets, resolved_targets, strict=True):
         logger.info(f"Promoting {staging_dir} -> {final_dir}")
@@ -152,7 +155,9 @@ def _promote_staging(
             dst.mkdir(parents=True, exist_ok=True)
             for child in src.iterdir():
                 child.rename(dst / child.name)
-            src.rmdir()
+            # Remove the now-empty staging subdirectory. On GCS/S3 we need
+            # fs.rm() -- rmdir() fails because there is no real directory.
+            src.fs.rm(src.path, recursive=True)
 
         # Rename the datapackage JSON.
         datapackage_src = staging_dir / "ferceqr_parquet_datapackage.json"
@@ -160,7 +165,7 @@ def _promote_staging(
             datapackage_src.rename(final_dir / "ferceqr_parquet_datapackage.json")
 
         # Remove the empty staging directory.
-        staging_dir.rmdir()
+        staging_dir.fs.rm(staging_dir.path, recursive=True)
 
 
 def _remove_staging(staging_dir: UPath) -> None:
@@ -169,17 +174,14 @@ def _remove_staging(staging_dir: UPath) -> None:
     Used for cleanup if the promotion step fails — the partial staging data is
     discarded rather than leaked. Safe to call on directories that do not exist
     (e.g. if promotion already removed them before the failure occurred).
+
+    Uses ``fs.rm(path, recursive=True)`` instead of ``rmdir()`` because cloud
+    storage (GCS, S3) uses virtual prefixes rather than real directories and
+    ``rmdir()`` would raise ``NotADirectoryError``.
     """
     if not staging_dir.exists():
         return
-    for child in staging_dir.iterdir():
-        if child.is_dir():
-            for sub in child.iterdir():
-                sub.unlink(missing_ok=True)
-            child.rmdir()
-        else:
-            child.unlink(missing_ok=True)
-    staging_dir.rmdir()
+    staging_dir.fs.rm(staging_dir.path, recursive=True)
 
 
 def _parse_step_key(step_key: str, source_partition: str | None) -> tuple[str, str]:

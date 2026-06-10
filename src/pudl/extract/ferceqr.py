@@ -195,7 +195,9 @@ def extract_ferceqr(
         duckdb.connect() as conn,
     ):
         # Loop through all nested zipfiles (one for each filing in the quarter)
-        for filing in quarter_archive.namelist():
+        filing_names = quarter_archive.namelist()
+        logger.info(f"Extracting {len(filing_names)} filings for {year_quarter}.")
+        for filing in filing_names:
             # Extract CSVs from filing to a temporary directory so duckdb can be used
             # to parse CSVs and mirror to parquet
             try:
@@ -205,7 +207,6 @@ def extract_ferceqr(
                     ) as filing_archive,
                     tempfile.TemporaryDirectory() as tmp_dir,
                 ):
-                    logger.info(f"Extracting CSVs from {filing}.")
                     filing_archive.extractall(path=tmp_dir)
                     _csvs_to_parquet(
                         csv_path=Path(tmp_dir),
@@ -215,6 +216,9 @@ def extract_ferceqr(
                     )
             except zipfile.BadZipfile:
                 logger.warning(f"Could not open filing: {filing}.")
+        logger.info(
+            f"Finished extracting {len(filing_names)} filings for {year_quarter}."
+        )
         metadata = _save_extract_errors(year_quarter, conn)
     return (
         ParquetData(table_name=_get_table_name("ident", year_quarter)),
