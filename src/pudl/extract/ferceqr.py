@@ -16,7 +16,7 @@ from pudl.dagster.resources import FercEqrArchiveResource
 from pudl.helpers import ParquetData, persist_table_as_parquet
 from pudl.logging_helpers import get_logger
 
-logger = get_logger(f"catalystcoop.{__name__}")
+logger = get_logger(__name__)
 
 
 @contextmanager
