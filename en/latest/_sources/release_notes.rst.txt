@@ -24,6 +24,8 @@ Enhancements
   asset check on any datapackage output. See issues :issue:`5122,5237` and PR
   :pr:`5270`. Also makes progress towards `catalyst-cooperative/agent-skills#14
   <https://github.com/catalyst-cooperative/agent-skills/issues/14>`__
+* Added a bare-bones datapackage for DBF SQLite outputs. See issue :issue:`5200`
+  and PR :pr:`5275`.
 
 New Data
 ^^^^^^^^
