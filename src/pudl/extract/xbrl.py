@@ -11,8 +11,8 @@ from ferc_xbrl_extractor.cli import run_main
 
 import pudl.logging_helpers
 from pudl.settings import (
+    FercForm,
     FercToSqliteDataConfig,
-    XbrlFormNumber,
 )
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
@@ -71,7 +71,7 @@ class FercXbrlDatastore:
         """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
 
-    def get_taxonomy(self, form: XbrlFormNumber) -> io.BytesIO:
+    def get_taxonomy(self, form: FercForm) -> io.BytesIO:
         """Returns the path to the taxonomy entry point within the an archive."""
         raw_archive = self.datastore.get_unique_resource(
             str(form),
@@ -80,7 +80,7 @@ class FercXbrlDatastore:
 
         return io.BytesIO(raw_archive)
 
-    def get_filings(self, year: int, form: XbrlFormNumber) -> io.BytesIO:
+    def get_filings(self, year: int, form: FercForm) -> io.BytesIO:
         """Return the corresponding archive full of XBRL filings."""
         return io.BytesIO(
             self.datastore.get_unique_resource(str(form), year=year, data_format="xbrl")
@@ -89,7 +89,7 @@ class FercXbrlDatastore:
 
 def convert_form(
     ferc_to_sqlite: FercToSqliteDataConfig,
-    form: XbrlFormNumber,
+    form: FercForm,
     datastore: FercXbrlDatastore,
     pudl_paths: PudlPaths,
     batch_size: int | None = None,

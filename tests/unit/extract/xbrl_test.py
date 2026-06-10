@@ -28,9 +28,9 @@ from pudl.settings import (
     Ferc6XbrlToSqliteDataConfig,
     Ferc60XbrlToSqliteDataConfig,
     Ferc714XbrlToSqliteDataConfig,
+    FercForm,
     FercToSqliteDataConfig,
     GlobalDataConfig,
-    XbrlFormNumber,
 )
 from pudl.workspace.datastore import ZenodoDoiSettings
 
@@ -40,7 +40,7 @@ def test_ferc_xbrl_datastore_get_taxonomy(mocker):
     datastore_mock.get_unique_resource.return_value = b"Fake taxonomy data."
 
     ferc_datastore = FercXbrlDatastore(datastore_mock)
-    raw_archive = ferc_datastore.get_taxonomy(XbrlFormNumber.FORM1)
+    raw_archive = ferc_datastore.get_taxonomy(FercForm.FORM1)
 
     # 2021 data is published with 2022 taxonomy!
     datastore_mock.get_unique_resource.assert_called_with(
@@ -58,7 +58,7 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
 
     # Call method
     ferc_datastore = FercXbrlDatastore(datastore_mock)
-    ferc_datastore.get_filings(2021, XbrlFormNumber.FORM1)
+    ferc_datastore.get_filings(2021, FercForm.FORM1)
 
     # Check that get_unique_resource was called correctly
     datastore_mock.get_unique_resource.assert_called_with(
@@ -77,7 +77,7 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
                 ferc60_xbrl=Ferc60XbrlToSqliteDataConfig(),
                 ferc714_xbrl=Ferc714XbrlToSqliteDataConfig(),
             ),
-            list(XbrlFormNumber),
+            list(FercForm),
         ),
         (
             FercToSqliteDataConfig(
@@ -87,7 +87,7 @@ def test_ferc_xbrl_datastore_get_filings(mocker):
                 ferc60_xbrl=Ferc60XbrlToSqliteDataConfig(),
                 ferc714_xbrl=Ferc714XbrlToSqliteDataConfig(),
             ),
-            [form for form in XbrlFormNumber if form != XbrlFormNumber.FORM1],
+            [form for form in FercForm if form != FercForm.FORM1],
         ),
         (
             FercToSqliteDataConfig(
@@ -180,10 +180,10 @@ def test_convert_form(mocker, pudl_test_paths: Path):
 
     # Create fake datastore class for testing
     class FakeDatastore:
-        def get_taxonomy(self, form: XbrlFormNumber):
+        def get_taxonomy(self, form: FercForm):
             return f"raw_archive_{form.value}"
 
-        def get_filings(self, year, form: XbrlFormNumber):
+        def get_filings(self, year, form: FercForm):
             return f"filings_{year}_{form.value}"
 
     settings = FercToSqliteDataConfig(
@@ -197,7 +197,7 @@ def test_convert_form(mocker, pudl_test_paths: Path):
     output_path: Path = pudl_test_paths.pudl_output
 
     # Test convert_form for every form number
-    for form in XbrlFormNumber:
+    for form in FercForm:
         convert_form(
             settings,
             form,
@@ -395,7 +395,7 @@ def test_download_nightly_outputs(
             ) as pq_file_2:
                 pq_file_2.write(b"test parquet 2")
 
-    ferc_to_sqlite._download_nightly_outputs(dataset, data_format, ferc_paths)
+    ferc_to_sqlite._download_nightly_outputs(data_format, ferc_paths)
 
     assert (
         ferc_paths.nightly_datapackage_path.read_bytes()
