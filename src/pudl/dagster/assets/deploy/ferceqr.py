@@ -175,15 +175,20 @@ def _promote_staging(
                 child.rename(dst / child.name)
             # Remove the now-empty staging subdirectory. On GCS/S3 we need
             # fs.rm() -- rmdir() fails because there is no real directory.
-            src.fs.rm(src.path, recursive=True)
+            # Note: on GCS rename() performs a copy+delete, so the source
+            # prefix may already be gone. Guard against that.
+            if src.exists():
+                src.fs.rm(src.path, recursive=True)
 
         # Rename the datapackage JSON.
         datapackage_src = staging_dir / "ferceqr_parquet_datapackage.json"
         if datapackage_src.exists():
             datapackage_src.rename(final_dir / "ferceqr_parquet_datapackage.json")
 
-        # Remove the empty staging directory.
-        staging_dir.fs.rm(staging_dir.path, recursive=True)
+        # Remove the empty staging directory. On GCS the rename above is a
+        # copy+delete, so the staging prefix may already be gone.
+        if staging_dir.exists():
+            staging_dir.fs.rm(staging_dir.path, recursive=True)
 
 
 def _remove_staging(staging_dir: UPath) -> None:
@@ -197,9 +202,8 @@ def _remove_staging(staging_dir: UPath) -> None:
     storage (GCS, S3) uses virtual prefixes rather than real directories and
     ``rmdir()`` would raise ``NotADirectoryError``.
     """
-    if not staging_dir.exists():
-        return
-    staging_dir.fs.rm(staging_dir.path, recursive=True)
+    if staging_dir.exists():
+        staging_dir.fs.rm(staging_dir.path, recursive=True)
 
 
 def _parse_step_key(step_key: str, source_partition: str | None) -> tuple[str, str]:
