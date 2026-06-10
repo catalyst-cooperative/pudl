@@ -1,8 +1,8 @@
-"""Change out_eia923_frc col
+"""change frc col name
 
-Revision ID: 5689662de46d
-Revises: f98868d3f5cb
-Create Date: 2026-06-03 13:58:18.750807
+Revision ID: e583dcbe965f
+Revises: 19ec11f1ed95
+Create Date: 2026-06-10 14:24:55.862048
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5689662de46d'
-down_revision = 'f98868d3f5cb'
+revision = 'e583dcbe965f'
+down_revision = '19ec11f1ed95'
 branch_labels = None
 depends_on = None
 
