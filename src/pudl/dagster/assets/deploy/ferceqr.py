@@ -515,10 +515,33 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
         logger.error(
             "FERC EQR deployment promotion failed! "
             "Staging directories may contain partial data; "
-            "cleaning up staging paths."
+            "cleaning up staging paths.\n" + traceback.format_exc(),
         )
+        # Send failure notification inline before the exception propagates.
+        # The sensor-triggered failure asset never gets to run because the
+        # bash script kills the dagster daemon as soon as FERCEQR_FAILURE
+        # appears, so we must notify here while the process is still alive.
+        try:
+            notification_markdown = build_ferceqr_notification(
+                context, outcome="FAILURE"
+            )
+            zulip.send_stream_message(
+                stream="pudl-deployments",
+                topic="build-deploy-ferceqr",
+                content=notification_markdown,
+            )
+        except Exception:
+            logger.error(
+                "FERC EQR failure notification also failed:\n" + traceback.format_exc()
+            )
         for staging_dir in staging_targets:
-            _remove_staging(staging_dir)
+            try:
+                _remove_staging(staging_dir)
+            except Exception:
+                logger.warning(
+                    f"Failed to clean up staging dir {staging_dir}:\n"
+                    + traceback.format_exc()
+                )
         raise
 
     # Send Zulip notification about successful build
