@@ -6,6 +6,7 @@ job when deployment handling is complete.
 """
 
 import json
+import logging
 import os
 import re
 import traceback
@@ -49,7 +50,16 @@ def _write_status_file(
     status: Literal["FERCEQR_SUCCESS", "FERCEQR_FAILURE"],
     pudl_paths: PudlPaths,
 ):
-    """Notify build script that job is complete by creating a status file."""
+    """Notify build script that job is complete by creating a status file.
+
+    Flush logging handlers before writing the sentinel. The bash script that
+    launched the Dagster daemon uses ``inotifywait`` to watch for this sentinel
+    and runs ``killall dagster-daemon`` as soon as it appears. Any buffered log
+    output written before the sentinel but not yet flushed will be lost when the
+    daemon process is killed, making errors invisible in the log.
+    """
+    for handler in logging.root.handlers:
+        handler.flush()
     (Path(pudl_paths.pudl_output) / status).touch()
 
 
@@ -61,18 +71,26 @@ def _clear_status_files(pudl_paths: PudlPaths) -> None:
 
 
 def _staging_path(dist_path: UPath) -> UPath:
-    """Return the staging directory beneath *dist_path* for an atomic deploy.
+    """Return the staging path *alongside* *dist_path* for an atomic deploy.
 
-    The staging path appends ``._staging_{BUILD_ID}_{random_suffix}`` to the target.
-    The BUILD_ID ties it to a specific build run, and the random suffix avoids
-    collisions if two builds target the same destination concurrently (e.g. during
-    development or test re-runs).
+    The staging path sits as a sibling of the deployment target, rather than a
+    child. On cloud storage this avoids prefix-scoping ambiguity during the
+    rename loop — the staging and final prefixes are completely disjoint:
+
+    .. code-block:: text
+
+        gs://bucket/
+          ├── 2026-06-10-.../              (final target dir)
+          └── ._staging_2026-06-10-.../    (staging dir, sibling)
+
+    The suffix includes the BUILD_ID to tie it to a specific build run, and a
+    random component to avoid collisions during concurrent development runs.
 
     If ``BUILD_ID`` is not set (local/testing), a random short suffix is used alone.
     """
     build_id = os.getenv("BUILD_ID")
     suffix = build_id or uuid.uuid4().hex[:8]
-    return dist_path / f"._staging_{suffix}"
+    return dist_path.parent / f"._staging_{suffix}"
 
 
 def _deploy_to_staging(  # noqa: C901
@@ -544,6 +562,9 @@ def deploy_ferceqr(context: dg.AssetExecutionContext):
                     f"Failed to clean up staging dir {staging_dir}:\n"
                     + traceback.format_exc()
                 )
+        # Write the failure sentinel HERE (inside the inline handler) so the
+        # log messages above are flushed before the sentinel triggers killall.
+        _write_status_file("FERCEQR_FAILURE", pudl_paths)
         raise
 
     # Send Zulip notification about successful build

@@ -327,7 +327,7 @@ def test_build_message_includes_asset_partition_status_table(mocker):
 @pytest.mark.parametrize(
     "build_id,expected_pattern",
     [
-        ("build-abc123", "/base/._staging_build-abc123"),
+        ("build-abc123", "/._staging_build-abc123"),
         (None, "._staging_"),
     ],
 )
@@ -380,7 +380,7 @@ def test_deploy_to_staging_writes_files(mocker, tmp_path):
 
     assert len(staging_targets) == 1
     staging_dir = staging_targets[0]
-    assert str(staging_dir).startswith(str(deploy_root / "._staging_"))
+    assert str(staging_dir).startswith(str(tmp_path / "._staging_"))
 
     # Verify parquet files
     for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
@@ -434,7 +434,7 @@ def test_promote_staging_moves_files_to_final_path(tmp_path):
     """_promote_staging should move staging contents to the final destination."""
     deploy_root = tmp_path / "deploy"
     deploy_root.mkdir()
-    staging_dir = deploy_root / "._staging_test"
+    staging_dir = tmp_path / "._staging_test"
     staging_dir.mkdir()
 
     for table_name in deploy_ferceqr.FERCEQR_TRANSFORM_ASSETS:
@@ -498,8 +498,8 @@ def test_deploy_ferceqr_staging_is_cleaned_up_on_failure(mocker, tmp_path):
     with pytest.raises(RuntimeError, match="promotion failed"):
         deploy_ferceqr.deploy_ferceqr(deploy_context)
 
-    # Staging directory should have been cleaned up
-    staging_dirs = [d for d in deploy_root.iterdir() if d.name.startswith("._staging_")]
+    # Staging directory should have been cleaned up from the sibling location
+    staging_dirs = [d for d in tmp_path.iterdir() if d.name.startswith("._staging_")]
     assert staging_dirs == [], f"Staging directories left behind: {staging_dirs}"
 
     # Final deployment should not exist
