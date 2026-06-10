@@ -1074,6 +1074,19 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "starting_balance",
+                    "additions",
+                    "retirements",
+                    "adjustments",
+                    "transfers",
+                    "ending_balance",
+                ],
+            }
+        ],
         # Known issue with reporting of construction in progress not classified in classified fields of table.
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
@@ -1082,11 +1095,12 @@ TRANSFORM_PARAMS = {
                     "ungrouped": {"error_frequency": 0.08},
                     # worst factoid: distribution_plant
                     "xbrl_factoid": {"error_frequency": 0.054},
-                    # worst utility: 444
+                    # worst utility: 455
                     "utility_id_ferc1": {
-                        "error_frequency": 0.039,
+                        "error_frequency": 0.09,
                         "relative_error_magnitude": 0.51,
                     },
+                    "report_year": {"error_frequency": 0.009},
                 },
             },
         },
@@ -2622,6 +2636,12 @@ TRANSFORM_PARAMS = {
             "plant_status": PLANT_STATUS,
             "plant_function": PLANT_FUNCTION_CATEGORIES,
         },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["ending_balance"],
+            },
+        ],
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
         "wide_to_tidy": {
             "dbf": {
@@ -3108,6 +3128,12 @@ TRANSFORM_PARAMS = {
             "data_columns": ["dollar_value"],
             "table_name": "core_ferc1__yearly_operating_expenses_sched320",
         },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["dollar_value"],
+            },
+        ],
         "add_columns_with_uniform_values": {
             "columns_to_add": {
                 "utility_type": {"column_value": "electric", "is_dimension": True}
@@ -3124,14 +3150,14 @@ TRANSFORM_PARAMS = {
                     "ungrouped": {"relative_error_magnitude": 0.002},
                     "report_year": {"relative_error_magnitude": 0.042},
                     "xbrl_factoid": {
-                        "error_frequency": 0.018,
+                        "error_frequency": 0.057,
                         "relative_error_magnitude": 0.028,
                         # mostly null bc they were added in 2025:
                         # other_renewable_generation_maintenance_expense & other_renewable_generation_operations_expense
                         "null_calculated_value_frequency": 0.76,
                     },
                     "utility_id_ferc1": {
-                        "error_frequency": 0.017,
+                        "error_frequency": 0.044,
                         "relative_error_magnitude": 0.066,
                     },
                 },

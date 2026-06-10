@@ -1285,7 +1285,9 @@ def calculate_values_from_components(
             )
             # apply the weight from the calc to convey the sign before summing.
             .assign(calculated_value=lambda x: x[value_col] * x.weight)
-            .groupby(gby_parent, as_index=False, dropna=False)[["calculated_value"]]
+            .groupby(gby_parent, observed=True, as_index=False, dropna=False)[
+                ["calculated_value"]
+            ]
             .sum(min_count=1)
             .assign(is_calc=True)
         )
@@ -1523,7 +1525,7 @@ class ErrorMetric(BaseModel):
         """
         # return a df instead of a series
         df["is_not_close"] = self.is_not_close(df)
-        return df.groupby(by=self.groupby_cols()).apply(
+        return df.groupby(by=self.groupby_cols(), observed=True).apply(
             self.metric, include_groups=False
         )
 
@@ -1607,7 +1609,7 @@ class NullCalculatedValueFrequency(ErrorMetric):
         """Only apply metric to rows that contain calculated values."""
         return (
             df[df.row_type_xbrl == "calculated_value"]
-            .groupby(self.groupby_cols())
+            .groupby(self.groupby_cols(), observed=True)
             .apply(self.metric, include_groups=False)
         )
 
@@ -3662,9 +3664,9 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
         pk_cols = self.renamed_table_primary_key(source_ferc1=SourceFerc1.XBRL) + [
             "sched_table_name"
         ]
-        fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
-            "fuel_units"
-        ].transform("nunique")
+        fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(
+            pk_cols, dropna=False, observed=True
+        )["fuel_units"].transform("nunique")
 
         # split
         dupe_mask = fuel_xbrl.duplicated(subset=pk_cols, keep=False)
@@ -5141,7 +5143,9 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
         agg_mask = df[xbrl_factoid_name].isin(factoids_to_agg)
         agg_df = (
             df[agg_mask]
-            .groupby(pks_wo_factoid, as_index=False, dropna=False)[cols_to_agg]
+            .groupby(pks_wo_factoid, as_index=False, dropna=False, observed=True)[
+                cols_to_agg
+            ]
             .sum(min_count=1)
             .assign(**{xbrl_factoid_name: new_factoid_name})
         )
@@ -6223,24 +6227,19 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         value_col = "ending_balance"
         single_total_sum = (
             df[single_total_mask & ~correction_mask]
-            .groupby(gb_idx, as_index=False)[[value_col]]
+            .groupby(gb_idx, observed=True, as_index=False)[[value_col]]
             .sum(min_count=1)
             .rename(columns={value_col: f"{value_col}_single_total"})
         )
         children_sum = (
             df[~single_total_mask & ~double_total_mask]
-            .groupby(gb_idx, as_index=False)[[value_col]]
+            .groupby(gb_idx, observed=True, as_index=False)[[value_col]]
             .sum(min_count=1)
             .rename(columns={value_col: f"{value_col}_children"})
         )
         double_totals = df.loc[
             double_total_mask & ~correction_mask, gb_idx + [value_col]
         ].rename(columns={value_col: f"{value_col}_double_total"})
-        logger.info(
-            f"double_totals:\n{double_totals[double_totals.duplicated(gb_idx, keep=False)].set_index(gb_idx).sort_index()}\n\n"
-            f"single_total_sum:\n{single_total_sum[single_total_sum.duplicated(gb_idx, keep=False)]}\n\n"
-            f"children_sum:\n{children_sum[children_sum.duplicated(gb_idx, keep=False)]}\n\n"
-        )
         total_test = double_totals.merge(
             single_total_sum,
             on=gb_idx,
@@ -6288,7 +6287,6 @@ class OperatingExpensesTableTransformer(Ferc1AbstractTableTransformer):
         ]
         if (dropped := start_len - len(raw_df)) > 1:
             raise AssertionError(f"More rows dropped than expected: {dropped}")
-        logger.info("Heyyyy dropping that one row")
         return raw_df
 
     def convert_xbrl_metadata_json_to_df(
