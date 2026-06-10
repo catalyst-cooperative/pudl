@@ -65,7 +65,7 @@ jobs:
           echo "BATCH_JOB_ID: $BATCH_JOB_ID"
 
       - name: Tag build
-        if: ${{ (github.event_name == 'schedule') && (env.SKIP_BUILD != 'true') }}
+        if: ${{ (env.SKIP_BUILD != 'true') }}
         run: |
           git config user.email "pudl@catalyst.coop"
           git config user.name "pudlbot"
