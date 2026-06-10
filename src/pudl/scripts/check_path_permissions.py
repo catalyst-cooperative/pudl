@@ -73,8 +73,16 @@ class PathCheckReport:
     success: bool = False
 
 
-def _get_ferceqr_deployment_paths() -> list[str]:
-    """Return resolved FERCEQR deployment targets from the configured YAML path."""
+def _get_ferceqr_deployment_paths(anon: bool = False) -> list[UPath]:
+    """Return resolved FERC EQR deployment targets as fully configured UPath objects.
+
+    Each target is constructed with its YAML-defined ``storage_options``, then the
+    global ``--anon`` flag is applied on top (so it can override per-target settings
+    if needed).
+
+    Args:
+        anon: Whether to force anonymous access for ``gs://`` or ``s3://`` targets.
+    """
     deployment_config_path = os.getenv("PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH")
     if not deployment_config_path:
         return []
@@ -82,7 +90,23 @@ def _get_ferceqr_deployment_paths() -> list[str]:
     from pudl.dagster.resources import FercEqrDeploymentResource
 
     resource = FercEqrDeploymentResource(deployment_config_path=deployment_config_path)
-    return [str(path) for path in resource.resolved_targets()]
+    return [
+        _build_upath(target.path, anon=anon, storage_options=target.storage_options)
+        for target in resource.configured_targets()
+    ]
+
+
+def _build_upath(
+    path: str, anon: bool, storage_options: dict[str, Any] | None = None
+) -> UPath:
+    """Return a :class:`~upath.UPath` with anon and any per-target options baked in."""
+    merged: dict[str, Any] = dict(storage_options or {})
+    scheme = urlparse(path).scheme
+    if anon and scheme == "gs":
+        merged["token"] = "anon"  # noqa: S105
+    elif anon and scheme == "s3":
+        merged["anon"] = True
+    return UPath(path, **merged)
 
 
 @contextmanager
@@ -99,19 +123,6 @@ def _suppress_backend_tracebacks() -> Any:
     finally:
         for logger_name, original_level in original_levels.items():
             logging.getLogger(logger_name).setLevel(original_level)
-
-
-def _build_upath(path: str, anon: bool) -> UPath:
-    """Return a :class:`~upath.UPath` configured for the requested auth mode."""
-    scheme = urlparse(path).scheme
-    storage_options: dict[str, Any] = {}
-
-    if anon and scheme == "gs":
-        storage_options["token"] = "anon"  # noqa: S105
-    elif anon and scheme == "s3":
-        storage_options["anon"] = True
-
-    return UPath(path, **storage_options)
 
 
 def _ensure_directory_like_path(path: UPath) -> None:
@@ -309,7 +320,7 @@ def _run_check(
 
 def _check_single_path(
     *,
-    path: str,
+    path: UPath,
     read_requested: bool,
     write_requested: bool,
     json_output: bool,
@@ -317,8 +328,8 @@ def _check_single_path(
 ) -> PathReport:
     """Run the requested checks for one path and return a structured summary."""
     summary = PathReport(
-        path=path,
-        resolved_path=None,
+        path=str(path),
+        resolved_path=str(path),
         anon=anon,
         checks={
             PermissionCheck.READ: CheckReport(requested=read_requested),
@@ -329,13 +340,10 @@ def _check_single_path(
 
     try:
         with _suppress_backend_tracebacks():
-            resolved_path = _build_upath(path, anon=anon)
-            summary.resolved_path = str(resolved_path)
-
             if read_requested:
                 _run_check(
                     action=PermissionCheck.READ,
-                    resolved_path=resolved_path,
+                    resolved_path=path,
                     json_output=json_output,
                     summary=summary,
                 )
@@ -343,7 +351,7 @@ def _check_single_path(
             if write_requested:
                 _run_check(
                     action=PermissionCheck.WRITE,
-                    resolved_path=resolved_path,
+                    resolved_path=path,
                     json_output=json_output,
                     summary=summary,
                 )
@@ -423,11 +431,13 @@ def main(
         read_requested = True
         write_requested = True
 
-    paths_to_check = list(paths)
+    # Build fully-configured UPath objects. CLI-provided paths get the global
+    # --anon flag only; deployment paths also carry their YAML storage_options.
+    configured_paths: list[UPath] = [_build_upath(p, anon=anon) for p in paths]
     if check_ferceqr_deployment_paths:
-        paths_to_check.extend(_get_ferceqr_deployment_paths())
+        configured_paths.extend(_get_ferceqr_deployment_paths(anon=anon))
 
-    if not paths_to_check:
+    if not configured_paths:
         raise click.BadParameter(
             "At least one path is required when --check-ferceqr-deployment-paths "
             "is not set.",
@@ -436,16 +446,16 @@ def main(
 
     path_summaries = [
         _check_single_path(
-            path=path,
+            path=upath,
             read_requested=read_requested,
             write_requested=write_requested,
             json_output=json_output,
             anon=anon,
         )
-        for path in paths_to_check
+        for upath in configured_paths
     ]
     summary = PathCheckReport(
-        paths=paths_to_check,
+        paths=[str(upath) for upath in configured_paths],
         anon=anon,
         results=path_summaries,
         success=all(path_summary.success for path_summary in path_summaries),

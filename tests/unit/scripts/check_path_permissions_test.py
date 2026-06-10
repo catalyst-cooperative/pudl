@@ -136,7 +136,9 @@ def test_main_json_includes_expanded_ferceqr_deployment_paths(
     monkeypatch.setattr(
         check_path_permissions,
         "_get_ferceqr_deployment_paths",
-        lambda: [str(other_path)],
+        lambda anon=False: [
+            check_path_permissions._build_upath(str(other_path), anon=anon)
+        ],
     )
 
     result = CliRunner().invoke(
