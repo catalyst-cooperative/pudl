@@ -60,6 +60,7 @@ from pudl.metadata.enums import (
     SERVICE_STATUS_RUS7,
     SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
+    SUPPLY_TYPES_EIA176,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_EIAAEO,
@@ -240,16 +241,29 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Number of end-use consumers within the report state.",
     },
+    "capacity_mmcfd": {
+        "type": "number",
+        "description": (
+            "Daily deliverability capacity of a liquefied natural gas storage facility "
+            "at the end of the report year."
+        ),
+        "unit": "MMcf_per_day",
+    },
     "operator_id_eia": {
         "type": "string",
         "description": (
             "The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state."
         ),
     },
+    "supply_type": {
+        "type": "string",
+        "description": "Natural or supplemental gas supply category reported on EIA Form 176.",
+        "constraints": {"enum": SUPPLY_TYPES_EIA176},
+    },
     "volume_mcf": {
         "type": "number",
         "description": (
-            "Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            "Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
     },
@@ -3113,6 +3127,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         },
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
+    "facility_type": {
+        "type": "string",
+        "description": (
+            "Type of liquefied natural gas storage facility reported in Part 5 of "
+            "EIA Form 176."
+        ),
+        "constraints": {"enum": ["lng_terminal", "marine_terminal"]},
+    },
     "federal_land_leaks_repaired_or_scheduled": {
         "type": "integer",
         "description": (
@@ -10435,6 +10457,15 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "operator (sales) or gas transported by the operator (transport)."
             ),
             "constraints": {"enum": REVENUE_CLASSES_EIA176},
+        },
+    },
+    "core_eia176__yearly_liquefied_natural_gas_inventory": {
+        "volume_mcf": {
+            "description": (
+                "Volume of liquefied natural gas inventory held in storage at the "
+                "end of the report year. Reference conditions for measurement are "
+                "14.73 psia and 60° Fahrenheit."
+            ),
         },
     },
     "sector_consolidated_eia": {"code": {"type": "integer"}},
