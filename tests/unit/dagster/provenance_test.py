@@ -27,6 +27,7 @@ def test_ferc_sqlite_provenance_record_round_trip() -> None:
         years=[2018, 2019],
         data_config=data_config,
         ferc_xbrl_extractor_version="1.0.0",
+        source="local_new",
     )
     dagster_meta = {
         FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
@@ -55,13 +56,16 @@ def test_ferc_sqlite_provenance_record_round_trip_datapackage(tmp_path):
         years=[2018, 2019],
         data_config=data_config,
         ferc_xbrl_extractor_version="1.0.0",
+        source="local_new",
     )
 
     # Write to sqlite
     record.to_datapackage(datapackage_path)
 
     # Recover and compare
-    recovered = FercSqliteProvenanceRecord.from_datapackage(datapackage_path)
+    recovered = FercSqliteProvenanceRecord.from_datapackage(
+        datapackage_path, source="local_new"
+    )
     assert recovered == record
     assert recovered.data_config == data_config
 
@@ -74,6 +78,7 @@ def test_ferc_sqlite_provenance_record_minimal_round_trip() -> None:
         data_format="xbrl",
         status=status,
         ferc_xbrl_extractor_version="1.0.0",
+        source="local_new",
     )
     dagster_meta = {
         FERC_TO_SQLITE_METADATA_KEY: dg.MetadataValue.json(
@@ -113,6 +118,7 @@ def test_fetch_stored_ferc_sqlite_provenance_metadata(mocker):
         zenodo_doi="fake DOI",
         years=[2018, 2019],
         ferc_xbrl_extractor_version="1.0.0",
+        source="local_new",
     )
 
     # First try to fetch before correctly mocking instance to mimick no provenance being available
@@ -165,6 +171,7 @@ def test_ferc_sqlite_provenance_is_compatible_year_subset_check(
         zenodo_doi="fake DOI",
         years=stored_years,
         ferc_xbrl_extractor_version="1.0.0",
+        source="local_new",
     )
     required = FercSqliteProvenance(
         dataset="ferc1",
@@ -197,6 +204,7 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_doi_mismatch(
         zenodo_doi="stale DOI",
         years=[],
         ferc_xbrl_extractor_version="1.0.0",
+        source="local_new",
     )
     required = FercSqliteProvenance(
         dataset="ferc1",
@@ -233,6 +241,7 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_xbrl_extractor_mismatch(
         zenodo_doi="fake DOI",
         years=[],
         ferc_xbrl_extractor_version="1.0.0",
+        source="local_new",
     )
     required = FercSqliteProvenance(
         dataset="ferc1",
@@ -267,6 +276,7 @@ def test_ferc_sqlite_provenance_is_compatible_rejects_non_complete_status(
         data_format="dbf",
         status=status,
         ferc_xbrl_extractor_version="1.0.0",
+        source="local_new",
     )
     required = FercSqliteProvenance(
         dataset="ferc1",

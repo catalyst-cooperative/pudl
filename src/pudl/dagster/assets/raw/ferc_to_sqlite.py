@@ -220,7 +220,7 @@ def _check_for_cached_db_w_compatible_provenance(
 
     # Check local datapackage first
     local_provenance = FercSqliteProvenanceRecord.from_datapackage(
-        paths.local_datapackage_path
+        paths.local_datapackage_path, source="local_cache"
     )
 
     # Check if local or nightly datapackage contain compatible provenance metadata
@@ -235,7 +235,7 @@ def _check_for_cached_db_w_compatible_provenance(
     # Check nightly provenance
     try:
         nightly_provenance = FercSqliteProvenanceRecord.from_datapackage(
-            paths.nightly_datapackage_path
+            paths.nightly_datapackage_path, source="nightly"
         )
     except NETWORK_ERRORS:
         logger.warning(
@@ -257,7 +257,7 @@ def _check_for_cached_db_w_compatible_provenance(
             # At this point the local datapackage is overwritten by the nightly one
             # This means we can grab the nightly provenance metadata from the local file
             compatible_metadata = FercSqliteProvenanceRecord.from_datapackage(
-                paths.local_datapackage_path
+                paths.local_datapackage_path, source="nightly"
             )
             logger.info(
                 f"Nightly outputs for {dataset}_{data_format} are compatible with current run."
@@ -320,6 +320,7 @@ def ferc_to_sqlite_asset_factory(
                             dataset=str(dataset),
                             data_format=data_format,
                             status="not_configured",
+                            source="local_new",
                         ).model_dump(mode="json")
                     )
                 },
@@ -345,6 +346,7 @@ def ferc_to_sqlite_asset_factory(
                 dataset=str(dataset),
                 data_format=data_format,
                 status="complete",
+                source="local_new",
                 zenodo_doi=zenodo_doi,
                 years=ferc_to_sqlite.get_dataset_years(
                     dataset=dataset, data_format=data_format

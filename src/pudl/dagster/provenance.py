@@ -60,6 +60,7 @@ class FercSqliteProvenanceRecord(BaseModel):
     dataset: str
     data_format: Literal["dbf", "xbrl"]
     status: Literal["complete", "not_configured"]
+    source: Literal["nightly", "local_cache", "local_new"]
     zenodo_doi: str | None = None
     years: list[int] | None = None
     data_config: FercToSqliteDataConfig | None = None
@@ -101,7 +102,11 @@ class FercSqliteProvenanceRecord(BaseModel):
         datapackage_path.write_text(json.dumps(json_dict, indent=2))
 
     @classmethod
-    def from_datapackage(cls, datapackage_path: UPath) -> "FercSqliteProvenanceRecord":
+    def from_datapackage(
+        cls,
+        datapackage_path: UPath,
+        source: Literal["nightly", "local_cache", "local_new"],
+    ) -> "FercSqliteProvenanceRecord":
         """Read SQLite provenance metadata from datapackage JSON file.
 
         Note that this method accepts ``datapackage_path`` as a ``UPath`` as we read
@@ -111,6 +116,7 @@ class FercSqliteProvenanceRecord(BaseModel):
         if datapackage_path.exists():
             json_dict = json.loads(datapackage_path.read_text())
             if (provenance := json_dict.get("provenance_metadata", None)) is not None:
+                provenance["source"] = source
                 return cls.model_validate(provenance)
             # Handle legacy datapackages that didn't contain
             logger.warning(f"{datapackage_path} does not contain provenance metadata.")

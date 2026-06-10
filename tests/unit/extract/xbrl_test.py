@@ -307,6 +307,7 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
         zenodo_doi=local_doi,
         years=years,
         ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
+        source="local_cache",
     )
     nightly_provenance = FercSqliteProvenanceRecord(
         dataset=dataset,
@@ -315,16 +316,17 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
         zenodo_doi=nightly_doi,
         years=years,
         ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
+        source="nightly",
     )
 
     # Mock load provenance
     original_from_datapackage = FercSqliteProvenanceRecord.from_datapackage
     mocker.patch(
         "pudl.dagster.assets.raw.ferc_to_sqlite.FercSqliteProvenanceRecord.from_datapackage",
-        side_effect=lambda path: (
+        side_effect=lambda path, source: (
             nightly_provenance
             if path == nightly_datapackage_path
-            else original_from_datapackage(path)
+            else original_from_datapackage(path, source)
         ),
     )
 
@@ -357,6 +359,7 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
     assert uncached_provenance.zenodo_doi == uncached_doi
     assert uncached_provenance == FercSqliteProvenanceRecord.model_validate(
         json.loads(local_datapackage_path.read_text())["provenance_metadata"]
+        | {"source": "local_new"}
     )
     mock_extract_function.assert_called_once()
 

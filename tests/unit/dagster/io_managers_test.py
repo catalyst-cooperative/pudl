@@ -385,6 +385,7 @@ def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
                     ferc_xbrl_extractor_version=version(
                         "catalystcoop.ferc_xbrl_extractor"
                     ),
+                    source="local_new",
                 ).model_dump(mode="json")
             }
         )
@@ -443,6 +444,7 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
                     ferc_xbrl_extractor_version=version(
                         "catalystcoop.ferc_xbrl_extractor"
                     ),
+                    source="local_new",
                 ).model_dump(mode="json")
             }
         )
@@ -488,6 +490,7 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker, caplog):
             years=global_data_config.ferc_to_sqlite.get_dataset_years("ferc1", "dbf"),
             zenodo_doi="stale DOI",
             sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+            source="local_new",
         ).model_dump(mode="json")
     }
     instance: DagsterInstance = mocker.MagicMock()
