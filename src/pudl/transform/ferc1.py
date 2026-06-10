@@ -1662,7 +1662,6 @@ def add_corrections(
             rtol=is_close_tolerance.isclose_rtol,
             atol=is_close_tolerance.isclose_atol,
         )
-        # TODO: Enable a correction
         & calculated_df["abs_diff"].notnull()
     ].copy()
     # fill in the nulls with zeros so we get a correction for records
@@ -2515,7 +2514,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             raise AssertionError(
                 f"We've applied {len_fixes_applied} calculation fixes while we started "
                 f"with {len(calc_fixes)}. Length of applied and original fixes should "
-                f"be the same.\n{replace_me=}\n{add_me=}\n{delete_me=}\n"
+                f"be the same.\n{replace_me=}\n{add_me=}\n{delete_me=}"
             )
         return calc_components.reset_index()
 
