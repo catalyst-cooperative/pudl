@@ -194,7 +194,8 @@ def extract_ferceqr(
         _get_csv(ferceqr_archive.upath, year_quarter) as quarter_archive,
         duckdb.connect() as conn,
     ):
-        conn.execute("SET enable_progress_bar=false")
+        # Disable DuckDB progress bar, as it is quite noisy in the logs.
+        conn.execute("PRAGMA disable_progress_bar")
         # Loop through all nested zipfiles (one for each filing in the quarter)
         filing_names = quarter_archive.namelist()
         logger.info(f"Extracting {len(filing_names)} filings for {year_quarter}.")

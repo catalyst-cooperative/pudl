@@ -2414,6 +2414,8 @@ def duckdb_relation_from_parquet(
             Otherwise only read data from the partition specified in parquet_data.
     """
     with duckdb.connect() as conn:
+        # Disable DuckDB progress bar, as it is quite noisy in the logs.
+        conn.execute("PRAGMA disable_progress_bar")
         if use_all_partitions:
             yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet"), conn
         else:
@@ -2449,6 +2451,8 @@ def duckdb_extract_zipped_csv(
         datasore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
         tempfile.TemporaryDirectory() as tmp_dir,
     ):
+        # Disable DuckDB progress bar, as it is quite noisy in the logs.
+        conn.execute("PRAGMA disable_progress_bar")
         tmp_dir = Path(tmp_dir)
         zf.extractall(tmp_dir)
 

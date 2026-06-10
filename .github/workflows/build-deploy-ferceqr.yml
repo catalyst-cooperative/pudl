@@ -33,8 +33,8 @@ env:
   emoji: ":warning:"
 
 jobs:
-  build_and_deploy_eqr:
-    name: Build Docker image, push to Docker Hub and deploy to Google Batch
+  build_and_deploy_ferceqr:
+    name: Kick off a FERC EQR build and deployment with Google Batch
     runs-on: ubuntu-latest
     permissions:
       contents: write
