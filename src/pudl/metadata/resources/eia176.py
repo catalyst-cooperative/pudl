@@ -3,6 +3,47 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_eia176__yearly_gas_supply": {
+        "description": {
+            "additional_summary_text": (
+                "a company's natural and supplemental gas supply for the report state."
+            ),
+            "additional_source_text": "(Part 4, Lines 1.0-7.0)",
+            "usage_warnings": [
+                {
+                    "type": "split-field",
+                    "description": (
+                        "Note that citygate receipts were split into sales customer and transportation customer "
+                        "sub-components in 2011. The ``citygate_receipts_total`` field has not been forward-filled to avoid "
+                        "data duplication, and is accordingly null after 2010."
+                    ),
+                },
+            ],
+            "additional_details_text": """Line 3.0 receipts from the state or U.S. border and Line 6.0
+supplemental gaseous fuels are reported as aggregated totals, with one value per operator ID and year in this table.
+The disaggregated records are reported in core_eia176__yearly_gas_imports and core_eia176__yearly_supplemental_gaseous_fuel_supplies.
+During transformation, the reported totals and the sum of the disaggregated data are compared to ensure consistency in
+reporting from the original EIA data.
+            """,
+        },
+        "schema": {
+            "fields": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "supply_type",
+                "volume_mcf",
+            ],
+            "primary_key": [
+                "operator_id_eia",
+                "report_year",
+                "supply_type",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia176"],
+        "etl_group": "eia176",
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "description": {
             "additional_summary_text": (
@@ -26,6 +67,30 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operator_id_eia",
                 "customer_class",
                 "revenue_class",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia176"],
+        "etl_group": "eia176",
+    },
+    "core_eia176__yearly_liquefied_natural_gas_inventory": {
+        "description": {
+            "additional_summary_text": "an operator's LNG storage volume and capacity.",
+            "additional_source_text": "(Part 5, Lines 8.0-8.2)",
+        },
+        "schema": {
+            "fields": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "facility_type",
+                "volume_mcf",
+                "capacity_mmcfd",
+            ],
+            "primary_key": [
+                "operator_id_eia",
+                "report_year",
+                "facility_type",
             ],
         },
         "field_namespace": "eia",

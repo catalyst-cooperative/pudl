@@ -28,8 +28,48 @@ Enhancements
 New Data
 ^^^^^^^^
 
+EIA-176
+~~~~~~~
+
+* Added :ref:`core_eia176__yearly_gas_supply`, which contains cleaned
+  company-level natural and supplemental gas supply data from Part 4 of the EIA-176
+  survey. See :issue:`4711` and :pr:`5227`.
+* Added :ref:`core_eia176__yearly_liquefied_natural_gas_inventory`, a new table
+  containing annual LNG storage volume and capacity reported by operators on EIA Form
+  176 Part 5. Data covers 2002-2024 and includes LNG terminal and marine terminal
+  records. See issue :issue:`4695` and PR :pr:`5219`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-191
+~~~~~~~
+
+* Updated :doc:`EIA-191 <data_sources/eia191>` data to include additional 2026 data. See
+  PR :pr:`5292`.
+
+EIA-860M
+~~~~~~~~
+
+* Added EIA-860M data through April 2026. See issue :issue:`5277` and PR :pr:`5284`.
+
+EIA Electricity API
+~~~~~~~~~~~~~~~~~~~
+
+* Updated the bulk EIA Electricity API data used to fill in redacted fuel prices.
+  See PR :pr:`5292`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data to include 2026Q1. See PR
+  :pr:`5292`.
+
+FERC Forms 2 & 6
+~~~~~~~~~~~~~~~~
+
+* Updated the raw FERC Form 2 and 6 archives to include 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR :pr:`5292`.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -68,6 +108,15 @@ Quality of Life Improvements
   outside of a ``dg``-spawned environment:
   :func:`pudl.dagster.build.build_interactive_defs`. See issue :issue:`5118` and PR
   :pr:`5242`.
+* Migrated build and deployment notifications from Slack to Zulip. All GitHub Actions
+  workflows that previously posted to Slack now send notifications to the Catalyst
+  Cooperative Zulip instance via the ``zulip/github-actions-zulip`` action. A new
+  :class:`~pudl.dagster.resources.ZulipNotificationResource` Dagster resource was added
+  to send Zulip stream messages from within assets, with best-effort error handling. The
+  FERC EQR deployment helpers in :mod:`pudl.dagster.assets.deploy.ferceqr` were updated
+  to use it. Notification coverage was also expanded to include community activity
+  (issues, discussions, comments, and pull requests from non-Catalyst contributors).
+  See PR :pr:`5298`.
 
 .. _release-v2026.5.0:
 
