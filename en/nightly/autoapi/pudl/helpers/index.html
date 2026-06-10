@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.5.1.dev26 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.5.1.dev29 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../../_static/documentation_options.js?v=ca716be4"></script>
+    <script src="../../../_static/documentation_options.js?v=68069aa3"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev26 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev26 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev29 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -797,205 +797,208 @@ with cleaning and restructuring dataframes.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.label_map" title="pudl.helpers.label_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_map</span></code></a>(→ collections.defaultdict[str, ...)</p></td>
 <td><p>Build a mapping dictionary from two columns of a labeling / coding dataframe.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.find_new_ferc1_strings" title="pudl.helpers.find_new_ferc1_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_new_ferc1_strings</span></code></a>(→ set[str])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.multi_index_stack" title="pudl.helpers.multi_index_stack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multi_index_stack</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Stack multiple data columns - create categorical columns and data columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.find_new_ferc1_strings" title="pudl.helpers.find_new_ferc1_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_new_ferc1_strings</span></code></a>(→ set[str])</p></td>
 <td><p>Identify as-of-yet uncategorized freeform strings in FERC Form 1.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.find_foreign_key_errors" title="pudl.helpers.find_foreign_key_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_foreign_key_errors</span></code></a>(→ list[dict[str, Any]])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.find_foreign_key_errors" title="pudl.helpers.find_foreign_key_errors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_foreign_key_errors</span></code></a>(→ list[dict[str, Any]])</p></td>
 <td><p>Report foreign key violations from a dictionary of dataframes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.download_zip_url" title="pudl.helpers.download_zip_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_zip_url</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.download_zip_url" title="pudl.helpers.download_zip_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_zip_url</span></code></a>(→ None)</p></td>
 <td><p>Download and save a Zipfile locally.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.add_fips_ids" title="pudl.helpers.add_fips_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_fips_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.add_fips_ids" title="pudl.helpers.add_fips_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_fips_ids</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Add State and County FIPS IDs to a dataframe.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.add_state_id_fips" title="pudl.helpers.add_state_id_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_state_id_fips</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.add_state_id_fips" title="pudl.helpers.add_state_id_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_state_id_fips</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Add the State FIPS codes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.add_county_fips_id" title="pudl.helpers.add_county_fips_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_county_fips_id</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.add_county_fips_id" title="pudl.helpers.add_county_fips_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_county_fips_id</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Add the County FIPS codes to a table with State FIPS codes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.clean_eia_counties" title="pudl.helpers.clean_eia_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_eia_counties</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.clean_eia_counties" title="pudl.helpers.clean_eia_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_eia_counties</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Replace non-standard county names with county names from US Census.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.oob_to_nan" title="pudl.helpers.oob_to_nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">oob_to_nan</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.oob_to_nan" title="pudl.helpers.oob_to_nan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">oob_to_nan</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Set non-numeric values and those outside of a given range to NaN.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.oob_to_nan_with_dependent_cols" title="pudl.helpers.oob_to_nan_with_dependent_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">oob_to_nan_with_dependent_cols</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.oob_to_nan_with_dependent_cols" title="pudl.helpers.oob_to_nan_with_dependent_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">oob_to_nan_with_dependent_cols</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Call <a class="reference internal" href="#pudl.helpers.oob_to_nan" title="pudl.helpers.oob_to_nan"><code class="xref py py-func docutils literal notranslate"><span class="pre">oob_to_nan()</span></code></a> and additionally nullify any derived columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.prep_dir" title="pudl.helpers.prep_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_dir</span></code></a>(→ pathlib.Path)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.prep_dir" title="pudl.helpers.prep_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_dir</span></code></a>(→ pathlib.Path)</p></td>
 <td><p>Create (or delete and recreate) a directory.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.is_doi" title="pudl.helpers.is_doi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_doi</span></code></a>(→ bool)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.is_doi" title="pudl.helpers.is_doi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_doi</span></code></a>(→ bool)</p></td>
 <td><p>Determine if a string is a valid digital object identifier (DOI).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.convert_col_to_datetime" title="pudl.helpers.convert_col_to_datetime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_col_to_datetime</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.convert_col_to_datetime" title="pudl.helpers.convert_col_to_datetime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_col_to_datetime</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Convert a non-datetime column in a dataframe to a datetime64[s].</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.full_timeseries_date_merge" title="pudl.helpers.full_timeseries_date_merge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">full_timeseries_date_merge</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.full_timeseries_date_merge" title="pudl.helpers.full_timeseries_date_merge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">full_timeseries_date_merge</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Merge dataframes with different date frequencies and expand to a full timeseries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers._add_suffix_to_date_on" title="pudl.helpers._add_suffix_to_date_on"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_suffix_to_date_on</span></code></a>(date_on)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers._add_suffix_to_date_on" title="pudl.helpers._add_suffix_to_date_on"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_suffix_to_date_on</span></code></a>(date_on)</p></td>
 <td><p>Check date_on list is valid and add _temp_for_merge suffix.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.date_merge" title="pudl.helpers.date_merge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">date_merge</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.date_merge" title="pudl.helpers.date_merge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">date_merge</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Merge two dataframes that have different report date frequencies.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.expand_timeseries" title="pudl.helpers.expand_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expand_timeseries</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.expand_timeseries" title="pudl.helpers.expand_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expand_timeseries</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Expand a dataframe to a include a full time series at a given frequency.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.organize_cols" title="pudl.helpers.organize_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">organize_cols</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.organize_cols" title="pudl.helpers.organize_cols"><code class="xref py py-obj docutils literal notranslate"><span class="pre">organize_cols</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Organize columns into key ID &amp; name fields &amp; alphabetical data columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.simplify_strings" title="pudl.helpers.simplify_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simplify_strings</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.simplify_strings" title="pudl.helpers.simplify_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simplify_strings</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Simplify the strings contained in a set of dataframe columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.cleanstrings_series" title="pudl.helpers.cleanstrings_series"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanstrings_series</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.cleanstrings_series" title="pudl.helpers.cleanstrings_series"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanstrings_series</span></code></a>(→ pandas.Series)</p></td>
 <td><p>Clean up the strings in a single column/Series.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.cleanstrings" title="pudl.helpers.cleanstrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanstrings</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.cleanstrings" title="pudl.helpers.cleanstrings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanstrings</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Consolidate freeform strings in several dataframe columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.fix_int_na" title="pudl.helpers.fix_int_na"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_int_na</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.fix_int_na" title="pudl.helpers.fix_int_na"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_int_na</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Convert NA containing integer columns from float to string.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.month_year_to_date" title="pudl.helpers.month_year_to_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">month_year_to_date</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.month_year_to_date" title="pudl.helpers.month_year_to_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">month_year_to_date</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Convert all pairs of year/month fields in a dataframe into Date fields.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.convert_to_date" title="pudl.helpers.convert_to_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_to_date</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.convert_to_date" title="pudl.helpers.convert_to_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_to_date</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Convert specified year, month or day columns into a datetime object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.remove_leading_zeros_from_numeric_strings" title="pudl.helpers.remove_leading_zeros_from_numeric_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_leading_zeros_from_numeric_strings</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.remove_leading_zeros_from_numeric_strings" title="pudl.helpers.remove_leading_zeros_from_numeric_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_leading_zeros_from_numeric_strings</span></code></a>(...)</p></td>
 <td><p>Remove leading zeros frame column values that are numeric strings.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.standardize_na_values" title="pudl.helpers.standardize_na_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_na_values</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.standardize_na_values" title="pudl.helpers.standardize_na_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_na_values</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Replace common apparently NA values in numerical columns with the floating point np.nan.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.simplify_columns" title="pudl.helpers.simplify_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simplify_columns</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.simplify_columns" title="pudl.helpers.simplify_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simplify_columns</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Simplify column labels for use as snake_case database fields.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.drop_tables" title="pudl.helpers.drop_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_tables</span></code></a>(→ None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.drop_tables" title="pudl.helpers.drop_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_tables</span></code></a>(→ None)</p></td>
 <td><p>Drops all tables from a SQLite database.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.merge_dicts" title="pudl.helpers.merge_dicts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_dicts</span></code></a>(→ dict[Any, Any])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.merge_dicts" title="pudl.helpers.merge_dicts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_dicts</span></code></a>(→ dict[Any, Any])</p></td>
 <td><p>Merge multiple dictionaries together.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.convert_cols_dtypes" title="pudl.helpers.convert_cols_dtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_cols_dtypes</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.convert_cols_dtypes" title="pudl.helpers.convert_cols_dtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_cols_dtypes</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Convert a PUDL dataframe's columns to the correct data type.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.generate_rolling_avg" title="pudl.helpers.generate_rolling_avg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_rolling_avg</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.generate_rolling_avg" title="pudl.helpers.generate_rolling_avg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_rolling_avg</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Generate a rolling average.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.fillna_w_rolling_avg" title="pudl.helpers.fillna_w_rolling_avg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fillna_w_rolling_avg</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.fillna_w_rolling_avg" title="pudl.helpers.fillna_w_rolling_avg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fillna_w_rolling_avg</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Fill NA values with a rolling average.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.groupby_agg_label_unique_source_or_mixed" title="pudl.helpers.groupby_agg_label_unique_source_or_mixed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_agg_label_unique_source_or_mixed</span></code></a>(→ str | None)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.groupby_agg_label_unique_source_or_mixed" title="pudl.helpers.groupby_agg_label_unique_source_or_mixed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby_agg_label_unique_source_or_mixed</span></code></a>(→ str | None)</p></td>
 <td><p>Get either the unique source in a group or return mixed.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.count_records" title="pudl.helpers.count_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_records</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.count_records" title="pudl.helpers.count_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_records</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Count the number of unique records in group in a dataframe.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.cleanstrings_snake" title="pudl.helpers.cleanstrings_snake"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanstrings_snake</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.cleanstrings_snake" title="pudl.helpers.cleanstrings_snake"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanstrings_snake</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Clean the strings in a columns in a dataframe with snake case.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.zero_pad_numeric_string" title="pudl.helpers.zero_pad_numeric_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zero_pad_numeric_string</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.zero_pad_numeric_string" title="pudl.helpers.zero_pad_numeric_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zero_pad_numeric_string</span></code></a>(→ pandas.Series)</p></td>
 <td><p>Clean up fixed-width leading zero padded numeric (e.g. ZIP, FIPS) codes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.iterate_multivalue_dict" title="pudl.helpers.iterate_multivalue_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iterate_multivalue_dict</span></code></a>(**kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.iterate_multivalue_dict" title="pudl.helpers.iterate_multivalue_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iterate_multivalue_dict</span></code></a>(**kwargs)</p></td>
 <td><p>Make dicts from dict with main dict key and one value of main dict.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.dedupe_on_category" title="pudl.helpers.dedupe_on_category"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dedupe_on_category</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.dedupe_on_category" title="pudl.helpers.dedupe_on_category"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dedupe_on_category</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Deduplicate a df using a sorted category to retain preferred values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.dedupe_and_drop_nas" title="pudl.helpers.dedupe_and_drop_nas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dedupe_and_drop_nas</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.dedupe_and_drop_nas" title="pudl.helpers.dedupe_and_drop_nas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dedupe_and_drop_nas</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Deduplicate a df by comparing primary key columns and dropping null rows.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.drop_records_with_null_in_column" title="pudl.helpers.drop_records_with_null_in_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_records_with_null_in_column</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.drop_records_with_null_in_column" title="pudl.helpers.drop_records_with_null_in_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_records_with_null_in_column</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Drop a prescribed number of records with null values in a column.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.standardize_percentages_ratio" title="pudl.helpers.standardize_percentages_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_percentages_ratio</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.standardize_percentages_ratio" title="pudl.helpers.standardize_percentages_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_percentages_ratio</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Standardize year-to-year changes in mixed percentage/ratio reporting in a column.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.calc_capacity_factor" title="pudl.helpers.calc_capacity_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_capacity_factor</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.calc_capacity_factor" title="pudl.helpers.calc_capacity_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_capacity_factor</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Calculate capacity factor.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.weighted_average" title="pudl.helpers.weighted_average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">weighted_average</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.weighted_average" title="pudl.helpers.weighted_average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">weighted_average</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Generate a weighted average.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.sum_and_weighted_average_agg" title="pudl.helpers.sum_and_weighted_average_agg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_and_weighted_average_agg</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.sum_and_weighted_average_agg" title="pudl.helpers.sum_and_weighted_average_agg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_and_weighted_average_agg</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Aggregate dataframe by summing and using weighted averages.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.get_eia_ferc_acct_map" title="pudl.helpers.get_eia_ferc_acct_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_eia_ferc_acct_map</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.get_eia_ferc_acct_map" title="pudl.helpers.get_eia_ferc_acct_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_eia_ferc_acct_map</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Get map of EIA technology_description/pm codes &lt;&gt; ferc accounts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.dedupe_n_flatten_list_of_lists" title="pudl.helpers.dedupe_n_flatten_list_of_lists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dedupe_n_flatten_list_of_lists</span></code></a>(→ list)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.dedupe_n_flatten_list_of_lists" title="pudl.helpers.dedupe_n_flatten_list_of_lists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dedupe_n_flatten_list_of_lists</span></code></a>(→ list)</p></td>
 <td><p>Flatten a list of lists and remove duplicates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.flatten_list" title="pudl.helpers.flatten_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten_list</span></code></a>(→ collections.abc.Generator)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.flatten_list" title="pudl.helpers.flatten_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten_list</span></code></a>(→ collections.abc.Generator)</p></td>
 <td><p>Flatten an irregular (arbitrarily nested) list of lists (or sets).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.convert_df_to_excel_file" title="pudl.helpers.convert_df_to_excel_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_df_to_excel_file</span></code></a>(→ pandas.ExcelFile)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.convert_df_to_excel_file" title="pudl.helpers.convert_df_to_excel_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_df_to_excel_file</span></code></a>(→ pandas.ExcelFile)</p></td>
 <td><p>Convert a <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> into a <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.ExcelFile.html#pandas.ExcelFile" title="(in pandas v3.0.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.ExcelFile</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.get_asset_keys" title="pudl.helpers.get_asset_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_asset_keys</span></code></a>(→ set[dagster.AssetKey])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.get_asset_keys" title="pudl.helpers.get_asset_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_asset_keys</span></code></a>(→ set[dagster.AssetKey])</p></td>
 <td><p>Get a set of asset keys from a list of asset definitions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.get_asset_group_keys" title="pudl.helpers.get_asset_group_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_asset_group_keys</span></code></a>(→ list[str])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.get_asset_group_keys" title="pudl.helpers.get_asset_group_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_asset_group_keys</span></code></a>(→ list[str])</p></td>
 <td><p>Get a list of asset names in a given asset group.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.convert_col_to_bool" title="pudl.helpers.convert_col_to_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_col_to_bool</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.convert_col_to_bool" title="pudl.helpers.convert_col_to_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_col_to_bool</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Turn a column into a boolean while preserving NA values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.fix_boolean_columns" title="pudl.helpers.fix_boolean_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_boolean_columns</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.fix_boolean_columns" title="pudl.helpers.fix_boolean_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_boolean_columns</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Fix standard issues with boolean columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.scale_by_ownership" title="pudl.helpers.scale_by_ownership"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale_by_ownership</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.scale_by_ownership" title="pudl.helpers.scale_by_ownership"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale_by_ownership</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Generate proportional data by ownership %s.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.assert_cols_areclose" title="pudl.helpers.assert_cols_areclose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assert_cols_areclose</span></code></a>(df, a_cols, b_cols, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.assert_cols_areclose" title="pudl.helpers.assert_cols_areclose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assert_cols_areclose</span></code></a>(df, a_cols, b_cols, ...)</p></td>
 <td><p>Check if two column sets of a dataframe are close to each other.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.diff_wide_tables" title="pudl.helpers.diff_wide_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff_wide_tables</span></code></a>(→ TableDiff)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.diff_wide_tables" title="pudl.helpers.diff_wide_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diff_wide_tables</span></code></a>(→ TableDiff)</p></td>
 <td><p>Diff values across multiple iterations of the same wide table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.retry" title="pudl.helpers.retry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retry</span></code></a>(func, retry_on[, max_retries, base_delay_sec])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.retry" title="pudl.helpers.retry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retry</span></code></a>(func, retry_on[, max_retries, base_delay_sec])</p></td>
 <td><p>Retry a function with a short sleep between each try.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.get_parquet_table_polars" title="pudl.helpers.get_parquet_table_polars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parquet_table_polars</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.get_parquet_table_polars" title="pudl.helpers.get_parquet_table_polars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parquet_table_polars</span></code></a>(→ polars.LazyFrame)</p></td>
 <td><p>Read a table from a parquet file and return as a polars LazyFrame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.get_parquet_table" title="pudl.helpers.get_parquet_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parquet_table</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.get_parquet_table" title="pudl.helpers.get_parquet_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parquet_table</span></code></a>(...)</p></td>
 <td><p>Read a table from Parquet files with optional column selection and filtering.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.standardize_phone_column" title="pudl.helpers.standardize_phone_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_phone_column</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.standardize_phone_column" title="pudl.helpers.standardize_phone_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_phone_column</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Standardize phone numbers in the specified columns of the DataFrame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.persist_table_as_parquet" title="pudl.helpers.persist_table_as_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">persist_table_as_parquet</span></code></a>(→ ParquetData)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.persist_table_as_parquet" title="pudl.helpers.persist_table_as_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">persist_table_as_parquet</span></code></a>(→ ParquetData)</p></td>
 <td><p>Write data from DataFrame or LazyFrame to disk as a parquet file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.lf_from_parquet" title="pudl.helpers.lf_from_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lf_from_parquet</span></code></a>(→ polars.LazyFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.lf_from_parquet" title="pudl.helpers.lf_from_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lf_from_parquet</span></code></a>(→ polars.LazyFrame)</p></td>
 <td><p>Scan parquet file(s) from disk and return Polars LazyFrame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.df_from_parquet" title="pudl.helpers.df_from_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">df_from_parquet</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.df_from_parquet" title="pudl.helpers.df_from_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">df_from_parquet</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Read data from a set of parquet files and return a pandas DataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.duckdb_relation_from_parquet" title="pudl.helpers.duckdb_relation_from_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">duckdb_relation_from_parquet</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.duckdb_relation_from_parquet" title="pudl.helpers.duckdb_relation_from_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">duckdb_relation_from_parquet</span></code></a>(...)</p></td>
 <td><p>Create a duckdb relation to read from parquet files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.duckdb_extract_zipped_csv" title="pudl.helpers.duckdb_extract_zipped_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">duckdb_extract_zipped_csv</span></code></a>() → tuple[str, ParquetData])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.duckdb_extract_zipped_csv" title="pudl.helpers.duckdb_extract_zipped_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">duckdb_extract_zipped_csv</span></code></a>() → tuple[str, ParquetData])</p></td>
 <td><p>Extract data from zipped CSV page(s) in a data archive.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.normalize_year_fragments" title="pudl.helpers.normalize_year_fragments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_year_fragments</span></code></a>(→ pandas.Series)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.normalize_year_fragments" title="pudl.helpers.normalize_year_fragments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_year_fragments</span></code></a>(→ pandas.Series)</p></td>
 <td><p>Normalize year fragments into 4-digit years using a rolling-century rule.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.make_changelog" title="pudl.helpers.make_changelog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_changelog</span></code></a>(df_all, idx)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.make_changelog" title="pudl.helpers.make_changelog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_changelog</span></code></a>(df_all, idx)</p></td>
 <td><p>Make a changelog table with unique instances of values over start report and max report date.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.parse_address" title="pudl.helpers.parse_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_address</span></code></a>(addr)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.parse_address" title="pudl.helpers.parse_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_address</span></code></a>(addr)</p></td>
 <td><p>Parse a U.S. address into components.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.helpers.listify" title="pudl.helpers.listify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">listify</span></code></a>(→ list[Any])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.helpers.listify" title="pudl.helpers.listify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">listify</span></code></a>(→ list[Any])</p></td>
 <td><p>Listify an input that is sometimes a list and sometimes not.</p></td>
 </tr>
 </tbody>
@@ -1041,6 +1044,57 @@ appear in <code class="docutils literal notranslate"><span class="pre">from_col<
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A mapping dictionary suitable for use with <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.map.html#pandas.Series.map" title="(in pandas v3.0.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.Series.map()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.helpers.multi_index_stack">
+<span class="sig-prename descclassname"><span class="pre">pudl.helpers.</span></span><span class="sig-name descname"><span class="pre">multi_index_stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_ish</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unstack_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_zero_rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_dropped_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/helpers.html#multi_index_stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.helpers.multi_index_stack" title="Link to this definition">#</a></dt>
+<dd><p>Stack multiple data columns - create categorical columns and data columns.</p>
+<p>Many tables are reported in a wide format, with several columns reporting
+the same type of value, but within different categories. E.g. electricity sales by
+customer class, with each customer class in a separate column, and separate sets of
+customer class columns for the dollar value of sales, and the MWh of electricity
+sold.</p>
+<p>This function takes those groups of columns and stacks each of them into a single
+data column creating another categorical column describing the class to which each
+record pertains.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – table to edit.</p></li>
+<li><p><strong>idx_ish</strong> – columns in df you want to set as index of stacked table.</p></li>
+<li><p><strong>pattern</strong> – a regex pattern of the df’s column names you want to stack. This
+pattern should have match groups that correspond to the levels of the
+multi-index that will be created. One of these match groups must include
+the string values of the <code class="docutils literal notranslate"><span class="pre">data_cols</span></code>. For example, the
+<code class="docutils literal notranslate"><span class="pre">raw_rus7__power_requirements</span></code> table contains a set of columns which
+have sales_kwh and revenue pertaining to many different customer
+classifications. The raw columns always have many different types of
+customer_classifications at the beginning and either the sales or revenue
+at the end. So the pattern for this table is:
+<code class="docutils literal notranslate"><span class="pre">rf&quot;^(.+)_(sales_kwh|revenue)$&quot;</span></code></p></li>
+<li><p><strong>data_cols</strong> – names of data columns - these are strings within the df’s original
+column names that you will leave unstacked. The resulting dataframe will
+include these columns. Using the same <code class="docutils literal notranslate"><span class="pre">raw_rus7__power_requirements</span></code>
+example, the data columns would be: <code class="docutils literal notranslate"><span class="pre">[&quot;sales_kwh&quot;,</span> <span class="pre">&quot;revenue&quot;]</span></code></p></li>
+<li><p><strong>match_names</strong> – the assigned names of each of the match groups in the regex
+pattern - in the order they appear in the pattern. The match group’s name
+we won’t use is the group containing the data_cols values - this can be
+named anything but for clarity name this ‘data_cols’. Using the same
+<code class="docutils literal notranslate"><span class="pre">raw_rus7__power_requirements</span></code> example, the <code class="docutils literal notranslate"><span class="pre">match_names</span></code> would be
+<code class="docutils literal notranslate"><span class="pre">[&quot;customer_classification&quot;,</span> <span class="pre">&quot;data_cols&quot;]</span></code> because the customer
+classification is the first match in the <code class="docutils literal notranslate"><span class="pre">pattern</span></code> and the data columns
+are the second match in the pattern.</p></li>
+<li><p><strong>unstack_level</strong> – list of match_names to unstack. These are the names of the
+matches that get unstacked - these end up as columns in the resulting
+table. Presumably this will be all of the match_names except ‘data_cols’.</p></li>
+<li><p><strong>drop_zero_rows</strong> – if True, drop rows where all data_cols are 0. Function
+already drops rows where data_cols are all NaN.</p></li>
+<li><p><strong>expected_dropped_cols</strong> – The number of cols we expect to be dropping during the
+stack. Defaults to zero.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -2553,6 +2607,7 @@ logic, or if any resulting year falls outside the valid range.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.sum_na"><code class="docutils literal notranslate"><span class="pre">sum_na</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.label_map"><code class="docutils literal notranslate"><span class="pre">label_map()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.multi_index_stack"><code class="docutils literal notranslate"><span class="pre">multi_index_stack()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.find_new_ferc1_strings"><code class="docutils literal notranslate"><span class="pre">find_new_ferc1_strings()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.find_foreign_key_errors"><code class="docutils literal notranslate"><span class="pre">find_foreign_key_errors()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.helpers.download_zip_url"><code class="docutils literal notranslate"><span class="pre">download_zip_url()</span></code></a></li>

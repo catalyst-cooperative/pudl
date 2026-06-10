@@ -27,6 +27,7 @@ Attributes
    pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS
    pudl.metadata.enums.CUSTOMER_CLASSES
    pudl.metadata.enums.CUSTOMER_CLASSES_EIA176
+   pudl.metadata.enums.SUPPLY_TYPES_EIA176
    pudl.metadata.enums.TECH_CLASSES
    pudl.metadata.enums.REVENUE_CLASSES_EIA861
    pudl.metadata.enums.REVENUE_CLASSES_EIA176
@@ -166,6 +167,11 @@ Module Contents
 .. py:data:: CUSTOMER_CLASSES_EIA176
    :type:  list[str]
    :value: ['commercial', 'electric_power', 'industrial', 'other', 'residential', 'vehicle_fuel']
+
+
+.. py:data:: SUPPLY_TYPES_EIA176
+   :type:  list[str]
+   :value: ['natural_gas_production', 'synthetic_gas_production', 'underground_storage_withdrawals',...
 
 
 .. py:data:: TECH_CLASSES
