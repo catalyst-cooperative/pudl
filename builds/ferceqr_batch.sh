@@ -61,7 +61,35 @@ function run_ferceqr_etl() {
     killall dagster-daemon
 }
 
+function send_zulip_notification() {
+    local message="$1"
+    if [[ -z "${ZULIP_API_KEY:-}" ]]; then
+        echo "Skipping Zulip notification: ZULIP_API_KEY is unset." >&2
+        return 0
+    fi
+
+    # Avoid leaking the API key into logs.
+    set +x
+    curl --silent --show-error \
+        -X POST "https://catalyst-cooperative.zulipchat.com/api/v1/messages" \
+        -u "build-status-bot@catalyst-cooperative.zulipchat.com:${ZULIP_API_KEY}" \
+        -d "type=stream" \
+        -d "to=pudl-deployments" \
+        -d "topic=build-deploy-ferceqr" \
+        -d "content=${message}" \
+        || echo "Warning: Zulip notification failed." >&2
+    set -x
+}
+
 function cleanup_on_exit() {
+    local exit_code=$?
+    # Send a Zulip notification if we failed before the ETL ever started,
+    # so the team sees pre-flight failures that GitHub Actions won't report.
+    if [[ $exit_code -ne 0 && "$ferceqr_etl_started" == "false" ]]; then
+        send_zulip_notification \
+            ":x: Pre-flight checks failed for FERC EQR build \`${BUILD_ID}\` — the Dagster job did not run."
+    fi
+
     # If the deployment timed out or failed mid-upload, clean up any partial
     # staging directories on deployment targets so they don't accumulate.
     remove_staging_dirs || true
@@ -94,6 +122,10 @@ function remove_staging_dirs() {
 ########################################################################################
 # MAIN SCRIPT
 ########################################################################################
+
+# Track whether the ETL has been launched so cleanup_on_exit can distinguish
+# pre-flight failures from post-ETL failures.
+ferceqr_etl_started=false
 
 # How long to wait for the deployment sentinel before timing out.
 # Reads from FERCEQR_BUILD_TIMEOUT_HOURS env var, defaults to 8 hours if not set.
@@ -129,6 +161,7 @@ if ! {
     exit 1
 fi
 
+ferceqr_etl_started=true
 run_ferceqr_etl
 
 # Check if build was successful and return appropriate return value

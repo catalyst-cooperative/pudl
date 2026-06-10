@@ -80,7 +80,7 @@ jobs:
           to: "pudl-deployments"
           topic: "build-deploy-ferceqr"
           content: >
-            :rocket: Launching FERC EQR Build: ${{ env.BUILD_ID }}
+            :rocket: Launching FERC EQR Build: ${{ env.BUILD_ID }}; :bulls_eye: Target: ${{ inputs.deployment_mode }}
 
       - name: Docker Metadata
         id: docker_metadata
