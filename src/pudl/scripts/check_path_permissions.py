@@ -376,7 +376,7 @@ def _check_single_path(
 
 
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
-@click.argument("paths", nargs=-1, required=True)
+@click.argument("paths", nargs=-1, required=False)
 @click.option(
     "--read",
     "read_requested",
@@ -426,6 +426,13 @@ def main(
     paths_to_check = list(paths)
     if check_ferceqr_deployment_paths:
         paths_to_check.extend(_get_ferceqr_deployment_paths())
+
+    if not paths_to_check:
+        raise click.BadParameter(
+            "At least one path is required when --check-ferceqr-deployment-paths "
+            "is not set.",
+            param_hint="PATHS",
+        )
 
     path_summaries = [
         _check_single_path(
