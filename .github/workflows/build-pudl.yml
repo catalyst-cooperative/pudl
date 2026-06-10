@@ -44,9 +44,9 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           if [[ ${{ github.event_name }} == "schedule" ]]; then
-              echo "GIT_TAG=nightly-$(date +%Y-%m-%d)";
+              echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> $GIT_TAG
           elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
-              echo "GIT_TAG=branch-${{ github.ref_name }}-$(date +%Y-%m-%d)";
+              echo "GIT_TAG=branch-${{ github.ref_name }}-$(date +%Y-%m-%d)" >> $GIT_TAG
           fi
 
       - name: Set action environment variables
