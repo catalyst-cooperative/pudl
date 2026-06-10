@@ -80,6 +80,16 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Rename the ``fuel_consumed_mmbtu`` column in the ``out_eia923__fuel_receipts_costs``,
+  ``out_eia923__monthly_fuel_receipts_costs``, and
+  ``out_eia923__yearly_fuel_receipts_costs`` tables. This column is the result of
+  dividing ``total_fuel_cost`` by ``fuel_received_mmbtu``. The name
+  ``fuel_consumed_mmbtu`` was misleading because the fuel received in these tables
+  is not necessarily consumed in the same month, and the fuel cost is not necessarily
+  associated with fuel received in the same month. The new name,
+  ``fuel_received_mmbtu``, more accurately reflects what the column actually
+  contains. See PR :pr:`5294`.
+
 * Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
   directories when deciding what to upload to Zenodo, which caused release failures
   once we started leaving the ``ferc*_xbrl`` directories laying around. See PR
