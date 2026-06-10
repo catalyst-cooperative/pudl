@@ -10,7 +10,7 @@ import pytest
 import sqlalchemy as sa
 
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-from pudl.settings import GlobalDataConfig, XbrlFormNumber
+from pudl.settings import FercForm, GlobalDataConfig
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ def test_sqlite_duckdb_equivalence(
     pudl_test_paths,
 ):
     """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
-    for form in XbrlFormNumber:
+    for form in FercForm:
         if not global_data_config.ferc_to_sqlite.get_dataset_years(
             dataset=form, data_format="xbrl"
         ):
