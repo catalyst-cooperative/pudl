@@ -106,8 +106,8 @@ Before downstream ``pudl`` assets use those databases,
 PUDL checks the metadata to make sure they are compatible with the current run.
 This helps avoid scenarios where the FERC databases were built with old inputs
 or don't have all the years needed by the current run. This metadata is also stored
-in a table of each SQLite DB, so we can use outputs in nightly builds as a cache for
-local development and CI runs.
+in the datapackage corresponding to the FERC SQLite outputs, so we can use outputs
+produced in the nightly builds as a cache for local development and CI runs.
 
 Incompatible provenance metadata
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -129,10 +129,10 @@ Regenerating FERC SQLite assets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To rebuild FERC SQLite databases so they match the current input data and configuration,
-you will need to rerun the ``ferc_to_sqlite`` job. By default, this job will attempt to
-download the latest version of each SQLite DB from nightly builds and check to see
-if these are compatible with the requirements of the current run. If they are found
-to be compatible, then the conversion process will be skipped.
+you will need to rerun the ``ferc_to_sqlite`` job. By default, this job will download
+the corresponding datapckage from nightly builds to check if the build outputs are
+compatible with your current run. If so, it will download the nightly outputs rather
+than running extraction from scratch.
 
 .. code-block:: console
 
