@@ -24,6 +24,8 @@ Enhancements
   asset check on any datapackage output. See issues :issue:`5122,5237` and PR
   :pr:`5270`. Also makes progress towards `catalyst-cooperative/agent-skills#14
   <https://github.com/catalyst-cooperative/agent-skills/issues/14>`__
+* Added a bare-bones datapackage for DBF SQLite outputs. See issue :issue:`5200`
+  and PR :pr:`5275`.
 
 New Data
 ^^^^^^^^
@@ -34,6 +36,10 @@ EIA-176
 * Added :ref:`core_eia176__yearly_gas_supply`, which contains cleaned
   company-level natural and supplemental gas supply data from Part 4 of the EIA-176
   survey. See :issue:`4711` and :pr:`5227`.
+* Added :ref:`core_eia176__yearly_liquefied_natural_gas_inventory`, a new table
+  containing annual LNG storage volume and capacity reported by operators on EIA Form
+  176 Part 5. Data covers 2002-2024 and includes LNG terminal and marine terminal
+  records. See issue :issue:`4695` and PR :pr:`5219`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
