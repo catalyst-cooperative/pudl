@@ -63,7 +63,7 @@ DEPLOYMENT_TYPE_STATIC_SETTINGS = {
 def _get_deployment_path_suffixes(
     deploy_type: DeploymentType, git_tag: str, staging: bool
 ) -> list[str]:
-    if deploy_type == DeploymentType.NIGHTLY:
+    if deploy_type in [DeploymentType.NIGHTLY, DeploymentType.BRANCH]:
         path_suffixes = ["nightly", "eel-hole"]
     else:
         path_suffixes = [git_tag, "stable"]
@@ -103,9 +103,10 @@ def _deploy_outputs(
         source_dir=source_dir,
         path_suffixes=path_suffixes,
     )
-    update_git_branch(tag=git_tag, branch=deploy_type.value, staging=staging)
 
     if not staging:
+        update_git_branch(tag=git_tag, branch=deploy_type.value, staging=staging)
+
         if deploy_type == DeploymentType.STABLE:
             gcs_path = f"gs://pudl.catalyst.coop/{git_tag}/"
             set_gcs_temporary_hold(gcs_path=gcs_path)
