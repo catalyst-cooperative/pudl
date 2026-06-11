@@ -228,17 +228,18 @@ jobs:
         uses: actions/cache@v5
         id: cache-zenodo-datastore
         with:
-          path: |
-            ${{ env.PUDL_INPUT }}
+          path: ${{ env.PUDL_INPUT }}
           key: zenodo-datastore-${{ hashFiles('src/pudl/package_data/settings/zenodo_dois.yml') }}
           restore-keys: |
             zenodo-datastore-
 
       - name: Generate FERC Provenance Hashes
         run: |
-          echo "FERC1_XBRL_HASH=$(pixi run ferc_provenance ferc1 xbrl | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
-          echo "FERC1_DBF_HASH=$(pixi run ferc_provenance ferc1 dbf | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
-          echo "FERC714_XBRL_HASH=$(pixi run ferc_provenance ferc714 xbrl | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+          {
+            echo "FERC1_XBRL_HASH=$(pixi run generate_ferc_provenance ferc1 xbrl | sha256sum | cut -d' ' -f1)"
+            echo "FERC1_DBF_HASH=$(pixi run generate_ferc_provenance ferc1 dbf | sha256sum | cut -d' ' -f1)"
+            echo "FERC714_XBRL_HASH=$(pixi run generate_ferc_provenance ferc714 xbrl | sha256sum | cut -d' ' -f1)"
+          } >> "$GITHUB_ENV"
 
       - name: Restore ferc1 XBRL outputs from cache if possible
         uses: actions/cache@v5
