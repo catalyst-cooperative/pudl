@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Index &#8212; PUDL 2026.5.1.dev29 documentation</title>
+    <title>Index &#8212; PUDL 2026.5.1.dev31 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="_static/documentation_options.js?v=68069aa3"></script>
+    <script src="_static/documentation_options.js?v=862aae4d"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev29 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev29 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev31 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev31 documentation - Home"/>
   
   
 </a></div>
@@ -1308,6 +1308,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._clean_csv_name">_clean_csv_name() (in module pudl.extract.ferceqr)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia923/index.html#pudl.transform.eia923._clean_emissions_control_dates">_clean_emissions_control_dates() (in module pudl.transform.eia923)</a>
+</li>
+      <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor._clean_frictionless_types">_clean_frictionless_types() (pudl.extract.dbf.FercDbfExtractor method)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia923/index.html#pudl.transform.eia923._clean_gen_fuel_energy_sources">_clean_gen_fuel_energy_sources() (in module pudl.transform.eia923)</a>
 </li>
@@ -3263,6 +3265,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.datapackage_json">datapackage_json (pudl.workspace.datastore.DatapackageDescriptor attribute)</a>
 </li>
+      <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.datapackage_path">datapackage_path (pudl.extract.dbf.FercDbfExtractor property)</a>
+</li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor">DatapackageDescriptor (class in pudl.workspace.datastore)</a>
 </li>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.dataset">dataset (pudl.dagster.io_managers.FercSqliteIOManagerBase attribute)</a>
@@ -5159,10 +5163,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.impute_latc_tubal">impute_latc_tubal() (in module pudl.analysis.timeseries_cleaning)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory">impute_timeseries_asset_factory() (in module pudl.analysis.timeseries_cleaning)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/output/eia930/index.html#pudl.output.eia930.imputed_combined_demand_assets">imputed_combined_demand_assets (in module pudl.output.eia930)</a>
 </li>
       <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.imputed_hourly_planning_area_demand_assets">imputed_hourly_planning_area_demand_assets (in module pudl.output.ferc714)</a>
@@ -5194,6 +5198,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.Exploder.initial_explosion_concatenation">initial_explosion_concatenation() (pudl.output.ferc1.Exploder method)</a>
 </li>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset">InitialDataset (class in pudl.scripts.zenodo_data_release)</a>
+</li>
+      <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.initialize_database">initialize_database() (pudl.extract.dbf.FercDbfExtractor method)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html#pudl.analysis.record_linkage.eia_ferc1_inputs.InputManager">InputManager (class in pudl.analysis.record_linkage.eia_ferc1_inputs)</a>
 </li>
@@ -9939,9 +9945,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.to_duckdb_dtypes">to_duckdb_dtypes() (pudl.metadata.classes.Resource method)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.DataSource.to_frictionless">to_frictionless() (pudl.metadata.classes.DataSource method)</a>
+      <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.to_frictionless">to_frictionless() (pudl.extract.dbf.FercDbfExtractor method)</a>
 
       <ul>
+        <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.DataSource.to_frictionless">(pudl.metadata.classes.DataSource method)</a>
+</li>
         <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_frictionless">(pudl.metadata.classes.Field method)</a>
 </li>
         <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.ForeignKey.to_frictionless">(pudl.metadata.classes.ForeignKey method)</a>
