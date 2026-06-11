@@ -289,8 +289,10 @@ jobs:
           name: dbt-failures
           path: pudl_dbt_tests.duckdb
 
-      - name: Log post-test Zenodo datastore contents
-        run: find ${{ env.PUDL_INPUT }}
+      - name: Log post-test PUDL_INPUT and PUDL_OUTPUT contents
+        run: |
+          find ${{ env.PUDL_INPUT }}
+          find ${{ env.PUDL_OUTPUT }}
 
   ci-coverage:
     runs-on: ubuntu-latest

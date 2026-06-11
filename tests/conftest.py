@@ -665,8 +665,11 @@ def pudl_test_paths(tmp_path_factory, request) -> PudlPaths:
         input_dir = in_tmp.resolve()
         logger.info(f"Using temporary PUDL_INPUT: {in_tmp}")
 
-    # Temporary output path is used when not using live DBs.
-    if not request.config.getoption("--live-pudl-output"):
+    # Temporary output path is used when not using live DBs. Unless we're on
+    # GITHUB_ACTIONS where we need a predictable path for FERC caching.
+    if not request.config.getoption("--live-pudl-output") and not os.getenv(
+        "GITHUB_ACTIONS", False
+    ):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()
         output_dir = out_tmp.resolve()
