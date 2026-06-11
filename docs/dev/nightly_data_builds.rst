@@ -67,30 +67,37 @@ occurred:
     process. If the "transient" problem persists, bring it up with the person
     managing the builds.
 
-The GitHub Action
------------------
-The ``build-deploy-pudl`` GitHub action contains the main coordination logic for
-the Nightly Data Builds. The action is triggered every night and when new versioned
-release tags are pushed to the PUDL repository. This way, new data outputs are
-automatically updated for releases, and PUDL's code and data are tested every night.
+Build Action
+------------
+The ``build-pudl`` GitHub action contains the main coordination logic for
+the Nightly Data Builds. The action is triggered every night so any code changes are
+tested nightly. During a nightly build, the action will automatically tag the current
+commit on ``main`` with a tag that looks like ``nightly-YYYY-MM-DD``. If the action is
+manually triggered, it will instead tag the build with a "branch" tag, that looks like
+``branch-[BRANCH-BUILD-WAS-TRIGGERED-FROM]-YYYY-MM-DD``. Upon a successful build, the
+action will trigger the ``deploy-pudl`` action, passing the tag associated with the
+build as an input.
 
-The ``gcloud`` command in ``build-deploy-pudl`` requires certain Google Cloud
+The ``gcloud`` command in ``build-pudl`` requires certain Google Cloud
 Platform (GCP) permissions to start and update the Google Batch VM. We use Workflow
 Identity Federation to authenticate the GitHub Action with GCP in the GitHub Action
 workflow.
 
 Deployment Action
 -----------------
-The experimental ``deploy-pudl`` action separates deployment from the build process.
-This action takes a git tag that has already been built as an input and will find the
-corresponding build outputs and determine the deployment type (``stable`` or
-``nightly``) from the tag. It will then upload outputs from the build to GCS and S3,
+The ``deploy-pudl`` action separates deployment from the build process.
+This action takes a git tag, which should already have an associated build, and it uses
+it to determine the deployment type (``stable``, ``branch``, or ``nightly``). It will
+then find outputs associated with the build and upload them to GCS and S3,
 update the git branch associated with the deployment type, and trigger a zenodo release.
-This action can also take an optional ``staging`` flag will upload outputs to a
-dedicated staging area, and will not update the git branch or trigger a Zenodo release.
+This action can also take an optional ``staging`` flag, in which case outputs will be
+uploaded to a dedicated staging area, and will not update the git branch or trigger a
+Zenodo release. Branch builds will always trigger a ``staging`` deployment.
 
-Eventually, the deployment functionality will be removed from the ``build-deploy-pudl``
-action and it will instead trigger this action at the end of a successful build.
+The ``deploy-pudl`` action will be automatically triggered upon a successful build,
+or when a stable tag is pushed, which should look like ``vYYYY.DD.MM``. This means
+we can tag an existing, successful build with a stable tag and produce a stable
+deployment without requiring a new build.
 
 Google Compute Engine
 ---------------------

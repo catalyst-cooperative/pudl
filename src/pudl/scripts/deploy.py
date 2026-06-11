@@ -19,6 +19,9 @@ Examples:
     Test deployment changes with staging mode:
         pudl_deploy nightly-2025-02-05 --staging
 
+    Deploy branch build outputs to staging area for review:
+        pudl_deploy branch-my-branch-2025-02-05 --staging
+
 Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
 triggers, and Cloud Run deployments. This allows safe validation of deployment
 changes before production use.
