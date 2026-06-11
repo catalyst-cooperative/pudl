@@ -53,12 +53,10 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
     fs.get(f"{build_path.as_uri()}/", str(local_path), recursive=True)
 
     logger.info(f"Preparing outputs in {local_path} for distribution")
-    logger.info(f"Contents: {local_path.glob('*')}")
 
     # Move files around
     parquet_dir = local_path / "parquet"
     parquet_files = parquet_dir.glob("*.parquet")
-    logger.info(f"Found parquets: {parquet_files}")
     for parquet_file in parquet_dir.glob("*.parquet"):
         shutil.move(str(parquet_file), str(local_path / parquet_file.name))
 
