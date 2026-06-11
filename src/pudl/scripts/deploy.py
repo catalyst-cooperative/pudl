@@ -42,6 +42,7 @@ from pudl.deploy.pudl import (
     set_gcs_temporary_hold,
     trigger_zenodo_release,
     update_git_branch,
+    update_pudl_viewer,
     upload_outputs,
 )
 from pudl.logging_helpers import get_logger
@@ -105,6 +106,11 @@ def _deploy_outputs(
     upload_outputs(
         source_dir=source_dir,
         path_suffixes=path_suffixes,
+    )
+
+    update_pudl_viewer(
+        token=github_token,
+        staging=staging,
     )
 
     if not staging:

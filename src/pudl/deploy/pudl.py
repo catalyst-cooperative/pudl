@@ -236,7 +236,10 @@ def trigger_zenodo_release(
     logger.info("Zenodo release workflow triggered")
 
 
-def update_pudl_viewer() -> None:
+def update_pudl_viewer(
+    token: str,
+    staging: bool,
+) -> None:
     """Update PUDL Viewer Cloud Run service to latest image.
 
     Args:
@@ -244,19 +247,25 @@ def update_pudl_viewer() -> None:
     """
     logger.info("Updating PUDL Viewer Cloud Run service")
 
-    _run(
-        [
-            "gcloud",
-            "run",
-            "services",
-            "update",
-            "pudl_viewer",
-            "--image",
-            "us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest",
-            "--region",
-            "us-east1",
-        ],
+    if staging:
+        deploy_workflow_url = "https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy-staging.yml/dispatches"
+    else:
+        deploy_workflow_url = "https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy.yml/dispatches"
+
+    response = requests.post(
+        deploy_workflow_url,
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+        },
+        data={
+            "ref": "main",
+        },
+        timeout=10,
     )
+
+    if response.status_code != 200:
+        raise RuntimeError(f"Zenodo release request failed: {response.content}")
 
     logger.info("PUDL Viewer Cloud Run service updated")
 
