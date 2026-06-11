@@ -2,7 +2,6 @@
 
 import csv
 import importlib.resources
-import json
 import warnings
 import zipfile
 from collections import defaultdict
@@ -513,7 +512,7 @@ class FercDbfExtractor:
             title=f"{self.DATASET} data extracted from DBF filings",
             resources=resources,
         )
-        self.datapackage_path.write_text(json.dumps(package.to_dict(), indent=2))
+        package.to_json(path=str(self.datapackage_path))
 
     @classmethod
     def get_dagster_op(cls) -> Callable:
