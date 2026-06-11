@@ -30,6 +30,29 @@ class DeploymentType(Enum):
     BRANCH = "branch"
 
 
+def _zip_parquet_files(parquet_path: Path, output_path: Path) -> None:
+    """Create a zipfile containing parquet files and an associated datapackage JSON file.
+
+    Args:
+        parquet_path: Path to directory containing parquet files.
+        output_path: Path to zipfile that should be created by this function.
+    """
+    parquet_files = list(parquet_path.glob("*.parquet"))
+    assert len(parquet_files) > 0, f"No parquet files in {parquet_path}."
+
+    # Create parquet archive (store mode, no compression)
+    with zipfile.ZipFile(output_path, "w", zipfile.ZIP_STORED) as zf:
+        for parquet_file in parquet_files:
+            zf.write(parquet_file, arcname=parquet_file.name)
+
+        # There should be exactly one datapackage JSON file in each parquet directory
+        [datapackage] = parquet_path.glob("*datapackage.json")
+        if datapackage.exists():
+            zf.write(datapackage, arcname="datapackage.json")
+
+    logger.info(f"Created parquet archive: {output_path}")
+
+
 def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> None:
     """Prepare ETL outputs for distribution.
 
@@ -48,27 +71,30 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
         build_path: Remote path containing raw build outputs.
     """
     # Copy raw build outputs to local path
-    local_path = Path(local_path)
     fs = build_path.fs
     fs.get(f"{build_path.as_uri()}/", str(local_path), recursive=True)
 
     logger.info(f"Preparing outputs in {local_path} for distribution")
 
-    # Move files around
-    parquet_dir = local_path / "parquet"
-    parquet_files = parquet_dir.glob("*.parquet")
-    for parquet_file in parquet_dir.glob("*.parquet"):
+    # Zip parquet files (for main pudl outputs + ferc extracted outputs)
+    pudl_parquet_dir = local_path / "parquet"
+    _zip_parquet_files(pudl_parquet_dir, local_path / "pudl_parquet.zip")
+    _zip_parquet_files(local_path / "ferc1_xbrl", local_path / "ferc1_xbrl.zip")
+    _zip_parquet_files(local_path / "ferc2_xbrl", local_path / "ferc2_xbrl.zip")
+    _zip_parquet_files(local_path / "ferc6_xbrl", local_path / "ferc6_xbrl.zip")
+    _zip_parquet_files(local_path / "ferc60_xbrl", local_path / "ferc60_xbrl.zip")
+    _zip_parquet_files(local_path / "ferc714_xbrl", local_path / "ferc714_xbrl.zip")
+
+    # Move parquet files to base directory
+    for parquet_file in pudl_parquet_dir.glob("*.parquet"):
         shutil.move(str(parquet_file), str(local_path / parquet_file.name))
 
-    datapackage = parquet_dir / "datapackage.json"
-    if datapackage.exists():
-        shutil.move(str(datapackage), str(local_path / "pudl_parquet_datapackage.json"))
-    else:
-        logger.warning(
-            f"datapackage.json not found in {parquet_dir}; pudl_parquet_datapackage.json will not be distributed and pudl_parquet.zip will have no descriptor."
-        )
+    # Move parquet datapackage to base directory
+    datapackage = pudl_parquet_dir / "datapackage.json"
+    shutil.move(str(datapackage), str(local_path / "pudl_parquet_datapackage.json"))
 
-    shutil.rmtree(parquet_dir)
+    # Remove parquet directory
+    shutil.rmtree(pudl_parquet_dir)
 
     # Compress SQLite databases
     sqlite_files = list(local_path.glob("*.sqlite"))
@@ -80,24 +106,6 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
             zf.write(sqlite_file, arcname=sqlite_file.name)
         sqlite_file.unlink()
         logger.info(f"Compressed {sqlite_file.name}")
-
-    # Create parquet archive (store mode, no compression)
-    parquet_files = list(local_path.glob("*.parquet"))
-    assert len(parquet_files) > 0, f"No parquet files in {local_path}."
-    archive_path = local_path / "pudl_parquet.zip"
-    with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_STORED) as zf:
-        for parquet_file in parquet_files:
-            zf.write(parquet_file, arcname=parquet_file.name)
-
-        datapackage = local_path / "pudl_parquet_datapackage.json"
-        if datapackage.exists():
-            zf.write(datapackage, arcname="datapackage.json")
-        else:
-            logger.warning(
-                f"pudl_parquet_datapackage.json not found in {local_path}; pudl_parquet.zip will have no frictionless descriptor."
-            )
-
-    logger.info(f"Created parquet archive: {archive_path}")
 
     logger.info("Removing dbt database.")
     test_db = local_path / "pudl_dbt_tests.duckdb"
