@@ -36,18 +36,24 @@ sources:
                     row_condition: report_year = 2025
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 1114465086568 - 1
                     max_value: 1114465086568 + 1
                     row_condition: report_year = 2024
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 1055409611983 - 1
                     max_value: 1055409611983 + 1
                     row_condition: report_year = 2023
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 975640641491 - 1
                     max_value: 975640641491 + 1
@@ -66,156 +72,208 @@ sources:
                     row_condition: report_year = 2020
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 779408215099 - 1
                     max_value: 779408215099 + 1
                     row_condition: report_year = 2019
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 704704802815 - 1
                     max_value: 704704802815 + 1
                     row_condition: report_year = 2018
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 640181800438 - 1
                     max_value: 640181800438 + 1
                     row_condition: report_year = 2017
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 620678293055 - 1
                     max_value: 620678293055 + 1
                     row_condition: report_year = 2016
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 588487048091 - 1
                     max_value: 588487048091 + 1
                     row_condition: report_year = 2015
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 556805969931 - 1
                     max_value: 556805969931 + 1
                     row_condition: report_year = 2014
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 511397535589 - 1
                     max_value: 511397535589 + 1
                     row_condition: report_year = 2013
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 514548350452 - 1
                     max_value: 514548350452 + 1
                     row_condition: report_year = 2012
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 481744165185 - 1
                     max_value: 481744165185 + 1
                     row_condition: report_year = 2011
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 453936650794 - 1
                     max_value: 453936650794 + 1
                     row_condition: report_year = 2010
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 429729169023 - 1
                     max_value: 429729169023 + 1
                     row_condition: report_year = 2009
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 424197786572 - 1
                     max_value: 424197786572 + 1
                     row_condition: report_year = 2008
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 350732005541 - 1
                     max_value: 350732005541 + 1
                     row_condition: report_year = 2007
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 339376441307 - 1
                     max_value: 339376441307 + 1
                     row_condition: report_year = 2006
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 317380954918 - 1
                     max_value: 317380954918 + 1
                     row_condition: report_year = 2005
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 331738649552 - 1
                     max_value: 331738649552 + 1
                     row_condition: report_year = 2004
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 307955731620 - 1
                     max_value: 307955731620 + 1
                     row_condition: report_year = 2003
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 286945216071 - 1
                     max_value: 286945216071 + 1
                     row_condition: report_year = 2002
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 304577770148 - 1
                     max_value: 304577770148 + 1
                     row_condition: report_year = 2001
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 290015631262 - 1
                     max_value: 290015631262 + 1
                     row_condition: report_year = 2000
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 308401442941 - 1
                     max_value: 308401442941 + 1
                     row_condition: report_year = 1999
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 293812649138 - 1
                     max_value: 293812649138 + 1
                     row_condition: report_year = 1998
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 320373375331 - 1
                     max_value: 320373375331 + 1
                     row_condition: report_year = 1997
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 343453864012 - 1
                     max_value: 343453864012 + 1
                     row_condition: report_year = 1996
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 348362309049 - 1
                     max_value: 348362309049 + 1
                     row_condition: report_year = 1995
               - dbt_expectations.expect_column_sum_to_be_between:
                   description: Sum of the ending_balance by year should hold relatively constant.
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
                   arguments:
                     min_value: 354304310450 - 1
                     max_value: 354304310450 + 1
