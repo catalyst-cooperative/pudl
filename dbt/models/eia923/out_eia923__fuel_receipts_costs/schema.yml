@@ -289,7 +289,7 @@ sources:
                     weight_column: fuel_received_units
           - name: fuel_cost_per_mmbtu
           - name: bulk_agg_fuel_cost_per_mmbtu
-          - name: fuel_consumed_mmbtu
+          - name: fuel_received_mmbtu
           - name: total_fuel_cost
           - name: fuel_cost_per_mmbtu_source
           - name: sulfur_content_pct
