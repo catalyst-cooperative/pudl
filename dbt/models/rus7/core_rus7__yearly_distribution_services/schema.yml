@@ -9,7 +9,17 @@ sources:
               arguments:
                 table_name: core_rus7__yearly_distribution_services
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
-        # TODO: VALIDATE STATUSES SUM TO TOTAL
+        # No subcomponents_sum_to_total test: per RUS Form 7 Part B (both
+        # pre-2014 and 2014 revisions), "total" (Total Services in Place) is a
+        # cumulative stock while "connected" (New Services Connected) and
+        # "retired" (Services Retired) are annual flows; the form defines no
+        # sum relationship between these lines (contrast Total Miles Energized
+        # = 5 + 6 + 7). 100% of records (8483/8483) fail a naive sum-to-total
+        # check, and "idle" is a subset of total (idle <= total always), not a
+        # summand. The underlying identity is year-over-year:
+        # total(y) = total(y-1) + connected(y) - retired(y), which holds
+        # exactly (+/-1) for 54% of year-pairs (4281/7861) but cannot be
+        # expressed with the subcomponents_sum_to_total macro.
         columns:
           - name: report_date
           - name: borrower_id_rus
