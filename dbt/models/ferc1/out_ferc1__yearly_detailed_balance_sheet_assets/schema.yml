@@ -23,5 +23,12 @@ sources:
           - name: ending_balance
           - name: utility_type_other
           - name: in_rate_base
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_in_set:
+                  description: All of the many production and storage factoids should be labeled as in rate base
+                  arguments:
+                    value_set:
+                      - true
+                    row_condition: "'production_plant' in xbrl_factoid or 'energy_storage' in xbrl_factoid"
           - name: rate_base_category
           - name: table_name
