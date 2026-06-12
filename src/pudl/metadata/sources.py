@@ -189,7 +189,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["catalyst-cooperative"],
         ],
         "working_partitions": {
-            "years": sorted(set(range(2001, 2025))),
+            "years": sorted(set(range(2001, 2026))),
         },
         "keywords": sorted(
             set(

@@ -48,7 +48,7 @@ pudl:
     eia923:
       years: [2020, 2025]
     eia860:
-      years: [2020, 2024]
+      years: [2020, 2025]
       eia860m: true
     eia860m:
       year_months: ["2026-03", "2026-04"]
