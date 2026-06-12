@@ -347,11 +347,20 @@ def update_tables(
     help="If dry, will print out the parameters we would pass to dbt, but not "
     "actually run the validation tests. Defaults to not-dry.",
 )
+@click.option(
+    "--override-target",
+    help=(
+        "Name of the target to use instead of etl-full. "
+        "Not used for normal development and updates; generally only needed "
+        "for local debugging of remote CI failures."
+    ),
+)
 def validate(
     select: str | None = None,
     asset_select: str | None = None,
     exclude: str | None = None,
     dry_run: bool = False,
+    override_target: str | None = None,
 ) -> None:
     """Validate a selection of dbt nodes.
 
@@ -400,7 +409,7 @@ def validate(
     build_params = {
         "node_selection": node_selection,
         "node_exclusion": exclude,
-        "dbt_target": "etl-full",
+        "dbt_target": override_target if override_target else "etl-full",
     }
 
     if dry_run:
