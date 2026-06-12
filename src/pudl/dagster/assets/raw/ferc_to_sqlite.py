@@ -166,6 +166,8 @@ def _download_nightly_outputs(
     paths.local_taxonomy_json_path.write_bytes(
         paths.nightly_taxonomy_json_path.read_bytes()
     )
+    # Download duckdb DB
+    paths.local_duckdb_path.write_bytes(paths.nightly_duckdb_path.read_bytes())
 
     # Downstream assets only consume SQLite / JSON files
     # To save space during CI integration tests we skip downloading unnecessary outputs
@@ -174,8 +176,6 @@ def _download_nightly_outputs(
     ):
         return
 
-    # Download duckdb DB
-    paths.local_duckdb_path.write_bytes(paths.nightly_duckdb_path.read_bytes())
     _download_zipped_outputs(paths, output_format="parquet")
 
 
