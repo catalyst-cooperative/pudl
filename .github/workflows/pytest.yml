@@ -247,6 +247,7 @@ jobs:
         with:
           path: |
             ${{ env.PUDL_OUTPUT }}/ferc1_xbrl.sqlite
+            ${{ env.PUDL_OUTPUT }}/ferc1_xbrl.duckdb
             ${{ env.PUDL_OUTPUT }}/ferc1_xbrl_datapackage.json
             ${{ env.PUDL_OUTPUT }}/ferc1_xbrl_taxonomy_metadata.json
           key: ferc1-xbrl-${{ env.FERC1_XBRL_HASH }}
@@ -266,6 +267,7 @@ jobs:
         with:
           path: |
             ${{ env.PUDL_OUTPUT }}/ferc714_xbrl.sqlite
+            ${{ env.PUDL_OUTPUT }}/ferc714_xbrl.duckdb
             ${{ env.PUDL_OUTPUT }}/ferc714_xbrl_datapackage.json
             ${{ env.PUDL_OUTPUT }}/ferc714_xbrl_taxonomy_metadata.json
           key: ferc714-xbrl-${{ env.FERC714_XBRL_HASH }}
