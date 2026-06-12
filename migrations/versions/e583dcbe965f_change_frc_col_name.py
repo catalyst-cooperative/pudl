@@ -1,7 +1,7 @@
 """change frc col name
 
 Revision ID: e583dcbe965f
-Revises: 19ec11f1ed95
+Revises: c69ea49df65e
 Create Date: 2026-06-10 14:24:55.862048
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'e583dcbe965f'
-down_revision = '19ec11f1ed95'
+down_revision = 'c69ea49df65e'
 branch_labels = None
 depends_on = None
 
