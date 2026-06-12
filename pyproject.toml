@@ -394,13 +394,7 @@ description = "Update dbt dependencies"
 [tool.pixi.tasks.devcontainer-install]
 cmd = """
 pixi install --frozen --locked \
-    && pixi run install-skills \
-    && npm install -g --prefer-offline --no-audit --no-fund \
-      @anthropic-ai/claude-code \
-      @google/gemini-cli \
-      @openai/codex \
-      @earendil-works/pi-coding-agent \
-      opencode-ai
+    && pixi run install-skills
 """
 description = "Set up the dev container: install pixi environment, skills, and agent CLIs (run once after first start)"
 
