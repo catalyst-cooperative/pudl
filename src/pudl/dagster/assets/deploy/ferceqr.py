@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import re
+import time
 import traceback
 import uuid
 from collections.abc import Callable
@@ -359,7 +360,7 @@ def _markdown_logfile_list(build_id: str) -> str:
         f"ferceqr_logs/{build_id}.log"
     )
     console_url = (
-        "https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/"
+        "https://console.cloud.google.com/batch/jobsDetail/regions/us-east1/jobs/"
         f"run-ferceqr-etl-{build_id}/logs?project=catalyst-cooperative-pudl"
     )
     return (
@@ -368,6 +369,18 @@ def _markdown_logfile_list(build_id: str) -> str:
         f"* [Download FERC EQR logs to review locally]({download_url})\n"
         f"* [Review FERC EQR logs in the Google Cloud Console]({console_url})\n"
     )
+
+
+def _compute_deploy_duration(context: dg.AssetExecutionContext) -> str | None:
+    """Return elapsed time since the current run started, or None on failure."""
+    try:
+        run_record = context.instance.get_run_record_by_id(context.run_id)
+        if run_record is not None and run_record.start_time is not None:
+            elapsed = max(int(time.time() - run_record.start_time), 0)
+            return str(timedelta(seconds=elapsed))
+    except Exception:
+        logger.info("build_ferceqr_notification: could not compute deploy duration")
+    return None
 
 
 def build_ferceqr_notification(
@@ -384,6 +397,7 @@ def build_ferceqr_notification(
     source_partitions: list[str] = []
     source_run_id: str | None = None
     backfill_duration: str | None = None
+    deploy_duration: str | None = None
     asset_partition_statuses: StepStatusTable = {}
     distribution_paths: list[str] = []
 
@@ -405,6 +419,8 @@ def build_ferceqr_notification(
             "build_ferceqr_notification: context.run not available "
             "(direct invocation in tests)"
         )
+
+    deploy_duration = _compute_deploy_duration(context)
 
     # Extract distribution paths from the deployment resource.
     try:
@@ -433,6 +449,8 @@ def build_ferceqr_notification(
         lines.extend(f"  - `{path}`" for path in distribution_paths)
     if backfill_duration:
         lines.append(f"## :time: Backfill duration: `[{backfill_duration}]`")
+    if deploy_duration:
+        lines.append(f"## :time: Deploy duration: `[{deploy_duration}]`")
     lines.extend(
         [
             "",
