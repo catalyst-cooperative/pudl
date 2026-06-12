@@ -239,7 +239,8 @@ pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
 * `The PowerGenome Project <https://github.com/PowerGenome/PowerGenome>`__
 * `Singularity Energy <https://singularity.energy>`__
 * `The Open Grid Emissions Initiative <https://singularity.energy/open-grid-emissions>`__
-* `Win Climate <https://climate.win>`__
+* `SwitchBox <https://switch.box>`__
+* `Vote Solar <https://votesolar.org>`__
 * `The Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
 
 .. _pudl_orgs_end:
@@ -281,12 +282,12 @@ Gigawatt Tier (≥$25,000/year)
    :alt: GridLab
    :align: center
 
-Megawatt Tier (≥$16,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Megawatt Tier (≥$5,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Become our first `Megawatt tier sustainer <https://opencollective.com/pudl>`__!
 
-Kilowatt Tier (≥$8,000/year)
+Kilowatt Tier (≥$1,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
@@ -303,10 +304,10 @@ Alfred P. Sloan Foundation
    :alt: Alfred P. Sloan Foundation Energy and Environment Program
    :align: center
 
-The PUDL Project has been supported by three grants from the `Alfred P. Sloan
+The PUDL Project has been supported by four grants from the `Alfred P. Sloan
 Foundation's Energy and Environment Program
-<https://sloan.org/programs/research/energy-and-environment>`__, in 2019, 2021, and
-2024.
+<https://sloan.org/programs/research/energy-and-environment>`__, in 2019, 2021, 2024,
+and 2026.
 
 National Science Foundation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
