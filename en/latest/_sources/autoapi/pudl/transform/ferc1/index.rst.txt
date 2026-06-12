@@ -94,6 +94,7 @@ Functions
 .. autoapisummary::
 
    pudl.transform.ferc1._core_ferc1_xbrl__metadata_json
+   pudl.transform.ferc1.add_missing_factoid
    pudl.transform.ferc1.add_source_tables_to_xbrl_metadata
    pudl.transform.ferc1.wide_to_tidy
    pudl.transform.ferc1.merge_xbrl_metadata
@@ -147,7 +148,19 @@ Module Contents
 
    Generate cleaned json xbrl metadata.
 
-   For now, this only runs :func:`add_source_tables_to_xbrl_metadata`.
+   For now, this adds a missing factoid via :func:`add_missing_factoid`
+   and runs :func:`add_source_tables_to_xbrl_metadata`.
+
+
+.. py:function:: add_missing_factoid(raw_ferc1_xbrl__metadata_json)
+
+   Add one missing factoid from core_ferc1__yearly_operating_expenses_sched320.
+
+   We are adding this here instead of within the table transform step because this
+   factoid is a calculation component in its table.
+   :func:`add_source_tables_to_xbrl_metadata` adds sources tables to all of the
+   calculation components and because this factoid was missing from the metadata,
+   it was not being assigned a source table which caused several downstream impacts.
 
 
 .. py:function:: add_source_tables_to_xbrl_metadata(raw_ferc1_xbrl__metadata_json: dict[str, dict[str, list[dict[str, Any]]]]) -> dict[str, dict[str, list[dict[str, Any]]]]
@@ -2409,7 +2422,7 @@ Module Contents
 
    .. py:method:: apply_sign_conventions(df) -> pandas.DataFrame
 
-      Adjust rows and column sign conventsion to enable aggregation by summing.
+      Adjust rows and column sign convention to enable aggregation by summing.
 
       Columns have uniform sign conventions, which we have manually inferred from the
       original metadata. This can and probably should be done programmatically in the
@@ -2474,6 +2487,19 @@ Module Contents
 
       :returns: A single transformed table concatenating multiple years of cleaned data
                 derived from the raw DBF and/or XBRL inputs.
+
+
+
+   .. py:method:: remove_messy_plant_name_duplicates(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Remove a small number of duplicate records from messy plant names.
+
+      The record ID takes the messy plant name and cleans it up ever so
+      slightly w/ enforce_snake_case. but there are instances of almost identical
+      plant names but with extra whitespace and such. Because the name is core to the
+      factoid, these don't get filtered out with filter_for_freshest_data_xbrl. So we
+      are going to drop these records that are exactly the same except for their messy
+      plant names.
 
 
 

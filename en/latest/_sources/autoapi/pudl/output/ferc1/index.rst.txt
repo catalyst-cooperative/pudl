@@ -61,8 +61,7 @@ Functions
    pudl.output.ferc1.exploded_table_asset_factory
    pudl.output.ferc1.create_exploded_table_assets
    pudl.output.ferc1.nodes_to_df
-   pudl.output.ferc1._propagate_tags_leafward
-   pudl.output.ferc1._propagate_tag_rootward
+   pudl.output.ferc1._propagate_tag
    pudl.output.ferc1._propagate_tags_to_corrections
    pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags
    pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag
@@ -991,19 +990,12 @@ Module Contents
              from the calculation forest.
 
 
-.. py:function:: _propagate_tags_leafward(annotated_forest: networkx.DiGraph, leafward_inherited_tags: list[str]) -> networkx.DiGraph
+.. py:function:: _propagate_tag(annotated_forest: networkx.DiGraph, tag_name: Literal['in_rate_base', 'rate_base_category'], propagation_direction: Literal['rootward', 'leafward']) -> networkx.DiGraph
 
-   Push a parent's tags down to its descendants.
+   Set the tag for nodes when all of its successors or predecessorshave same tag.
 
-   Only push the `leafward_inherited_tags` - others will be left alone.
-
-
-.. py:function:: _propagate_tag_rootward(annotated_forest: networkx.DiGraph, tag_name: Literal['in_rate_base']) -> networkx.DiGraph
-
-   Set the tag for nodes when all of its children have same tag.
-
-   This function returns the value of a tag, but also sets node attributes
-   down the tree when all children of a node share the same tag.
+   This function returns an updated annotated_forest with tags updated for nodes
+   when all down the tree when all children or parents of a node share the same tag.
 
 
 .. py:function:: _propagate_tags_to_corrections(annotated_forest: networkx.DiGraph) -> networkx.DiGraph
