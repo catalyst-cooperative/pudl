@@ -55,6 +55,12 @@ EIA-860M
 
 * Added EIA-860M data through April 2026. See issue :issue:`5277` and PR :pr:`5284`.
 
+FERC 1
+~~~~~~
+
+* Added 2025 data from FERC form 1. This update includes several new renewable and
+  energy storage fields in several tables. See issue :issue:`5214` and PR :pr:`5236`.
+
 EIA Electricity API
 ~~~~~~~~~~~~~~~~~~~
 
