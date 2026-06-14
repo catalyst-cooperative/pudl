@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.ferc1 &#8212; PUDL 2026.5.1.dev31 documentation</title>
+    <title>pudl.output.ferc1 &#8212; PUDL 2026.5.1.dev37 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../../../_static/documentation_options.js?v=862aae4d"></script>
+    <script src="../../../../_static/documentation_options.js?v=c7499b9b"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev31 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev31 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.1.dev37 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.1.dev37 documentation - Home"/>
   
   
 </a></div>
@@ -879,43 +879,40 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.nodes_to_df" title="pudl.output.ferc1.nodes_to_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nodes_to_df</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Construct a dataframe from a list of nodes, including their annotations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._propagate_tags_leafward" title="pudl.output.ferc1._propagate_tags_leafward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_propagate_tags_leafward</span></code></a>(→ networkx.DiGraph)</p></td>
-<td><p>Push a parent's tags down to its descendants.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._propagate_tag" title="pudl.output.ferc1._propagate_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_propagate_tag</span></code></a>(→ networkx.DiGraph)</p></td>
+<td><p>Set the tag for nodes when all of its successors or predecessorshave same tag.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1._propagate_tag_rootward" title="pudl.output.ferc1._propagate_tag_rootward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_propagate_tag_rootward</span></code></a>(→ networkx.DiGraph)</p></td>
-<td><p>Set the tag for nodes when all of its children have same tag.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1._propagate_tags_to_corrections" title="pudl.output.ferc1._propagate_tags_to_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_propagate_tags_to_corrections</span></code></a>(→ networkx.DiGraph)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1._propagate_tags_to_corrections" title="pudl.output.ferc1._propagate_tags_to_corrections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_propagate_tags_to_corrections</span></code></a>(→ networkx.DiGraph)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags" title="pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_tag_propagation_compared_to_compiled_tags</span></code></a>(df, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags" title="pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_tag_propagation_compared_to_compiled_tags</span></code></a>(df, ...)</p></td>
 <td><p>Check if tags got propagated.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag" title="pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_for_correction_xbrl_factoids_with_tag</span></code></a>(df, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag" title="pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_for_correction_xbrl_factoids_with_tag</span></code></a>(df, ...)</p></td>
 <td><p>Check if any correction records have tags.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_check_tag_propagation" title="pudl.output.ferc1.make_check_tag_propagation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check_tag_propagation</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_check_tag_propagation" title="pudl.output.ferc1.make_check_tag_propagation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check_tag_propagation</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
 <td><p>Check the propagation of tags.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_check_correction_tags" title="pudl.output.ferc1.make_check_correction_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check_correction_tags</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_check_correction_tags" title="pudl.output.ferc1.make_check_correction_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_check_correction_tags</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
 <td><p>Check the propagation of tags.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_rate_base" title="pudl.output.ferc1.out_ferc1__yearly_rate_base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_rate_base</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.out_ferc1__yearly_rate_base" title="pudl.output.ferc1.out_ferc1__yearly_rate_base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc1__yearly_rate_base</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Make a table of granular utility rate base data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.replace_dimension_columns_with_aggregatable" title="pudl.output.ferc1.replace_dimension_columns_with_aggregatable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace_dimension_columns_with_aggregatable</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.replace_dimension_columns_with_aggregatable" title="pudl.output.ferc1.replace_dimension_columns_with_aggregatable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace_dimension_columns_with_aggregatable</span></code></a>(...)</p></td>
 <td><p>Replace the dimension columns with their aggregatable counterparts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_idx_check" title="pudl.output.ferc1.make_idx_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_idx_check</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.make_idx_check" title="pudl.output.ferc1.make_idx_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_idx_check</span></code></a>(→ dagster.AssetChecksDefinition)</p></td>
 <td><p>Turn the Ferc1DetailedCheckSpec into an actual Dagster asset check.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.prep_cash_working_capital" title="pudl.output.ferc1.prep_cash_working_capital"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_cash_working_capital</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.prep_cash_working_capital" title="pudl.output.ferc1.prep_cash_working_capital"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_cash_working_capital</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Extract a new <code class="docutils literal notranslate"><span class="pre">cash_working_capital</span></code> <code class="docutils literal notranslate"><span class="pre">xbrl_factoid</span></code> for the rate base table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.disaggregate_null_or_total_tag" title="pudl.output.ferc1.disaggregate_null_or_total_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disaggregate_null_or_total_tag</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.disaggregate_null_or_total_tag" title="pudl.output.ferc1.disaggregate_null_or_total_tag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disaggregate_null_or_total_tag</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Disaggregate records with an null or total value in the <code class="docutils literal notranslate"><span class="pre">tag_col</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc1.get_column_value_ratio" title="pudl.output.ferc1.get_column_value_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_column_value_ratio</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc1.get_column_value_ratio" title="pudl.output.ferc1.get_column_value_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_column_value_ratio</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Calculate the percentage of the <code class="docutils literal notranslate"><span class="pre">ending_balance</span></code> within each value in the column.</p></td>
 </tr>
 </tbody>
@@ -1862,18 +1859,11 @@ from the calculation forest.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.output.ferc1._propagate_tags_leafward">
-<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc1.</span></span><span class="sig-name descname"><span class="pre">_propagate_tags_leafward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotated_forest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph" title="(in NetworkX v3.6.1)"><span class="pre">networkx.DiGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">leafward_inherited_tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph" title="(in NetworkX v3.6.1)"><span class="pre">networkx.DiGraph</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc1.html#_propagate_tags_leafward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc1._propagate_tags_leafward" title="Link to this definition">#</a></dt>
-<dd><p>Push a parent’s tags down to its descendants.</p>
-<p>Only push the <cite>leafward_inherited_tags</cite> - others will be left alone.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pudl.output.ferc1._propagate_tag_rootward">
-<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc1.</span></span><span class="sig-name descname"><span class="pre">_propagate_tag_rootward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotated_forest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph" title="(in NetworkX v3.6.1)"><span class="pre">networkx.DiGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'in_rate_base'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph" title="(in NetworkX v3.6.1)"><span class="pre">networkx.DiGraph</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc1.html#_propagate_tag_rootward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc1._propagate_tag_rootward" title="Link to this definition">#</a></dt>
-<dd><p>Set the tag for nodes when all of its children have same tag.</p>
-<p>This function returns the value of a tag, but also sets node attributes
-down the tree when all children of a node share the same tag.</p>
+<dt class="sig sig-object py" id="pudl.output.ferc1._propagate_tag">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc1.</span></span><span class="sig-name descname"><span class="pre">_propagate_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotated_forest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph" title="(in NetworkX v3.6.1)"><span class="pre">networkx.DiGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'in_rate_base'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rate_base_category'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">propagation_direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'rootward'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'leafward'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://networkx.org/documentation/stable/reference/classes/digraph.html#networkx.DiGraph" title="(in NetworkX v3.6.1)"><span class="pre">networkx.DiGraph</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc1.html#_propagate_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc1._propagate_tag" title="Link to this definition">#</a></dt>
+<dd><p>Set the tag for nodes when all of its successors or predecessorshave same tag.</p>
+<p>This function returns an updated annotated_forest with tags updated for nodes
+when all down the tree when all children or parents of a node share the same tag.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2243,8 +2233,7 @@ column is <code class="docutils literal notranslate"><span class="pre">utility_t
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc1.nodes_to_df"><code class="docutils literal notranslate"><span class="pre">nodes_to_df()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc1._propagate_tags_leafward"><code class="docutils literal notranslate"><span class="pre">_propagate_tags_leafward()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc1._propagate_tag_rootward"><code class="docutils literal notranslate"><span class="pre">_propagate_tag_rootward()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc1._propagate_tag"><code class="docutils literal notranslate"><span class="pre">_propagate_tag()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc1._propagate_tags_to_corrections"><code class="docutils literal notranslate"><span class="pre">_propagate_tags_to_corrections()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags"><code class="docutils literal notranslate"><span class="pre">check_tag_propagation_compared_to_compiled_tags()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag"><code class="docutils literal notranslate"><span class="pre">check_for_correction_xbrl_factoids_with_tag()</span></code></a></li>

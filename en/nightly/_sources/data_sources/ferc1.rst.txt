@@ -18,9 +18,9 @@ FERC Form 1 -- Annual Report of Major Electric Utilities
    * - Source Format
      - XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)
    * - Download Size
-     - 2051 MB
+     - 2116 MB
    * - Temporal Coverage
-     - 1994-2024
+     - 1994-2025
    * - PUDL Code
      - ``ferc1``
    * - Unprocessed Source Data Archive
