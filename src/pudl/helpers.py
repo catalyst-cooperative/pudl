@@ -1661,9 +1661,10 @@ def drop_records_with_null_in_column(
     # ensure there isn't more than the expected number of nulls before dropping
     if len(null_records := df[df[column].isnull()]) > num_of_expected_nulls:
         raise AssertionError(
-            f"Expected {num_of_expected_nulls} or less records with a null values {column} but found {null_records}"
+            f"Expected {num_of_expected_nulls} or less records with a null values {column} but found {len(null_records)}"
         )
-    return df.dropna(subset=[column])
+    df = df.dropna(subset=[column])
+    return df
 
 
 def standardize_percentages_ratio(
