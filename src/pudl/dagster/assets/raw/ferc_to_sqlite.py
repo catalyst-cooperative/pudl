@@ -166,16 +166,8 @@ def _download_nightly_outputs(
     paths.local_taxonomy_json_path.write_bytes(
         paths.nightly_taxonomy_json_path.read_bytes()
     )
-    # Download duckdb DB
+    # Download duckdb DB / parquet
     paths.local_duckdb_path.write_bytes(paths.nightly_duckdb_path.read_bytes())
-
-    # Downstream assets only consume SQLite / JSON files
-    # To save space during CI integration tests we skip downloading unnecessary outputs
-    if (env_var_is_true("PUDL_INTEGRATION_TESTS")) and (
-        env_var_is_true("GITHUB_ACTIONS")
-    ):
-        return
-
     _download_zipped_outputs(paths, output_format="parquet")
 
 
@@ -231,6 +223,11 @@ def _check_for_cached_db_w_compatible_provenance(
             f"Local outputs for {dataset}_{data_format} are compatible with current run."
         )
         return local_provenance
+
+    # Don't try to use nightly outputs in integration tests
+    # This is to avoid incompatibilities between fast / full outputs
+    if env_var_is_true("PUDL_INTEGRATION_TESTS"):
+        return None
 
     # Check nightly provenance
     try:
