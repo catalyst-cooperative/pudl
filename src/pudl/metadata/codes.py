@@ -442,6 +442,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "sn": "SN",
             "LN": "LNB",
             "DP": "DSI",
+            "SNCR": "SN",
         },
         "ignored_codes": ["HRSG1", "HRSG2", "FGD", "OV"],
     },
