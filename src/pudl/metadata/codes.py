@@ -70,6 +70,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "P": "PL",
             "V": "CO",
             "ts": "TS",
+            "os": "OS",
         },
         "ignored_codes": [0, "OC", "T", "0", "df"],
     },
