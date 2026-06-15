@@ -2038,11 +2038,11 @@ class XbrlCalculationForestFerc1(BaseModel):
         root-ward first before trying to send tags leaf-ward.
         """
         tags_to_propagate = ["in_rate_base", "rate_base_category"]
-        # Root-ward propagation
         for tag in tags_to_propagate:
-            annotated_forest = _propagate_tag_rootward(annotated_forest, tag)
-        ## Leaf-wards propagation
-        annotated_forest = _propagate_tags_leafward(annotated_forest, tags_to_propagate)
+            # Root-ward propagation
+            annotated_forest = _propagate_tag(annotated_forest, tag, "rootward")
+            # Leaf-wards propagation
+            annotated_forest = _propagate_tag(annotated_forest, tag, "leafward")
         # Correction Records
         annotated_forest = _propagate_tags_to_corrections(annotated_forest)
         return annotated_forest
@@ -2426,7 +2426,11 @@ class XbrlCalculationForestFerc1(BaseModel):
             zip(self.table_names, colors[: len(self.table_names)], strict=True)
         )
 
-        pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
+        pos = graphviz_layout(
+            graph,
+            prog="dot",
+            args='-Grankdir="LR"',
+        )
         for table, color in color_map.items():
             nodes = [node for node in graph.nodes if node.table_name == table]
             nx.draw_networkx_nodes(nodes, pos, node_color=color, label=table)
@@ -2579,66 +2583,55 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
     return pd.concat([index, tags], axis="columns")
 
 
-def _propagate_tags_leafward(
-    annotated_forest: nx.DiGraph, leafward_inherited_tags: list[str]
+def _propagate_tag(
+    annotated_forest: nx.DiGraph,
+    tag_name: Literal["in_rate_base", "rate_base_category"],
+    propagation_direction: Literal["rootward", "leafward"],
 ) -> nx.DiGraph:
-    """Push a parent's tags down to its descendants.
+    """Set the tag for nodes when all of its successors or predecessorshave same tag.
 
-    Only push the `leafward_inherited_tags` - others will be left alone.
-    """
-    existing_tags = nx.get_node_attributes(annotated_forest, "tags")
-    for node, parent_tags in existing_tags.items():
-        descendants = nx.descendants(annotated_forest, node)
-        descendant_tags = {
-            desc: {
-                "tags": {
-                    tag_name: parent_tags[tag_name]
-                    for tag_name in leafward_inherited_tags
-                    if tag_name in parent_tags
-                }
-                | existing_tags.get(desc, {})
-            }
-            for desc in descendants
-        }
-        nx.set_node_attributes(annotated_forest, descendant_tags)
-    return annotated_forest
-
-
-def _propagate_tag_rootward(
-    annotated_forest: nx.DiGraph, tag_name: Literal["in_rate_base"]
-) -> nx.DiGraph:
-    """Set the tag for nodes when all of its children have same tag.
-
-    This function returns the value of a tag, but also sets node attributes
-    down the tree when all children of a node share the same tag.
+    This function returns an updated annotated_forest with tags updated for nodes
+    when all down the tree when all children or parents of a node share the same tag.
     """
 
     def _get_tag(annotated_forest, node, tag_name):
         return annotated_forest.nodes.get(node, {}).get("tags", {}).get(tag_name)
 
     generations = list(nx.topological_generations(annotated_forest))
-    for gen in reversed(generations):
+    directional_gens = (
+        reversed(generations) if propagation_direction == "rootward" else generations
+    )
+    climbing_direction = (
+        "successors" if propagation_direction == "rootward" else "predecessors"
+    )
+    for gen in directional_gens:
         untagged_nodes = {
             node_id
             for node_id in gen
             if _get_tag(annotated_forest, node_id, tag_name) is None
         }
-        for parent_node in untagged_nodes:
-            child_tags = {
+        for node_to_tag in untagged_nodes:
+            inheritable_tags = {
                 _get_tag(annotated_forest, c, tag_name)
-                for c in annotated_forest.successors(parent_node)
+                for c in getattr(annotated_forest, climbing_direction)(node_to_tag)
                 if not c.xbrl_factoid.endswith("_correction")
             }
-            non_null_tags = child_tags - {None}
-            # sometimes, all children can share same tag but it's null.
-            if len(child_tags) == 1 and non_null_tags:
+            inherited_from = [
+                node.xbrl_factoid
+                for node in getattr(annotated_forest, climbing_direction)(node_to_tag)
+            ]
+            non_null_tags = inheritable_tags - {None}
+            # sometimes, all children or parent can share same tag but it's null.
+            if len(inheritable_tags) == 1 and non_null_tags:
                 # actually assign the tag here but don't wipe out any other tags
                 new_node_tag = non_null_tags.pop()
                 existing_tags = nx.get_node_attributes(annotated_forest, "tags")
                 node_tags = {
-                    parent_node: {
+                    node_to_tag: {
                         "tags": {tag_name: new_node_tag}
-                        | existing_tags.get(parent_node, {})
+                        | existing_tags.get(node_to_tag, {})
+                        # For forensic purposes
+                        | {"inherited_from": inherited_from}
                     }
                 }
                 nx.set_node_attributes(annotated_forest, node_tags)
