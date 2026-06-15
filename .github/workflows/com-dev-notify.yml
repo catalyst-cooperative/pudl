@@ -1,3 +1,4 @@
+---
 name: com-dev-notify
 
 on:
@@ -53,7 +54,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Send message to ComDev Zulip channel
-        if: ${{ !steps.is_organization_member.outputs.result }}
+        if: ${{ steps.is_organization_member.outputs.result == 'false' }}
         uses: zulip/github-actions-zulip/send-message@v2
         with:
           api-key: ${{ secrets.ZULIP_API_KEY }}
