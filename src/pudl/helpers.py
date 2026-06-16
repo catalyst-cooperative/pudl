@@ -9,6 +9,7 @@ with cleaning and restructuring dataframes.
 
 import importlib.resources
 import itertools
+import os
 import pathlib
 import re
 import shutil
@@ -2685,3 +2686,15 @@ def parse_address(addr: str):
 def listify(x: Any) -> list[Any]:
     """Listify an input that is sometimes a list and sometimes not."""
     return x if isinstance(x, list) else [x]  # noqa: E731
+
+
+def env_var_is_true(env_var: str) -> bool:
+    """Check that environment variable is a 'truthy' value.
+
+    Check will pass if the variable is one of (all values are case insensitive):
+    - 'true'
+    - '1'
+    - 'yes'
+    - 'on'
+    """
+    return os.getenv(env_var, default="false").lower() in ["true", "1", "yes", "on"]
