@@ -41,7 +41,9 @@ Functions
 
 .. autoapisummary::
 
-   pudl.dagster.provenance.assert_ferc_sqlite_compatible
+   pudl.dagster.provenance._get_ferc_to_sqlite_asset_key
+   pudl.dagster.provenance.get_xbrl_extractor_version
+   pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible
 
 
 Module Contents
@@ -51,6 +53,11 @@ Module Contents
 
 .. py:data:: FERC_TO_SQLITE_METADATA_KEY
    :value: 'ferc_to_sqlite'
+
+
+.. py:function:: _get_ferc_to_sqlite_asset_key(dataset: str, data_format: str) -> dagster.AssetKey
+
+   Return the asset key corresponding to a ferc_to_sqlite asset from dataset/format.
 
 
 .. py:class:: FercSqliteProvenance
@@ -79,6 +86,10 @@ Module Contents
       :type:  list[int]
 
 
+   .. py:attribute:: ferc_xbrl_extractor_version
+      :type:  str
+
+
    .. py:property:: asset_key
       :type: dagster.AssetKey
 
@@ -103,7 +114,11 @@ Module Contents
 
 
    .. py:attribute:: status
-      :type:  Literal['complete', 'skipped', 'not_configured']
+      :type:  Literal['complete', 'not_configured']
+
+
+   .. py:attribute:: source
+      :type:  Literal['nightly', 'local_cache', 'local_new']
 
 
    .. py:attribute:: zenodo_doi
@@ -124,17 +139,50 @@ Module Contents
 
 
 
-   .. py:attribute:: sqlite_path
-      :type:  pathlib.Path | None
+   .. py:attribute:: ferc_xbrl_extractor_version
+      :type:  str | None
       :value: None
 
 
 
-.. py:function:: assert_ferc_sqlite_compatible(*, instance: Any | None, provenance: FercSqliteProvenance) -> None
+   .. py:method:: from_dagster_instance(instance: dagster.DagsterInstance, dataset: str, data_format: str) -> FercSqliteProvenanceRecord
+      :classmethod:
+
+
+      Return FercSqliteProvenanceRecord from dagster metadata if available.
+
+      :raises RuntimeError: if no Dagster provenance metadata is available.
+
+
+
+   .. py:method:: to_datapackage(datapackage_path: pathlib.Path)
+
+      Write Provenance data to datapackage JSON file.
+
+
+
+   .. py:method:: from_datapackage(datapackage_path: upath.UPath, source: Literal['nightly', 'local_cache', 'local_new']) -> FercSqliteProvenanceRecord
+      :classmethod:
+
+
+      Read SQLite provenance metadata from datapackage JSON file.
+
+      Note that this method accepts ``datapackage_path`` as a ``UPath`` as we read
+      provenance metadata directly from nightly builds, but ``to_datapackage`` only
+      accepts a regular ``Path``, as we should never try to write directly to s3.
+
+
+
+.. py:function:: get_xbrl_extractor_version() -> str
+
+   Return the installed version of ``catalystcoop.ferc_xbrl_extractor``.
+
+
+.. py:function:: ferc_sqlite_provenance_is_compatible(*, observed_provenance: FercSqliteProvenanceRecord | None, required_provenance: FercSqliteProvenance) -> bool
 
    Ensure a persisted FERC SQLite prerequisite is compatible with this run.
 
-   Compatibility requires two conditions to hold:
+   Compatibility requires three conditions to hold:
 
    1. The Zenodo DOI recorded when the FERC SQLite DB was built must match the
       current :class:`~pudl.workspace.datastore.ZenodoDoiSettings`. A mismatch
@@ -143,12 +191,6 @@ Module Contents
    2. The years stored in the FERC SQLite DB must be a *superset* of the years
       needed by the current downstream data config. This allows a "full" FERC SQLite DB
       to serve a "fast" downstream run without an expensive rebuild.
-
-   The check is skipped (with a warning) in two cases:
-
-   * No Dagster instance is available (running outside a Dagster execution context).
-   * The environment variable ``PUDL_SKIP_FERC_SQLITE_PROVENANCE`` is set to a
-     truthy value (``1``, ``true``, or ``yes``). This allows contributors to use
-     externally-downloaded FERC databases without triggering a provenance error.
+   3. The version of ``ferc_xbrl_extractor`` is the same for XBRL derived data.
 
 

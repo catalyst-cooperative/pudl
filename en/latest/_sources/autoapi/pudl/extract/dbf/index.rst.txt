@@ -456,12 +456,6 @@ Module Contents
 
 
 
-   .. py:method:: delete_schema()
-
-      Drops all tables from the existing sqlite database.
-
-
-
    .. py:method:: initialize_database()
 
       Create sqlalchemy engine and metadata.
