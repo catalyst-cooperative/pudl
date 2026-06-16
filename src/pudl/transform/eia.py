@@ -1228,32 +1228,43 @@ def fix_balancing_authority_codes_with_state(
     return plants
 
 
-def remove_bad_direct_support_plant(df: pd.DataFrame) -> pd.DataFrame:
-    """Remove non-existent plant that shows up in plant_id_eia_direct_support_1 col.
+def remove_na_plant_util_rows(
+    df: pd.DataFrame,
+    bad_id: str,
+    id_col: str,
+    num_bad_rows: int,
+) -> pd.DataFrame:
+    """Remove rows with plant or utility IDs but no other information.
 
-    In the 2025 EIA860 ER data, there is a plant_id_eia value in the
-    plant_id_eia_direct_support_1 column in the _core_eia860__generators_energy_storage
-    table that does not exist in the plant_id_eia column. This causes there to be a
-    plant with just an EIA ID and no name or other values to speak of.
+    The harvesting process pulls IDs from many different parts of many
+    different tables to create a comprehensive list of IDs across
+    EIA. Sometimes the IDs taken from bespoke columns are not
+    referenced anywhere else in the data. These IDs are harvested
+    nonetheless and result in scd or entity table rows with NAs
+    in all fields except the ID and report date.
 
-    This function removes that plant so long as there is no other information associated
-    with that plant. If there is, it will fail so we can remove this function from the
-    code because it is no longer necessary.
+    Examples of this include IDs pulled from the ``plant_id_eia_direct_support_1``
+    column in the ``_core_eia860__generators_energy_storage`` table
+    or the ``owner_utility_id_eia`` and ``operator_utility_id_eia`` columns in
+    the ``_core_eia860__utilities`` table`.
+
+    This function removes these "bad" rows with NA in all fields except for the
+    ID. If the function finds additional information associated with the ID
+    it will fail as a reminder that this function is no longer necessary.
     """
-    bad_row = df[df["plant_id_eia"] == 37538]
-    assert len(bad_row) == 1, (
-        "Expected exactly one row with the bad plant_id_eia value."
+    bad_row = df[df[id_col] == bad_id]
+    assert len(bad_row) == num_bad_rows, (
+        f"Expected exactly {num_bad_rows} row with the bad {id_col} value. "
+        f"Found {len(bad_row)}"
     )
-    na_cols = [x for x in df.columns if x not in ["plant_id_eia", "report_date"]]
+    na_cols = [x for x in df.columns if x not in [id_col, "report_date"]]
     if not bad_row[na_cols].isna().all().all():
         raise AssertionError(
-            "The bad plant_id_eia value 37538 is now associated with non-null values, "
-            "so it not longer needs to be removed."
+            f"The bad {id_col} value {bad_id} is now associated with non-null values. "
+            "You can delete this function."
         )
-    logger.info(
-        "Removing bad plant with plant_id_eia value of 37538 from plant_id_eia_direct_support_1 column."
-    )
-    df = df[df["plant_id_eia"] != 37538]
+    logger.info(f"Removing bad row with {id_col} value of {bad_id}")
+    df = df[df[id_col] != bad_id]
     return df
 
 
@@ -1315,18 +1326,41 @@ def harvested_entity_asset_factory(
             special_case_strictness=special_case_strictness,
             debug=True,
         )
+        # Remove NA utility rows
+        entity_df = entity_df.pipe(
+            remove_na_plant_util_rows,
+            bad_id=56571,
+            id_col="utility_id_eia",
+            num_bad_rows=1,
+        )
+        annual_df = annual_df.pipe(
+            remove_na_plant_util_rows,
+            bad_id=56571,
+            id_col="utility_id_eia",
+            num_bad_rows=1,
+        )
 
         if entity == EiaEntity.PLANTS:
             # Post-processing specific to the plants entity tables
             entity_df = (
                 _add_additional_epacems_plants(entity_df)
                 .pipe(_add_timezone)
-                .pipe(remove_bad_direct_support_plant)
+                .pipe(
+                    remove_na_plant_util_rows,
+                    bad_id=37538,
+                    id_col="plant_id_eia",
+                    num_bad_rows=1,
+                )
             )
             annual_df = (
                 fillna_balancing_authority_codes_via_names(annual_df)
                 .pipe(fix_balancing_authority_codes_with_state, plants_entity=entity_df)
-                .pipe(remove_bad_direct_support_plant)
+                .pipe(
+                    remove_na_plant_util_rows,
+                    bad_id=37538,
+                    id_col="plant_id_eia",
+                    num_bad_rows=1,
+                )
             )
 
         # Take all of the column inputs and make them into one big forensics changelog
