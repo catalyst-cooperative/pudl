@@ -99,7 +99,7 @@ Dagster docs for more info.
 Core Dagster concepts used in PUDL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* **`Definitions <https://docs.dagster.io/getting-started/concepts#definitions>`__**
+* **Definitions** [`Dagster ref <https://docs.dagster.io/getting-started/concepts#definitions>`__]
   are the top-level collection of Dagster objects that get loaded into a code location.
   They bundle together the assets, asset checks, resources, jobs, schedules, and
   sensors that Dagster can see and execute. In PUDL, the canonical Dagster assembly
@@ -116,14 +116,14 @@ Core Dagster concepts used in PUDL
   - :mod:`pudl.dagster.build` assembles :class:`dagster.Definitions` via
     :func:`pudl.dagster.build_defs`.
 
-* **`Assets <https://docs.dagster.io/guides/build/assets>`__** are the
+* **Assets** [`Dagster ref <https://docs.dagster.io/guides/build/assets>`__] are the
   primary building blocks in Dagster. They represent the underlying entities in our
   pipelines, such as database tables or machine learning models. In PUDL, most assets
   represent a :py:class:`pandas.DataFrame` that is written to Parquet
   and SQLite files on disk. Depending on which part of the PUDL DAG you are looking at,
   assets might represent messy raw dataframes extracted from spreadsheets, partially
   cleaned intermediary dataframes, or fully normalized tables ready for distribution.
-* **`Resources <https://docs.dagster.io/guides/build/external-resources>`__** are
+* **Resources** [`Dagster ref <https://docs.dagster.io/guides/build/external-resources>`__] are
   objects used by Dagster assets to provide access to external systems, databases, or
   services. In PUDL, we've defined a :py:class:`pudl.workspace.datastore.Datastore`
   Resource that pulls our raw input data from `archives on Zenodo
@@ -132,14 +132,14 @@ Core Dagster concepts used in PUDL
   Zenodo DOI for each dataset. We also store our dataset-specific data config (like
   what years of EIA-861 data to process) in a Resource
   :py:class:`pudl.dagster.resources.GlobalDataConfigResource`.
-* **`IO Managers <https://docs.dagster.io/guides/build/io-managers>`__** in Dagster let
+* **IO Managers** [`Dagster ref <https://docs.dagster.io/guides/build/io-managers>`__] in Dagster let
   us keep the code for data processing separate from the code for reading and writing
   data. PUDL defines I/O Managers for reading data out of the FERC SQLite databases we
   curate, for reading and writing Parquet files, and for writing out to SQLite. For
   example :class:`pudl.dagster.io_managers.PudlMixedFormatIOManager` allows assets to
   read and write dataframes to SQLite and Parquet-backed outputs using a single logical
   interface.
-* **`Jobs <https://docs.dagster.io/guides/build/jobs>`__** are preconfigured collections
+* **Jobs** [`Dagster ref <https://docs.dagster.io/guides/build/jobs>`__] are preconfigured collections
   of assets, resources and IO Managers.  Jobs are the main unit of execution in Dagster.
   The main jobs assembled in :mod:`pudl.dagster` are:
 
@@ -148,7 +148,7 @@ Core Dagster concepts used in PUDL
   - ``pudl_with_ferc_to_sqlite`` to run the full end-to-end build in one Dagster job.
   - ``ferceqr`` a DuckDB based pipeline to process the very large FERC EQR dataset.
 
-* **`Configs <https://docs.dagster.io/guides/operate/configuration/run-configuration>`__**
+* **Configs** [`Dagster ref <https://docs.dagster.io/guides/operate/configuration/run-configuration>`__]
   are the runtime settings passed to Dagster jobs, assets, and resources to control
   what gets executed and how. In PUDL, we usually store these settings in YAML files
   like ``dg_fast.yml``, ``dg_full.yml``, ``dg_pytest.yml``, and ``dg_nightly.yml``,
