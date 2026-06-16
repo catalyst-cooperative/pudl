@@ -388,7 +388,7 @@ def test_download_nightly_outputs(
     if data_format == "xbrl":
         ferc_paths.nightly_taxonomy_json_path.write_text("test taxonomy json")
         ferc_paths.nightly_duckdb_path.write_text("test duckdb")
-        with ZipFile(ferc_paths.nightly_parquet_dir_path, mode="w") as archive:
+        with ZipFile(ferc_paths.nightly_parquet_path, mode="w") as archive:
             with archive.open(
                 f"{dataset}_{data_format}/test1.parquet", mode="w"
             ) as pq_file_1:
@@ -416,8 +416,8 @@ def test_download_nightly_outputs(
             == ferc_paths.local_taxonomy_json_path.read_bytes()
         )
         assert (
-            ferc_paths.local_parquet_dir_path / "test1.parquet"
+            ferc_paths.local_parquet_path / "test1.parquet"
         ).read_text() == "test parquet 1"
         assert (
-            ferc_paths.local_parquet_dir_path / "test2.parquet"
+            ferc_paths.local_parquet_path / "test2.parquet"
         ).read_text() == "test parquet 2"

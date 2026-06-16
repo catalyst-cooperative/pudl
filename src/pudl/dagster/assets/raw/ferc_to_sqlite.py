@@ -68,8 +68,10 @@ class FercPaths:
     nightly_duckdb_path: UPath | None = None
     local_taxonomy_json_path: Path | None = None
     nightly_taxonomy_json_path: UPath | None = None
-    local_parquet_dir_path: Path | None = None
-    nightly_parquet_dir_path: UPath | None = None
+    # Points to a directory of parquet files
+    local_parquet_path: Path | None = None
+    # Points to zipfile containing parquet files
+    nightly_parquet_path: UPath | None = None
 
     def delete_local_outputs(self):
         """Helper function to delete local outputs before starting extraction."""
@@ -81,8 +83,8 @@ class FercPaths:
             self.local_taxonomy_json_path.unlink(missing_ok=True)
 
             # Delete files in parquet dir
-            if self.local_parquet_dir_path.exists():
-                [path.unlink() for path in self.local_parquet_dir_path.iterdir()]
+            if self.local_parquet_path.exists():
+                [path.unlink() for path in self.local_parquet_path.iterdir()]
 
     @classmethod
     def from_dataset_format(
@@ -100,7 +102,7 @@ class FercPaths:
             filenames |= {
                 "duckdb": f"{dataset_format}.duckdb",
                 "taxonomy_json": f"{dataset_format}_taxonomy_metadata.json",
-                "parquet_dir": f"{dataset_format}",
+                "parquet": f"{dataset_format}",
             }
 
         # Generate local paths
@@ -128,8 +130,8 @@ def _download_zipped_outputs(
         nightly_path = paths.nightly_sqlite_path
         local_path = paths.local_sqlite_path.parent
     else:
-        nightly_path = paths.nightly_parquet_dir_path
-        local_path = paths.local_parquet_dir_path
+        nightly_path = paths.nightly_parquet_path
+        local_path = paths.local_parquet_path
 
     local_path.mkdir(exist_ok=True)
     with ZipFile(BytesIO(nightly_path.read_bytes())) as archive:
