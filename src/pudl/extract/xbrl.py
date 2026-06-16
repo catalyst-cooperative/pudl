@@ -5,20 +5,17 @@ import logging
 import re
 import sys
 from _io import BytesIO
-from collections.abc import Callable
 from contextlib import contextmanager
-from pathlib import Path
 
-from dagster import op
 from ferc_xbrl_extractor.cli import run_main
 
 import pudl.logging_helpers
-from pudl.dagster.resources import FercXbrlRuntimeSettings
 from pudl.settings import (
-    FercGenericXbrlToSqliteDataConfig,
-    XbrlFormNumber,
+    FercForm,
+    FercToSqliteDataConfig,
 )
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -74,7 +71,7 @@ class FercXbrlDatastore:
         """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
 
-    def get_taxonomy(self, form: XbrlFormNumber) -> io.BytesIO:
+    def get_taxonomy(self, form: FercForm) -> io.BytesIO:
         """Returns the path to the taxonomy entry point within the an archive."""
         raw_archive = self.datastore.get_unique_resource(
             str(form),
@@ -83,73 +80,18 @@ class FercXbrlDatastore:
 
         return io.BytesIO(raw_archive)
 
-    def get_filings(self, year: int, form: XbrlFormNumber) -> io.BytesIO:
+    def get_filings(self, year: int, form: FercForm) -> io.BytesIO:
         """Return the corresponding archive full of XBRL filings."""
         return io.BytesIO(
             self.datastore.get_unique_resource(str(form), year=year, data_format="xbrl")
         )
 
 
-def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
-    """Generates xbrl2sqlite op for a given FERC form."""
-
-    @op(
-        name=f"{form}_xbrl",
-        required_resource_keys={
-            "global_data_config",
-            "datastore",
-            "pudl_paths",
-            "runtime_settings",
-        },
-        tags={"data_format": "xbrl", "dataset": str(form)},
-    )
-    def inner_op(context) -> None:
-        pudl_paths = context.resources.pudl_paths
-        output_path = pudl_paths.pudl_output
-        rs: FercXbrlRuntimeSettings = context.resources.runtime_settings
-        data_config = (
-            context.resources.global_data_config.ferc_to_sqlite.get_data_config(
-                dataset=form, data_format="xbrl"
-            )
-        )
-        datastore = FercXbrlDatastore(context.resources.datastore)
-
-        logger.info(f"====== xbrl2sqlite runtime_settings: {rs}")
-        if data_config is None or not data_config.years:
-            logger.info(
-                f"Skipping dataset {form}_xbrl: no config or no years configured."
-            )
-            return
-
-        sqlite_path = pudl_paths.sqlite_db_path(f"{form}_xbrl")
-        if sqlite_path.exists():
-            sqlite_path.unlink()
-        duckdb_path = pudl_paths.duckdb_db_path(f"{form}_xbrl")
-        if duckdb_path.exists():
-            duckdb_path.unlink()
-
-        convert_form(
-            form_data_config=data_config,
-            form=form,
-            datastore=datastore,
-            output_path=output_path,
-            sqlite_path=sqlite_path,
-            duckdb_path=duckdb_path,
-            batch_size=rs.xbrl_batch_size,
-            workers=rs.xbrl_num_workers,
-            loglevel=rs.xbrl_loglevel,
-        )
-
-    return inner_op
-
-
 def convert_form(
-    form_data_config: FercGenericXbrlToSqliteDataConfig,
-    form: XbrlFormNumber,
+    ferc_to_sqlite: FercToSqliteDataConfig,
+    form: FercForm,
     datastore: FercXbrlDatastore,
-    output_path: Path,
-    sqlite_path: Path,
-    duckdb_path: Path,
+    pudl_paths: PudlPaths,
     batch_size: int | None = None,
     workers: int | None = None,
     loglevel: str = "INFO",
@@ -157,22 +99,25 @@ def convert_form(
     """Clone a single FERC XBRL form to SQLite.
 
     Args:
-        form_data_config: Validated data configuration for converting the desired XBRL
-            form to SQLite.
+        ferc_to_sqlite: Validated data configuration for converting FERC data to SQLite.
         form: FERC form number.
         datastore: Instance of a FERC XBRL datastore for retrieving data.
-        output_path: PUDL output directory
-        sql_path: path to the SQLite DB we'd like to write to.
+        pudl_paths: ``PudlPaths`` resource.
         batch_size: Number of XBRL filings to process in a single CPU process.
         workers: Number of CPU processes to create for processing XBRL filings.
-
-    Returns:
-        None
+        loglevel: Log level to pass to ``ferc_xbrl_extractor``.
     """
+    output_path = pudl_paths.pudl_output
+    sqlite_path = pudl_paths.sqlite_db_path(f"{form}_xbrl")
+    duckdb_path = pudl_paths.duckdb_db_path(f"{form}_xbrl")
+
     taxonomy_archive = datastore.get_taxonomy(form)
     # Process XBRL filings for each year requested
     filings_archives: list[BytesIO] = [
-        datastore.get_filings(year, form) for year in form_data_config.years
+        datastore.get_filings(year, form)
+        for year in ferc_to_sqlite.get_data_config(
+            dataset=str(form), data_format="xbrl"
+        ).years
     ]
     # if we set clobber=True, clobbers on *every* call to run_main;
     # we already delete the existing base on `clobber=True` in `xbrl2sqlite`

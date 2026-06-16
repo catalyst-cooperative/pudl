@@ -271,6 +271,7 @@ description = "Run unit tests and doctests"
 [tool.pixi.tasks.pytest-integration]
 cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
 description = "Run integration and (non-row-count) validation tests."
+env = { PUDL_INTEGRATION_TESTS = "true" }
 
 [tool.pixi.tasks.pytest-validate]
 cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py"
@@ -427,6 +428,7 @@ pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
+generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
