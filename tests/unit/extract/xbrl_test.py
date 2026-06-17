@@ -334,6 +334,10 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
     # This should try to re-run extraction
     local_datapackage_path.write_text("{}")
     local_provenance.to_datapackage(local_datapackage_path)
+
+    # env_var_is_true is called twice in ferc_to_sqlite and we only want
+    # it to be true when called with PUDL_FORCE_FERC_TO_SQLITE. Later we will
+    # change the mock to always be false
     mocker.patch(
         "pudl.dagster.assets.raw.ferc_to_sqlite.env_var_is_true",
         side_effect=lambda env_var: env_var == "PUDL_FORCE_FERC_TO_SQLITE",
