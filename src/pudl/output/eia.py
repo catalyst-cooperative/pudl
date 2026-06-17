@@ -212,7 +212,7 @@ def _out_eia__yearly_generators(
             (69312, "ECHEB"),
             (37538, "PV1"),
             (59525, "W8785"),
-            (67351, "WIL2B"),
+            (67351, "WIL2B"),  # spellchecker:ignore
             (68307, "Matad"),
             (68308, "WolfB"),
             (68309, "SunB"),
