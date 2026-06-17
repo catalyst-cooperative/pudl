@@ -1326,19 +1326,22 @@ def harvested_entity_asset_factory(
             special_case_strictness=special_case_strictness,
             debug=True,
         )
-        # Remove NA utility rows
-        entity_df = entity_df.pipe(
-            remove_na_plant_util_rows,
-            bad_id=56571,
-            id_col="utility_id_eia",
-            num_bad_rows=1,
-        )
-        annual_df = annual_df.pipe(
-            remove_na_plant_util_rows,
-            bad_id=56571,
-            id_col="utility_id_eia",
-            num_bad_rows=1,
-        )
+
+        if entity == EiaEntity.UTILITIES:
+            # Post-processing specific to the utilities entity tables
+            entity_df = entity_df.pipe(
+                remove_na_plant_util_rows,
+                bad_id=56571,
+                id_col="utility_id_eia",
+                num_bad_rows=1,
+            )
+
+            annual_df = annual_df.pipe(
+                remove_na_plant_util_rows,
+                bad_id=56571,
+                id_col="utility_id_eia",
+                num_bad_rows=1,
+            )
 
         if entity == EiaEntity.PLANTS:
             # Post-processing specific to the plants entity tables
