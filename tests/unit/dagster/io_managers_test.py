@@ -1,5 +1,7 @@
 """Test Dagster IO Managers."""
 
+import logging
+from importlib.metadata import version
 from pathlib import Path
 
 import alembic.config
@@ -380,6 +382,10 @@ def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
                     ),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
                     sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+                    ferc_xbrl_extractor_version=version(
+                        "catalystcoop.ferc_xbrl_extractor"
+                    ),
+                    source="local_new",
                 ).model_dump(mode="json")
             }
         )
@@ -435,6 +441,10 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
                     ),
                     zenodo_doi=zenodo_dois.get_doi("ferc1"),
                     sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+                    ferc_xbrl_extractor_version=version(
+                        "catalystcoop.ferc_xbrl_extractor"
+                    ),
+                    source="local_new",
                 ).model_dump(mode="json")
             }
         )
@@ -454,7 +464,7 @@ def test_ferc_xbrl_io_manager_uses_injected_pudl_data_config(mocker):
     )
 
 
-def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
+def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker, caplog):
     """The migrated FERC DBF IO manager should fail fast on stale prerequisites."""
     pudl_data_config = PudlDataConfig(ferc1=Ferc1DataConfig(years=[2020, 2021]))
     global_data_config: GlobalDataConfig = GlobalDataConfig(
@@ -480,6 +490,7 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
             years=global_data_config.ferc_to_sqlite.get_dataset_years("ferc1", "dbf"),
             zenodo_doi="stale DOI",
             sqlite_path=Path("test-data/ferc1_dbf.sqlite"),
+            source="local_new",
         ).model_dump(mode="json")
     }
     instance: DagsterInstance = mocker.MagicMock()
@@ -492,8 +503,12 @@ def test_ferc_dbf_io_manager_rejects_stale_provenance(mocker):
         instance=instance,
     )
 
-    with pytest.raises(RuntimeError, match="Zenodo DOI mismatch"):
+    with (
+        pytest.raises(RuntimeError, match="provenace metadata is not compatible"),
+        caplog.at_level(logging.WARNING),
+    ):
         manager.load_input(context)
+        assert "Zenodo DOI mismatch" in caplog.text
 
     query.assert_not_called()
 
