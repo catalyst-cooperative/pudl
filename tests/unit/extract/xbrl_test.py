@@ -330,7 +330,30 @@ def test_ferc_to_sqlite_asset_factory(mocker, pudl_test_paths):
         ),
     )
 
-    # Test with local doi to return local_provenance record
+    # Test with local doi and PUDL_FORCE_FERC_TO_SQLITE set to true
+    # This should try to re-run extraction
+    local_datapackage_path.write_text("{}")
+    local_provenance.to_datapackage(local_datapackage_path)
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite.env_var_is_true",
+        side_effect=lambda env_var: env_var == "PUDL_FORCE_FERC_TO_SQLITE",
+    )
+    uncached_provenance = _run_ferc_to_sqlite_asset(
+        local_doi, test_asset, data_config, pudl_test_paths
+    )
+    assert uncached_provenance == FercSqliteProvenanceRecord.model_validate(
+        json.loads(local_datapackage_path.read_text())["provenance_metadata"]
+        | {"source": "local_new"}
+    )
+    mock_extract_function.assert_called_once()
+    mock_extract_function.reset_mock()
+
+    # Test with local doi and PUDL_FORCE_FERC_TO_SQLITE set to false
+    # Should skip extraction and return local_provenance
+    mocker.patch(
+        "pudl.dagster.assets.raw.ferc_to_sqlite.env_var_is_true",
+        return_value=False,
+    )
     local_datapackage_path.write_text("{}")
     local_provenance.to_datapackage(local_datapackage_path)
     assert local_provenance == _run_ferc_to_sqlite_asset(
