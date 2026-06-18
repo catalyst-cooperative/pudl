@@ -2,6 +2,20 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2026.7.0:
+
+---------------------------------------------------------------------------------------
+v2026.7.0 (2026-07-XX)
+---------------------------------------------------------------------------------------
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Validate that sub-components in
+  :ref:`core_rus7__yearly_transmission_and_distribution_mileage` and
+  :ref:`out_rus7__yearly_transmission_and_distribution_mileage` sum to their reported
+  totals. See issue :issue:`5314` and PR :pr:`5341`.
+
 .. _release-v2026.6.0:
 
 ---------------------------------------------------------------------------------------
