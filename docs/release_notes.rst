@@ -159,14 +159,10 @@ Quality of Life Improvements
   FERC SQLite outputs from the most recent nightly build, skipping expensive
   re-extraction when the inputs haven't changed. Set ``PUDL_FERC_FORCE_EXTRACT=true`` to
   force re-extraction regardless. See issue :issue:`5220` and PR :pr:`5264`.
-* Hashtag-prefixed comments in human-editable dbt schema input files
-  (``dbt/schema_inputs/**/schema.human.yml``) now propagate into the machine-generated
-  schema files. This improves the round-trip fidelity of ``dbt_helper update-tables
-  --schema`` and keeps commentary visible alongside the generated schema. See PR
-  :pr:`5310`.
-* Added a ``--override-target`` option to ``dbt_helper validate`` to redirect dbt to a
-  non-default target for extreme debugging of remote CI failures. This option is not
-  intended for routine use. See PR :pr:`5321`.
+* Migrated hashtag-prefixed comments from soon-to-be-machine-generated dbt
+  schema files into their corresponding human-editable schema input files
+  (``dbt/schema_inputs/**/schema.human.yml``) to preserve their content, since
+  any regenerated schemas will forcibly strip out hashtag comments. See PR :pr:`5310`.
 
 .. _release-v2026.5.0:
 
