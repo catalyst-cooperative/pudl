@@ -13,9 +13,8 @@ monthly data through February 2026. As usual, it also includes all of the other 
 that have accumulated on ``main`` since our last release.
 
 This month, we have the belated EPA CEMS update for 2026Q1, the annual update
-for FERC 1, the 2025 early release for EIA-860, some great community
-contributions for RUS7 and EIA-176, and an assortment of datapackage, Dagster,
-and deployment notification improvements.
+for FERC 1, some great community contributions for RUS7 and EIA-176, and an
+assortment of datapackage, Dagster, and deployment notification improvements.
 
 Enhancements
 ^^^^^^^^^^^^
