@@ -1,0 +1,30 @@
+pudl.metadata.resources.ferc714
+===============================
+
+.. py:module:: pudl.metadata.resources.ferc714
+
+.. autoapi-nested-parse::
+
+   Tables definitions for data coming from the FERC Form 714.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.ferc714.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   FERC Form 714 resource attributes by PUDL identifier (``resource.name``).
+
+   See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of
+   ``foreign_key_rules``.
+

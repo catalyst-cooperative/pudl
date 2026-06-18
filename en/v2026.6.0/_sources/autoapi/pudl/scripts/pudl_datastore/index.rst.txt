@@ -1,0 +1,76 @@
+pudl.scripts.pudl_datastore
+===========================
+
+.. py:module:: pudl.scripts.pudl_datastore
+
+.. autoapi-nested-parse::
+
+   CLI for managing raw data inputs to the PUDL data processing pipeline.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_datastore._KNOWN_DATASETS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_datastore._print_partitions
+   pudl.scripts.pudl_datastore._parse_key_values
+   pudl.scripts.pudl_datastore.main
+
+
+Module Contents
+---------------
+
+.. py:data:: _KNOWN_DATASETS
+
+.. py:function:: _print_partitions(dstore: pudl.workspace.datastore.Datastore, datasets: list[str]) -> None
+
+   Print known partition keys and values for each of the datasets.
+
+
+.. py:function:: _parse_key_values(ctx: click.core.Context, param: click.Option, values: str) -> dict[str, str]
+
+   Parse key-value pairs into a Python dictionary.
+
+   Transforms a command line argument of the form: k1=v1,k2=v2,k3=v3...
+   into: {k1:v1, k2:v2, k3:v3, ...}
+
+
+.. py:function:: main(datasets: tuple[str, Ellipsis], all_datasets: bool, validate: bool, list_partitions: bool, partition: dict[str, int | str], cloud_cache_path: str, bypass_local_cache: bool, logfile: pathlib.Path, loglevel: str) -> int
+
+   Manage the raw data inputs to the PUDL data processing pipeline.
+
+   Download the raw FERC Form 2 data:
+
+   pudl_datastore ferc2
+
+   Download the raw FERC Form 2 data only for 2021:
+
+   pudl_datastore ferc2 --partition year=2021
+
+   Re-download the raw FERC Form 2 data for 2021 even if you already have it:
+
+   pudl_datastore ferc2 --partition year=2021 --bypass-local-cache
+
+   Validate all California EPA CEMS data in the local datastore:
+
+   pudl_datastore epacems --validate --partition state=ca
+
+   List the available partitions in the EIA-860 and EIA-923 datasets:
+
+   pudl_datastore eia860 eia923 --list-partitions
+
+   Download all known datasets (e.g. in automation):
+
+   pudl_datastore --all
+
+

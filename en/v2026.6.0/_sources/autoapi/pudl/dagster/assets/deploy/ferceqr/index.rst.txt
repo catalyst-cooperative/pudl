@@ -1,0 +1,78 @@
+pudl.dagster.assets.deploy.ferceqr
+==================================
+
+.. py:module:: pudl.dagster.assets.deploy.ferceqr
+
+.. autoapi-nested-parse::
+
+   Define deployment helper assets for publishing FERC EQR outputs.
+
+   These assets run during batch builds to publish transformed FERC EQR outputs,
+   notify Zulip of success or failure, and create status files that tell the batch
+   job when deployment handling is complete.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.deploy.ferceqr.logger
+   pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.deploy.ferceqr._get_logfile_list
+   pudl.dagster.assets.deploy.ferceqr._get_etl_status_csv_path
+   pudl.dagster.assets.deploy.ferceqr._write_status_file
+   pudl.dagster.assets.deploy.ferceqr.deployment_status_asset
+   pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr
+   pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_deployment_failure
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: FERCEQR_TRANSFORM_ASSETS
+   :value: ['core_ferceqr__contracts', 'core_ferceqr__transactions', 'core_ferceqr__quarterly_identity',...
+
+
+.. py:function:: _get_logfile_list(build_id: str) -> str
+
+   Return pointer to logs to send in Zulip message.
+
+
+.. py:function:: _get_etl_status_csv_path(pudl_paths: pudl.workspace.setup.PudlPaths) -> pathlib.Path
+
+.. py:function:: _write_status_file(status: Literal['SUCCESS', 'FAILURE'], pudl_paths: pudl.workspace.setup.PudlPaths)
+
+   Notify build script that job is complete by creating a status file.
+
+
+.. py:function:: deployment_status_asset(handler: collections.abc.Callable) -> dagster.AssetsDefinition
+
+   Create a wrapper for deployment handler assets.
+
+   This is useful to gracefully handle errors if the deployment status assets fail
+   for any reason. When these assets fail, sometimes the logs don't show up in the
+   batch job appropriately, and the status file never gets created, so the job keeps
+   running until it eventually times out.
+
+
+.. py:function:: deploy_ferceqr(pudl_paths: pudl.workspace.setup.PudlPaths, zulip: pudl.dagster.resources.ZulipNotificationResource)
+
+   Publish EQR outputs to cloud storage.
+
+
+.. py:function:: handle_ferceqr_deployment_failure(pudl_paths: pudl.workspace.setup.PudlPaths, zulip: pudl.dagster.resources.ZulipNotificationResource)
+
+   Send notification if EQR deployment failed.
+
+

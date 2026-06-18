@@ -1,0 +1,67 @@
+pudl.metadata.resources.eia861
+==============================
+
+.. py:module:: pudl.metadata.resources.eia861
+
+.. autoapi-nested-parse::
+
+   Definitions of data tables primarily coming from EIA-861.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.eia861.DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION
+   pudl.metadata.resources.eia861.EIA861_88888
+   pudl.metadata.resources.eia861.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+      PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
+      the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
+      and convert capacity reported in DC units to AC units."""
+
+   .. raw:: html
+
+      </details>
+
+
+
+.. py:data:: EIA861_88888
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """Respondents are required to report this information to the EIA, but are not required
+      to disclose utility-level data to the public. When a respondent chooses to keep its
+      utility-level data proprietary, it files using EIA utility id 88888. For more details,
+      see :ref:`EIA-861 Notable Irregularities <eia861-notable-irregularities>`."""
+
+   .. raw:: html
+
+      </details>
+
+
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

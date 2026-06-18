@@ -1,0 +1,109 @@
+pudl.dagster.asset_checks
+=========================
+
+.. py:module:: pudl.dagster.asset_checks
+
+.. autoapi-nested-parse::
+
+   Programmatically defined Dagster asset checks for PUDL.
+
+   This module should contain Dagster asset-check definitions and helper functions that
+   evaluate the quality or structural correctness of already-materialized assets. Put
+   checks here when they belong in the Dagster asset graph and should run as blocking or
+   reporting validations attached to specific assets, especially when they can be derived
+   from metadata or shared validation patterns. Keep business transformations and dbt-only
+   data tests out of this module so it remains focused on Dagster-native asset validation.
+
+   For the underlying Dagster concept see https://docs.dagster.io/guides/test/asset-checks
+
+   For data validation we almost entirely rely on :mod:`dbt` data tests defined using SQL
+   and executed across our Parquet outputs using :mod:`duckdb`.
+
+   We primarily use Dagster asset checks to validate the schemas of PUDL tables throughout
+   the pipeline. We use :mod:`pandera` to programmatically define dataframe schemas based
+   on the PUDL metadata with the asset check factory :func:`asset_check_from_schema`
+   defined below. A handful of asset checks that were particularly difficult to translate
+   to SQL/dbt data tests are also defined here, but in general all data validation tests
+   should go in dbt.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.dagster.asset_checks.default_asset_checks
+   pudl.dagster.asset_checks.duckdb_assets
+   pudl.dagster.asset_checks.high_memory_assets
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.dagster.asset_checks.group_mean_continuity_check
+   pudl.dagster.asset_checks.asset_check_from_schema
+   pudl.dagster.asset_checks.valid_datapackage_check
+
+
+Module Contents
+---------------
+
+.. py:function:: group_mean_continuity_check(df: pandas.DataFrame, thresholds: dict[str, float], groupby_col: str, n_outliers_allowed: int = 0) -> dagster.AssetCheckResult
+
+   Check that certain variables don't vary too much on average between groups.
+
+   Groups and sorts the data by ``groupby_col``, then takes the mean across
+   each group. Useful for saying something like "the average water usage of
+   cooling systems didn't jump by 10x from 2012-2013."
+
+   :param df: the df with the actual data
+   :param thresholds: a mapping from column names to the ratio by which those
+                      columns are allowed to fluctuate from one group to the next.
+   :param groupby_col: the column by which we will group the data.
+   :param n_outliers_allowed: how many data points are allowed to be above the
+                              threshold.
+
+
+.. py:function:: asset_check_from_schema(asset_key: dagster.AssetKey, package: pudl.metadata.classes.Package, duckdb_asset: bool, high_memory_asset: bool) -> dagster.AssetChecksDefinition | None
+
+   Create a Dagster asset check based on the resource schema, if defined.
+
+   The vast majority of assets will be loaded as Polars LazyFrames directly using
+   the ``PudlParquetIOManager`` and validated with Pandera's Polars backend, but
+   there are two exceptions to this. The first exception are assets which contain
+   a geometry data type. These assets will all be loaded as geopandas GeoDataFrames
+   and use Pandera's Pandas backend as Polars does not support geometry data types.
+   The second exception are assets produced entirely using DuckDB. These assets
+   return ``ParquetData`` objects, which are handled by the default io-manager. In
+   this case, the resulting parquet file(s) will be scanned with Polars to produce
+   a LazyFrame, then handled exactly the same as a typical asset.
+
+
+.. py:function:: valid_datapackage_check(asset_key: dagster.AssetKey | str, *, description: str = 'Validate a frictionless datapackage descriptor against the spec.', blocking: bool = True) -> dagster.AssetChecksDefinition
+
+   Return a Dagster asset check that validates a frictionless datapackage descriptor.
+
+   The check reads ``$PUDL_OUTPUT/parquet/datapackage.json`` from the injected
+   ``pudl_paths`` Dagster resource at run time and validates it recursively through
+   resources, schemas, and fields against the frictionless spec using
+   :func:`frictionless.Package.metadata_validate`.
+
+   :param asset_key: Key of the asset that produces the datapackage descriptor.
+   :param description: Human-readable description attached to the check in the
+                       Dagster UI.
+   :param blocking: Whether the check is blocking (default ``True``).
+
+
+.. py:data:: default_asset_checks
+
+.. py:data:: duckdb_assets
+   :value: ['core_ferceqr__quarterly_identity', 'core_ferceqr__contracts',...
+
+
+.. py:data:: high_memory_assets
+   :value: ['out_vcerare__hourly_available_capacity_factor', 'core_epacems__hourly_emissions']
+
+

@@ -1,0 +1,363 @@
+Natural Gas Distribution Annuals data file fields
+
+*************************************************************************************
+The following table describes the fields in the accompanying TXT file.  The table shows the
+field name used by OPS, the data type, the maximum size of the field and a description of
+the field's meaning.  The word "Part" at a description's beginning indicates the part of the
+distribution annual report Form RSPA F 7100.1-1 (11-85) that the field represents.
+*************************************************************************************
+
+FIELD NAME	TYPE 		SIZE 	DESCRIPTION
+
+RPTID		Integer    	  6	Dot assigned ID number
+YR        	Integer    	  2	Year the report was received by OPS.
+NAME      	TEXT      	 50	Part A-1. - Name of operator or Company submitting report.
+OPID      	Integer    	  5	Part A-3. - DOT assigned number for the operator.
+STADD     	TEXT      	 40	Part A-2. - Street address of reporting company
+CITY      	TEXT         25	Part A-2. - City of reporting company.
+COUNT     	TEXT      	 25	Part A-2. - County of reporting company.
+ST        	TEXT      	  2	Part A-2. - State of reporting company.
+ZIP       	TEXT      	  5	Part A-2. - Zip code of reporting company.
+HSTAD     	TEXT     	 40	Part A-4. - Headquarter's street address if different.
+HCITY     	TEXT      	 25	Part A-4. - City where headquarters is located.
+HCNTY     	TEXT      	 25	Part A-4. - County where headquarters is located.
+HST       	TEXT      	  2	Part A-4. - State where headquarters is located.
+HZIP      	TEXT      	  5	Part A-4. - Zip code of headquarters.
+STOP      	TEXT      	 40	Part A-5. - State(s) in which system operates.
+
+*************************************************************************************
+The following fields are the miles of mains in the system at end of year, by material.
+*************************************************************************************
+
+B1M_1     	Integer    	  6	Part B-1. - Steel Unprotected Bare
+B1M_2     	Integer  	  6	Part B-1. - Steel Unprotected Coated
+B1M_3     	Integer  	  6	Part B-1. - Steel Cathodically Protected Bare
+B1M_4     	Integer  	  6	Part B-1. - Steel Cathodically Protected Coated
+B1M_5     	Integer  	  6	Part B-1. - Plastic
+B1M_6     	Integer  	  6	Part B-1. - Cast/Wrought Iron
+B1M_7     	Integer  	  6	Part B-1. - Ductile Iron
+B1M_8     	Integer  	  6	Part B-1. - Copper
+B1M_9     	Integer  	  6	Part B-1. - Other
+B1M_10    	Integer  	  6	Part B-1. - Other
+B1MT		Integer  	  7	Total for miles of mains, by material.
+
+*************************************************************************************
+The following fields are the number of services in the system at end of year, by material.
+*************************************************************************************
+
+B1S_1		Integer	  7	Part B-1. - Steel Unprotected Bare
+B1S_2		Integer	  7	Part B-1. - Steel Unprotected Coated
+B1S_3		Integer	  7	Part B-1. - Steel Cathodically Protected Bare
+B1S_4		Integer	  7	Part B-1. - Steel Cathodically Protected Coated
+B1S_5		Integer	  7	Part B-1. - Plastic
+B1S_6		Integer	  7	Part B-1. - Cast/Wrought Iron
+B1S_7		Integer	  7	Part B-1. - Ductile Iron
+B1S_8		Integer	  7	Part B-1. - Copper
+B1S_9		Integer	  7	Part B-1. - Other
+B1S_10	Integer	  7	Part B-1. - Other
+B1ST		Integer	  8	Total for number of services by material.
+
+*************************************************************************************
+*************************************************************************************
+The following fields are the steel miles of mains in the system at end of year, by diameter.
+*************************************************************************************
+
+STM_1		Integer	  6	Part B-2. - Steel, Unknown
+STM_2		Integer	  6	Part B-2. - Steel, 2" or Less
+STM_3		Integer	  6	Part B-2. - Steel, Over 2" through 4"
+STM_4		Integer	  6	Part B-2. - Steel, Over 4" through 8"
+STM_5		Integer	  6	Part B-2. - Steel, Over 8" through 12"
+STM_6		Integer	  6	Part B-2. - Steel, over 12"
+STMT		Integer	  7	Total for steel, by diameter
+
+*************************************************************************************
+The following fields are the ductile iron miles of mains in the system at end of year,
+by diameter.
+*************************************************************************************
+
+DIM_1       Integer	  6	Part B-2. - Ductile iron, Unknown
+DIM_2       Integer	  6	Part B-2. - Ductile iron, 2" or Less
+DIM_3       Integer	  6	Part B-2. - Ductile iron, Over 2" through 4"
+DIM_4       Integer	  6	Part B-2. - Ductile iron, Over 4" through 8"
+DIM_5       Integer	  6	Part B-2. - Ductile iron, Over 8" through 12"
+DIM_6       Integer	  6	Part B-2. - Ductile iron, over 12"
+DIMT		Integer	  7	Total for doctile iron.
+
+*************************************************************************************
+The following fields are the copper miles of mains in the system at end of year,
+by diameter.
+*************************************************************************************
+
+CUM_1		Integer	  6	Part B-2. - Copper, Unknown
+CUM_2		Integer	  6	Part B-2. - Copper, 2" or Less
+CUM_3		Integer	  6	Part B-2. - Copper, Over 2" through 4"
+CUM_4		Integer	  6	Part B-2. - Copper, Over 4" through 8"
+CUM_5		Integer	  6	Part B-2. - Copper, Over 8" through 12"
+CUM_6		Integer	  6	Part B-2. - Copper, over 12"
+CUMT		Integer	  7	Total for copper.
+
+*************************************************************************************
+The following fields are the cast/wrought iron miles of mains in the system at end of year,
+by diameter.
+*************************************************************************************
+
+CIM_1		Integer	  6	Part B-2. - Cast/wrought iron, Unknown
+CIM_2		Integer	  6	Part B-2. - Cast/wrought iron, 2" or Less
+CIM_3		Integer	  6	Part B-2. - Cast/wrought iron, Over 2" through 4"
+CIM_4		Integer	  6	Part B-2. - Cast/wrought iron, Over 4" through 8"
+CIM_5		Integer	  6	Part B-2. - Cast/wrought iron, Over 8" through 12"
+CIM_6		Integer	  6	Part B-2. - Cast/wrought iron, over 12"
+CIMT		Integer	  7	Total for Cast/wrought iron.
+
+*************************************************************************************
+The following fields are the plastic PVC miles of mains in the system at end of year,
+by diameter.
+*************************************************************************************
+
+PVCM_1	Integer	  6	Part B-2. - Plastic PVC, Unknown
+PVCM_2	Integer	  6	Part B-2. - Plastic PVC, 2" or Less
+PVCM_3	Integer	  6	Part B-2. - Plastic PVC, Over 2" through 4"
+PVCM_4	Integer	  6	Part B-2. - Plastic PVC, Over 4" through 8"
+PVCM_5	Integer	  6	Part B-2. - Plastic PVC, Over 8" through 12"
+PVCM_6	Integer	  6	Part B-2. - Plastic PVC, over 12"
+PVCMT		Integer	  7	Total Plastic PVC.
+
+*************************************************************************************
+The following fields are the plastic PE miles of mains in the system at end of year,
+by diameter.
+*************************************************************************************
+
+PEM_1		Integer	  6	Part B-2. - Plastic PE, Unknown
+PEM_2		Integer	  6	Part B-2. - Plastic PE, 2" or Less
+PEM_3		Integer	  6	Part B-2. - Plastic PE, Over 2" through 4"
+PEM_4		Integer	  6	Part B-2. - Plastic PE, Over 4" through 8"
+PEM_5		Integer	  6	Part B-2. - Plastic PE, Over 8" through 12"
+PEM_6		Integer	  6	Part B-2. - Plastic PE, over 12"
+PEMT		Integer	  7	Total Plastic PE.
+
+*************************************************************************************
+The following fields are the plastic ABS miles of mains in the system at end of year,
+by diameter.
+*************************************************************************************
+
+ABSM_1	Integer	  6	Part B-2. - Plastic ABS,
+ABSM_2	Integer	  6	Part B-2. - Plastic ABS, 2" or Less
+ABSM_3	Integer	  6	Part B-2. - Plastic ABS, Over 2" through 4"
+ABSM_4	Integer	  6	Part B-2. - Plastic ABS, Over 4" through 8"
+ABSM_5	Integer	  6	Part B-2. - Plastic ABS, Over 8" through 12"
+ABSM_6	Integer	  6	Part B-2. - Plastic ABS, over 12"
+ABSMT		Integer	  7	Total Plastic ABS.
+
+*************************************************************************************
+The following fields are the first "Other" miles of mains in the system at end of year,
+by diameter.
+*************************************************************************************
+
+OT1M_1	Integer	  6	Part B-2. - Other, Unknown
+OT1M_2	Integer	  6	Part B-2. - Other, 2" or Less
+OT1M_3	Integer	  6	Part B-2. - Other, Over 2" through 4"
+OT1M_4	Integer	  6	Part B-2. - Other, Over 4" through 8"
+OT1M_5	Integer	  6	Part B-2. - Other, Over 8" through 12"
+OT1M_6	Integer	  6	Part B-2. - Other, over 12"
+OT1MT		Integer	  7	Total first other.
+
+*************************************************************************************
+The following fields are the second "Other" miles of mains in the system at end of year,
+by diameter.
+*************************************************************************************
+
+OT2M_1	Integer	  6	Part B-2. - Other, Unknown
+OT2M_2	Integer	  6	Part B-2. - Other, 2" or Less
+OT2M_3	Integer	  6	Part B-2. - Other, Over 2" through 4"
+OT2M_4	Integer	  6	Part B-2. - Other, Over 4" through 8"
+OT2M_5	Integer	  6	Part B-2. - Other, Over 8" through 12"
+OT2M_6	Integer	  6	Part B-2. - Other, over 12"
+OT2MT		Integer	  7	Total second other.
+
+*************************************************************************************
+The following fields are the totals for the miles of mains in the system at end of year,
+by material, by diameter.
+*************************************************************************************
+
+TOTM_1	Integer	  6	Part B-2. - System Totals, Unknown
+TOTM_2	Integer	  6	Part B-2. - System Totals, 2" or Less
+TOTM_3	Integer	  6	Part B-2. - System Totals, Over 2" through 4"
+TOTM_4	Integer	  6	Part B-2. - System Totals, Over 4" through 8"
+TOTM_5	Integer	  6	Part B-2. - System Totals, Over 8" through 12"
+TOTM_6	Integer	  6	Part B-2. - System Totals, over 12"
+TOTMT		Integer	  7	Total System Totals.
+
+*************************************************************************************
+*************************************************************************************
+The following fields are the number of services in the system at end of year.
+*************************************************************************************
+
+AVER		Integer	  5	Part B-3. - Average service length in feet.
+
+*************************************************************************************
+The following fields are the steel number of services in the system at end of year, by diameter.
+*************************************************************************************
+
+STS_1		Integer	  6	Part B-3. - Steel, Unknown
+STS_2		Integer	  6	Part B-3. - Steel, 1" or Less
+STS_3		Integer	  6	Part B-3. - Steel, Over 1" through 2"
+STS_4		Integer	  6	Part B-3. - Steel, Over 2" through 4"
+STS_5		Integer	  6	Part B-3. - Steel, Over 4" through 8"
+STS_6		Integer	  6	Part B-3. - Steel, over 8"
+STST		Integer	  7	Total for steel, by diameter
+
+*************************************************************************************
+The following fields are the ductile iron number of services in the system at end of year,
+by diameter.
+*************************************************************************************
+
+DIS_1       Integer	  6	Part B-3. - Ductile iron, Unknown
+DIS_2       Integer	  6	Part B-3. - Ductile iron, 1" or Less
+DIS_3       Integer	  6	Part B-3. - Ductile iron, Over 1" through 2"
+DIS_4       Integer	  6	Part B-3. - Ductile iron, Over 2" through 4"
+DIS_5       Integer	  6	Part B-3. - Ductile iron, Over 4" through 8"
+DIS_6       Integer	  6	Part B-3. - Ductile iron, over 8"
+DIST		Integer	  7	Total for doctile iron.
+
+*************************************************************************************
+The following fields are the copper number of services in the system at end of year,
+by diameter.
+*************************************************************************************
+
+CUS_1		Integer	  6	Part B-3. - Copper, Unknown
+CUS_2		Integer	  6	Part B-3. - Copper, 1" or Less
+CUS_3		Integer	  6	Part B-3. - Copper, Over 1" through 2"
+CUS_4		Integer	  6	Part B-3. - Copper, Over 2" through 4"
+CUS_5		Integer	  6	Part B-3. - Copper, Over 4" through 8"
+CUS_6		Integer	  6	Part B-3. - Copper, over 8"
+CUST		Integer	  7	Total for copper.
+
+*************************************************************************************
+The following fields are the cast/wrought iron number of services in the system at end of year,
+by diameter.
+*************************************************************************************
+
+CIS_1		Integer	  6	Part B-3. - Cast/wrought iron, Unknown
+CIS_2		Integer	  6	Part B-3. - Cast/wrought iron, 1" or Less
+CIS_3		Integer	  6	Part B-3. - Cast/wrought iron, Over 1" through 2"
+CIS_4		Integer	  6	Part B-3. - Cast/wrought iron, Over 2" through 4"
+CIS_5		Integer	  6	Part B-3. - Cast/wrought iron, Over 4" through 8"
+CIS_6		Integer	  6	Part B-3. - Cast/wrought iron, over 8"
+CIST		Integer	  7	Total for Cast/wrought iron.
+
+*************************************************************************************
+The following fields are the plastic PVC number of services in the system at end of year,
+by diameter.
+*************************************************************************************
+
+PVCS_1	Integer	  6	Part B-3. - Plastic PVC, Unknown
+PVCS_2	Integer	  6	Part B-3. - Plastic PVC, 1" or Less
+PVCS_3	Integer	  6	Part B-3. - Plastic PVC, Over 1" through 2"
+PVCS_4	Integer	  6	Part B-3. - Plastic PVC, Over 2" through 4"
+PVCS_5	Integer	  6	Part B-3. - Plastic PVC, Over 4" through 8"
+PVCS_6	Integer	  6	Part B-3. - Plastic PVC, over 8"
+PVCST		Integer	  7	Total Plastic PVC.
+
+*************************************************************************************
+The following fields are the plastic PE number of services in the system at end of year,
+by diameter.
+*************************************************************************************
+
+PES_1		Integer	  6	Part B-3. - Plastic PE, Unknown
+PES_2		Integer	  6	Part B-3. - Plastic PE, 1" or Less
+PES_3		Integer	  6	Part B-3. - Plastic PE, Over 1" through 2"
+PES_4		Integer	  6	Part B-3. - Plastic PE, Over 2" through 4"
+PES_5		Integer	  6	Part B-3. - Plastic PE, Over 4" through 8"
+PES_6		Integer	  6	Part B-3. - Plastic PE, over 8"
+PEST		Integer	  7	Total Plastic PE.
+
+*************************************************************************************
+The following fields are the plastic ABS number of services in the system at end of year,
+by diameter.
+*************************************************************************************
+
+ABSS_1	Integer	  6	Part B-3. - Plastic ABS,
+ABSS_2	Integer	  6	Part B-3. - Plastic ABS, 1" or Less
+ABSS_3	Integer	  6	Part B-3. - Plastic ABS, Over 1" through 2"
+ABSS_4	Integer	  6	Part B-3. - Plastic ABS, Over 2" through 4"
+ABSS_5	Integer	  6	Part B-3. - Plastic ABS, Over 4" through 8"
+ABSS_6	Integer	  6	Part B-3. - Plastic ABS, over 8"
+ABSST		Integer	  7	Total Plastic ABS.
+
+*************************************************************************************
+The following fields are the first "Other" number of services in the system at end of year,
+by diameter.
+*************************************************************************************
+
+OT1S_1	Integer	  6	Part B-3. - Other, Unknown
+OT1S_2	Integer	  6	Part B-3. - Other, 1" or Less
+OT1S_3	Integer	  6	Part B-3. - Other, Over 1" through 2"
+OT1S_4	Integer	  6	Part B-3. - Other, Over 2" through 4"
+OT1S_5	Integer	  6	Part B-3. - Other, Over 4" through 8"
+OT1S_6	Integer	  6	Part B-3. - Other, over 8"
+OT1ST		Integer	  7	Total first other.
+
+*************************************************************************************
+The following fields are the second "Other" number of services in the system at end of year,
+by diameter.
+*************************************************************************************
+
+OT2S_1	Integer	  6	Part B-3. - Other, Unknown
+OT2S_2	Integer	  6	Part B-3. - Other, 1" or Less
+OT2S_3	Integer	  6	Part B-3. - Other, Over 1" through 2"
+OT2S_4	Integer	  6	Part B-3. - Other, Over 2" through 4"
+OT2S_5	Integer	  6	Part B-3. - Other, Over 4" through 8"
+OT2S_6	Integer	  6	Part B-3. - Other, over 8"
+OT2ST		Integer	  7	Total second other.
+
+*************************************************************************************
+The following fields are the totals for the number of services in the system at end of year,
+by material, by diameter.
+*************************************************************************************
+
+TOTS_1	Integer	  6	Part B-3. - System Totals, Unknown
+TOTS_2	Integer	  6	Part B-3. - System Totals, 1" or Less
+TOTS_3	Integer	  6	Part B-3. - System Totals, Over 1" through 2"
+TOTS_4	Integer	  6	Part B-3. - System Totals, Over 2" through 4"
+TOTS_5	Integer	  6	Part B-3. - System Totals, Over 4" through 8"
+TOTS_6	Integer	  6	Part B-3. - System Totals, over 8"
+TOTST		Integer	  7	Total System Totals.
+
+*************************************************************************************
+The following fields are the data for leaks.
+*************************************************************************************
+
+CM		Integer	  5	Part C. - Total leaks - mains eliminated/repaired during the year
+					caused by corrosion.
+CS		Integer	  5	Part C. - Total leaks - services eliminated or repaired during
+					the year caused by corrosion.
+TM		Integer	  5	Part C. - Total leaks - mains eliminated/repaired during the year
+					caused by third party.
+TS		Integer	  5	Part C. - Total leaks - services eliminated/repaired during the
+					year caused by third party.
+OM		Integer	  5	Part C. - Total leaks - mains eliminated/repaired during the year
+					caused by outside force.
+OS		Integer	  5	Part C. - Total leaks - services eliminated/repaired during the
+					year caused by outside force.
+CDM		Integer	  5	Part C. - Total leaks - mains eliminated/repaired during the year
+					caused by construction defect.
+CDS		Integer	  5	Part C. - Total leaks - services eliminated/repaired during the
+					year caused by construction defect.
+MDM		Integer	  5	Part C. - Total leaks - mains eliminated/repaired during the year
+					caused by material defect.
+MDS		Integer	  5	Part C. - Total leaks - services eliminated/repaired during the
+					year caused by material defect.
+OTHM		Integer	  5	Part C. - Total leaks - mains eliminated/ repaired during the year
+					caused by other causes.
+OTHS		Integer	  5	Part C. - Total leaks - services eliminated/repaired during the
+					year caused by other causes.
+KNLK		Integer	  5	Part C. - Number of known systemleaks at end of year scheduled
+					for repair.
+FEDLK		Integer	  5	Part D. - Total number of leaks on federal land repaired or
+					scheduled for repair.
+UNACC		REAL		  7	Part E. - Percent of unaccounted for gas.
+COMMENTS	TEXT		4000	Part F. - Additional Information
+PNAME		TEXT		 60	Part G. - Name of official who prepared report.
+PHONE		TEXT		 10	Part G. - Telephone # of official who prepared report.
+DOE		DATE		 	Date record was entered into the database. (YYYYMMDD)
+DOC		DATE		 	Date record was changed in the database. (YYYYMMDD)
