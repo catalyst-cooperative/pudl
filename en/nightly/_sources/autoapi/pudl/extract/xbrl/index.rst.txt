@@ -32,7 +32,6 @@ Functions
 .. autoapisummary::
 
    pudl.extract.xbrl._suppress_arelle_message_spam
-   pudl.extract.xbrl.xbrl2sqlite_op_factory
    pudl.extract.xbrl.convert_form
 
 
@@ -76,36 +75,28 @@ Module Contents
    .. py:attribute:: datastore
 
 
-   .. py:method:: get_taxonomy(form: pudl.settings.XbrlFormNumber) -> io.BytesIO
+   .. py:method:: get_taxonomy(form: pudl.settings.FercForm) -> io.BytesIO
 
       Returns the path to the taxonomy entry point within the an archive.
 
 
 
-   .. py:method:: get_filings(year: int, form: pudl.settings.XbrlFormNumber) -> io.BytesIO
+   .. py:method:: get_filings(year: int, form: pudl.settings.FercForm) -> io.BytesIO
 
       Return the corresponding archive full of XBRL filings.
 
 
 
-.. py:function:: xbrl2sqlite_op_factory(form: pudl.settings.XbrlFormNumber) -> collections.abc.Callable
-
-   Generates xbrl2sqlite op for a given FERC form.
-
-
-.. py:function:: convert_form(form_data_config: pudl.settings.FercGenericXbrlToSqliteDataConfig, form: pudl.settings.XbrlFormNumber, datastore: FercXbrlDatastore, output_path: pathlib.Path, sqlite_path: pathlib.Path, duckdb_path: pathlib.Path, batch_size: int | None = None, workers: int | None = None, loglevel: str = 'INFO') -> None
+.. py:function:: convert_form(ferc_to_sqlite: pudl.settings.FercToSqliteDataConfig, form: pudl.settings.FercForm, datastore: FercXbrlDatastore, pudl_paths: pudl.workspace.setup.PudlPaths, batch_size: int | None = None, workers: int | None = None, loglevel: str = 'INFO') -> None
 
    Clone a single FERC XBRL form to SQLite.
 
-   :param form_data_config: Validated data configuration for converting the desired XBRL
-                            form to SQLite.
+   :param ferc_to_sqlite: Validated data configuration for converting FERC data to SQLite.
    :param form: FERC form number.
    :param datastore: Instance of a FERC XBRL datastore for retrieving data.
-   :param output_path: PUDL output directory
-   :param sql_path: path to the SQLite DB we'd like to write to.
+   :param pudl_paths: ``PudlPaths`` resource.
    :param batch_size: Number of XBRL filings to process in a single CPU process.
    :param workers: Number of CPU processes to create for processing XBRL filings.
-
-   :returns: None
+   :param loglevel: Log level to pass to ``ferc_xbrl_extractor``.
 
 
