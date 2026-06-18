@@ -5,7 +5,7 @@ PUDL Release Notes
 .. _release-v2026.6.0:
 
 ---------------------------------------------------------------------------------------
-v2026.6.0 (2026-06-XX)
+v2026.6.0 (2026-06-18)
 ---------------------------------------------------------------------------------------
 
 This is a monthly PUDL data release, primarily motivated by updating the EIA-860M
@@ -94,6 +94,11 @@ Documentation
 
 * Added a data source page for :doc:`EIA-191 <data_sources/eia191>`. See PR
   :pr:`5267` and issue :issue:`4756`.
+* Updated the :doc:`EIA-930 <data_sources/eia930>` column descriptions to note that
+  starting in 2024Q3 EIA began reporting more granular renewable energy source
+  categories, differentiating wind and solar plants with and without energy storage,
+  splitting pumped hydro from conventional hydro, and adding new battery storage and
+  geothermal categories. See issue :issue:`5335` and PR :pr:`5336`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -109,16 +114,15 @@ Bug Fixes & Data Cleaning
   ``out_eia923__monthly_fuel_receipts_costs``, and
   ``out_eia923__yearly_fuel_receipts_costs`` tables. This column is the result of
   dividing ``total_fuel_cost`` by ``fuel_received_mmbtu``. The name
-  ``fuel_consumed_mmbtu`` was misleading because the fuel received in these tables
-  is not necessarily consumed in the same month, and the fuel cost is not necessarily
+  ``fuel_consumed_mmbtu`` was misleading because the fuel received in these tables is
+  not necessarily consumed in the same month, and the fuel cost is not necessarily
   associated with fuel received in the same month. The new name,
-  ``fuel_received_mmbtu``, more accurately reflects what the column actually
-  contains. See PR :pr:`5294`.
-
+  ``fuel_received_mmbtu``, more accurately reflects what the column actually contains.
+  See PR :pr:`5294`.
 * Fixed a bug in the Zenodo Data Release script which was not actually skipping
-  top-level directories when deciding what to upload to Zenodo, which caused
-  release failures once we started leaving the ``ferc*_xbrl`` directories on the
-  filesystem. See PR :pr:`5254`.
+  top-level directories when deciding what to upload to Zenodo, which caused release
+  failures once we started leaving the ``ferc*_xbrl`` directories on the filesystem. See
+  PR :pr:`5254`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -149,6 +153,20 @@ Quality of Life Improvements
   to use it. Notification coverage was also expanded to include community activity
   (issues, discussions, comments, and pull requests from non-Catalyst contributors).
   See PRs :pr:`5298,5328,5331`.
+* FERC provenance metadata (Zenodo DOIs, data years, XBRL extractor version) is now
+  stored in the FERC SQLite datapackage files rather than only in Dagster asset
+  metadata. The ``ferc_to_sqlite`` asset can now optionally download and reuse pre-built
+  FERC SQLite outputs from the most recent nightly build, skipping expensive
+  re-extraction when the inputs haven't changed. Set ``PUDL_FERC_FORCE_EXTRACT=true`` to
+  force re-extraction regardless. See issue :issue:`5220` and PR :pr:`5264`.
+* Hashtag-prefixed comments in human-editable dbt schema input files
+  (``dbt/schema_inputs/**/schema.human.yml``) now propagate into the machine-generated
+  schema files. This improves the round-trip fidelity of ``dbt_helper update-tables
+  --schema`` and keeps commentary visible alongside the generated schema. See PR
+  :pr:`5310`.
+* Added a ``--override-target`` option to ``dbt_helper validate`` to redirect dbt to a
+  non-default target for extreme debugging of remote CI failures. This option is not
+  intended for routine use. See PR :pr:`5321`.
 
 .. _release-v2026.5.0:
 
