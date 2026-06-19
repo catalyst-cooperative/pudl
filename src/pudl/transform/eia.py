@@ -1261,7 +1261,7 @@ def remove_na_plant_util_rows(
     if not bad_row[na_cols].isna().all().all():
         raise AssertionError(
             f"The bad {id_col} value {bad_id} is now associated with non-null values. "
-            "You can delete this function."
+            f"You can delete the remove_na_plant_util_rows call for {id_col} {bad_id}."
         )
     logger.info(f"Removing bad row with {id_col} value of {bad_id}")
     df = df[df[id_col] != bad_id]
