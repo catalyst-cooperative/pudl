@@ -118,17 +118,19 @@ def _docs_version_slug(version: str | None = None) -> str:
     which case we point at the nightly docs. Otherwise we check that the version matches
     our basic version pattern and if so we point at the versioned docs.
 
-    ``v0.0.0`` is a special case which means no version could be obtained via hatch-vcs
+    ``0.0.0`` is a special case which means no version could be obtained via hatch-vcs
     and is treated as a dev version.
     """
-    if version is None or "dev" in version or version == "v0.0.0":
+    if version is None or "dev" in version or version == "0.0.0":
         return "nightly"
 
-    if not version.startswith("v20"):
+    if not version.startswith("20"):
         raise ValueError(
             f"Unexpected version format in datapackage compilation: {version}"
         )
-    return version
+    # importlib.metadata versions derived from our tags do NOT include the leading 'v'.
+    # Prefix with 'v' to match the version slug format used in the PUDL docs URLs.
+    return f"v{version}"
 
 
 def _enrich_sources(
