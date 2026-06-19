@@ -27,6 +27,7 @@ Attributes
    pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS
    pudl.metadata.enums.CUSTOMER_CLASSES
    pudl.metadata.enums.CUSTOMER_CLASSES_EIA176
+   pudl.metadata.enums.SUPPLY_TYPES_EIA176
    pudl.metadata.enums.TECH_CLASSES
    pudl.metadata.enums.REVENUE_CLASSES_EIA861
    pudl.metadata.enums.REVENUE_CLASSES_EIA176
@@ -53,7 +54,6 @@ Attributes
    pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS
    pudl.metadata.enums.DAMAGE_TYPES_PHMSAGAS
    pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS
-   pudl.metadata.enums.INSTALL_DECADE_PATTERN_PHMSAGAS
    pudl.metadata.enums.ASSET_TYPES_RUS7
    pudl.metadata.enums.LIABILITY_TYPES_RUS7
    pudl.metadata.enums.ASSET_TYPES_RUS12
@@ -167,6 +167,11 @@ Module Contents
 .. py:data:: CUSTOMER_CLASSES_EIA176
    :type:  list[str]
    :value: ['commercial', 'electric_power', 'industrial', 'other', 'residential', 'vehicle_fuel']
+
+
+.. py:data:: SUPPLY_TYPES_EIA176
+   :type:  list[str]
+   :value: ['natural_gas_production', 'synthetic_gas_production', 'underground_storage_withdrawals',...
 
 
 .. py:data:: TECH_CLASSES
@@ -329,54 +334,32 @@ Module Contents
    :value: ['deteriorated_facility', 'dug_after_expiry', 'failed_clearance',...
 
 
-.. py:data:: INSTALL_DECADE_PATTERN_PHMSAGAS
-   :value: '(\\d{4}s|unknown_decade|pre_1940|total_decades)'
-
-
 .. py:data:: ASSET_TYPES_RUS7
    :type:  set[str]
-   :value: ['utility_plant_in_service', 'construction_work_in_progress', 'total_utility_plant',...
-
 
 .. py:data:: LIABILITY_TYPES_RUS7
    :type:  set[str]
-   :value: ['memberships', 'patronage_capital', 'operating_margins_prior_years',...
-
 
 .. py:data:: ASSET_TYPES_RUS12
    :type:  set[str]
-   :value: ['utility_plant_in_service', 'construction_work_in_progress', 'total_utility_plant',...
-
 
 .. py:data:: LIABILITY_TYPES_RUS12
    :type:  set[str]
-   :value: ['memberships', 'assigned_and_assignable_patronage_capital',...
-
 
 .. py:data:: PRIME_MOVER_TYPES_RUS12
    :type:  set[str]
-   :value: ['Hydro', 'Internal Combustion', 'Large Wind', 'Steam', 'Photovoltaic']
-
 
 .. py:data:: RENEWABLE_FUEL_TYPES_RUS12
    :type:  set[str]
-   :value: ['Hydro', 'Methane - landfill gas', 'Wind', 'Biomass - wood', 'Methane - waste', 'Hybrid',...
-
 
 .. py:data:: PLANT_TYPE_RUS12
    :type:  set[str]
-   :value: ['combined_cycle', 'hydro', 'internal_combustion', 'nuclear', 'other', 'steam']
-
 
 .. py:data:: SOURCE_OF_ENERGY_RUS12
    :type:  set[str]
-   :value: ['energy_available_for_sale', 'energy_used_by_borrower', 'purchased_power',...
-
 
 .. py:data:: PLANT_COST_TYPES_RUS12
    :type:  set[str]
-   :value: ['allowances', 'coal_fuel', 'coolants_and_water', 'depreciation', 'electric',...
-
 
 .. py:data:: LOAN_STATUS_TYPES_RUS7
    :value: ['loan_default', 'loan_delinquency']
@@ -387,8 +370,6 @@ Module Contents
 
 
 .. py:data:: SERVICE_INTERRUPTION_TYPES_RUS7
-   :value: ['major_event', 'other', 'planned', 'power_supplier', 'total']
-
 
 .. py:data:: SERVICE_INTERRUPTION_PERIODS_RUS7
    :value: ['five_year_average', 'annual']

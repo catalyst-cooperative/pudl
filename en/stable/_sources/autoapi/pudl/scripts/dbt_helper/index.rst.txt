@@ -149,7 +149,7 @@ Module Contents
    if this does not result in deletions.
 
 
-.. py:function:: validate(select: str | None = None, asset_select: str | None = None, exclude: str | None = None, dry_run: bool = False) -> None
+.. py:function:: validate(select: str | None = None, asset_select: str | None = None, exclude: str | None = None, dry_run: bool = False, override_target: str | None = None) -> None
 
    Validate a selection of dbt nodes.
 

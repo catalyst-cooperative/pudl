@@ -117,7 +117,7 @@ Module Contents
    :returns: A single year_quarter of EPA CEMS data
 
 
-.. py:function:: _partitioned_path() -> pathlib.Path
+.. py:function:: _partitioned_path(pudl_paths: pudl.workspace.setup.PudlPaths) -> pathlib.Path
 
 .. py:function:: core_epacems__hourly_emissions(context, _core_epa__assn_eia_epacamd_unique: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame) -> polars.LazyFrame
 

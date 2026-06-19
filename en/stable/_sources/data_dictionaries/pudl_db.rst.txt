@@ -2867,9 +2867,6 @@ Columns
   * - energy_source_code
     - string
     - A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.
-  * - fuel_consumed_mmbtu
-    - number
-    - Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.
   * - fuel_cost_per_mmbtu
     - number
     - Average fuel cost per MMBTU of heat content in nominal USD.
@@ -2882,6 +2879,9 @@ Columns
   * - fuel_mmbtu_per_unit
     - number
     - Heat content of the fuel in millions of Btus per physical unit.
+  * - fuel_received_mmbtu
+    - number
+    - Aggregated fuel receipts, in MMBTU, in EIA bulk electricity data.
   * - fuel_received_units
     - number
     - Quantity of fuel received in tons, barrel, or Mcf.
@@ -3580,9 +3580,6 @@ Columns
   * - data_maturity
     - string
     - Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.
-  * - fuel_consumed_mmbtu
-    - number
-    - Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.
   * - fuel_cost_per_mmbtu
     - number
     - Average fuel cost per MMBTU of heat content in nominal USD.
@@ -3592,6 +3589,9 @@ Columns
   * - fuel_mmbtu_per_unit
     - number
     - Heat content of the fuel in millions of Btus per physical unit.
+  * - fuel_received_mmbtu
+    - number
+    - Aggregated fuel receipts, in MMBTU, in EIA bulk electricity data.
   * - fuel_received_units
     - number
     - Quantity of fuel received in tons, barrel, or Mcf.
@@ -4585,9 +4585,6 @@ Columns
   * - data_maturity
     - string
     - Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.
-  * - fuel_consumed_mmbtu
-    - number
-    - Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.
   * - fuel_cost_per_mmbtu
     - number
     - Average fuel cost per MMBTU of heat content in nominal USD.
@@ -4597,6 +4594,9 @@ Columns
   * - fuel_mmbtu_per_unit
     - number
     - Heat content of the fuel in millions of Btus per physical unit.
+  * - fuel_received_mmbtu
+    - number
+    - Aggregated fuel receipts, in MMBTU, in EIA bulk electricity data.
   * - fuel_received_units
     - number
     - Quantity of fuel received in tons, barrel, or Mcf.
@@ -8277,7 +8277,7 @@ Annual time series of plants reported in the steam, small generators, hydro, and
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -8619,7 +8619,7 @@ Annual time series of utility assets and other debits.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -8747,7 +8747,7 @@ Annual time series of utility liabilities and other credits.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -8875,7 +8875,7 @@ Annual time series of utility cash flow.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -8994,7 +8994,7 @@ Annual time series of ending balances in accumulated provision for depreciation 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -9131,7 +9131,7 @@ Annual time series of changes in accumulated provision for depreciation of elect
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -9268,7 +9268,7 @@ Annual time series of factors used in estimating depreciation charges.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -9415,7 +9415,7 @@ Annual time series of depreciation and amortization of electric plant.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -9546,7 +9546,7 @@ Annual time series of granular, de-duplicated accounting data of utilities' bala
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -9695,7 +9695,7 @@ Annual time series of granular, de-duplicated accounting data of utilities' bala
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -9833,7 +9833,7 @@ Annual time series of granular, de-duplicated accounting data of utilities' inco
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -9979,7 +9979,7 @@ Annual time series of dispositions of electric energy sold, exchanged, or stored
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -10104,7 +10104,7 @@ Annual time series of sources of electric energy generated or purchased, exchang
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -10229,7 +10229,7 @@ Annual time series of plant statistics for large hydroelectric generating plants
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -10458,7 +10458,7 @@ Annual time series of utility income statements.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -10583,7 +10583,7 @@ Annual time series of operating and maintenance costs associated with producing 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -10705,7 +10705,7 @@ Annual time series of utilities' electric operating revenues.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -10842,7 +10842,7 @@ Annual time series of utilities' other regulatory assets, including rate order d
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -10969,7 +10969,7 @@ Annual time series of utilities' other regulatory liabilities, including rate or
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -11093,7 +11093,7 @@ Annual time series of utilities' balances and changes to FERC Electric Plant in 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -11242,7 +11242,7 @@ Annual time series of plant statistics for hydroelectric pumped storage plants w
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -11481,7 +11481,7 @@ Annual time series of purchased power (Account 555) including power exchanges (t
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -11645,7 +11645,7 @@ Annual time series of granular accounting data consisting of what utilities can 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -11805,7 +11805,7 @@ Annual time series of utilities' statements of retained earnings.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -11933,7 +11933,7 @@ Annual time series of utilities' electric sales from all rate schedules in effec
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -12130,7 +12130,7 @@ Annual time series of plant statistics for internal combustion plants, gas turbi
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -12308,7 +12308,7 @@ Annual time series of FERC fuel data by plant.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -12460,7 +12460,7 @@ Annual time series of fuel cost and quantity for steam plants with a capacity of
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -12609,7 +12609,7 @@ Annual time series of plant statistics for steam plants with a capacity of 25+ M
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -12866,7 +12866,7 @@ Annual time series of statistics about transmission lines.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -13032,7 +13032,7 @@ Annual time series of utility plant and accumulated provisions for depreciation,
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -13915,7 +13915,7 @@ Annual Association table providing connections between power plant data reported
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -20930,7 +20930,214 @@ Columns
     - Source of revenue: whether revenue originates from gas owned directly by the operator (sales) or gas transported by the operator (transport).
   * - volume_mcf
     - number
-    - Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+    - Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+
+.. _core_eia176__yearly_gas_supply:
+
+-------------------------------------------------------------------------------
+core_eia176__yearly_gas_supply
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia176__yearly_gas_supply>`__
+
+Annual time series of a company's natural and supplemental gas supply for the report state.
+
+
+Most-recent data:
+  2024
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition (Part 4, Lines 1.0-7.0)
+
+Primary key:
+  operator_id_eia, report_year, supply_type
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Note that citygate receipts were split into sales customer and transportation customer sub-components in 2011. The ``citygate_receipts_total`` field has not been forward-filled to avoid data duplication, and is accordingly null after 2010.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+Line 3.0 receipts from the state or U.S. border and Line 6.0
+supplemental gaseous fuels are reported as aggregated totals, with one value per operator ID and year in this table.
+The disaggregated records are reported in core_eia176__yearly_gas_imports and core_eia176__yearly_supplemental_gaseous_fuel_supplies.
+During transformation, the reported totals and the sum of the disaggregated data are compared to ensure consistency in
+reporting from the original EIA data.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_supply>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_supply.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - operating_state
+    - string
+    - State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.
+  * - operator_id_eia
+    - string
+    - The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - supply_type
+    - string
+    - Natural or supplemental gas supply category reported on EIA Form 176.
+  * - volume_mcf
+    - number
+    - Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+
+.. _core_eia176__yearly_liquefied_natural_gas_inventory:
+
+-------------------------------------------------------------------------------
+core_eia176__yearly_liquefied_natural_gas_inventory
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia176__yearly_liquefied_natural_gas_inventory>`__
+
+Annual time series of an operator's LNG storage volume and capacity.
+
+
+Most-recent data:
+  2024
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition (Part 5, Lines 8.0-8.2)
+
+Primary key:
+  operator_id_eia, report_year, facility_type
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia176__yearly_liquefied_natural_gas_inventory>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia176__yearly_liquefied_natural_gas_inventory.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_liquefied_natural_gas_inventory.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_liquefied_natural_gas_inventory.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_liquefied_natural_gas_inventory.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_liquefied_natural_gas_inventory.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - capacity_mmcfd
+    - number
+    - Daily deliverability capacity of a liquefied natural gas storage facility at the end of the report year.
+  * - facility_type
+    - string
+    - Type of liquefied natural gas storage facility reported in Part 5 of EIA Form 176.
+  * - operating_state
+    - string
+    - State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.
+  * - operator_id_eia
+    - string
+    - The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - volume_mcf
+    - number
+    - Volume of liquefied natural gas inventory held in storage at the end of the report year. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
 
 .. _core_eia191__monthly_gas_storage:
 
@@ -28575,6 +28782,10 @@ To maintain generator confidentiality, generation may sometimes be reported in t
 In theory, the sum of net generation across all energy sources should equal the total net generation reported in the balancing authority operations table. In practice,
 there are many cases in which these values diverge significantly, which require further investigation.
 
+In 2024Q3 EIA started using different and more granular energy source categories, particularly for renewable energy sources.
+The new categories differentiate between wind and solar plants that do and don't have energy storage, and split out pumped hydro from hydro without storage.
+They also added new battery storage and geothermal categories.
+
 Access methods
 ^^^^^^^^^^^^^^^
 
@@ -33698,7 +33909,7 @@ Hourly time series of emissions and plant operational data as required by 40 CFR
 
 
 Most-recent data:
-  2025
+  2026
 
 
 Processing:
@@ -33887,7 +34098,7 @@ Code table containing descriptions of categorical codes for electric power purch
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -33980,7 +34191,7 @@ Annual time series of utility assets and other debits.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -34096,7 +34307,7 @@ Annual time series of utility liabilities and other credits.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -34212,7 +34423,7 @@ Annual time series of utility cash flow.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -34319,7 +34530,7 @@ Annual time series of ending balances in accumulated provision for depreciation 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -34444,7 +34655,7 @@ Annual time series of changes in accumulated provision for depreciation of elect
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -34569,7 +34780,7 @@ Annual time series of factors used in estimating depreciation charges.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -34704,7 +34915,7 @@ Annual time series of depreciation and amortization of electric plant.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -34826,7 +35037,7 @@ Annual time series of dispositions of electric energy sold, exchanged, or stored
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -34939,7 +35150,7 @@ Annual time series of sources of electric energy generated or purchased, exchang
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -35052,7 +35263,7 @@ Annual time series of plant statistics for large hydroelectric generating plants
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -35260,7 +35471,7 @@ Annual time series of respondent identification and corporate officer certificat
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -35436,7 +35647,7 @@ Annual time series of utility income statements.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -35549,7 +35760,7 @@ Annual time series of operating and maintenance costs associated with producing 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -35659,7 +35870,7 @@ Annual time series of utilities' electric operating revenues.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -35784,7 +35995,7 @@ Annual time series of utilities' other regulatory assets, including rate order d
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -35899,7 +36110,7 @@ Annual time series of utilities' other regulatory liabilities, including rate or
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -36014,7 +36225,7 @@ Annual time series of utilities' balances and changes to FERC Electric Plant in 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -36151,7 +36362,7 @@ Annual time series of plant statistics for hydroelectric pumped storage plants w
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -36369,7 +36580,7 @@ Annual time series of purchased power (Account 555) including power exchanges (t
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -36521,7 +36732,7 @@ Annual time series of utilities' statements of retained earnings.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -36637,7 +36848,7 @@ Annual time series of utilities' electric sales from all rate schedules in effec
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -36822,7 +37033,7 @@ Annual time series of plant statistics for internal combustion plants, gas turbi
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -36979,7 +37190,7 @@ Annual time series of fuel cost and quantity for steam plants with a capacity of
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -37107,7 +37318,7 @@ Annual time series of plant statistics for steam plants with a capacity of 25+ M
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -37310,7 +37521,7 @@ Annual time series of statistics about transmission lines.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -37464,7 +37675,7 @@ Annual time series of utility plant and accumulated provisions for depreciation,
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -37910,7 +38121,7 @@ Code table containing descriptions of categorical codes for account numbers from
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -39668,7 +39879,7 @@ Association table providing connections between PUDL-assigned FERC1 utility IDs 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -39758,7 +39969,7 @@ Association table providing connections between FERC 1 plants and their manually
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -39860,7 +40071,7 @@ Association table providing connections between PUDL utility IDs and PUDL-assign
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -39962,7 +40173,7 @@ Association table providing connections between PUDL-assigned FERC1 utility IDs 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:

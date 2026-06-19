@@ -40,6 +40,12 @@ Attributes
 
 .. autoapisummary::
 
+   pudl.PUDL_ROOT_PATH
+   pudl.PUDL_SETTINGS_PATH
+   pudl.PUDL_DBT_PATH
+   pudl.PUDL_DOCS_PATH
+   pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH
+   pudl.PUDL_EEL_HOLE_BASE_PATH
    pudl.__author__
    pudl.__contact__
    pudl.__maintainer__
@@ -76,6 +82,36 @@ Package Contents
    :param propagate: Whether to propagate logs to ancestor loggers. Useful for ensuring
                      that pytest has access to PUDL logs during testing.
 
+
+.. py:data:: PUDL_ROOT_PATH
+   :type:  pathlib.Path
+
+   Resolved absolute path to the repository root.
+
+.. py:data:: PUDL_SETTINGS_PATH
+   :type:  pathlib.Path
+
+   Resolved absolute path to the package_data directory.
+
+.. py:data:: PUDL_DBT_PATH
+   :type:  pathlib.Path
+
+   Resolved absolute path to the dbt directory.
+
+.. py:data:: PUDL_DOCS_PATH
+   :type:  pathlib.Path
+
+   Resolved absolute path to the docs directory.
+
+.. py:data:: PUDL_NIGHTLY_BUILDS_BASE_PATH
+   :type:  upath.UPath
+
+   Base path to PUDL nightly builds outputs.
+
+.. py:data:: PUDL_EEL_HOLE_BASE_PATH
+   :type:  upath.UPath
+
+   Base path to eel-hole s3 outputs.
 
 .. py:data:: __author__
    :value: 'Catalyst Cooperative'

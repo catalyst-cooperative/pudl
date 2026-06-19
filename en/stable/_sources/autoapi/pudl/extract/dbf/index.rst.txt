@@ -423,6 +423,25 @@ Module Contents
 
 
 
+   .. py:method:: _clean_frictionless_types(type_: str) -> str
+
+      Normalize types from SQLite to frictionless.
+
+
+
+   .. py:property:: datapackage_path
+      :type: pathlib.Path
+
+
+      Returns the path to the datapackage for this resource.
+
+
+   .. py:method:: to_frictionless()
+
+      Create a frictionless DataPackage describing the DBF DB and write to a JSON file.
+
+
+
    .. py:method:: get_dagster_op() -> collections.abc.Callable
       :classmethod:
 
@@ -437,9 +456,9 @@ Module Contents
 
 
 
-   .. py:method:: delete_schema()
+   .. py:method:: initialize_database()
 
-      Drops all tables from the existing sqlite database.
+      Create sqlalchemy engine and metadata.
 
 
 

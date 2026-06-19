@@ -8,7 +8,7 @@ pudl.dagster.assets.deploy.ferceqr
    Define deployment helper assets for publishing FERC EQR outputs.
 
    These assets run during batch builds to publish transformed FERC EQR outputs,
-   notify Slack of success or failure, and create status files that tell the batch
+   notify Zulip of success or failure, and create status files that tell the batch
    job when deployment handling is complete.
 
 
@@ -27,9 +27,8 @@ Functions
 
 .. autoapisummary::
 
-   pudl.dagster.assets.deploy.ferceqr._notify_slack_deployments_channel
+   pudl.dagster.assets.deploy.ferceqr._get_logfile_list
    pudl.dagster.assets.deploy.ferceqr._get_etl_status_csv_path
-   pudl.dagster.assets.deploy.ferceqr._get_logfile_pointer
    pudl.dagster.assets.deploy.ferceqr._write_status_file
    pudl.dagster.assets.deploy.ferceqr.deployment_status_asset
    pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr
@@ -45,19 +44,14 @@ Module Contents
    :value: ['core_ferceqr__contracts', 'core_ferceqr__transactions', 'core_ferceqr__quarterly_identity',...
 
 
-.. py:function:: _notify_slack_deployments_channel(message: str, attached_file_path: str | None = None)
+.. py:function:: _get_logfile_list(build_id: str) -> str
 
-   Send string message to PUDL deployments channel.
-
-
-.. py:function:: _get_etl_status_csv_path() -> pathlib.Path
-
-.. py:function:: _get_logfile_pointer() -> str
-
-   Return pointer to logs to send in slack message.
+   Return pointer to logs to send in Zulip message.
 
 
-.. py:function:: _write_status_file(status: Literal['SUCCESS', 'FAILURE'])
+.. py:function:: _get_etl_status_csv_path(pudl_paths: pudl.workspace.setup.PudlPaths) -> pathlib.Path
+
+.. py:function:: _write_status_file(status: Literal['SUCCESS', 'FAILURE'], pudl_paths: pudl.workspace.setup.PudlPaths)
 
    Notify build script that job is complete by creating a status file.
 
@@ -72,12 +66,12 @@ Module Contents
    running until it eventually times out.
 
 
-.. py:function:: deploy_ferceqr()
+.. py:function:: deploy_ferceqr(pudl_paths: pudl.workspace.setup.PudlPaths, zulip: pudl.dagster.resources.ZulipNotificationResource)
 
    Publish EQR outputs to cloud storage.
 
 
-.. py:function:: handle_ferceqr_deployment_failure()
+.. py:function:: handle_ferceqr_deployment_failure(pudl_paths: pudl.workspace.setup.PudlPaths, zulip: pudl.dagster.resources.ZulipNotificationResource)
 
    Send notification if EQR deployment failed.
 

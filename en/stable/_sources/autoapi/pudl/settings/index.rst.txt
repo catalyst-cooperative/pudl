@@ -22,7 +22,7 @@ Classes
 
 .. autoapisummary::
 
-   pudl.settings.XbrlFormNumber
+   pudl.settings.FercForm
    pudl.settings.FrozenBaseModel
    pudl.settings.GenericDataConfig
    pudl.settings.Ferc1DataConfig
@@ -78,12 +78,12 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:class:: XbrlFormNumber(*args, **kwds)
+.. py:class:: FercForm(*args, **kwds)
 
    Bases: :py:obj:`enum.Enum`
 
 
-   Contains full list of supported FERC XBRL forms.
+   Contains full list of supported FERC forms.
 
 
    .. py:attribute:: FORM1
@@ -1329,7 +1329,7 @@ Module Contents
 
 
 
-   .. py:method:: get_data_config(dataset: str | XbrlFormNumber, data_format: Literal['dbf', 'xbrl']) -> FercGenericXbrlToSqliteDataConfig | FercDbfToSqliteDataConfig | None
+   .. py:method:: get_data_config(dataset: str | FercForm, data_format: Literal['dbf', 'xbrl']) -> FercGenericXbrlToSqliteDataConfig | FercDbfToSqliteDataConfig | None
 
       Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
@@ -1337,7 +1337,7 @@ Module Contents
 
 
 
-   .. py:method:: get_dataset_years(dataset: str | XbrlFormNumber, data_format: Literal['dbf', 'xbrl']) -> list[int]
+   .. py:method:: get_dataset_years(dataset: str | FercForm, data_format: Literal['dbf', 'xbrl']) -> list[int]
 
       Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 

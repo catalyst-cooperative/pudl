@@ -24,6 +24,7 @@ Submodules
    /autoapi/pudl/metadata/fields/index
    /autoapi/pudl/metadata/helpers/index
    /autoapi/pudl/metadata/labels/index
+   /autoapi/pudl/metadata/patterns/index
    /autoapi/pudl/metadata/resource_helpers/index
    /autoapi/pudl/metadata/resources/index
    /autoapi/pudl/metadata/sources/index

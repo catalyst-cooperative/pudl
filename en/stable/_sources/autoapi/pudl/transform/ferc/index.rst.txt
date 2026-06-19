@@ -77,7 +77,7 @@ Module Contents
    be fairly rare, affecting < 0.005% of reported values.
 
 
-.. py:function:: get_primary_key_raw_xbrl(sched_table_name: str, ferc_form: Literal['ferc1', 'ferc714']) -> list[str]
+.. py:function:: get_primary_key_raw_xbrl(sched_table_name: str, ferc_form: Literal['ferc1', 'ferc714'], pudl_paths: pudl.workspace.setup.PudlPaths) -> list[str]
 
    Get the primary key for a raw XBRL table from the XBRL datapackage.
 

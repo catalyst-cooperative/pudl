@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.fields &#8212; PUDL 2026.5.0 documentation</title>
+    <title>pudl.metadata.fields &#8212; PUDL 2026.6.1 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../../_static/documentation_options.js?v=288f4d1e"></script>
+    <script src="../../../_static/documentation_options.js?v=2c9f49b4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/fields';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.0 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.1 documentation - Home"/>
   
   
 </a></div>
@@ -658,11 +658,18 @@ window.runMermaid = runMermaid;</script>
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -675,8 +682,7 @@ window.runMermaid = runMermaid;</script>
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -763,11 +769,18 @@ window.runMermaid = runMermaid;</script>
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -780,8 +793,7 @@ window.runMermaid = runMermaid;</script>
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -887,7 +899,6 @@ window.runMermaid = runMermaid;</script>
     <span class="n">GENERATION_ENERGY_SOURCES_EIA930</span><span class="p">,</span>
     <span class="n">IMPUTATION_CODES</span><span class="p">,</span>
     <span class="n">INCOME_TYPES_FERC1</span><span class="p">,</span>
-    <span class="n">INSTALL_DECADE_PATTERN_PHMSAGAS</span><span class="p">,</span>
     <span class="n">LEAK_SOURCE_PHMSAGAS</span><span class="p">,</span>
     <span class="n">LIABILITY_TYPES_FERC1</span><span class="p">,</span>
     <span class="n">LIABILITY_TYPES_RUS7</span><span class="p">,</span>
@@ -911,6 +922,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">SERVICE_STATUS_RUS7</span><span class="p">,</span>
     <span class="n">SOURCE_OF_ENERGY_RUS12</span><span class="p">,</span>
     <span class="n">SUBDIVISION_CODES_ISO3166</span><span class="p">,</span>
+    <span class="n">SUPPLY_TYPES_EIA176</span><span class="p">,</span>
     <span class="n">TECH_CLASSES</span><span class="p">,</span>
     <span class="n">TECH_DESCRIPTIONS</span><span class="p">,</span>
     <span class="n">TECH_DESCRIPTIONS_EIAAEO</span><span class="p">,</span>
@@ -924,6 +936,19 @@ window.runMermaid = runMermaid;</script>
     <span class="n">UTILITY_PLANT_ITEM_RUS12</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">ESTIMATED_OR_ACTUAL</span><span class="p">,</span> <span class="n">FUEL_UNITS_EIA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.patterns</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BORROWER_ID_RUS</span><span class="p">,</span>
+    <span class="n">EXHIBIT21_VERSION_SEC10K</span><span class="p">,</span>
+    <span class="n">FISCAL_YEAR_END_MMDD_SEC10K</span><span class="p">,</span>
+    <span class="n">HTTP_URL</span><span class="p">,</span>
+    <span class="n">INDUSTRY_ID_SIC</span><span class="p">,</span>
+    <span class="n">INSTALL_DECADE_PHMSAGAS</span><span class="p">,</span>
+    <span class="n">STATE_ID_FIPS</span><span class="p">,</span>
+    <span class="n">TAXPAYER_ID</span><span class="p">,</span>
+    <span class="n">YEAR_QUARTER</span><span class="p">,</span>
+    <span class="n">ZIP4</span><span class="p">,</span>
+    <span class="n">ZIP5</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOURCES</span>
 
 <span class="c1"># from pudl.transform.params.ferc1 import (</span>
@@ -1080,16 +1105,29 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of end-use consumers within the report state.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;capacity_mmcfd&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Daily deliverability capacity of a liquefied natural gas storage facility &quot;</span>
+            <span class="s2">&quot;at the end of the report year.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMcf_per_day&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
+    <span class="s2">&quot;supply_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Natural or supplemental gas supply category reported on EIA Form 176.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SUPPLY_TYPES_EIA176</span><span class="p">},</span>
+    <span class="p">},</span>
     <span class="s2">&quot;volume_mcf&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.&quot;</span>
+            <span class="s2">&quot;Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;Mcf&quot;</span><span class="p">,</span>
     <span class="p">},</span>
@@ -2042,7 +2080,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;6-4. This is the county where the coal mine is located.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;commodity&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -2275,7 +2313,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;County ID from the Federal Information Processing Standard Publication 6-4.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;county_name_census&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -3949,10 +3987,18 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Version of exhibit 21 submitted (if applicable).&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^21\.*\d*$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">EXHIBIT21_VERSION_SEC10K</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;expense_type&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The type of expense.&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;facility_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Type of liquefied natural gas storage facility reported in Part 5 of &quot;</span>
+            <span class="s2">&quot;EIA Form 176.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;lng_terminal&quot;</span><span class="p">,</span> <span class="s2">&quot;marine_terminal&quot;</span><span class="p">]},</span>
+    <span class="p">},</span>
     <span class="s2">&quot;federal_land_leaks_repaired_or_scheduled&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -4238,9 +4284,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># This REGEXP constraint was causing issues w/ SQLAlchemy / SQLite.</span>
         <span class="c1"># https://github.com/sqlalchemy/sqlalchemy/discussions/12498</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="sa">r</span><span class="s2">&quot;^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$&quot;</span>
-            <span class="p">),</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">FISCAL_YEAR_END_MMDD_SEC10K</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;flow_rate_method&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -4761,7 +4805,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zipcode where an operator&#39;s headquarters are located.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;heat_content_mmbtu&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -5086,7 +5130,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;https://www.osha.gov/data/sic-manual for code definitions.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">INDUSTRY_ID_SIC</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;initial_filing_date&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -5096,7 +5140,9 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;install_decade&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The decade the distribution pipeline was installed.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">INSTALL_DECADE_PATTERN_PHMSAGAS</span><span class="p">},</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">INSTALL_DECADE_PHMSAGAS</span><span class="p">,</span>
+        <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;installation_year&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
@@ -5155,7 +5201,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Taxpayer ID of the company with the IRS.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{7}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">TAXPAYER_ID</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;is_epacems_state&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -6105,7 +6151,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zipcode where an operator&#39;s office is located.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;oil_fraction_cost&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -6611,7 +6657,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code of owner.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -6666,14 +6712,14 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code of the parent company&#39;s place of business.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;parent_company_business_zip_code_4&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code suffix of the company&#39;s place of business.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP4</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;parent_company_incorporation_state&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -6717,14 +6763,14 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code of the parent company&#39;s mailing address.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;parent_company_mail_zip_code_4&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code suffix of the parent company&#39;s mailing address.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP4</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;parent_company_name&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -6739,7 +6785,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Taxpayer ID of the parent company with the IRS.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{7}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">TAXPAYER_ID</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;parent_company_utility_id_eia&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -8222,7 +8268,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;URL pointing to the original source of the data in the record.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^https?://.+&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">HTTP_URL</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;specifications_of_coal_ash&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -8346,7 +8392,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Two digit state FIPS code.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{2}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">STATE_ID_FIPS</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -8496,14 +8542,14 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code of the subsidiary company&#39;s place of business.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;subsidiary_company_business_zip_code_4&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code suffix of the subsidiary company&#39;s place of business.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP4</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;subsidiary_company_incorporation_state&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -8566,14 +8612,14 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code of the subsidiary company&#39;s mailing address.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;subsidiary_company_mail_zip_code_4&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code suffix of the subsidiary company&#39;s mailing address.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP4</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;subsidiary_company_name&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -8588,7 +8634,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Taxpayer ID of the subsidiary company with the IRS.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{7}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">TAXPAYER_ID</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;subsidiary_company_utility_id_eia&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -9367,14 +9413,14 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Five digit US Zip Code.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;zip_code_4&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Four digit US Zip Code suffix.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP4</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;design_wind_speed_mph&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -9890,14 +9936,14 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code of the company&#39;s place of business.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;business_zip_code_4&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code suffix of the company&#39;s place of business.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP4</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;business_postal_code&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -9932,14 +9978,14 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code of the company&#39;s mailing address.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP5</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;mail_zip_code_4&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip code suffix of the company&#39;s mailing address.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">ZIP4</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;mail_postal_code&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -10020,7 +10066,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Year-quarter corresponding to record. Formatted like YYYYq{1-4}.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;\d</span><span class="si">{4}</span><span class="s2">q[1-4]&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">YEAR_QUARTER</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;contract_unique_id&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -10497,7 +10543,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;are structured as: two character state acronyms followed by four digits.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;^[A-Z]</span><span class="si">{2}</span><span class="s2">\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="n">BORROWER_ID_RUS</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -11283,6 +11329,15 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">REVENUE_CLASSES_EIA176</span><span class="p">},</span>
         <span class="p">},</span>
     <span class="p">},</span>
+    <span class="s2">&quot;core_eia176__yearly_liquefied_natural_gas_inventory&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;volume_mcf&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Volume of liquefied natural gas inventory held in storage at the &quot;</span>
+                <span class="s2">&quot;end of the report year. Reference conditions for measurement are &quot;</span>
+                <span class="s2">&quot;14.73 psia and 60° Fahrenheit.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
     <span class="s2">&quot;sector_consolidated_eia&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">}},</span>
     <span class="s2">&quot;core_ferc1__yearly_hydroelectric_plants_sched406&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;plant_type&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -11334,6 +11389,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;accessory_electric_equipment_nuclear_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;accessory_electric_equipment_other_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;accessory_electric_equipment_steam_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;asset_retirement_costs_energy_storage_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;asset_retirement_costs_for_distribution_plant_distribution_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;asset_retirement_costs_for_general_plant_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;asset_retirement_costs_for_hydraulic_production_plant_hydraulic_production&quot;</span><span class="p">,</span>
@@ -11342,52 +11398,125 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;asset_retirement_costs_for_steam_production_plant_steam_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;asset_retirement_costs_for_transmission_plant_transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;asset_retirement_costs_other_renewable_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;asset_retirement_costs_solar_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;asset_retirement_costs_wind_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;boiler_plant_equipment_steam_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;boilers_other_renewable_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;collector_system_energy_storage_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;collector_system_solar_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;collector_system_wind_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_distribution_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_energy_storage_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;communication_equipment_general_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_hydraulic_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_nuclear_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_other_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_other_renewable_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;communication_equipment_regional_transmission_and_market_operation_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_solar_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_steam_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;communication_equipment_wind_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_distribution_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_energy_storage_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_general_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_hydraulic_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_nuclear_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_other_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_other_renewable_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;computer_hardware_regional_transmission_and_market_operation_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_solar_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_steam_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_hardware_wind_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_distribution_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_energy_storage_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_general_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_hydraulic_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_nuclear_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_other_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_other_renewable_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;computer_software_regional_transmission_and_market_operation_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_solar_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_steam_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;computer_software_wind_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;distribution_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;distribution_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;electric_plant_in_service&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;electric_plant_in_service_and_completed_construction_not_classified_electric&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;electric_plant_in_service_and_completed_construction_not_classified_electric_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;electric_plant_in_service_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;electric_plant_purchased&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;electric_plant_sold&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;energy_storage_equipment_distribution_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_storage_equipment_energy_storage_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;energy_storage_equipment_other_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;energy_storage_equipment_transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_storage_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_storage_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;engines_and_engine_driven_generators_steam_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;experimental_electric_plant_unclassified&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;franchises_and_consents&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_holders_other_renewable_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;fuel_holders_products_and_accessories_other_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;general_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;general_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;generator_stepup_transformers_energy_storage_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;generator_stepup_transformers_solar_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;generator_stepup_transformers_wind_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;generators_other_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;generators_other_renewable_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;hydraulic_production_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;hydraulic_production_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;installations_on_customer_premises_distribution_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;intangible_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;intangible_plant_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;inverters_energy_storage_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;inverters_solar_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;inverters_wind_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;laboratory_equipment_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;land_and_land_rights_distribution_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;land_and_land_rights_energy_storage_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;land_and_land_rights_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;land_and_land_rights_hydraulic_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;land_and_land_rights_nuclear_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;land_and_land_rights_other_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;land_and_land_rights_other_renewable_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;land_and_land_rights_regional_transmission_and_market_operation_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;land_and_land_rights_solar_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;land_and_land_rights_steam_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;land_and_land_rights_transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;land_and_land_rights_wind_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;leased_property_on_customer_premises_distribution_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;line_transformers_distribution_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;meters_distribution_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;miscellaneous_energy_storage_equipment_energy_storage_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;miscellaneous_equipment_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;miscellaneous_intangible_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;miscellaneous_power_plant_equipment_hydraulic_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;miscellaneous_power_plant_equipment_nuclear_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;miscellaneous_power_plant_equipment_other_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;miscellaneous_power_plant_equipment_other_renewable_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;miscellaneous_power_plant_equipment_solar_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;miscellaneous_power_plant_equipment_steam_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;miscellaneous_power_plant_equipment_wind_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;miscellaneous_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;nuclear_production_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;nuclear_production_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;office_furniture_and_equipment_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;organization&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;other_accessory_electrical_equipment_other_renewable_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;other_accessory_electrical_equipment_solar_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;other_accessory_electrical_equipment_wind_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_production_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;other_production_plant_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;other_renewable_production_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_tangible_property_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;overhead_conductors_and_devices_distribution_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;overhead_conductors_and_devices_transmission_plant&quot;</span><span class="p">,</span>
@@ -11396,28 +11525,39 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;power_operated_equipment_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;prime_movers_other_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;production_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;production_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;reactor_plant_equipment_nuclear_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;reservoirs_dams_and_waterways_hydraulic_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;roads_and_trails_transmission_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;roads_railroads_and_bridges_hydraulic_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;services_distribution_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;solar_panels_solar_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;solar_production_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;solar_production_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;station_equipment_distribution_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;station_equipment_transmission_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;steam_production_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;steam_production_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;stores_equipment_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;street_lighting_and_signal_systems_distribution_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;structures_and_improvements_distribution_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;structures_and_improvements_energy_storage_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;structures_and_improvements_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;structures_and_improvements_hydraulic_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;structures_and_improvements_nuclear_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;structures_and_improvements_other_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;structures_and_improvements_other_renewable_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;structures_and_improvements_regional_transmission_and_market_operation_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;structures_and_improvements_solar_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;structures_and_improvements_steam_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;structures_and_improvements_transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;structures_and_improvements_wind_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;tools_shop_and_garage_equipment_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;towers_and_fixtures_transmission_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;transmission_plant_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;transportation_equipment_general_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;turbogenerator_units_nuclear_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;turbogenerator_units_steam_production&quot;</span><span class="p">,</span>
@@ -11426,19 +11566,10 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;underground_conduit_distribution_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;underground_conduit_transmission_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;water_wheels_turbines_and_generators_hydraulic_production&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;distribution_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;electric_plant_in_service_and_completed_construction_not_classified_electric_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;electric_plant_in_service_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;general_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;hydraulic_production_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;intangible_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;nuclear_production_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;other_production_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;production_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;steam_production_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_correction&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;transmission_plant_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind_production_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind_production_plant_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind_towers_and_fixtures_wind_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind_turbines_wind_production&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">},</span>
         <span class="p">}</span>
@@ -11540,6 +11671,8 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">{</span>
                     <span class="s2">&quot;administrative_and_general_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;administrative_and_general_expenses_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;administrative_and_general_maintenance_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;administrative_and_general_maintenance_expenses_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;administrative_and_general_operation_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;administrative_and_general_operation_expense_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;administrative_and_general_salaries&quot;</span><span class="p">,</span>
@@ -11547,6 +11680,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;advertising_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;allowances&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;ancillary_services_market_administration&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;bundled_environmental_credits&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;capacity_market_administration&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;coolants_and_water&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;customer_account_expenses&quot;</span><span class="p">,</span>
@@ -11569,8 +11703,13 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;electric_expenses_nuclear_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;electric_expenses_steam_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;employee_pensions_and_benefits&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_storage_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_storage_maintenance_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_storage_operation_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_storage_operation_expenses_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;franchise_requirements&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;fuel&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_other_renewable_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;fuel_steam_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;general_advertising_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;generation_expenses&quot;</span><span class="p">,</span>
@@ -11588,19 +11727,52 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;load_dispatching&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;load_dispatching_transmission_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_boiler_plant_steam_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_boilers_other_renewable_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_administrative_and_general_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_distribution&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_communication_equipment_electric_transmission&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_energy_storage_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_hydraulic_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_nuclear_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_other_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_other_renewable_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_communication_equipment_regional_market_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_solar_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_steam_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_communication_equipment_wind_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_computer_hardware&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_administrative_and_general_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_distribution&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_energy_storage_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_hydraulic_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_nuclear_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_other_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_other_renewable_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_solar_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_steam_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_computer_hardware_transmission&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_hardware_wind_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_computer_software&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_administrative_and_general_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_distribution&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_energy_storage_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_hydraulic_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_nuclear_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_other_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_other_renewable_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_solar_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_steam_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_computer_software_transmission&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_computer_software_wind_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_electric_plant_hydraulic_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_electric_plant_nuclear_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_electric_plant_steam_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_energy_storage_equipment&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_energy_storage_equipment_and_structures_energy_storage_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_energy_storage_equipment_other_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_energy_storage_equipment_transmission&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_general_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_generating_and_electric_equipment_other_renewable_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_generating_and_electric_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_line_transformers&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_meters&quot;</span><span class="p">,</span>
@@ -11608,14 +11780,19 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;maintenance_of_miscellaneous_hydraulic_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_miscellaneous_market_operation_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_miscellaneous_nuclear_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_miscellaneous_other_energy_storage_plant_energy_storage_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_miscellaneous_other_power_generation_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_miscellaneous_regional_transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_miscellaneous_renewable_production_plant_other_renewable_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_miscellaneous_solar_generation_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_miscellaneous_steam_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_miscellaneous_transmission_plant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_miscellaneous_wind_generation_plant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_overhead_lines&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_overhead_lines_transmission&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_reactor_plant_equipment_nuclear_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_reservoirs_dams_and_waterways&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_solar_panels_structures_and_equipment_solar_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_station_equipment&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_station_equipment_transmission&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_street_lighting_and_signal_systems&quot;</span><span class="p">,</span>
@@ -11624,16 +11801,22 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;maintenance_of_structures_distribution_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_structures_hydraulic_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_structures_nuclear_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_structures_other_renewable_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_structures_steam_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_structures_transmission_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_underground_lines&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_of_underground_lines_transmission&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_of_wind_turbines_structures_and_equipment_wind_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_supervision_and_engineering&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_supervision_and_engineering_electric_transmission_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_supervision_and_engineering_energy_storage_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_supervision_and_engineering_hydraulic_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_supervision_and_engineering_nuclear_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_supervision_and_engineering_other_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_supervision_and_engineering_other_renewable_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_supervision_and_engineering_solar_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;maintenance_supervision_and_engineering_steam_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;maintenance_supervision_and_engineering_wind_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;market_facilitation_monitoring_and_compliance_services&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;market_monitoring_and_compliance&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;meter_expenses&quot;</span><span class="p">,</span>
@@ -11656,23 +11839,31 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;office_supplies_and_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_of_energy_storage_equipment&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_of_energy_storage_equipment_distribution&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_of_energy_storage_equipment_energy_storage_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_of_energy_storage_equipment_transmission_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_supervision&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_supervision_and_engineering_distribution_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_supervision_and_engineering_electric_transmission_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_supervision_and_engineering_energy_storage_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_supervision_and_engineering_hydraulic_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_supervision_and_engineering_nuclear_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_supervision_and_engineering_other_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_supervision_and_engineering_other_renewable_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_supervision_and_engineering_solar_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operation_supervision_and_engineering_steam_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_supervision_and_engineering_wind_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operations_and_maintenance_expenses_electric&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;operations_and_maintenance_expenses_electric_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_expenses_other_power_supply_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;other_miscellaneous_generation_and_other_plant_operating_expenses_other_renewable_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_power_generation_maintenance_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_power_generation_maintenance_expense_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_power_generation_operations_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_power_generation_operations_expense_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_power_supply_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_power_supply_expense_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;other_renewable_generation_maintenance_expense&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;other_renewable_generation_operations_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;outside_services_employed&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;overhead_line_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;overhead_line_expenses&quot;</span><span class="p">,</span>
@@ -11684,8 +11875,12 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;power_production_expenses_nuclear_power_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;power_production_expenses_other_power&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;power_production_expenses_other_power_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;power_production_expenses_other_renewable&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;power_production_expenses_solar&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;power_production_expenses_solar_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;power_production_expenses_steam_power&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;power_production_expenses_steam_power_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;power_production_expenses_wind&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;power_purchased_for_storage_operations&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;property_insurance&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;purchased_power&quot;</span><span class="p">,</span>
@@ -11700,15 +11895,23 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;reliability_planning_and_standards_development_services&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;rents_administrative_and_general_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;rents_distribution_expense&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;rents_energy_storage_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;rents_hydraulic_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;rents_nuclear_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;rents_other_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;rents_other_renewable_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;rents_regional_market_expenses&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;rents_solar_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;rents_steam_power_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;rents_transmission_electric_expense&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;rents_wind_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;sales_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;sales_expenses_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;scheduling_system_control_and_dispatch_services&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;solar_generation_maintenance_expense&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;solar_generation_operations_expense&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;solar_generation_operations_expense_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;solar_panel_generation_and_other_plant_operating_expenses_solar_generation&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;station_expenses_distribution&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;station_expenses_transmission_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;steam_expenses_nuclear_power_generation&quot;</span><span class="p">,</span>
@@ -11721,6 +11924,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;steam_power_generation_operations_expense_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;steam_transferred_credit&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;steam_transferred_credit_nuclear_power_generation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;storage_fuel_energy_storage_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;street_lighting_and_signal_system_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;supervision_customer_account_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;supervision_customer_service_and_information_expenses&quot;</span><span class="p">,</span>
@@ -11735,10 +11939,16 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;transmission_operation_expense_correction&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;transmission_rights_market_administration&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;transmission_service_studies&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;unbundled_environmental_credits&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;uncollectible_accounts&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;underground_line_expenses&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;underground_line_expenses_transmission_expense&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;water_for_power&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind_generation_maintenance_expense&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind_generation_maintenance_expense_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind_generation_operations_expense&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind_generation_operations_expense_correction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind_turbine_generation_and_other_plant_operating_expenses_wind_generation&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">},</span>
         <span class="p">}</span>
@@ -12024,20 +12234,24 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).&quot;</span>
             <span class="p">),</span>
             <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">{</span>
                     <span class="s2">&quot;distribution&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_storage&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;experimental&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;general&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;hydraulic_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;intangible&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;nuclear_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;other_production&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;other_renewable_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;purchased_sold&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;regional_transmission_and_market_operation&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;solar_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;steam_production&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;transmission&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;unclassified&quot;</span><span class="p">,</span>
-                <span class="p">]</span>
+                    <span class="s2">&quot;wind_production&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
             <span class="p">},</span>
         <span class="p">},</span>
         <span class="s2">&quot;utility_type&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -12568,8 +12782,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -12603,7 +12817,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
 </p></div>
       
     </div>

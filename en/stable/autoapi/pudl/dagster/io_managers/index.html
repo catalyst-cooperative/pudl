@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.io_managers &#8212; PUDL 2026.5.0 documentation</title>
+    <title>pudl.dagster.io_managers &#8212; PUDL 2026.6.1 documentation</title>
   
   
   
@@ -36,8 +36,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
-<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+  <link href="../../../../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -45,18 +45,18 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
-<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../../../_static/documentation_options.js?v=288f4d1e"></script>
+    <script src="../../../../_static/documentation_options.js?v=2c9f49b4"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/pudl/dagster/io_managers/index';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.0 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.0 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.1 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.1 documentation - Home"/>
   
   
 </a></div>
@@ -225,11 +225,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -242,8 +249,7 @@
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -332,11 +338,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -349,8 +362,7 @@
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -479,6 +491,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../metadata/fields/index.html">pudl.metadata.fields</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../metadata/helpers/index.html">pudl.metadata.helpers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/patterns/index.html">pudl.metadata.patterns</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../metadata/resources/index.html">pudl.metadata.resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
@@ -593,6 +606,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/deploy/index.html">pudl.scripts.deploy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/dghome/index.html">pudl.scripts.dghome</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/generate_ferc_provenance/index.html">pudl.scripts.generate_ferc_provenance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/metadata_to_rst/index.html">pudl.scripts.metadata_to_rst</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/pudl_check_fks/index.html">pudl.scripts.pudl_check_fks</a></li>
@@ -808,23 +822,14 @@ module; it should focus on persistence, loading, and storage-compatibility conce
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.PudlSqliteIOManager" title="pudl.dagster.io_managers.PudlSqliteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlSqliteIOManager</span></code></a></p></td>
 <td><p>IO Manager that writes and retrieves dataframes from a SQLite database.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.FercSqliteIOManager" title="pudl.dagster.io_managers.FercSqliteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercSqliteIOManager</span></code></a></p></td>
-<td><p>IO Manager for reading tables from FERC databases.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase" title="pudl.dagster.io_managers.FercSqliteIOManagerBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase</span></code></a></p></td>
+<td><p>Shared lazy-loading behavior for FERC SQLite Dagster IO managers.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager" title="pudl.dagster.io_managers.FercDbfSqliteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercDbfSqliteIOManager</span></code></a></p></td>
-<td><p>IO Manager for reading tables from FERC DBF SQLite databases.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase" title="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase</span></code></a></p></td>
-<td><p>Base class for Dagster-native FERC SQLite IO manager wrappers.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager" title="pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercDbfSqliteConfigurableIOManager</span></code></a></p></td>
-<td><p>Configurable IO manager for reading tables from FERC DBF SQLite databases.</p></td>
+<td><p>IO manager for reading tables from FERC DBF SQLite databases.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager" title="pudl.dagster.io_managers.FercXbrlSqliteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercXbrlSqliteIOManager</span></code></a></p></td>
-<td><p>IO Manager for only reading tables from the XBRL database.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager" title="pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercXbrlSqliteConfigurableIOManager</span></code></a></p></td>
-<td><p>Configurable IO manager for reading tables from a FERC XBRL SQLite database.</p></td>
+<td><p>IO manager for reading tables from a FERC XBRL SQLite database.</p></td>
 </tr>
 </tbody>
 </table>
@@ -894,6 +899,11 @@ database produced by PUDL.</p>
 <span class="sig-name descname"><span class="pre">read_from_parquet</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#PudlMixedFormatIOManager.read_from_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager.read_from_parquet" title="Link to this definition">#</a></dt>
 <dd><p>If true, data will be read from parquet files instead of sqlite.</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.PudlMixedFormatIOManager.pudl_paths">
+<span class="sig-name descname"><span class="pre">pudl_paths</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dagster.ResourceDependency</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resources/index.html#pudl.dagster.resources.PudlPathsResource" title="pudl.dagster.resources.PudlPathsResource"><span class="pre">pudl.dagster.resources.PudlPathsResource</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#PudlMixedFormatIOManager.pudl_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager.pudl_paths" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.PudlMixedFormatIOManager.validate_parquet_settings">
@@ -1044,9 +1054,23 @@ name.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.PudlParquetIOManager">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">PudlParquetIOManager</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#PudlParquetIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.PudlParquetIOManager" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.IOManager" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.IOManager</span></code></a></p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">PudlParquetIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#PudlParquetIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.PudlParquetIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.ConfigurableIOManager</span></code></a></p>
 <p>IOManager that writes pudl tables to pyarrow parquet files.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.PudlParquetIOManager.pudl_paths">
+<span class="sig-name descname"><span class="pre">pudl_paths</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dagster.ResourceDependency</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resources/index.html#pudl.dagster.resources.PudlPathsResource" title="pudl.dagster.resources.PudlPathsResource"><span class="pre">pudl.dagster.resources.PudlPathsResource</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#PudlParquetIOManager.pudl_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.PudlParquetIOManager.pudl_paths" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.PudlParquetIOManager._record_parquet_file_metadata">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_record_parquet_file_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parquet_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#PudlParquetIOManager._record_parquet_file_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.PudlParquetIOManager._record_parquet_file_metadata" title="Link to this definition">#</a></dt>
+<dd><p>Attach file size and SHA-256 hash to the Dagster output metadata.</p>
+<p>This metadata is later retrieved by the <code class="docutils literal notranslate"><span class="pre">pudl_datapackage</span></code> asset to
+populate the frictionless datapackage descriptor without re-reading the
+parquet files.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.PudlParquetIOManager.handle_output">
 <span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">polars.LazyFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#PudlParquetIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.PudlParquetIOManager.handle_output" title="Link to this definition">#</a></dt>
@@ -1063,7 +1087,7 @@ name.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.PudlGeoParquetIOManager">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">PudlGeoParquetIOManager</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#PudlGeoParquetIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.PudlGeoParquetIOManager" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">PudlGeoParquetIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#PudlGeoParquetIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.PudlGeoParquetIOManager" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pudl.dagster.io_managers.PudlParquetIOManager" title="pudl.dagster.io_managers.PudlParquetIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlParquetIOManager</span></code></a></p>
 <p>Do some extra work to output valid GeoParquet files when appropriate.</p>
 <dl class="py method">
@@ -1128,205 +1152,151 @@ name.</p>
 <dd></dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManager">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercSqliteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">md</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManager" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pudl.dagster.io_managers.SqliteIOManager" title="pudl.dagster.io_managers.SqliteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SqliteIOManager</span></code></a></p>
-<p>IO Manager for reading tables from FERC databases.</p>
-<p>This class should be subclassed and the load_input and handle_output methods should
-be implemented.</p>
-<p>This IOManager expects the database to already exist.</p>
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercSqliteIOManagerBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.ConfigurableIOManager</span></code></a></p>
+<p>Shared lazy-loading behavior for FERC SQLite Dagster IO managers.</p>
+<p>Subclasses provide the query details for a particular FERC SQLite backend, while
+this base class owns three shared responsibilities:</p>
+<ol class="arabic simple">
+<li><p>lazily creating and caching a SQLAlchemy engine for the configured database</p></li>
+<li><p>lazily reflecting and caching SQLAlchemy metadata once the database exists</p></li>
+<li><p>checking Dagster provenance metadata before each read</p></li>
+</ol>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManager._db_path">
-<span class="sig-name descname"><span class="pre">_db_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManager._db_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManager._db_path" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.global_data_config">
+<span class="sig-name descname"><span class="pre">global_data_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dagster.ResourceDependency</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resources/index.html#pudl.dagster.resources.GlobalDataConfigResource" title="pudl.dagster.resources.GlobalDataConfigResource"><span class="pre">pudl.dagster.resources.GlobalDataConfigResource</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.global_data_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.global_data_config" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManager._setup_database">
-<span class="sig-name descname"><span class="pre">_setup_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlalchemy.Engine</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManager._setup_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManager._setup_database" title="Link to this definition">#</a></dt>
-<dd><p>Create database engine and read metadata if the DB already exists.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timeout</strong> – How many seconds the connection should wait before raising an
-exception, if the database is locked by another connection.  If another
-connection opens a transaction to modify the database, it will be locked
-until that transaction is committed.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>SQL Alchemy engine that connects to a database in the base_dir.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pudl.dagster.io_managers.SqliteIOManager.engine" title="pudl.dagster.io_managers.SqliteIOManager.engine">engine</a></p>
-</dd>
-</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.pudl_paths">
+<span class="sig-name descname"><span class="pre">pudl_paths</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dagster.ResourceDependency</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resources/index.html#pudl.dagster.resources.PudlPathsResource" title="pudl.dagster.resources.PudlPathsResource"><span class="pre">pudl.dagster.resources.PudlPathsResource</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.pudl_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.pudl_paths" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.zenodo_dois">
+<span class="sig-name descname"><span class="pre">zenodo_dois</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dagster.ResourceDependency</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resources/index.html#pudl.dagster.resources.ZenodoDoiSettingsResource" title="pudl.dagster.resources.ZenodoDoiSettingsResource"><span class="pre">pudl.dagster.resources.ZenodoDoiSettingsResource</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.zenodo_dois"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.zenodo_dois" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.dataset">
+<span class="sig-name descname"><span class="pre">dataset</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.dataset" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.data_format">
+<span class="sig-name descname"><span class="pre">data_format</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.data_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.data_format" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase._engine">
+<span class="sig-name descname"><span class="pre">_engine</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">sqlalchemy.Engine</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase._engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._engine" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase._metadata">
+<span class="sig-name descname"><span class="pre">_metadata</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">sqlalchemy.MetaData</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase._metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._metadata" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase._years_key">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_years_key</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase._years_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._years_key" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.db_name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">db_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.db_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.db_name" title="Link to this definition">#</a></dt>
+<dd><p>Return the SQLite database name for this dataset and data format.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.db_path">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">db_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.db_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.db_path" title="Link to this definition">#</a></dt>
+<dd><p>Return the canonical SQLite path for this dataset and data format.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.engine">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">engine</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">sqlalchemy.Engine</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.engine" title="Link to this definition">#</a></dt>
+<dd><p>Return a cached SQLAlchemy engine for this FERC SQLite database.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.metadata">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">metadata</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">sqlalchemy.MetaData</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.metadata" title="Link to this definition">#</a></dt>
+<dd><p>Return cached reflected metadata for this database.</p>
+<p>The metadata is reflected on first access and reused for subsequent reads.
+Accessing this property requires the SQLite database to already exist.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManager._reflect_metadata">
-<span class="sig-name descname"><span class="pre">_reflect_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.Engine</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManager._reflect_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManager._reflect_metadata" title="Link to this definition">#</a></dt>
-<dd><p>Reflect table metadata from the sqlite database into <code class="docutils literal notranslate"><span class="pre">self.md</span></code>.</p>
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase._get_sqlalchemy_table">
+<span class="sig-name descname"><span class="pre">_get_sqlalchemy_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlalchemy.Table</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase._get_sqlalchemy_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._get_sqlalchemy_table" title="Link to this definition">#</a></dt>
+<dd><p>Return reflected SQLAlchemy table metadata for a FERC SQLite table.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManager._ensure_database_ready">
-<span class="sig-name descname"><span class="pre">_ensure_database_ready</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManager._ensure_database_ready"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManager._ensure_database_ready" title="Link to this definition">#</a></dt>
-<dd><p>Ensure the sqlite DB exists and metadata has been reflected.</p>
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase._check_provenance">
+<span class="sig-name descname"><span class="pre">_check_provenance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase._check_provenance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._check_provenance" title="Link to this definition">#</a></dt>
+<dd><p>Check that the existing FERC SQLite database is compatible with this run.</p>
+<p>This is intentionally separate from engine and metadata caching because the
+compatibility check depends on the Dagster run context rather than on local
+process state.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManager._query">
-<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">years</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManager._query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManager._query" title="Link to this definition">#</a></dt>
-<dd><p>Execute a year-filtered read against the FERC SQLite database.</p>
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.load_input">
+<span class="sig-name descname"><span class="pre">load_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.load_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.load_input" title="Link to this definition">#</a></dt>
+<dd><p>Load a dataframe from the configured FERC SQLite database.</p>
+<p>Ensure that the database exists and its schema has been reflected, then verify
+the upstream FERC-to-SQLite provenance recorded in Dagster before delegating to
+the subclass-specific query implementation.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManager.handle_output">
-<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManager.handle_output" title="Link to this definition">#</a></dt>
-<dd><p>Handle an op or asset output.</p>
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase.handle_output">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.handle_output" title="Link to this definition">#</a></dt>
+<dd><p>Reject writes because these IO managers currently support reads only.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercSqliteIOManagerBase._query">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">years</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercSqliteIOManagerBase._query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._query" title="Link to this definition">#</a></dt>
+<dd><p>Execute a filtered read against the FERC SQLite database.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.FercDbfSqliteIOManager">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercDbfSqliteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">md</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercDbfSqliteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pudl.dagster.io_managers.FercSqliteIOManager" title="pudl.dagster.io_managers.FercSqliteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercSqliteIOManager</span></code></a></p>
-<p>IO Manager for reading tables from FERC DBF SQLite databases.</p>
-<p>This IO Manager is for reading data only. It does not handle outputs because the raw
-FERC tables are not known prior to running the ETL and are not recorded in our
-metadata.</p>
-<p>The form name is inferred from <code class="docutils literal notranslate"><span class="pre">self.db_name</span></code> via <code class="xref py py-func docutils literal notranslate"><span class="pre">get_ferc_form_name()</span></code>, so
-a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as
-the corresponding data config object exposes a <code class="docutils literal notranslate"><span class="pre">dbf_years</span></code> attribute.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercDbfSqliteIOManager.handle_output">
-<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercDbfSqliteIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager.handle_output" title="Link to this definition">#</a></dt>
-<dd><p>Handle an op or asset output.</p>
-</dd></dl>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercDbfSqliteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercDbfSqliteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase" title="pudl.dagster.io_managers.FercSqliteIOManagerBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase</span></code></a></p>
+<p>IO manager for reading tables from FERC DBF SQLite databases.</p>
+<p>Instantiate with <code class="docutils literal notranslate"><span class="pre">dataset</span></code> (<code class="docutils literal notranslate"><span class="pre">ferc1</span></code>, <code class="docutils literal notranslate"><span class="pre">ferc714</span></code>, etc.)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercDbfSqliteIOManager.data_format">
+<span class="sig-name descname"><span class="pre">data_format</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dbf'</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercDbfSqliteIOManager.data_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager.data_format" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.FercDbfSqliteIOManager._query">
 <span class="sig-name descname"><span class="pre">_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">years</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercDbfSqliteIOManager._query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager._query" title="Link to this definition">#</a></dt>
 <dd><p>Execute the year-filtered read against the FERC DBF SQLite database.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>table_name</strong> – Name of the table to query (without the <code class="docutils literal notranslate"><span class="pre">raw_&lt;db_name&gt;__</span></code>
-prefix).</p></li>
-<li><p><strong>years</strong> – Years to include in the result set.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">_FercSqliteConfigurableIOManagerBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.ConfigurableIOManager" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.ConfigurableIOManager</span></code></a></p>
-<p>Base class for Dagster-native FERC SQLite IO manager wrappers.</p>
-<p>Holds the shared resource dependencies (<code class="docutils literal notranslate"><span class="pre">global_data_config</span></code>, <code class="docutils literal notranslate"><span class="pre">zenodo_dois</span></code>,
-<code class="docutils literal notranslate"><span class="pre">db_name</span></code>) and provides default delegation for <code class="docutils literal notranslate"><span class="pre">engine</span></code>, <code class="docutils literal notranslate"><span class="pre">handle_output</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">load_input</span></code>. Subclasses must define <code class="docutils literal notranslate"><span class="pre">_manager</span></code> (a <code class="docutils literal notranslate"><span class="pre">cached_property</span></code> returning
-the appropriate underlying IO manager) and <code class="docutils literal notranslate"><span class="pre">data_format</span></code> (<code class="docutils literal notranslate"><span class="pre">dbf</span></code> or <code class="docutils literal notranslate"><span class="pre">xbrl</span></code>).</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This wrapper pattern is a temporary workaround for nested <code class="docutils literal notranslate"><span class="pre">global_data_config</span></code>
-resource dependencies inside the FERC IO managers. Because Dagster wires
-resource dependencies at instantiation time, overriding the top-level
-<code class="docutils literal notranslate"><span class="pre">global_data_config</span></code> resource alone (e.g. in tests) is not enough — the IO
-managers must be rebuilt against the new resource instance. <code class="docutils literal notranslate"><span class="pre">build_defs</span></code> in
-<code class="docutils literal notranslate"><span class="pre">pudl.etl</span></code> handles that rebuilding explicitly. A follow-up PR will remove the
-nested dependency, at which point this base class can be simplified or
-eliminated. See issue #5118</p>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.global_data_config">
-<span class="sig-name descname"><span class="pre">global_data_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dagster.ResourceDependency</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resources/index.html#pudl.dagster.resources.GlobalDataConfigResource" title="pudl.dagster.resources.GlobalDataConfigResource"><span class="pre">pudl.dagster.resources.GlobalDataConfigResource</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.global_data_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.global_data_config" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.zenodo_dois">
-<span class="sig-name descname"><span class="pre">zenodo_dois</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dagster.ResourceDependency</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resources/index.html#pudl.dagster.resources.ZenodoDoiSettingsResource" title="pudl.dagster.resources.ZenodoDoiSettingsResource"><span class="pre">pudl.dagster.resources.ZenodoDoiSettingsResource</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.zenodo_dois"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.zenodo_dois" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.dataset">
-<span class="sig-name descname"><span class="pre">dataset</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.dataset" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.data_format">
-<span class="sig-name descname"><span class="pre">data_format</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'dbf'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'xbrl'</span></span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.data_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.data_format" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._years_key">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_years_key</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase._years_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._years_key" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.db_name">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">db_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.db_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.db_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.engine">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">engine</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">sqlalchemy.Engine</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.engine" title="Link to this definition">#</a></dt>
-<dd><p>Expose the underlying SQLAlchemy engine for tests and helpers.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.handle_output">
-<span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.handle_output" title="Link to this definition">#</a></dt>
-<dd><p>Delegate writes to the underlying runtime IO manager.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._prepare">
-<span class="sig-name descname"><span class="pre">_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase._prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._prepare" title="Link to this definition">#</a></dt>
-<dd><p>Make sure extracted FERC database is valid for this run.</p>
-<ul class="simple">
-<li><p>does the database exist?</p></li>
-<li><p>do the FERC SQLite provenance check</p></li>
-</ul>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.load_input">
-<span class="sig-name descname"><span class="pre">load_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#_FercSqliteConfigurableIOManagerBase.load_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.load_input" title="Link to this definition">#</a></dt>
-<dd><p>Load a dataframe from the configured FERC SQLite database.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercDbfSqliteConfigurableIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercDbfSqliteConfigurableIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase" title="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase</span></code></a></p>
-<p>Configurable IO manager for reading tables from FERC DBF SQLite databases.</p>
-<p>Instantiate with <code class="docutils literal notranslate"><span class="pre">dataset</span></code> (<code class="docutils literal notranslate"><span class="pre">ferc1</span></code>, <code class="docutils literal notranslate"><span class="pre">ferc714</span></code>, etc.)</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager.data_format">
-<span class="sig-name descname"><span class="pre">data_format</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'dbf'</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'dbf'</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercDbfSqliteConfigurableIOManager.data_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager.data_format" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager._manager">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_manager</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager" title="pudl.dagster.io_managers.FercDbfSqliteIOManager"><span class="pre">FercDbfSqliteIOManager</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercDbfSqliteConfigurableIOManager._manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager._manager" title="Link to this definition">#</a></dt>
-<dd><p>Build the underlying SQLite reader lazily.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.FercXbrlSqliteIOManager">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercXbrlSqliteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">md</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercXbrlSqliteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pudl.dagster.io_managers.FercSqliteIOManager" title="pudl.dagster.io_managers.FercSqliteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercSqliteIOManager</span></code></a></p>
-<p>IO Manager for only reading tables from the XBRL database.</p>
-<p>This IO Manager is for reading data only. It does not handle outputs because the raw
-FERC tables are not known prior to running the ETL and are not recorded in our
-metadata.</p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercXbrlSqliteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercXbrlSqliteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase" title="pudl.dagster.io_managers.FercSqliteIOManagerBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase</span></code></a></p>
+<p>IO manager for reading tables from a FERC XBRL SQLite database.</p>
+<p>Instantiate with <code class="docutils literal notranslate"><span class="pre">dataset</span></code> (<code class="docutils literal notranslate"><span class="pre">ferc1</span></code>, <code class="docutils literal notranslate"><span class="pre">ferc714</span></code>, etc.).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercXbrlSqliteIOManager.data_format">
+<span class="sig-name descname"><span class="pre">data_format</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'xbrl'</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercXbrlSqliteIOManager.data_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager.data_format" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.FercXbrlSqliteIOManager.refine_report_year">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">refine_report_year</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">xbrl_years</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercXbrlSqliteIOManager.refine_report_year"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager.refine_report_year" title="Link to this definition">#</a></dt>
@@ -1337,12 +1307,6 @@ In these cases the report year of a specific fact may be associated with the
 other years in the filing.</p>
 <p>In many cases we can infer the actual report year from the fact’s associated
 time period - either duration or instant.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercXbrlSqliteIOManager.handle_output">
-<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercXbrlSqliteIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager.handle_output" title="Link to this definition">#</a></dt>
-<dd><p>Handle an op or asset output.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1359,25 +1323,6 @@ prefix).</p></li>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercXbrlSqliteConfigurableIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercXbrlSqliteConfigurableIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase" title="pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase</span></code></a></p>
-<p>Configurable IO manager for reading tables from a FERC XBRL SQLite database.</p>
-<p>Instantiate with <code class="docutils literal notranslate"><span class="pre">dataset</span></code> (<code class="docutils literal notranslate"><span class="pre">ferc1</span></code>, <code class="docutils literal notranslate"><span class="pre">ferc714</span></code>, etc.).</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager.data_format">
-<span class="sig-name descname"><span class="pre">data_format</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'xbrl'</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'xbrl'</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercXbrlSqliteConfigurableIOManager.data_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager.data_format" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager._manager">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_manager</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager" title="pudl.dagster.io_managers.FercXbrlSqliteIOManager"><span class="pre">FercXbrlSqliteIOManager</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#FercXbrlSqliteConfigurableIOManager._manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager._manager" title="Link to this definition">#</a></dt>
-<dd><p>Build the underlying SQLite reader lazily.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1463,6 +1408,7 @@ prefix).</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager.write_to_parquet"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager.write_to_parquet</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager.read_from_parquet"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager.read_from_parquet</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager.pudl_paths"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager.pudl_paths</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager.validate_parquet_settings"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager.validate_parquet_settings()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager._sqlite_io_manager"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager._sqlite_io_manager</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager._parquet_io_manager"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager._parquet_io_manager</span></code></a></li>
@@ -1483,6 +1429,8 @@ prefix).</p></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlParquetIOManager"><code class="docutils literal notranslate"><span class="pre">PudlParquetIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlParquetIOManager.pudl_paths"><code class="docutils literal notranslate"><span class="pre">PudlParquetIOManager.pudl_paths</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlParquetIOManager._record_parquet_file_metadata"><code class="docutils literal notranslate"><span class="pre">PudlParquetIOManager._record_parquet_file_metadata()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlParquetIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">PudlParquetIOManager.handle_output()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlParquetIOManager.load_input"><code class="docutils literal notranslate"><span class="pre">PudlParquetIOManager.load_input()</span></code></a></li>
 </ul>
@@ -1501,47 +1449,35 @@ prefix).</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.pudl_mixed_format_io_manager"><code class="docutils literal notranslate"><span class="pre">pudl_mixed_format_io_manager</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.parquet_io_manager"><code class="docutils literal notranslate"><span class="pre">parquet_io_manager</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.geoparquet_io_manager"><code class="docutils literal notranslate"><span class="pre">geoparquet_io_manager</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManager"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManager</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManager._db_path"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManager._db_path</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManager._setup_database"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManager._setup_database()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManager._reflect_metadata"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManager._reflect_metadata()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManager._ensure_database_ready"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManager._ensure_database_ready()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManager._query"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManager._query()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManager.handle_output()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.global_data_config"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.global_data_config</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.pudl_paths"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.pudl_paths</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.zenodo_dois"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.zenodo_dois</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.dataset"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.dataset</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.data_format"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.data_format</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._engine"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase._engine</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._metadata"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase._metadata</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._years_key"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase._years_key</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.db_name"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.db_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.db_path"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.db_path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.engine"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.engine</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.metadata"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.metadata</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._get_sqlalchemy_table"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase._get_sqlalchemy_table()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._check_provenance"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase._check_provenance()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.load_input"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.load_input()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase.handle_output"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase.handle_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercSqliteIOManagerBase._query"><code class="docutils literal notranslate"><span class="pre">FercSqliteIOManagerBase._query()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager"><code class="docutils literal notranslate"><span class="pre">FercDbfSqliteIOManager</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">FercDbfSqliteIOManager.handle_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager.data_format"><code class="docutils literal notranslate"><span class="pre">FercDbfSqliteIOManager.data_format</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercDbfSqliteIOManager._query"><code class="docutils literal notranslate"><span class="pre">FercDbfSqliteIOManager._query()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.global_data_config"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.global_data_config</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.zenodo_dois"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.zenodo_dois</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.dataset"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.dataset</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.data_format"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.data_format</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._years_key"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase._years_key</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.db_name"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.db_name</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.engine"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.engine</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.handle_output"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.handle_output()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._prepare"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase._prepare()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.load_input"><code class="docutils literal notranslate"><span class="pre">_FercSqliteConfigurableIOManagerBase.load_input()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager"><code class="docutils literal notranslate"><span class="pre">FercDbfSqliteConfigurableIOManager</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager.data_format"><code class="docutils literal notranslate"><span class="pre">FercDbfSqliteConfigurableIOManager.data_format</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager._manager"><code class="docutils literal notranslate"><span class="pre">FercDbfSqliteConfigurableIOManager._manager</span></code></a></li>
-</ul>
-</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager"><code class="docutils literal notranslate"><span class="pre">FercXbrlSqliteIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager.data_format"><code class="docutils literal notranslate"><span class="pre">FercXbrlSqliteIOManager.data_format</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager.refine_report_year"><code class="docutils literal notranslate"><span class="pre">FercXbrlSqliteIOManager.refine_report_year()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">FercXbrlSqliteIOManager.handle_output()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercXbrlSqliteIOManager._query"><code class="docutils literal notranslate"><span class="pre">FercXbrlSqliteIOManager._query()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager"><code class="docutils literal notranslate"><span class="pre">FercXbrlSqliteConfigurableIOManager</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager.data_format"><code class="docutils literal notranslate"><span class="pre">FercXbrlSqliteConfigurableIOManager.data_format</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager._manager"><code class="docutils literal notranslate"><span class="pre">FercXbrlSqliteConfigurableIOManager._manager</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager"><code class="docutils literal notranslate"><span class="pre">ferc1_dbf_sqlite_io_manager</span></code></a></li>
@@ -1575,8 +1511,8 @@ prefix).</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
-<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1610,7 +1546,7 @@ prefix).</p></li>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
 </p></div>
       
     </div>

@@ -69,7 +69,7 @@ Module Contents
    Functions converting datetimes to period start times, by time period.
 
 .. py:data:: CONTRIBUTORS
-   :type:  dict[str, dict[str, str]]
+   :type:  dict[str, dict]
 
    PUDL Contributors for attribution.
 

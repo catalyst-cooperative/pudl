@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Index &#8212; PUDL 2026.5.0 documentation</title>
+    <title>Index &#8212; PUDL 2026.6.1 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="_static/documentation_options.js?v=288f4d1e"></script>
+    <script src="_static/documentation_options.js?v=2c9f49b4"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.0 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.0 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.1 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.1 documentation - Home"/>
   
   
 </a></div>
@@ -658,11 +658,18 @@ window.runMermaid = runMermaid;</script>
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -675,8 +682,7 @@ window.runMermaid = runMermaid;</script>
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -763,11 +769,18 @@ window.runMermaid = runMermaid;</script>
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -780,8 +793,7 @@ window.runMermaid = runMermaid;</script>
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -1145,7 +1157,7 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._NewRecord.__signature__">(pudl.scripts.zenodo_data_release._NewRecord attribute)</a>
 </li>
       </ul></li>
-      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.XbrlFormNumber.__str__">__str__() (pudl.settings.XbrlFormNumber method)</a>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.FercForm.__str__">__str__() (pudl.settings.FercForm method)</a>
 
       <ul>
         <li><a href="autoapi/pudl/validate/integrity/index.html#pudl.validate.integrity.ForeignKeyError.__str__">(pudl.validate.integrity.ForeignKeyError method)</a>
@@ -1255,6 +1267,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Encoder._check_fixed_codes_are_good_codes">_check_fixed_codes_are_good_codes() (pudl.metadata.classes.Encoder class method)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite._check_for_cached_db_w_compatible_provenance">_check_for_cached_db_w_compatible_provenance() (in module pudl.dagster.assets.raw.ferc_to_sqlite)</a>
+</li>
       <li><a href="autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861._check_for_dupes">_check_for_dupes() (in module pudl.transform.eia861)</a>
 </li>
       <li><a href="autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._check_for_valid_counties">_check_for_valid_counties() (in module pudl.transform.vcerare)</a>
@@ -1272,6 +1286,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FieldConstraints._check_max_length">_check_max_length() (pudl.metadata.classes.FieldConstraints class method)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Schema._check_primary_key_in_fields">_check_primary_key_in_fields() (pudl.metadata.classes.Schema class method)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._check_provenance">_check_provenance() (pudl.dagster.io_managers.FercSqliteIOManagerBase method)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FieldConstraints._check_unique">_check_unique (pudl.metadata.classes.FieldConstraints attribute)</a>
 
@@ -1295,6 +1311,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/eia923/index.html#pudl.transform.eia923._clean_emissions_control_dates">_clean_emissions_control_dates() (in module pudl.transform.eia923)</a>
 </li>
+      <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor._clean_frictionless_types">_clean_frictionless_types() (pudl.extract.dbf.FercDbfExtractor method)</a>
+</li>
       <li><a href="autoapi/pudl/transform/eia923/index.html#pudl.transform.eia923._clean_gen_fuel_energy_sources">_clean_gen_fuel_energy_sources() (in module pudl.transform.eia923)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.MakePlantParts._clean_plant_parts">_clean_plant_parts() (pudl.analysis.plant_parts_eia.MakePlantParts method)</a>
@@ -1317,11 +1335,15 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._combine_row_counts">_combine_row_counts() (in module pudl.scripts.dbt_helper)</a>
 </li>
+      <li><a href="autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176._compare_eia176_continuation_line_total">_compare_eia176_continuation_line_total() (in module pudl.transform.eia176)</a>
+</li>
       <li><a href="autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861._compare_nerc_physical_w_nerc_operational">_compare_nerc_physical_w_nerc_operational() (in module pudl.transform.eia861)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861._compare_totals">_compare_totals() (in module pudl.transform.eia861)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia/index.html#pudl.transform.eia._compile_all_entity_records">_compile_all_entity_records() (in module pudl.transform.eia)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package._compile_from_resources">_compile_from_resources() (pudl.metadata.classes.Package static method)</a>
 </li>
       <li><a href="autoapi/pudl/transform/sec10k/index.html#pudl.transform.sec10k._compute_fraction_owned">_compute_fraction_owned() (in module pudl.transform.sec10k)</a>
 </li>
@@ -1441,6 +1463,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_lines_stations_labor_materials_cost">_core_rus12__yearly_lines_stations_labor_materials_cost() (in module pudl.transform.rus12)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_loans">_core_rus12__yearly_loans() (in module pudl.transform.rus12)</a>
 </li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_long_term_debt">_core_rus12__yearly_long_term_debt() (in module pudl.transform.rus12)</a>
@@ -1449,8 +1473,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes">_core_rus12__yearly_non_utility_plant_changes() (in module pudl.transform.rus12)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_costs">_core_rus12__yearly_plant_costs() (in module pudl.transform.rus12)</a>
 </li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand">_core_rus12__yearly_plant_factors_and_maximum_demand() (in module pudl.transform.rus12)</a>
@@ -1533,8 +1555,6 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/scripts/dghome/index.html#pudl.scripts.dghome._DATE_FORMATS_EPILOG">_DATE_FORMATS_EPILOG (in module pudl.scripts.dghome)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._db_path">_db_path (pudl.dagster.io_managers.FercSqliteIOManager attribute)</a>
-</li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._dbc_path">_dbc_path (pudl.extract.dbf.FercDbfReader attribute)</a>
 </li>
       <li><a href="autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._dedupe_year_distribution_idx">_dedupe_year_distribution_idx() (in module pudl.transform.phmsagas)</a>
@@ -1544,6 +1564,10 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher._descriptor_cache">_descriptor_cache (pudl.workspace.datastore.ZenodoFetcher attribute)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Encoder._df_is_encoding_table">_df_is_encoding_table() (pudl.metadata.classes.Encoder class method)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite._download_nightly_outputs">_download_nightly_outputs() (in module pudl.dagster.assets.raw.ferc_to_sqlite)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite._download_zipped_outputs">_download_zipped_outputs() (in module pudl.dagster.assets.raw.ferc_to_sqlite)</a>
 </li>
       <li><a href="autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._drop_city_cols">_drop_city_cols() (in module pudl.transform.vcerare)</a>
 </li>
@@ -1555,7 +1579,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl._FilteringStream._dropped_previous_line">_dropped_previous_line (pudl.extract.xbrl._FilteringStream attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._ensure_database_ready">_ensure_database_ready() (pudl.dagster.io_managers.FercSqliteIOManager method)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._engine">_engine (pudl.dagster.io_managers.FercSqliteIOManagerBase attribute)</a>
 </li>
       <li><a href="autoapi/pudl/extract/eiaapi/index.html#pudl.extract.eiaapi._extract">_extract() (in module pudl.extract.eiaapi)</a>
 </li>
@@ -1576,8 +1600,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._extract_row_count_partitions">_extract_row_count_partitions() (in module pudl.scripts.dbt_helper)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1._FERC1_PLANT_TABLES">_FERC1_PLANT_TABLES (in module pudl.transform.ferc1)</a>
-</li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase">_FercSqliteConfigurableIOManagerBase (class in pudl.dagster.io_managers)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher._fetch_from_url">_fetch_from_url() (pudl.workspace.datastore.ZenodoFetcher method)</a>
 </li>
@@ -1635,13 +1657,15 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._get_existing_row_counts">_get_existing_row_counts() (in module pudl.scripts.dbt_helper)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance._get_ferc_to_sqlite_asset_key">_get_ferc_to_sqlite_asset_key() (in module pudl.dagster.provenance)</a>
+</li>
       <li><a href="autoapi/pudl/validate/integrity/index.html#pudl.validate.integrity._get_fk_list">_get_fk_list() (in module pudl.validate.integrity)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes._get_jinja_environment">_get_jinja_environment() (in module pudl.metadata.classes)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner._get_legal_terms_dict">_get_legal_terms_dict() (in module pudl.analysis.record_linkage.name_cleaner)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._get_logfile_pointer">_get_logfile_pointer() (in module pudl.dagster.assets.deploy.ferceqr)</a>
+      <li><a href="autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._get_logfile_list">_get_logfile_list() (in module pudl.dagster.assets.deploy.ferceqr)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia923/index.html#pudl.transform.eia923._get_most_frequent_energy_source_map">_get_most_frequent_energy_source_map() (in module pudl.transform.eia923)</a>
 </li>
@@ -1657,8 +1681,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._get_row_count_csv_path">_get_row_count_csv_path() (in module pudl.scripts.dbt_helper)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.SqliteIOManager._get_sqlalchemy_table">_get_sqlalchemy_table() (pudl.dagster.io_managers.SqliteIOManager method)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._get_sqlalchemy_table">_get_sqlalchemy_table() (pudl.dagster.io_managers.FercSqliteIOManagerBase method)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.SqliteIOManager._get_sqlalchemy_table">(pudl.dagster.io_managers.SqliteIOManager method)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._get_table_name">_get_table_name() (in module pudl.extract.ferceqr)</a>
 </li>
       <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1._get_tags">_get_tags() (in module pudl.output.ferc1)</a>
@@ -1727,12 +1755,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/eia/index.html#pudl.transform.eia._manage_strictness">_manage_strictness() (in module pudl.transform.eia)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager._manager">_manager (pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager property)</a>
-
-      <ul>
-        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager._manager">(pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager property)</a>
-</li>
-      </ul></li>
       <li><a href="autoapi/pudl/transform/eiaapi/index.html#pudl.transform.eiaapi._map_key_codes_to_readable_values">_map_key_codes_to_readable_values() (in module pudl.transform.eiaapi)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia923/index.html#pudl.transform.eia923._map_prime_mover_sets">_map_prime_mover_sets() (in module pudl.transform.eia923)</a>
@@ -1753,9 +1775,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning._merge_imputed">_merge_imputed() (in module pudl.analysis.timeseries_cleaning)</a>
 </li>
-      <li><a href="autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor._metadata">_metadata (pudl.extract.excel.ExcelExtractor attribute)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._metadata">_metadata (pudl.dagster.io_managers.FercSqliteIOManagerBase attribute)</a>
 
       <ul>
+        <li><a href="autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor._metadata">(pudl.extract.excel.ExcelExtractor attribute)</a>
+</li>
         <li><a href="autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor._metadata">(pudl.extract.extractor.GenericExtractor attribute)</a>
 </li>
       </ul></li>
@@ -1770,8 +1794,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._normalize">_normalize() (pudl.extract.dbf.FercDbfReader static method)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176._normalize_operating_states">_normalize_operating_states() (in module pudl.transform.eia176)</a>
-</li>
-      <li><a href="autoapi/pudl/dagster/assets/deploy/ferceqr/index.html#pudl.dagster.assets.deploy.ferceqr._notify_slack_deployments_channel">_notify_slack_deployments_channel() (in module pudl.dagster.assets.deploy.ferceqr)</a>
 </li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._open_csv_resource">_open_csv_resource() (pudl.extract.dbf.FercDbfReader method)</a>
 </li>
@@ -1841,17 +1863,13 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._prep_lat_long_fips_df">_prep_lat_long_fips_df() (in module pudl.transform.vcerare)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._prepare">_prepare() (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase method)</a>
-</li>
       <li><a href="autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt._preserve_logging_propagation">_preserve_logging_propagation() (in module pudl.validate.dbt)</a>
 </li>
       <li><a href="autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema._prettier_yaml_dumps">_prettier_yaml_dumps() (in module pudl.dbt_schema)</a>
 </li>
       <li><a href="autoapi/pudl/scripts/pudl_datastore/index.html#pudl.scripts.pudl_datastore._print_partitions">_print_partitions() (in module pudl.scripts.pudl_datastore)</a>
 </li>
-      <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1._propagate_tag_rootward">_propagate_tag_rootward() (in module pudl.output.ferc1)</a>
-</li>
-      <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1._propagate_tags_leafward">_propagate_tags_leafward() (in module pudl.output.ferc1)</a>
+      <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1._propagate_tag">_propagate_tag() (in module pudl.output.ferc1)</a>
 </li>
       <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1._propagate_tags_to_corrections">_propagate_tags_to_corrections() (in module pudl.output.ferc1)</a>
 </li>
@@ -1860,7 +1878,7 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteIOManager._query">_query() (pudl.dagster.io_managers.FercDbfSqliteIOManager method)</a>
 
       <ul>
-        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._query">(pudl.dagster.io_managers.FercSqliteIOManager method)</a>
+        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._query">(pudl.dagster.io_managers.FercSqliteIOManagerBase method)</a>
 </li>
         <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteIOManager._query">(pudl.dagster.io_managers.FercXbrlSqliteIOManager method)</a>
 </li>
@@ -1871,7 +1889,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr._recode_categoricals">_recode_categoricals() (in module pudl.transform.ferceqr)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._reflect_metadata">_reflect_metadata() (pudl.dagster.io_managers.FercSqliteIOManager method)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager._record_parquet_file_metadata">_record_parquet_file_metadata() (pudl.dagster.io_managers.PudlParquetIOManager static method)</a>
 </li>
       <li><a href="autoapi/pudl/transform/sec10k/index.html#pudl.transform.sec10k._remove_bad_subsidiary_names">_remove_bad_subsidiary_names() (in module pudl.transform.sec10k)</a>
 </li>
@@ -1893,12 +1911,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache._setup_credentials">_setup_credentials() (pudl.workspace.resource_cache.UPathCache method)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._setup_database">_setup_database() (pudl.dagster.io_managers.FercSqliteIOManager method)</a>
-
-      <ul>
-        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.SqliteIOManager._setup_database">(pudl.dagster.io_managers.SqliteIOManager method)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.SqliteIOManager._setup_database">_setup_database() (pudl.dagster.io_managers.SqliteIOManager method)</a>
 </li>
-      </ul></li>
       <li><a href="autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata._sheet_name">_sheet_name (pudl.extract.excel.ExcelMetadata attribute)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning._shift_utc">_shift_utc() (in module pudl.analysis.timeseries_cleaning)</a>
@@ -2003,7 +2017,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/output/eia930/index.html#pudl.output.eia930._years_from_context">_years_from_context() (in module pudl.output.eia930)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._years_key">_years_key (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase property)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._years_key">_years_key (pudl.dagster.io_managers.FercSqliteIOManagerBase property)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr._yn_to_bool">_yn_to_bool() (in module pudl.transform.ferceqr)</a>
 </li>
@@ -2088,6 +2102,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.add_metadata_corrections">add_metadata_corrections() (pudl.transform.ferc1.Ferc1AbstractTableTransformer method)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.add_missing_energy_source_codes_to_gens">add_missing_energy_source_codes_to_gens() (in module pudl.analysis.allocate_gen_fuel)</a>
+</li>
+      <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.add_missing_factoid">add_missing_factoid() (in module pudl.transform.ferc1)</a>
 </li>
       <li><a href="autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.Ferc1DbfExtractor.add_missing_respondents">add_missing_respondents() (pudl.extract.ferc1.Ferc1DbfExtractor method)</a>
 </li>
@@ -2255,6 +2271,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.API_DTYPE_DICT">API_DTYPE_DICT (in module pudl.extract.epacems)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource.api_key">api_key (pudl.dagster.resources.ZulipNotificationResource attribute)</a>
+</li>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.API_RENAME_DICT">API_RENAME_DICT (in module pudl.extract.epacems)</a>
 </li>
       <li><a href="autoapi/pudl/extract/eia860m/index.html#pudl.extract.eia860m.append_eia860m">append_eia860m() (in module pudl.extract.eia860m)</a>
@@ -2314,8 +2332,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.assert_cols_areclose">assert_cols_areclose() (in module pudl.helpers)</a>
-</li>
-      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.assert_ferc_sqlite_compatible">assert_ferc_sqlite_compatible() (in module pudl.dagster.provenance)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.McoeCheckSpec.asset">asset (pudl.analysis.mcoe.McoeCheckSpec attribute)</a>
 
@@ -2433,6 +2449,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.SqliteIOManager.base_dir">base_dir (pudl.dagster.io_managers.SqliteIOManager attribute)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource.base_url">base_url (pudl.dagster.resources.ZulipNotificationResource attribute)</a>
+</li>
       <li><a href="autoapi/pudl/extract/eia923/index.html#pudl.extract.eia923.Extractor.BLACKLISTED_PAGES">BLACKLISTED_PAGES (pudl.extract.eia923.Extractor attribute)</a>
 
       <ul>
@@ -2451,12 +2469,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_4">blocking_rule_4 (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_5">blocking_rule_5 (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_6">blocking_rule_6 (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_7">blocking_rule_7 (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_8">blocking_rule_8 (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
@@ -2471,7 +2489,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.Exploder.boom">boom() (pudl.output.ferc1.Exploder method)</a>
 </li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.BORROWER_ID_RUS">BORROWER_ID_RUS (in module pudl.metadata.patterns)</a>
+</li>
       <li><a href="autoapi/pudl/transform/rus/index.html#pudl.transform.rus.RusEntity.BORROWERS">BORROWERS (pudl.transform.rus.RusEntity attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource.bot_email">bot_email (pudl.dagster.resources.ZulipNotificationResource attribute)</a>
 </li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.UnitConversion.both_or_neither_units_are_none">both_or_neither_units_are_none() (pudl.transform.classes.UnitConversion method)</a>
 </li>
@@ -2495,6 +2517,10 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.build_foreign_keys">(in module pudl.metadata.resources)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/pudl/dagster/build/index.html#pudl.dagster.build.build_interactive_defs">build_interactive_defs() (in module pudl.dagster.build)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/core/datapackage/index.html#pudl.dagster.assets.core.datapackage.build_pudl_datapackage_asset">build_pudl_datapackage_asset() (in module pudl.dagster.assets.core.datapackage)</a>
+</li>
       <li><a href="autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.build_with_context">build_with_context() (in module pudl.validate.dbt)</a>
 </li>
       <li><a href="autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.BuildResult">BuildResult (class in pudl.validate.dbt)</a>
@@ -2811,10 +2837,10 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/logging_helpers/index.html#pudl.logging_helpers.configure_root_logger">(in module pudl.logging_helpers)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.TableTypeFragments.conjunction">conjunction (pudl.metadata.descriptions.TableTypeFragments attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/dagster/assets/core/glue/index.html#pudl.dagster.assets.core.glue.connect_ids">connect_ids() (in module pudl.dagster.assets.core.glue)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.CONSISTENT_ATTRIBUTE_COLS">CONSISTENT_ATTRIBUTE_COLS (in module pudl.analysis.plant_parts_eia)</a>
@@ -2922,6 +2948,10 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_gas_disposition">core_eia176__yearly_gas_disposition() (in module pudl.transform.eia176)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer">core_eia176__yearly_gas_disposition_by_consumer() (in module pudl.transform.eia176)</a>
+</li>
+      <li><a href="autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_gas_supply">core_eia176__yearly_gas_supply() (in module pudl.transform.eia176)</a>
+</li>
+      <li><a href="autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory">core_eia176__yearly_liquefied_natural_gas_inventory() (in module pudl.transform.eia176)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia191/index.html#pudl.transform.eia191.core_eia191__monthly_gas_storage">core_eia191__monthly_gas_storage() (in module pudl.transform.eia191)</a>
 </li>
@@ -3090,6 +3120,8 @@ window.runMermaid = runMermaid;</script>
       <ul>
         <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.GlobalDataConfigResource.create_resource">(pudl.dagster.resources.GlobalDataConfigResource method)</a>
 </li>
+        <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlPathsResource.create_resource">(pudl.dagster.resources.PudlPathsResource method)</a>
+</li>
         <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZenodoDoiSettingsResource.create_resource">(pudl.dagster.resources.ZenodoDoiSettingsResource method)</a>
 </li>
       </ul></li>
@@ -3141,14 +3173,14 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.data_config">(pudl.extract.dbf.FercDbfExtractor attribute)</a>
 </li>
       </ul></li>
-      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.data_dir">data_dir (pudl.workspace.setup.PudlPaths property)</a>
-</li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.data_format">data_format (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase attribute)</a>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.data_format">data_format (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
 
       <ul>
-        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager.data_format">(pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager attribute)</a>
+        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteIOManager.data_format">(pudl.dagster.io_managers.FercDbfSqliteIOManager attribute)</a>
 </li>
-        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager.data_format">(pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager attribute)</a>
+        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.data_format">(pudl.dagster.io_managers.FercSqliteIOManagerBase attribute)</a>
+</li>
+        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteIOManager.data_format">(pudl.dagster.io_managers.FercXbrlSqliteIOManager attribute)</a>
 </li>
         <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenance.data_format">(pudl.dagster.provenance.FercSqliteProvenance attribute)</a>
 </li>
@@ -3241,9 +3273,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.datapackage_json">datapackage_json (pudl.workspace.datastore.DatapackageDescriptor attribute)</a>
 </li>
+      <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.datapackage_path">datapackage_path (pudl.extract.dbf.FercDbfExtractor property)</a>
+</li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor">DatapackageDescriptor (class in pudl.workspace.datastore)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.dataset">dataset (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase attribute)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.dataset">dataset (pudl.dagster.io_managers.FercSqliteIOManagerBase attribute)</a>
 
       <ul>
         <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenance.dataset">(pudl.dagster.provenance.FercSqliteProvenance attribute)</a>
@@ -3301,12 +3335,14 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.UTCTimeseriesDataFrame.datetime_utc">datetime_utc (pudl.analysis.timeseries_cleaning.UTCTimeseriesDataFrame attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.db_name">db_name (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase property)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.db_name">db_name (pudl.dagster.io_managers.FercSqliteIOManagerBase property)</a>
 
       <ul>
         <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.SqliteIOManager.db_name">(pudl.dagster.io_managers.SqliteIOManager attribute)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.db_path">db_path (pudl.dagster.io_managers.FercSqliteIOManagerBase property)</a>
+</li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive.dbc_path">dbc_path (pudl.extract.dbf.FercDbfArchive attribute)</a>
 </li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DbcFileMissingError">DbcFileMissingError</a>
@@ -3325,8 +3361,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.AlignRowNumbersDbf.dbf_table_names">dbf_table_names (pudl.transform.ferc1.AlignRowNumbersDbf attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.dbf_to_sqlite_asset_factory">dbf_to_sqlite_asset_factory() (in module pudl.dagster.assets.raw.ferc_to_sqlite)</a>
-</li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DBF_TYPES">DBF_TYPES (in module pudl.extract.dbf)</a>
 </li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.Ferc1DataConfig.dbf_years">dbf_years (pudl.settings.Ferc1DataConfig property)</a>
@@ -3334,8 +3368,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DbfTableSchema">DbfTableSchema (class in pudl.extract.dbf)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.DBSCANConfig">DBSCANConfig (class in pudl.analysis.record_linkage.link_cross_year)</a>
-</li>
-      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.DBT_DIR">DBT_DIR (in module pudl.workspace.setup)</a>
 </li>
       <li><a href="autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.dbt_helper">dbt_helper (in module pudl.scripts.dbt_helper)</a>
 </li>
@@ -3415,7 +3447,7 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.delete_deposition_file">delete_deposition_file() (pudl.scripts.zenodo_data_release.ZenodoClient method)</a>
 </li>
-      <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.delete_schema">delete_schema() (pudl.extract.dbf.FercDbfExtractor method)</a>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.delete_local_outputs">delete_local_outputs() (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths method)</a>
 </li>
       <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.TableDiff.deleted">deleted (pudl.helpers.TableDiff attribute)</a>
 </li>
@@ -3811,7 +3843,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.EnforceSnakeCase">EnforceSnakeCase (class in pudl.transform.classes)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.engine">engine (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase property)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.engine">engine (pudl.dagster.io_managers.FercSqliteIOManagerBase property)</a>
 
       <ul>
         <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.SqliteIOManager.engine">(pudl.dagster.io_managers.SqliteIOManager attribute)</a>
@@ -3826,6 +3858,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.ENTITIES">ENTITIES (in module pudl.metadata.resources)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FieldConstraints.enum">enum (pudl.metadata.classes.FieldConstraints attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.env_var_is_true">env_var_is_true() (in module pudl.helpers)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -3894,6 +3928,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker.execute_logging">execute_logging() (pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker method)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.EXHIBIT21_VERSION_SEC10K">EXHIBIT21_VERSION_SEC10K (in module pudl.metadata.patterns)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/helpers/index.html#pudl.metadata.helpers.expand_periodic_column_names">expand_periodic_column_names() (in module pudl.metadata.helpers)</a>
 </li>
@@ -4119,14 +4155,24 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder">ferc_dataframe_embedder (in module pudl.analysis.record_linkage.classify_plants_ferc1)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible">ferc_sqlite_provenance_is_compatible() (in module pudl.dagster.provenance)</a>
+</li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia">ferc_to_eia() (in module pudl.analysis.record_linkage.eia_ferc1_record_linkage)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc">ferc_to_ferc() (in module pudl.analysis.record_linkage.classify_plants_ferc1)</a>
 </li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.GlobalDataConfig.ferc_to_sqlite">ferc_to_sqlite (pudl.settings.GlobalDataConfig attribute)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.ferc_to_sqlite_asset_factory">ferc_to_sqlite_asset_factory() (in module pudl.dagster.assets.raw.ferc_to_sqlite)</a>
+</li>
       <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FERC_TO_SQLITE_METADATA_KEY">FERC_TO_SQLITE_METADATA_KEY (in module pudl.dagster.provenance)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenance.ferc_xbrl_extractor_version">ferc_xbrl_extractor_version (pudl.dagster.provenance.FercSqliteProvenance attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenanceRecord.ferc_xbrl_extractor_version">(pudl.dagster.provenance.FercSqliteProvenanceRecord attribute)</a>
+</li>
+      </ul></li>
       <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ferc_xbrl_runtime_settings">ferc_xbrl_runtime_settings (in module pudl.dagster.resources)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings.ferccid">ferccid (pudl.workspace.datastore.ZenodoDoiSettings attribute)</a>
@@ -4136,8 +4182,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor">FercDbfExtractor (class in pudl.extract.dbf)</a>
 </li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader">FercDbfReader (class in pudl.extract.dbf)</a>
-</li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager">FercDbfSqliteConfigurableIOManager (class in pudl.dagster.io_managers)</a>
 </li>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteIOManager">FercDbfSqliteIOManager (class in pudl.dagster.io_managers)</a>
 </li>
@@ -4165,9 +4209,13 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercFieldParser">FercFieldParser (class in pudl.extract.dbf)</a>
 </li>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.FercForm">FercForm (class in pudl.settings)</a>
+</li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.FercGenericXbrlToSqliteDataConfig">FercGenericXbrlToSqliteDataConfig (class in pudl.settings)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager">FercSqliteIOManager (class in pudl.dagster.io_managers)</a>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths">FercPaths (class in pudl.dagster.assets.raw.ferc_to_sqlite)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase">FercSqliteIOManagerBase (class in pudl.dagster.io_managers)</a>
 </li>
       <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenance">FercSqliteProvenance (class in pudl.dagster.provenance)</a>
 </li>
@@ -4178,8 +4226,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl.FercXbrlDatastore">FercXbrlDatastore (class in pudl.extract.xbrl)</a>
 </li>
       <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercXbrlRuntimeSettings">FercXbrlRuntimeSettings (class in pudl.dagster.resources)</a>
-</li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager">FercXbrlSqliteConfigurableIOManager (class in pudl.dagster.io_managers)</a>
 </li>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteIOManager">FercXbrlSqliteIOManager (class in pudl.dagster.io_managers)</a>
 </li>
@@ -4303,6 +4349,8 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.first_non_none">first_non_none() (in module pudl.metadata.descriptions)</a>
 </li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.FISCAL_YEAR_END_MMDD_SEC10K">FISCAL_YEAR_END_MMDD_SEC10K (in module pudl.metadata.patterns)</a>
+</li>
       <li><a href="autoapi/pudl/transform/eia/index.html#pudl.transform.eia.fix_balancing_authority_codes_with_state">fix_balancing_authority_codes_with_state() (in module pudl.transform.eia)</a>
 </li>
       <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.fix_boolean_columns">fix_boolean_columns() (in module pudl.helpers)</a>
@@ -4377,15 +4425,15 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.XbrlCalculationForestFerc1.forest_roots">forest_roots (pudl.output.ferc1.XbrlCalculationForestFerc1 property)</a>
 </li>
-      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.XbrlFormNumber.FORM1">FORM1 (pudl.settings.XbrlFormNumber attribute)</a>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.FercForm.FORM1">FORM1 (pudl.settings.FercForm attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.XbrlFormNumber.FORM2">FORM2 (pudl.settings.XbrlFormNumber attribute)</a>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.FercForm.FORM2">FORM2 (pudl.settings.FercForm attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.XbrlFormNumber.FORM6">FORM6 (pudl.settings.XbrlFormNumber attribute)</a>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.FercForm.FORM6">FORM6 (pudl.settings.FercForm attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.XbrlFormNumber.FORM60">FORM60 (pudl.settings.XbrlFormNumber attribute)</a>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.FercForm.FORM60">FORM60 (pudl.settings.FercForm attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.XbrlFormNumber.FORM714">FORM714 (pudl.settings.XbrlFormNumber attribute)</a>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.FercForm.FORM714">FORM714 (pudl.settings.FercForm attribute)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.format_">format_ (pudl.metadata.classes.Field attribute)</a>
 
@@ -4402,6 +4450,12 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Encoder.from_code_id">from_code_id() (pudl.metadata.classes.Encoder class method)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.CodeMetadata.from_code_ids">from_code_ids() (pudl.metadata.classes.CodeMetadata class method)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenanceRecord.from_dagster_instance">from_dagster_instance() (pudl.dagster.provenance.FercSqliteProvenanceRecord class method)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenanceRecord.from_datapackage">from_datapackage() (pudl.dagster.provenance.FercSqliteProvenanceRecord class method)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.from_dataset_format">from_dataset_format() (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths class method)</a>
 </li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.TableTransformParams.from_dict">from_dict() (pudl.transform.classes.TableTransformParams class method)</a>
 </li>
@@ -4693,10 +4747,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_mapped_plants_eia">get_mapped_plants_eia() (in module pudl.glue.ferc1_eia)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_missing_ids">get_missing_ids() (in module pudl.glue.ferc1_eia)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/analysis/ml_tools/index.html#pudl.analysis.ml_tools.get_ml_models_config">get_ml_models_config() (in module pudl.analysis.ml_tools)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_model_predictions">get_model_predictions() (in module pudl.analysis.record_linkage.eia_ferc1_record_linkage)</a>
@@ -4734,6 +4788,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_plants_ferc1_raw_job">get_plants_ferc1_raw_job() (in module pudl.glue.ferc1_eia)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc/index.html#pudl.transform.ferc.get_primary_key_raw_xbrl">get_primary_key_raw_xbrl() (in module pudl.transform.ferc)</a>
+</li>
+      <li><a href="autoapi/pudl/scripts/generate_ferc_provenance/index.html#pudl.scripts.generate_ferc_provenance.get_provenance">get_provenance() (in module pudl.scripts.generate_ferc_provenance)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.get_pudl_dtypes">get_pudl_dtypes() (in module pudl.metadata.fields)</a>
 </li>
@@ -4829,6 +4885,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.get_xbrl_calculation_fixes">get_xbrl_calculation_fixes() (pudl.transform.ferc1.Ferc1AbstractTableTransformer method)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.get_xbrl_extractor_version">get_xbrl_extractor_version() (in module pudl.dagster.provenance)</a>
+</li>
       <li><a href="autoapi/pudl/analysis/ml_tools/models/index.html#pudl.analysis.ml_tools.models.get_yml_config">get_yml_config() (in module pudl.analysis.ml_tools.models)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.get_zenodo_dois_path">get_zenodo_dois_path() (in module pudl.workspace.datastore)</a>
@@ -4839,7 +4897,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.get_zipfile_resources">get_zipfile_resources() (pudl.workspace.datastore.Datastore method)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.global_data_config">global_data_config (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase attribute)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.global_data_config">global_data_config (pudl.dagster.io_managers.FercSqliteIOManagerBase attribute)</a>
 </li>
       <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.GlobalDataConfigResource.global_data_config_path">global_data_config_path (pudl.dagster.resources.GlobalDataConfigResource attribute)</a>
 </li>
@@ -4921,15 +4979,9 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.handle_legal_terms">handle_legal_terms (pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.handle_output">handle_output() (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase method)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.handle_output">handle_output() (pudl.dagster.io_managers.FercSqliteIOManagerBase method)</a>
 
       <ul>
-        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteIOManager.handle_output">(pudl.dagster.io_managers.FercDbfSqliteIOManager method)</a>
-</li>
-        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager.handle_output">(pudl.dagster.io_managers.FercSqliteIOManager method)</a>
-</li>
-        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteIOManager.handle_output">(pudl.dagster.io_managers.FercXbrlSqliteIOManager method)</a>
-</li>
         <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlGeoParquetIOManager.handle_output">(pudl.dagster.io_managers.PudlGeoParquetIOManager method)</a>
 </li>
         <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlMixedFormatIOManager.handle_output">(pudl.dagster.io_managers.PudlMixedFormatIOManager method)</a>
@@ -4973,8 +5025,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.ErrorMetric.has_required_cols">has_required_cols() (pudl.transform.ferc1.ErrorMetric method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.BalanceSheetAssetsTableTransformer.has_unique_record_ids">has_unique_record_ids (pudl.transform.ferc1.BalanceSheetAssetsTableTransformer attribute)</a>
 
       <ul>
@@ -5017,6 +5067,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.UtilityPlantSummaryTableTransformer.has_unique_record_ids">(pudl.transform.ferc1.UtilityPlantSummaryTableTransformer attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.heat_rate_by_gen">heat_rate_by_gen() (in module pudl.analysis.mcoe)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.heat_rate_by_unit">heat_rate_by_unit() (in module pudl.analysis.mcoe)</a>
@@ -5030,6 +5082,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyLinks.html">html (pudl.scripts.zenodo_data_release._LegacyLinks attribute)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher.http">http (pudl.workspace.datastore.ZenodoFetcher attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.HTTP_URL">HTTP_URL (in module pudl.metadata.patterns)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.TableIdFerc1.HYDROELECTRIC_PLANTS">HYDROELECTRIC_PLANTS (pudl.transform.ferc1.TableIdFerc1 attribute)</a>
 </li>
@@ -5141,10 +5195,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.impute_latc_tubal">impute_latc_tubal() (in module pudl.analysis.timeseries_cleaning)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory">impute_timeseries_asset_factory() (in module pudl.analysis.timeseries_cleaning)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/output/eia930/index.html#pudl.output.eia930.imputed_combined_demand_assets">imputed_combined_demand_assets (in module pudl.output.eia930)</a>
 </li>
       <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.imputed_hourly_planning_area_demand_assets">imputed_hourly_planning_area_demand_assets (in module pudl.output.ferc714)</a>
@@ -5165,6 +5219,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.FlaggedTimeseries.index">(pudl.analysis.timeseries_cleaning.FlaggedTimeseries attribute)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.INDUSTRY_ID_SIC">INDUSTRY_ID_SIC (in module pudl.metadata.patterns)</a>
+</li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.infer_intra_factoid_totals">infer_intra_factoid_totals() (in module pudl.transform.ferc1)</a>
 </li>
       <li><a href="autoapi/pudl/scripts/pudl_null_cols/index.html#pudl.scripts.pudl_null_cols.infer_row_conditions">infer_row_conditions() (in module pudl.scripts.pudl_null_cols)</a>
@@ -5175,7 +5231,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.InitialDataset">InitialDataset (class in pudl.scripts.zenodo_data_release)</a>
 </li>
-      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.input_dir">input_dir (pudl.workspace.setup.PudlPaths property)</a>
+      <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.initialize_database">initialize_database() (pudl.extract.dbf.FercDbfExtractor method)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html#pudl.analysis.record_linkage.eia_ferc1_inputs.InputManager">InputManager (class in pudl.analysis.record_linkage.eia_ferc1_inputs)</a>
 </li>
@@ -5189,7 +5245,7 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.install_dbt_deps">install_dbt_deps() (in module pudl.validate.dbt)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.INSTALL_DECADE_PATTERN_PHMSAGAS">INSTALL_DECADE_PATTERN_PHMSAGAS (in module pudl.metadata.enums)</a>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.INSTALL_DECADE_PHMSAGAS">INSTALL_DECADE_PHMSAGAS (in module pudl.metadata.patterns)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.installation_year_comparison">installation_year_comparison (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
 </li>
@@ -5365,7 +5421,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.listify">listify() (in module pudl.helpers)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.load_input">load_input() (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase method)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.load_input">load_input() (pudl.dagster.io_managers.FercSqliteIOManagerBase method)</a>
 
       <ul>
         <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlMixedFormatIOManager.load_input">(pudl.dagster.io_managers.PudlMixedFormatIOManager method)</a>
@@ -5405,9 +5461,19 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.LOAN_UNIT_TYPES_RUS7">LOAN_UNIT_TYPES_RUS7 (in module pudl.metadata.enums)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.local_datapackage_path">local_datapackage_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.local_duckdb_path">local_duckdb_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
+</li>
       <li><a href="autoapi/pudl/metadata/dfs/index.html#pudl.metadata.dfs.ImputationReasonCodes.LOCAL_OUTLIER_HIGH">LOCAL_OUTLIER_HIGH (pudl.metadata.dfs.ImputationReasonCodes attribute)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/dfs/index.html#pudl.metadata.dfs.ImputationReasonCodes.LOCAL_OUTLIER_LOW">LOCAL_OUTLIER_LOW (pudl.metadata.dfs.ImputationReasonCodes attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.local_parquet_path">local_parquet_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.local_sqlite_path">local_sqlite_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.local_taxonomy_json_path">local_taxonomy_json_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html#pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config">log_dataframe_embedder_config() (in module pudl.analysis.record_linkage.embed_dataframe)</a>
 </li>
@@ -5616,6 +5682,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="autoapi/pudl/scripts/dghome/index.html#pudl.scripts.dghome.main">(in module pudl.scripts.dghome)</a>
 </li>
+        <li><a href="autoapi/pudl/scripts/generate_ferc_provenance/index.html#pudl.scripts.generate_ferc_provenance.main">(in module pudl.scripts.generate_ferc_provenance)</a>
+</li>
         <li><a href="autoapi/pudl/scripts/generate_pudl_duckdb/index.html#pudl.scripts.generate_pudl_duckdb.main">(in module pudl.scripts.generate_pudl_duckdb)</a>
 </li>
         <li><a href="autoapi/pudl/scripts/metadata_to_rst/index.html#pudl.scripts.metadata_to_rst.main">(in module pudl.scripts.metadata_to_rst)</a>
@@ -5799,6 +5867,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtTable.meta">(pudl.dbt_schema.DbtTable attribute)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.metadata">metadata (pudl.dagster.io_managers.FercSqliteIOManagerBase property)</a>
+</li>
       <li><a href="autoapi/pudl/extract/censuspep/index.html#pudl.extract.censuspep.Extractor.METADATA">METADATA (pudl.extract.censuspep.Extractor attribute)</a>
 
       <ul>
@@ -5981,6 +6051,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="autoapi/pudl/dagster/assets/core/index.html#module-pudl.dagster.assets.core">pudl.dagster.assets.core</a>
 </li>
+        <li><a href="autoapi/pudl/dagster/assets/core/datapackage/index.html#module-pudl.dagster.assets.core.datapackage">pudl.dagster.assets.core.datapackage</a>
+</li>
         <li><a href="autoapi/pudl/dagster/assets/core/eiaapi_electricity/index.html#module-pudl.dagster.assets.core.eiaapi_electricity">pudl.dagster.assets.core.eiaapi_electricity</a>
 </li>
         <li><a href="autoapi/pudl/dagster/assets/core/glue/index.html#module-pudl.dagster.assets.core.glue">pudl.dagster.assets.core.glue</a>
@@ -6118,6 +6190,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/metadata/helpers/index.html#module-pudl.metadata.helpers">pudl.metadata.helpers</a>
 </li>
         <li><a href="autoapi/pudl/metadata/labels/index.html#module-pudl.metadata.labels">pudl.metadata.labels</a>
+</li>
+        <li><a href="autoapi/pudl/metadata/patterns/index.html#module-pudl.metadata.patterns">pudl.metadata.patterns</a>
 </li>
         <li><a href="autoapi/pudl/metadata/resource_helpers/index.html#module-pudl.metadata.resource_helpers">pudl.metadata.resource_helpers</a>
 </li>
@@ -6279,6 +6353,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="autoapi/pudl/scripts/dghome/index.html#module-pudl.scripts.dghome">pudl.scripts.dghome</a>
 </li>
+        <li><a href="autoapi/pudl/scripts/generate_ferc_provenance/index.html#module-pudl.scripts.generate_ferc_provenance">pudl.scripts.generate_ferc_provenance</a>
+</li>
         <li><a href="autoapi/pudl/scripts/generate_pudl_duckdb/index.html#module-pudl.scripts.generate_pudl_duckdb">pudl.scripts.generate_pudl_duckdb</a>
 </li>
         <li><a href="autoapi/pudl/scripts/metadata_to_rst/index.html#module-pudl.scripts.metadata_to_rst">pudl.scripts.metadata_to_rst</a>
@@ -6384,7 +6460,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/metadata/helpers/index.html#pudl.metadata.helpers.most_frequent">most_frequent() (in module pudl.metadata.helpers)</a>
 </li>
-      <li><a href="autoapi/pudl/transform/rus/index.html#pudl.transform.rus.multi_index_stack">multi_index_stack() (in module pudl.transform.rus)</a>
+      <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.multi_index_stack">multi_index_stack() (in module pudl.helpers)</a>
 </li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.multicol_transform_factory">multicol_transform_factory() (in module pudl.transform.classes)</a>
 </li>
@@ -6435,6 +6511,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="autoapi/pudl/extract/eiaaeo/index.html#pudl.extract.eiaaeo.AEOSeries.name">(pudl.extract.eiaaeo.AEOSeries attribute)</a>
 </li>
+        <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Contributor.name">(pudl.metadata.classes.Contributor attribute)</a>
+</li>
         <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.DataSource.name">(pudl.metadata.classes.DataSource attribute)</a>
 </li>
         <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Encoder.name">(pudl.metadata.classes.Encoder attribute)</a>
@@ -6476,15 +6554,27 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.net_gen_comparison">net_gen_comparison (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.NETWORK_ERRORS">NETWORK_ERRORS (in module pudl.dagster.assets.raw.ferc_to_sqlite)</a>
+</li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.CombineAxisColumnsXbrl.new_axis_column_name">new_axis_column_name (pudl.transform.ferc1.CombineAxisColumnsXbrl attribute)</a>
 </li>
       <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.TableDiff.new_df">new_df (pudl.helpers.TableDiff attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.new_record_version">new_record_version() (pudl.scripts.zenodo_data_release.ZenodoClient method)</a>
 </li>
       <li><a href="autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentType.NIGHTLY">NIGHTLY (pudl.deploy.pudl.DeploymentType attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.nightly_datapackage_path">nightly_datapackage_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.nightly_duckdb_path">nightly_duckdb_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.nightly_parquet_path">nightly_parquet_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.nightly_sqlite_path">nightly_sqlite_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths.nightly_taxonomy_json_path">nightly_taxonomy_json_path (pudl.dagster.assets.raw.ferc_to_sqlite.FercPaths attribute)</a>
 </li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.UnitCorrections.no_column_rename">no_column_rename() (pudl.transform.classes.UnitCorrections class method)</a>
 </li>
@@ -6503,6 +6593,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.NONE_TABLETYPE_FRAGMENTS">NONE_TABLETYPE_FRAGMENTS (in module pudl.metadata.descriptions)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms.NORMALIZE">NORMALIZE (pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.normalize_paths">normalize_paths() (pudl.workspace.setup.PudlPaths class method)</a>
 </li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.TableTransformParams.normalize_strings">normalize_strings (pudl.transform.classes.TableTransformParams attribute)</a>
 </li>
@@ -6654,10 +6746,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/output/eia923/index.html#pudl.output.eia923.out_eia923__fuel_receipts_costs">out_eia923__fuel_receipts_costs() (in module pudl.output.eia923)</a>
 </li>
-      <li><a href="autoapi/pudl/output/eia923/index.html#pudl.output.eia923.out_eia923__generation">out_eia923__generation() (in module pudl.output.eia923)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/pudl/output/eia923/index.html#pudl.output.eia923.out_eia923__generation">out_eia923__generation() (in module pudl.output.eia923)</a>
+</li>
       <li><a href="autoapi/pudl/output/eia923/index.html#pudl.output.eia923.out_eia923__generation_fuel_combined">out_eia923__generation_fuel_combined() (in module pudl.output.eia923)</a>
 </li>
       <li><a href="autoapi/pudl/output/eia930/index.html#pudl.output.eia930.out_eia930__hourly_aggregated_demand">out_eia930__hourly_aggregated_demand() (in module pudl.output.eia930)</a>
@@ -6719,8 +6811,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/output/sec10k/index.html#pudl.output.sec10k.out_sec10k__quarterly_filings">out_sec10k__quarterly_filings() (in module pudl.output.sec10k)</a>
 </li>
       <li><a href="autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor">out_vcerare__hourly_available_capacity_factor() (in module pudl.transform.vcerare)</a>
-</li>
-      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.output_dir">output_dir (pudl.workspace.setup.PudlPaths property)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.output_file">output_file() (pudl.workspace.setup.PudlPaths method)</a>
 </li>
@@ -6972,8 +7062,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.Ferc1DbfExtractor.postprocess">(pudl.extract.ferc1.Ferc1DbfExtractor method)</a>
 </li>
       </ul></li>
-      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PotentialDirectoryPath">PotentialDirectoryPath (in module pudl.workspace.setup)</a>
-</li>
       <li><a href="autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.POWER_PURCHASE_TYPES_FERC1">POWER_PURCHASE_TYPES_FERC1 (in module pudl.metadata.labels)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.prep_allocation_fraction">prep_allocation_fraction() (in module pudl.analysis.allocate_gen_fuel)</a>
@@ -7118,12 +7206,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.PRODUCTION">PRODUCTION (in module pudl.scripts.zenodo_data_release)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package.profile">profile (pudl.metadata.classes.Package attribute)</a>
-
-      <ul>
-        <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.profile">(pudl.metadata.classes.Resource attribute)</a>
-</li>
-      </ul></li>
       <li><a href="autoapi/pudl/extract/eiaaeo/index.html#pudl.extract.eiaaeo.AEOTable.projection_year">projection_year (pudl.extract.eiaaeo.AEOTable attribute)</a>
 </li>
       <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.XbrlCalculationForestFerc1.propagate_node_attributes">propagate_node_attributes() (pudl.output.ferc1.XbrlCalculationForestFerc1 method)</a>
@@ -7334,6 +7416,13 @@ window.runMermaid = runMermaid;</script>
 
       <ul>
         <li><a href="autoapi/pudl/dagster/assets/core/index.html#module-pudl.dagster.assets.core">module</a>
+</li>
+      </ul></li>
+      <li>
+    pudl.dagster.assets.core.datapackage
+
+      <ul>
+        <li><a href="autoapi/pudl/dagster/assets/core/datapackage/index.html#module-pudl.dagster.assets.core.datapackage">module</a>
 </li>
       </ul></li>
       <li>
@@ -7665,8 +7754,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/extract/nrelatb/index.html#module-pudl.extract.nrelatb">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pudl.extract.parquet
 
@@ -7702,6 +7789,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/extract/sec10k/index.html#module-pudl.extract.sec10k">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pudl.extract.vcerare
 
@@ -7819,6 +7908,13 @@ window.runMermaid = runMermaid;</script>
 
       <ul>
         <li><a href="autoapi/pudl/metadata/labels/index.html#module-pudl.metadata.labels">module</a>
+</li>
+      </ul></li>
+      <li>
+    pudl.metadata.patterns
+
+      <ul>
+        <li><a href="autoapi/pudl/metadata/patterns/index.html#module-pudl.metadata.patterns">module</a>
 </li>
       </ul></li>
       <li>
@@ -8382,6 +8478,13 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li>
+    pudl.scripts.generate_ferc_provenance
+
+      <ul>
+        <li><a href="autoapi/pudl/scripts/generate_ferc_provenance/index.html#module-pudl.scripts.generate_ferc_provenance">module</a>
+</li>
+      </ul></li>
+      <li>
     pudl.scripts.generate_pudl_duckdb
 
       <ul>
@@ -8714,21 +8817,53 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.pudl_db">pudl_db (pudl.workspace.setup.PudlPaths property)</a>
 </li>
+      <li><a href="autoapi/pudl/index.html#pudl.PUDL_DBT_PATH">PUDL_DBT_PATH (in module pudl)</a>
+</li>
+      <li><a href="autoapi/pudl/index.html#pudl.PUDL_DOCS_PATH">PUDL_DOCS_PATH (in module pudl)</a>
+</li>
+      <li><a href="autoapi/pudl/index.html#pudl.PUDL_EEL_HOLE_BASE_PATH">PUDL_EEL_HOLE_BASE_PATH (in module pudl)</a>
+</li>
       <li><a href="autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.PUDL_ID_MAP_XLSX">PUDL_ID_MAP_XLSX (in module pudl.glue.ferc1_eia)</a>
 </li>
-      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.pudl_input">pudl_input (pudl.workspace.setup.PudlPaths attribute)</a>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlPathsResource.pudl_input">pudl_input (pudl.dagster.resources.PudlPathsResource attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.pudl_input">(pudl.workspace.setup.PudlPaths attribute)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.pudl_mixed_format_io_manager">pudl_mixed_format_io_manager (in module pudl.dagster.io_managers)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/ml_tools/models/index.html#pudl.analysis.ml_tools.models.pudl_model">pudl_model() (in module pudl.analysis.ml_tools.models)</a>
 </li>
-      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.pudl_output">pudl_output (pudl.workspace.setup.PudlPaths attribute)</a>
+      <li><a href="autoapi/pudl/index.html#pudl.PUDL_NIGHTLY_BUILDS_BASE_PATH">PUDL_NIGHTLY_BUILDS_BASE_PATH (in module pudl)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlPathsResource.pudl_output">pudl_output (pudl.dagster.resources.PudlPathsResource attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.pudl_output">(pudl.workspace.setup.PudlPaths attribute)</a>
+</li>
+      </ul></li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PUDL_PACKAGE">PUDL_PACKAGE (in module pudl.metadata.classes)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.pudl_paths">pudl_paths (pudl.dagster.io_managers.FercSqliteIOManagerBase attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlMixedFormatIOManager.pudl_paths">(pudl.dagster.io_managers.PudlMixedFormatIOManager attribute)</a>
+</li>
+        <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager.pudl_paths">(pudl.dagster.io_managers.PudlParquetIOManager attribute)</a>
+</li>
+        <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.DatastoreResource.pudl_paths">(pudl.dagster.resources.DatastoreResource attribute)</a>
+</li>
+        <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.pudl_paths">(pudl.transform.ferc1.Ferc1AbstractTableTransformer attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.pudl_paths_resource">pudl_paths_resource (in module pudl.dagster.resources)</a>
 </li>
       <li><a href="autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.Ferc1DbfExtractor.PUDL_RIDS">PUDL_RIDS (pudl.extract.ferc1.Ferc1DbfExtractor attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PUDL_ROOT_PATH">PUDL_ROOT_PATH (in module pudl.workspace.setup)</a>
+      <li><a href="autoapi/pudl/index.html#pudl.PUDL_ROOT_PATH">PUDL_ROOT_PATH (in module pudl)</a>
+</li>
+      <li><a href="autoapi/pudl/index.html#pudl.PUDL_SETTINGS_PATH">PUDL_SETTINGS_PATH (in module pudl)</a>
 </li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.PudlDataConfig">PudlDataConfig (class in pudl.settings)</a>
 </li>
@@ -8741,6 +8876,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager">PudlParquetIOManager (class in pudl.dagster.io_managers)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths">PudlPaths (class in pudl.workspace.setup)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlPathsResource">PudlPathsResource (class in pudl.dagster.resources)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor">PudlResourceDescriptor (class in pudl.metadata.classes)</a>
 </li>
@@ -8997,6 +9134,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.remove_leading_zeros_from_numeric_strings">remove_leading_zeros_from_numeric_strings() (in module pudl.helpers)</a>
 </li>
+      <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.SmallPlantsTableTransformer.remove_messy_plant_name_duplicates">remove_messy_plant_name_duplicates() (pudl.transform.ferc1.SmallPlantsTableTransformer method)</a>
+</li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows">remove_rare_utility_type_subdimensions_rows() (in module pudl.transform.ferc1)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.remove_unicode">remove_unicode (pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner attribute)</a>
@@ -9197,7 +9336,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/scripts/dghome/index.html#pudl.scripts.dghome.rm">rm() (in module pudl.scripts.dghome)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Contributor.role">role (pudl.metadata.classes.Contributor attribute)</a>
+      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Contributor.roles">roles (pudl.metadata.classes.Contributor attribute)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.rolling_iqr_of_diff">rolling_iqr_of_diff() (in module pudl.analysis.timeseries_cleaning)</a>
 </li>
@@ -9327,6 +9466,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.self_union">self_union() (in module pudl.analysis.spatial)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource.send_stream_message">send_stream_message() (pudl.dagster.resources.ZulipNotificationResource method)</a>
+</li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlCodeMetadata.serialize_df">serialize_df() (pudl.metadata.classes.PudlResourceDescriptor.PudlCodeMetadata method)</a>
 </li>
       <li><a href="autoapi/pudl/extract/eiaaeo/index.html#pudl.extract.eiaaeo.AEOTaxonomy.EntityType.SERIES">SERIES (pudl.extract.eiaaeo.AEOTaxonomy.EntityType attribute)</a>
@@ -9356,8 +9497,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.set_path_overrides">set_path_overrides() (pudl.workspace.setup.PudlPaths static method)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.settings">settings (pudl.metadata.descriptions.ResourceDescriptionBuilder attribute)</a>
-</li>
-      <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.settings_dir">settings_dir (pudl.workspace.setup.PudlPaths property)</a>
 </li>
       <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.simplify_columns">simplify_columns() (in module pudl.helpers)</a>
 </li>
@@ -9399,8 +9538,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitTechType.SOLAR">SOLAR (pudl.settings.GridPathRaToolkitTechType attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription.source">source (pudl.metadata.descriptions.ResolvedResourceDescription attribute)</a>
+      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenanceRecord.source">source (pudl.dagster.provenance.FercSqliteProvenanceRecord attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription.source">(pudl.metadata.descriptions.ResolvedResourceDescription attribute)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.source">source() (pudl.metadata.descriptions.ResourceDescriptionBuilder method)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.source_code">source_code (pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents attribute)</a>
@@ -9497,8 +9640,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.sqlite_meta">sqlite_meta (pudl.extract.dbf.FercDbfExtractor attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenanceRecord.sqlite_path">sqlite_path (pudl.dagster.provenance.FercSqliteProvenanceRecord attribute)</a>
-</li>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.SqliteIOManager">SqliteIOManager (class in pudl.dagster.io_managers)</a>
 </li>
       <li><a href="autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentType.STABLE">STABLE (pudl.deploy.pudl.DeploymentType attribute)</a>
@@ -9526,6 +9667,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html#pudl.analysis.record_linkage.eia_ferc1_inputs.InputManager.start_date">start_date (pudl.analysis.record_linkage.eia_ferc1_inputs.InputManager attribute)</a>
 </li>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.State">State (class in pudl.scripts.zenodo_data_release)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.STATE_ID_FIPS">STATE_ID_FIPS (in module pudl.metadata.patterns)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/state_demand/index.html#pudl.analysis.state_demand.STATES">STATES (in module pudl.analysis.state_demand)</a>
 </li>
@@ -9616,6 +9759,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription.summary">summary (pudl.metadata.descriptions.ResolvedResourceDescription attribute)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.summary">summary() (pudl.metadata.descriptions.ResourceDescriptionBuilder method)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.SUPPLY_TYPES_EIA176">SUPPLY_TYPES_EIA176 (in module pudl.metadata.enums)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache.supported_protocols">supported_protocols (pudl.workspace.resource_cache.UPathCache attribute)</a>
 </li>
@@ -9791,6 +9936,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.RetainedEarningsTableTransformer.targeted_drop_duplicates_dbf">(pudl.transform.ferc1.RetainedEarningsTableTransformer method)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.TAXPAYER_ID">TAXPAYER_ID (in module pudl.metadata.patterns)</a>
+</li>
       <li><a href="autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.TECH_CLASSES">TECH_CLASSES (in module pudl.metadata.enums)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.TECH_DESCRIPTIONS">TECH_DESCRIPTIONS (in module pudl.metadata.enums)</a>
@@ -9817,6 +9964,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher.timeout">timeout (pudl.workspace.datastore.ZenodoFetcher attribute)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource.timeout_seconds">timeout_seconds (pudl.dagster.resources.ZulipNotificationResource attribute)</a>
+</li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.timeseries_resolution_code">timeseries_resolution_code (pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents attribute)</a>
 
       <ul>
@@ -9833,12 +9982,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/ferc714/index.html#pudl.transform.ferc714.TIMEZONE_CODES">TIMEZONE_CODES (in module pudl.transform.ferc714)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/transform/ferc714/index.html#pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES">TIMEZONE_OFFSET_CODE_FIXES (in module pudl.transform.ferc714)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc714/index.html#pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR">TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR (in module pudl.transform.ferc714)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/transform/ferc714/index.html#pudl.transform.ferc714.TIMEZONE_OFFSET_CODES">TIMEZONE_OFFSET_CODES (in module pudl.transform.ferc714)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.Lettercase.TITLE">TITLE (pudl.analysis.record_linkage.name_cleaner.Lettercase attribute)</a>
@@ -9865,13 +10014,23 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.FlaggedTimeseries.to_dataframes">to_dataframes() (pudl.analysis.timeseries_cleaning.FlaggedTimeseries method)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/provenance/index.html#pudl.dagster.provenance.FercSqliteProvenanceRecord.to_datapackage">to_datapackage() (pudl.dagster.provenance.FercSqliteProvenanceRecord method)</a>
+</li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_duckdb_dtype">to_duckdb_dtype() (pudl.metadata.classes.Field method)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.to_duckdb_dtypes">to_duckdb_dtypes() (pudl.metadata.classes.Resource method)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package.to_frictionless">to_frictionless() (pudl.metadata.classes.Package method)</a>
+      <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.to_frictionless">to_frictionless() (pudl.extract.dbf.FercDbfExtractor method)</a>
 
       <ul>
+        <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.DataSource.to_frictionless">(pudl.metadata.classes.DataSource method)</a>
+</li>
+        <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_frictionless">(pudl.metadata.classes.Field method)</a>
+</li>
+        <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.ForeignKey.to_frictionless">(pudl.metadata.classes.ForeignKey method)</a>
+</li>
+        <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package.to_frictionless">(pudl.metadata.classes.Package method)</a>
+</li>
         <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.to_frictionless">(pudl.metadata.classes.Resource method)</a>
 </li>
       </ul></li>
@@ -10209,6 +10368,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.VALID_COAL_USD_PER_MMBTU">VALID_COAL_USD_PER_MMBTU (in module pudl.transform.params.ferc1)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.valid_datapackage_check">valid_datapackage_check() (in module pudl.dagster.asset_checks)</a>
+</li>
       <li><a href="autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.VALID_GAS_MMBTU_PER_MCF">VALID_GAS_MMBTU_PER_MCF (in module pudl.transform.params.ferc1)</a>
 </li>
       <li><a href="autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.VALID_GAS_USD_PER_MMBTU">VALID_GAS_USD_PER_MMBTU (in module pudl.transform.params.ferc1)</a>
@@ -10286,6 +10447,8 @@ window.runMermaid = runMermaid;</script>
       <ul>
         <li><a href="autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.version">(pudl.dbt_schema.DbtSchema attribute)</a>
 </li>
+        <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package.version">(pudl.metadata.classes.Package attribute)</a>
+</li>
         <li><a href="autoapi/pudl/settings/index.html#pudl.settings.GlobalDataConfig.version">(pudl.settings.GlobalDataConfig attribute)</a>
 </li>
       </ul></li>
@@ -10351,8 +10514,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.WideToTidySourceFerc1.xbrl">xbrl (pudl.transform.ferc1.WideToTidySourceFerc1 attribute)</a>
 </li>
-      <li><a href="autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl.xbrl2sqlite_op_factory">xbrl2sqlite_op_factory() (in module pudl.extract.xbrl)</a>
-</li>
       <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercXbrlRuntimeSettings.xbrl_batch_size">xbrl_batch_size (pudl.dagster.resources.FercXbrlRuntimeSettings attribute)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1AbstractTableTransformer.xbrl_calculations">xbrl_calculations (pudl.transform.ferc1.Ferc1AbstractTableTransformer attribute)</a>
@@ -10381,8 +10542,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.XBRL_TABLES">XBRL_TABLES (in module pudl.metadata.constants)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html#pudl.dagster.assets.raw.ferc_to_sqlite.xbrl_to_sqlite_asset_factory">xbrl_to_sqlite_asset_factory() (in module pudl.dagster.assets.raw.ferc_to_sqlite)</a>
-</li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.Ferc1DataConfig.xbrl_years">xbrl_years (pudl.settings.Ferc1DataConfig property)</a>
 
       <ul>
@@ -10390,8 +10549,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.XbrlCalculationForestFerc1">XbrlCalculationForestFerc1 (class in pudl.output.ferc1)</a>
-</li>
-      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.XbrlFormNumber">XbrlFormNumber (class in pudl.settings)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -10402,6 +10559,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.year">year (pudl.extract.epacems.EpaCemsPartition property)</a>
 </li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.Eia860mDataConfig.year_months">year_months (pudl.settings.Eia860mDataConfig attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.YEAR_QUARTER">YEAR_QUARTER (in module pudl.metadata.patterns)</a>
 </li>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.year_quarter">year_quarter (pudl.extract.epacems.EpaCemsPartition attribute)</a>
 </li>
@@ -10493,7 +10652,7 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.zenodo_doi_settings_resource">zenodo_doi_settings_resource (in module pudl.dagster.resources)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.zenodo_dois">zenodo_dois (pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase attribute)</a>
+      <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.zenodo_dois">zenodo_dois (pudl.dagster.io_managers.FercSqliteIOManagerBase attribute)</a>
 
       <ul>
         <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.DatastoreResource.zenodo_dois">(pudl.dagster.resources.DatastoreResource attribute)</a>
@@ -10505,12 +10664,12 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZenodoDoiSettingsResource.zenodo_dois_path">zenodo_dois_path (pudl.dagster.resources.ZenodoDoiSettingsResource attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Contributor.zenodo_role">zenodo_role (pudl.metadata.classes.Contributor attribute)</a>
 </li>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient">ZenodoClient (class in pudl.scripts.zenodo_data_release)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoi">ZenodoDoi (in module pudl.workspace.datastore)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings">ZenodoDoiSettings (class in pudl.workspace.datastore)</a>
@@ -10521,9 +10680,17 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.zero_pad_numeric_string">zero_pad_numeric_string() (in module pudl.helpers)</a>
 </li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.ZIP4">ZIP4 (in module pudl.metadata.patterns)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.ZIP5">ZIP5 (in module pudl.metadata.patterns)</a>
+</li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive.zipfile">zipfile (pudl.extract.dbf.FercDbfArchive attribute)</a>
 </li>
       <li><a href="autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor.zipfile_resource_partitions">zipfile_resource_partitions() (pudl.extract.excel.ExcelExtractor method)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.zulip_notification_resource">zulip_notification_resource (in module pudl.dagster.resources)</a>
+</li>
+      <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource">ZulipNotificationResource (class in pudl.dagster.resources)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -10557,8 +10724,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -10592,7 +10759,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
 </p></div>
       
     </div>

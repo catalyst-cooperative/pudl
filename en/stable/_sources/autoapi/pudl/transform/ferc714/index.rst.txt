@@ -148,7 +148,7 @@ Module Contents
              the natively reported respondent ID with the PUDL-assigned respondent ID.
 
 
-.. py:function:: _filter_for_freshest_data_xbrl(raw_xbrl: pandas.DataFrame, table_name: str, instant_or_duration: Literal['instant', 'duration'])
+.. py:function:: _filter_for_freshest_data_xbrl(raw_xbrl: pandas.DataFrame, table_name: str, instant_or_duration: Literal['instant', 'duration'], pudl_paths: pudl.workspace.setup.PudlPaths | None = None)
 
    Wrapper around filter_for_freshest_data_xbrl.
 
@@ -184,7 +184,7 @@ Module Contents
    same name-space.
 
 
-   .. py:method:: run(raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+   .. py:method:: run(raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame, pudl_paths: pudl.workspace.setup.PudlPaths) -> pandas.DataFrame
       :classmethod:
 
 
@@ -281,7 +281,7 @@ Module Contents
 
 
 
-.. py:function:: core_ferc714__respondent_id(raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: core_ferc714__respondent_id(context, raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
 
    Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
@@ -307,7 +307,7 @@ Module Contents
    same name-space.
 
 
-   .. py:method:: run(raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame, raw_xbrl_instant: pandas.DataFrame) -> pandas.DataFrame
+   .. py:method:: run(raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame, raw_xbrl_instant: pandas.DataFrame, pudl_paths: pudl.workspace.setup.PudlPaths) -> pandas.DataFrame
       :classmethod:
 
 
@@ -522,7 +522,7 @@ Module Contents
 
 
 
-.. py:function:: core_ferc714__hourly_planning_area_demand(raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame, raw_xbrl_instant: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: core_ferc714__hourly_planning_area_demand(context, raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame, raw_xbrl_instant: pandas.DataFrame) -> pandas.DataFrame
 
    Build the :ref:`core_ferc714__hourly_planning_area_demand`.
 
@@ -543,7 +543,7 @@ Module Contents
    same name-space.
 
 
-   .. py:method:: run(raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+   .. py:method:: run(raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame, pudl_paths: pudl.workspace.setup.PudlPaths) -> pandas.DataFrame
       :classmethod:
 
 
@@ -601,7 +601,7 @@ Module Contents
 
 
 
-.. py:function:: core_ferc714__yearly_planning_area_demand_forecast(raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: core_ferc714__yearly_planning_area_demand_forecast(context, raw_csv: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
 
    Build the :ref:`core_ferc714__yearly_planning_area_demand_forecast`.
 

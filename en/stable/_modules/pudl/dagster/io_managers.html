@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.io_managers &#8212; PUDL 2026.5.0 documentation</title>
+    <title>pudl.dagster.io_managers &#8212; PUDL 2026.6.1 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../../_static/documentation_options.js?v=288f4d1e"></script>
+    <script src="../../../_static/documentation_options.js?v=2c9f49b4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -491,7 +491,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/dagster/io_managers';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'stable';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.5.0 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.5.0 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.1 documentation - Home"/>
   
   
 </a></div>
@@ -658,11 +658,18 @@ window.runMermaid = runMermaid;</script>
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -675,8 +682,7 @@ window.runMermaid = runMermaid;</script>
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -763,11 +769,18 @@ window.runMermaid = runMermaid;</script>
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -780,8 +793,7 @@ window.runMermaid = runMermaid;</script>
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -860,12 +872,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">For the underlying Dagster concept, see https://docs.dagster.io/guides/build/io-managers</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlite3</span><span class="w"> </span><span class="kn">import</span> <span class="n">sqlite_version</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
@@ -883,23 +896,26 @@ window.runMermaid = runMermaid;</script>
     <span class="n">OutputContext</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">packaging</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">model_validator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrivateAttr</span><span class="p">,</span> <span class="n">model_validator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.exc</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegrityError</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FercSqliteProvenance</span><span class="p">,</span>
-    <span class="n">assert_ferc_sqlite_compatible</span><span class="p">,</span>
+    <span class="n">FercSqliteProvenanceRecord</span><span class="p">,</span>
+    <span class="n">ferc_sqlite_provenance_is_compatible</span><span class="p">,</span>
+    <span class="n">get_xbrl_extractor_version</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.resources</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">GlobalDataConfigResource</span><span class="p">,</span>
+    <span class="n">PudlPathsResource</span><span class="p">,</span>
     <span class="n">ZenodoDoiSettingsResource</span><span class="p">,</span>
     <span class="n">global_data_config_resource</span><span class="p">,</span>
+    <span class="n">pudl_paths_resource</span><span class="p">,</span>
     <span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parquet_table</span><span class="p">,</span> <span class="n">get_parquet_table_polars</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span><span class="p">,</span> <span class="n">Package</span><span class="p">,</span> <span class="n">Resource</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.logger">[docs]</a>
@@ -967,6 +983,11 @@ window.runMermaid = runMermaid;</script>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;If true, data will be read from parquet files instead of sqlite.&quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="PudlMixedFormatIOManager.pudl_paths">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlMixedFormatIOManager.pudl_paths">[docs]</a>
+    <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">PudlPathsResource</span><span class="p">]</span></div>
+
+
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="PudlMixedFormatIOManager.validate_parquet_settings">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlMixedFormatIOManager.validate_parquet_settings">[docs]</a>
@@ -985,7 +1006,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">_sqlite_io_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PudlSqliteIOManager&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the SQLite-backed runtime IO manager lazily.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">PudlSqliteIOManager</span><span class="p">(</span>
-            <span class="n">base_dir</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+            <span class="n">base_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">pudl_output</span><span class="p">,</span>
             <span class="n">db_name</span><span class="o">=</span><span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -995,7 +1016,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlMixedFormatIOManager._parquet_io_manager">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_parquet_io_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PudlParquetIOManager&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the Parquet-backed runtime IO manager lazily.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">PudlParquetIOManager</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">PudlParquetIOManager</span><span class="p">(</span><span class="n">pudl_paths</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PudlMixedFormatIOManager.handle_output">
@@ -1249,8 +1270,39 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="PudlParquetIOManager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PudlParquetIOManager</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">IOManager</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PudlParquetIOManager</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableIOManager</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;IOManager that writes pudl tables to pyarrow parquet files.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PudlParquetIOManager.pudl_paths">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager.pudl_paths">[docs]</a>
+    <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">PudlPathsResource</span><span class="p">]</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="PudlParquetIOManager._record_parquet_file_metadata">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager._record_parquet_file_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_record_parquet_file_metadata</span><span class="p">(</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">OutputContext</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach file size and SHA-256 hash to the Dagster output metadata.</span>
+
+<span class="sd">        This metadata is later retrieved by the ``pudl_datapackage`` asset to</span>
+<span class="sd">        populate the frictionless datapackage descriptor without re-reading the</span>
+<span class="sd">        parquet files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parquet_meta</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_metadata</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">)</span>
+        <span class="n">file_bytes</span> <span class="o">=</span> <span class="n">parquet_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
+        <span class="n">sha256</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">parquet_path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">add_output_metadata</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;dagster/row_count&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">parquet_meta</span><span class="o">.</span><span class="n">num_rows</span><span class="p">),</span>
+                <span class="s2">&quot;dagster/column_count&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">parquet_meta</span><span class="o">.</span><span class="n">num_columns</span><span class="p">),</span>
+                <span class="s2">&quot;dagster/uri&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">)),</span>
+                <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">),</span>
+                <span class="s2">&quot;sha256&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">sha256</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="PudlParquetIOManager.handle_output">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager.handle_output">[docs]</a>
@@ -1260,7 +1312,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes pudl dataframe to parquet file.&quot;&quot;&quot;</span>
         <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
-        <span class="n">parquet_path</span> <span class="o">=</span> <span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+        <span class="n">parquet_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="n">parquet_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
@@ -1281,7 +1333,8 @@ window.runMermaid = runMermaid;</script>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">&quot;PudlParquetIOManager only supports pandas DataFrames and Polars LazyFrames&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_record_parquet_file_metadata</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PudlParquetIOManager.load_input">
@@ -1292,9 +1345,9 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads pudl table from parquet file.&quot;&quot;&quot;</span>
         <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">dagster_type</span><span class="o">.</span><span class="n">typing_type</span> <span class="o">==</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">get_parquet_table_polars</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">get_parquet_table_polars</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">paths</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">get_parquet_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">get_parquet_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">paths</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 </div>
 
@@ -1347,7 +1400,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;Only geopandas dataframes are supported, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="n">parquet_path</span> <span class="o">=</span> <span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+        <span class="n">parquet_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="n">parquet_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">res</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
@@ -1376,7 +1429,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">pa_table</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;geo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geo_metadata</span>
         <span class="n">pa_table</span> <span class="o">=</span> <span class="n">pa_table</span><span class="o">.</span><span class="n">replace_schema_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
-        <span class="n">pq</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">pa_table</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">)</span></div>
+        <span class="n">pq</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">pa_table</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_record_parquet_file_metadata</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">)</span></div>
 </div>
 
 
@@ -1524,168 +1578,222 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="pudl_mixed_format_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.pudl_mixed_format_io_manager">[docs]</a>
-<span class="n">pudl_mixed_format_io_manager</span> <span class="o">=</span> <span class="n">PudlMixedFormatIOManager</span><span class="p">()</span></div>
+<span class="n">pudl_mixed_format_io_manager</span> <span class="o">=</span> <span class="n">PudlMixedFormatIOManager</span><span class="p">(</span><span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths_resource</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="parquet_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.parquet_io_manager">[docs]</a>
-<span class="n">parquet_io_manager</span> <span class="o">=</span> <span class="n">PudlParquetIOManager</span><span class="p">()</span></div>
+<span class="n">parquet_io_manager</span> <span class="o">=</span> <span class="n">PudlParquetIOManager</span><span class="p">(</span><span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths_resource</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="geoparquet_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.geoparquet_io_manager">[docs]</a>
-<span class="n">geoparquet_io_manager</span> <span class="o">=</span> <span class="n">PudlGeoParquetIOManager</span><span class="p">()</span></div>
+<span class="n">geoparquet_io_manager</span> <span class="o">=</span> <span class="n">PudlGeoParquetIOManager</span><span class="p">(</span><span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths_resource</span><span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="FercSqliteIOManager">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FercSqliteIOManager</span><span class="p">(</span><span class="n">SqliteIOManager</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;IO Manager for reading tables from FERC databases.</span>
+<div class="viewcode-block" id="FercSqliteIOManagerBase">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FercSqliteIOManagerBase</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableIOManager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shared lazy-loading behavior for FERC SQLite Dagster IO managers.</span>
 
-<span class="sd">    This class should be subclassed and the load_input and handle_output methods should</span>
-<span class="sd">    be implemented.</span>
+<span class="sd">    Subclasses provide the query details for a particular FERC SQLite backend, while</span>
+<span class="sd">    this base class owns three shared responsibilities:</span>
 
-<span class="sd">    This IOManager expects the database to already exist.</span>
+<span class="sd">    1. lazily creating and caching a SQLAlchemy engine for the configured database</span>
+<span class="sd">    2. lazily reflecting and caching SQLAlchemy metadata once the database exists</span>
+<span class="sd">    3. checking Dagster provenance metadata before each read</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="FercSqliteIOManager._db_path">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._db_path">[docs]</a>
-    <span class="n">_db_path</span><span class="p">:</span> <span class="n">Path</span>  <span class="c1"># set during _setup_database(); typed here for IDE and type-checker visibility</span></div>
+<div class="viewcode-block" id="FercSqliteIOManagerBase.global_data_config">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.global_data_config">[docs]</a>
+    <span class="n">global_data_config</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">GlobalDataConfigResource</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="FercSqliteIOManagerBase.pudl_paths">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.pudl_paths">[docs]</a>
+    <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">PudlPathsResource</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="FercSqliteIOManagerBase.zenodo_dois">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.zenodo_dois">[docs]</a>
+    <span class="n">zenodo_dois</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">ZenodoDoiSettingsResource</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="FercSqliteIOManagerBase.dataset">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.dataset">[docs]</a>
+    <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="FercSqliteIOManagerBase.data_format">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.data_format">[docs]</a>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">md</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1_000.0</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize FercSqliteIOManager.</span>
+<div class="viewcode-block" id="FercSqliteIOManagerBase._engine">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._engine">[docs]</a>
+    <span class="n">_engine</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
-<span class="sd">        Args:</span>
-<span class="sd">            base_dir: base directory where all the step outputs which use this object</span>
-<span class="sd">                manager will be stored in.</span>
-<span class="sd">            db_name: the name of sqlite database.</span>
-<span class="sd">            md: database metadata described as a SQLAlchemy MetaData object. If not</span>
-<span class="sd">                specified, default to metadata stored in the pudl.metadata subpackage.</span>
-<span class="sd">            timeout: How many seconds the connection should wait before raising an</span>
-<span class="sd">                exception, if the database is locked by another connection.  If another</span>
-<span class="sd">                connection opens a transaction to modify the database, it will be locked</span>
-<span class="sd">                until that transaction is committed.</span>
+<div class="viewcode-block" id="FercSqliteIOManagerBase._metadata">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._metadata">[docs]</a>
+    <span class="n">_metadata</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FercSqliteIOManagerBase._years_key">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._years_key">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_years_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">_years&quot;</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FercSqliteIOManagerBase.db_name">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.db_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">db_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the SQLite database name for this dataset and data format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FercSqliteIOManagerBase.db_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.db_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">db_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the canonical SQLite path for this dataset and data format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">sqlite_db_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FercSqliteIOManagerBase.engine">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.engine">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">engine</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a cached SQLAlchemy engine for this FERC SQLite database.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FercSqliteIOManagerBase.metadata">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return cached reflected metadata for this database.</span>
+
+<span class="sd">        The metadata is reflected on first access and reused for subsequent reads.</span>
+<span class="sd">        Accessing this property requires the SQLite database to already exist.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO(rousik): Note that this is a bit of a partially implemented IO manager that</span>
-        <span class="c1"># is not actually used for writing anything. Given that this is derived from base</span>
-        <span class="c1"># SqliteIOManager, we do not support handling of parquet formats. This is probably</span>
-        <span class="c1"># okay for now.</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
-
-<div class="viewcode-block" id="FercSqliteIOManager._setup_database">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._setup_database">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_database</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1_000.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create database engine and read metadata if the DB already exists.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            timeout: How many seconds the connection should wait before raising an</span>
-<span class="sd">                exception, if the database is locked by another connection.  If another</span>
-<span class="sd">                connection opens a transaction to modify the database, it will be locked</span>
-<span class="sd">                until that transaction is committed.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            engine: SQL Alchemy engine that connects to a database in the base_dir.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">db_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">.sqlite&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_db_path</span> <span class="o">=</span> <span class="n">db_path</span>
-
-        <span class="n">engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">connect_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="n">timeout</span><span class="p">}</span>
-        <span class="p">)</span>
-
-        <span class="c1"># For single-pass Dagster runs, this resource may initialize before upstream</span>
-        <span class="c1"># sqlite-producing assets have materialized the DB file.</span>
-        <span class="k">if</span> <span class="n">db_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_reflect_metadata</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2"> not found during resource initialization; metadata reflection &quot;</span>
-                <span class="s2">&quot;will happen on first load.&quot;</span>
-            <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">engine</span></div>
-
-
-<div class="viewcode-block" id="FercSqliteIOManager._reflect_metadata">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._reflect_metadata">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_reflect_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reflect table metadata from the sqlite database into ``self.md``.&quot;&quot;&quot;</span>
-        <span class="n">reflected</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
-        <span class="n">reflected</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="n">engine</span> <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span> <span class="o">=</span> <span class="n">reflected</span></div>
-
-
-<div class="viewcode-block" id="FercSqliteIOManager._ensure_database_ready">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._ensure_database_ready">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_database_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the sqlite DB exists and metadata has been reflected.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No DB found at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_path</span><span class="si">}</span><span class="s2">. Run the job that creates the &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;No DB found at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">. Run the job that creates the &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2"> database.&quot;</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_reflect_metadata</span><span class="p">()</span></div>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span></div>
 
 
-<div class="viewcode-block" id="FercSqliteIOManager._query">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager._query">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a year-filtered read against the FERC SQLite database.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;Subclasses of FercSqliteIOManager must implement _query.&quot;</span>
-        <span class="p">)</span></div>
+<div class="viewcode-block" id="FercSqliteIOManagerBase._get_sqlalchemy_table">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._get_sqlalchemy_table">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_sqlalchemy_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return reflected SQLAlchemy table metadata for a FERC SQLite table.&quot;&quot;&quot;</span>
+        <span class="n">sa_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sa_table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> not found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2"> metadata. Either add the &quot;</span>
+                <span class="s2">&quot;table to the metadata or use a different IO Manager. Database is &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;located at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_path</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">sa_table</span></div>
 
 
-<div class="viewcode-block" id="FercSqliteIOManager.handle_output">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManager.handle_output">[docs]</a>
+<div class="viewcode-block" id="FercSqliteIOManagerBase._check_provenance">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._check_provenance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_provenance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that the existing FERC SQLite database is compatible with this run.</span>
+
+<span class="sd">        This is intentionally separate from engine and metadata caching because the</span>
+<span class="sd">        compatibility check depends on the Dagster run context rather than on local</span>
+<span class="sd">        process state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zenodo_doi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois</span><span class="o">.</span><span class="n">get_doi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="n">provenance</span> <span class="o">=</span> <span class="n">FercSqliteProvenance</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+            <span class="n">data_format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span>
+            <span class="n">zenodo_doi</span><span class="o">=</span><span class="n">zenodo_doi</span><span class="p">,</span>
+            <span class="n">years</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">ferc_to_sqlite</span><span class="o">.</span><span class="n">get_dataset_years</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span>
+            <span class="p">),</span>
+            <span class="n">ferc_xbrl_extractor_version</span><span class="o">=</span><span class="n">get_xbrl_extractor_version</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">((</span><span class="n">instance</span> <span class="o">:=</span> <span class="n">_get_dagster_instance_if_available</span><span class="p">(</span><span class="n">context</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">ferc_sqlite_provenance_is_compatible</span><span class="p">(</span>
+                <span class="n">observed_provenance</span><span class="o">=</span><span class="n">FercSqliteProvenanceRecord</span><span class="o">.</span><span class="n">from_dagster_instance</span><span class="p">(</span>
+                    <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span>
+                    <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                    <span class="n">data_format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">required_provenance</span><span class="o">=</span><span class="n">provenance</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2"> provenace metadata is not compatible&quot;</span>
+                <span class="s2">&quot; with requirements of current run. Refresh the FERC SQLite assets.&quot;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FercSqliteIOManagerBase.load_input">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.load_input">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataframe from the configured FERC SQLite database.</span>
+
+<span class="sd">        Ensure that the database exists and its schema has been reflected, then verify</span>
+<span class="sd">        the upstream FERC-to-SQLite provenance recorded in Dagster before delegating to</span>
+<span class="sd">        the subclass-specific query implementation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_provenance</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">ferc_data_config</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;raw_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ferc_data_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_years_key</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="FercSqliteIOManagerBase.handle_output">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase.handle_output">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle an op or asset output.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;FercSqliteIOManager can&#39;t write outputs. Subclass FercSqliteIOManager and &quot;</span>
-            <span class="s2">&quot;implement the handle_output method.&quot;</span>
-        <span class="p">)</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reject writes because these IO managers currently support reads only.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Ferc SQLite IO managers can&#39;t write outputs yet.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FercSqliteIOManagerBase._query">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._query">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a filtered read against the FERC SQLite database.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Subclasses must implement _query.&quot;</span><span class="p">)</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="FercDbfSqliteIOManager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FercDbfSqliteIOManager</span><span class="p">(</span><span class="n">FercSqliteIOManager</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;IO Manager for reading tables from FERC DBF SQLite databases.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FercDbfSqliteIOManager</span><span class="p">(</span><span class="n">FercSqliteIOManagerBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;IO manager for reading tables from FERC DBF SQLite databases.</span>
 
-<span class="sd">    This IO Manager is for reading data only. It does not handle outputs because the raw</span>
-<span class="sd">    FERC tables are not known prior to running the ETL and are not recorded in our</span>
-<span class="sd">    metadata.</span>
-
-<span class="sd">    The form name is inferred from ``self.db_name`` via :func:`get_ferc_form_name`, so</span>
-<span class="sd">    a single class serves all FERC DBF datasets (ferc1_dbf, ferc2_dbf, etc.) as long as</span>
-<span class="sd">    the corresponding data config object exposes a ``dbf_years`` attribute.</span>
+<span class="sd">    Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="FercDbfSqliteIOManager.handle_output">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteIOManager.handle_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle an op or asset output.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;FercDbfSqliteIOManager can&#39;t write outputs yet.&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="FercDbfSqliteIOManager.data_format">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteIOManager.data_format">[docs]</a>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dbf&quot;</span></div>
 
 
 <div class="viewcode-block" id="FercDbfSqliteIOManager._query">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteIOManager._query">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the year-filtered read against the FERC DBF SQLite database.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            table_name: Name of the table to query (without the ``raw_&lt;db_name&gt;__``</span>
-<span class="sd">                prefix).</span>
-<span class="sd">            years: Years to include in the result set.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the year-filtered read against the FERC DBF SQLite database.&quot;&quot;&quot;</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sqlalchemy_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span>
@@ -1701,153 +1809,18 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">_FercSqliteConfigurableIOManagerBase</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableIOManager</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for Dagster-native FERC SQLite IO manager wrappers.</span>
-
-<span class="sd">    Holds the shared resource dependencies (``global_data_config``, ``zenodo_dois``,</span>
-<span class="sd">    ``db_name``) and provides default delegation for ``engine``, ``handle_output``, and</span>
-<span class="sd">    ``load_input``. Subclasses must define ``_manager`` (a ``cached_property`` returning</span>
-<span class="sd">    the appropriate underlying IO manager) and ``data_format`` (``dbf`` or ``xbrl``).</span>
-
-<span class="sd">    Note:</span>
-<span class="sd">        This wrapper pattern is a temporary workaround for nested ``global_data_config``</span>
-<span class="sd">        resource dependencies inside the FERC IO managers. Because Dagster wires</span>
-<span class="sd">        resource dependencies at instantiation time, overriding the top-level</span>
-<span class="sd">        ``global_data_config`` resource alone (e.g. in tests) is not enough — the IO</span>
-<span class="sd">        managers must be rebuilt against the new resource instance. ``build_defs`` in</span>
-<span class="sd">        ``pudl.etl`` handles that rebuilding explicitly. A follow-up PR will remove the</span>
-<span class="sd">        nested dependency, at which point this base class can be simplified or</span>
-<span class="sd">        eliminated. See issue #5118</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.global_data_config">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.global_data_config">[docs]</a>
-    <span class="n">global_data_config</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">GlobalDataConfigResource</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.zenodo_dois">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.zenodo_dois">[docs]</a>
-    <span class="n">zenodo_dois</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">ResourceDependency</span><span class="p">[</span><span class="n">ZenodoDoiSettingsResource</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.dataset">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.dataset">[docs]</a>
-    <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span></div>
-
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.data_format">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.data_format">[docs]</a>
-    <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">,</span> <span class="s2">&quot;xbrl&quot;</span><span class="p">]</span></div>
-
-
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase._years_key">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._years_key">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_years_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">_years&quot;</span></div>
-
-
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.db_name">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.db_name">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">db_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="si">}</span><span class="s2">&quot;</span></div>
-
-
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.engine">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.engine">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">engine</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Expose the underlying SQLAlchemy engine for tests and helpers.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">engine</span></div>
-
-
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.handle_output">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.handle_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delegate writes to the underlying runtime IO manager.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">handle_output</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase._prepare">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase._prepare">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure extracted FERC database is valid for this run.</span>
-
-<span class="sd">        * does the database exist?</span>
-<span class="sd">        * do the FERC SQLite provenance check</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_ensure_database_ready</span><span class="p">()</span>
-
-        <span class="n">zenodo_doi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois</span><span class="o">.</span><span class="n">get_doi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
-
-        <span class="n">provenance</span> <span class="o">=</span> <span class="n">FercSqliteProvenance</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
-            <span class="n">data_format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_format</span><span class="p">,</span>
-            <span class="n">zenodo_doi</span><span class="o">=</span><span class="n">zenodo_doi</span><span class="p">,</span>
-            <span class="n">years</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">ferc_to_sqlite</span><span class="o">.</span><span class="n">get_dataset_years</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span>
-            <span class="p">),</span>
-        <span class="p">)</span>
-
-        <span class="n">assert_ferc_sqlite_compatible</span><span class="p">(</span>
-            <span class="n">instance</span><span class="o">=</span><span class="n">_get_dagster_instance_if_available</span><span class="p">(</span><span class="n">context</span><span class="p">),</span> <span class="n">provenance</span><span class="o">=</span><span class="n">provenance</span>
-        <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="_FercSqliteConfigurableIOManagerBase.load_input">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers._FercSqliteConfigurableIOManagerBase.load_input">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">InputContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataframe from the configured FERC SQLite database.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prepare</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="n">ferc_data_config</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;raw_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span>
-            <span class="n">table_name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ferc_data_config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_years_key</span><span class="p">)</span>
-        <span class="p">)</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="FercDbfSqliteConfigurableIOManager">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FercDbfSqliteConfigurableIOManager</span><span class="p">(</span><span class="n">_FercSqliteConfigurableIOManagerBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configurable IO manager for reading tables from FERC DBF SQLite databases.</span>
-
-<span class="sd">    Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="FercDbfSqliteConfigurableIOManager.data_format">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager.data_format">[docs]</a>
-    <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dbf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dbf&quot;</span></div>
-
-
-    <span class="nd">@cached_property</span>
-<div class="viewcode-block" id="FercDbfSqliteConfigurableIOManager._manager">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercDbfSqliteConfigurableIOManager._manager">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDbfSqliteIOManager</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the underlying SQLite reader lazily.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">FercDbfSqliteIOManager</span><span class="p">(</span>
-            <span class="n">base_dir</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
-            <span class="n">db_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span>
-        <span class="p">)</span></div>
-</div>
-
-
-
 <div class="viewcode-block" id="FercXbrlSqliteIOManager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FercXbrlSqliteIOManager</span><span class="p">(</span><span class="n">FercSqliteIOManager</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;IO Manager for only reading tables from the XBRL database.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FercXbrlSqliteIOManager</span><span class="p">(</span><span class="n">FercSqliteIOManagerBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;IO manager for reading tables from a FERC XBRL SQLite database.</span>
 
-<span class="sd">    This IO Manager is for reading data only. It does not handle outputs because the raw</span>
-<span class="sd">    FERC tables are not known prior to running the ETL and are not recorded in our</span>
-<span class="sd">    metadata.</span>
+<span class="sd">    Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FercXbrlSqliteIOManager.data_format">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteIOManager.data_format">[docs]</a>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;xbrl&quot;</span></div>
+
 
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="FercXbrlSqliteIOManager.refine_report_year">
@@ -1887,18 +1860,9 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># range because we want to use it to set start-of-year values for the</span>
         <span class="c1"># first XBRL year.</span>
         <span class="n">xbrl_years_plus_one_previous</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">xbrl_years</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">xbrl_years</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_year</span><span class="o">=</span><span class="n">new_report_years</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">xbrl_years_plus_one_previous</span><span class="p">)]</span>
-            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="FercXbrlSqliteIOManager.handle_output">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteIOManager.handle_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle an op or asset output.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;FercXbrlSqliteIOManager can&#39;t write outputs yet.&quot;</span><span class="p">)</span></div>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_year</span><span class="o">=</span><span class="n">new_report_years</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">xbrl_years_plus_one_previous</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FercXbrlSqliteIOManager._query">
@@ -1916,7 +1880,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># don&#39;t have duration and instant variants.</span>
         <span class="c1"># Not every table contains both instant and duration;</span>
         <span class="c1"># return an empty dataframe if the table doesn&#39;t exist.</span>
-        <span class="k">if</span> <span class="n">table_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">table_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="n">sched_table_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;_instant|_duration&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
@@ -1924,57 +1888,34 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;SELECT </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.* FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="c1"># noqa: S608 - table names not supplied by user</span>
                 <span class="n">con</span><span class="o">=</span><span class="n">con</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">sched_table_name</span><span class="o">=</span><span class="n">sched_table_name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">FercXbrlSqliteIOManager</span><span class="o">.</span><span class="n">refine_report_year</span><span class="p">,</span> <span class="n">xbrl_years</span><span class="o">=</span><span class="n">years</span><span class="p">)</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="FercXbrlSqliteConfigurableIOManager">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FercXbrlSqliteConfigurableIOManager</span><span class="p">(</span><span class="n">_FercSqliteConfigurableIOManagerBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configurable IO manager for reading tables from a FERC XBRL SQLite database.</span>
-
-<span class="sd">    Instantiate with ``dataset`` (``ferc1``, ``ferc714``, etc.).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="FercXbrlSqliteConfigurableIOManager.data_format">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager.data_format">[docs]</a>
-    <span class="n">data_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;xbrl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;xbrl&quot;</span></div>
-
-
-    <span class="nd">@cached_property</span>
-<div class="viewcode-block" id="FercXbrlSqliteConfigurableIOManager._manager">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercXbrlSqliteConfigurableIOManager._manager">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercXbrlSqliteIOManager</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the underlying SQLite reader lazily.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">FercXbrlSqliteIOManager</span><span class="p">(</span>
-            <span class="n">base_dir</span><span class="o">=</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
-            <span class="n">db_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refine_report_year</span><span class="p">,</span> <span class="n">xbrl_years</span><span class="o">=</span><span class="n">years</span><span class="p">)</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="ferc1_dbf_sqlite_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager">[docs]</a>
-<span class="n">ferc1_dbf_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercDbfSqliteConfigurableIOManager</span><span class="p">(</span>
+<span class="n">ferc1_dbf_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercDbfSqliteIOManager</span><span class="p">(</span>
     <span class="n">global_data_config</span><span class="o">=</span><span class="n">global_data_config_resource</span><span class="p">,</span>
+    <span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths_resource</span><span class="p">,</span>
     <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
     <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
 <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ferc1_xbrl_sqlite_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager">[docs]</a>
-<span class="n">ferc1_xbrl_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercXbrlSqliteConfigurableIOManager</span><span class="p">(</span>
+<span class="n">ferc1_xbrl_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercXbrlSqliteIOManager</span><span class="p">(</span>
     <span class="n">global_data_config</span><span class="o">=</span><span class="n">global_data_config_resource</span><span class="p">,</span>
+    <span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths_resource</span><span class="p">,</span>
     <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
     <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
 <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ferc714_xbrl_sqlite_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.ferc714_xbrl_sqlite_io_manager">[docs]</a>
-<span class="n">ferc714_xbrl_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercXbrlSqliteConfigurableIOManager</span><span class="p">(</span>
+<span class="n">ferc714_xbrl_sqlite_io_manager</span> <span class="o">=</span> <span class="n">FercXbrlSqliteIOManager</span><span class="p">(</span>
     <span class="n">global_data_config</span><span class="o">=</span><span class="n">global_data_config_resource</span><span class="p">,</span>
+    <span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths_resource</span><span class="p">,</span>
     <span class="n">zenodo_dois</span><span class="o">=</span><span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
     <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
 <span class="p">)</span></div>
@@ -2020,8 +1961,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -2055,7 +1996,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
 </p></div>
       
     </div>
