@@ -28,6 +28,7 @@ from pudl.dagster.resources import (
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.sources import SOURCES
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
@@ -157,11 +158,6 @@ def _promote_staging(
     original, so the metadata (owner, timestamps, storage class) is preserved and no
     data re-upload occurs. On local filesystems the rename is a fast inode-level
     operation.
-
-    After promotion the (now empty) staging directory is removed using the
-    filesystem's ``rm(path, recursive=True)`` rather than ``rmdir()``, because
-    cloud storage (GCS, S3) uses virtual prefixes rather than real directories
-    and ``rmdir()`` would raise ``NotADirectoryError``.
     """
     for staging_dir, final_dir in zip(staging_targets, resolved_targets, strict=True):
         logger.info(f"Promoting {staging_dir} -> {final_dir}")
@@ -183,13 +179,16 @@ def _promote_staging(
 
         # Rename the datapackage JSON.
         datapackage_src = staging_dir / "ferceqr_parquet_datapackage.json"
-        if datapackage_src.exists():
+        try:
             datapackage_src.rename(final_dir / "ferceqr_parquet_datapackage.json")
+        except FileNotFoundError:
+            logger.error(
+                f"Expected datapackage JSON not found in staging dir: {datapackage_src}"
+            )
+            raise
 
-        # Remove the empty staging directory. On GCS the rename above is a
-        # copy+delete, so the staging prefix may already be gone.
-        if staging_dir.exists():
-            staging_dir.fs.rm(staging_dir.path, recursive=True)
+        # Remove the now empty staging directory.
+        _remove_staging(staging_dir)
 
 
 def _remove_staging(staging_dir: UPath) -> None:
@@ -223,7 +222,11 @@ def _parse_step_key(step_key: str, source_partition: str | None) -> tuple[str, s
 
 
 def _validate_partitions(raw: str | None) -> list[str]:
-    """Validate and parse the source partitions JSON from run tags."""
+    """Validate and parse the source partitions JSON from run tags.
+
+    Also verifies that each partition is one of the allowed working partitions
+    defined for the ``ferceqr`` data source in ``pudl.metadata.sources``.
+    """
     if raw is None:
         return []
     parsed_partitions = json.loads(raw)
@@ -231,6 +234,16 @@ def _validate_partitions(raw: str | None) -> list[str]:
         raise RuntimeError("FERC EQR deployment run has no deployable partitions.")
     if any(not isinstance(partition, str) for partition in parsed_partitions):
         raise RuntimeError("FERC EQR deployment run has invalid source partitions.")
+
+    allowed_partitions = set(
+        SOURCES["ferceqr"]["working_partitions"].get("year_quarters", [])
+    )
+    unexpected = sorted(set(parsed_partitions) - allowed_partitions)
+    if unexpected:
+        raise RuntimeError(
+            f"FERC EQR deployment run references partitions not in the "
+            f"ferceqr data source working_partitions: {unexpected}"
+        )
     return parsed_partitions
 
 
