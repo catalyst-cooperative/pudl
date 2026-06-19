@@ -2,11 +2,19 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2026.6.0:
+.. _release-v2026.6.1:
 
 ---------------------------------------------------------------------------------------
-v2026.6.0 (2026-06-XX)
+v2026.6.1 (2026-06-19)
 ---------------------------------------------------------------------------------------
+
+This is a monthly PUDL data release, primarily motivated by updating the EIA-860M
+monthly data through February 2026. As usual, it also includes all of the other changes
+that have accumulated on ``main`` since our last release.
+
+This month, we have the belated EPA CEMS update for 2026Q1, the annual update
+for FERC 1, some great community contributions for RUS7 and EIA-176, and an
+assortment of datapackage, Dagster, and deployment notification improvements.
 
 Enhancements
 ^^^^^^^^^^^^
@@ -22,7 +30,7 @@ Enhancements
   reusable :func:`~pudl.dagster.asset_checks.valid_datapackage_check` factory is now
   available in :mod:`pudl.dagster.asset_checks` to add frictionless v2 validation as an
   asset check on any datapackage output. See issues :issue:`5122,5237` and PR
-  :pr:`5270`. Also makes progress towards `catalyst-cooperative/agent-skills#14
+  :pr:`5270,5343`. Also makes progress towards `catalyst-cooperative/agent-skills#14
   <https://github.com/catalyst-cooperative/agent-skills/issues/14>`__
 * Added a bare-bones datapackage for DBF SQLite outputs. See issue :issue:`5200`
   and PR :pr:`5275`.
@@ -57,19 +65,21 @@ EIA-191
 EIA-860M
 ~~~~~~~~
 
-* Added EIA-860M data through April 2026. See issue :issue:`5277` and PR :pr:`5284`.
+* Added :doc:`EIA-860M <data_sources/eia860>` data through April 2026. See
+  issue :issue:`5277` and PR :pr:`5284`.
 
 FERC 1
 ~~~~~~
 
-* Added 2025 data from FERC form 1. This update includes several new renewable and
-  energy storage fields in several tables. See issue :issue:`5214` and PR :pr:`5236`.
+* Added 2025 data from :doc:`FERC form 1 <data_sources/ferc1>`. This update
+  includes several new renewable and energy storage fields in several tables.
+  See issue :issue:`5214` and PRs :pr:`5236,5325`.
 
 EIA Electricity API
 ~~~~~~~~~~~~~~~~~~~
 
-* Updated the bulk EIA Electricity API data used to fill in redacted fuel prices.
-  See PR :pr:`5292`.
+* Updated the :doc:`bulk EIA Electricity API <data_sources/eiaapi>` data used to
+  fill in redacted fuel prices. See PR :pr:`5292`.
 
 EPA CEMS
 ~~~~~~~~
@@ -86,29 +96,37 @@ FERC Forms 2 & 6
 Documentation
 ^^^^^^^^^^^^^
 
+* Added a data source page for :doc:`EIA-191 <data_sources/eia191>`. See PR
+  :pr:`5267` and issue :issue:`4756`.
+* Updated the :doc:`EIA-930 <data_sources/eia930>` column descriptions to note that
+  starting in 2024Q3 EIA began reporting more granular renewable energy source
+  categories, differentiating wind and solar plants with and without energy storage,
+  splitting pumped hydro from conventional hydro, and adding new battery storage and
+  geothermal categories. See issue :issue:`5335` and PR :pr:`5336`.
+
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added validations to :doc:`RUS7 <data_sources/rus7>` service interruption
+  tables to ensure subcomponents sum to the total for annual observation
+  periods. See issue :issue:`5285` and PR :pr:`5286`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Rename the ``fuel_consumed_mmbtu`` column in the ``out_eia923__fuel_receipts_costs``,
+* Renamed the ``fuel_consumed_mmbtu`` column in the ``out_eia923__fuel_receipts_costs``,
   ``out_eia923__monthly_fuel_receipts_costs``, and
   ``out_eia923__yearly_fuel_receipts_costs`` tables. This column is the result of
   dividing ``total_fuel_cost`` by ``fuel_received_mmbtu``. The name
-  ``fuel_consumed_mmbtu`` was misleading because the fuel received in these tables
-  is not necessarily consumed in the same month, and the fuel cost is not necessarily
+  ``fuel_consumed_mmbtu`` was misleading because the fuel received in these tables is
+  not necessarily consumed in the same month, and the fuel cost is not necessarily
   associated with fuel received in the same month. The new name,
-  ``fuel_received_mmbtu``, more accurately reflects what the column actually
-  contains. See PR :pr:`5294`.
-
-* Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
-  directories when deciding what to upload to Zenodo, which caused release failures
-  once we started leaving the ``ferc*_xbrl`` directories laying around. See PR
-  :pr:`5254`.
-
-Performance Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^
+  ``fuel_received_mmbtu``, more accurately reflects what the column actually contains.
+  See PR :pr:`5294`.
+* Fixed a bug in the Zenodo Data Release script which was not actually skipping
+  top-level directories when deciding what to upload to Zenodo, which caused release
+  failures once we started leaving the ``ferc*_xbrl`` directories on the filesystem. See
+  PR :pr:`5254`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -118,18 +136,18 @@ Quality of Life Improvements
   assets, IO managers, and tests. This makes path resolution more explicit in Dagster
   contexts and allows interactive definitions to override ``pudl_input`` and
   ``pudl_output`` directly when calling
-  :func:`pudl.dagster.build.build_interactive_defs`. See PR :pr:`5261`.
+  :func:`pudl.dagster.build.build_interactive_defs`. See PR :pr:`5261,5288`.
 * Added a PUDL devcontainer configuration to make it easier for contributors to get up
-  and running, and to enable the safe use of coding agents in YOLO mode. See PR
-  :pr:`5260`.
-* Cleaned up PUDL's default Dagster wiring by separating default resources from IO
-  managers, giving shared data-config resources clearer defaults, and simplifying the
-  FERC SQLite IO manager and provenance stack. The branch also consolidated the FERC EQR
-  deployment helper assets with the rest of the Dagster package layout. Also created a
-  new Dagster definition builder for use in notebooks and other interactive environments
-  outside of a ``dg``-spawned environment:
-  :func:`pudl.dagster.build.build_interactive_defs`. See issue :issue:`5118` and PR
-  :pr:`5242`.
+  and running, and to enable the safe use of coding agents in YOLO mode. See PRs
+  :pr:`5260,5287`.
+* Cleaned up PUDL's default Dagster wiring by separating default resources from
+  IO managers, giving shared data-config resources clearer defaults, and
+  simplifying the FERC SQLite IO manager and provenance stack. Consolidated the
+  FERC EQR deployment helper assets with the rest of the Dagster package layout.
+  Created a new Dagster definition builder for use in notebooks and other
+  interactive environments outside of a ``dg``-spawned environment:
+  :func:`pudl.dagster.build.build_interactive_defs`. See issue :issue:`5118` and
+  PR :pr:`5242`.
 * Migrated build and deployment notifications from Slack to Zulip. All GitHub Actions
   workflows that previously posted to Slack now send notifications to the Catalyst
   Cooperative Zulip instance via the ``zulip/github-actions-zulip`` action. A new
@@ -138,7 +156,17 @@ Quality of Life Improvements
   FERC EQR deployment helpers in :mod:`pudl.dagster.assets.deploy.ferceqr` were updated
   to use it. Notification coverage was also expanded to include community activity
   (issues, discussions, comments, and pull requests from non-Catalyst contributors).
-  See PR :pr:`5298`.
+  See PRs :pr:`5298,5328,5331`.
+* FERC provenance metadata (Zenodo DOIs, data years, XBRL extractor version) is now
+  stored in the FERC SQLite datapackage files rather than only in Dagster asset
+  metadata. The ``ferc_to_sqlite`` asset can now optionally download and reuse pre-built
+  FERC SQLite outputs from the most recent nightly build, skipping expensive
+  re-extraction when the inputs haven't changed. Set ``PUDL_FERC_FORCE_EXTRACT=true`` to
+  force re-extraction regardless. See issue :issue:`5220` and PR :pr:`5264`.
+* Migrated hashtag-prefixed comments from soon-to-be-machine-generated dbt
+  schema files into their corresponding human-editable schema input files
+  (``dbt/schema_inputs/**/schema.human.yml``) to preserve their content, since
+  any regenerated schemas will forcibly strip out hashtag comments. See PR :pr:`5310`.
 
 .. _release-v2026.5.0:
 
