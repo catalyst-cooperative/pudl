@@ -150,6 +150,7 @@ jobs:
             --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
             --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
             --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
+            --container-env PUDL_FORCE_FERC_TO_SQLITE="true" \
             --output ${{ env.BATCH_JOB_JSON }}
 
       - name: Compile notification content
@@ -177,13 +178,25 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: gcloud batch jobs submit run-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
-      - name: Post to pudl-deployments channel
-        if: always()
-        id: slack
-        uses: slackapi/slack-github-action@v3
+      - name: Status emoji
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "emoji=:check:" >> "$GITHUB_ENV"
+          elif [[ "${{ job.status }}" == "failure" ]]; then
+            echo "emoji=:x:" >> "$GITHUB_ENV"
+          else
+            echo "emoji=:warning:" >> "$GITHUB_ENV"
+          fi
+      - name: Notify Zulip of build launch status
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        uses: zulip/github-actions-zulip/send-message@v2
         with:
-          method: chat.postMessage
-          token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
-          payload: |
-            text: "`${{ env.BUILD_ID }}` build-deploy-pudl status: ${{ (env.SKIP_BUILD == 'true') && 'skipped' || job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
-            channel: "C03FHB9N0PQ"
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: >
+            ${{ env.emoji }} Google Batch job for ${{ env.BUILD_ID }} launched with status: ${{ job.status }}.

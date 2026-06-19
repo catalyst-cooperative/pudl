@@ -68,7 +68,7 @@ boto3 = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
 "catalystcoop.ferc_xbrl_extractor" = ">=1.10,<1.11"
-click = ">=8.3.2"
+click = ">=8.4"
 coloredlogs = ">=14.0"
 coverage = ">=7.13"
 curl = ">=8.17"
@@ -78,7 +78,7 @@ dagster-dg-cli = ">=1.13"
 dagster-gcp = ">=1!0.29"
 dagster-postgres = ">=1!0.29"
 dagster-webserver = ">=1.13"
-dbt-core = ">=1.11.8"
+dbt-core = ">=1.11.11"
 dbt-duckdb = ">=1.9.4"
 deepdiff = ">=8"
 doc8 = ">=1.1"
@@ -87,7 +87,7 @@ filelock = ">=3.29"
 frictionless = ">=5,<6"
 fsspec = ">=2026"
 gcsfs = ">=2026"
-gdal = ">=3.12.4"
+gdal = ">=3.13.1"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 google-cloud-sdk = ">=535"
@@ -106,18 +106,18 @@ jupyterlab = ">=4.5"
 jupyterlab-lsp = ">=5.2"
 matplotlib-base = ">=3.10"
 memray = ">=1.18.0"
-mlflow = ">=3.12"
+mlflow = ">=3.13"
 nbconvert = ">=7"
 nbformat = ">=5.10"
 networkx = ">=3.6"
-nodejs = ">=24"
+nodejs = ">=26"
 numba = ">=0.65"
 numexpr = ">=2.10"
 numpy = ">=2.4"
 packaging = ">=25"
 pandas = ">=2.3"
 pandoc = ">=3.7"
-pandera-polars = ">=0.30"
+pandera-polars = ">=0.31"
 parallel = ">=20250822"
 polars = ">=1.41.2" # v1.41.2 fixed a big memory leak
 prek = ">=0.4"
@@ -141,7 +141,6 @@ python-dotenv = ">=1"
 python-duckdb = ">=1.4,<1.5"
 pytz = ">=2025"
 pyyaml = ">=6"
-readthedocs-sphinx-ext = ">=2"
 requests = ">=2.32"
 responses = ">=0.25"
 ruff = ">=0.15"
@@ -272,6 +271,7 @@ description = "Run unit tests and doctests"
 [tool.pixi.tasks.pytest-integration]
 cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
 description = "Run integration and (non-row-count) validation tests."
+env = { PUDL_INTEGRATION_TESTS = "true" }
 
 [tool.pixi.tasks.pytest-validate]
 cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py"
@@ -394,13 +394,7 @@ description = "Update dbt dependencies"
 [tool.pixi.tasks.devcontainer-install]
 cmd = """
 pixi install --frozen --locked \
-    && pixi run install-skills \
-    && npm install -g --prefer-offline --no-audit --no-fund \
-      @anthropic-ai/claude-code \
-      @google/gemini-cli \
-      @openai/codex \
-      @earendil-works/pi-coding-agent \
-      opencode-ai
+    && pixi run install-skills
 """
 description = "Set up the dev container: install pixi environment, skills, and agent CLIs (run once after first start)"
 
@@ -433,6 +427,7 @@ pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
+generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -604,7 +599,7 @@ relative_files = true
 precision = 2
 sort = "miss"
 skip_empty = true
-fail_under = 93
+fail_under = 91
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",

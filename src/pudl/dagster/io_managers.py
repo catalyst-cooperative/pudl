@@ -40,7 +40,9 @@ from sqlalchemy.exc import IntegrityError
 import pudl.logging_helpers
 from pudl.dagster.provenance import (
     FercSqliteProvenance,
-    assert_ferc_sqlite_compatible,
+    FercSqliteProvenanceRecord,
+    ferc_sqlite_provenance_is_compatible,
+    get_xbrl_extractor_version,
 )
 from pudl.dagster.resources import (
     GlobalDataConfigResource,
@@ -700,11 +702,23 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
             years=self.global_data_config.ferc_to_sqlite.get_dataset_years(
                 self.dataset, self.data_format
             ),
+            ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
         )
 
-        assert_ferc_sqlite_compatible(
-            instance=_get_dagster_instance_if_available(context), provenance=provenance
-        )
+        if ((instance := _get_dagster_instance_if_available(context)) is not None) and (
+            not ferc_sqlite_provenance_is_compatible(
+                observed_provenance=FercSqliteProvenanceRecord.from_dagster_instance(
+                    instance=instance,
+                    dataset=self.dataset,
+                    data_format=self.data_format,
+                ),
+                required_provenance=provenance,
+            )
+        ):
+            raise RuntimeError(
+                f"{self.dataset}_{self.data_format} provenace metadata is not compatible"
+                " with requirements of current run. Refresh the FERC SQLite assets."
+            )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC SQLite database.
