@@ -2,10 +2,10 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2026.6.0:
+.. _release-v2026.6.1:
 
 ---------------------------------------------------------------------------------------
-v2026.6.0 (2026-06-18)
+v2026.6.1 (2026-06-19)
 ---------------------------------------------------------------------------------------
 
 This is a monthly PUDL data release, primarily motivated by updating the EIA-860M
@@ -30,7 +30,7 @@ Enhancements
   reusable :func:`~pudl.dagster.asset_checks.valid_datapackage_check` factory is now
   available in :mod:`pudl.dagster.asset_checks` to add frictionless v2 validation as an
   asset check on any datapackage output. See issues :issue:`5122,5237` and PR
-  :pr:`5270`. Also makes progress towards `catalyst-cooperative/agent-skills#14
+  :pr:`5270,5343`. Also makes progress towards `catalyst-cooperative/agent-skills#14
   <https://github.com/catalyst-cooperative/agent-skills/issues/14>`__
 * Added a bare-bones datapackage for DBF SQLite outputs. See issue :issue:`5200`
   and PR :pr:`5275`.
