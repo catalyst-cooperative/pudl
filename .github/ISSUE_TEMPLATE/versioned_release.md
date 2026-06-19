@@ -77,10 +77,12 @@ Quality of Life Improvements
 
 ### Zenodo Metadata Tasks
 
-- [ ] Make sure all Catalyst members are listed in creators (automate!)
-- [ ] Update description to reflect current release (automate!)
-- [ ] Update keywords to match prior releases (automate!)
-- [ ] Set correct version (automate!)
+- [ ] Zenodo PUDL data archive
+  - [ ] Make sure all Catalyst members are listed in creators (automate!)
+  - [ ] Update description to reflect current release (automate!)
+  - [ ] Update keywords to match prior releases (automate!)
+  - [ ] Set correct version (automate!)
+- [ ] Zenodo PUDL repo archive: fix links in release notes (cut-and-paste from GitHub release changelog)
 
 ### Issues that we ran into
 
