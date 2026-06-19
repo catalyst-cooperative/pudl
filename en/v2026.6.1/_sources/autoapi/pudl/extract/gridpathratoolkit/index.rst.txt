@@ -1,0 +1,69 @@
+pudl.extract.gridpathratoolkit
+==============================
+
+.. py:module:: pudl.extract.gridpathratoolkit
+
+.. autoapi-nested-parse::
+
+   Extract GridPath RA Toolkit renewable energy generation profiles from zipped CSVs.
+
+   These hourly time are organized by technology type: Wind and Solar; and level of
+   processing: original, aggregated, and extended. This module currently only extracts the
+   data which is both aggregated and extended, since it is the closest to being analysis
+   ready. In the future we may extract the other versions, or re-implement the entire
+   aggregation and extension process within PUDL, so the outputs are being derived from the
+   more granular original data, and so a variety of different aggregations can be provided.
+
+   Alongside the Wind + Solar time series, there are also aggregation tables that describe
+   which of the original plants & generators were combined to make the aggregated datasets.
+   These are stored as single CSVs.
+
+   In addition there's a table of daily weather data, which is also stored as a single CSV.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.gridpathratoolkit.logger
+   pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_assets
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.gridpathratoolkit._extract_csv
+   pudl.extract.gridpathratoolkit._extract_capacity_factor
+   pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: _extract_csv(part: str, ds: pudl.workspace.datastore.Datastore) -> pandas.DataFrame
+
+.. py:function:: _extract_capacity_factor(part: str, ds: pudl.workspace.datastore.Datastore) -> pandas.DataFrame
+
+.. py:function:: raw_gridpathratoolkit_asset_factory(part: str) -> dagster.AssetsDefinition
+
+   An asset factory for GridPath RA Toolkit hourly generation profiles.
+
+   This factory works on the processed hourly profiles that store one capacity factor
+   time series per file with the time index stored in a separate file named
+   timestamps.csv. We extract the timestamps first and use them as the index of the
+   dataframe, concatenating the capacity factor time series as separate columns in a
+   (temporarily) wide-format dataframe.
+
+   The stems of the filenames are used as column labels, which are later transformed
+   into the ``aggregation_group`` field, indicating which generators were aggregated to
+   produce the time series based on the wind and solar capacity aggregation tables.
+
+
+.. py:data:: raw_gridpathratoolkit_assets
+

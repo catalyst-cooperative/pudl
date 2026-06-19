@@ -1,0 +1,11 @@
+pudl.package_data.epacems
+=========================
+
+.. py:module:: pudl.package_data.epacems
+
+.. autoapi-nested-parse::
+
+   Additional data required for integration of the EPA CEMS hourly data.
+
+
+

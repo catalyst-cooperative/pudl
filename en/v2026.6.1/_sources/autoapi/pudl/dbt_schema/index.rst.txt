@@ -1,0 +1,291 @@
+pudl.dbt_schema
+===============
+
+.. py:module:: pudl.dbt_schema
+
+.. autoapi-nested-parse::
+
+   Define dbt schema types and merging logic.
+
+   We generate dbt schema.yml files by translating our metadata into schema.yml
+   format, then applying human-sourced patches to the auto-generated schemas.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.dbt_schema.DbtColumn
+   pudl.dbt_schema.DbtTable
+   pudl.dbt_schema.DbtSource
+   pudl.dbt_schema.DbtSchema
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.dbt_schema._prettier_yaml_dumps
+   pudl.dbt_schema.merge_schema
+   pudl.dbt_schema.merge_by_name
+   pudl.dbt_schema.merge_sources_by_name
+   pudl.dbt_schema.merge_source
+   pudl.dbt_schema.merge_tables_by_name
+   pudl.dbt_schema.merge_table
+   pudl.dbt_schema.merge_columns_by_name
+   pudl.dbt_schema.merge_column
+
+
+Module Contents
+---------------
+
+.. py:function:: _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str
+
+   Dump YAML to string that Prettier likes.
+
+
+.. py:class:: DbtColumn(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Define yaml structure of a dbt column.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: description
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: data_tests
+      :type:  list | None
+      :value: None
+
+
+
+   .. py:attribute:: meta
+      :type:  dict | None
+      :value: None
+
+
+
+   .. py:attribute:: tags
+      :type:  list[str] | None
+      :value: None
+
+
+
+.. py:class:: DbtTable(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Define yaml structure of a dbt table.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: description
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: data_tests
+      :type:  list | None
+      :value: None
+
+
+
+   .. py:attribute:: columns
+      :type:  list[DbtColumn] | None
+      :value: None
+
+
+
+   .. py:attribute:: meta
+      :type:  dict | None
+      :value: None
+
+
+
+   .. py:attribute:: tags
+      :type:  list[str] | None
+      :value: None
+
+
+
+   .. py:attribute:: config
+      :type:  dict | None
+      :value: None
+
+
+
+   .. py:method:: from_table_name(table_name: str) -> DbtTable
+      :classmethod:
+
+
+      Construct configuration defining table from PUDL metadata.
+
+
+
+.. py:class:: DbtSource(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Define basic dbt yml structure to add a pudl table as a dbt source.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'pudl'
+
+
+
+   .. py:attribute:: tables
+      :type:  list[DbtTable] | None
+      :value: None
+
+
+
+   .. py:attribute:: description
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: meta
+      :type:  dict | None
+      :value: None
+
+
+
+.. py:class:: DbtSchema(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Define basic structure of a dbt models yaml file.
+
+
+   .. py:attribute:: version
+      :type:  int
+      :value: 2
+
+
+
+   .. py:attribute:: sources
+      :type:  list[DbtSource] | None
+      :value: None
+
+
+
+   .. py:attribute:: models
+      :type:  list[DbtTable] | None
+      :value: None
+
+
+
+   .. py:method:: from_table_name(table_name: str) -> DbtSchema
+      :classmethod:
+
+
+      Construct configuration defining table from PUDL metadata.
+
+
+
+   .. py:method:: from_yaml(schema_path: pathlib.Path) -> DbtSchema
+      :classmethod:
+
+
+      Load a DbtSchema object from a YAML file.
+
+
+
+   .. py:method:: to_yaml(schema_path: pathlib.Path)
+
+      Write DbtSchema object to YAML file.
+
+
+
+   .. py:method:: validate_humanity()
+
+      Make sure the human schema matches expectations.
+
+      We expect that all human overrides on source tables are data tests or column-level data tests.
+      We allow the 'name' field so we can match human tables/columns with machine ones.
+
+      We do not have any expectations about model definitions since those are human-only.
+
+
+
+.. py:function:: merge_schema(machine_schema: DbtSchema, human_schema: DbtSchema) -> DbtSchema
+
+   Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema.
+
+   Empty merged sources will be stored in the DbtSchema model as None to avoid serializing them.
+
+
+.. py:function:: merge_by_name(machine_elements: list, human_elements: list, merger: collections.abc.Callable, element_factory: collections.abc.Callable) -> list
+
+   Perform a generic merge of two lists of dbt elements, matching by name.
+
+   :param machine_elements: can be empty list.
+   :param human_elements: can be empty list.
+   :param merger: callable that takes two elements of the same dbt type (source, table,
+                  column) and returns a new element that is the merged version.
+   :param element_factory: callable that takes the element name and returns an empty instance - used if e.g. the human element doesn't exist.
+
+
+.. py:function:: merge_sources_by_name(machine_sources: list[DbtSource], human_sources: list[DbtSource]) -> list[DbtSource]
+
+   Match machine/human sources by name, then merge them.
+
+
+.. py:function:: merge_source(machine_source: DbtSource, human_source: DbtSource) -> DbtSource
+
+   Merge two DbtSources by applying human-source as a patch on top of machine-source.
+
+   Returns a deep copy of the machine source to avoid aliasing,
+   updating with tables as the merge of the tables of the machine and human sources.
+
+
+.. py:function:: merge_tables_by_name(machine_tables: list[DbtTable], human_tables: list[DbtTable]) -> list[DbtTable]
+
+   Match machine/human tables by name, then merge them.
+
+
+.. py:function:: merge_table(machine_table: DbtTable, human_table: DbtTable) -> DbtTable
+
+   Merge two DbtTables by applying human-table as a patch on top of machine-table.
+
+   Returns a deep copy of the machine table to avoid aliasing,
+   updating with columns and table-level data tests as the merge of the respective machine and human data.
+
+
+.. py:function:: merge_columns_by_name(machine_columns: list[DbtColumn], human_columns: list[DbtColumn]) -> list[DbtColumn]
+
+   Match machine/human columns by name, then merge them.
+
+
+.. py:function:: merge_column(machine_column: DbtColumn, human_column: DbtColumn) -> DbtColumn
+
+   Merge two DbtColumns by applying human-column as a patch on top of machine-column.
+
+   Returns a deep copy of the machine column to avoid aliasing,
+   updating with data tests as the merge of the data tests of the machine and human columns.
+
+   Does **not** update any other attributes (descriptions, etc.).
+
+

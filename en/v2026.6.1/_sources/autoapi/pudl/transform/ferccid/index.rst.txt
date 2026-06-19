@@ -1,0 +1,33 @@
+pudl.transform.ferccid
+======================
+
+.. py:module:: pudl.transform.ferccid
+
+.. autoapi-nested-parse::
+
+   Clean the FERC Company Identifier table.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.ferccid.clean_cid_string_cols
+   pudl.transform.ferccid.core_ferc__entity_companies
+
+
+Module Contents
+---------------
+
+.. py:function:: clean_cid_string_cols(col: pandas.Series) -> pandas.Series
+
+   Clean string columns: remove unicode, strip whitespace, enforce single spaces, standardize NAs.
+
+
+.. py:function:: core_ferc__entity_companies(raw_ferc__entity_companies: pandas.DataFrame) -> pandas.DataFrame
+
+   Clean the FERC Company Identifier table.
+
+
