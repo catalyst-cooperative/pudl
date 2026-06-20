@@ -1,8 +1,9 @@
 """Dagster IO managers used by PUDL assets.
 
 This module defines the IO-manager implementations that translate between Dagster asset
-execution and PUDL's storage formats, including SQLite, Parquet, GeoParquet, and the
-FERC prerequisite databases. Put :class:`dagster.IOManager` and
+execution and PUDL's storage formats, including SQLite, Parquet (with native GeoParquet
+support for assets that return a :class:`geopandas.GeoDataFrame`), and the FERC
+prerequisite databases. Put :class:`dagster.IOManager` and
 :class:`dagster.ConfigurableIOManager` classes here, along with configured singleton
 instances that the default code location reuses. Keep data-processing logic out of this
 module; it should focus on persistence, loading, and storage-compatibility concerns.
