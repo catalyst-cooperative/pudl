@@ -20,6 +20,7 @@ sources:
                 tolerance: 1
               config:
                 error_if: ">4"
+              description: Check that miles by line type sum to total energized miles.
         columns:
           - name: report_date
           - name: borrower_id_rus
