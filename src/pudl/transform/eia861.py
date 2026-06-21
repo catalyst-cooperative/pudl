@@ -1101,14 +1101,15 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
     )
-    # We don't expect there to be a lot of dropped or combined 88888 rows so we'll
-    # monitor the percent decrease in rows. Need the len_diff < -1 because the unit
-    # tests only test a few rows and therefore the difference in rows is a
-    # much higher percentage than 0.001.
+    # Guard against unexpectedly large data loss. The known drop counts per table
+    # across all years (as of Aug 2025) are: BA: 1, OD: 16, Sales: 32, UD: 15, DP: 8.
+    # A threshold of 100 (~3× the historical max) catches genuine runaway cases
+    # without being sensitive to dataset size (full ETL vs. fast ETL subsets).
     len_diff = len(recombined_df) - len(df)
-    if (len_diff < -1) and (len_diff / len(df) < -0.0015):
+    if -len_diff > 100:
         raise AssertionError(
-            f"Expected reduction in 88888 rows less than ~{len(df) * 0.001} but found: {-len_diff}!"
+            f"Expected at most ~100 dropped 88888 rows but found: {-len_diff}! "
+            f"Historical maximums by table (Aug 2025): BA: 1, OD: 16, Sales: 32, UD: 15, DP: 8."
         )
     return recombined_df
 

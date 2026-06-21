@@ -4,7 +4,7 @@ For a narrative overview of the timeseries imputation process, see the documenta
 at :doc:`/methodology/timeseries_imputation`
 """
 
-from typing import Any
+from typing import Any, NotRequired, TypedDict
 
 import geopandas as gpd  # noqa: ICN002
 import numpy as np
@@ -22,43 +22,163 @@ from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-ASSOCIATIONS: list[dict[str, Any]] = [
-    # MISO: Midwest Indep System Operator
-    {"id": 56669, "from": 2011, "to": [2009, 2010]},
-    # SWPP: Southwest Power Pool
-    {"id": 59504, "from": 2014, "to": [2006, 2009], "exclude": ["NE"]},
-    {"id": 59504, "from": 2014, "to": [2010, 2013]},
-    # LGEE: LG&E and KU Services Company
-    {"id": 11249, "from": 2014, "to": [2006, 2013]},
-    # (no code): Entergy
-    {"id": 12506, "from": 2012, "to": [2013, 2013]},
-    # (no code): American Electric Power Co Inc
-    {"id": 829, "from": 2008, "to": [2009, 2013]},
-    # PJM: PJM Interconnection LLC
-    {"id": 14725, "from": 2011, "to": [2006, 2010]},
-    # BANC: Balancing Authority of Northern California
-    {"id": 16534, "from": 2013, "to": [2012, 2012]},
-    # SPS: Southwestern Public Service
-    {"id": 17718, "from": 2010, "to": [2006, 2009]},
-    # Nevada Power Company
-    {"id": 13407, "from": 2009, "to": [2006, 2008]},
-    {"id": 13407, "from": 2013, "to": [2014, 2019]},
-]
-"""Adjustments to balancing authority-utility associations from EIA 861.
 
-The changes are applied locally to EIA 861 tables.
+class BaFix(TypedDict):
+    """A single BA data repair entry for one target year.
 
-* ``id`` (int): EIA balancing authority identifier (``balancing_authority_id_eia``).
-* ``from`` (int): Reference year, to use as a template for target years.
-* ``to`` (List[int]): Target years, in the closed interval format [minimum, maximum].
-  Rows in ``core_eia861__yearly_balancing_authority`` are added (if missing) for every target year
-  with the attributes from the reference year.
-  Rows in ``core_eia861__assn_balancing_authority`` are added (or replaced, if existing)
-  for every target year with the utility associations from the reference year.
-  Rows in ``core_eia861__yearly_service_territory`` are added (if missing) for every target year
-  with the nearest year's associated utilities' counties.
-* ``exclude`` (Optional[List[str]]): Utilities to exclude, by state (two-letter code).
-  Rows are excluded from ``core_eia861__assn_balancing_authority`` with target year and state.
+    * ``id``: EIA balancing authority identifier (``balancing_authority_id_eia``).
+    * ``source_year``: The year whose data is used as a template for the repair.
+    * ``exclude_states``: Optional list of two-letter state codes. Utility associations
+      for utilities in these states are omitted when copying from ``source_year``.
+    """
+
+    id: int
+    source_year: int
+    exclude_states: NotRequired[list[str]]
+
+
+ASSOCIATIONS: dict[int, list[BaFix]] = {
+    # Each key is a target year that needs repair. Each value is the list of
+    # per-BA fixes to apply for that year.  A fix copies the BA's utility
+    # associations from source_year into target_year, replacing any rows that
+    # already exist for that (BA, target_year) pair.
+    #
+    # When either target_year or source_year is absent from the available
+    # EIA-861 data (e.g. in the fast ETL), the fix is skipped.  If
+    # target_year IS present but source_year is NOT, a warning is logged.
+    2006: [
+        # SWPP: Southwest Power Pool (Nebraska utilities excluded — reported separately)
+        {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
+        # LGEE: LG&E and KU Services Company
+        {"id": 11249, "source_year": 2014},
+        # PJM: PJM Interconnection LLC
+        {"id": 14725, "source_year": 2011},
+        # SPS: Southwestern Public Service
+        {"id": 17718, "source_year": 2010},
+        # Nevada Power Company
+        {"id": 13407, "source_year": 2009},
+    ],
+    2007: [
+        # SWPP: Southwest Power Pool (Nebraska utilities excluded)
+        {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
+        # LGEE: LG&E and KU Services Company
+        {"id": 11249, "source_year": 2014},
+        # PJM: PJM Interconnection LLC
+        {"id": 14725, "source_year": 2011},
+        # SPS: Southwestern Public Service
+        {"id": 17718, "source_year": 2010},
+        # Nevada Power Company
+        {"id": 13407, "source_year": 2009},
+    ],
+    2008: [
+        # SWPP: Southwest Power Pool (Nebraska utilities excluded)
+        {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
+        # LGEE: LG&E and KU Services Company
+        {"id": 11249, "source_year": 2014},
+        # PJM: PJM Interconnection LLC
+        {"id": 14725, "source_year": 2011},
+        # SPS: Southwestern Public Service
+        {"id": 17718, "source_year": 2010},
+        # Nevada Power Company
+        {"id": 13407, "source_year": 2009},
+    ],
+    2009: [
+        # MISO: Midwest Independent System Operator
+        {"id": 56669, "source_year": 2011},
+        # SWPP: Southwest Power Pool (Nebraska utilities excluded)
+        {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
+        # LGEE: LG&E and KU Services Company
+        {"id": 11249, "source_year": 2014},
+        # AEP: American Electric Power Co Inc
+        {"id": 829, "source_year": 2008},
+        # PJM: PJM Interconnection LLC
+        {"id": 14725, "source_year": 2011},
+        # SPS: Southwestern Public Service
+        {"id": 17718, "source_year": 2010},
+    ],
+    2010: [
+        # MISO: Midwest Independent System Operator
+        {"id": 56669, "source_year": 2011},
+        # SWPP: Southwest Power Pool
+        {"id": 59504, "source_year": 2014},
+        # LGEE: LG&E and KU Services Company
+        {"id": 11249, "source_year": 2014},
+        # AEP: American Electric Power Co Inc
+        {"id": 829, "source_year": 2008},
+        # PJM: PJM Interconnection LLC
+        {"id": 14725, "source_year": 2011},
+    ],
+    2011: [
+        # SWPP: Southwest Power Pool
+        {"id": 59504, "source_year": 2014},
+        # LGEE: LG&E and KU Services Company
+        {"id": 11249, "source_year": 2014},
+        # AEP: American Electric Power Co Inc
+        {"id": 829, "source_year": 2008},
+    ],
+    2012: [
+        # SWPP: Southwest Power Pool
+        {"id": 59504, "source_year": 2014},
+        # LGEE: LG&E and KU Services Company
+        {"id": 11249, "source_year": 2014},
+        # BANC: Balancing Authority of Northern California
+        {"id": 16534, "source_year": 2013},
+        # AEP: American Electric Power Co Inc
+        {"id": 829, "source_year": 2008},
+    ],
+    2013: [
+        # SWPP: Southwest Power Pool
+        {"id": 59504, "source_year": 2014},
+        # LGEE: LG&E and KU Services Company
+        {"id": 11249, "source_year": 2014},
+        # Entergy
+        {"id": 12506, "source_year": 2012},
+        # AEP: American Electric Power Co Inc
+        {"id": 829, "source_year": 2008},
+    ],
+    2014: [
+        # Nevada Power Company (now NV Energy)
+        {"id": 13407, "source_year": 2013},
+    ],
+    2015: [
+        # Nevada Power Company (now NV Energy)
+        {"id": 13407, "source_year": 2013},
+    ],
+    2016: [
+        # Nevada Power Company (now NV Energy)
+        {"id": 13407, "source_year": 2013},
+    ],
+    2017: [
+        # Nevada Power Company (now NV Energy)
+        {"id": 13407, "source_year": 2013},
+    ],
+    2018: [
+        # Nevada Power Company (now NV Energy)
+        {"id": 13407, "source_year": 2013},
+    ],
+    2019: [
+        # Nevada Power Company (now NV Energy)
+        {"id": 13407, "source_year": 2013},
+    ],
+}
+"""Spot-fixes for known EIA-861 balancing authority ID errors, keyed by target year.
+
+Each key is a year whose reported BA-utility associations are known to be
+incorrect.  Each value is a list of :class:`BaFix` entries describing which BA
+to fix and which year's data to use as the authoritative template.
+
+The fixes are applied by three functions:
+:func:`filled_core_eia861__yearly_balancing_authority`,
+:func:`filled_core_eia861__assn_balancing_authority`, and
+:func:`filled_service_territory_eia861`.  Each function:
+
+* Silently skips a target year that is not present in the available EIA-861 data.
+* Logs a warning and skips a fix when the target year IS present but the
+  ``source_year`` is NOT, since the repair cannot be applied correctly.
+
+To add a new fix: identify the target year(s), the affected BA's
+``balancing_authority_id_eia``, and a ``source_year`` whose data is correct.
+If certain states should be excluded from the copy, add ``exclude_states``.
 """
 
 UTILITIES: list[dict[str, Any]] = [
@@ -152,19 +272,19 @@ def categorize_eia_code(
             "Must be either 'utility' or 'balancing_authority'."
         )
 
-    eia_codes = pd.DataFrame(eia_codes, columns=["eia_code"]).drop_duplicates()
-    ba_ids = (
+    codes_df = pd.DataFrame({"eia_code": eia_codes}).drop_duplicates()
+    ba_series = (
         pd.Series(ba_ids, name="balancing_authority_id_eia")
         .drop_duplicates()
         .convert_dtypes()
     )
-    util_ids = (
+    util_series = (
         pd.Series(util_ids, name="utility_id_eia").drop_duplicates().convert_dtypes()
     )
 
-    df = eia_codes.merge(
-        ba_ids, left_on="eia_code", right_on="balancing_authority_id_eia", how="left"
-    ).merge(util_ids, left_on="eia_code", right_on="utility_id_eia", how="left")
+    df = codes_df.merge(
+        ba_series, left_on="eia_code", right_on="balancing_authority_id_eia", how="left"
+    ).merge(util_series, left_on="eia_code", right_on="utility_id_eia", how="left")
     df.loc[df[f"{primary}_id_eia"].notnull(), "respondent_type"] = primary
     df.loc[
         (df[f"{secondary}_id_eia"].notnull()) & (df[f"{primary}_id_eia"].isnull()),
@@ -186,37 +306,50 @@ def filled_core_eia861__yearly_balancing_authority(
 ) -> pd.DataFrame:
     """Modified core_eia861__yearly_balancing_authority table.
 
-    This function adds rows for each balancing authority-year pair missing from the
-    cleaned :ref:`core_eia861__yearly_balancing_authority` table, using a dictionary
-    of manual fixes. It uses the reference year as a template. The function also removes
-    balancing authorities that are manually categorized as utilities.
+    For each entry in :data:`ASSOCIATIONS`, adds a row for the target year if
+    one is missing, copying all attributes from the source year.  Silently
+    skips any target year absent from the data.  Logs a warning and skips if
+    the target year is present but the source year is not.  Also removes
+    balancing authorities that are manually categorised as utilities via
+    :data:`UTILITIES`.
     """
     df = core_eia861__yearly_balancing_authority
     index = ["balancing_authority_id_eia", "report_date"]
     dfi = df.set_index(index)
-    # Prepare reference rows
-    eia861_years = df["report_date"].dt.year.unique()
-    keys = [
-        (fix["id"], pd.Timestamp(fix["from"], 1, 1))
-        for fix in ASSOCIATIONS
-        if fix["from"] in eia861_years
-    ]
-    refs = dfi.loc[keys].reset_index().to_dict("records")
-    # Build table of new rows
-    # Insert row for each target balancing authority-year pair
-    # missing from the original table, using the reference year as a template.
-    rows: list[dict[str, Any]] = []
-    for ref, fix in zip(
-        refs, [fx for fx in ASSOCIATIONS if fx["from"] in eia861_years], strict=True
-    ):
-        for year in range(fix["to"][0], fix["to"][1] + 1):
-            key = (fix["id"], pd.Timestamp(year, 1, 1))
-            if key not in dfi.index:
-                rows.append({**ref, "report_date": key[1]})
-    new_rows = apply_pudl_dtypes(pd.DataFrame(rows), group="eia")
-    new_rows = new_rows[new_rows["report_date"].dt.year.isin(eia861_years)]
-    df = pd.concat([df, new_rows], axis="index")
-    # Remove balancing authorities treated as utilities
+    eia861_years = set(df["report_date"].dt.year)
+
+    new_rows: list[dict[str, Any]] = []
+    for target_year, fixes in ASSOCIATIONS.items():
+        if target_year not in eia861_years:
+            continue
+        target_date = pd.Timestamp(target_year, 1, 1)
+        for fix in fixes:
+            source_year = fix["source_year"]
+            if source_year not in eia861_years:
+                logger.warning(
+                    f"Skipping BA repair for id={fix['id']} target_year={target_year}: "
+                    f"source_year={source_year} not in available EIA-861 data. "
+                    "If running the full ETL, verify the fix spec is correct."
+                )
+                continue
+            target_key = (fix["id"], target_date)
+            if target_key in dfi.index:
+                continue
+            source_key = (fix["id"], pd.Timestamp(source_year, 1, 1))
+            if source_key not in dfi.index:
+                logger.warning(
+                    f"Skipping BA repair for id={fix['id']} target_year={target_year}: "
+                    f"source row {source_key} not found in BA table."
+                )
+                continue
+            ref = dfi.loc[[source_key]].reset_index().to_dict("records")[0]
+            new_rows.append({**ref, "report_date": target_date})
+
+    if new_rows:
+        df = pd.concat(
+            [df, apply_pudl_dtypes(pd.DataFrame(new_rows), group="eia")],
+            axis="index",
+        )
     mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
     return apply_pudl_dtypes(df[~mask], group="eia")
 
@@ -226,52 +359,65 @@ def filled_core_eia861__assn_balancing_authority(
 ) -> pd.DataFrame:
     """Modified core_eia861__assn_balancing_authority table.
 
-    This function adds rows for each balancing authority-year pair missing from the
-    cleaned :ref:`core_eia861__assn_balancing_authority` table, using a dictionary of
-    manual fixes.  It uses the reference year as a template. The function also reassigns
-    balancing authorities that are manually categorized as utilities to their parent
-    balancing authorities.
+    For each entry in :data:`ASSOCIATIONS`, replaces all existing rows for
+    the (BA, target_year) pair with rows copied from the source year (optionally
+    filtered by :attr:`BaFix.exclude_states`).  Silently skips target years
+    absent from the data; logs a warning when the target year is present but
+    the source year is not.  Also removes balancing authorities listed in
+    :data:`UTILITIES` and, when ``reassign=True``, re-parents their child
+    utilities to the grandparent BAs.
     """
     df = core_eia861__assn_balancing_authority
-    # Prepare reference rows
-    refs = []
-    for fix in ASSOCIATIONS:
-        mask = df["balancing_authority_id_eia"].eq(fix["id"]).to_numpy(bool)
-        mask[mask] = df["report_date"][mask].eq(pd.Timestamp(fix["from"], 1, 1))
-        ref = df[mask]
-        if "exclude" in fix:
-            # Exclude utilities by state
-            mask = ~ref["state"].isin(fix["exclude"])
-            ref = ref[mask]
-        refs.append(ref)
-    # Build a table of new rows
-    # Insert (or overwrite) rows for each target balancing authority-year pair,
-    # using the reference year as a template.
+    eia861_years = set(df["report_date"].dt.year)
+
     replaced = np.zeros(df.shape[0], dtype=bool)
-    tables = []
-    for ref, fix in zip(refs, ASSOCIATIONS, strict=True):
-        for year in range(fix["to"][0], fix["to"][1] + 1):
-            key = fix["id"], pd.Timestamp(year, 1, 1)
-            mask = df["balancing_authority_id_eia"].eq(key[0]).to_numpy(bool)
-            mask[mask] = df["report_date"][mask].eq(key[1])
-            tables.append(ref.assign(report_date=key[1]))
-            replaced |= mask
-    # Append to original table with matching rows removed
-    new_rows = apply_pudl_dtypes(pd.concat(tables), group="eia")
-    eia861_years = df["report_date"].dt.year.unique()
-    new_rows = new_rows[new_rows["report_date"].dt.year.isin(eia861_years)]
-    df = pd.concat([df[~replaced], new_rows], axis="index")
-    # Remove balancing authorities treated as utilities
-    mask = np.zeros(df.shape[0], dtype=bool)
-    tables = []
+    new_tables: list[pd.DataFrame] = []
+
+    for target_year, fixes in ASSOCIATIONS.items():
+        if target_year not in eia861_years:
+            continue
+        target_date = pd.Timestamp(target_year, 1, 1)
+        for fix in fixes:
+            source_year = fix["source_year"]
+            if source_year not in eia861_years:
+                logger.warning(
+                    f"Skipping BA association repair for id={fix['id']} "
+                    f"target_year={target_year}: source_year={source_year} not in "
+                    "available EIA-861 data. If running the full ETL, verify the "
+                    "fix spec is correct."
+                )
+                continue
+            source_date = pd.Timestamp(source_year, 1, 1)
+            # Collect source-year association rows for this BA
+            ref = df[
+                df["balancing_authority_id_eia"].eq(fix["id"])
+                & df["report_date"].eq(source_date)
+            ]
+            if "exclude_states" in fix:
+                ref = ref[~ref["state"].isin(fix["exclude_states"])]
+            # Mark existing target-year rows for removal
+            target_mask = df["balancing_authority_id_eia"].eq(fix["id"]) & df[
+                "report_date"
+            ].eq(target_date)
+            replaced |= target_mask.to_numpy(bool)
+            new_tables.append(ref.assign(report_date=target_date))
+
+    if new_tables:
+        new_rows = apply_pudl_dtypes(pd.concat(new_tables), group="eia")
+        df = pd.concat([df[~replaced], new_rows], axis="index")
+    else:
+        df = df[~replaced]
+
+    # Remove BAs that are really utilities; optionally re-parent their children
+    removal_mask = np.zeros(df.shape[0], dtype=bool)
+    reassignment_tables: list[pd.DataFrame] = []
     for util in UTILITIES:
         is_parent = df["balancing_authority_id_eia"].eq(util["id"])
-        mask |= is_parent
-        # Associated utilities are reassigned to parent balancing authorities
+        removal_mask |= is_parent
         if util.get("reassign"):
-            # Ignore when entity is child to itself
+            # Rows where util["id"] is a utility (child) under some other BA
             is_child = ~is_parent & df["utility_id_eia"].eq(util["id"])
-            # Build table associating parents to children of entity
+            # Link each grandchild utility to the grandparent BAs
             table = (
                 df[is_child]
                 .merge(
@@ -294,54 +440,65 @@ def filled_core_eia861__assn_balancing_authority(
                     }
                 )
             )
-            tables.append(table)
+            reassignment_tables.append(table)
             if util.get("replace"):
-                mask |= is_child
+                removal_mask |= is_child
     return (
-        pd.concat([df[~mask]] + tables)
+        pd.concat([df[~removal_mask]] + reassignment_tables)
         .drop_duplicates()
         .pipe(apply_pudl_dtypes, group="eia")
     )
 
 
 def filled_service_territory_eia861(
-    core_eia861__assn_balancing_authority: pd.DataFrame,
+    filled_assn: pd.DataFrame,
     core_eia861__yearly_service_territory: pd.DataFrame,
 ) -> pd.DataFrame:
     """Modified core_eia861__yearly_service_territory table.
 
-    This function adds rows for each balancing authority-year pair missing from the
-    cleaned :ref:`core_eia861__yearly_service_territory` table, using a dictionary of
-    manual fixes. It also drops utility-state combinations which are missing counties
-    across all years of data, fills records missing counties with the nearest year of
-    county data for the same utility and state.
+    Selects utility-state-year combinations that are relevant to the BA
+    repairs in :data:`ASSOCIATIONS` (covering both source and target years),
+    merges them with the service territory to obtain county FIPS data, drops
+    utility-state pairs that have no county data in *any* year, and fills
+    records missing counties with data from the nearest available year.
 
+    Args:
+        filled_assn: The already-repaired BA-utility association table, as
+            returned by :func:`filled_core_eia861__assn_balancing_authority`.
+        core_eia861__yearly_service_territory: The raw service territory table.
     """
     index = ["utility_id_eia", "state", "report_date"]
-    # Select relevant balancing authority-utility associations
-    assn = filled_core_eia861__assn_balancing_authority(
-        core_eia861__assn_balancing_authority
-    )
-    eia861_years = core_eia861__yearly_service_territory["report_date"].dt.year.unique()
-    selected = np.zeros(assn.shape[0], dtype=bool)
-    for fix in ASSOCIATIONS:
-        years = [fix["from"], *range(fix["to"][0], fix["to"][1] + 1)]
-        dates = [pd.Timestamp(year, 1, 1) for year in years if year in eia861_years]
-        mask = assn["balancing_authority_id_eia"].eq(fix["id"]).to_numpy(bool)
-        mask[mask] = assn["report_date"][mask].isin(dates)
-        selected |= mask
-    # Reformat as unique utility-state-year
-    assn = assn[selected][index].drop_duplicates()
-    # Select relevant service territories
+    eia861_years = set(core_eia861__yearly_service_territory["report_date"].dt.year)
+
+    # Collect (ba_id, date) pairs relevant to any ASSOCIATIONS fix so we can
+    # select the matching rows from the filled association table.
+    relevant: set[tuple] = set()
+    for target_year, fixes in ASSOCIATIONS.items():
+        for fix in fixes:
+            if target_year in eia861_years:
+                relevant.add((fix["id"], pd.Timestamp(target_year, 1, 1)))
+            if fix["source_year"] in eia861_years:
+                relevant.add((fix["id"], pd.Timestamp(fix["source_year"], 1, 1)))
+
+    selected = np.zeros(filled_assn.shape[0], dtype=bool)
+    for ba_id, date in relevant:
+        selected |= (
+            filled_assn["balancing_authority_id_eia"].eq(ba_id)
+            & filled_assn["report_date"].eq(date)
+        ).to_numpy(bool)
+
+    # Unique utility-state-year triples relevant to any fix
+    assn = filled_assn[selected][index].drop_duplicates()
+    # Left-join to service territory: missing counties become NaN
     mdf = assn.merge(core_eia861__yearly_service_territory, how="left")
-    # Drop utility-state with no counties for all years
+    # Drop utility-state pairs that never have any county data
     grouped = mdf.groupby(["utility_id_eia", "state"])["county_id_fips"]
     mdf = mdf[grouped.transform("count").gt(0)]
-    # Fill missing utility-state-year with nearest year with counties
+    # Fill utility-state-year triples missing counties from the nearest year
     grouped = mdf.groupby(index)["county_id_fips"]
     missing = mdf[grouped.transform("count").eq(0)].to_dict("records")
     has_county = mdf["county_id_fips"].notna()
-    tables = []
+    fill_tables: list[pd.DataFrame] = []
     for row in missing:
         mask = (
             mdf["utility_id_eia"].eq(row["utility_id_eia"])
@@ -349,11 +506,10 @@ def filled_service_territory_eia861(
             & has_county
         )
         years = mdf["report_date"][mask].drop_duplicates()
-        # Match to nearest year
         idx = (years - row["report_date"]).abs().idxmin()
         mask &= mdf["report_date"].eq(years[idx])
-        tables.append(mdf[mask].assign(report_date=row["report_date"]))
-    return pd.concat([core_eia861__yearly_service_territory] + tables).pipe(
+        fill_tables.append(mdf[mask].assign(report_date=row["report_date"]))
+    return pd.concat([core_eia861__yearly_service_territory] + fill_tables).pipe(
         apply_pudl_dtypes, group="eia"
     )
 
@@ -538,7 +694,7 @@ def out_ferc714__respondents_with_fips(
         core_eia861__assn_balancing_authority
     )
     st_eia861 = filled_service_territory_eia861(
-        core_eia861__assn_balancing_authority, core_eia861__yearly_service_territory
+        assn, core_eia861__yearly_service_territory
     )
 
     # Generate the BA:FIPS relation:
@@ -603,11 +759,12 @@ def _out_ferc714__georeferenced_counties(
     respondent in each year. This is fast, and still good for mapping, and retains all
     of the FIPS IDs so you can also still do ID based analyses.
     """
-    counties_gdf = pudl.analysis.service_territory.add_geometries(
-        out_ferc714__respondents_with_fips,
-        census_gdf=out_censusdp1tract__counties,
-    ).pipe(apply_pudl_dtypes)
-    return counties_gdf
+    return gpd.GeoDataFrame(
+        pudl.analysis.service_territory.add_geometries(
+            out_ferc714__respondents_with_fips,
+            census_gdf=out_censusdp1tract__counties,
+        ).pipe(apply_pudl_dtypes)
+    )
 
 
 @asset(
@@ -629,7 +786,7 @@ def out_ferc714__georeferenced_respondents(
     you can see which respondent-years have both reported demand and decent geometries,
     calculate their areas to see if something changed from year to year, etc.
     """
-    respondents_gdf = (
+    return gpd.GeoDataFrame(
         pudl.analysis.service_territory.add_geometries(
             out_ferc714__respondents_with_fips,
             census_gdf=out_censusdp1tract__counties,
@@ -643,7 +800,6 @@ def out_ferc714__georeferenced_respondents(
         )
         .pipe(apply_pudl_dtypes)
     )
-    return respondents_gdf
 
 
 @asset(
