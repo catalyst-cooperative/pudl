@@ -741,9 +741,33 @@ def test_geoparquet_output_has_valid_geo_metadata(
     assert geo["primary_column"] == "geometry"
     col_meta = geo["columns"]["geometry"]
     assert col_meta["encoding"] == "WKB"
-    # CRS must be a dict (PROJJSON), not a WKT string — required by DuckDB >= 1.5
-    assert isinstance(col_meta["crs"], dict), (
+
+    # CRS must be a PROJJSON dict, not a WKT string — required by DuckDB >= 1.5.
+    crs = col_meta["crs"]
+    assert isinstance(crs, dict), (
         "CRS must be PROJJSON dict, not WKT string (DuckDB 1.5 compatibility)"
+    )
+    # $schema must point to the PROJJSON schema — presence distinguishes PROJJSON
+    # from an arbitrary dict (e.g. a raw authority dict).
+    assert crs.get("$schema", "").startswith("https://proj.org/schemas/"), (
+        f"CRS '$schema' is not a PROJJSON schema URL: {crs.get('$schema')!r}"
+    )
+    # GeographicCRS is the correct PROJJSON type for EPSG:4326 (WGS 84).
+    assert crs.get("type") == "GeographicCRS", (
+        f"Expected PROJJSON type 'GeographicCRS', got {crs.get('type')!r}"
+    )
+    # Top-level 'id' must identify EPSG:4326 so consumers can resolve the CRS.
+    crs_id = crs.get("id", {})
+    assert crs_id.get("authority") == "EPSG", (
+        f"Expected CRS authority 'EPSG', got {crs_id.get('authority')!r}"
+    )
+    assert crs_id.get("code") == 4326, (
+        f"Expected CRS code 4326, got {crs_id.get('code')!r}"
+    )
+    # Coordinate system must be ellipsoidal (lat/lon axes), not projected (x/y).
+    cs = crs.get("coordinate_system", {})
+    assert cs.get("subtype") == "ellipsoidal", (
+        f"Expected ellipsoidal coordinate system, got {cs.get('subtype')!r}"
     )
 
 
