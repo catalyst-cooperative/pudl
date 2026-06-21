@@ -21,20 +21,19 @@ Check against GCS build outputs (requires gcloud application default credentials
     ./check_against_nightly.py --reference-dir gs://builds.catalyst.coop/2025-10-11-0605-a531a9a7f-main/parquet core_eia930__*.parquet
 """
 
-import re
+import io
 from pathlib import Path
-from urllib.parse import urlparse
 
 import click
 import geopandas
 import pandas as pd
 import polars as pl
-import pyarrow.fs as pafs
 from polars.testing import assert_frame_equal
+from upath import UPath
 
 # Tables stored as GeoParquet (written by geoparquet_io_manager). Polars cannot
 # read GeoParquet's union-typed geometry column, so these are compared using
-# geopandas + pyarrow instead of polars.
+# geopandas instead of polars.
 GEO_TABLES: frozenset[str] = frozenset(
     {
         "out_ferc714__georeferenced_respondents",
@@ -45,37 +44,17 @@ GEO_TABLES: frozenset[str] = frozenset(
 )
 
 
-def _build_pyarrow_filesystem(
-    reference_dir: str,
-) -> tuple[pafs.FileSystem | None, str]:
-    """Return a pyarrow filesystem and bucket-relative path prefix for reference_dir.
-
-    Returns (None, reference_dir) for local paths so callers can pass the result
-    directly to geopandas.read_parquet without a filesystem argument.
-    """
-    parsed = urlparse(reference_dir)
-    if parsed.scheme == "gs":
-        return pafs.GcsFileSystem(), reference_dir.removeprefix("gs://")
-    if parsed.scheme in ("http", "https") and "amazonaws.com" in (
-        parsed.hostname or ""
-    ):
-        m = re.search(r"s3\.([^.]+)\.amazonaws\.com", parsed.hostname)
-        region = m.group(1) if m else "us-east-1"
-        return pafs.S3FileSystem(anonymous=True, region=region), parsed.path.lstrip("/")
-    return None, reference_dir
+def _to_upath(reference_dir: str) -> UPath:
+    """Convert reference_dir string to a UPath with appropriate storage options."""
+    if reference_dir.startswith("s3://"):
+        return UPath(reference_dir, anon=True)
+    return UPath(reference_dir)
 
 
-def _compare_geo(local_path: Path, reference_dir: str, pdb: bool) -> bool:
+def _compare_geo(local_path: Path, ref_upath: UPath, pdb: bool) -> bool:
     """Compare a GeoParquet file against a reference. Returns True on match."""
-    fs, path_prefix = _build_pyarrow_filesystem(reference_dir)
-    ref_path = f"{path_prefix}/{local_path.name}"
-
     local = geopandas.read_parquet(local_path)
-    reference = (
-        geopandas.read_parquet(ref_path, filesystem=fs)
-        if fs is not None
-        else geopandas.read_parquet(ref_path)
-    )
+    reference = geopandas.read_parquet(io.BytesIO(ref_upath.read_bytes()))
 
     geo_col = local.geometry.name
     non_geo = [c for c in local.columns if c != geo_col]
@@ -111,23 +90,25 @@ def _compare_geo(local_path: Path, reference_dir: str, pdb: bool) -> bool:
 @click.option(
     "--reference-dir",
     type=str,
-    default="https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly",
+    default="s3://pudl.catalyst.coop/nightly",
     help="The directory containing the parquet files to check against. Defaults to S3 nightly.",
 )
-def cli(local_targets: tuple[Path], pdb: bool, reference_dir):
+def cli(local_targets: tuple[Path], pdb: bool, reference_dir: str):
     """Compare local Parquet files against nightly."""
     local_paths = [Path(target) for target in local_targets]
     click.echo(
         f"Comparing {', '.join(p.stem for p in local_paths)} against those in {reference_dir}..."
     )
+    ref_base = _to_upath(reference_dir)
     for local_path in local_paths:
         click.echo(f"Comparing {local_path.stem}...", nl=False)
+        ref_upath = ref_base / local_path.name
         if local_path.stem in GEO_TABLES:
-            ok = _compare_geo(local_path, reference_dir, pdb)
+            ok = _compare_geo(local_path, ref_upath, pdb)
             click.echo("OK" if ok else "")
         else:
-            local = pl.scan_parquet(local_path)
-            reference = pl.scan_parquet(f"{reference_dir}/{local_path.name}")
+            local = pl.read_parquet(local_path)
+            reference = pl.read_parquet(io.BytesIO(ref_upath.read_bytes()))
             try:
                 assert_frame_equal(local, reference, check_column_order=False)
             except AssertionError as e:
