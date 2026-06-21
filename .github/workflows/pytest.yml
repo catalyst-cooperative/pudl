@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 2
       - uses: dorny/paths-filter@v4
         id: filter
         with:
@@ -35,6 +35,7 @@ jobs:
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
               - '!devtools/**'
+              - '!.devcontainer/**'
               - '!builds/**'
               - '!docs/**'
               - '!.github/**/*.md'
@@ -69,7 +70,6 @@ jobs:
               - '!**.gitignore'
               - '!.git-blame-ignore-revs'
               - '!.pre-commit-config.yaml'
-              - '!.readthedocs.yaml'
               - '!.env.example'
               - '!.taplo.toml'
               - '!terraform/**'
@@ -98,7 +98,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -135,7 +135,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -172,7 +172,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -217,7 +217,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -231,6 +231,45 @@ jobs:
           key: zenodo-datastore-${{ hashFiles('src/pudl/package_data/settings/zenodo_dois.yml') }}
           restore-keys: |
             zenodo-datastore-
+
+      - name: Generate FERC Provenance Hashes
+        run: |
+          {
+            echo "FERC1_XBRL_HASH=$(pixi run generate_ferc_provenance ferc1 xbrl | sha256sum | cut -d' ' -f1)"
+            echo "FERC1_DBF_HASH=$(pixi run generate_ferc_provenance ferc1 dbf | sha256sum | cut -d' ' -f1)"
+            echo "FERC714_XBRL_HASH=$(pixi run generate_ferc_provenance ferc714 xbrl | sha256sum | cut -d' ' -f1)"
+          } >> "$GITHUB_ENV"
+
+      - name: Restore ferc1 XBRL outputs from cache if possible
+        uses: actions/cache@v5
+        id: cache-ferc1-xbrl
+        with:
+          path: |
+            ${{ env.PUDL_OUTPUT }}/ferc1_xbrl.sqlite
+            ${{ env.PUDL_OUTPUT }}/ferc1_xbrl.duckdb
+            ${{ env.PUDL_OUTPUT }}/ferc1_xbrl_datapackage.json
+            ${{ env.PUDL_OUTPUT }}/ferc1_xbrl_taxonomy_metadata.json
+          key: ferc1-xbrl-${{ env.FERC1_XBRL_HASH }}
+
+      - name: Restore ferc1 DBF from cache if possible
+        uses: actions/cache@v5
+        id: cache-ferc1-dbf
+        with:
+          path: |
+            ${{ env.PUDL_OUTPUT }}/ferc1_dbf.sqlite
+            ${{ env.PUDL_OUTPUT }}/ferc1_dbf_datapackage.json
+          key: ferc1-dbf-${{ env.FERC1_DBF_HASH }}
+
+      - name: Restore ferc714 XBRL from cache if possible
+        uses: actions/cache@v5
+        id: cache-ferc714-xbrl
+        with:
+          path: |
+            ${{ env.PUDL_OUTPUT }}/ferc714_xbrl.sqlite
+            ${{ env.PUDL_OUTPUT }}/ferc714_xbrl.duckdb
+            ${{ env.PUDL_OUTPUT }}/ferc714_xbrl_datapackage.json
+            ${{ env.PUDL_OUTPUT }}/ferc714_xbrl_taxonomy_metadata.json
+          key: ferc714-xbrl-${{ env.FERC714_XBRL_HASH }}
 
       - name: Run the integration tests
         run: |
@@ -251,8 +290,10 @@ jobs:
           name: dbt-failures
           path: pudl_dbt_tests.duckdb
 
-      - name: Log post-test Zenodo datastore contents
-        run: find ${{ env.PUDL_INPUT }}
+      - name: Log post-test PUDL_INPUT and PUDL_OUTPUT contents
+        run: |
+          find ${{ env.PUDL_INPUT }}
+          find ${{ env.PUDL_OUTPUT }}
 
   ci-coverage:
     runs-on: ubuntu-latest
@@ -273,7 +314,7 @@ jobs:
         run: |
           find coverage -type f
       - name: Install pudl environment using pixi
-        uses: prefix-dev/setup-pixi@v0.9.5
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
           locked: true
           cache: true
@@ -283,7 +324,7 @@ jobs:
           pixi run coverage xml --fail-under=0
           pixi run coverage report --fail-under=0
       - name: Upload XML coverage report to CodeCov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           disable_search: true
           files: ./coverage.xml

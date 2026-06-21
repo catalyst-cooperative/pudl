@@ -1,8 +1,10 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
 import warnings
+from pathlib import Path
 
 from dagster import PreviewWarning
+from upath import UPath
 
 from pudl.logging_helpers import configure_root_logger
 
@@ -13,6 +15,24 @@ warnings.filterwarnings(
 )
 
 configure_root_logger()
+
+# Paths to resources stored within the PUDL repository. Unlike PUDL_INPUT and
+# PUDL_OUTPUT these are not intended to be overridden by users or reset at runtime for
+# different environments.
+PUDL_ROOT_PATH: Path = Path(__file__).resolve().parents[2]
+"""Resolved absolute path to the repository root."""
+PUDL_SETTINGS_PATH: Path = PUDL_ROOT_PATH / "src/pudl/package_data/settings"
+"""Resolved absolute path to the package_data directory."""
+PUDL_DBT_PATH: Path = PUDL_ROOT_PATH / "dbt"
+"""Resolved absolute path to the dbt directory."""
+PUDL_DOCS_PATH: Path = PUDL_ROOT_PATH / "docs"
+"""Resolved absolute path to the docs directory."""
+PUDL_NIGHTLY_BUILDS_BASE_PATH: UPath = UPath(
+    "s3://pudl.catalyst.coop/nightly/", anon=True
+)
+"""Base path to PUDL nightly builds outputs."""
+PUDL_EEL_HOLE_BASE_PATH: UPath = UPath("s3://pudl.catalyst.coop/eel-hole/", anon=True)
+"""Base path to eel-hole s3 outputs."""
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"

@@ -12,15 +12,38 @@ For the underlying Dagster concept, see
 https://docs.dagster.io/guides/build/external-resources
 """
 
+import json
 import os
+from pathlib import Path
 from typing import Any
 
 import dagster as dg
+import requests
 from upath import UPath
 
+from pudl import PUDL_SETTINGS_PATH, logging_helpers
 from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
+
+logger = logging_helpers.get_logger(__name__)
+
+
+class PudlPathsResource(dg.ConfigurableResource):
+    """Load the input/output paths used by Dagster-managed PUDL runs.
+
+    Explicit Dagster resource config takes precedence. Any unset field falls back to
+    the current process environment so `dg` runs, local `.env` files, test fixtures,
+    and container-provided environment variables all share a single typed entry point.
+    """
+
+    pudl_input: str = dg.EnvVar("PUDL_INPUT")
+    pudl_output: str = dg.EnvVar("PUDL_OUTPUT")
+
+    def create_resource(self, context) -> PudlPaths:
+        """Create validated runtime path settings for the current Dagster run."""
+        del context  # Required by Dagster's hook signature; intentionally unused here.
+        return PudlPaths(pudl_input=self.pudl_input, pudl_output=self.pudl_output)
 
 
 class FercXbrlRuntimeSettings(dg.ConfigurableResource):
@@ -34,7 +57,7 @@ class FercXbrlRuntimeSettings(dg.ConfigurableResource):
 class GlobalDataConfigResource(dg.ConfigurableResource):
     """Load validated PUDL data configuration from a shared ETL YAML file."""
 
-    global_data_config_path: str = "src/pudl/package_data/settings/etl_full.yml"
+    global_data_config_path: str = str(PUDL_SETTINGS_PATH / "etl_full.yml")
 
     def create_resource(self, context) -> GlobalDataConfig:
         """Create runtime data configuration from the configured YAML file."""
@@ -69,6 +92,7 @@ class DatastoreResource(dg.ConfigurableResource):
     """Dagster resource to interact with Zenodo archives."""
 
     zenodo_dois: dg.ResourceDependency[ZenodoDoiSettingsResource]
+    pudl_paths: dg.ResourceDependency[PudlPathsResource]
     cloud_cache_path: str = "s3://pudl.catalyst.coop/zenodo"
     use_local_cache: bool = True
 
@@ -81,7 +105,7 @@ class DatastoreResource(dg.ConfigurableResource):
         }
 
         if self.use_local_cache:
-            ds_kwargs["local_cache_path"] = PudlPaths().input_dir  # type: ignore[call-arg]
+            ds_kwargs["local_cache_path"] = self.pudl_paths.pudl_input
         return Datastore(**ds_kwargs)
 
 
@@ -103,18 +127,111 @@ class FercEqrDataConfig(dg.ConfigurableResource):
         return UPath(self.ferceqr_archive_uri)
 
 
+class ZulipNotificationResource(dg.ConfigurableResource):
+    """Send notifications to Zulip streams via the Zulip API."""
+
+    base_url: str = "https://catalyst-cooperative.zulipchat.com"
+    bot_email: str = "build-status-bot@catalyst-cooperative.zulipchat.com"
+    api_key: str = dg.EnvVar("ZULIP_API_KEY")
+    timeout_seconds: int = 30
+
+    def send_stream_message(
+        self,
+        *,
+        stream: str,
+        topic: str,
+        content: str,
+        file_path: str | Path | None = None,
+    ) -> dict:
+        """Send a message to a Zulip stream topic and return the API response.
+
+        Optionally upload a file and attach a download link to the message content.
+
+        Sends are best-effort: all failures are logged as warnings and returned in the
+        result dict so callers can inspect them, but no exception is raised. This
+        ensures a notification hiccup never crashes an asset.
+        """
+        # Optionally upload a file and embed a Markdown link in the content.
+        if file_path is not None:
+            try:
+                with Path(file_path).open("rb") as f:
+                    upload_response = requests.post(
+                        f"{self.base_url}/api/v1/user_uploads",
+                        auth=(self.bot_email, self.api_key),
+                        files={"file": f},
+                        timeout=self.timeout_seconds,
+                    )
+                    upload_response.raise_for_status()
+                    upload_payload = upload_response.json()
+                if upload_payload.get("result") == "success":
+                    file_url = upload_payload.get("url") or upload_payload.get(
+                        "uri", ""
+                    )
+                    filename = upload_payload.get("filename", "attachment")
+                    link = f"[{filename}]({self.base_url}{file_url})"
+                    content = f"{content}\n\n{link}"
+                else:
+                    logger.warning(
+                        f"Zulip file upload returned error: {upload_payload}"
+                    )
+            except Exception as e:
+                logger.warning(f"Zulip file upload failed: {e}")
+
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/v1/messages",
+                auth=(self.bot_email, self.api_key),
+                data={
+                    "type": "stream",
+                    "to": stream,
+                    "topic": topic,
+                    "content": content,
+                },
+                timeout=self.timeout_seconds,
+            )
+            response.raise_for_status()
+        except requests.RequestException as e:
+            logger.warning(f"Zulip notification failed (request error): {e}")
+            return {"result": "error", "msg": str(e)}
+
+        try:
+            payload = response.json()
+        except json.JSONDecodeError as e:
+            logger.warning(
+                f"Zulip returned 200 with invalid JSON body: {e}. "
+                f"Message was almost certainly delivered."
+            )
+            return {
+                "result": "error",
+                "msg": f"invalid JSON: {e}",
+                # Include the raw response for debugging
+                "response_text": response.text,
+            }
+
+        if payload.get("result") != "success":
+            logger.warning(f"Zulip notification returned error payload: {payload}")
+        return payload
+
+
 global_data_config_resource = GlobalDataConfigResource.configure_at_launch()
+pudl_paths_resource = PudlPathsResource.configure_at_launch()
 zenodo_doi_settings_resource = ZenodoDoiSettingsResource()
-datastore_resource = DatastoreResource(zenodo_dois=zenodo_doi_settings_resource)
+datastore_resource = DatastoreResource(
+    zenodo_dois=zenodo_doi_settings_resource,
+    pudl_paths=pudl_paths_resource,
+)
 ferc_xbrl_runtime_settings = FercXbrlRuntimeSettings()
 ferceqr_data_config = FercEqrDataConfig()
+zulip_notification_resource = ZulipNotificationResource()
 
 default_resources: dict[str, Any] = {
     "datastore": datastore_resource,
     "global_data_config": global_data_config_resource,
+    "pudl_paths": pudl_paths_resource,
     "ferceqr_data_config": ferceqr_data_config,
     "runtime_settings": ferc_xbrl_runtime_settings,
     "zenodo_dois": zenodo_doi_settings_resource,
+    "zulip_notifications": zulip_notification_resource,
 }
 
 __all__ = [
@@ -122,11 +239,15 @@ __all__ = [
     "FercEqrDataConfig",
     "FercXbrlRuntimeSettings",
     "GlobalDataConfigResource",
+    "PudlPathsResource",
+    "ZulipNotificationResource",
     "ZenodoDoiSettingsResource",
     "datastore_resource",
     "default_resources",
     "ferceqr_data_config",
     "ferc_xbrl_runtime_settings",
     "global_data_config_resource",
+    "pudl_paths_resource",
+    "zulip_notification_resource",
     "zenodo_doi_settings_resource",
 ]

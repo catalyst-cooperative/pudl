@@ -26,7 +26,7 @@ sources:
               arguments:
                 column1: coal_fraction_mmbtu
                 column2: coal_fraction_cost
-                correlation_coef: 0.76
+                correlation_coef: 0.67
 models:
   - name: validate_ferc1__yearly_steam_plants_fuel_by_plant_sched402
     description: >

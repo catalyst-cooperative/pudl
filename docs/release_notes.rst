@@ -2,40 +2,167 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2026.6.0:
+.. _release-v2026.6.1:
 
 ---------------------------------------------------------------------------------------
-v2026.6.0 (2026-06-XX)
+v2026.6.1 (2026-06-19)
 ---------------------------------------------------------------------------------------
+
+This is a monthly PUDL data release, primarily motivated by updating the EIA-860M
+monthly data through February 2026. As usual, it also includes all of the other changes
+that have accumulated on ``main`` since our last release.
+
+This month, we have the belated EPA CEMS update for 2026Q1, the annual update
+for FERC 1, some great community contributions for RUS7 and EIA-176, and an
+assortment of datapackage, Dagster, and deployment notification improvements.
 
 Enhancements
 ^^^^^^^^^^^^
 
+* Overhauled PUDL's `Frictionless Data Package <https://datapackage.org/>`__ output to
+  conform to the v2 spec. The ``pudl_datapackage`` Dagster asset now generates
+  ``datapackage.json`` directly during the ETL, including full column types,
+  constraints, and foreign key relationships for every Parquet table.  The descriptor is
+  distributed as ``pudl_parquet_datapackage.json`` at the top level of the S3 bucket and
+  on Zenodo, allowing potential users to browse the PUDL schema without downloading any
+  data. The ``pudl_parquet.zip`` archive also contains a ``datapackage.json`` descriptor
+  so it can be used as a self-describing Frictionless package after extraction. A
+  reusable :func:`~pudl.dagster.asset_checks.valid_datapackage_check` factory is now
+  available in :mod:`pudl.dagster.asset_checks` to add frictionless v2 validation as an
+  asset check on any datapackage output. See issues :issue:`5122,5237` and PR
+  :pr:`5270,5343`. Also makes progress towards `catalyst-cooperative/agent-skills#14
+  <https://github.com/catalyst-cooperative/agent-skills/issues/14>`__
+* Added a bare-bones datapackage for DBF SQLite outputs. See issue :issue:`5200`
+  and PR :pr:`5275`.
+
 New Data
 ^^^^^^^^
+
+EIA-176
+~~~~~~~
+
+* Added :ref:`core_eia176__yearly_gas_supply`, which contains cleaned
+  company-level natural and supplemental gas supply data from Part 4 of the EIA-176
+  survey. See :issue:`4711` and :pr:`5227`.
+* Added :ref:`core_eia176__yearly_liquefied_natural_gas_inventory`, a new table
+  containing annual LNG storage volume and capacity reported by operators on EIA Form
+  176 Part 5. Data covers 2002-2024 and includes LNG terminal and marine terminal
+  records. See issue :issue:`4695` and PR :pr:`5219`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-191
+~~~~~~~
+
+* Updated :doc:`EIA-191 <data_sources/eia191>` data to include additional 2026 data. See
+  PR :pr:`5292`.
+
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860M <data_sources/eia860>` data through April 2026. See
+  issue :issue:`5277` and PR :pr:`5284`.
+
+FERC 1
+~~~~~~
+
+* Added 2025 data from :doc:`FERC form 1 <data_sources/ferc1>`. This update
+  includes several new renewable and energy storage fields in several tables.
+  See issue :issue:`5214` and PRs :pr:`5236,5325`.
+
+EIA Electricity API
+~~~~~~~~~~~~~~~~~~~
+
+* Updated the :doc:`bulk EIA Electricity API <data_sources/eiaapi>` data used to
+  fill in redacted fuel prices. See PR :pr:`5292`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data to include 2026Q1. See PR
+  :pr:`5292`.
+
+FERC Forms 2 & 6
+~~~~~~~~~~~~~~~~
+
+* Updated the raw FERC Form 2 and 6 archives to include 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR :pr:`5292`.
+
 Documentation
 ^^^^^^^^^^^^^
+
+* Added a data source page for :doc:`EIA-191 <data_sources/eia191>`. See PR
+  :pr:`5267` and issue :issue:`4756`.
+* Updated the :doc:`EIA-930 <data_sources/eia930>` column descriptions to note that
+  starting in 2024Q3 EIA began reporting more granular renewable energy source
+  categories, differentiating wind and solar plants with and without energy storage,
+  splitting pumped hydro from conventional hydro, and adding new battery storage and
+  geothermal categories. See issue :issue:`5335` and PR :pr:`5336`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added validations to :doc:`RUS7 <data_sources/rus7>` service interruption
+  tables to ensure subcomponents sum to the total for annual observation
+  periods. See issue :issue:`5285` and PR :pr:`5286`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Fix a bug in the Zenodo Data Release script which was not actually skipping top-level
-  directories when deciding what to upload to Zenodo, which caused release failures
-  once we started leaving the ``ferc*_xbrl`` directories lying around. See PR
-  :pr:`5254`.
-
-Performance Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^
+* Renamed the ``fuel_consumed_mmbtu`` column in the ``out_eia923__fuel_receipts_costs``,
+  ``out_eia923__monthly_fuel_receipts_costs``, and
+  ``out_eia923__yearly_fuel_receipts_costs`` tables. This column is the result of
+  dividing ``total_fuel_cost`` by ``fuel_received_mmbtu``. The name
+  ``fuel_consumed_mmbtu`` was misleading because the fuel received in these tables is
+  not necessarily consumed in the same month, and the fuel cost is not necessarily
+  associated with fuel received in the same month. The new name,
+  ``fuel_received_mmbtu``, more accurately reflects what the column actually contains.
+  See PR :pr:`5294`.
+* Fixed a bug in the Zenodo Data Release script which was not actually skipping
+  top-level directories when deciding what to upload to Zenodo, which caused release
+  failures once we started leaving the ``ferc*_xbrl`` directories on the filesystem. See
+  PR :pr:`5254`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Refactored Dagster-managed path handling to use a dedicated ``pudl_paths`` resource
+  instead of constructing :class:`pudl.workspace.setup.PudlPaths` directly throughout
+  assets, IO managers, and tests. This makes path resolution more explicit in Dagster
+  contexts and allows interactive definitions to override ``pudl_input`` and
+  ``pudl_output`` directly when calling
+  :func:`pudl.dagster.build.build_interactive_defs`. See PR :pr:`5261,5288`.
+* Added a PUDL devcontainer configuration to make it easier for contributors to get up
+  and running, and to enable the safe use of coding agents in YOLO mode. See PRs
+  :pr:`5260,5287`.
+* Cleaned up PUDL's default Dagster wiring by separating default resources from
+  IO managers, giving shared data-config resources clearer defaults, and
+  simplifying the FERC SQLite IO manager and provenance stack. Consolidated the
+  FERC EQR deployment helper assets with the rest of the Dagster package layout.
+  Created a new Dagster definition builder for use in notebooks and other
+  interactive environments outside of a ``dg``-spawned environment:
+  :func:`pudl.dagster.build.build_interactive_defs`. See issue :issue:`5118` and
+  PR :pr:`5242`.
+* Migrated build and deployment notifications from Slack to Zulip. All GitHub Actions
+  workflows that previously posted to Slack now send notifications to the Catalyst
+  Cooperative Zulip instance via the ``zulip/github-actions-zulip`` action. A new
+  :class:`~pudl.dagster.resources.ZulipNotificationResource` Dagster resource was added
+  to send Zulip stream messages from within assets, with best-effort error handling. The
+  FERC EQR deployment helpers in :mod:`pudl.dagster.assets.deploy.ferceqr` were updated
+  to use it. Notification coverage was also expanded to include community activity
+  (issues, discussions, comments, and pull requests from non-Catalyst contributors).
+  See PRs :pr:`5298,5328,5331`.
+* FERC provenance metadata (Zenodo DOIs, data years, XBRL extractor version) is now
+  stored in the FERC SQLite datapackage files rather than only in Dagster asset
+  metadata. The ``ferc_to_sqlite`` asset can now optionally download and reuse pre-built
+  FERC SQLite outputs from the most recent nightly build, skipping expensive
+  re-extraction when the inputs haven't changed. Set ``PUDL_FERC_FORCE_EXTRACT=true`` to
+  force re-extraction regardless. See issue :issue:`5220` and PR :pr:`5264`.
+* Migrated hashtag-prefixed comments from soon-to-be-machine-generated dbt
+  schema files into their corresponding human-editable schema input files
+  (``dbt/schema_inputs/**/schema.human.yml``) to preserve their content, since
+  any regenerated schemas will forcibly strip out hashtag comments. See PR :pr:`5310`.
 
 .. _release-v2026.5.0:
 
@@ -202,8 +329,8 @@ changes:
   :class:`pudl.workspace.datastore.ZenodoDoiSettingsResource` replace the legacy
   ``@resource``-decorated functions;
   :class:`pudl.io_managers.PudlMixedFormatIOManager`,
-  :class:`pudl.io_managers.FercDbfSqliteConfigurableIOManager`, and
-  :class:`pudl.io_managers.FercXbrlSqliteConfigurableIOManager` replace the legacy
+  :class:`pudl.io_managers.FercDbfSqliteIOManager`, and
+  :class:`pudl.io_managers.FercXbrlSqliteIOManager` replace the legacy
   ``@io_manager`` wrappers. Resources now receive settings via Pydantic field
   injection rather than via :func:`dagster.build_init_resource_context` config dicts.
 * **Added FERC SQLite provenance tracking** via the new
@@ -265,7 +392,7 @@ changes:
   combined two acronyms (e.g. ``FERC`` + ``SQLite``) were inconsistently named.
   They now follow the Python convention of treating each acronym as a single
   title-cased word, so ``SQLite`` becomes ``Sqlite`` when it appears mid-name
-  (e.g. ``FercDbfSqliteConfigurableIOManager``).  See :issue:`5123` and PR :pr:`5124`.
+  (e.g. ``FercDbfSqliteIOManager``).  See :issue:`5123` and PR :pr:`5124`.
 * **Renamed Pydantic settings classes from** ``*Settings`` **to** ``*DataConfig``
   **and tightened container field names.** The old names were too vague — these
   classes define *which data gets processed*, not general application settings.

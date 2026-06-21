@@ -8,7 +8,7 @@ from pathlib import Path
 
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.scripts.dbt_helper import DbtSchema, insert_data_source
-from pudl.validate.dbt import DBT_DIR
+from pudl.validate.dbt import PUDL_DBT_PATH
 
 
 def generate_legible_output(
@@ -60,7 +60,9 @@ def test_dbt_schema_drift():
     # check pudl -> dbt direction first, then clean up any dbt items
     # we didn't hit along the way
     for table_name in all_pudl_tables:
-        schema_path = insert_data_source(DBT_DIR / "models", table_name) / "schema.yml"
+        schema_path = (
+            insert_data_source(PUDL_DBT_PATH / "models", table_name) / "schema.yml"
+        )
         try:
             all_dbt_schema_paths.remove(schema_path)
         except KeyError:  # pragma: no cover

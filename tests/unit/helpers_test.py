@@ -19,6 +19,7 @@ from pudl.helpers import (
     date_merge,
     dedupe_and_drop_nas,
     diff_wide_tables,
+    env_var_is_true,
     expand_timeseries,
     flatten_list,
     normalize_year_fragments,
@@ -1097,3 +1098,21 @@ def test_normalize_year_fragments_raises_invalid_arguments(
             max_valid_year=max_valid_year,
             base_century=base_century,
         )
+
+
+@pytest.mark.parametrize(
+    "value,should_pass",
+    [
+        ("true", True),
+        ("True", True),
+        ("1", True),
+        ("yes", True),
+        ("on", True),
+        ("false", False),
+        ("other", False),
+    ],
+)
+def test_env_var_is_true(mocker, value: str, should_pass: bool):
+    """Test env_var_is_true."""
+    mocker.patch("pudl.helpers.os.getenv", return_value=value)
+    assert env_var_is_true(value) == should_pass

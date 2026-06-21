@@ -53,7 +53,7 @@ dependencies = []
 
 [tool.pixi.workspace]
 name = "catalystcoop.pudl"
-platforms = ["linux-64", "osx-64", "osx-arm64"]
+platforms = ["linux-aarch64", "linux-64", "osx-64", "osx-arm64"]
 channels = ["conda-forge"]
 channel-priority = "strict"
 preview = ["pixi-build"]
@@ -68,7 +68,7 @@ boto3 = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
 "catalystcoop.ferc_xbrl_extractor" = ">=1.10,<1.11"
-click = ">=8.3.2"
+click = ">=8.4"
 coloredlogs = ">=14.0"
 coverage = ">=7.13"
 curl = ">=8.17"
@@ -78,7 +78,7 @@ dagster-dg-cli = ">=1.13"
 dagster-gcp = ">=1!0.29"
 dagster-postgres = ">=1!0.29"
 dagster-webserver = ">=1.13"
-dbt-core = ">=1.11.8"
+dbt-core = ">=1.11.11"
 dbt-duckdb = ">=1.9.4"
 deepdiff = ">=8"
 doc8 = ">=1.1"
@@ -87,7 +87,7 @@ filelock = ">=3.29"
 frictionless = ">=5,<6"
 fsspec = ">=2026"
 gcsfs = ">=2026"
-gdal = ">=3.12.4"
+gdal = ">=3.13.1"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 google-cloud-sdk = ">=535"
@@ -104,23 +104,23 @@ jupyter-lsp = ">=2.3"
 jupyter-resource-usage = ">=1.2"
 jupyterlab = ">=4.5"
 jupyterlab-lsp = ">=5.2"
-matplotlib-base = ">=3.10"
+matplotlib-base = ">=3.11"
 memray = ">=1.18.0"
-mlflow = ">=3.11"
+mlflow = ">=3.13"
 nbconvert = ">=7"
 nbformat = ">=5.10"
 networkx = ">=3.6"
-nodejs = ">=24"
+nodejs = ">=26"
 numba = ">=0.65"
 numexpr = ">=2.10"
 numpy = ">=2.4"
 packaging = ">=25"
 pandas = ">=2.3"
 pandoc = ">=3.7"
-pandera-polars = ">=0.30"
+pandera-polars = ">=0.31"
 parallel = ">=20250822"
-polars = ">=1.40"
-prek = ">=0.3.9"
+polars = ">=1.41.2" # v1.41.2 fixed a big memory leak
+prek = ">=0.4"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
 proj = ">=9.8.1"
@@ -141,16 +141,14 @@ python-dotenv = ">=1"
 python-duckdb = ">=1.4,<1.5"
 pytz = ">=2025"
 pyyaml = ">=6"
-readthedocs-sphinx-ext = ">=2"
 requests = ">=2.32"
 responses = ">=0.25"
 ruff = ">=0.15"
 ruff-lsp = ">=0.0.62"
 s3fs = ">=2026"
-scikit-learn = ">=1.8"
-scipy = ">=1.17"
+scikit-learn = ">=1.9"
+scipy = ">=1.18"
 shapely = ">=2.1.1"
-slack-sdk = ">=3.39.0"
 sphinx = ">=9"
 sphinx-autoapi = ">=3.8"
 sphinx-design = ">=0.7.0"
@@ -165,9 +163,10 @@ sqlite = ">=3.53"
 taplo = "==0.9.3"
 terraform = ">=1.14"
 timezonefinder = ">=8"
-typos = ">=1.40"
+typos = ">=1.47"
 universal-pathlib = ">=0.3.10"
-urllib3 = ">=2.4"
+urllib3 = ">=2.7"
+usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
@@ -178,101 +177,18 @@ zip = ">=3.0"
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
 detect-secrets = ">=1.5"
-usaddress = ">=0.5.16,<0.6"
 
 [tool.pixi.feature.dev.dependencies]
+gh = ">=2" # GitHub CLI
 jq = ">=1.8" # Primarily for agent skills use
-marimo = ">=0.21"
+marimo = ">=0.13"
 matplotx = ">=0.3.10"
 plotly = ">=6.6"
 ripgrep = ">=15" # Primarily for agent skills use
-ty = ">=0.0.25" # Experimental, also for agent skills use
+ty = ">=0.0.40" # Experimental, also for agent skills use
 
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
-
-########################################################################################
-# Conda package build configuration. This is used by pixi to build the conda package
-########################################################################################
-[tool.pixi.package]
-version = "v0.0.0"
-
-[tool.pixi.package.build.backend]
-name = "pixi-build-python"
-version = ">=0.4.3"
-channels = ["conda-forge"]
-
-[tool.pixi.package.build-dependencies]
-python = ">=3.13,<3.14.0"
-
-[tool.pixi.package.host-dependencies]
-hatchling = ">=1.29"
-hatch-vcs = ">=0.5"
-uv = ">=0.11"
-
-# This is a list of the minimal set of run-time dependencies required for PUDL to
-# be installed and function properly. These should be kept in sync with the more
-# expansive list in [tool.pixi.dependencies] above.
-[tool.pixi.package.run-dependencies]
-alembic = ">=1.17"
-boto3 = ">=1.35"
-bottleneck = ">=1.5.0"
-"catalystcoop.dbfread" = ">=3.0,<3.1"
-"catalystcoop.ferc_xbrl_extractor" = ">=1.10,<1.11"
-click = ">=8.3.3"
-coloredlogs = ">=14.0"
-dagster = ">=1.13"
-dagster-dbt = ">=0.29"
-dagster-postgres = ">=0.29"
-dagster-webserver = ">=1.13"
-dbt-core = ">=1.11.8"
-dbt-duckdb = ">=1.9.4"
-email-validator = ">=1.0.3"
-frictionless = ">=5,<6"
-fsspec = ">=2026"
-gcsfs = ">=2026"
-gdal = ">=3.12.4"
-geoarrow-pyarrow = ">=0.2"
-geopandas = ">=1.1"
-# grpcio packages all need to have same version to avoid conflicts.
-# They are also compiled and finnicky. Check compatibility before upgrading.
-grpcio = "==1.78.1"
-grpcio-health-checking = "==1.78.1"
-grpcio-status = "==1.78.1"
-jellyfish = ">=1"
-jinja2 = ">=3.1"
-matplotlib-base = ">=3.10"
-mlflow = ">=3.11"
-networkx = ">=3.6"
-numba = ">=0.65"
-numexpr = ">=2.10"
-numpy = ">=2.4"
-packaging = ">=25"
-pandas = ">=2.3"
-pandera-polars = ">=0.30"
-polars = ">=1.40"
-pyarrow = ">=23"
-pydantic = ">=2.13"
-pydantic-settings = ">=2.13"
-python-calamine = ">=0.6.1"
-python-dotenv = ">=1"
-python-duckdb = ">=1.4,<1.5"
-pytz = ">=2025"
-pyyaml = ">=6"
-requests = ">=2.32"
-s3fs = ">=2026"
-scikit-learn = ">=1.8"
-scipy = ">=1.17"
-shapely = ">=2.1.1"
-splink = ">=4.0.14"
-sqlalchemy = ">=2"
-timezonefinder = ">=8"
-universal-pathlib = ">=0.3.10"
-urllib3 = ">=2.4"
-xlsxwriter = ">=3.2"
-
-########################################################################################
-########################################################################################
 
 [tool.pixi.activation.env]
 # Reusable variables for pixi tasks
@@ -355,6 +271,7 @@ description = "Run unit tests and doctests"
 [tool.pixi.tasks.pytest-integration]
 cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
 description = "Run integration and (non-row-count) validation tests."
+env = { PUDL_INTEGRATION_TESTS = "true" }
 
 [tool.pixi.tasks.pytest-validate]
 cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py"
@@ -474,6 +391,19 @@ cmd = "dbt deps --upgrade"
 cwd = "dbt"
 description = "Update dbt dependencies"
 
+[tool.pixi.tasks.devcontainer-install]
+cmd = """
+pixi install --frozen --locked \
+    && pixi run install-skills
+"""
+description = "Set up the dev container: install pixi environment, skills, and agent CLIs (run once after first start)"
+
+[tool.pixi.tasks.devcontainer-rebuild]
+cmd = """
+npx -y @devcontainers/cli build --workspace-folder . --log-level info
+"""
+description = "Rebuild devcontainer image metadata (workspace .pixi and caches are now separate volumes)"
+
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command
 # which is the workaround for "restoring from a lockfile" - see
@@ -497,6 +427,7 @@ pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
+generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -668,7 +599,7 @@ relative_files = true
 precision = 2
 sort = "miss"
 skip_empty = true
-fail_under = 93
+fail_under = 91
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",

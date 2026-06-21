@@ -23,7 +23,6 @@ from pudl.scripts.dbt_helper import (
     update_table_schema,
     update_tables,
 )
-from pudl.workspace.setup import PudlPaths
 
 # Test helper machinery
 
@@ -702,6 +701,7 @@ def test_update_table_row_counts_clobber(
     expected_row_counts,
     tmp_path,
     mocker,
+    pudl_test_paths,
 ):
     # make test data
     test_schema = f"""
@@ -726,7 +726,7 @@ sources:
         dbt_dir / "models" / "source" / "test_source__table_name" / "schema.yml"
     )
     row_count_csv_path = dbt_dir / "seeds" / "etl_full_row_counts.csv"
-    parquet_path = PudlPaths().parquet_path("test_source__table_name")
+    parquet_path = pudl_test_paths.parquet_path("test_source__table_name")
 
     schema_path.parent.mkdir(parents=True, exist_ok=True)
     row_count_csv_path.parent.mkdir(parents=True, exist_ok=True)
@@ -738,8 +738,8 @@ sources:
     with schema_path.open("w") as f:
         f.write(test_schema)
 
-    # patch out DBT_DIR so we use our lovely test schema + rowcounts
-    mocker.patch("pudl.scripts.dbt_helper.DBT_DIR", new=dbt_dir)
+    # patch out PUDL_DBT_PATH so we use our lovely test schema + rowcounts
+    mocker.patch("pudl.scripts.dbt_helper.PUDL_DBT_PATH", new=dbt_dir)
     # patch out ALL_TABLES so that we're allowed to run tests
     mocker.patch("pudl.scripts.dbt_helper.ALL_TABLES", new=["test_source__table_name"])
     runner = CliRunner()
