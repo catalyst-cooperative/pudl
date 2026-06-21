@@ -19,7 +19,7 @@ FIELD_DTYPES_POLARS: dict[str, str] = {
     "integer": pl.datatypes.Int64,
     "number": pl.datatypes.Float64,
     "string": pl.datatypes.String,
-    "year": pl.datatypes.Datetime,
+    "year": pl.datatypes.Datetime(time_unit="ms"),
 }
 """Polars data type by simplified PUDL field type."""
 
@@ -27,7 +27,7 @@ FIELD_DTYPES_DUCKDB: dict[str, str] = {
     "boolean": duckdb.sqltypes.BOOLEAN,
     "date": duckdb.sqltypes.DATE,
     "datetime": duckdb.sqltypes.TIMESTAMP_MS,
-    "integer": duckdb.sqltypes.INTEGER,
+    "integer": duckdb.sqltypes.BIGINT,
     "number": duckdb.sqltypes.DOUBLE,
     "string": duckdb.sqltypes.VARCHAR,
     "year": duckdb.sqltypes.TIMESTAMP_MS,
@@ -35,13 +35,13 @@ FIELD_DTYPES_DUCKDB: dict[str, str] = {
 """DuckDB data type by simplified PUDL field type."""
 FIELD_DTYPES_PANDAS: dict[str, str] = {
     "boolean": "boolean",
-    "date": "datetime64[s]",
-    "datetime": "datetime64[s]",
+    "date": "datetime64[ms]",
+    "datetime": "datetime64[ms]",
     "geometry": "geometry",
     "integer": "Int64",
     "number": "float64",
     "string": "string",
-    "year": "datetime64[s]",
+    "year": "datetime64[ms]",
 }
 """Pandas data type by simplified PUDL field type."""
 
@@ -50,19 +50,18 @@ FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
     "date": pa.date32(),
     "datetime": pa.timestamp("ms"),
     "geometry": ga.wkb(),
-    "integer": pa.int32(),
-    "number": pa.float32(),
+    "integer": pa.int64(),
+    "number": pa.float64(),
     "string": pa.string(),
-    "year": pa.int32(),
+    "year": pa.int64(),
 }
 
 FIELD_DTYPES_SQL: dict[str, type] = {
     "boolean": sa.Boolean,
     "date": sa.Date,
     # Ensure SQLite's string representation of datetime uses only whole seconds:
-    "datetime": SQLITE_DATETIME(
-        storage_format="%(year)04d-%(month)02d-%(day)02d %(hour)02d:%(minute)02d:%(second)02d"
-    ),
+    "datetime": SQLITE_DATETIME(),
+    # storage_format="%(year)04d-%(month)02d-%(day)02d %(hour)02d:%(minute)02d:%(second)02d"
     "integer": sa.Integer,
     "number": sa.Float,
     "string": sa.Text,

@@ -2,6 +2,29 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2026.7.0:
+
+---------------------------------------------------------------------------------------
+v2026.7.0 (2026-07-XX)
+---------------------------------------------------------------------------------------
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Switched PUDL's PyArrow and DuckDB field type maps to use 64-bit types for ``integer``
+  and ``number`` fields. Previously
+  :data:`~pudl.metadata.constants.FIELD_DTYPES_PYARROW` used ``pa.int32()`` and
+  ``pa.float32()`` when pandas DataFrames were written to Parquet. Testing showed the
+  storage impact of switching to ``pa.int64()``/``pa.float64()`` is only ~10% on the
+  biggest pandas managed tables. The DuckDB map also used 32-bit ``INTEGER`` instead of
+  ``BIGINT``, inconsistent with all other type maps. All four type maps (PyArrow,
+  DuckDB, Polars, pandas) now agree on 64-bit numeric types. The unused ``compact``
+  parameter on :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` (which returned
+  32-bit types) has been removed.
+
 .. _release-v2026.6.1:
 
 ---------------------------------------------------------------------------------------

@@ -24,7 +24,7 @@ GENS_MEGA = pd.DataFrame(
         "operational_status_pudl": ["operating", "operating", "operating", "operating"],
         "capacity_mw": [400, 50, 125, 75],
     }
-).astype({"report_date": "datetime64[s]"})
+).astype({"report_date": "datetime64[ms]"})
 
 
 def test_plant_ag():
@@ -50,7 +50,7 @@ def test_plant_ag():
                 "capacity_mw": [650.0],
             }
         )
-        .astype({"report_date": "datetime64[s]"})
+        .astype({"report_date": "datetime64[ms]"})
         .convert_dtypes()
     )
     pd.testing.assert_frame_equal(plant_ag_out, plant_ag_expected)
@@ -80,7 +80,7 @@ def test_prime_fuel_ag():
                 "capacity_mw": [400.0, 250.0],
             }
         )
-        .astype({"report_date": "datetime64[s]"})
+        .astype({"report_date": "datetime64[ms]"})
         .convert_dtypes()
     )
 
@@ -113,7 +113,7 @@ def test_prime_mover_ag():
                 "capacity_mw": [75.0, 125.0, 50.0, 400.0],
             }
         )
-        .astype({"report_date": "datetime64[s]"})
+        .astype({"report_date": "datetime64[ms]"})
         .convert_dtypes()
     )
 
@@ -146,7 +146,7 @@ def test_plant_gen_ag():
                 "capacity_mw": [400.0, 50.0, 125.0, 75.0],
             }
         )
-        .astype({"report_date": "datetime64[s]"})
+        .astype({"report_date": "datetime64[ms]"})
         .convert_dtypes()
     )
 
@@ -178,9 +178,9 @@ def test_make_mega_gen_tbl():
         .convert_dtypes()
         .astype(
             {
-                "generator_retirement_date": "datetime64[s]",
-                "report_date": "datetime64[s]",
-                "generator_operating_date": "datetime64[s]",
+                "generator_retirement_date": "datetime64[ms]",
+                "report_date": "datetime64[ms]",
+                "generator_operating_date": "datetime64[ms]",
                 "plant_id_eia": "Int64",
                 "generator_id": "string",
             }
@@ -200,7 +200,7 @@ def test_make_mega_gen_tbl():
         .convert_dtypes()
         .astype(
             {
-                "report_date": "datetime64[s]",
+                "report_date": "datetime64[ms]",
                 "plant_id_eia": "Int64",
                 "generator_id": "string",
             }
@@ -244,9 +244,9 @@ def test_make_mega_gen_tbl():
         )
         .astype(
             {
-                "generator_retirement_date": "datetime64[s]",
-                "report_date": "datetime64[s]",
-                "generator_operating_date": "datetime64[s]",
+                "generator_retirement_date": "datetime64[ms]",
+                "report_date": "datetime64[ms]",
+                "generator_operating_date": "datetime64[ms]",
                 "generator_operating_year": "Int64",
                 "utility_id_eia": "Int64",  # convert to pandas Int64 instead of numpy int64
             }
@@ -267,9 +267,9 @@ def test_scale_by_ownership():
             "owner_utility_id_eia": [3, 4, 3, 4],
             "fraction_owned": [0.7, 0.3, 0.1, 0.9],
         },
-    ).astype({"report_date": "datetime64[s]", "owner_utility_id_eia": pd.Int64Dtype()})
+    ).astype({"report_date": "datetime64[ms]", "owner_utility_id_eia": pd.Int64Dtype()})
 
-    dtypes = {"report_date": "datetime64[s]", "utility_id_eia": pd.Int64Dtype()}
+    dtypes = {"report_date": "datetime64[ms]", "utility_id_eia": pd.Int64Dtype()}
     gens_mega_ex1 = pd.DataFrame(
         {
             "plant_id_eia": [1, 1],
@@ -453,7 +453,7 @@ def test_label_true_grans():
             "construction_year": [None] * 9,
             "ferc1_generator_agg_id": [None, None, None, None, 0, None, 0, None, 0],
         }
-    ).astype({"report_date": "datetime64[s]"})
+    ).astype({"report_date": "datetime64[ms]"})
 
     true_grans = pd.DataFrame(
         {
@@ -543,9 +543,9 @@ def test_one_to_many():
         }
     ).astype(
         {
-            "report_date": "datetime64[s]",
-            "generator_retirement_date": "datetime64[s]",
-            "planned_generator_retirement_date": "datetime64[s]",
+            "report_date": "datetime64[ms]",
+            "generator_retirement_date": "datetime64[ms]",
+            "planned_generator_retirement_date": "datetime64[ms]",
             "generator_id": "string",
         }
     )
@@ -658,9 +658,9 @@ def test_one_to_many():
         )
         .astype(
             {
-                "report_date": "datetime64[s]",
-                "generator_retirement_date": "datetime64[s]",
-                "planned_generator_retirement_date": "datetime64[s]",
+                "report_date": "datetime64[ms]",
+                "generator_retirement_date": "datetime64[ms]",
+                "planned_generator_retirement_date": "datetime64[ms]",
                 "generator_id": "string",
             }
         )
