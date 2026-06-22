@@ -1,6 +1,5 @@
 """Generalized DBF extractor for FERC data."""
 
-import contextlib
 import csv
 import importlib.resources
 import warnings
@@ -11,13 +10,13 @@ from functools import lru_cache
 from pathlib import Path
 from typing import IO, Any, Protocol, Self
 
+import frictionless
 import pandas as pd
 import sqlalchemy as sa
 from dagster import op
 from dbfread import DBF, FieldParser
 from sqlalchemy.engine.base import Engine
 
-import pudl.helpers
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
 from pudl.settings import FercDbfToSqliteDataConfig, FercToSqliteDataConfig
@@ -467,6 +466,54 @@ class FercDbfExtractor:
         db_path = str(Path(self.output_path) / self.DATABASE_NAME)
         return f"sqlite:///{db_path}"
 
+    def _clean_frictionless_types(self, type_: str) -> str:
+        """Normalize types from SQLite to frictionless."""
+        type_ = type_.lower()
+        type_ = "string" if type_.startswith(("varchar", "text")) else type_
+        type_ = "number" if type_.startswith("float") else type_
+        return type_
+
+    @property
+    def datapackage_path(self) -> Path:
+        """Returns the path to the datapackage for this resource."""
+        return Path(self.output_path) / f"{self.DATASET}_dbf_datapackage.json"
+
+    def to_frictionless(self):
+        """Create a frictionless DataPackage describing the DBF DB and write to a JSON file."""
+        resources = []
+        types = []
+        for table in self.sqlite_meta.sorted_tables:
+            for c in table.columns:
+                types.append(str(c.type))
+
+        for table in self.sqlite_meta.sorted_tables:
+            resources.append(
+                frictionless.Resource(
+                    path=self.get_db_path(),
+                    name=table.name,
+                    title=table.name,
+                    description=table.description,
+                    schema=frictionless.Schema(
+                        fields=[
+                            frictionless.Field.from_descriptor(
+                                {
+                                    "name": c.name,
+                                    "type": self._clean_frictionless_types(str(c.type)),
+                                }
+                            )
+                            for c in table.columns
+                        ]
+                    ),
+                )
+            )
+
+        package = frictionless.Package(
+            name=self.datapackage_path.stem,
+            title=f"{self.DATASET} data extracted from DBF filings",
+            resources=resources,
+        )
+        package.to_json(path=str(self.datapackage_path))
+
     @classmethod
     def get_dagster_op(cls) -> Callable:
         """Returns dagstger op that runs this extractor."""
@@ -501,16 +548,14 @@ class FercDbfExtractor:
             logger.warning(f"Dataset {self.DATASET} has no years configured, skipping")
             return
 
-        self.delete_schema()
+        self.initialize_database()
         self.create_sqlite_tables()
         self.load_table_data()
         self.postprocess()
+        self.to_frictionless()
 
-    def delete_schema(self):
-        """Drops all tables from the existing sqlite database."""
-        with contextlib.suppress(sa.exc.OperationalError):
-            pudl.helpers.drop_tables(self.sqlite_engine, clobber=True)
-
+    def initialize_database(self):
+        """Create sqlalchemy engine and metadata."""
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)

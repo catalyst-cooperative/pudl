@@ -145,6 +145,7 @@ def test_core_eia176__numeric_data(df):
     wide_company, wide_aggregate = (
         o.value for o in _core_eia176__numeric_data(eav_model)
     )
+
     assert wide_company.shape == (1, 5)
 
     company_row = wide_company.loc[0]

@@ -1,9 +1,12 @@
+---
 name: com-dev-notify
 
 on:
   issues:
     types: [opened]
   discussion:
+    types: [created]
+  discussion_comment:
     types: [created]
   issue_comment:
     types: [created]
@@ -14,7 +17,7 @@ env:
   username: ""
   url: ""
   org: catalyst-cooperative
-
+  ignored_users: '["pre-commit-ci[bot]", "krivard", "dependabot[bot]", "github-actions[bot]"], "catalyst-workflow-triggerer[bot]"'
 jobs:
   com-dev-notify:
     name: Notify Catalyst of community activity
@@ -31,6 +34,12 @@ jobs:
         run: |
           echo "username=${{ github.event.discussion.user.login }}" >> "${GITHUB_ENV}"
           echo "url=${{ github.event.discussion.html_url }}" >> "${GITHUB_ENV}"
+
+      - name: Get username if a discussion comment was created
+        if: ${{ github.event_name == 'discussion_comment' }}
+        run: |
+          echo "username=${{ github.event.comment.user.login }}" >> "${GITHUB_ENV}"
+          echo "url=${{ github.event.comment.html_url }}" >> "${GITHUB_ENV}"
 
       - name: Get username if a comment was created
         if: ${{ github.event_name == 'issue_comment' }}
@@ -53,7 +62,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Send message to ComDev Zulip channel
-        if: ${{ !steps.is_organization_member.outputs.result }}
+        if: >-
+          ${{ steps.is_organization_member.outputs.result == 'false' && !contains(fromJSON(env.ignored_users), env.username) }}
         uses: zulip/github-actions-zulip/send-message@v2
         with:
           api-key: ${{ secrets.ZULIP_API_KEY }}

@@ -175,10 +175,12 @@ def dataframe_cleaner_factory(
         """Use :class:`sklearn.compose.ColumnTransformer` to transform input.
 
         Returns:
-            A dataframe where the columns are the transformer name and the
-            original column name separated by a double underscore (__)
+            A DataFrame with one column per transformer, named after the
+            transformer key (i.e. the key from the ``vectorizers`` dict).
         """
-        return transformer.transform(df)
+        result = transformer.transform(df)
+        result.columns = list(vectorizers.keys())
+        return result
 
     @graph(name=f"{name_prefix}_cleaner_graph")
     def clean_dataframe_graph(
