@@ -6,7 +6,7 @@ EIA-861 balancing authority and service territory tables:
   - filled_core_eia861__assn_balancing_authority
   - filled_service_territory_eia861
 
-These tests use real BA IDs from the ASSOCIATIONS constant so that they
+These tests use real BA IDs from the BA_FIXES constant so that they
 exercise the actual fix specifications.  All three functions are pure
 DataFrame → DataFrame transforms with no external dependencies.
 
@@ -22,8 +22,10 @@ Selected UTILITIES IDs used in tests:
 """
 
 import pandas as pd
+import pytest
 
 from pudl.output.ferc714 import (
+    BaFixMap,
     filled_core_eia861__assn_balancing_authority,
     filled_core_eia861__yearly_balancing_authority,
     filled_service_territory_eia861,
@@ -184,8 +186,8 @@ class TestFilledYearlyBalancingAuthority:
         assert 56669 in result["balancing_authority_id_eia"].to_numpy()
 
     def test_noop_when_no_relevant_years_in_data(self):
-        """Fast-ETL case: no fixes applied when years don't overlap ASSOCIATIONS."""
-        # Fast ETL uses years like 2020, 2024 — none of the ASSOCIATIONS fixes apply
+        """Fast-ETL case: no fixes applied when years don't overlap BA_FIXES."""
+        # Fast ETL uses years like 2020, 2024 — none of the BA_FIXES fixes apply
         df = _ba_yearly(
             {"id": 56669, "year": 2020, "code": "MISO", "name": "Midwest ISO"},
             {"id": 99999, "year": 2024, "code": "XX", "name": "Dummy"},
@@ -207,10 +209,10 @@ class TestFilledYearlyBalancingAuthority:
             )
         )
         # Any rows present in result but not original must be from UTILITIES reassignment,
-        # not from ASSOCIATIONS fixes (since no ASSOCIATIONS fixes apply here)
+        # not from BA_FIXES fixes (since no BA_FIXES fixes apply here)
         added = result_ids - original_ids
         assert all(year not in range(2006, 2020) for _, year in added), (
-            "No ASSOCIATIONS fix rows should be added for fast ETL years"
+            "No BA_FIXES fix rows should be added for fast ETL years"
         )
 
 
@@ -338,7 +340,7 @@ class TestFilledAssnBalancingAuthority:
         assert len(reassigned) == 1, "Child utility should be reassigned to parent BA"
 
     def test_noop_when_no_relevant_years_in_data(self):
-        """Fast-ETL case: no ASSOCIATIONS fixes applied for years 2020/2024."""
+        """Fast-ETL case: no BA_FIXES fixes applied for years 2020/2024."""
         df = _ba_assn(
             {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2020},
             {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2024},
@@ -418,7 +420,7 @@ class TestFilledServiceTerritoryEia861:
         filled_assn = _ba_assn(
             {"ba_id": 56669, "util_id": 100, "state": "CA", "year": 2011},
         )
-        # Include a utility-state row NOT associated with any ASSOCIATIONS fix
+        # Include a utility-state row NOT associated with any BA_FIXES fix
         st = _service_territory(
             {"util_id": 100, "state": "CA", "year": 2011, "county_id_fips": "06001"},
             {"util_id": 999, "state": "TX", "year": 2011, "county_id_fips": "48001"},
@@ -430,8 +432,8 @@ class TestFilledServiceTerritoryEia861:
         assert tx_row.iloc[0]["county_id_fips"] == "48001"
 
     def test_noop_for_fast_etl_years(self):
-        """Fast-ETL case: no additional rows added when no ASSOCIATIONS fixes apply."""
-        # 2020 and 2024 have no ASSOCIATIONS entries — nothing to fill
+        """Fast-ETL case: no additional rows added when no BA_FIXES fixes apply."""
+        # 2020 and 2024 have no BA_FIXES entries — nothing to fill
         filled_assn = _ba_assn(
             {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2020},
             {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2024},
@@ -443,3 +445,72 @@ class TestFilledServiceTerritoryEia861:
         result = filled_service_territory_eia861(filled_assn, st)
         # No extra rows should be added
         assert len(result) == len(st)
+
+
+# ---------------------------------------------------------------------------
+# Tests for BaFixMap validation
+# ---------------------------------------------------------------------------
+
+
+class TestBaFixMap:
+    def test_rejects_duplicate_ba_in_same_target_year(self):
+        """Two entries with the same BA id in one target year raise ValueError."""
+        with pytest.raises(ValueError, match="Duplicate"):
+            BaFixMap.model_validate(
+                {
+                    2009: [
+                        {"id": 56669, "source_year": 2011},
+                        {"id": 56669, "source_year": 2012},
+                    ]
+                }
+            )
+
+    def test_rejects_self_referential_source_year(self):
+        """source_year == target_year raises ValueError."""
+        with pytest.raises(ValueError, match="source_year"):
+            BaFixMap.model_validate({2009: [{"id": 56669, "source_year": 2009}]})
+
+    def test_rejects_unknown_field(self):
+        """An unrecognised field name raises a Pydantic ValidationError."""
+        from pydantic import ValidationError
+
+        with pytest.raises(ValidationError):
+            BaFixMap.model_validate(
+                {2009: [{"id": 56669, "source_year": 2011, "typo": True}]}
+            )
+
+    def test_accepts_valid_spec(self):
+        """A well-formed spec passes without raising."""
+        BaFixMap.model_validate(
+            {
+                2009: [{"id": 56669, "source_year": 2011}],
+                2010: [
+                    {"id": 56669, "source_year": 2011},
+                    {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
+                ],
+            }
+        )
+
+
+# ---------------------------------------------------------------------------
+# Tests for the exclude_states guard in filled_core_eia861__assn_balancing_authority
+# ---------------------------------------------------------------------------
+
+
+class TestExcludeStatesGuard:
+    def test_raises_when_exclude_states_removes_all_source_rows(self):
+        """AssertionError fires when exclude_states eliminates every source row.
+
+        SWPP (59504) for target_year=2009 uses source_year=2014 with
+        exclude_states=["NE"].  If every 2014 source row is from NE the guard
+        should fire rather than silently dropping all rows.
+        """
+        df = _ba_assn(
+            # SWPP 2014 source rows — all from NE (every row will be excluded)
+            {"ba_id": 59504, "util_id": 100, "state": "NE", "year": 2014},
+            {"ba_id": 59504, "util_id": 200, "state": "NE", "year": 2014},
+            # Dummy row to put 2009 in eia861_years
+            {"ba_id": 99999, "util_id": 1, "state": "TX", "year": 2009},
+        )
+        with pytest.raises(AssertionError, match="exclude_states"):
+            filled_core_eia861__assn_balancing_authority(df)

@@ -4,12 +4,13 @@ For a narrative overview of the timeseries imputation process, see the documenta
 at :doc:`/methodology/timeseries_imputation`
 """
 
-from typing import Any, NotRequired, TypedDict
+from typing import Any
 
 import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 from dagster import Field, asset
+from pydantic import BaseModel, RootModel, model_validator
 
 import pudl.analysis.service_territory
 import pudl.logging_helpers
@@ -23,7 +24,7 @@ from pudl.metadata.fields import apply_pudl_dtypes
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class BaFix(TypedDict):
+class BaFix(BaseModel):
     """A single BA data repair entry for one target year.
 
     * ``id``: EIA balancing authority identifier (``balancing_authority_id_eia``).
@@ -32,135 +33,172 @@ class BaFix(TypedDict):
       for utilities in these states are omitted when copying from ``source_year``.
     """
 
+    model_config = {"frozen": True, "extra": "forbid"}
+
     id: int
     source_year: int
-    exclude_states: NotRequired[list[str]]
+    exclude_states: list[str] = []
 
 
-ASSOCIATIONS: dict[int, list[BaFix]] = {
-    # Each key is a target year that needs repair. Each value is the list of
-    # per-BA fixes to apply for that year.  A fix copies the BA's utility
-    # associations from source_year into target_year, replacing any rows that
-    # already exist for that (BA, target_year) pair.
-    #
-    # When either target_year or source_year is absent from the available
-    # EIA-861 data (e.g. in the fast ETL), the fix is skipped.  If
-    # target_year IS present but source_year is NOT, a warning is logged.
-    2006: [
-        # SWPP: Southwest Power Pool (Nebraska utilities excluded — reported separately)
-        {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
-        # LGEE: LG&E and KU Services Company
-        {"id": 11249, "source_year": 2014},
-        # PJM: PJM Interconnection LLC
-        {"id": 14725, "source_year": 2011},
-        # SPS: Southwestern Public Service
-        {"id": 17718, "source_year": 2010},
-        # Nevada Power Company
-        {"id": 13407, "source_year": 2009},
-    ],
-    2007: [
-        # SWPP: Southwest Power Pool (Nebraska utilities excluded)
-        {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
-        # LGEE: LG&E and KU Services Company
-        {"id": 11249, "source_year": 2014},
-        # PJM: PJM Interconnection LLC
-        {"id": 14725, "source_year": 2011},
-        # SPS: Southwestern Public Service
-        {"id": 17718, "source_year": 2010},
-        # Nevada Power Company
-        {"id": 13407, "source_year": 2009},
-    ],
-    2008: [
-        # SWPP: Southwest Power Pool (Nebraska utilities excluded)
-        {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
-        # LGEE: LG&E and KU Services Company
-        {"id": 11249, "source_year": 2014},
-        # PJM: PJM Interconnection LLC
-        {"id": 14725, "source_year": 2011},
-        # SPS: Southwestern Public Service
-        {"id": 17718, "source_year": 2010},
-        # Nevada Power Company
-        {"id": 13407, "source_year": 2009},
-    ],
-    2009: [
-        # MISO: Midwest Independent System Operator
-        {"id": 56669, "source_year": 2011},
-        # SWPP: Southwest Power Pool (Nebraska utilities excluded)
-        {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
-        # LGEE: LG&E and KU Services Company
-        {"id": 11249, "source_year": 2014},
-        # AEP: American Electric Power Co Inc
-        {"id": 829, "source_year": 2008},
-        # PJM: PJM Interconnection LLC
-        {"id": 14725, "source_year": 2011},
-        # SPS: Southwestern Public Service
-        {"id": 17718, "source_year": 2010},
-    ],
-    2010: [
-        # MISO: Midwest Independent System Operator
-        {"id": 56669, "source_year": 2011},
-        # SWPP: Southwest Power Pool
-        {"id": 59504, "source_year": 2014},
-        # LGEE: LG&E and KU Services Company
-        {"id": 11249, "source_year": 2014},
-        # AEP: American Electric Power Co Inc
-        {"id": 829, "source_year": 2008},
-        # PJM: PJM Interconnection LLC
-        {"id": 14725, "source_year": 2011},
-    ],
-    2011: [
-        # SWPP: Southwest Power Pool
-        {"id": 59504, "source_year": 2014},
-        # LGEE: LG&E and KU Services Company
-        {"id": 11249, "source_year": 2014},
-        # AEP: American Electric Power Co Inc
-        {"id": 829, "source_year": 2008},
-    ],
-    2012: [
-        # SWPP: Southwest Power Pool
-        {"id": 59504, "source_year": 2014},
-        # LGEE: LG&E and KU Services Company
-        {"id": 11249, "source_year": 2014},
-        # BANC: Balancing Authority of Northern California
-        {"id": 16534, "source_year": 2013},
-        # AEP: American Electric Power Co Inc
-        {"id": 829, "source_year": 2008},
-    ],
-    2013: [
-        # SWPP: Southwest Power Pool
-        {"id": 59504, "source_year": 2014},
-        # LGEE: LG&E and KU Services Company
-        {"id": 11249, "source_year": 2014},
-        # Entergy
-        {"id": 12506, "source_year": 2012},
-        # AEP: American Electric Power Co Inc
-        {"id": 829, "source_year": 2008},
-    ],
-    2014: [
-        # Nevada Power Company (now NV Energy)
-        {"id": 13407, "source_year": 2013},
-    ],
-    2015: [
-        # Nevada Power Company (now NV Energy)
-        {"id": 13407, "source_year": 2013},
-    ],
-    2016: [
-        # Nevada Power Company (now NV Energy)
-        {"id": 13407, "source_year": 2013},
-    ],
-    2017: [
-        # Nevada Power Company (now NV Energy)
-        {"id": 13407, "source_year": 2013},
-    ],
-    2018: [
-        # Nevada Power Company (now NV Energy)
-        {"id": 13407, "source_year": 2013},
-    ],
-    2019: [
-        # Nevada Power Company (now NV Energy)
-        {"id": 13407, "source_year": 2013},
-    ],
-}
+class BaFixMap(RootModel[dict[int, list[BaFix]]]):
+    """Validated mapping of target years to lists of :class:`BaFix` repair entries.
+
+    Raises ``pydantic.ValidationError`` for malformed entries (wrong types,
+    unknown keys) and ``ValueError`` for cross-entry constraint violations:
+    duplicate BA IDs within the same target year, and self-referential fixes
+    where ``source_year == target_year``.  Instantiated once at module load as
+    the :data:`BA_FIXES` constant.
+    """
+
+    @model_validator(mode="after")
+    def _check_structure(self) -> "BaFixMap":
+        for target_year, fixes in self.root.items():
+            ba_ids = [f.id for f in fixes]
+            if len(ba_ids) != len(set(ba_ids)):
+                dupes = sorted({x for x in ba_ids if ba_ids.count(x) > 1})
+                raise ValueError(
+                    f"Duplicate BA IDs {dupes} in BA_FIXES[{target_year}]: "
+                    "each BA must appear at most once per target year."
+                )
+            for fix in fixes:
+                if fix.source_year == target_year:
+                    raise ValueError(
+                        f"BA {fix.id} in BA_FIXES[{target_year}]: "
+                        f"source_year ({fix.source_year}) must not equal target_year."
+                    )
+        return self
+
+    def items(self):
+        """Iterate over (target_year, fixes) pairs, delegating to the root dict."""
+        return self.root.items()
+
+
+BA_FIXES = BaFixMap.model_validate(
+    {
+        # Each key is a target year that needs repair. Each value is the list of
+        # per-BA fixes to apply for that year.  A fix copies the BA's utility
+        # associations from source_year into target_year, replacing any rows that
+        # already exist for that (BA, target_year) pair.
+        #
+        # When either target_year or source_year is absent from the available
+        # EIA-861 data (e.g. in the fast ETL), the fix is skipped.  If
+        # target_year IS present but source_year is NOT, a warning is logged.
+        2006: [
+            # SWPP: Southwest Power Pool (Nebraska utilities excluded — reported separately)
+            {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
+            # LGEE: LG&E and KU Services Company
+            {"id": 11249, "source_year": 2014},
+            # PJM: PJM Interconnection LLC
+            {"id": 14725, "source_year": 2011},
+            # SPS: Southwestern Public Service
+            {"id": 17718, "source_year": 2010},
+            # Nevada Power Company
+            {"id": 13407, "source_year": 2009},
+        ],
+        2007: [
+            # SWPP: Southwest Power Pool (Nebraska utilities excluded)
+            {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
+            # LGEE: LG&E and KU Services Company
+            {"id": 11249, "source_year": 2014},
+            # PJM: PJM Interconnection LLC
+            {"id": 14725, "source_year": 2011},
+            # SPS: Southwestern Public Service
+            {"id": 17718, "source_year": 2010},
+            # Nevada Power Company
+            {"id": 13407, "source_year": 2009},
+        ],
+        2008: [
+            # SWPP: Southwest Power Pool (Nebraska utilities excluded)
+            {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
+            # LGEE: LG&E and KU Services Company
+            {"id": 11249, "source_year": 2014},
+            # PJM: PJM Interconnection LLC
+            {"id": 14725, "source_year": 2011},
+            # SPS: Southwestern Public Service
+            {"id": 17718, "source_year": 2010},
+            # Nevada Power Company
+            {"id": 13407, "source_year": 2009},
+        ],
+        2009: [
+            # MISO: Midwest Independent System Operator
+            {"id": 56669, "source_year": 2011},
+            # SWPP: Southwest Power Pool (Nebraska utilities excluded)
+            {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
+            # LGEE: LG&E and KU Services Company
+            {"id": 11249, "source_year": 2014},
+            # AEP: American Electric Power Co Inc
+            {"id": 829, "source_year": 2008},
+            # PJM: PJM Interconnection LLC
+            {"id": 14725, "source_year": 2011},
+            # SPS: Southwestern Public Service
+            {"id": 17718, "source_year": 2010},
+        ],
+        2010: [
+            # MISO: Midwest Independent System Operator
+            {"id": 56669, "source_year": 2011},
+            # SWPP: Southwest Power Pool
+            {"id": 59504, "source_year": 2014},
+            # LGEE: LG&E and KU Services Company
+            {"id": 11249, "source_year": 2014},
+            # AEP: American Electric Power Co Inc
+            {"id": 829, "source_year": 2008},
+            # PJM: PJM Interconnection LLC
+            {"id": 14725, "source_year": 2011},
+        ],
+        2011: [
+            # SWPP: Southwest Power Pool
+            {"id": 59504, "source_year": 2014},
+            # LGEE: LG&E and KU Services Company
+            {"id": 11249, "source_year": 2014},
+            # AEP: American Electric Power Co Inc
+            {"id": 829, "source_year": 2008},
+        ],
+        2012: [
+            # SWPP: Southwest Power Pool
+            {"id": 59504, "source_year": 2014},
+            # LGEE: LG&E and KU Services Company
+            {"id": 11249, "source_year": 2014},
+            # BANC: Balancing Authority of Northern California
+            {"id": 16534, "source_year": 2013},
+            # AEP: American Electric Power Co Inc
+            {"id": 829, "source_year": 2008},
+        ],
+        2013: [
+            # SWPP: Southwest Power Pool
+            {"id": 59504, "source_year": 2014},
+            # LGEE: LG&E and KU Services Company
+            {"id": 11249, "source_year": 2014},
+            # Entergy
+            {"id": 12506, "source_year": 2012},
+            # AEP: American Electric Power Co Inc
+            {"id": 829, "source_year": 2008},
+        ],
+        2014: [
+            # Nevada Power Company (now NV Energy)
+            {"id": 13407, "source_year": 2013},
+        ],
+        2015: [
+            # Nevada Power Company (now NV Energy)
+            {"id": 13407, "source_year": 2013},
+        ],
+        2016: [
+            # Nevada Power Company (now NV Energy)
+            {"id": 13407, "source_year": 2013},
+        ],
+        2017: [
+            # Nevada Power Company (now NV Energy)
+            {"id": 13407, "source_year": 2013},
+        ],
+        2018: [
+            # Nevada Power Company (now NV Energy)
+            {"id": 13407, "source_year": 2013},
+        ],
+        2019: [
+            # Nevada Power Company (now NV Energy)
+            {"id": 13407, "source_year": 2013},
+        ],
+    }
+)
 """Spot-fixes for known EIA-861 balancing authority ID errors, keyed by target year.
 
 Each key is a year whose reported BA-utility associations are known to be
@@ -301,12 +339,34 @@ def categorize_eia_code(
 ################################################################################
 
 
+def _apply_exclude_states(
+    ref: pd.DataFrame, fix: BaFix, target_year: int
+) -> pd.DataFrame:
+    """Filter source rows by exclude_states, raising if all rows are eliminated.
+
+    An empty result after filtering means the exclude_states list is broader than
+    the actual data, which would silently drop all associations for the (BA,
+    target_year) pair.  That is almost certainly an erroneous specification.
+    """
+    if not fix.exclude_states:
+        return ref
+    filtered = ref[~ref["state"].isin(fix.exclude_states)]
+    if filtered.empty and not ref.empty:
+        raise AssertionError(
+            f"BA {fix.id} target_year={target_year}: "
+            f"exclude_states={fix.exclude_states!r} removed all "
+            f"{len(ref)} source rows from source_year={fix.source_year}. "
+            "Verify the exclude_states list is not too broad."
+        )
+    return filtered
+
+
 def filled_core_eia861__yearly_balancing_authority(
     core_eia861__yearly_balancing_authority: pd.DataFrame,
 ) -> pd.DataFrame:
     """Modified core_eia861__yearly_balancing_authority table.
 
-    For each entry in :data:`ASSOCIATIONS`, adds a row for the target year if
+    For each entry in :data:`BA_FIXES`, adds a row for the target year if
     one is missing, copying all attributes from the source year.  Silently
     skips any target year absent from the data.  Logs a warning and skips if
     the target year is present but the source year is not.  Also removes
@@ -319,26 +379,26 @@ def filled_core_eia861__yearly_balancing_authority(
     eia861_years = set(df["report_date"].dt.year)
 
     new_rows: list[dict[str, Any]] = []
-    for target_year, fixes in ASSOCIATIONS.items():
+    for target_year, fixes in BA_FIXES.items():
         if target_year not in eia861_years:
             continue
         target_date = pd.Timestamp(target_year, 1, 1)
         for fix in fixes:
-            source_year = fix["source_year"]
+            source_year = fix.source_year
             if source_year not in eia861_years:
                 logger.warning(
-                    f"Skipping BA repair for id={fix['id']} target_year={target_year}: "
+                    f"Skipping BA repair for id={fix.id} target_year={target_year}: "
                     f"source_year={source_year} not in available EIA-861 data. "
                     "If running the full ETL, verify the fix spec is correct."
                 )
                 continue
-            target_key = (fix["id"], target_date)
+            target_key = (fix.id, target_date)
             if target_key in dfi.index:
                 continue
-            source_key = (fix["id"], pd.Timestamp(source_year, 1, 1))
+            source_key = (fix.id, pd.Timestamp(source_year, 1, 1))
             if source_key not in dfi.index:
                 logger.warning(
-                    f"Skipping BA repair for id={fix['id']} target_year={target_year}: "
+                    f"Skipping BA repair for id={fix.id} target_year={target_year}: "
                     f"source row {source_key} not found in BA table."
                 )
                 continue
@@ -359,7 +419,7 @@ def filled_core_eia861__assn_balancing_authority(
 ) -> pd.DataFrame:
     """Modified core_eia861__assn_balancing_authority table.
 
-    For each entry in :data:`ASSOCIATIONS`, replaces all existing rows for
+    For each entry in :data:`BA_FIXES`, replaces all existing rows for
     the (BA, target_year) pair with rows copied from the source year (optionally
     filtered by :attr:`BaFix.exclude_states`).  Silently skips target years
     absent from the data; logs a warning when the target year is present but
@@ -373,15 +433,15 @@ def filled_core_eia861__assn_balancing_authority(
     replaced = np.zeros(df.shape[0], dtype=bool)
     new_tables: list[pd.DataFrame] = []
 
-    for target_year, fixes in ASSOCIATIONS.items():
+    for target_year, fixes in BA_FIXES.items():
         if target_year not in eia861_years:
             continue
         target_date = pd.Timestamp(target_year, 1, 1)
         for fix in fixes:
-            source_year = fix["source_year"]
+            source_year = fix.source_year
             if source_year not in eia861_years:
                 logger.warning(
-                    f"Skipping BA association repair for id={fix['id']} "
+                    f"Skipping BA association repair for id={fix.id} "
                     f"target_year={target_year}: source_year={source_year} not in "
                     "available EIA-861 data. If running the full ETL, verify the "
                     "fix spec is correct."
@@ -390,13 +450,12 @@ def filled_core_eia861__assn_balancing_authority(
             source_date = pd.Timestamp(source_year, 1, 1)
             # Collect source-year association rows for this BA
             ref = df[
-                df["balancing_authority_id_eia"].eq(fix["id"])
+                df["balancing_authority_id_eia"].eq(fix.id)
                 & df["report_date"].eq(source_date)
             ]
-            if "exclude_states" in fix:
-                ref = ref[~ref["state"].isin(fix["exclude_states"])]
+            ref = _apply_exclude_states(ref, fix, target_year)
             # Mark existing target-year rows for removal
-            target_mask = df["balancing_authority_id_eia"].eq(fix["id"]) & df[
+            target_mask = df["balancing_authority_id_eia"].eq(fix.id) & df[
                 "report_date"
             ].eq(target_date)
             replaced |= target_mask.to_numpy(bool)
@@ -457,7 +516,7 @@ def filled_service_territory_eia861(
     """Modified core_eia861__yearly_service_territory table.
 
     Selects utility-state-year combinations that are relevant to the BA
-    repairs in :data:`ASSOCIATIONS` (covering both source and target years),
+    repairs in :data:`BA_FIXES` (covering both source and target years),
     merges them with the service territory to obtain county FIPS data, drops
     utility-state pairs that have no county data in *any* year, and fills
     records missing counties with data from the nearest available year.
@@ -470,15 +529,15 @@ def filled_service_territory_eia861(
     index = ["utility_id_eia", "state", "report_date"]
     eia861_years = set(core_eia861__yearly_service_territory["report_date"].dt.year)
 
-    # Collect (ba_id, date) pairs relevant to any ASSOCIATIONS fix so we can
+    # Collect (ba_id, date) pairs relevant to any BA_FIXES fix so we can
     # select the matching rows from the filled association table.
     relevant: set[tuple] = set()
-    for target_year, fixes in ASSOCIATIONS.items():
+    for target_year, fixes in BA_FIXES.items():
         for fix in fixes:
             if target_year in eia861_years:
-                relevant.add((fix["id"], pd.Timestamp(target_year, 1, 1)))
-            if fix["source_year"] in eia861_years:
-                relevant.add((fix["id"], pd.Timestamp(fix["source_year"], 1, 1)))
+                relevant.add((fix.id, pd.Timestamp(target_year, 1, 1)))
+            if fix.source_year in eia861_years:
+                relevant.add((fix.id, pd.Timestamp(fix.source_year, 1, 1)))
 
     selected = np.zeros(filled_assn.shape[0], dtype=bool)
     for ba_id, date in relevant:
