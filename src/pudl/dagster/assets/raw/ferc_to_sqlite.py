@@ -114,7 +114,7 @@ class FercPaths:
         paths |= {
             f"nightly_{key}_path": PUDL_EEL_HOLE_BASE_PATH / name
             # SQLite and parquet nightly build outputs are in zip files
-            if key not in ["sqlite", "parquet_dir"]
+            if key not in ["sqlite", "parquet"]
             else PUDL_EEL_HOLE_BASE_PATH / f"{name}.zip"
             for key, name in filenames.items()
         }
