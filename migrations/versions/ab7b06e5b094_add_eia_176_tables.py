@@ -1,8 +1,8 @@
-"""Add EIA 176 continuation tables
+"""Add EIA 176 tables
 
-Revision ID: 457a3f2e8ae3
-Revises: f98868d3f5cb
-Create Date: 2026-06-09 17:14:50.340874
+Revision ID: ab7b06e5b094
+Revises: e583dcbe965f
+Create Date: 2026-06-22 16:26:07.596982
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '457a3f2e8ae3'
-down_revision = 'f98868d3f5cb'
+revision = 'ab7b06e5b094'
+down_revision = 'e583dcbe965f'
 branch_labels = None
 depends_on = None
 
@@ -23,7 +23,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('operating_state', sa.Text(), nullable=False, comment='State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.'),
     sa.Column('disposition_type', sa.Enum('line_pressure', 'other', 'vented_flared', 'plant_fuel', 'plant_thermal_reduction', 'leaks_condensate', 'del_items_from_2001_form', 'truck', 'lost_leaks_condensate', 'franchise_gas', 'rail_or_barge', 'gas_holders', 'propane_air', 'natural_gas', 'migration', 'refinery_gas', 'unknown'), nullable=False, comment='Type of other disposition reported by the operator.'),
-    sa.Column('volume_mcf', sa.Float(), nullable=True, comment='Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
+    sa.Column('volume_mcf', sa.Float(), nullable=True, comment='Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
     sa.PrimaryKeyConstraint('operator_id_eia', 'report_year', 'operating_state', 'disposition_type', name=op.f('pk_core_eia176__yearly_gas_disposition_other'))
     )
     op.create_table('core_eia176__yearly_gas_exports',
@@ -44,7 +44,7 @@ def upgrade() -> None:
     sa.Column('supplier_location_type', sa.Enum('national_or_other', 'subnational'), nullable=True, comment='Type of the EIA continuation-line supplier location code. A value of subnational means the code matched a recognized state, province, or territory code. A value of national_or_other means the code was preserved as another reported EIA code. This classifies the code value only; the paired supplier_name is free text and may describe a company, country, location, placeholder, or truncated value.'),
     sa.Column('supplier_name', sa.Text(), nullable=True, comment='Free-text supplier, counterparty, country, location, or placeholder reported on the EIA continuation line for the gas receipt.'),
     sa.Column('mode_of_transportation', sa.Enum('pipeline', 'truck', 'vessel'), nullable=True, comment='Means by which natural gas was transported.'),
-    sa.Column('volume_mcf', sa.Float(), nullable=True, comment='Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.')
+    sa.Column('volume_mcf', sa.Float(), nullable=True, comment='Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.')
     )
     op.create_table('core_eia176__yearly_supplemental_gaseous_fuel_supplies',
     sa.Column('operator_id_eia', sa.Text(), nullable=False, comment='The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.'),
