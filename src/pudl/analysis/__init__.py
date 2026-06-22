@@ -8,6 +8,7 @@ post-ETL derived database tables for distribution at some point.
 
 from . import (
     allocate_gen_fuel,
+    derived_plant_characteristics,
     fuel_by_plant,
     mcoe,
     plant_parts_eia,

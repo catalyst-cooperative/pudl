@@ -99,6 +99,7 @@ out_module_groups = {
         pudl.output.eia930,
         pudl.output.eiaapi,
     ],
+    "out_epacems": [pudl.analysis.derived_plant_characteristics],
     "out_ferc1": [
         pudl.output.ferc1,
         pudl.analysis.record_linkage.classify_plants_ferc1,
