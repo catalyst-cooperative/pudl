@@ -31,6 +31,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+from typing import Literal
 
 import click
 
@@ -51,12 +52,12 @@ logger = get_logger(__name__)
 
 
 DEPLOYMENT_TYPE_STATIC_SETTINGS = {
-    DeploymentType.NIGHTLY: {
+    "staging": {
         "zenodo_env": "sandbox",
         "ignore_regex": r"^.*\.parquet$",
         "publish": True,
     },
-    DeploymentType.STABLE: {
+    "production": {
         "zenodo_env": "production",
         "ignore_regex": r"^.*\.parquet$",
         "publish": False,
@@ -65,30 +66,27 @@ DEPLOYMENT_TYPE_STATIC_SETTINGS = {
 
 
 def _get_deployment_path_suffixes(
-    deploy_type: DeploymentType, git_tag: str, staging: bool
-) -> list[str]:
+    deploy_type: DeploymentType,
+    git_tag: str,
+    environment: Literal["staging", "production"],
+) -> tuple[list[str], str]:
     if deploy_type in [DeploymentType.NIGHTLY, DeploymentType.BRANCH]:
         path_suffixes = ["nightly", "eel-hole"]
+        zenodo_source_suffix = "nightly"
     else:
         path_suffixes = [git_tag, "stable"]
-    if staging:
+        zenodo_source_suffix = git_tag
+    if environment == "staging":
         path_suffixes = [f"staging/{s}" for s in path_suffixes]
-    return path_suffixes
-
-
-def _get_zenodo_release_source_dir(deploy_type: DeploymentType, git_tag: str) -> str:
-    if deploy_type == DeploymentType.NIGHTLY:
-        source_dir = "s3://pudl.catalyst.coop/nightly/"
-    else:
-        source_dir = f"s3://pudl.catalyst.coop/{git_tag}/"
-    return source_dir
+        zenodo_source_suffix = f"staging/{zenodo_source_suffix}"
+    return path_suffixes, zenodo_source_suffix
 
 
 def _deploy_outputs(
     source_dir: Path,
     deploy_type: DeploymentType,
     git_tag: str,
-    staging: bool,
+    environment: Literal["staging", "production"],
     github_token: str,
 ):
     """Execute stable or nightly deployment workflow.
@@ -97,10 +95,10 @@ def _deploy_outputs(
     and update git branch. If ``deploy_type`` is stable, also sets GCS temporary
     hold on versioned release.
     """
-    path_suffixes = _get_deployment_path_suffixes(
+    path_suffixes, zenodo_source_suffix = _get_deployment_path_suffixes(
         deploy_type=deploy_type,
         git_tag=git_tag,
-        staging=staging,
+        environment=environment,
     )
 
     upload_outputs(
@@ -110,27 +108,21 @@ def _deploy_outputs(
 
     update_pudl_viewer(
         token=github_token,
-        staging=staging,
+        environment=environment,
     )
 
-    if not staging:
-        update_git_branch(tag=git_tag, branch=deploy_type.value, staging=staging)
-
-        if deploy_type == DeploymentType.STABLE:
-            gcs_path = f"gs://pudl.catalyst.coop/{git_tag}/"
-            set_gcs_temporary_hold(gcs_path=gcs_path)
-
-        trigger_zenodo_release(
-            build_ref=git_tag,
-            env=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["zenodo_env"],
-            source_dir=_get_zenodo_release_source_dir(deploy_type, git_tag),
-            ignore_regex=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["ignore_regex"],
-            publish=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["publish"],
-            token=github_token,
-        )
-
-    else:
-        logger.info("Skipping GCS hold and Zenodo operations (staging mode)")
+    update_git_branch(tag=git_tag, branch=deploy_type.value, environment=environment)
+    trigger_zenodo_release(
+        build_ref=git_tag,
+        env=DEPLOYMENT_TYPE_STATIC_SETTINGS[environment]["zenodo_env"],
+        source_suffix=zenodo_source_suffix,
+        ignore_regex=DEPLOYMENT_TYPE_STATIC_SETTINGS[environment]["ignore_regex"],
+        publish=DEPLOYMENT_TYPE_STATIC_SETTINGS[environment]["publish"],
+        token=github_token,
+    )
+    if (deploy_type == DeploymentType.STABLE) and (environment == "production"):
+        gcs_path = f"gs://pudl.catalyst.coop/{git_tag}/"
+        set_gcs_temporary_hold(gcs_path=gcs_path)
 
 
 @click.command(

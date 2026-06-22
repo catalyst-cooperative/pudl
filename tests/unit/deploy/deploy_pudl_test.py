@@ -130,18 +130,22 @@ def test_update_git_branch():
     stable_tag = "v2026.2.9"
     with patch("pudl.deploy.pudl.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
-        update_git_branch(tag="nightly-2026-02-09", branch="nightly", staging=False)
+        update_git_branch(
+            tag="nightly-2026-02-09", branch="nightly", environment="production"
+        )
 
         with pytest.raises(
             RuntimeError,
             match=f"Git tag, {nightly_tag}, does not match deployment branch, stable.",
         ):
-            update_git_branch(tag=nightly_tag, branch="stable", staging=False)
+            update_git_branch(
+                tag=nightly_tag, branch="stable", environment="production"
+            )
         with pytest.raises(
             RuntimeError,
             match=f"Git tag, {stable_tag}, does not match deployment branch, nightly.",
         ):
-            update_git_branch(tag=stable_tag, branch="nightly", staging=False)
+            update_git_branch(tag=stable_tag, branch="nightly", environment="staging")
 
         kwargs = {"check": True, "capture_output": True, "text": True}
         assert mock_run.call_count == 3
@@ -159,7 +163,9 @@ def test_update_git_branch_staging():
     with patch("pudl.deploy.pudl.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
 
-        update_git_branch(tag="nightly-2026-02-09", branch="nightly", staging=True)
+        update_git_branch(
+            tag="nightly-2026-02-09", branch="nightly", environment="staging"
+        )
 
         kwargs = {"check": True, "capture_output": True, "text": True}
         assert mock_run.call_count == 2

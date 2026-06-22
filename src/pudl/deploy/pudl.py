@@ -12,6 +12,7 @@ import zipfile
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
+from typing import Literal
 
 import gcsfs
 import requests
@@ -159,18 +160,21 @@ def upload_outputs(
     logger.info(f"Upload complete for {len(path_suffixes)} path(s)")
 
 
-def update_git_branch(tag: str, branch: str, staging: bool) -> None:
+def update_git_branch(
+    tag: str, branch: str, environment: Literal["staging", "production"]
+) -> None:
     """Merge git tag into branch and push to origin.
 
     Performs fast-forward merge of a tag into a branch and pushes the result.
     This updates the nightly or stable branch to point to the tagged release.
 
-    In staging, will try the checkout and merge, but skip the git push.
+    If environment is 'staging', this will try the checkout and merge, but skip the
+    git push.
 
     Args:
         tag: Git tag to merge (e.g., "nightly-2025-02-05" or "v2025.2.3").
         branch: Target branch to update (e.g., "nightly" or "stable").
-        staging: True if this is a staging environment.
+        environment: Deployment environment.
 
     Raises:
         subprocess.CalledProcessError: If git commands fail.
@@ -183,7 +187,7 @@ def update_git_branch(tag: str, branch: str, staging: bool) -> None:
 
     _run(["git", "checkout", branch])
     _run(["git", "merge", "--ff-only", tag])
-    if not staging:
+    if environment != "staging":
         _run(["git", "push", "-u", "origin", branch])
 
     logger.info(f"Git branch {branch} updated successfully")
@@ -192,7 +196,7 @@ def update_git_branch(tag: str, branch: str, staging: bool) -> None:
 def trigger_zenodo_release(
     build_ref: str,
     env: str,
-    source_dir: str,
+    source_suffix: str,
     ignore_regex: str,
     publish: bool,
     token: str,
@@ -205,7 +209,8 @@ def trigger_zenodo_release(
     Args:
         build_ref: The git reference for the workflow. The reference can be a branch or tag name.
         env: Zenodo environment - "sandbox" or "production".
-        source_dir: Cloud storage path to source data (e.g., "s3://pudl.catalyst.coop/nightly/").
+        source_suffix: Suffix appended to s3 path (s3://pudl.catalyst.coop) to get
+            path to data outputs which will populate zenodo deposition.
         ignore_regex: Regex pattern for files to exclude from upload.
         publish: If True, automatically publish the Zenodo record.
         token: the bearer token to authenticate to GitHub.
@@ -230,7 +235,7 @@ def trigger_zenodo_release(
             "ref": build_ref,
             "inputs": {
                 "env": env,
-                "source_dir": source_dir,
+                "source_dir": f"s3://pudl.catalyst.coop/{source_suffix}",
                 "ignore_regex": ignore_regex,
                 "publish": publish_flag,
             },
@@ -246,7 +251,7 @@ def trigger_zenodo_release(
 
 def update_pudl_viewer(
     token: str,
-    staging: bool,
+    environment: Literal["staging", "production"],
 ) -> None:
     """Update PUDL Viewer Cloud Run service to latest image.
 
@@ -255,7 +260,7 @@ def update_pudl_viewer(
     """
     logger.info("Updating PUDL Viewer Cloud Run service")
 
-    if staging:
+    if environment == "staging":
         deploy_workflow_url = "https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy-staging.yml/dispatches"
     else:
         deploy_workflow_url = "https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy.yml/dispatches"
