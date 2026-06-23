@@ -20698,8 +20698,10 @@ Additional Details
 ^^^^^^^^^^^^^^^^^^
 
 The ``deliveries_out_of_state_volume_mcf`` (Line 14.0) are reported as one aggregated volume,
-calculated by summing the original granular data. Similarly, ``disposition_to_other_volume_mcf``
-(Line 18.4) is summed from the original granular data and reported as one aggregate field.
+calculated by summing the original granular data. Similarly, ``other_disposition_all_other_mcf``
+(Line 18.4) is summed from the original granular data and reported as one aggregate field. Use
+``core_eia176__yearly_gas_exports`` and ``core_eia176__yearly_gas_disposition_other`` to inspect
+these unaggregated records.
 
 The ``delivered_gas_heat_content_mmbtu_per_mcf`` is expected to be between 0.8 and 1.2
 by the EIA. We find that less than 0.5 percent of data falls outside of these expected bounds.
@@ -20814,7 +20816,7 @@ Columns
     - The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.
   * - other_disposition_all_other_mcf
     - number
-    - Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+    - Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit. See core_eia176__yearly_gas_disposition_other for the unaggregated records.
   * - producer_lease_use_mcf
     - number
     - The total volume of gas used in the company's well, field and lease operations. This field should only be reported by producers. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
@@ -20928,6 +20930,334 @@ Columns
   * - revenue_class
     - string
     - Source of revenue: whether revenue originates from gas owned directly by the operator (sales) or gas transported by the operator (transport).
+  * - volume_mcf
+    - number
+    - Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+
+.. _core_eia176__yearly_gas_disposition_other:
+
+-------------------------------------------------------------------------------
+core_eia176__yearly_gas_disposition_other
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia176__yearly_gas_disposition_other>`__
+
+Annual time series of a company's detailed other natural gas disposition within the report state.
+
+
+Most-recent data:
+  2024
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition (Part 6, Line 18.4)
+
+Primary key:
+  operator_id_eia, report_year, operating_state, disposition_type
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Where an operator has reported multiple dispositions of the same 'other' type within a year, we aggregate volumes to be able to enforce the table's natural primary key.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+The EIA-176 instructions describe Line 18.4 as other disposition within the report state and ask respondents to specify the type. Reporting instructions also note that vented/flared volumes and extraction loss volumes should be reported on this line. A number of records originally reported as 'no label' are reported as 'unknown' in this table, otherwise reported values are lightly cleaned.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_disposition_other>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia176__yearly_gas_disposition_other.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_disposition_other.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_disposition_other.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_disposition_other.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_disposition_other.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - disposition_type
+    - string
+    - Type of other disposition reported by the operator.
+  * - operating_state
+    - string
+    - State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.
+  * - operator_id_eia
+    - string
+    - The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - volume_mcf
+    - number
+    - Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+
+.. _core_eia176__yearly_gas_exports:
+
+-------------------------------------------------------------------------------
+core_eia176__yearly_gas_exports
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia176__yearly_gas_exports>`__
+
+Annual time series of a company's detailed natural gas deliveries out of the report state.
+
+
+Most-recent data:
+  2024
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition (Part 6, Line 14.0)
+
+Primary key:
+  This table has no primary key. This table has no enforced primary key because some records do not report a recipient name, location or mode of transportation details. Additionally, over a hundred operators report more than one delivery to a recipient within a given year. The natural primary key would be one record per report_year, operating_state, supplier_location, supplier_name, and mode of transportation.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* The recipient_name field is a free-text field with observed inconsistency in reporting standards. It may contain a company or country name,non-standard locations such as 'outside usa', or not be reported at all. Truncation of text has also been observed in earlier years of data.
+
+* The recipient_location field is a free-text field that contains U.S. state codes, country codes that don't conform to the ISO 3166-1 alpha-2 standards (e.g., C2, JA), and codes that do not appear to correspond to other geographies (e.g., FX for Gulf of Mexico). Notably, there are a few instances where recipient names and locations do not appear to correspond. Exercise caution when using this field, which requires further normalization.To focus on imports within the U.S. vs. outside of it, filter on the recipient_location_typecolumn.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_exports>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia176__yearly_gas_exports.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_exports.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_exports.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_exports.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_exports.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - mode_of_transportation
+    - string
+    - Means by which natural gas was transported.
+  * - operating_state
+    - string
+    - State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.
+  * - operator_id_eia
+    - string
+    - The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.
+  * - recipient_location
+    - string
+    - EIA continuation-line reference code associated with the out-of-state gas delivery. Recognized state, province, or territory names are normalized to two-letter codes. Other values are preserved as reported EIA codes and should not be interpreted as ISO country codes.
+  * - recipient_location_type
+    - string
+    - Type of the EIA continuation-line destination code. A value of subnational means the code matched a recognized state, province, or territory code. A value of national_or_other means the code was preserved as another reported EIA code. This classifies the code value only; the paired recipient_name is free text and may describe a company, country, location, placeholder, or truncated value.
+  * - recipient_name
+    - string
+    - Free-text recipient, counterparty, country, location, or placeholder reported on the EIA continuation line for the out-of-state gas delivery.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - volume_mcf
+    - number
+    - Volume of natural gas delivered out of the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+
+.. _core_eia176__yearly_gas_imports:
+
+-------------------------------------------------------------------------------
+core_eia176__yearly_gas_imports
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia176__yearly_gas_imports>`__
+
+Annual time series of a company's detailed natural gas receipts from another state or a U.S. border.
+
+
+Most-recent data:
+  2024
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition (Part 4, Line 3.0)
+
+Primary key:
+  This table has no primary key. This table has no enforced primary key because some operators do not report a supplier name, a few operators report more than one shipment from a supplier within a given year, and transportation mode was not reported prior to 2014. The natural primary key would be one record per report_year, operating_state, supplier_location, supplier_name, and mode of transportation.
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* The supplier_name field is a free-text field with observed inconsistency in reporting standards. It may contain a company or country name,non-standard locations such as 'outside usa', or not be reported at all. Truncation of text has also been observed in earlier years of data.
+
+* The supplier_location field is a free-text field that contains U.S. state codes, country codes that don't conform to the ISO 3166-1 alpha-2 standards (e.g., C2, JA), and codes that do not appear to correspond to other geographies (e.g., FX for Gulf of Mexico). Notably, there are a few instances where supplier names and supplier locations do not appear to correspond. Exercise caution when using this field, which requires further normalization.To focus on imports within the U.S. vs. outside of it, filter on the supplier_location_typecolumn.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_imports>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia176__yearly_gas_imports.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_imports.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_imports.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_imports.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_gas_imports.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - mode_of_transportation
+    - string
+    - Means by which natural gas was transported.
+  * - operating_state
+    - string
+    - State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.
+  * - operator_id_eia
+    - string
+    - The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - supplier_location
+    - string
+    - EIA continuation-line reference code associated with the gas receipt supplier. Recognized state, province, or territory names are normalized to two-letter codes. Other values are preserved as reported EIA codes and should not be interpreted as ISO country codes.
+  * - supplier_location_type
+    - string
+    - Type of the EIA continuation-line supplier location code. A value of subnational means the code matched a recognized state, province, or territory code. A value of national_or_other means the code was preserved as another reported EIA code. This classifies the code value only; the paired supplier_name is free text and may describe a company, country, location, placeholder, or truncated value.
+  * - supplier_name
+    - string
+    - Free-text supplier, counterparty, country, location, or placeholder reported on the EIA continuation line for the gas receipt.
   * - volume_mcf
     - number
     - Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
@@ -21138,6 +21468,107 @@ Columns
   * - volume_mcf
     - number
     - Volume of liquefied natural gas inventory held in storage at the end of the report year. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
+
+.. _core_eia176__yearly_supplemental_gaseous_fuel_supplies:
+
+-------------------------------------------------------------------------------
+core_eia176__yearly_supplemental_gaseous_fuel_supplies
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia176__yearly_supplemental_gaseous_fuel_supplies>`__
+
+Annual time series of a company's detailed supplemental gaseous fuel supplies by fuel type.
+
+
+Most-recent data:
+  2024
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition (Part 4, Line 6.0)
+
+Primary key:
+  operator_id_eia, report_year, fuel_type
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+The reported supplemental gaseous fuel types are normalized into categories from free-text descriptions.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia176__yearly_supplemental_gaseous_fuel_supplies>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia176__yearly_supplemental_gaseous_fuel_supplies.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_supplemental_gaseous_fuel_supplies.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_supplemental_gaseous_fuel_supplies.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_supplemental_gaseous_fuel_supplies.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_supplemental_gaseous_fuel_supplies.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Description**
+  * - fuel_type
+    - string
+    - Supplemental gaseous fuel type reported by the operator.
+  * - operating_state
+    - string
+    - State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.
+  * - operator_id_eia
+    - string
+    - The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.
+  * - report_year
+    - integer
+    - Four-digit year in which the data was reported.
+  * - volume_mcf
+    - number
+    - Volume of supplemental gaseous fuels supplied by fuel type within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.
 
 .. _core_eia191__monthly_gas_storage:
 

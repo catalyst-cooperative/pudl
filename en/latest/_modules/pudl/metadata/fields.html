@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.fields &#8212; PUDL 2026.6.2.dev1 documentation</title>
+    <title>pudl.metadata.fields &#8212; PUDL 2026.6.2.dev2 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=29a75617"></script>
+    <script src="../../../_static/documentation_options.js?v=0916ccfc"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev2 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev2 documentation - Home"/>
   
   
 </a></div>
@@ -908,6 +908,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">MATERIAL_TYPES_PHMSAGAS</span><span class="p">,</span>
     <span class="n">MODEL_CASES_EIAAEO</span><span class="p">,</span>
     <span class="n">NERC_REGIONS</span><span class="p">,</span>
+    <span class="n">OTHER_DISPOSITION_TYPES_EIA176</span><span class="p">,</span>
     <span class="n">PLANT_COST_TYPES_RUS12</span><span class="p">,</span>
     <span class="n">PLANT_PARTS</span><span class="p">,</span>
     <span class="n">PLANT_TYPE_RUS12</span><span class="p">,</span>
@@ -922,6 +923,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">SERVICE_STATUS_RUS7</span><span class="p">,</span>
     <span class="n">SOURCE_OF_ENERGY_RUS12</span><span class="p">,</span>
     <span class="n">SUBDIVISION_CODES_ISO3166</span><span class="p">,</span>
+    <span class="n">SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176</span><span class="p">,</span>
     <span class="n">SUPPLY_TYPES_EIA176</span><span class="p">,</span>
     <span class="n">TECH_CLASSES</span><span class="p">,</span>
     <span class="n">TECH_DESCRIPTIONS</span><span class="p">,</span>
@@ -1094,9 +1096,14 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;other_disposition_all_other_mcf&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="c1"># TODO (12-03-2025): When we have created the disaggregated table, update this field description to point at it.</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.&quot;</span>
+            <span class="s2">&quot;Other disposition within the report state that does not fall into one &quot;</span>
+            <span class="s2">&quot;of the other reported categories in lines 10.1-17.0. This has been &quot;</span>
+            <span class="s2">&quot;summed from the detailed data reported by each company on Line 18.4 &quot;</span>
+            <span class="s2">&quot;of the original form. Reference conditions for measurement are 14.73 &quot;</span>
+            <span class="s2">&quot;psia and 60° Fahrenheit. See &quot;</span>
+            <span class="s2">&quot;core_eia176__yearly_gas_disposition_other for the unaggregated &quot;</span>
+            <span class="s2">&quot;records.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;Mcf&quot;</span><span class="p">,</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -1104,6 +1111,26 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;consumers&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of end-use consumers within the report state.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;recipient_location&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;State, territory, country, or other reporting code associated with a &quot;</span>
+            <span class="s2">&quot;delivery destination.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;recipient_location_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Type of reported destination code. For EIA-176, subnational means the &quot;</span>
+            <span class="s2">&quot;code matched a recognized state, province, or territory code; &quot;</span>
+            <span class="s2">&quot;national_or_other means the code was preserved as another reported EIA &quot;</span>
+            <span class="s2">&quot;code.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;disposition_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Free-text type of other gas disposition reported by the operator.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;capacity_mmcfd&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
@@ -6181,6 +6208,11 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
+    <span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Means by which natural gas was transported.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;truck&quot;</span><span class="p">,</span> <span class="s2">&quot;vessel&quot;</span><span class="p">]},</span>
+    <span class="p">},</span>
     <span class="s2">&quot;operating_time_hours&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Length of time interval measured.&quot;</span><span class="p">,</span>
@@ -8712,6 +8744,27 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner.&quot;</span>
         <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;supplier_location&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;State, territory, country, or other reporting code associated with the &quot;</span>
+            <span class="s2">&quot;supplier location for a gas receipt.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;supplier_location_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Type of reported supplier location. Subnational &quot;</span>
+            <span class="s2">&quot;means the code matched a recognized state, province, or territory &quot;</span>
+            <span class="s2">&quot;code; national_or_other means the code corresponds to a country or region &quot;</span>
+            <span class="s2">&quot; (e.g., Gulf of Mexico).&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;subnational&quot;</span><span class="p">,</span> <span class="s2">&quot;national_or_other&quot;</span><span class="p">)},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;recipient_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Reported recipient or counterparty name.&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;supporting_structure_type&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -11327,6 +11380,93 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;operator (sales) or gas transported by the operator (transport).&quot;</span>
             <span class="p">),</span>
             <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">REVENUE_CLASSES_EIA176</span><span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia176__yearly_supplemental_gaseous_fuel_supplies&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fuel_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Supplemental gaseous fuel type reported by the operator.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176</span><span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;volume_mcf&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Volume of supplemental gaseous fuels supplied by fuel type within &quot;</span>
+                <span class="s2">&quot;the report state. Reference conditions for measurement are 14.73 &quot;</span>
+                <span class="s2">&quot;psia and 60° Fahrenheit.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;Mcf&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia176__yearly_gas_exports&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;recipient_location&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;EIA continuation-line reference code associated with the &quot;</span>
+                <span class="s2">&quot;out-of-state gas delivery. Recognized state, province, or &quot;</span>
+                <span class="s2">&quot;territory names are normalized to two-letter codes. Other values &quot;</span>
+                <span class="s2">&quot;are preserved as reported EIA codes and should not be interpreted &quot;</span>
+                <span class="s2">&quot;as ISO country codes.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;recipient_location_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;national_or_other&quot;</span><span class="p">,</span> <span class="s2">&quot;subnational&quot;</span><span class="p">]},</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Type of the EIA continuation-line destination code. A value of &quot;</span>
+                <span class="s2">&quot;subnational means the code matched a recognized state, province, &quot;</span>
+                <span class="s2">&quot;or territory code. A value of national_or_other means the code &quot;</span>
+                <span class="s2">&quot;was preserved as another reported EIA code. This classifies the &quot;</span>
+                <span class="s2">&quot;code value only; the paired recipient_name is free text and may &quot;</span>
+                <span class="s2">&quot;describe a company, country, location, placeholder, or truncated &quot;</span>
+                <span class="s2">&quot;value.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;recipient_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Free-text recipient, counterparty, country, location, or &quot;</span>
+                <span class="s2">&quot;placeholder reported on the EIA continuation line for the &quot;</span>
+                <span class="s2">&quot;out-of-state gas delivery.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;volume_mcf&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Volume of natural gas delivered out of the report state. Reference &quot;</span>
+                <span class="s2">&quot;conditions for measurement are 14.73 psia and 60° Fahrenheit.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;Mcf&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia176__yearly_gas_imports&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;supplier_location&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;EIA continuation-line reference code associated with the gas &quot;</span>
+                <span class="s2">&quot;receipt supplier. Recognized state, province, or territory names &quot;</span>
+                <span class="s2">&quot;are normalized to two-letter codes. Other values are preserved as &quot;</span>
+                <span class="s2">&quot;reported EIA codes and should not be interpreted as ISO country &quot;</span>
+                <span class="s2">&quot;codes.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;supplier_location_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;national_or_other&quot;</span><span class="p">,</span> <span class="s2">&quot;subnational&quot;</span><span class="p">]},</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Type of the EIA continuation-line supplier location code. A value &quot;</span>
+                <span class="s2">&quot;of subnational means the code matched a recognized state, &quot;</span>
+                <span class="s2">&quot;province, or territory code. A value of national_or_other means &quot;</span>
+                <span class="s2">&quot;the code was preserved as another reported EIA code. This &quot;</span>
+                <span class="s2">&quot;classifies the code value only; the paired supplier_name is free &quot;</span>
+                <span class="s2">&quot;text and may describe a company, country, location, placeholder, &quot;</span>
+                <span class="s2">&quot;or truncated value.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;supplier_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Free-text supplier, counterparty, country, location, or &quot;</span>
+                <span class="s2">&quot;placeholder reported on the EIA continuation line for the gas &quot;</span>
+                <span class="s2">&quot;receipt.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_eia176__yearly_gas_disposition_other&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;disposition_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Type of other disposition reported by the operator.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">OTHER_DISPOSITION_TYPES_EIA176</span><span class="p">},</span>
         <span class="p">},</span>
     <span class="p">},</span>
     <span class="s2">&quot;core_eia176__yearly_liquefied_natural_gas_inventory&quot;</span><span class="p">:</span> <span class="p">{</span>
