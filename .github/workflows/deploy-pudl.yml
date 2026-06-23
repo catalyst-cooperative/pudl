@@ -31,6 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # 'git_tag' and 'deployment_environment' will not be set when triggered by a stable tag push
+      # inputs.git_tag will only be null when the workflow is triggered by pushing
+      # a release tag, in which case github.ref_name will always be a tag name
       GIT_TAG: ${{ inputs.git_tag || github.ref_name }}
       DEPLOYMENT_ENVIRONMENT: ${{ inputs.deployment_environment || 'production' }}
     steps:
