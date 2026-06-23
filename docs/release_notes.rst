@@ -8,6 +8,29 @@ PUDL Release Notes
 v2026.7.0 (2026-07-XX)
 ---------------------------------------------------------------------------------------
 
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+EIA-176
+~~~~~~~
+
+* Added detailed core EIA-176 continuation-line tables for natural gas imports,
+  supplemental gaseous fuel supplies, gas exports, and other gas disposition. See
+  :issue:`5240` and :pr:`5245`.
+
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -18,6 +41,9 @@ Bug Fixes & Data Cleaning
   was loaded. Switching to native :func:`geopandas.GeoDataFrame.to_parquet` produces
   spec-compliant GeoParquet 1.0.0 metadata. See issues :issue:`4061,5074` and PR
   :pr:`5347`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

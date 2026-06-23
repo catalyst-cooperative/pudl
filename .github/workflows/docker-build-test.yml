@@ -16,7 +16,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Docker Metadata
         id: docker_metadata
@@ -50,7 +50,7 @@ jobs:
       PUDL_ROOT_PATH: ${{ github.workspace }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
