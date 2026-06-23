@@ -39,6 +39,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate tag exists and matches expected pattern
+        run: |
+          TAG="${{ env.git_tag }}"
+
+          if [[ ! "$TAG" =~ ^(v\d{4}\.\d{1,2}\.\d{1,2})|(nightly-\d{4}-\d{2}-\d{2})|(branch-.+-\d{4}-\d{2}-\d{2}) ]]; then
+            echo "::error::Tag '$TAG' does not look like a nightly, branch, or stable tag!"
+          fi
+
+          git fetch --tags
+          if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag '$TAG' exists."
+          else
+            echo "::error::Tag '$TAG' does not exist."
+            exit 1
+          fi
+
       - name: Docker Metadata
         id: docker_metadata
         uses: docker/metadata-action@v5
@@ -83,13 +99,6 @@ jobs:
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v3
-
-      - name: Find matching release tag
-        if: github.event_name == 'workflow_run'
-        run: |
-          git fetch --tags
-          SHA="${{ github.event.workflow_run.head_sha }}"
-          echo "GIT_TAG=$(git tag --points-at "$SHA") >> $GITHUB_ENV
 
       - name: Make GCP Batch config file
         run: |-
