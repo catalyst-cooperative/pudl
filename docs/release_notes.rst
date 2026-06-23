@@ -2,6 +2,52 @@
 PUDL Release Notes
 =======================================================================================
 
+
+.. _release-v2026.7.0:
+
+---------------------------------------------------------------------------------------
+v2026.7.0 (2026-07-XX)
+---------------------------------------------------------------------------------------
+
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+EIA-176
+~~~~~~~
+
+* Added detailed core EIA-176 continuation-line tables for natural gas imports,
+  supplemental gaseous fuel supplies, gas exports, and other gas disposition. See
+  :issue:`5240` and :pr:`5245`.
+
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA860
+~~~~~~~
+
+* Added early release data for EIA-860 2025. See issue :issue:`5322` and PR :pr:`5324`.
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 .. _release-v2026.6.1:
 
 ---------------------------------------------------------------------------------------
