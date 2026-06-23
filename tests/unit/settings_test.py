@@ -2,6 +2,7 @@
 
 import importlib.resources
 import inspect
+import os
 from typing import Self
 
 import pandas as pd
@@ -15,6 +16,7 @@ import pudl.settings as _settings_module
 from pudl.dagster.resources import (
     DatastoreResource,
     GlobalDataConfigResource,
+    PudlPathsResource,
     ZenodoDoiSettingsResource,
 )
 from pudl.metadata.classes import DataSource
@@ -33,6 +35,7 @@ from pudl.settings import (
     PudlDataConfig,
 )
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.resource_cache import UPathCache
 from pudl.workspace.setup import PudlPaths
 
 
@@ -371,8 +374,96 @@ class TestGlobalDataConfigResource:
         assert loaded_data_config.pudl.ferc1 is not None
 
 
-def test_datastore_resource_loads() -> None:
-    """Test that the migrated datastore resource creates a runtime Datastore."""
+class TestPudlPathsResource:
+    """Test the PUDL path Dagster resource."""
+
+    def test_loads_from_environment(self: Self, monkeypatch, tmp_path) -> None:
+        """EnvVar defaults are resolved from process environment by Dagster.
+
+        In production Dagster resolves ``EnvVar("PUDL_INPUT")`` from ``os.environ``
+        at config-resolution time (during ``dg launch`` / ``dg dev``).
+        ``build_init_resource_context`` bypasses that layer, so we read from
+        ``os.environ`` explicitly here to simulate what Dagster does at runtime.
+        """
+        input_dir = tmp_path / "input"
+        output_dir = tmp_path / "output"
+        monkeypatch.setenv("PUDL_INPUT", str(input_dir))
+        monkeypatch.setenv("PUDL_OUTPUT", str(output_dir))
+
+        loaded_paths = PudlPathsResource.from_resource_context(
+            build_init_resource_context(
+                config={
+                    "pudl_input": os.environ["PUDL_INPUT"],
+                    "pudl_output": os.environ["PUDL_OUTPUT"],
+                }
+            )
+        )
+
+        assert isinstance(loaded_paths, PudlPaths)
+        assert loaded_paths.pudl_input == input_dir.absolute()
+        assert loaded_paths.pudl_output == output_dir.absolute()
+
+    def test_explicit_config_overrides_environment(
+        self: Self, monkeypatch, tmp_path
+    ) -> None:
+        """Dagster resource config should override ambient environment defaults."""
+        monkeypatch.setenv("PUDL_INPUT", str(tmp_path / "env-input"))
+        monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path / "env-output"))
+        config_input = tmp_path / "cfg-input"
+        config_output = tmp_path / "cfg-output"
+
+        loaded_paths = PudlPathsResource.from_resource_context(
+            build_init_resource_context(
+                config={
+                    "pudl_input": str(config_input),
+                    "pudl_output": str(config_output),
+                }
+            )
+        )
+
+        assert loaded_paths.pudl_input == config_input.absolute()
+        assert loaded_paths.pudl_output == config_output.absolute()
+
+
+def test_datastore_resource_loads_local_cache(tmp_path) -> None:
+    """Test that datastore runtime wiring includes the local cache path."""
+    pudl_paths = PudlPaths(
+        pudl_input=str(tmp_path / "input"),
+        pudl_output=str(tmp_path / "output"),
+    )
+    with ZenodoDoiSettingsResource.from_resource_context_cm(
+        build_init_resource_context()
+    ) as zenodo_dois:
+        init_context: UnboundInitResourceContext = build_init_resource_context(
+            config={
+                "cloud_cache_path": "s3://pudl.catalyst.coop/zenodo",
+            },
+        )
+
+        with DatastoreResource.from_resource_context_cm(
+            init_context,
+            nested_resources={
+                "zenodo_dois": zenodo_dois,
+                "pudl_paths": pudl_paths,
+            },
+        ) as datastore:
+            assert isinstance(datastore, Datastore)
+            assert datastore._cache.num_layers() == 2  # noqa: SLF001
+
+            local_cache, cloud_cache = datastore._cache._caches  # noqa: SLF001
+            assert isinstance(local_cache, UPathCache)
+            assert isinstance(cloud_cache, UPathCache)
+            assert local_cache._protocol == "file"  # noqa: SLF001
+            assert cloud_cache._protocol == "s3"  # noqa: SLF001
+            assert local_cache._base_path.path == str(pudl_paths.pudl_input)  # noqa: SLF001
+
+
+def test_datastore_resource_loads_cloud_cache_only(tmp_path) -> None:
+    """Test that datastore can be configured with only the cloud cache layer."""
+    pudl_paths = PudlPaths(
+        pudl_input=str(tmp_path / "input"),
+        pudl_output=str(tmp_path / "output"),
+    )
     with ZenodoDoiSettingsResource.from_resource_context_cm(
         build_init_resource_context()
     ) as zenodo_dois:
@@ -381,11 +472,21 @@ def test_datastore_resource_loads() -> None:
                 "cloud_cache_path": "s3://pudl.catalyst.coop/zenodo",
                 "use_local_cache": False,
             },
-            resources={"zenodo_dois": zenodo_dois},
         )
 
-        with DatastoreResource.from_resource_context_cm(init_context) as datastore:
+        with DatastoreResource.from_resource_context_cm(
+            init_context,
+            nested_resources={
+                "zenodo_dois": zenodo_dois,
+                "pudl_paths": pudl_paths,
+            },
+        ) as datastore:
             assert isinstance(datastore, Datastore)
+            assert datastore._cache.num_layers() == 1  # noqa: SLF001
+
+            cloud_cache = datastore._cache._caches[0]  # noqa: SLF001
+            assert isinstance(cloud_cache, UPathCache)
+            assert cloud_cache._protocol == "s3"  # noqa: SLF001
 
 
 def _all_settings_instances() -> list[BaseModel]:
@@ -455,9 +556,12 @@ def test_partitions_with_json_normalize(global_data_config: GlobalDataConfig):
 
 
 @pytest.mark.slow
-def test_partitions_for_datasource_table(global_data_config: GlobalDataConfig):
+def test_partitions_for_datasource_table(
+    global_data_config: GlobalDataConfig,
+    pudl_test_paths: PudlPaths,
+):
     """Test whether or not we can make the datasource table."""
-    ds = Datastore(local_cache_path=PudlPaths().data_dir)
+    ds = Datastore(local_cache_path=pudl_test_paths.pudl_input)
     datasource = global_data_config.pudl.make_datasources_table(ds)
     datasets = global_data_config.pudl.get_datasets().keys()
     if datasource.empty and datasets != 0:

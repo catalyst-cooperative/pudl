@@ -51,6 +51,7 @@ from pudl.transform.classes import (
     enforce_snake_case,
 )
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -61,9 +62,71 @@ def _core_ferc1_xbrl__metadata_json(
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Generate cleaned json xbrl metadata.
 
-    For now, this only runs :func:`add_source_tables_to_xbrl_metadata`.
+    For now, this adds a missing factoid via :func:`add_missing_factoid`
+    and runs :func:`add_source_tables_to_xbrl_metadata`.
     """
+    raw_ferc1_xbrl__metadata_json = add_missing_factoid(raw_ferc1_xbrl__metadata_json)
     return add_source_tables_to_xbrl_metadata(raw_ferc1_xbrl__metadata_json)
+
+
+def add_missing_factoid(raw_ferc1_xbrl__metadata_json):
+    """Add one missing factoid from core_ferc1__yearly_operating_expenses_sched320.
+
+    We are adding this here instead of within the table transform step because this
+    factoid is a calculation component in its table.
+    :func:`add_source_tables_to_xbrl_metadata` adds sources tables to all of the
+    calculation components and because this factoid was missing from the metadata,
+    it was not being assigned a source table which caused several downstream impacts.
+    """
+    missing_facts = [
+        {
+            "table_name": "core_ferc1__yearly_operating_expenses_sched320",
+            "missing_factoid": "maintenance_of_energy_storage_equipment_other_power_generation",
+            "table_period": "duration",
+            "calculations": [],
+            "balance": "debit",
+        },
+        {
+            "table_name": "core_ferc1__yearly_plant_in_service_sched204",
+            "missing_factoid": "energy_storage_equipment_distribution_plant",
+            "table_period": "instant",
+            "calculations": [],
+            "balance": "debit",
+        },
+        {
+            "table_name": "core_ferc1__yearly_plant_in_service_sched204",
+            "missing_factoid": "energy_storage_equipment_other_production",
+            "table_period": "instant",
+            "calculations": [],
+            "balance": "debit",
+        },
+        {
+            "table_name": "core_ferc1__yearly_plant_in_service_sched204",
+            "missing_factoid": "energy_storage_equipment_transmission_plant",
+            "table_period": "instant",
+            "calculations": [],
+            "balance": "debit",
+        },
+    ]
+    for missing_fact in missing_facts:
+        table_facts = raw_ferc1_xbrl__metadata_json[missing_fact["table_name"]][
+            missing_fact["table_period"]
+        ]
+        # If this factoid exists in the metadata in the future, we should remove
+        # this whole function
+        assert not [
+            f for f in table_facts if f["name"] == missing_fact["missing_factoid"]
+        ]
+        raw_ferc1_xbrl__metadata_json[missing_fact["table_name"]][
+            missing_fact["table_period"]
+        ] = table_facts + [
+            {
+                "name": missing_fact["missing_factoid"],
+                "calculations": missing_fact["calculations"],
+                "balance": missing_fact["balance"],
+            }
+        ]
+    return raw_ferc1_xbrl__metadata_json
 
 
 def add_source_tables_to_xbrl_metadata(
@@ -99,6 +162,7 @@ def add_source_tables_to_xbrl_metadata(
         # to have no source_tables.
         if not calc_component["source_tables"]:
             logger.debug(f"Found no source table for {calc_component['name']}.")
+
         return calc_component
 
     tables_to_fields = extract_tables_to_fields(raw_ferc1_xbrl__metadata_json)
@@ -1221,7 +1285,9 @@ def calculate_values_from_components(
             )
             # apply the weight from the calc to convey the sign before summing.
             .assign(calculated_value=lambda x: x[value_col] * x.weight)
-            .groupby(gby_parent, as_index=False, dropna=False)[["calculated_value"]]
+            .groupby(gby_parent, observed=True, as_index=False, dropna=False)[
+                ["calculated_value"]
+            ]
             .sum(min_count=1)
             .assign(is_calc=True)
         )
@@ -1233,18 +1299,31 @@ def calculate_values_from_components(
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
     calc_df.columns = calc_df.columns.str.removesuffix("_parent")
-    calculated_df = pd.merge(
-        data,
-        calc_df,
-        on=data_idx,
-        how="outer",
-        validate="1:1",
-        indicator=True,
-    )
+    try:
+        calculated_df = pd.merge(
+            left=data,
+            right=calc_df,
+            on=data_idx,
+            how="outer",
+            validate="1:1",
+            indicator=True,
+        )
+    except pd.errors.MergeError as err:  # Make debugging easier.
+        raise pd.errors.MergeError(
+            f"Merge failed, duplicated merge keys in right dataset with merge key of {data_idx}:\n"
+            f"right\n{data[data.duplicated(data_idx, keep=False)].set_index(data_idx).sort_index()}\n\n"
+            f"left\n{calc_df[calc_df.duplicated(data_idx, keep=False)].set_index(data_idx).sort_index()}"
+        ) from err
 
-    assert calculated_df[
-        (calculated_df._merge == "right_only") & (calculated_df[value_col].notnull())
-    ].empty
+    if not (
+        baddies := calculated_df[
+            (calculated_df._merge == "right_only")
+            & (calculated_df[value_col].notnull())
+        ]
+    ).empty:
+        raise AssertionError(
+            f"Found right only values from merge but expected none: {baddies}"
+        )
 
     calculated_df = calculated_df.drop(columns=["_merge"])
     # Force value_col to be a float to prevent any hijinks with calculating differences.
@@ -1446,7 +1525,7 @@ class ErrorMetric(BaseModel):
         """
         # return a df instead of a series
         df["is_not_close"] = self.is_not_close(df)
-        return df.groupby(by=self.groupby_cols()).apply(
+        return df.groupby(by=self.groupby_cols(), observed=True).apply(
             self.metric, include_groups=False
         )
 
@@ -1530,7 +1609,7 @@ class NullCalculatedValueFrequency(ErrorMetric):
         """Only apply metric to rows that contain calculated values."""
         return (
             df[df.row_type_xbrl == "calculated_value"]
-            .groupby(self.groupby_cols())
+            .groupby(self.groupby_cols(), observed=True)
             .apply(self.metric, include_groups=False)
         )
 
@@ -1957,6 +2036,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         params: TableTransformParams | None = None,
         cache_dfs: bool = False,
         clear_cached_dfs: bool = True,
+        pudl_paths: PudlPaths | None = None,
     ) -> None:
         """Augment inherited initializer to store XBRL metadata in the class."""
         super().__init__(
@@ -1964,6 +2044,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             cache_dfs=cache_dfs,
             clear_cached_dfs=clear_cached_dfs,
         )
+        self.pudl_paths = pudl_paths
         if xbrl_metadata_json:
             xbrl_metadata_converted = self.convert_xbrl_metadata_json_to_df(
                 xbrl_metadata_json
@@ -2618,7 +2699,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             table_name: filter_for_freshest_data_xbrl(
                 df,
                 get_primary_key_raw_xbrl(
-                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                    table_name.removeprefix("raw_ferc1_xbrl__"),
+                    "ferc1",
+                    pudl_paths=self.pudl_paths,
                 ),
             )
             for table_name, df in raw_xbrl_dfs.items()
@@ -3102,6 +3185,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
         df["utility_id_ferc1"] = df[util_id_col].map(util_map_series)
+        if unmapped := list(
+            df.loc[df["utility_id_ferc1"].isnull(), util_id_col].unique()
+        ):
+            raise AssertionError(
+                f"Found {len(unmapped)} {util_id_col} and expected none.\n"
+                f"Unmapped ids: {list(unmapped)}"
+            )
         return df
 
     def reconcile_table_calculations(
@@ -3142,7 +3232,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
             table_name: filter_for_freshest_data_xbrl(
                 df,
                 get_primary_key_raw_xbrl(
-                    table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
+                    table_name.removeprefix("raw_ferc1_xbrl__"),
+                    "ferc1",
+                    pudl_paths=self.pudl_paths,
                 ),
             )
             for table_name, df in raw_xbrl_dfs.items()
@@ -3571,9 +3663,9 @@ class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
         pk_cols = self.renamed_table_primary_key(source_ferc1=SourceFerc1.XBRL) + [
             "sched_table_name"
         ]
-        fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(pk_cols, dropna=False)[
-            "fuel_units"
-        ].transform("nunique")
+        fuel_xbrl.loc[:, "fuel_units_count"] = fuel_xbrl.groupby(
+            pk_cols, dropna=False, observed=True
+        )["fuel_units"].transform("nunique")
 
         # split
         dupe_mask = fuel_xbrl.duplicated(subset=pk_cols, keep=False)
@@ -3839,7 +3931,7 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
         return tbl_meta_cleaned
 
     def apply_sign_conventions(self, df) -> pd.DataFrame:
-        """Adjust rows and column sign conventsion to enable aggregation by summing.
+        """Adjust rows and column sign convention to enable aggregation by summing.
 
         Columns have uniform sign conventions, which we have manually inferred from the
         original metadata. This can and probably should be done programmatically in the
@@ -3858,7 +3950,13 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
         # Set row weights based on the value of the "balance" field
         df.loc[df.balance == "debit", "row_weight"] = 1.0
         df.loc[df.balance == "credit", "row_weight"] = -1.0
-
+        if not (null_balances := df[df.balance.isnull()]).empty:
+            raise AssertionError(
+                "None of the fields in the balance column are expected to be null. "
+                "This will result in nulling of $ in ending_balance. The balance "
+                "column originates from the metadata."
+                f"\n{null_balances}"
+            )
         # Apply column weightings. Can this be done all at once in a vectorized way?
         for col in column_weights:
             df.loc[:, col] *= column_weights[col]
@@ -3884,11 +3982,11 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
             & (df.report_year == 2018)
             & (df.utility_id_ferc1_dbf == 187)
         )
-        all_dupes = df[dupe_mask]
+        all_dupes = df.loc[dupe_mask]
         # The observed pairs of duplicate records have NA values in all of the
         # additions, retirements, adjustments, and transfers columns. This selects
         # only those duplicates that have *any* non-null value in those rows.
-        good_dupes = all_dupes[
+        good_dupes = all_dupes.loc[
             all_dupes[["additions", "retirements", "adjustments", "transfers"]]
             .notnull()
             .any(axis="columns")
@@ -3898,8 +3996,8 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
             good_dupes.set_index(pk).index,
             all_dupes.set_index(pk).index.drop_duplicates(),
         )
-        deduped = pd.concat([df[~dupe_mask], good_dupes], axis="index")
-        remaining_dupes = deduped[deduped.duplicated(subset=pk)]
+        deduped = pd.concat([df.loc[~dupe_mask], good_dupes], axis="index")
+        remaining_dupes = deduped.loc[deduped.duplicated(subset=pk)]
         logger.info(
             f"{self.table_id.value}: {len(remaining_dupes)} dupes remaining after "
             "targeted deduplication."
@@ -3958,9 +4056,11 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         """
         df = (
             self.spot_fix_values(df)
+            .pipe(self.remove_messy_plant_name_duplicates)
             .pipe(self.normalize_strings)
             .pipe(self.nullify_outliers)
             .pipe(self.convert_units)
+            # special step for hydro plants
             .pipe(self.extract_ferc1_license)
             .pipe(self.label_row_types)
             .pipe(self.prep_header_fuel_and_plant_types)
@@ -3975,6 +4075,32 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
             .drop(columns=["row_type"])
         )
 
+        return df
+
+    def remove_messy_plant_name_duplicates(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Remove a small number of duplicate records from messy plant names.
+
+        The record ID takes the messy plant name and cleans it up ever so
+        slightly w/ enforce_snake_case. but there are instances of almost identical
+        plant names but with extra whitespace and such. Because the name is core to the
+        factoid, these don't get filtered out with filter_for_freshest_data_xbrl. So we
+        are going to drop these records that are exactly the same except for their messy
+        plant names.
+        """
+        # skip this assert for the fast tests
+        if len(df.report_year.unique()) > 3:
+            assert df.duplicated(["record_id"]).any()
+        last_messy_plant_dupes_mask = df.duplicated(
+            [
+                c
+                for c in df
+                if c not in ["plant_name_ferc1", "generating_plant_statistics"]
+            ],
+            keep="last",
+        )
+        assert len(df[last_messy_plant_dupes_mask]) <= 18
+        df = df.loc[~last_messy_plant_dupes_mask]
+        assert (~df.duplicated(["record_id"])).all()
         return df
 
     def extract_ferc1_license(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -4172,8 +4298,8 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         # Identify the first (and only) group_col value for each group and count
         # how many rows are in each group.
         clump_groups_df = clump_groups.agg(
-            header_or_note=("possible_header_or_note", "first"),
-            rows_per_clump=("possible_header_or_note", "count"),
+            header_or_note=pd.NamedAgg("possible_header_or_note", "first"),
+            rows_per_clump=pd.NamedAgg("possible_header_or_note", "count"),
         )
 
         return clump_groups, clump_groups_df
@@ -5018,7 +5144,9 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
         agg_mask = df[xbrl_factoid_name].isin(factoids_to_agg)
         agg_df = (
             df[agg_mask]
-            .groupby(pks_wo_factoid, as_index=False, dropna=False)[cols_to_agg]
+            .groupby(pks_wo_factoid, as_index=False, dropna=False, observed=True)[
+                cols_to_agg
+            ]
             .sum(min_count=1)
             .assign(**{xbrl_factoid_name: new_factoid_name})
         )
@@ -6070,6 +6198,24 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         mixed-total records, we add a validation step to ward against large-scale data
         loss in :class:`pudl.output.ferc1.Exploder`.
         """
+        # ONE utility (id 449) added a utility_type == "total" into this table
+        # despite the fact that the taxonomy for the table only allows electric
+        # as a utility type. If this persisted, it would means this table would have
+        # THREE dimension columns. We could make that work but it'd be even more
+        # complicated. Plus, it only has one non-null value - which is a
+        # total/total/total ! So we are gonna drop this one utils bad records.
+        # the record's value is different from the total/total/electric value -
+        # which is the record we are going to retain. but the total/total/electric
+        # value gets that calculation validated and its perfectly calculable, whereas
+        # the total/total/total record was less than the subcomponents. Which makes
+        # me think we should keep the total/total/electric bc: easier, better #s.
+        util_total_mask = df.utility_type == "total"
+        assert len(df[util_total_mask]) <= 14
+        assert df[util_total_mask].utility_id_ferc1.unique() == [449]
+        assert len(df[util_total_mask & df.ending_balance.notnull()]) <= 1
+        df = df.loc[~util_total_mask]
+
+        # okay now for the rest...
         df = super().transform_end(df)
         dimension_cols = ["plant_function", "plant_status"]
         correction_mask = df.depreciation_type.str.endswith("_correction")
@@ -6082,13 +6228,13 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         value_col = "ending_balance"
         single_total_sum = (
             df[single_total_mask & ~correction_mask]
-            .groupby(gb_idx, as_index=False)[[value_col]]
+            .groupby(gb_idx, observed=True, as_index=False)[[value_col]]
             .sum(min_count=1)
             .rename(columns={value_col: f"{value_col}_single_total"})
         )
         children_sum = (
             df[~single_total_mask & ~double_total_mask]
-            .groupby(gb_idx, as_index=False)[[value_col]]
+            .groupby(gb_idx, observed=True, as_index=False)[[value_col]]
             .sum(min_count=1)
             .rename(columns={value_col: f"{value_col}_children"})
         )
@@ -6096,8 +6242,16 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
             double_total_mask & ~correction_mask, gb_idx + [value_col]
         ].rename(columns={value_col: f"{value_col}_double_total"})
         total_test = double_totals.merge(
-            single_total_sum, on=gb_idx, validate="one_to_one", how="outer"
-        ).merge(children_sum, on=gb_idx, validate="one_to_one", how="outer")
+            single_total_sum,
+            on=gb_idx,
+            validate="one_to_one",
+            how="outer",
+        ).merge(
+            children_sum,
+            on=gb_idx,
+            validate="one_to_one",
+            how="outer",
+        )
         total_test = total_test[
             total_test.ending_balance_double_total.isnull()
             & total_test.ending_balance_single_total.notnull()
@@ -6134,7 +6288,6 @@ class OperatingExpensesTableTransformer(Ferc1AbstractTableTransformer):
         ]
         if (dropped := start_len - len(raw_df)) > 1:
             raise AssertionError(f"More rows dropped than expected: {dropped}")
-        logger.info("Heyyyy dropping that one row")
         return raw_df
 
     def convert_xbrl_metadata_json_to_df(
@@ -6147,6 +6300,7 @@ class OperatingExpensesTableTransformer(Ferc1AbstractTableTransformer):
         :meth:`process_xbrl_metadata`.
         """
         tbl_meta = super().convert_xbrl_metadata_json_to_df(xbrl_metadata_json)
+
         dbf_only_facts = [
             {
                 "xbrl_factoid": dbf_only_fact,
@@ -6529,10 +6683,13 @@ def ferc1_transform_asset_factory(
     @asset(
         name=table_name,
         ins=ins,
+        required_resource_keys={"pudl_paths"},
         io_manager_key=io_manager_key,
         op_tags=op_tags or {},
     )
-    def ferc1_transform_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    def ferc1_transform_asset(
+        context, **kwargs: dict[str, pd.DataFrame]
+    ) -> pd.DataFrame:
         """Transform a FERC Form 1 table.
 
         Args:
@@ -6550,10 +6707,12 @@ def ferc1_transform_asset_factory(
             transformer = tfr_class(
                 xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
                 table_id=table_id,
+                pudl_paths=context.resources.pudl_paths,
             )
         else:
             transformer = tfr_class(
-                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name]
+                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
+                pudl_paths=context.resources.pudl_paths,
             )
 
         # Split the DBF and XBRL dfs into input dictionaries for transformation
@@ -6872,6 +7031,11 @@ def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
     calc_and_parent_cols = calc_cols + [f"{col}_parent" for col in calc_cols]
 
     # Defensive testing on this table!
+    nulls = calc_components[
+        calc_components[["table_name", "xbrl_factoid"]].isnull().any(axis=1)
+    ]
+    if not nulls.empty:
+        raise AssertionError(nulls)
     assert calc_components[["table_name", "xbrl_factoid"]].notnull().all(axis=1).all()
 
     # Let's check that all calculated components that show up in our data are

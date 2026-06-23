@@ -23,7 +23,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -97,7 +97,7 @@ jobs:
             --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env FERCEQR_BUILD=true \
-            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GCS_OUTPUT_BUCKET=${{ env.GCS_OUTPUT_BUCKET }} \
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
@@ -108,6 +108,41 @@ jobs:
             --disk-gb 1000 \
             --output ${{ env.BATCH_JOB_JSON }}
 
+      - name: Send notification to Zulip build status stream
+        if: ${{ always() }}
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "FERC EQR Builds"
+          content: >
+            :rocket: Launching FERC EQR Build: ${{ env.BUILD_ID }}
+
       # Start the batch job
-      - name: Kick off batch job
+      - name: Launch Google Batch job
         run: gcloud batch jobs submit run-ferceqr-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-east1
+
+      - name: Status emoji
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "emoji=:check:" >> "$GITHUB_ENV"
+          elif [[ "${{ job.status }}" == "failure" ]]; then
+            echo "emoji=:x:" >> "$GITHUB_ENV"
+          else
+            echo "emoji=:warning:" >> "$GITHUB_ENV"
+          fi
+
+      - name: Send notification to Zulip build status stream
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "FERC EQR Builds"
+          content: >
+            ${{ env.emoji }} Google Batch job for ${{ env.BUILD_ID }} launched with status: ${{ job.status }}.

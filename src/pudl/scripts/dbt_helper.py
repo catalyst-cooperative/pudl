@@ -11,11 +11,12 @@ import click
 import duckdb
 import pandas as pd
 
+from pudl import PUDL_DBT_PATH
 from pudl.dagster.build import build_defs
 from pudl.dbt_schema import DbtSchema, DbtTable, merge_schema
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.validate.dbt import DBT_DIR, build_with_context, dagster_to_dbt_selection
+from pudl.validate.dbt import build_with_context, dagster_to_dbt_selection
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
@@ -41,7 +42,7 @@ UpdateResult = namedtuple("UpdateResult", ["success", "message"])
 
 
 def _get_row_count_csv_path() -> Path:
-    return DBT_DIR / "seeds" / "etl_full_row_counts.csv"
+    return PUDL_DBT_PATH / "seeds" / "etl_full_row_counts.csv"
 
 
 def _get_existing_row_counts() -> pd.DataFrame:
@@ -305,14 +306,14 @@ def update_tables(
             _log_update_result(
                 update_table_schema(
                     table_name=table_name,
-                    dbt_root=DBT_DIR,
+                    dbt_root=PUDL_DBT_PATH,
                 )
             )
         if args.row_counts:
             _log_update_result(
                 update_row_counts(
                     table_name=table_name,
-                    dbt_root=DBT_DIR,
+                    dbt_root=PUDL_DBT_PATH,
                     clobber=args.clobber,
                 )
             )
@@ -346,11 +347,20 @@ def update_tables(
     help="If dry, will print out the parameters we would pass to dbt, but not "
     "actually run the validation tests. Defaults to not-dry.",
 )
+@click.option(
+    "--override-target",
+    help=(
+        "Name of the target to use instead of etl-full. "
+        "Not used for normal development and updates; generally only needed "
+        "for local debugging of remote CI failures."
+    ),
+)
 def validate(
     select: str | None = None,
     asset_select: str | None = None,
     exclude: str | None = None,
     dry_run: bool = False,
+    override_target: str | None = None,
 ) -> None:
     """Validate a selection of dbt nodes.
 
@@ -399,7 +409,7 @@ def validate(
     build_params = {
         "node_selection": node_selection,
         "node_exclusion": exclude,
-        "dbt_target": "etl-full",
+        "dbt_target": override_target if override_target else "etl-full",
     }
 
     if dry_run:

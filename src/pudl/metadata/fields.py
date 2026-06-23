@@ -37,7 +37,6 @@ from pudl.metadata.enums import (
     GENERATION_ENERGY_SOURCES_EIA930,
     IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
-    INSTALL_DECADE_PATTERN_PHMSAGAS,
     LEAK_SOURCE_PHMSAGAS,
     LIABILITY_TYPES_FERC1,
     LIABILITY_TYPES_RUS7,
@@ -47,6 +46,7 @@ from pudl.metadata.enums import (
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
+    OTHER_DISPOSITION_TYPES_EIA176,
     PLANT_COST_TYPES_RUS12,
     PLANT_PARTS,
     PLANT_TYPE_RUS12,
@@ -61,6 +61,8 @@ from pudl.metadata.enums import (
     SERVICE_STATUS_RUS7,
     SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
+    SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176,
+    SUPPLY_TYPES_EIA176,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_EIAAEO,
@@ -74,6 +76,19 @@ from pudl.metadata.enums import (
     UTILITY_PLANT_ITEM_RUS12,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
+from pudl.metadata.patterns import (
+    BORROWER_ID_RUS,
+    EXHIBIT21_VERSION_SEC10K,
+    FISCAL_YEAR_END_MMDD_SEC10K,
+    HTTP_URL,
+    INDUSTRY_ID_SIC,
+    INSTALL_DECADE_PHMSAGAS,
+    STATE_ID_FIPS,
+    TAXPAYER_ID,
+    YEAR_QUARTER,
+    ZIP4,
+    ZIP5,
+)
 from pudl.metadata.sources import SOURCES
 
 # from pudl.transform.params.ferc1 import (
@@ -217,9 +232,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
     },
     "other_disposition_all_other_mcf": {
-        # TODO (12-03-2025): When we have created the disaggregated table, update this field description to point at it.
         "description": (
-            "Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            "Other disposition within the report state that does not fall into one "
+            "of the other reported categories in lines 10.1-17.0. This has been "
+            "summed from the detailed data reported by each company on Line 18.4 "
+            "of the original form. Reference conditions for measurement are 14.73 "
+            "psia and 60° Fahrenheit. See "
+            "core_eia176__yearly_gas_disposition_other for the unaggregated "
+            "records."
         ),
         "unit": "Mcf",
         "type": "number",
@@ -228,16 +248,49 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Number of end-use consumers within the report state.",
     },
+    "recipient_location": {
+        "type": "string",
+        "description": (
+            "State, territory, country, or other reporting code associated with a "
+            "delivery destination."
+        ),
+    },
+    "recipient_location_type": {
+        "type": "string",
+        "description": (
+            "Type of reported destination code. For EIA-176, subnational means the "
+            "code matched a recognized state, province, or territory code; "
+            "national_or_other means the code was preserved as another reported EIA "
+            "code."
+        ),
+    },
+    "disposition_type": {
+        "type": "string",
+        "description": "Free-text type of other gas disposition reported by the operator.",
+    },
+    "capacity_mmcfd": {
+        "type": "number",
+        "description": (
+            "Daily deliverability capacity of a liquefied natural gas storage facility "
+            "at the end of the report year."
+        ),
+        "unit": "MMcf_per_day",
+    },
     "operator_id_eia": {
         "type": "string",
         "description": (
             "The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state."
         ),
     },
+    "supply_type": {
+        "type": "string",
+        "description": "Natural or supplemental gas supply category reported on EIA Form 176.",
+        "constraints": {"enum": SUPPLY_TYPES_EIA176},
+    },
     "volume_mcf": {
         "type": "number",
         "description": (
-            "Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            "Volume of natural gas reported for a given category in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
     },
@@ -1190,7 +1243,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "6-4. This is the county where the coal mine is located."
         ),
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "commodity": {
@@ -1423,7 +1476,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "County ID from the Federal Information Processing Standard Publication 6-4."
         ),
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "county_name_census": {
@@ -3097,10 +3150,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Version of exhibit 21 submitted (if applicable).",
         "constraints": {
-            "pattern": r"^21\.*\d*$",
+            "pattern": EXHIBIT21_VERSION_SEC10K,
         },
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
+    "facility_type": {
+        "type": "string",
+        "description": (
+            "Type of liquefied natural gas storage facility reported in Part 5 of "
+            "EIA Form 176."
+        ),
+        "constraints": {"enum": ["lng_terminal", "marine_terminal"]},
+    },
     "federal_land_leaks_repaired_or_scheduled": {
         "type": "integer",
         "description": (
@@ -3386,9 +3447,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         # This REGEXP constraint was causing issues w/ SQLAlchemy / SQLite.
         # https://github.com/sqlalchemy/sqlalchemy/discussions/12498
         "constraints": {
-            "pattern": (
-                r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$"
-            ),
+            "pattern": FISCAL_YEAR_END_MMDD_SEC10K,
         },
     },
     "flow_rate_method": {
@@ -3909,7 +3968,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zipcode where an operator's headquarters are located.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "heat_content_mmbtu": {
@@ -4234,7 +4293,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "https://www.osha.gov/data/sic-manual for code definitions."
         ),
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": INDUSTRY_ID_SIC,
         },
     },
     "initial_filing_date": {
@@ -4244,7 +4303,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "install_decade": {
         "type": "string",
         "description": "The decade the distribution pipeline was installed.",
-        "constraints": {"pattern": INSTALL_DECADE_PATTERN_PHMSAGAS},
+        "constraints": {
+            "pattern": INSTALL_DECADE_PHMSAGAS,
+        },
     },
     "installation_year": {
         "type": "integer",
@@ -4303,7 +4364,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Taxpayer ID of the company with the IRS.",
         "constraints": {
-            "pattern": r"^\d{2}-\d{7}$",
+            "pattern": TAXPAYER_ID,
         },
     },
     "is_epacems_state": {
@@ -5253,7 +5314,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zipcode where an operator's office is located.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "oil_fraction_cost": {
@@ -5282,6 +5343,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "State that the distribution utility is reporting for. Prior to 2004, this may be a list of states."
         ),
+    },
+    "mode_of_transportation": {
+        "type": "string",
+        "description": "Means by which natural gas was transported.",
+        "constraints": {"enum": ["pipeline", "truck", "vessel"]},
     },
     "operating_time_hours": {
         "type": "number",
@@ -5759,7 +5825,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of owner.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "ownership_record_type": {
@@ -5814,14 +5880,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the parent company's place of business.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "parent_company_business_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the company's place of business.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "parent_company_incorporation_state": {
@@ -5865,14 +5931,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the parent company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "parent_company_mail_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the parent company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "parent_company_name": {
@@ -5887,7 +5953,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Taxpayer ID of the parent company with the IRS.",
         "constraints": {
-            "pattern": r"^\d{2}-\d{7}$",
+            "pattern": TAXPAYER_ID,
         },
     },
     "parent_company_utility_id_eia": {
@@ -7370,7 +7436,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "URL pointing to the original source of the data in the record.",
         "constraints": {
-            "pattern": r"^https?://.+",
+            "pattern": HTTP_URL,
         },
     },
     "specifications_of_coal_ash": {
@@ -7494,7 +7560,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Two digit state FIPS code.",
         "constraints": {
-            "pattern": r"^\d{2}$",
+            "pattern": STATE_ID_FIPS,
         },
     },
     "state_name": {
@@ -7644,14 +7710,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the subsidiary company's place of business.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "subsidiary_company_business_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the subsidiary company's place of business.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "subsidiary_company_incorporation_state": {
@@ -7714,14 +7780,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the subsidiary company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "subsidiary_company_mail_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the subsidiary company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "subsidiary_company_name": {
@@ -7736,7 +7802,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Taxpayer ID of the subsidiary company with the IRS.",
         "constraints": {
-            "pattern": r"^\d{2}-\d{7}$",
+            "pattern": TAXPAYER_ID,
         },
     },
     "subsidiary_company_utility_id_eia": {
@@ -7814,6 +7880,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner."
         ),
+    },
+    "supplier_location": {
+        "type": "string",
+        "description": (
+            "State, territory, country, or other reporting code associated with the "
+            "supplier location for a gas receipt."
+        ),
+    },
+    "supplier_location_type": {
+        "type": "string",
+        "description": (
+            "Type of reported supplier location. Subnational "
+            "means the code matched a recognized state, province, or territory "
+            "code; national_or_other means the code corresponds to a country or region "
+            " (e.g., Gulf of Mexico)."
+        ),
+        "constraints": {"enum": ("subnational", "national_or_other")},
+    },
+    "recipient_name": {
+        "type": "string",
+        "description": "Reported recipient or counterparty name.",
     },
     "supporting_structure_type": {
         "type": "string",
@@ -8515,14 +8602,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Five digit US Zip Code.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "zip_code_4": {
         "type": "string",
         "description": "Four digit US Zip Code suffix.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "design_wind_speed_mph": {
@@ -9038,14 +9125,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the company's place of business.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "business_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the company's place of business.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "business_postal_code": {
@@ -9080,14 +9167,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Zip code of the company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{5}$",
+            "pattern": ZIP5,
         },
     },
     "mail_zip_code_4": {
         "type": "string",
         "description": "Zip code suffix of the company's mailing address.",
         "constraints": {
-            "pattern": r"^\d{4}$",
+            "pattern": ZIP4,
         },
     },
     "mail_postal_code": {
@@ -9168,7 +9255,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Year-quarter corresponding to record. Formatted like YYYYq{1-4}.",
         "constraints": {
-            "pattern": r"\d{4}q[1-4]",
+            "pattern": YEAR_QUARTER,
         },
     },
     "contract_unique_id": {
@@ -9645,7 +9732,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "are structured as: two character state acronyms followed by four digits."
         ),
         "constraints": {
-            "pattern": r"^[A-Z]{2}\d{4}$",
+            "pattern": BORROWER_ID_RUS,
         },
     },
     "borrower_name_rus": {
@@ -10425,6 +10512,102 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "constraints": {"enum": REVENUE_CLASSES_EIA176},
         },
     },
+    "core_eia176__yearly_supplemental_gaseous_fuel_supplies": {
+        "fuel_type": {
+            "description": "Supplemental gaseous fuel type reported by the operator.",
+            "constraints": {"enum": SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176},
+        },
+        "volume_mcf": {
+            "description": (
+                "Volume of supplemental gaseous fuels supplied by fuel type within "
+                "the report state. Reference conditions for measurement are 14.73 "
+                "psia and 60° Fahrenheit."
+            ),
+            "unit": "Mcf",
+        },
+    },
+    "core_eia176__yearly_gas_exports": {
+        "recipient_location": {
+            "description": (
+                "EIA continuation-line reference code associated with the "
+                "out-of-state gas delivery. Recognized state, province, or "
+                "territory names are normalized to two-letter codes. Other values "
+                "are preserved as reported EIA codes and should not be interpreted "
+                "as ISO country codes."
+            ),
+        },
+        "recipient_location_type": {
+            "constraints": {"enum": ["national_or_other", "subnational"]},
+            "description": (
+                "Type of the EIA continuation-line destination code. A value of "
+                "subnational means the code matched a recognized state, province, "
+                "or territory code. A value of national_or_other means the code "
+                "was preserved as another reported EIA code. This classifies the "
+                "code value only; the paired recipient_name is free text and may "
+                "describe a company, country, location, placeholder, or truncated "
+                "value."
+            ),
+        },
+        "recipient_name": {
+            "description": (
+                "Free-text recipient, counterparty, country, location, or "
+                "placeholder reported on the EIA continuation line for the "
+                "out-of-state gas delivery."
+            ),
+        },
+        "volume_mcf": {
+            "description": (
+                "Volume of natural gas delivered out of the report state. Reference "
+                "conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            ),
+            "unit": "Mcf",
+        },
+    },
+    "core_eia176__yearly_gas_imports": {
+        "supplier_location": {
+            "description": (
+                "EIA continuation-line reference code associated with the gas "
+                "receipt supplier. Recognized state, province, or territory names "
+                "are normalized to two-letter codes. Other values are preserved as "
+                "reported EIA codes and should not be interpreted as ISO country "
+                "codes."
+            ),
+        },
+        "supplier_location_type": {
+            "constraints": {"enum": ["national_or_other", "subnational"]},
+            "description": (
+                "Type of the EIA continuation-line supplier location code. A value "
+                "of subnational means the code matched a recognized state, "
+                "province, or territory code. A value of national_or_other means "
+                "the code was preserved as another reported EIA code. This "
+                "classifies the code value only; the paired supplier_name is free "
+                "text and may describe a company, country, location, placeholder, "
+                "or truncated value."
+            ),
+        },
+        "supplier_name": {
+            "description": (
+                "Free-text supplier, counterparty, country, location, or "
+                "placeholder reported on the EIA continuation line for the gas "
+                "receipt."
+            ),
+        },
+    },
+    "core_eia176__yearly_gas_disposition_other": {
+        "disposition_type": {
+            "description": "Type of other disposition reported by the operator.",
+            "constraints": {"enum": OTHER_DISPOSITION_TYPES_EIA176},
+        },
+    },
+    "core_eia176__yearly_liquefied_natural_gas_inventory": {
+        "volume_mcf": {
+            "description": (
+                "Volume of liquefied natural gas inventory held in storage at the "
+                "end of the report year. Reference conditions for measurement are "
+                "14.73 psia and 60° Fahrenheit."
+            ),
+        },
+    },
     "sector_consolidated_eia": {"code": {"type": "integer"}},
     "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "plant_type": {
@@ -10476,6 +10659,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "accessory_electric_equipment_nuclear_production",
                     "accessory_electric_equipment_other_production",
                     "accessory_electric_equipment_steam_production",
+                    "asset_retirement_costs_energy_storage_plant",
                     "asset_retirement_costs_for_distribution_plant_distribution_plant",
                     "asset_retirement_costs_for_general_plant_general_plant",
                     "asset_retirement_costs_for_hydraulic_production_plant_hydraulic_production",
@@ -10484,52 +10668,125 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant",
                     "asset_retirement_costs_for_steam_production_plant_steam_production",
                     "asset_retirement_costs_for_transmission_plant_transmission_plant",
+                    "asset_retirement_costs_other_renewable_production",
+                    "asset_retirement_costs_solar_production",
+                    "asset_retirement_costs_wind_production",
                     "boiler_plant_equipment_steam_production",
+                    "boilers_other_renewable_production",
+                    "collector_system_energy_storage_plant",
+                    "collector_system_solar_production",
+                    "collector_system_wind_production",
+                    "communication_equipment_distribution_plant",
+                    "communication_equipment_energy_storage_plant",
                     "communication_equipment_general_plant",
+                    "communication_equipment_hydraulic_production",
+                    "communication_equipment_nuclear_production",
+                    "communication_equipment_other_production",
+                    "communication_equipment_other_renewable_production",
                     "communication_equipment_regional_transmission_and_market_operation_plant",
+                    "communication_equipment_solar_production",
+                    "communication_equipment_steam_production",
+                    "communication_equipment_transmission_plant",
+                    "communication_equipment_wind_production",
+                    "computer_hardware",
+                    "computer_hardware_distribution_plant",
+                    "computer_hardware_energy_storage_plant",
+                    "computer_hardware_general_plant",
+                    "computer_hardware_hydraulic_production",
+                    "computer_hardware_nuclear_production",
+                    "computer_hardware_other_production",
+                    "computer_hardware_other_renewable_production",
                     "computer_hardware_regional_transmission_and_market_operation_plant",
+                    "computer_hardware_solar_production",
+                    "computer_hardware_steam_production",
+                    "computer_hardware_transmission_plant",
+                    "computer_hardware_wind_production",
+                    "computer_software",
+                    "computer_software_distribution_plant",
+                    "computer_software_energy_storage_plant",
+                    "computer_software_general_plant",
+                    "computer_software_hydraulic_production",
+                    "computer_software_nuclear_production",
+                    "computer_software_other_production",
+                    "computer_software_other_renewable_production",
                     "computer_software_regional_transmission_and_market_operation_plant",
+                    "computer_software_solar_production",
+                    "computer_software_steam_production",
+                    "computer_software_transmission_plant",
+                    "computer_software_wind_production",
                     "distribution_plant",
+                    "distribution_plant_correction",
                     "electric_plant_in_service",
                     "electric_plant_in_service_and_completed_construction_not_classified_electric",
+                    "electric_plant_in_service_and_completed_construction_not_classified_electric_correction",
+                    "electric_plant_in_service_correction",
                     "electric_plant_purchased",
                     "electric_plant_sold",
                     "energy_storage_equipment_distribution_plant",
+                    "energy_storage_equipment_energy_storage_plant",
                     "energy_storage_equipment_other_production",
                     "energy_storage_equipment_transmission_plant",
+                    "energy_storage_plant",
+                    "energy_storage_plant_correction",
                     "engines_and_engine_driven_generators_steam_production",
                     "experimental_electric_plant_unclassified",
                     "franchises_and_consents",
+                    "fuel_holders_other_renewable_production",
                     "fuel_holders_products_and_accessories_other_production",
                     "general_plant",
+                    "general_plant_correction",
                     "general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant",
+                    "general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant_correction",
+                    "generator_stepup_transformers_energy_storage_plant",
+                    "generator_stepup_transformers_solar_production",
+                    "generator_stepup_transformers_wind_production",
                     "generators_other_production",
+                    "generators_other_renewable_production",
                     "hydraulic_production_plant",
+                    "hydraulic_production_plant_correction",
                     "installations_on_customer_premises_distribution_plant",
                     "intangible_plant",
+                    "intangible_plant_correction",
+                    "inverters_energy_storage_plant",
+                    "inverters_solar_production",
+                    "inverters_wind_production",
                     "laboratory_equipment_general_plant",
                     "land_and_land_rights_distribution_plant",
+                    "land_and_land_rights_energy_storage_plant",
                     "land_and_land_rights_general_plant",
                     "land_and_land_rights_hydraulic_production",
                     "land_and_land_rights_nuclear_production",
                     "land_and_land_rights_other_production",
+                    "land_and_land_rights_other_renewable_production",
                     "land_and_land_rights_regional_transmission_and_market_operation_plant",
+                    "land_and_land_rights_solar_production",
                     "land_and_land_rights_steam_production",
                     "land_and_land_rights_transmission_plant",
+                    "land_and_land_rights_wind_production",
                     "leased_property_on_customer_premises_distribution_plant",
                     "line_transformers_distribution_plant",
                     "meters_distribution_plant",
+                    "miscellaneous_energy_storage_equipment_energy_storage_plant",
                     "miscellaneous_equipment_general_plant",
                     "miscellaneous_intangible_plant",
                     "miscellaneous_power_plant_equipment_hydraulic_production",
                     "miscellaneous_power_plant_equipment_nuclear_production",
                     "miscellaneous_power_plant_equipment_other_production",
+                    "miscellaneous_power_plant_equipment_other_renewable_production",
+                    "miscellaneous_power_plant_equipment_solar_production",
                     "miscellaneous_power_plant_equipment_steam_production",
+                    "miscellaneous_power_plant_equipment_wind_production",
                     "miscellaneous_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant",
                     "nuclear_production_plant",
+                    "nuclear_production_plant_correction",
                     "office_furniture_and_equipment_general_plant",
                     "organization",
+                    "other_accessory_electrical_equipment_other_renewable_production",
+                    "other_accessory_electrical_equipment_solar_production",
+                    "other_accessory_electrical_equipment_wind_production",
                     "other_production_plant",
+                    "other_production_plant_correction",
+                    "other_renewable_production_plant",
                     "other_tangible_property_general_plant",
                     "overhead_conductors_and_devices_distribution_plant",
                     "overhead_conductors_and_devices_transmission_plant",
@@ -10538,28 +10795,39 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "power_operated_equipment_general_plant",
                     "prime_movers_other_production",
                     "production_plant",
+                    "production_plant_correction",
                     "reactor_plant_equipment_nuclear_production",
                     "reservoirs_dams_and_waterways_hydraulic_production",
                     "roads_and_trails_transmission_plant",
                     "roads_railroads_and_bridges_hydraulic_production",
                     "services_distribution_plant",
+                    "solar_panels_solar_production",
+                    "solar_production_plant",
+                    "solar_production_plant_correction",
                     "station_equipment_distribution_plant",
                     "station_equipment_transmission_plant",
                     "steam_production_plant",
+                    "steam_production_plant_correction",
                     "stores_equipment_general_plant",
                     "street_lighting_and_signal_systems_distribution_plant",
                     "structures_and_improvements_distribution_plant",
+                    "structures_and_improvements_energy_storage_plant",
                     "structures_and_improvements_general_plant",
                     "structures_and_improvements_hydraulic_production",
                     "structures_and_improvements_nuclear_production",
                     "structures_and_improvements_other_production",
+                    "structures_and_improvements_other_renewable_production",
                     "structures_and_improvements_regional_transmission_and_market_operation_plant",
+                    "structures_and_improvements_solar_production",
                     "structures_and_improvements_steam_production",
                     "structures_and_improvements_transmission_plant",
+                    "structures_and_improvements_wind_production",
                     "tools_shop_and_garage_equipment_general_plant",
                     "towers_and_fixtures_transmission_plant",
                     "transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant",
+                    "transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_correction",
                     "transmission_plant",
+                    "transmission_plant_correction",
                     "transportation_equipment_general_plant",
                     "turbogenerator_units_nuclear_production",
                     "turbogenerator_units_steam_production",
@@ -10568,19 +10836,10 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "underground_conduit_distribution_plant",
                     "underground_conduit_transmission_plant",
                     "water_wheels_turbines_and_generators_hydraulic_production",
-                    "distribution_plant_correction",
-                    "electric_plant_in_service_and_completed_construction_not_classified_electric_correction",
-                    "electric_plant_in_service_correction",
-                    "general_plant_correction",
-                    "general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant_correction",
-                    "hydraulic_production_plant_correction",
-                    "intangible_plant_correction",
-                    "nuclear_production_plant_correction",
-                    "other_production_plant_correction",
-                    "production_plant_correction",
-                    "steam_production_plant_correction",
-                    "transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_correction",
-                    "transmission_plant_correction",
+                    "wind_production_plant",
+                    "wind_production_plant_correction",
+                    "wind_towers_and_fixtures_wind_production",
+                    "wind_turbines_wind_production",
                 }
             },
         }
@@ -10682,6 +10941,8 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "enum": {
                     "administrative_and_general_expenses",
                     "administrative_and_general_expenses_correction",
+                    "administrative_and_general_maintenance_expenses",
+                    "administrative_and_general_maintenance_expenses_correction",
                     "administrative_and_general_operation_expense",
                     "administrative_and_general_operation_expense_correction",
                     "administrative_and_general_salaries",
@@ -10689,6 +10950,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "advertising_expenses",
                     "allowances",
                     "ancillary_services_market_administration",
+                    "bundled_environmental_credits",
                     "capacity_market_administration",
                     "coolants_and_water",
                     "customer_account_expenses",
@@ -10711,8 +10973,13 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "electric_expenses_nuclear_power_generation",
                     "electric_expenses_steam_power_generation",
                     "employee_pensions_and_benefits",
+                    "energy_storage_expenses",
+                    "energy_storage_maintenance_expenses",
+                    "energy_storage_operation_expenses",
+                    "energy_storage_operation_expenses_correction",
                     "franchise_requirements",
                     "fuel",
+                    "fuel_other_renewable_generation",
                     "fuel_steam_power_generation",
                     "general_advertising_expenses",
                     "generation_expenses",
@@ -10730,19 +10997,52 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "load_dispatching",
                     "load_dispatching_transmission_expense",
                     "maintenance_of_boiler_plant_steam_power_generation",
+                    "maintenance_of_boilers_other_renewable_generation",
+                    "maintenance_of_communication_equipment_administrative_and_general_expenses",
+                    "maintenance_of_communication_equipment_distribution",
                     "maintenance_of_communication_equipment_electric_transmission",
+                    "maintenance_of_communication_equipment_energy_storage_expenses",
+                    "maintenance_of_communication_equipment_hydraulic_power_generation",
+                    "maintenance_of_communication_equipment_nuclear_power_generation",
+                    "maintenance_of_communication_equipment_other_power_generation",
+                    "maintenance_of_communication_equipment_other_renewable_generation",
                     "maintenance_of_communication_equipment_regional_market_expenses",
+                    "maintenance_of_communication_equipment_solar_generation",
+                    "maintenance_of_communication_equipment_steam_power_generation",
+                    "maintenance_of_communication_equipment_wind_generation",
                     "maintenance_of_computer_hardware",
+                    "maintenance_of_computer_hardware_administrative_and_general_expenses",
+                    "maintenance_of_computer_hardware_distribution",
+                    "maintenance_of_computer_hardware_energy_storage_expenses",
+                    "maintenance_of_computer_hardware_hydraulic_power_generation",
+                    "maintenance_of_computer_hardware_nuclear_power_generation",
+                    "maintenance_of_computer_hardware_other_power_generation",
+                    "maintenance_of_computer_hardware_other_renewable_generation",
+                    "maintenance_of_computer_hardware_solar_generation",
+                    "maintenance_of_computer_hardware_steam_power_generation",
                     "maintenance_of_computer_hardware_transmission",
+                    "maintenance_of_computer_hardware_wind_generation",
                     "maintenance_of_computer_software",
+                    "maintenance_of_computer_software_administrative_and_general_expenses",
+                    "maintenance_of_computer_software_distribution",
+                    "maintenance_of_computer_software_energy_storage_expenses",
+                    "maintenance_of_computer_software_hydraulic_power_generation",
+                    "maintenance_of_computer_software_nuclear_power_generation",
+                    "maintenance_of_computer_software_other_power_generation",
+                    "maintenance_of_computer_software_other_renewable_generation",
+                    "maintenance_of_computer_software_solar_generation",
+                    "maintenance_of_computer_software_steam_power_generation",
                     "maintenance_of_computer_software_transmission",
+                    "maintenance_of_computer_software_wind_generation",
                     "maintenance_of_electric_plant_hydraulic_power_generation",
                     "maintenance_of_electric_plant_nuclear_power_generation",
                     "maintenance_of_electric_plant_steam_power_generation",
                     "maintenance_of_energy_storage_equipment",
+                    "maintenance_of_energy_storage_equipment_and_structures_energy_storage_expenses",
                     "maintenance_of_energy_storage_equipment_other_power_generation",
                     "maintenance_of_energy_storage_equipment_transmission",
                     "maintenance_of_general_plant",
+                    "maintenance_of_generating_and_electric_equipment_other_renewable_generation",
                     "maintenance_of_generating_and_electric_plant",
                     "maintenance_of_line_transformers",
                     "maintenance_of_meters",
@@ -10750,14 +11050,19 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "maintenance_of_miscellaneous_hydraulic_plant",
                     "maintenance_of_miscellaneous_market_operation_plant",
                     "maintenance_of_miscellaneous_nuclear_plant",
+                    "maintenance_of_miscellaneous_other_energy_storage_plant_energy_storage_expenses",
                     "maintenance_of_miscellaneous_other_power_generation_plant",
                     "maintenance_of_miscellaneous_regional_transmission_plant",
+                    "maintenance_of_miscellaneous_renewable_production_plant_other_renewable_generation",
+                    "maintenance_of_miscellaneous_solar_generation_plant",
                     "maintenance_of_miscellaneous_steam_plant",
                     "maintenance_of_miscellaneous_transmission_plant",
+                    "maintenance_of_miscellaneous_wind_generation_plant",
                     "maintenance_of_overhead_lines",
                     "maintenance_of_overhead_lines_transmission",
                     "maintenance_of_reactor_plant_equipment_nuclear_power_generation",
                     "maintenance_of_reservoirs_dams_and_waterways",
+                    "maintenance_of_solar_panels_structures_and_equipment_solar_generation",
                     "maintenance_of_station_equipment",
                     "maintenance_of_station_equipment_transmission",
                     "maintenance_of_street_lighting_and_signal_systems",
@@ -10766,16 +11071,22 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "maintenance_of_structures_distribution_expense",
                     "maintenance_of_structures_hydraulic_power_generation",
                     "maintenance_of_structures_nuclear_power_generation",
+                    "maintenance_of_structures_other_renewable_generation",
                     "maintenance_of_structures_steam_power_generation",
                     "maintenance_of_structures_transmission_expense",
                     "maintenance_of_underground_lines",
                     "maintenance_of_underground_lines_transmission",
+                    "maintenance_of_wind_turbines_structures_and_equipment_wind_generation",
                     "maintenance_supervision_and_engineering",
                     "maintenance_supervision_and_engineering_electric_transmission_expenses",
+                    "maintenance_supervision_and_engineering_energy_storage_expenses",
                     "maintenance_supervision_and_engineering_hydraulic_power_generation",
                     "maintenance_supervision_and_engineering_nuclear_power_generation",
                     "maintenance_supervision_and_engineering_other_power_generation",
+                    "maintenance_supervision_and_engineering_other_renewable_generation",
+                    "maintenance_supervision_and_engineering_solar_generation",
                     "maintenance_supervision_and_engineering_steam_power_generation",
+                    "maintenance_supervision_and_engineering_wind_generation",
                     "market_facilitation_monitoring_and_compliance_services",
                     "market_monitoring_and_compliance",
                     "meter_expenses",
@@ -10798,23 +11109,31 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "office_supplies_and_expenses",
                     "operation_of_energy_storage_equipment",
                     "operation_of_energy_storage_equipment_distribution",
+                    "operation_of_energy_storage_equipment_energy_storage_expense",
                     "operation_of_energy_storage_equipment_transmission_expense",
                     "operation_supervision",
                     "operation_supervision_and_engineering_distribution_expense",
                     "operation_supervision_and_engineering_electric_transmission_expenses",
+                    "operation_supervision_and_engineering_energy_storage_expenses",
                     "operation_supervision_and_engineering_hydraulic_power_generation",
                     "operation_supervision_and_engineering_nuclear_power_generation",
                     "operation_supervision_and_engineering_other_power_generation",
+                    "operation_supervision_and_engineering_other_renewable_generation",
+                    "operation_supervision_and_engineering_solar_generation",
                     "operation_supervision_and_engineering_steam_power_generation",
+                    "operation_supervision_and_engineering_wind_generation",
                     "operations_and_maintenance_expenses_electric",
                     "operations_and_maintenance_expenses_electric_correction",
                     "other_expenses_other_power_supply_expenses",
+                    "other_miscellaneous_generation_and_other_plant_operating_expenses_other_renewable_generation",
                     "other_power_generation_maintenance_expense",
                     "other_power_generation_maintenance_expense_correction",
                     "other_power_generation_operations_expense",
                     "other_power_generation_operations_expense_correction",
                     "other_power_supply_expense",
                     "other_power_supply_expense_correction",
+                    "other_renewable_generation_maintenance_expense",
+                    "other_renewable_generation_operations_expense",
                     "outside_services_employed",
                     "overhead_line_expense",
                     "overhead_line_expenses",
@@ -10826,8 +11145,12 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "power_production_expenses_nuclear_power_correction",
                     "power_production_expenses_other_power",
                     "power_production_expenses_other_power_correction",
+                    "power_production_expenses_other_renewable",
+                    "power_production_expenses_solar",
+                    "power_production_expenses_solar_correction",
                     "power_production_expenses_steam_power",
                     "power_production_expenses_steam_power_correction",
+                    "power_production_expenses_wind",
                     "power_purchased_for_storage_operations",
                     "property_insurance",
                     "purchased_power",
@@ -10842,15 +11165,23 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "reliability_planning_and_standards_development_services",
                     "rents_administrative_and_general_expense",
                     "rents_distribution_expense",
+                    "rents_energy_storage_expense",
                     "rents_hydraulic_power_generation",
                     "rents_nuclear_power_generation",
                     "rents_other_power_generation",
+                    "rents_other_renewable_generation",
                     "rents_regional_market_expenses",
+                    "rents_solar_generation",
                     "rents_steam_power_generation",
                     "rents_transmission_electric_expense",
+                    "rents_wind_generation",
                     "sales_expenses",
                     "sales_expenses_correction",
                     "scheduling_system_control_and_dispatch_services",
+                    "solar_generation_maintenance_expense",
+                    "solar_generation_operations_expense",
+                    "solar_generation_operations_expense_correction",
+                    "solar_panel_generation_and_other_plant_operating_expenses_solar_generation",
                     "station_expenses_distribution",
                     "station_expenses_transmission_expense",
                     "steam_expenses_nuclear_power_generation",
@@ -10863,6 +11194,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "steam_power_generation_operations_expense_correction",
                     "steam_transferred_credit",
                     "steam_transferred_credit_nuclear_power_generation",
+                    "storage_fuel_energy_storage_expense",
                     "street_lighting_and_signal_system_expenses",
                     "supervision_customer_account_expenses",
                     "supervision_customer_service_and_information_expenses",
@@ -10877,10 +11209,16 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "transmission_operation_expense_correction",
                     "transmission_rights_market_administration",
                     "transmission_service_studies",
+                    "unbundled_environmental_credits",
                     "uncollectible_accounts",
                     "underground_line_expenses",
                     "underground_line_expenses_transmission_expense",
                     "water_for_power",
+                    "wind_generation_maintenance_expense",
+                    "wind_generation_maintenance_expense_correction",
+                    "wind_generation_operations_expense",
+                    "wind_generation_operations_expense_correction",
+                    "wind_turbine_generation_and_other_plant_operating_expenses_wind_generation",
                 }
             },
         }
@@ -11166,20 +11504,24 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.)."
             ),
             "constraints": {
-                "enum": [
+                "enum": {
                     "distribution",
+                    "energy_storage",
                     "experimental",
                     "general",
                     "hydraulic_production",
                     "intangible",
                     "nuclear_production",
                     "other_production",
+                    "other_renewable_production",
                     "purchased_sold",
                     "regional_transmission_and_market_operation",
+                    "solar_production",
                     "steam_production",
                     "transmission",
                     "unclassified",
-                ]
+                    "wind_production",
+                }
             },
         },
         "utility_type": {
