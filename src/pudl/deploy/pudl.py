@@ -34,6 +34,9 @@ class DeploymentType(Enum):
 def _zip_parquet_files(parquet_path: Path, output_path: Path) -> None:
     """Create a zipfile containing parquet files and an associated datapackage JSON file.
 
+    ``parquet_path`` should contain a set of parquet files and exactly one datapackage
+    JSON file that describes those parquet files.
+
     Args:
         parquet_path: Path to directory containing parquet files.
         output_path: Path to zipfile that should be created by this function.
@@ -44,12 +47,17 @@ def _zip_parquet_files(parquet_path: Path, output_path: Path) -> None:
     # Create parquet archive (store mode, no compression)
     with zipfile.ZipFile(output_path, "w", zipfile.ZIP_STORED) as zf:
         for parquet_file in parquet_files:
-            zf.write(parquet_file, arcname=parquet_file.name)
+            if parquet_file.exists():
+                zf.write(parquet_file, arcname=parquet_file.name)
+            else:
+                raise RuntimeError(f"{parquet_file} must be a file!")
 
         # There should be exactly one datapackage JSON file in each parquet directory
         [datapackage] = parquet_path.glob("*datapackage.json")
-        if datapackage.exists():
+        if datapackage.is_file():
             zf.write(datapackage, arcname="datapackage.json")
+        else:
+            raise RuntimeError(f"{datapackage} must be a file!")
 
     logger.info(f"Created parquet archive: {output_path}")
 
