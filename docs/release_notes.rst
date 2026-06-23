@@ -25,6 +25,11 @@ EIA-176
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA860
+~~~~~~~
+
+* Added early release data for EIA-860 2025. See issue :issue:`5322` and PR :pr:`5324`.
+
 Documentation
 ^^^^^^^^^^^^^
 
@@ -105,10 +110,6 @@ EIA-176
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
-
-EIA-860
-~~~~~~~
-* Added early release data for EIA-860 2025. See issue :issue:`5322` and PR :pr:`5324`.
 
 EIA-191
 ~~~~~~~
