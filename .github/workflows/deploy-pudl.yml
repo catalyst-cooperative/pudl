@@ -45,6 +45,7 @@ jobs:
 
           if [[ ! "$TAG" =~ ^(v\d{4}\.\d{1,2}\.\d{1,2})|(nightly-\d{4}-\d{2}-\d{2})|(branch-.+-\d{4}-\d{2}-\d{2}) ]]; then
             echo "::error::Tag '$TAG' does not look like a nightly, branch, or stable tag!"
+            exit 1
           fi
 
           git fetch --tags
