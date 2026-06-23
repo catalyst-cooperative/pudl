@@ -86,7 +86,6 @@ from pudl.extract.dbf import (
     add_key_constraints,
     deduplicate_by_year,
 )
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -243,6 +242,20 @@ XBRL_META_ONLY_FERC1: dict[str, RawTableMapping] = {
             "sales_for_resale_account_447_total_310",
         ],
     },
+    # New as of 2025 tables. Needed here because fields in PUDL core tables
+    # reference these tables in their calculations.
+    "core_ferc1__yearly_renewable_plants_sched404": {
+        "xbrl": "renewable_generating_plant_statistics_large_plants_404"
+    },
+    "core_ferc1__yearly_energy_storage_sched414": {
+        "xbrl": "energy_storage_operations_large_plants_totals_414"
+    },
+    "core_ferc1__yearly_energy_storage_plants_sched414": {
+        "xbrl": "energy_storage_operations_large_plants_414"
+    },
+    "core_ferc1__yearly_small_energy_storage_plants_sched404": {
+        "xbrl": "energy_storage_operations_small_plants_419"
+    },
 }
 """A mapping of XBRL to (future) PUDL table names for tables not yet in PUDL.
 
@@ -370,7 +383,7 @@ def create_raw_ferc1_assets() -> list[AssetSpec]:
         A list of ferc1 AssetSpecs.
     """
     # Deduplicate the table names because f1_elctrc_erg_acct feeds into multiple pudl tables.
-    dbfs = (v["dbf"] for v in TABLE_NAME_MAP_FERC1.values())
+    dbfs = (v.get("dbf") for v in TABLE_NAME_MAP_FERC1.values())
     flattened_dbfs = chain.from_iterable(
         x if isinstance(x, list) else [x] for x in dbfs
     )
@@ -410,7 +423,7 @@ raw_ferc1_assets = create_raw_ferc1_assets()
 # asset name.
 
 
-@asset(deps=[FERC1_XBRL_SQLITE_ASSET_KEY])
+@asset(deps=[FERC1_XBRL_SQLITE_ASSET_KEY], required_resource_keys={"pudl_paths"})
 def raw_ferc1_xbrl__metadata_json(
     context,
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -426,8 +439,7 @@ def raw_ferc1_xbrl__metadata_json(
         instead.
     """
     metadata_path = (
-        PudlPaths().output_dir  # type: ignore[call-arg]
-        / "ferc1_xbrl_taxonomy_metadata.json"
+        context.resources.pudl_paths.pudl_output / "ferc1_xbrl_taxonomy_metadata.json"
     )
     with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)

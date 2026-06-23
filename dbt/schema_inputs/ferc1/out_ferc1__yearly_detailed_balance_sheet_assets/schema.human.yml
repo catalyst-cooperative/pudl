@@ -8,3 +8,11 @@ sources:
               arguments:
                 table_name: out_ferc1__yearly_detailed_balance_sheet_assets
                 partition_expr: report_year
+        columns:
+          - name: in_rate_base
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_in_set:
+                  description: All of the many production and storage factoids should be labeled as in rate base
+                  arguments:
+                    value_set: [true]
+                    row_condition: "'production_plant' in xbrl_factoid or 'energy_storage' in xbrl_factoid"

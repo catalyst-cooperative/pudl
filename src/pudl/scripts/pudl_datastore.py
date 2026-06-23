@@ -197,7 +197,7 @@ def main(
 
     cache_path = None
     if not bypass_local_cache:
-        cache_path = PudlPaths().input_dir
+        cache_path = PudlPaths().pudl_input
 
     dstore = Datastore(
         cloud_cache_path=cloud_cache_path,

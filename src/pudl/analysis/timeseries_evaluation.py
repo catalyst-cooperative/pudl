@@ -22,7 +22,7 @@ from collections.abc import Sequence
 from io import BytesIO
 from typing import Any
 
-import matplotlib.cm as cm
+import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
@@ -120,11 +120,11 @@ def plot_correlation(
     alpha: float = 0.1,
 ):
     """Plot the correlation between two analogous time series."""
+    if idx_vals is None:
+        idx_vals = []
     plt.figure(figsize=(12, 12))
 
-    # Generate a color palette using Matplotlib
-    # Use the "tab10" colormap with the required number of colors
-    cmap = cm.get_cmap("tab10", len(idx_vals))
+    cmap = mpl.colormaps["tab10"].resampled(len(idx_vals))
     # Convert colors to hex format
     palette = [mcolors.to_hex(cmap(i)) for i in range(len(idx_vals))]
     color_map = {group: palette[i] for i, group in enumerate(idx_vals)}

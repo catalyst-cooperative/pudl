@@ -14,8 +14,9 @@ from dbt.artifacts.schemas.run import RunExecutionResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
+from pudl import PUDL_DBT_PATH
 from pudl.logging_helpers import get_logger
-from pudl.workspace.setup import DBT_DIR, PUDL_ROOT_PATH, PudlPaths
+from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
 
@@ -64,7 +65,7 @@ def install_dbt_deps(dbt: dbtRunner | None = None) -> dbtRunner:
     if dbt is None:
         dbt = dbtRunner()
 
-    with chdir(DBT_DIR):
+    with chdir(PUDL_DBT_PATH):
         dbt.invoke(["deps"])
 
     return dbt
@@ -160,7 +161,7 @@ def build_with_context(
         cli_args += ["--exclude", node_exclusion]
     dbt = install_dbt_deps()
 
-    with _preserve_logging_propagation(), chdir(DBT_DIR):
+    with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):
         dbt.invoke(["deps"])
         dbt.invoke(["seed"])
         build_output: dbtRunnerResult = dbt.invoke(["build"] + cli_args)
@@ -176,7 +177,7 @@ def build_with_context(
             compiled_sql_failures.append(node)
 
     weighted_quantile_contexts = __get_quantile_contexts(
-        weighted_quantile_failures, dbt=dbt, dbt_dir=DBT_DIR
+        weighted_quantile_failures, dbt=dbt, dbt_dir=PUDL_DBT_PATH
     )
     compiled_sql_contexts = __get_compiled_sql_contexts(compiled_sql_failures)
 
@@ -205,8 +206,8 @@ def dagster_to_dbt_selection(
     asset_names = {asset_key.to_user_string() for asset_key in asset_keys}
 
     if manifest is None:
-        manifest_path = PUDL_ROOT_PATH / "dbt" / "target" / "manifest.json"
-        with _preserve_logging_propagation(), chdir(PUDL_ROOT_PATH / "dbt"):
+        manifest_path = PUDL_DBT_PATH / "target" / "manifest.json"
+        with _preserve_logging_propagation(), chdir(PUDL_DBT_PATH):
             dbt = dbtRunner()
             dbt.invoke(["parse"])
 

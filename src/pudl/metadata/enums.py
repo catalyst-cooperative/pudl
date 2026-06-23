@@ -188,6 +188,21 @@ CUSTOMER_CLASSES_EIA176: list[str] = [
     "vehicle_fuel",
 ]
 
+SUPPLY_TYPES_EIA176: list[str] = [
+    "natural_gas_production",
+    "synthetic_gas_production",
+    "underground_storage_withdrawals",
+    "lng_storage_withdrawals",
+    "above_ground_storage_withdrawals",
+    "receipts_from_state_or_us_border",
+    "citygate_receipts_total",
+    "citygate_receipts_sales_customers",
+    "citygate_receipts_transportation_customers",
+    "other_receipts",
+    "supplemental_gaseous_fuels",
+    "total",
+]
+
 TECH_CLASSES: list[str] = [
     "backup",  # WHERE Is this used? because removed from DG table b/c not a real component
     "chp_cogen",
@@ -222,6 +237,45 @@ REVENUE_CLASSES_EIA861: list[str] = [
 REVENUE_CLASSES_EIA176: list[str] = [
     "sales",
     "transport",
+]
+
+SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176: list[str] = [
+    "air_injection",
+    "biomass",
+    "biomass_gas",
+    "blast_furnace_gas",
+    "coke_oven_gas",
+    "gas_holders",
+    "leaks_condensate",
+    "line_pressure",
+    "manufactured_gas",
+    "natural_gas",
+    "other",
+    "propane_air",
+    "refinery_gas",
+    "truck",
+    "unknown",
+    "vented_flared",
+]
+
+OTHER_DISPOSITION_TYPES_EIA176: list[str] = [
+    "line_pressure",
+    "other",
+    "vented_flared",
+    "plant_fuel",
+    "plant_thermal_reduction",
+    "leaks_condensate",
+    "del_items_from_2001_form",
+    "truck",
+    "lost_leaks_condensate",
+    "franchise_gas",
+    "rail_or_barge",
+    "gas_holders",
+    "propane_air",
+    "natural_gas",
+    "migration",
+    "refinery_gas",
+    "unknown",
 ]
 
 RELIABILITY_STANDARDS: list[str] = ["ieee_standard", "other_standard"]
@@ -850,9 +904,8 @@ DAMAGE_SUB_TYPES_PHMSAGAS = [
     "root_cause_not_listed",
     "total",
 ]
-INSTALL_DECADE_PATTERN_PHMSAGAS = r"(\d{4}s|unknown_decade|pre_1940|total_decades)"
 
-ASSET_TYPES_RUS7: set[str] = [
+ASSET_TYPES_RUS7: set[str] = {
     "utility_plant_in_service",
     "construction_work_in_progress",
     "total_utility_plant",
@@ -882,8 +935,8 @@ ASSET_TYPES_RUS7: set[str] = [
     "regulatory",
     "other_deferred_debits",
     "total",
-]
-LIABILITY_TYPES_RUS7: set[str] = [
+}
+LIABILITY_TYPES_RUS7: set[str] = {
     "memberships",
     "patronage_capital",
     "operating_margins_prior_years",
@@ -912,9 +965,9 @@ LIABILITY_TYPES_RUS7: set[str] = [
     "regulatory",
     "other_deferred_credits",
     "total_liabilities_and_other_credits",
-]
+}
 
-ASSET_TYPES_RUS12: set[str] = [
+ASSET_TYPES_RUS12: set[str] = {
     "utility_plant_in_service",
     "construction_work_in_progress",
     "total_utility_plant",
@@ -947,8 +1000,8 @@ ASSET_TYPES_RUS12: set[str] = [
     "other_deferred_debits",
     "accumulated_deferred_income_taxes_debits",
     "total",
-]
-LIABILITY_TYPES_RUS12: set[str] = [
+}
+LIABILITY_TYPES_RUS12: set[str] = {
     "memberships",
     "assigned_and_assignable_patronage_capital",
     "retired_this_year_patronage_capital",
@@ -981,16 +1034,16 @@ LIABILITY_TYPES_RUS12: set[str] = [
     "deferred_credits",
     "accumulated_deferred_income_taxes_credits",
     "total_liabilities_and_other_credits",
-]
+}
 
-PRIME_MOVER_TYPES_RUS12: set[str] = [
+PRIME_MOVER_TYPES_RUS12: set[str] = {
     "Hydro",
     "Internal Combustion",
     "Large Wind",
     "Steam",
     "Photovoltaic",
-]
-RENEWABLE_FUEL_TYPES_RUS12: set[str] = [
+}
+RENEWABLE_FUEL_TYPES_RUS12: set[str] = {
     "Hydro",
     "Methane - landfill gas",
     "Wind",
@@ -1000,17 +1053,17 @@ RENEWABLE_FUEL_TYPES_RUS12: set[str] = [
     "Solar - photovoltaic",
     "Solar - thermal generation",
     "Other",
-]
+}
 
-PLANT_TYPE_RUS12: set[str] = [
+PLANT_TYPE_RUS12: set[str] = {
     "combined_cycle",
     "hydro",
     "internal_combustion",
     "nuclear",
     "other",
     "steam",
-]
-SOURCE_OF_ENERGY_RUS12: set[str] = [
+}
+SOURCE_OF_ENERGY_RUS12: set[str] = {
     "energy_available_for_sale",
     "energy_used_by_borrower",
     "purchased_power",
@@ -1025,9 +1078,9 @@ SOURCE_OF_ENERGY_RUS12: set[str] = [
     "net_energy_wheeled",
     "received_into_system_wheeling",
     "energy_furnished_without_charge",
-]
+}
 
-PLANT_COST_TYPES_RUS12: set[str] = [
+PLANT_COST_TYPES_RUS12: set[str] = {
     "allowances",
     "coal_fuel",
     "coolants_and_water",
@@ -1071,19 +1124,19 @@ PLANT_COST_TYPES_RUS12: set[str] = [
     "total_fixed",
     "total_fuel",
     "water_for_power",
-]
+}
 
 LOAN_STATUS_TYPES_RUS7 = ["loan_default", "loan_delinquency"]
 
 LOAN_UNIT_TYPES_RUS7 = ["actual_pct", "anticipated_pct", "ytd_dollars"]
 
-SERVICE_INTERRUPTION_TYPES_RUS7 = [
+SERVICE_INTERRUPTION_TYPES_RUS7 = {
     "major_event",
     "other",
     "planned",
     "power_supplier",
     "total",
-]
+}
 
 SERVICE_INTERRUPTION_PERIODS_RUS7 = ["five_year_average", "annual"]
 
