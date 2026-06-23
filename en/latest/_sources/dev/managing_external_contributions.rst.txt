@@ -45,7 +45,7 @@ To be a truly good first issue, an issue should:
 * not be highly time sensitive: data updates, breaking issues, and other tasks
   that need to happen on a predictable timeline are best handled by Catalyst developers.
 
-To create a good first issue, use the issue template on Github to get started!
+To create a good first issue, use `the issue template <https://github.com/catalyst-cooperative/pudl/issues/new?template=good_first_issue.md>`__ on Github to get started!
 
 -------------------------------------------------------------------------------
 Guidelines for contributor review
