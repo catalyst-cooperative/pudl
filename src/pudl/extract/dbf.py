@@ -1,9 +1,7 @@
 """Generalized DBF extractor for FERC data."""
 
-import contextlib
 import csv
 import importlib.resources
-import json
 import warnings
 import zipfile
 from collections import defaultdict
@@ -514,7 +512,7 @@ class FercDbfExtractor:
             title=f"{self.DATASET} data extracted from DBF filings",
             resources=resources,
         )
-        self.datapackage_path.write_text(json.dumps(package.to_dict(), indent=2))
+        package.to_json(path=str(self.datapackage_path))
 
     @classmethod
     def get_dagster_op(cls) -> Callable:
@@ -550,17 +548,11 @@ class FercDbfExtractor:
             logger.warning(f"Dataset {self.DATASET} has no years configured, skipping")
             return
 
-        self.delete_schema()
         self.initialize_database()
         self.create_sqlite_tables()
         self.load_table_data()
         self.postprocess()
         self.to_frictionless()
-
-    def delete_schema(self):
-        """Drops all tables from the existing sqlite database."""
-        with contextlib.suppress(sa.exc.OperationalError):
-            pudl.helpers.drop_tables(self.sqlite_engine, clobber=True)
 
     def initialize_database(self):
         """Create sqlalchemy engine and metadata."""

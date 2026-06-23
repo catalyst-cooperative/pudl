@@ -44,7 +44,7 @@ jobs:
         shell: bash -l {0}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -73,17 +73,7 @@ jobs:
             ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
             --${{ inputs.publish }}
 
-      - name: Status emoji
-        run: |
-          if [[ "${{ job.status }}" == "success" ]]; then
-            echo "emoji=:check:" >> "$GITHUB_ENV"
-          elif [[ "${{ job.status }}" == "failure" ]]; then
-            echo "emoji=:x:" >> "$GITHUB_ENV"
-          else
-            echo "emoji=:warning:" >> "$GITHUB_ENV"
-          fi
-
-      - name: Post status to pudl-deployments channel
+      - name: Notify Zulip of Zenodo data release status
         if: always()
         uses: zulip/github-actions-zulip/send-message@v2
         with:
@@ -94,7 +84,6 @@ jobs:
           to: "pudl-deployments"
           topic: "build-deploy-pudl"
           content: >
-            ${{ env.emoji }} zenodo-data-release
-            on `${{ github.ref_name }}`
-            finished with status: ${{ job.status }}.
+            ${{ job.status == 'success' && ':check:' || job.status == 'failure' && ':x:' || ':warning:' }}
+            `zenodo-data-release` finished with status `${{ job.status }}` on `${{ github.ref_name }}`
             [See the logs here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).

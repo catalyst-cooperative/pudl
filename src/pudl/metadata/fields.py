@@ -46,6 +46,7 @@ from pudl.metadata.enums import (
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
+    OTHER_DISPOSITION_TYPES_EIA176,
     PLANT_COST_TYPES_RUS12,
     PLANT_PARTS,
     PLANT_TYPE_RUS12,
@@ -60,6 +61,7 @@ from pudl.metadata.enums import (
     SERVICE_STATUS_RUS7,
     SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
+    SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176,
     SUPPLY_TYPES_EIA176,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
@@ -230,9 +232,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
     },
     "other_disposition_all_other_mcf": {
-        # TODO (12-03-2025): When we have created the disaggregated table, update this field description to point at it.
         "description": (
-            "Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            "Other disposition within the report state that does not fall into one "
+            "of the other reported categories in lines 10.1-17.0. This has been "
+            "summed from the detailed data reported by each company on Line 18.4 "
+            "of the original form. Reference conditions for measurement are 14.73 "
+            "psia and 60° Fahrenheit. See "
+            "core_eia176__yearly_gas_disposition_other for the unaggregated "
+            "records."
         ),
         "unit": "Mcf",
         "type": "number",
@@ -240,6 +247,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "consumers": {
         "type": "integer",
         "description": "Number of end-use consumers within the report state.",
+    },
+    "recipient_location": {
+        "type": "string",
+        "description": (
+            "State, territory, country, or other reporting code associated with a "
+            "delivery destination."
+        ),
+    },
+    "recipient_location_type": {
+        "type": "string",
+        "description": (
+            "Type of reported destination code. For EIA-176, subnational means the "
+            "code matched a recognized state, province, or territory code; "
+            "national_or_other means the code was preserved as another reported EIA "
+            "code."
+        ),
+    },
+    "disposition_type": {
+        "type": "string",
+        "description": "Free-text type of other gas disposition reported by the operator.",
     },
     "capacity_mmcfd": {
         "type": "number",
@@ -5317,6 +5344,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "State that the distribution utility is reporting for. Prior to 2004, this may be a list of states."
         ),
     },
+    "mode_of_transportation": {
+        "type": "string",
+        "description": "Means by which natural gas was transported.",
+        "constraints": {"enum": ["pipeline", "truck", "vessel"]},
+    },
     "operating_time_hours": {
         "type": "number",
         "description": "Length of time interval measured.",
@@ -7848,6 +7880,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner."
         ),
+    },
+    "supplier_location": {
+        "type": "string",
+        "description": (
+            "State, territory, country, or other reporting code associated with the "
+            "supplier location for a gas receipt."
+        ),
+    },
+    "supplier_location_type": {
+        "type": "string",
+        "description": (
+            "Type of reported supplier location. Subnational "
+            "means the code matched a recognized state, province, or territory "
+            "code; national_or_other means the code corresponds to a country or region "
+            " (e.g., Gulf of Mexico)."
+        ),
+        "constraints": {"enum": ("subnational", "national_or_other")},
+    },
+    "recipient_name": {
+        "type": "string",
+        "description": "Reported recipient or counterparty name.",
     },
     "supporting_structure_type": {
         "type": "string",
@@ -10457,6 +10510,93 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "operator (sales) or gas transported by the operator (transport)."
             ),
             "constraints": {"enum": REVENUE_CLASSES_EIA176},
+        },
+    },
+    "core_eia176__yearly_supplemental_gaseous_fuel_supplies": {
+        "fuel_type": {
+            "description": "Supplemental gaseous fuel type reported by the operator.",
+            "constraints": {"enum": SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176},
+        },
+        "volume_mcf": {
+            "description": (
+                "Volume of supplemental gaseous fuels supplied by fuel type within "
+                "the report state. Reference conditions for measurement are 14.73 "
+                "psia and 60° Fahrenheit."
+            ),
+            "unit": "Mcf",
+        },
+    },
+    "core_eia176__yearly_gas_exports": {
+        "recipient_location": {
+            "description": (
+                "EIA continuation-line reference code associated with the "
+                "out-of-state gas delivery. Recognized state, province, or "
+                "territory names are normalized to two-letter codes. Other values "
+                "are preserved as reported EIA codes and should not be interpreted "
+                "as ISO country codes."
+            ),
+        },
+        "recipient_location_type": {
+            "constraints": {"enum": ["national_or_other", "subnational"]},
+            "description": (
+                "Type of the EIA continuation-line destination code. A value of "
+                "subnational means the code matched a recognized state, province, "
+                "or territory code. A value of national_or_other means the code "
+                "was preserved as another reported EIA code. This classifies the "
+                "code value only; the paired recipient_name is free text and may "
+                "describe a company, country, location, placeholder, or truncated "
+                "value."
+            ),
+        },
+        "recipient_name": {
+            "description": (
+                "Free-text recipient, counterparty, country, location, or "
+                "placeholder reported on the EIA continuation line for the "
+                "out-of-state gas delivery."
+            ),
+        },
+        "volume_mcf": {
+            "description": (
+                "Volume of natural gas delivered out of the report state. Reference "
+                "conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            ),
+            "unit": "Mcf",
+        },
+    },
+    "core_eia176__yearly_gas_imports": {
+        "supplier_location": {
+            "description": (
+                "EIA continuation-line reference code associated with the gas "
+                "receipt supplier. Recognized state, province, or territory names "
+                "are normalized to two-letter codes. Other values are preserved as "
+                "reported EIA codes and should not be interpreted as ISO country "
+                "codes."
+            ),
+        },
+        "supplier_location_type": {
+            "constraints": {"enum": ["national_or_other", "subnational"]},
+            "description": (
+                "Type of the EIA continuation-line supplier location code. A value "
+                "of subnational means the code matched a recognized state, "
+                "province, or territory code. A value of national_or_other means "
+                "the code was preserved as another reported EIA code. This "
+                "classifies the code value only; the paired supplier_name is free "
+                "text and may describe a company, country, location, placeholder, "
+                "or truncated value."
+            ),
+        },
+        "supplier_name": {
+            "description": (
+                "Free-text supplier, counterparty, country, location, or "
+                "placeholder reported on the EIA continuation line for the gas "
+                "receipt."
+            ),
+        },
+    },
+    "core_eia176__yearly_gas_disposition_other": {
+        "disposition_type": {
+            "description": "Type of other disposition reported by the operator.",
+            "constraints": {"enum": OTHER_DISPOSITION_TYPES_EIA176},
         },
     },
     "core_eia176__yearly_liquefied_natural_gas_inventory": {
