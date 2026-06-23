@@ -32,7 +32,7 @@ jobs:
     env:
       # 'git_tag' and 'deployment_environment' will not be set when triggered by a stable tag push
       GIT_TAG: ${{ inputs.git_tag || github.ref_name }}
-      BUILD_ENVIRONMENT: ${{ inputs.deployment_environment || 'production' }}
+      DEPLOYMENT_ENVIRONMENT: ${{ inputs.deployment_environment || 'production' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -41,7 +41,7 @@ jobs:
 
       - name: Validate tag exists and matches expected pattern
         run: |
-          TAG="${{ env.git_tag }}"
+          TAG="${{ env.GIT_TAG }}"
 
           if [[ ! "$TAG" =~ ^(v\d{4}\.\d{1,2}\.\d{1,2})|(nightly-\d{4}-\d{2}-\d{2})|(branch-.+-\d{4}-\d{2}-\d{2}) ]]; then
             echo "::error::Tag '$TAG' does not look like a nightly, branch, or stable tag!"
@@ -110,7 +110,7 @@ jobs:
             --container-arg="pudl_deploy" \
             --container-arg="${{ env.GIT_TAG }}" \
             --container-arg="--environment" \
-            --container-arg="${{ env.BUILD_ENVIRONMENT }}" \
+            --container-arg="${{ env.DEPLOYMENT_ENVIRONMENT }}" \
             --container-env GITHUB_TOKEN=${{ secrets.PUDL_BOT_PAT }} \
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
