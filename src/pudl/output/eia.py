@@ -210,6 +210,19 @@ def _out_eia__yearly_generators(
             (68609, "16501"),
             (69056, "CBCBA"),
             (69312, "ECHEB"),
+            (37538, "PV1"),
+            (59525, "W8785"),
+            (67351, "WIL2B"),  # spellchecker:ignore
+            (68307, "Matad"),
+            (68308, "WolfB"),
+            (68309, "SunB"),
+            (68310, "IrisB"),
+            (68311, "TwinB"),
+            (68313, "MayB"),
+            (68314, "IssaP"),
+            (68957, "LBRPV"),
+            (69312, "EcheB"),
+            (69712, "162C"),
         ]
     )
     non_null_cols = [
