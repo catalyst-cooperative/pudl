@@ -264,7 +264,8 @@ def update_pudl_viewer(
     """Update PUDL Viewer Cloud Run service to latest image.
 
     Args:
-        service_name: Name of the Cloud Run service (e.g., "pudl-viewer").
+        token: the bearer token to authenticate to GitHub.
+        environment: deploy staging or production version of viewer.
     """
     logger.info("Updating PUDL Viewer Cloud Run service")
 
