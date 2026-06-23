@@ -1228,46 +1228,6 @@ def fix_balancing_authority_codes_with_state(
     return plants
 
 
-def remove_na_plant_util_rows(
-    df: pd.DataFrame,
-    bad_id: str,
-    id_col: str,
-    num_bad_rows: int,
-) -> pd.DataFrame:
-    """Remove rows with plant or utility IDs but no other information.
-
-    The harvesting process pulls IDs from many different parts of many
-    different tables to create a comprehensive list of IDs across
-    EIA. Sometimes the IDs taken from bespoke columns are not
-    referenced anywhere else in the data. These IDs are harvested
-    nonetheless and result in scd or entity table rows with NAs
-    in all fields except the ID and report date.
-
-    Examples of this include IDs pulled from the ``plant_id_eia_direct_support_1``
-    column in the ``_core_eia860__generators_energy_storage`` table
-    or the ``owner_utility_id_eia`` and ``operator_utility_id_eia`` columns in
-    the ``_core_eia860__utilities`` table`.
-
-    This function removes these "bad" rows with NA in all fields except for the
-    ID. If the function finds additional information associated with the ID
-    it will fail as a reminder that this function is no longer necessary.
-    """
-    bad_row = df[df[id_col] == bad_id]
-    assert len(bad_row) == num_bad_rows, (
-        f"Expected exactly {num_bad_rows} row with the bad {id_col} value. "
-        f"Found {len(bad_row)}"
-    )
-    na_cols = [x for x in df.columns if x not in [id_col, "report_date"]]
-    if not bad_row[na_cols].isna().all().all():
-        raise AssertionError(
-            f"The bad {id_col} value {bad_id} is now associated with non-null values. "
-            f"You can delete the remove_na_plant_util_rows call for {id_col} {bad_id}."
-        )
-    logger.info(f"Removing bad row with {id_col} value of {bad_id}")
-    df = df[df[id_col] != bad_id]
-    return df
-
-
 def harvested_entity_asset_factory(
     entity: EiaEntity, io_manager_key: str | None = None
 ) -> AssetsDefinition:
@@ -1327,43 +1287,11 @@ def harvested_entity_asset_factory(
             debug=True,
         )
 
-        if entity == EiaEntity.UTILITIES:
-            # Post-processing specific to the utilities entity tables
-            entity_df = entity_df.pipe(
-                remove_na_plant_util_rows,
-                bad_id=56571,
-                id_col="utility_id_eia",
-                num_bad_rows=1,
-            )
-
-            annual_df = annual_df.pipe(
-                remove_na_plant_util_rows,
-                bad_id=56571,
-                id_col="utility_id_eia",
-                num_bad_rows=1,
-            )
-
         if entity == EiaEntity.PLANTS:
             # Post-processing specific to the plants entity tables
-            entity_df = (
-                _add_additional_epacems_plants(entity_df)
-                .pipe(_add_timezone)
-                .pipe(
-                    remove_na_plant_util_rows,
-                    bad_id=37538,
-                    id_col="plant_id_eia",
-                    num_bad_rows=1,
-                )
-            )
-            annual_df = (
-                fillna_balancing_authority_codes_via_names(annual_df)
-                .pipe(fix_balancing_authority_codes_with_state, plants_entity=entity_df)
-                .pipe(
-                    remove_na_plant_util_rows,
-                    bad_id=37538,
-                    id_col="plant_id_eia",
-                    num_bad_rows=1,
-                )
+            entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
+            annual_df = fillna_balancing_authority_codes_via_names(annual_df).pipe(
+                fix_balancing_authority_codes_with_state, plants_entity=entity_df
             )
 
         # Take all of the column inputs and make them into one big forensics changelog
