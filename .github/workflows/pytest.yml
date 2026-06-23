@@ -23,7 +23,7 @@ jobs:
       # Run code checks for manual dispatches and merge queue runs with code changes.
       run_code_checks: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'merge_group' && steps.filter.outputs.code == 'true') }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
       - uses: dorny/paths-filter@v4
@@ -93,7 +93,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
@@ -130,7 +130,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
@@ -167,7 +167,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
@@ -212,7 +212,7 @@ jobs:
       - name: Collect Workflow Telemetry
         uses: catchpoint/workflow-telemetry-action@v2
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
@@ -304,7 +304,7 @@ jobs:
       - change_filter
     if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Download coverage
         id: download-coverage
         uses: actions/download-artifact@v8
