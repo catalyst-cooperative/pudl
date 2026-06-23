@@ -19,11 +19,12 @@ Here's how to do it!
 --------------------
 
 1. Tell the rest of the team you're planning on releasing a new version of the
-   code in #team. Hold all merges to ``main`` not associated with the release
-   until after the release is complete. Create a
+   code in #team. Create a
    `Versioned Release Checklist
    <https://github.com/catalyst-cooperative/pudl/issues/new/choose>`__ issue to
    track your progress.
+
+3. Create a new branch off of ``main`` to run the build and deployment from.
 
 2. Update the release notes in ``docs/release_notes.rst``: Add a
    paragraph or two explaining what this new release is, and attach a specific
@@ -34,22 +35,17 @@ Here's how to do it!
    Populate the top of the release notes with a blank
    section for the subsequent release.
 
-3. Wait for the nightly build to pass. Ideally, this build contains the updated
-   release notes, but it's okay to proceed so long as the only PR merged after
-   a passing nightly build is the release notes update.
+3. Run a branch build from your new branch by kicking off the ``build-pudl`` workflow.
 
 4. Once everything is passing and the release notes update is in,
-   push a git tag ``vYYYY.M.x`` that points at the head of ``main``. **This
-   should be either the commit which just passed the nightly build, or the
-   merge commit for the release notes update.** Pushing the tag
-   will kick off another build and
-   create a GitHub Release.
+   push a git tag ``vYYYY.M.x`` that points at the head of your branch.Pushing the
+   tag will trigger the ``deploy-pudl`` workflow.
 
 5. Verify that a new release with that tag has appeared on GitHub.
 
 6. Verify that a new archive of the PUDL repository has appeared on Zenodo.
 
-7. If *that* build passes, verify the following:
+7. Once the ``deploy-pudl`` action is complete, verify the following:
 
    * GCS/AWS distribution buckets have the appropriate data
    * ``stable`` and ``vYYYY.M.x`` point at the same Git ref
