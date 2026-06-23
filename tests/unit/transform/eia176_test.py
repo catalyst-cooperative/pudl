@@ -1,9 +1,10 @@
 import pandas as pd
-from pytest import fixture
+from pytest import fixture, raises
 
 from pudl.transform.eia176 import (
     _core_eia176__numeric_data,
     get_wide_table,
+    normalize_continuation_line_location_codes,
     validate_totals,
 )
 
@@ -225,6 +226,63 @@ def test_get_wide_table(df):
     assert row2["operator_name"] == "new mexico gas company"
     assert row2["residential_sales_volume"] == VOLUME_1
     assert pd.isna(row2["some_other_volume"])  # no value for this metric
+
+
+def test_normalize_continuation_line_location_codes():
+    core_pudl__codes_subdivisions = pd.DataFrame(
+        {
+            "subdivision_name": ["New Mexico", "Texas"],
+            "subdivision_code": ["NM", "TX"],
+        }
+    )
+    df = pd.DataFrame({"reference_state": ["new mexico", "tx", "CN"]})
+
+    actual = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="reference_state",
+    )
+
+    assert actual["reference_state"].tolist() == ["NM", "TX", "CN"]
+
+
+def test_normalize_continuation_line_location_codes_preserves_eia_ref_codes():
+    core_pudl__codes_subdivisions = pd.DataFrame(
+        {
+            "subdivision_name": ["New Mexico", "Texas"],
+            "subdivision_code": ["NM", "TX"],
+        }
+    )
+    # These are observed EIA REF_CODE values, not normalized ISO-3166 country codes.
+    df = pd.DataFrame({"reference_state": ["cn", "mx", "c2", "i2", "ja"]})
+
+    actual = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="reference_state",
+    )
+
+    assert actual["reference_state"].tolist() == ["CN", "MX", "C2", "I2", "JA"]
+
+
+def test_normalize_continuation_line_location_codes_rejects_unknown():
+    core_pudl__codes_subdivisions = pd.DataFrame(
+        {
+            "subdivision_name": ["New Mexico", "Texas"],
+            "subdivision_code": ["NM", "TX"],
+        }
+    )
+    df = pd.DataFrame({"reference_state": ["not a code"]})
+
+    with raises(
+        ValueError,
+        match=r"Unknown reference_state values: \['not a code'\]",
+    ):
+        normalize_continuation_line_location_codes(
+            df,
+            core_pudl__codes_subdivisions,
+            column="reference_state",
+        )
 
 
 def test_validate__totals(df):
