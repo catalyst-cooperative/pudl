@@ -17498,3 +17498,4 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 17956,,,67845,Sierra Solar LLC,EIA860 ER 2025
 17957,,,67846,Drennan Energy Storage LLC,EIA860 ER 2025
 17958,,,67847,Kearsarge Grissom LLC,EIA860 ER 2025
+17959,,,56571,,"EIA860 ER 2025 -- comes from owner_utility_id_eia and operator_utility_id_eia columns in _core_eia860__utilities table. Doesn't show up anywhere else, but necessary for foreign key mapping."
