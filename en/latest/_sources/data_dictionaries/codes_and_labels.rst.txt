@@ -147,6 +147,8 @@ Code table containing descriptions of categorical codes for boiler status in the
     - CO
   * - ts
     - TS
+  * - os
+    - OS
 
 
 .. _core_eia__codes_boiler_types_:
@@ -341,6 +343,8 @@ Code table containing descriptions of categorical codes for emissions control eq
     - LNB
   * - DP
     - DSI
+  * - SNCR
+    - SN
 
 
 .. _core_eia__codes_energy_sources_:

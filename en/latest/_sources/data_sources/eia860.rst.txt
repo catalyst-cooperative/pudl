@@ -18,9 +18,9 @@ EIA Form 860 -- Annual Electric Generator Report
    * - Source Format
      - Microsoft Excel (.xls/.xlsx)
    * - Download Size
-     - 273 MB
+     - 297 MB
    * - Temporal Coverage
-     - 2001-2024
+     - 2001-2025
    * - PUDL Code
      - ``eia860``
    * - Unprocessed Source Data Archive

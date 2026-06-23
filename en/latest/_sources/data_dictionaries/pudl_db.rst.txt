@@ -2056,7 +2056,7 @@ Annual time series of the cost, type, operating status, retirement date, and ins
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -2206,7 +2206,7 @@ Annual time series of generator ownership. Includes only jointly or third-party 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -3798,7 +3798,7 @@ Monthly time series of of estimated net generation and fuel consumption by gener
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -3971,7 +3971,7 @@ Monthly time series of of estimated net generation and fuel consumption associat
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -21713,7 +21713,7 @@ Association table providing connections between EIA boiler IDs and EIA cooling s
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -21805,7 +21805,7 @@ Association table providing connections between boilers and generators.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -21928,7 +21928,7 @@ Association table providing connections between EIA boiler IDs and EIA stack and
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -22026,7 +22026,7 @@ Association table providing connections between EIA boiler IDs and emissions con
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -22507,7 +22507,7 @@ Slowly changing dimension (SCD) table describing attributes of emissions control
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -22967,7 +22967,7 @@ Slowly changing dimension (SCD) table describing attributes of energy storage wh
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -23152,7 +23152,7 @@ Slowly changing dimension (SCD) table describing attributes of generators that m
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -23382,7 +23382,7 @@ Slowly changing dimension (SCD) table describing attributes of solar generators 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -23549,7 +23549,7 @@ Slowly changing dimension (SCD) table describing attributes of wind generators t
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -23662,7 +23662,7 @@ Slowly changing dimension (SCD) table describing attributes of generator ownersh
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -29535,7 +29535,7 @@ Code table containing descriptions of categorical codes for the averaging period
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -29621,7 +29621,7 @@ Code table containing descriptions of categorical codes for balancing authoritie
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -29811,7 +29811,7 @@ Code table containing descriptions of categorical codes for boiler-generator ass
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -29897,7 +29897,7 @@ Code table containing descriptions of categorical codes for boiler status in the
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -29983,7 +29983,7 @@ Code table containing descriptions of categorical codes for boiler regulatory ty
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30331,7 +30331,7 @@ Code table containing descriptions of categorical codes for cooling towers.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30417,7 +30417,7 @@ Code table containing descriptions of categorical codes for cooling water source
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30503,7 +30503,7 @@ Code table containing descriptions of categorical codes for cooling water.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30589,7 +30589,7 @@ Code table containing descriptions of categorical codes for emissions control eq
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30795,7 +30795,7 @@ Code table containing descriptions of categorical codes for manufacturers of boi
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30881,7 +30881,7 @@ Code table containing descriptions of categorical codes for boiler firing types 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31149,7 +31149,7 @@ Code table containing descriptions of categorical codes for compliance strategie
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31321,7 +31321,7 @@ Code table containing descriptions of categorical codes for compliance strategie
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31407,7 +31407,7 @@ Code table containing descriptions of categorical codes for the operational stat
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31493,7 +31493,7 @@ Code table containing descriptions of categorical codes for units of measurement
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31681,7 +31681,7 @@ Code table containing descriptions of categorical codes for compliance strategie
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31767,7 +31767,7 @@ Code table containing descriptions of categorical codes for units of measurement
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31943,7 +31943,7 @@ Code table containing descriptions of categorical codes for levels of statutes a
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32214,7 +32214,7 @@ Code table containing descriptions of categorical codes for compliance strategie
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32300,7 +32300,7 @@ Code table containing descriptions of categorical codes for units of measurement
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32386,7 +32386,7 @@ Code table containing descriptions of categorical codes for flue gas desulfuriza
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32472,7 +32472,7 @@ Code table containing descriptions of categorical codes for steam plants in the 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32558,7 +32558,7 @@ Code table containing descriptions of categorical codes for energy storage enclo
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32644,7 +32644,7 @@ Code table containing descriptions of categorical codes for energy storage techn
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32730,7 +32730,7 @@ Code table containing descriptions of categorical codes for boiler bottoms in th
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32816,7 +32816,7 @@ Code table containing descriptions of categorical codes for wind quality classes
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -47766,7 +47766,7 @@ Information about cooling equipment at generation facilities.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -47997,7 +47997,7 @@ Information about flue gas desulfurization equipment at generation facilities.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:

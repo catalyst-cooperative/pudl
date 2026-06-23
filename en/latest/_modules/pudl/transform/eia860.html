@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia860 &#8212; PUDL 2026.6.2.dev5 documentation</title>
+    <title>pudl.transform.eia860 &#8212; PUDL 2026.6.2.dev6 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=e1358d4c"></script>
+    <script src="../../../_static/documentation_options.js?v=c18417a7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev5 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev5 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev6 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -1310,13 +1310,21 @@ window.runMermaid = runMermaid;</script>
     <span class="n">raw_eia860__generator_energy_storage_retired</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the energy storage specific generators table.&quot;&quot;&quot;</span>
-    <span class="n">storage_ex</span> <span class="o">=</span> <span class="n">raw_eia860__generator_energy_storage_existing</span>
+    <span class="n">storage_ex</span> <span class="o">=</span> <span class="n">raw_eia860__generator_energy_storage_existing</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">drop_records_with_null_in_column</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+        <span class="n">num_of_expected_nulls</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Plant ID 62844 in 2025 and one notes columns in 2025</span>
+    <span class="p">)</span>
     <span class="n">storage_pr</span> <span class="o">=</span> <span class="n">raw_eia860__generator_energy_storage_proposed</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
         <span class="n">drop_records_with_null_in_column</span><span class="p">,</span>
         <span class="n">column</span><span class="o">=</span><span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-        <span class="n">num_of_expected_nulls</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Plant ID 62844 in 2023-4</span>
+        <span class="n">num_of_expected_nulls</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># Plant ID 62844 in 2023-4 and one notes column from 2025</span>
     <span class="p">)</span>
-    <span class="n">storage_re</span> <span class="o">=</span> <span class="n">raw_eia860__generator_energy_storage_retired</span>
+    <span class="n">storage_re</span> <span class="o">=</span> <span class="n">raw_eia860__generator_energy_storage_retired</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">drop_records_with_null_in_column</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+        <span class="n">num_of_expected_nulls</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># One notes columns in 2025</span>
+    <span class="p">)</span>
 
     <span class="c1"># every boolean column in the raw storage tables has a served_ or stored_ prefix</span>
     <span class="n">boolean_columns_to_fix</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">storage_ex</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^served_|^stored_|^is_&quot;</span><span class="p">))</span>
