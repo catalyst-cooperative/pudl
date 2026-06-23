@@ -20,10 +20,10 @@ Examples:
         pudl_deploy v2025.2.3
 
     Test deployment changes with staging mode:
-        pudl_deploy nightly-2025-02-05 --staging
+        pudl_deploy nightly-2025-02-05 --environment staging
 
     Deploy branch build outputs to staging area for review:
-        pudl_deploy branch-my-branch-2025-02-05 --staging
+        pudl_deploy branch-my-branch-2025-02-05 --environment staging
 
 Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
 triggers, and Cloud Run deployments. This allows safe validation of deployment
@@ -157,16 +157,13 @@ def main(
     2. Upload to cloud storage (GCS and S3)
     3. Update git branches (if not staging)
     4. Set GCS temporary hold for versioned releases (stable only, not staging)
-    5. Trigger Zenodo release (if not staging)
+    5. Trigger Zenodo release
     6. Update Cloud Run service (nightly only, not staging)
     """
-    # Check if staging deployment
-    staging = environment == "staging"
-
     # Check if tag is a nightly or stable build
     deploy_type = get_deployment_type_from_tag(git_tag)
 
-    if (deploy_type == DeploymentType.BRANCH) and (not staging):
+    if (deploy_type == DeploymentType.BRANCH) and (environment != "staging"):
         raise RuntimeError(
             "Branch builds should never be used to deploy to production!"
         )
@@ -188,7 +185,7 @@ def main(
         source_dir=local_copy_path,
         deploy_type=deploy_type,
         git_tag=git_tag,
-        staging=staging,
+        environment=environment,
         github_token=os.environ["GITHUB_TOKEN"],
     )
 
