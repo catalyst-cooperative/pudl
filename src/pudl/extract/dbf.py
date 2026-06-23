@@ -401,7 +401,7 @@ class FercDbfReader:
 
 
 class FercDbfExtractor:
-    """Generalized class for loading data from foxpro databases into SQLAlchemy.
+    """Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.
 
     When subclassing from this generic extractor, one should implement dataset specific
     logic in the following manner:
@@ -554,7 +554,7 @@ class FercDbfExtractor:
         return inner_method
 
     def execute(self):
-        """Runs the extraction of the data from dbf to sqlite."""
+        """Runs the extraction of the data from dbf to sqlite and parquet."""
         logger.info(
             f"Running dbf extraction for {self.DATASET} with data_config: {self.data_config}"
         )
