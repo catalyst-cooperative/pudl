@@ -1,16 +1,21 @@
 """Test Dagster IO Managers."""
 
+import json
 import logging
 from importlib.metadata import version
 from pathlib import Path
 
 import alembic.config
+import duckdb
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
+import polars as pl
 import pytest
 import sqlalchemy as sa
 from dagster import AssetKey, DagsterInstance, build_input_context, build_output_context
 from dagster._core.execution.context.input import InputContext
 from dagster._core.execution.context.output import OutputContext
+from shapely.geometry import Point
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from pudl.dagster.io_managers import (
@@ -666,3 +671,158 @@ def test_report_year_fixing_duration():
 def test_report_year_fixing_bad_values(df, match):
     with pytest.raises(ValueError, match=match):
         FercXbrlSqliteIOManager.refine_report_year(df, xbrl_years=[2021, 2022])
+
+
+# ---------------------------------------------------------------------------
+# GeoDataFrame / GeoParquet tests for PudlParquetIOManager
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def minimal_geo_resource() -> "Resource":
+    """Minimal PUDL Resource with a geometry column for IO manager tests."""
+    return Resource(
+        name="test_geo",
+        schema={
+            "fields": [
+                {"name": "geo_id", "type": "integer", "description": "geo id"},
+                {"name": "geometry", "type": "geometry", "description": "shape"},
+            ],
+            "primary_key": ["geo_id"],
+        },
+        description="Test geo resource",
+    )
+
+
+@pytest.fixture
+def geo_parquet_output_path(
+    tmp_path: Path, minimal_geo_resource: "Resource", mocker
+) -> Path:
+    """Write a small GeoDataFrame through PudlParquetIOManager; return the file path."""
+    mocker.patch(
+        "pudl.dagster.io_managers.Resource.from_id",
+        return_value=minimal_geo_resource,
+    )
+    mock_paths = mocker.MagicMock()
+    out_path = tmp_path / "test_geo.parquet"
+    mock_paths.parquet_path.return_value = out_path
+
+    manager = PudlParquetIOManager(pudl_paths=mock_paths)
+    gdf = gpd.GeoDataFrame(
+        {
+            "geo_id": pd.array([1, 2], dtype="Int64"),
+            "geometry": gpd.GeoSeries(
+                [Point(0.0, 0.0), Point(1.0, 1.0)], crs="EPSG:4326"
+            ),
+        }
+    )
+    context: OutputContext = build_output_context(asset_key=AssetKey("test_geo"))
+    manager.handle_output(context, gdf)
+    return out_path
+
+
+def test_parquet_io_manager_writes_geodataframe(geo_parquet_output_path: Path) -> None:
+    """PudlParquetIOManager should write a GeoDataFrame to a Parquet file."""
+    assert geo_parquet_output_path.exists()
+    assert geo_parquet_output_path.stat().st_size > 0
+
+
+def test_geoparquet_output_has_valid_geo_metadata(
+    geo_parquet_output_path: Path,
+) -> None:
+    """Written file must carry spec-compliant GeoParquet 1.0.0 metadata with PROJJSON CRS."""
+    import pyarrow.parquet as pq
+
+    raw_meta = pq.read_metadata(geo_parquet_output_path).metadata
+    assert b"geo" in raw_meta, "GeoParquet 'geo' metadata key is missing"
+
+    geo = json.loads(raw_meta[b"geo"].decode())
+    assert geo.get("version") == "1.0.0"
+    assert geo["primary_column"] == "geometry"
+    col_meta = geo["columns"]["geometry"]
+    assert col_meta["encoding"] == "WKB"
+
+    # CRS must be a PROJJSON dict, not a WKT string — required by DuckDB >= 1.5.
+    crs = col_meta["crs"]
+    assert isinstance(crs, dict), (
+        "CRS must be PROJJSON dict, not WKT string (DuckDB 1.5 compatibility)"
+    )
+    # $schema must point to the PROJJSON schema — presence distinguishes PROJJSON
+    # from an arbitrary dict (e.g. a raw authority dict).
+    assert crs.get("$schema", "").startswith("https://proj.org/schemas/"), (
+        f"CRS '$schema' is not a PROJJSON schema URL: {crs.get('$schema')!r}"
+    )
+    # GeographicCRS is the correct PROJJSON type for EPSG:4326 (WGS 84).
+    assert crs.get("type") == "GeographicCRS", (
+        f"Expected PROJJSON type 'GeographicCRS', got {crs.get('type')!r}"
+    )
+    # Top-level 'id' must identify EPSG:4326 so consumers can resolve the CRS.
+    crs_id = crs.get("id", {})
+    assert crs_id.get("authority") == "EPSG", (
+        f"Expected CRS authority 'EPSG', got {crs_id.get('authority')!r}"
+    )
+    assert crs_id.get("code") == 4326, (
+        f"Expected CRS code 4326, got {crs_id.get('code')!r}"
+    )
+    # Coordinate system must be ellipsoidal (lat/lon axes), not projected (x/y).
+    cs = crs.get("coordinate_system", {})
+    assert cs.get("subtype") == "ellipsoidal", (
+        f"Expected ellipsoidal coordinate system, got {cs.get('subtype')!r}"
+    )
+
+
+def test_geoparquet_roundtrip_via_geopandas(geo_parquet_output_path: Path) -> None:
+    """gpd.read_parquet() must restore the original CRS and geometry column."""
+    gdf = gpd.read_parquet(geo_parquet_output_path)
+    assert gdf.crs is not None
+    assert gdf.crs.to_epsg() == 4326
+    assert gdf.geometry.name == "geometry"
+    assert len(gdf) == 2
+
+
+def test_geoparquet_readable_by_pandas(geo_parquet_output_path: Path) -> None:
+    """pd.read_parquet() must not raise even though it cannot reconstruct geometries."""
+    df = pd.read_parquet(geo_parquet_output_path)
+    assert "geometry" in df.columns
+    assert len(df) == 2
+
+
+def test_geoparquet_readable_by_polars(geo_parquet_output_path: Path) -> None:
+    """pl.read_parquet() must not raise; geometry column appears as Binary."""
+    df = pl.read_parquet(geo_parquet_output_path)
+    assert "geometry" in df.columns
+    assert len(df) == 2
+
+
+def test_geoparquet_duckdb_recognizes_geometry_column(
+    geo_parquet_output_path: Path,
+) -> None:
+    """DuckDB >= 1.5 with the spatial extension must expose geometry as GEOMETRY type."""
+    con = duckdb.connect()
+    con.load_extension("spatial")
+    schema = con.execute(
+        f"DESCRIBE SELECT * FROM read_parquet('{geo_parquet_output_path}')"  # noqa: S608
+    ).df()
+    geo_row = schema[schema["column_name"] == "geometry"]
+    assert not geo_row.empty
+    col_type: str = geo_row["column_type"].iloc[0]
+    assert col_type.startswith("GEOMETRY"), (
+        f"Expected GEOMETRY type but got {col_type!r}. "
+        "This likely means the geo metadata CRS format is unreadable by DuckDB."
+    )
+
+
+def test_parquet_io_manager_rejects_unsupported_output_type(
+    tmp_path: Path, minimal_geo_resource: "Resource", mocker
+) -> None:
+    """handle_output must raise TypeError for objects that are not DataFrame/GDF/LazyFrame."""
+    mocker.patch(
+        "pudl.dagster.io_managers.Resource.from_id",
+        return_value=minimal_geo_resource,
+    )
+    mock_paths = mocker.MagicMock()
+    mock_paths.parquet_path.return_value = tmp_path / "test_geo.parquet"
+    manager = PudlParquetIOManager(pudl_paths=mock_paths)
+    context: OutputContext = build_output_context(asset_key=AssetKey("test_geo"))
+    with pytest.raises(TypeError, match="PudlParquetIOManager only supports"):
+        manager.handle_output(context, {"not": "a dataframe"})

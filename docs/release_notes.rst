@@ -2,13 +2,11 @@
 PUDL Release Notes
 =======================================================================================
 
-
 .. _release-v2026.7.0:
 
 ---------------------------------------------------------------------------------------
 v2026.7.0 (2026-07-XX)
 ---------------------------------------------------------------------------------------
-
 
 Enhancements
 ^^^^^^^^^^^^
@@ -41,12 +39,27 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a DuckDB >= 1.5 incompatibility with PUDL's GeoParquet outputs. DuckDB 1.5
+  requires CRS metadata in PROJJSON format, but the old
+  :class:`~pudl.dagster.io_managers.PudlGeoParquetIOManager` wrote a WKT string,
+  causing ``"Geoparquet column 'geometry' has invalid CRS"`` when the spatial extension
+  was loaded. Switching to native :func:`geopandas.GeoDataFrame.to_parquet` produces
+  spec-compliant GeoParquet 1.0.0 metadata. See issues :issue:`4061,5074` and PR
+  :pr:`5347`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Merged ``PudlGeoParquetIOManager`` into
+  :class:`~pudl.dagster.io_managers.PudlParquetIOManager` and retired the
+  ``geoparquet_io_manager`` Dagster resource key. The four geo assets
+  (``out_censusdp1tract__states/counties/tracts`` and
+  ``out_ferc714__georeferenced_respondents``) now use ``parquet_io_manager``.
+  Updated the DuckDB dependency to ``>=1.5,<1.6``. See issues :issue:`4061,5074` and
+  PR :pr:`5347`.
 
 .. _release-v2026.6.1:
 
