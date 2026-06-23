@@ -3,11 +3,14 @@
 This CLI orchestrates deployment of completed PUDL ETL builds to public cloud
 storage (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.
 
-The script takes a git tag, and an optional staging flag for safe testing. It will
-use the git tag to identify builds associated with the tag, and determine whether
-the deployment is intended to be a nightly, stable, or branch deployment. It expects nightly
-deployments to have tags conforming to the pattern 'nightly-YYYY-MM-DD' and stable
-deployments 'vYYYY.M.D'.
+The script takes a git tag, and an environment option to switch between 'staging' and
+'production' deployments. It will use the git tag to identify builds associated with
+the tag, and determine whether the deployment is intended to be a nightly, stable, or
+branch deployment. It expects nightly deployments to have tags conforming to the pattern
+'nightly-YYYY-MM-DD', 'branch-{MY_BRANCH_NAME}-YYYY-MM-DD', or 'vYYYY.M.D'. If doing
+a staging deployment, outputs will be deployed to the same distribution paths as a
+production deployment, but with a 'staging' prefix added to the path (i.e.
+'s3://pudl.catalyst.coop/staging/nightly').
 
 Examples:
     Deploy nightly build to production:

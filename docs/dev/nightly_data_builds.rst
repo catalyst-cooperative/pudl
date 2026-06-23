@@ -90,9 +90,21 @@ This action takes a git tag, which should already have an associated build, and 
 it to determine the deployment type (``stable``, ``branch``, or ``nightly``). It will
 then find outputs associated with the build and upload them to GCS and S3,
 update the git branch associated with the deployment type, and trigger a zenodo release.
-This action can also take an optional ``staging`` flag, in which case outputs will be
-uploaded to a dedicated staging area, and will not update the git branch or trigger a
-Zenodo release. Branch builds will always trigger a ``staging`` deployment.
+
+This action also takes a ``deployment_environment`` option, which can be used to switch
+between ``production`` and ``staging`` deployments. During a ``staging`` deployment,
+outputs will be uploaded to a dedicated staging area, and will trigger a sandbox
+Zenodo release. The staging area for outputs will mirror the paths used during a
+``production`` deployment, but they will include a 'staging' prefix. This looks like
+the following:
+
+*Nightly production deployment paths:*
+- s3://pudl.catalyst.coop/nightly
+- s3://pudl.catalyst.coop/eel-hole
+
+*Nightly staging deployment paths:*
+- s3://pudl.catalyst.coop/staging/nightly
+- s3://pudl.catalyst.coop/staging/eel-hole
 
 The ``deploy-pudl`` action will be automatically triggered upon a successful build,
 or when a stable tag is pushed, which should look like ``vYYYY.DD.MM``. This means
