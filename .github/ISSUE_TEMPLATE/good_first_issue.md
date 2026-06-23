@@ -16,13 +16,13 @@ assignees: ''
 
 ## Set-up Instructions
 
-If it is your first time in the PUDL repo, start by following the <a href="<https://docs.catalyst.coop/pudl/en/nightly/dev/dev_setup.html">Development Setup instructions<a/>. Once you have your environment setup, we recommend trying to <a href="https://docs.catalyst.coop/pudl/en/nightly/dev/run_the_etl.html">run the PUDL ETL<a/>.
+If it is your first time in the PUDL repo, start by following the <a href="<https://docs.catalyst.coop/pudl/en/nightly/dev/dev_setup.html">Development Setup instructions<a/>. To be sure your environment is working, we recommend trying to <a href="https://docs.catalyst.coop/pudl/en/nightly/dev/run_the_etl.html">run the PUDL ETL<a/>.
 
 ## Tasklist
 
-[//]: # (Catalyster: Flesh out an implementation w/ clear steps! Point to modules or variables directly. Use code snippets instead of shorthand suggestions i.e. `pixi run pytest-ci` instead of "run the fast tests". Don't use internal lingo - rather than widely agreed upon terms i.e. say entity resolution instead of harvesting. Add links to references when referring to jargon or domain specific terms.)
+[//]: # (Catalyster: Flesh out an implementation w/ clear steps! Point to modules or variables directly. Use code snippets instead of shorthand suggestions, e.g., `pixi run pytest-ci` instead of "run the fast tests". Don't use internal lingo - rather than widely agreed upon terms, e.g., say entity resolution instead of harvesting. Add links to references when referring to jargon or domain-specific terms.)
 
-The following taskslist is a suggested implementation. You may learn that our initial assumptions were off once you get into it or we missed a step or you may see a different implementation that you'd like to suggest. Don't feel too constrained by this tasklist, but check-in via a comment on this issue is your desired implementation diverges greatly from this suggestion. We're sure you have good ideas - we just don't want to make good use of your time.
+The following tasklist is a suggested implementation. You may learn that our initial assumptions were off once you get into it or we missed a step or you may come up with a different implementation that you'd like to suggest. Don't feel too constrained by this tasklist, but check in via a comment on this issue if your desired implementation diverges greatly from this suggestion. We're sure you have good ideas - we just  want to make good use of your time.
 
 * [ ] Step 1
 * [ ] Step 2
