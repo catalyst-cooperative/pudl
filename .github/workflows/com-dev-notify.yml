@@ -17,7 +17,7 @@ env:
   username: ""
   url: ""
   org: catalyst-cooperative
-  ignored_users: '["pre-commit-ci[bot]", "krivard", "dependabot[bot]", "github-actions[bot]"], "catalyst-workflow-triggerer[bot]"'
+  ignored_users: '["pre-commit-ci[bot]", "krivard", "dependabot[bot]", "github-actions[bot]", "catalyst-workflow-triggerer[bot]"]'
 jobs:
   com-dev-notify:
     name: Notify Catalyst of community activity
