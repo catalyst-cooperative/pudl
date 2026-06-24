@@ -12,15 +12,14 @@ def _():
 @app.cell
 def imports():
     import os
-    from pathlib import Path
-
     import marimo as mo
+    import polars as pl
     import matplotlib
     import matplotlib.pyplot as plt
     import matplotlib.ticker as mticker
     import matplotx
     import numpy as np
-    import polars as pl
+    from pathlib import Path
 
     matplotlib.style.use(matplotx.styles.onedark)
     plt.rcParams.update({"font.size": 16, "axes.titlesize": 22, "axes.labelsize": 18})
@@ -59,8 +58,7 @@ def net_metering_misc(parquet_dir, pl):
 def non_net_metering_customer_fuel_class(parquet_dir, pl):
     non_net_metering_customer_fuel_class = (
         pl.scan_parquet(
-            parquet_dir
-            / "core_eia861__yearly_non_net_metering_customer_fuel_class.parquet"
+            parquet_dir / "core_eia861__yearly_non_net_metering_customer_fuel_class.parquet"
         )
         .filter(pl.col("state") == "PA")
         .collect()
@@ -71,9 +69,7 @@ def non_net_metering_customer_fuel_class(parquet_dir, pl):
 @app.cell
 def non_net_metering_misc(parquet_dir, pl):
     non_net_metering_misc = (
-        pl.scan_parquet(
-            parquet_dir / "core_eia861__yearly_non_net_metering_misc.parquet"
-        )
+        pl.scan_parquet(parquet_dir / "core_eia861__yearly_non_net_metering_misc.parquet")
         .filter(pl.col("state") == "PA")
         .collect()
     )
@@ -182,6 +178,7 @@ def size_bin_helpers(pl):
     ]
     bin_order = [e[2] for e in bin_edges]
 
+
     def size_hist(df: pl.DataFrame) -> pl.DataFrame:
         """Pre-aggregate system sizes into log-spaced labeled bins (count and MW)."""
         _d = df.filter(pl.col("Nameplate") > 0).with_columns(
@@ -199,6 +196,7 @@ def size_bin_helpers(pl):
             )
         return pl.DataFrame(rows)
 
+
     # MW-scale bins for EIA-860 utility/commercial generators (capacity_mw column)
     mw_bin_edges = [
         (-0.5, 0.0, "<1 MW"),
@@ -208,6 +206,7 @@ def size_bin_helpers(pl):
         (1.7, 2.5, "50–300 MW"),
     ]
     mw_bin_order = [e[2] for e in mw_bin_edges]
+
 
     def mw_size_hist(df: pl.DataFrame) -> pl.DataFrame:
         """Pre-aggregate generator capacities into log-spaced MW bins (count and MW)."""
@@ -240,6 +239,7 @@ def plot_helpers():
         "industrial": "#98c379",
         "transportation": "#c678dd",
     }
+
 
     def style_ax(ax):
         ax.set_axisbelow(True)
@@ -297,6 +297,7 @@ def gats_annual(gats_registrations, pl):
         pl.col("Primary Fuel Type").str.strip_chars().alias("fuel_type")
     )
 
+
     def _gats_cumulative(fuel: str) -> pl.DataFrame:
         return (
             _gats.filter(
@@ -305,12 +306,11 @@ def gats_annual(gats_registrations, pl):
                 & (pl.col("date_online").dt.year() <= 2026)
             )
             .group_by(pl.col("date_online").dt.year().cast(pl.Int64).alias("year"))
-            .agg(
-                pl.col("Nameplate").sum().alias("added_mw"), pl.len().alias("n_systems")
-            )
+            .agg(pl.col("Nameplate").sum().alias("added_mw"), pl.len().alias("n_systems"))
             .sort("year")
             .with_columns(pl.col("added_mw").cum_sum().alias("cumulative_mw"))
         )
+
 
     gats_solar_annual = _gats_cumulative("SUN")
     gats_ee_annual = _gats_cumulative("EE")
@@ -319,9 +319,9 @@ def gats_annual(gats_registrations, pl):
     gats_solar_annual = _all_years.join(
         gats_solar_annual, on="year", how="left"
     ).with_columns(pl.col("cumulative_mw").forward_fill().fill_null(0))
-    gats_ee_annual = _all_years.join(
-        gats_ee_annual, on="year", how="left"
-    ).with_columns(pl.col("cumulative_mw").forward_fill().fill_null(0))
+    gats_ee_annual = _all_years.join(gats_ee_annual, on="year", how="left").with_columns(
+        pl.col("cumulative_mw").forward_fill().fill_null(0)
+    )
     return gats_ee_annual, gats_solar_annual
 
 
@@ -337,6 +337,7 @@ def generators_annual_eia860(
             .agg(pl.col("capacity_mw").sum().alias("total_mw"))
             .sort("year")
         )
+
 
     def _annual_additions(df: pl.DataFrame) -> pl.DataFrame:
         _latest = (
@@ -356,10 +357,7 @@ def generators_annual_eia860(
         )
         _adds = (
             _latest.group_by(
-                pl.col("generator_operating_date")
-                .dt.year()
-                .cast(pl.Int32)
-                .alias("year")
+                pl.col("generator_operating_date").dt.year().cast(pl.Int32).alias("year")
             )
             .agg(
                 pl.col("capacity_mw").sum().alias("added_mw"),
@@ -372,6 +370,7 @@ def generators_annual_eia860(
             pl.col("n_generators").fill_null(0),
         )
 
+
     solar_capacity_annual = _annual_capacity(solar_generators_eia860)
     solar_additions_annual = _annual_additions(solar_generators_eia860)
     battery_capacity_annual = _annual_capacity(battery_generators_eia860)
@@ -381,6 +380,31 @@ def generators_annual_eia860(
         solar_additions_annual,
         solar_capacity_annual,
     )
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Initial Thoughts on PA DERs
+    - There's ~1 GW of net-metered Solar PV reported in EIA-861.
+    - There's basically no PV reported as non-net-meterd in EIA-861.
+    - Almost none of the net-metered Solar PV is reported as having battery storage associated with it.
+    - There's almost 3x that much PV reported in GATS as of early 2026.
+    - EIA-861 net-metered PV and GATS PV were almost identical to each other through 2019, and still very close through 2022. From 2023 on GATS has grown very rapidly.
+    - About 2/3 of the GATS projects are larger than you'd expect for residential. There's almost 1 GW of projets > 10MW in size. I imagine that these big projects took off in 2023 (maybe IRA inspired?) and account for the 2/3 of projects that aren't showing up in the EIA-861 Net Metering data. We could look at how project size has evolved over time in the GATS data.
+    - EE projects reported in GATS are only 10s of MW.
+    - EE projects reported in EIA-861 are like 200 MW. Currently dominated by commercial.
+    - Residential DR programs are almost nonexistent. 40 MW and only one utility reporting to EIA-861 (PECO discontinued in 2021)
+    - Industrial DR programs **were** ~600 MW in 2020, but the requirements became much more stringent in 2021 and everybody bailed.
+    - Utility scale solar PV from EIA-860 is ~1GW, which seems to line up fairly well with the GATS data.
+    - There's basically no battery storage reported in PA at utility scale either.
+    - Bi-directional AMI is basically universal according to EIA-861.
+
+    ## Policies?
+    - Seems like there's lots of room for adding cheap batteries to existing solar to allow peak shifting and displace gas peakers.
+    - At least based on the EIA-861 data, it also seems like there's a lot of room for modern demand response programs, especially given universal bi-directional AMI.
+    """)
+    return
 
 
 @app.cell
@@ -404,10 +428,7 @@ def chart_capacity(
         net_metering_data.filter(pl.col("technology").is_in(_techs))
         .sort("year")
         .pivot(
-            on="technology",
-            index="year",
-            values="capacity_mw",
-            aggregate_function="sum",
+            on="technology", index="year", values="capacity_mw", aggregate_function="sum"
         )
         .fill_null(0)
         .sort("year")
@@ -418,9 +439,7 @@ def chart_capacity(
     _bottom = [0.0] * len(_years)
     for _t in _techs:
         _vals = _pivot[_t].to_list()
-        _ax.bar(
-            _years, _vals, bottom=_bottom, label=_t, color=tech_colors[_t], width=0.8
-        )
+        _ax.bar(_years, _vals, bottom=_bottom, label=_t, color=tech_colors[_t], width=0.8)
         _bottom = [b + v for b, v in zip(_bottom, _vals)]
 
     _ax.set_title("Pennsylvania Net-Metered DER Capacity by Technology (EIA-861)")
@@ -488,10 +507,7 @@ def chart_non_net_metered_capacity(
         .group_by("year", "technology")
         .agg(pl.col("capacity_mw").sum())
         .pivot(
-            on="technology",
-            index="year",
-            values="capacity_mw",
-            aggregate_function="sum",
+            on="technology", index="year", values="capacity_mw", aggregate_function="sum"
         )
         .fill_null(0)
         .sort("year")
@@ -513,9 +529,7 @@ def chart_non_net_metered_capacity(
         )
         _bottom = [b + v for b, v in zip(_bottom, _vals)]
 
-    _ax.set_title(
-        "Pennsylvania Non-Net-Metered BTM DER Capacity by Technology (EIA-861)"
-    )
+    _ax.set_title("Pennsylvania Non-Net-Metered BTM DER Capacity by Technology (EIA-861)")
     _ax.set_xlabel("Year")
     _ax.set_ylabel("Installed Capacity (MW)")
     _ax.legend(loc="upper left")
@@ -547,10 +561,7 @@ def chart_customers(
         .group_by([pl.col("report_date").dt.year().alias("year"), "customer_class"])
         .agg(pl.col("customers").sum())
         .pivot(
-            on="customer_class",
-            index="year",
-            values="customers",
-            aggregate_function="sum",
+            on="customer_class", index="year", values="customers", aggregate_function="sum"
         )
         .fill_null(0)
         .sort("year")
@@ -572,9 +583,7 @@ def chart_customers(
             )
             _bottom = [b + v for b, v in zip(_bottom, _vals)]
 
-    _ax.set_title(
-        "Pennsylvania Net Metering Customer Count by Customer Class (EIA-861)"
-    )
+    _ax.set_title("Pennsylvania Net Metering Customer Count by Customer Class (EIA-861)")
     _ax.set_xlabel("Year")
     _ax.set_ylabel("Net Metering Customers")
     _ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
@@ -598,9 +607,9 @@ def chart_storage(
     plt,
     style_ax,
 ):
-    _pa_s = net_metering_data.filter(
-        pl.col("technology") == "PV + Battery Storage"
-    ).sort("year")
+    _pa_s = net_metering_data.filter(pl.col("technology") == "PV + Battery Storage").sort(
+        "year"
+    )
     _years = _pa_s["year"].to_list()
 
     _fig, _ax1 = plt.subplots(figsize=FIGSIZE)
@@ -763,9 +772,7 @@ def chart_gats_additions(
         marker="o",
         markersize=10,
     )
-    _ax2.fill_between(
-        _gcum["year"], _gcum["cumulative_mw"], alpha=0.25, color="#f4a020"
-    )
+    _ax2.fill_between(_gcum["year"], _gcum["cumulative_mw"], alpha=0.25, color="#f4a020")
     _ax2.set_title("Pennsylvania Solar PV — Cumulative GATS-Registered Capacity")
     _ax2.set_xlabel("Year")
     _ax2.set_ylabel("Cumulative Capacity (MW)")
@@ -797,12 +804,8 @@ def chart_gats_size_hist(
     _n_sun = _sun_all.height
 
     _sun_x = np.arange(len(bin_order))
-    _sun_counts = [
-        _hist_sun.filter(pl.col("bin") == b)["count"].sum() for b in bin_order
-    ]
-    _sun_mw = [
-        _hist_sun.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in bin_order
-    ]
+    _sun_counts = [_hist_sun.filter(pl.col("bin") == b)["count"].sum() for b in bin_order]
+    _sun_mw = [_hist_sun.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in bin_order]
 
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
     _ax1.bar(_sun_x, _sun_counts, color="#f4a020")
@@ -852,9 +855,7 @@ def chart_ee_size_hist(
 
     _ee_x = np.arange(len(bin_order))
     _ee_counts = [_hist_ee.filter(pl.col("bin") == b)["count"].sum() for b in bin_order]
-    _ee_mw = [
-        _hist_ee.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in bin_order
-    ]
+    _ee_mw = [_hist_ee.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in bin_order]
 
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
     _ax1.bar(_ee_x, _ee_counts, color="#2ca02c")
@@ -955,8 +956,7 @@ def chart_eia860_solar_hist(
         _hist_solar.filter(pl.col("bin") == b)["count"].sum() for b in mw_bin_order
     ]
     _solar_mw = [
-        _hist_solar.filter(pl.col("bin") == b)["capacity_mw"].sum()
-        for b in mw_bin_order
+        _hist_solar.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in mw_bin_order
     ]
 
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
@@ -971,9 +971,7 @@ def chart_eia860_solar_hist(
     style_ax(_ax1)
 
     _ax2.bar(_sx, _solar_mw, color="#f4a020")
-    _ax2.set_title(
-        "PA Utility-Scale Solar PV — Installed Capacity (MW) by Size (EIA-860)"
-    )
+    _ax2.set_title("PA Utility-Scale Solar PV — Installed Capacity (MW) by Size (EIA-860)")
     _ax2.set_ylabel("Installed Capacity (MW)")
     _ax2.set_xlabel("Generator Size")
     _ax2.set_xticks(_sx)
@@ -1019,9 +1017,7 @@ def chart_eia860_solar_capacity(
         _scum_years, _scum_mw, color="#f4a020", linewidth=5, marker="o", markersize=10
     )
     _ax2.fill_between(_scum_years, _scum_mw, alpha=0.25, color="#f4a020")
-    _ax2.set_title(
-        "PA Utility-Scale Solar PV — Cumulative Installed Capacity (EIA-860)"
-    )
+    _ax2.set_title("PA Utility-Scale Solar PV — Cumulative Installed Capacity (EIA-860)")
     _ax2.set_xlabel("Year")
     _ax2.set_ylabel("Installed Capacity (GW)")
     _ax2.set_xlim(*YEAR_XLIM)
@@ -1112,9 +1108,7 @@ def chart_eia860_batt_capacity(
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
 
     _ax1.bar(_badd_years, _badd_mw, color="#5ba4cf")
-    _ax1.set_title(
-        "PA Utility-Scale Battery Storage — Annual Capacity Additions (EIA-860)"
-    )
+    _ax1.set_title("PA Utility-Scale Battery Storage — Annual Capacity Additions (EIA-860)")
     _ax1.set_ylabel("Capacity Added (MW)")
     _ax1.set_xlim(*YEAR_XLIM)
     _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
@@ -1174,11 +1168,7 @@ def chart_ee_by_class(
     for _cls in _classes:
         _vals = _ee_pivot[_cls].to_list()
         _ax.bar(
-            _years,
-            _vals,
-            bottom=_bottom,
-            label=_cls.capitalize(),
-            color=CLASS_COLORS[_cls],
+            _years, _vals, bottom=_bottom, label=_cls.capitalize(), color=CLASS_COLORS[_cls]
         )
         _bottom = [b + v for b, v in zip(_bottom, _vals)]
 
@@ -1222,6 +1212,7 @@ def chart_dr_by_class(
         .sort("year")
     )
 
+
     def _pivot_dr(df, value_col):
         return (
             df.pivot(
@@ -1233,6 +1224,7 @@ def chart_dr_by_class(
             .fill_null(0)
             .sort("year")
         )
+
 
     _pot = _pivot_dr(_dr, "potential_mw")
     _act = _pivot_dr(_dr, "actual_mw")
@@ -1423,6 +1415,7 @@ def chart_ami_penetration(
         .sort("year", "customer_class")
     )
 
+
     def _meter_inventory(customer_class: str) -> pl.DataFrame:
         fixed_total = _total_2013_map[customer_class]
         return (
@@ -1442,6 +1435,7 @@ def chart_ami_penetration(
             .sort("year")
         )
 
+
     def _stacked_bar(ax, df: pl.DataFrame, scale: float, unit: str) -> None:
         _yrs = df["year"].to_list()
         _ami = [v / scale for v in df["ami"].to_list()]
@@ -1452,15 +1446,9 @@ def chart_ami_penetration(
         _b2 = [a + b for a, b in zip(_ami, _amr)]
         _b3 = _b2
         ax.bar(
-            _yrs,
-            _ami,
-            label="AMI (two-way)",
-            color=CLASS_COLORS["residential"],
-            width=0.8,
+            _yrs, _ami, label="AMI (two-way)", color=CLASS_COLORS["residential"], width=0.8
         )
-        ax.bar(
-            _yrs, _amr, bottom=_b1, label="AMR (one-way)", color="#d19a66", width=0.8
-        )
+        ax.bar(_yrs, _amr, bottom=_b1, label="AMR (one-way)", color="#d19a66", width=0.8)
         ax.bar(_yrs, _std, bottom=_b2, label="Standard", color="#5c6370", width=0.8)
         ax.bar(
             _yrs,
@@ -1473,10 +1461,9 @@ def chart_ami_penetration(
         )
         ax.set_xlim(*YEAR_XLIM)
         ax.set_ylim(0)
-        ax.yaxis.set_major_formatter(
-            mticker.FuncFormatter(lambda x, _: f"{x:,.1f}{unit}")
-        )
+        ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.1f}{unit}"))
         style_ax(ax)
+
 
     _fig, (_ax1, _ax2, _ax3, _ax4) = plt.subplots(4, 1, figsize=(16, 22))
 
