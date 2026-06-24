@@ -247,7 +247,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.13.14-h6add32d_100_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-calamine-0.6.1-py313h5c7d99a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-crfsuite-0.9.12-py313h5d5ffb9_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/python-duckdb-1.4.4-py313h7033f15_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/python-duckdb-1.5.4-py313h7033f15_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-igraph-1.0.0-py313h7033f15_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pyyaml-6.0.3-py313h3dea7bd_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pyzmq-27.1.0-py312hda471dd_3.conda
@@ -923,7 +923,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-3.13.14-h6185564_100_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-calamine-0.6.1-py313he77ad87_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-crfsuite-0.9.12-py313h59403f9_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-duckdb-1.4.3-py313he352c24_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-duckdb-1.5.4-py313he352c24_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-igraph-1.0.0-py313he352c24_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyyaml-6.0.3-py313hd3a54cf_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyzmq-27.1.0-py312hdf0a211_3.conda
@@ -1949,7 +1949,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/python-3.13.14-h3d5d122_100_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/python-calamine-0.6.1-py313ha265c4a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/python-crfsuite-0.9.12-py313h8b5a893_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/python-duckdb-1.4.4-py313hf4a977d_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/python-duckdb-1.5.4-py313hbc4457e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/python-igraph-1.0.0-py313hc4a83b5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pyyaml-6.0.3-py313h7c6a591_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pyzmq-27.1.0-py312h2ac7433_3.conda
@@ -2578,7 +2578,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.13.14-h448ec07_100_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-calamine-0.6.1-py313h0b74987_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-crfsuite-0.9.12-py313h1188861_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-duckdb-1.4.4-py313h6deaedc_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-duckdb-1.5.4-py313h6deaedc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-igraph-1.0.0-py313h0e822ff_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pyyaml-6.0.3-py313h65a2061_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pyzmq-27.1.0-py312h022ad19_3.conda
@@ -2876,7 +2876,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.13.14-h6add32d_100_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-calamine-0.6.1-py313h5c7d99a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-crfsuite-0.9.12-py313h5d5ffb9_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/python-duckdb-1.4.4-py313h7033f15_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/python-duckdb-1.5.4-py313h7033f15_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-igraph-1.0.0-py313h7033f15_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pyyaml-6.0.3-py313h3dea7bd_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pyzmq-27.1.0-py312hda471dd_3.conda
@@ -3577,7 +3577,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-3.13.14-h6185564_100_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-calamine-0.6.1-py313he77ad87_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-crfsuite-0.9.12-py313h59403f9_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-duckdb-1.4.3-py313he352c24_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-duckdb-1.5.4-py313he352c24_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-igraph-1.0.0-py313he352c24_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyyaml-6.0.3-py313hd3a54cf_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/pyzmq-27.1.0-py312hdf0a211_3.conda
@@ -4625,7 +4625,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/python-3.13.14-h3d5d122_100_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/python-calamine-0.6.1-py313ha265c4a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/python-crfsuite-0.9.12-py313h8b5a893_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/python-duckdb-1.4.4-py313hf4a977d_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/python-duckdb-1.5.4-py313hbc4457e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/python-igraph-1.0.0-py313hc4a83b5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pyyaml-6.0.3-py313h7c6a591_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pyzmq-27.1.0-py312h2ac7433_3.conda
@@ -5266,7 +5266,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.13.14-h448ec07_100_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-calamine-0.6.1-py313h0b74987_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-crfsuite-0.9.12-py313h1188861_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-duckdb-1.4.4-py313h6deaedc_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-duckdb-1.5.4-py313h6deaedc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-igraph-1.0.0-py313h0e822ff_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pyyaml-6.0.3-py313h65a2061_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pyzmq-27.1.0-py312h022ad19_3.conda
@@ -6003,6 +6003,7 @@ packages:
   - python_abi 3.13.* *_cp313
   - tomli
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/coverage?source=hash-mapping
   run_exports: {}
@@ -7016,6 +7017,7 @@ packages:
   - parquet-cpp <0.0a0
   - arrow-cpp <0.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -7033,6 +7035,7 @@ packages:
   - libgcc >=14
   - libstdcxx >=14
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -7052,6 +7055,7 @@ packages:
   - libutf8proc >=2.11.3,<2.12.0a0
   - re2
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -7071,6 +7075,7 @@ packages:
   - libparquet 23.0.1 h7376487_15_cpu
   - libstdcxx >=14
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -7092,6 +7097,7 @@ packages:
   - libprotobuf >=6.33.5,<6.33.6.0a0
   - libstdcxx >=14
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -8008,6 +8014,7 @@ packages:
   - libthrift >=0.22.0,<0.22.1.0a0
   - openssl >=3.5.7,<4.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -9670,9 +9677,9 @@ packages:
   run_exports: {}
   size: 329028
   timestamp: 1766538854981
-- conda: https://conda.anaconda.org/conda-forge/linux-64/python-duckdb-1.4.4-py313h7033f15_0.conda
-  sha256: 5d187027af99cef53d7a448999ebd7334b5e0efb9d7fd08fe5136a3d3524aeb6
-  md5: 272f38001ab7d5996dc832aa1736fbe5
+- conda: https://conda.anaconda.org/conda-forge/linux-64/python-duckdb-1.5.4-py313h7033f15_0.conda
+  sha256: a7089e89d629e90575eb92d8a3c4d99f31aac96b528a319a634ed0e3581dedf2
+  md5: 2670a127f39d239654fd08d37cb44bcc
   depends:
   - __glibc >=2.17,<3.0.a0
   - libgcc >=14
@@ -9684,8 +9691,8 @@ packages:
   purls:
   - pkg:pypi/duckdb?source=hash-mapping
   run_exports: {}
-  size: 16314035
-  timestamp: 1769722975422
+  size: 17163298
+  timestamp: 1781708640995
 - conda: https://conda.anaconda.org/conda-forge/linux-64/python-igraph-1.0.0-py313h7033f15_0.conda
   sha256: 0b5b67ad6a768e65d15e4c977c5f12280d8cac1c4e4a9258d7d66e941abac173
   md5: 2e61e980f7352899d5c3e8a2498e89cd
@@ -10156,6 +10163,7 @@ packages:
   constrains:
   - __glibc >=2.17
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/ty?source=compressed-mapping
   run_exports: {}
@@ -10290,6 +10298,7 @@ packages:
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   license: BSD-2-Clause
+  license_family: BSD
   purls:
   - pkg:pypi/wrapt?source=compressed-mapping
   run_exports: {}
@@ -11445,6 +11454,7 @@ packages:
   - python_abi 3.13.* *_cp313
   - tomli
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/coverage?source=hash-mapping
   run_exports: {}
@@ -12429,6 +12439,7 @@ packages:
   - parquet-cpp <0.0a0
   - apache-arrow-proc =*=cpu
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -12445,6 +12456,7 @@ packages:
   - libgcc >=14
   - libstdcxx >=14
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -12463,6 +12475,7 @@ packages:
   - libutf8proc >=2.11.3,<2.12.0a0
   - re2
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -12481,6 +12494,7 @@ packages:
   - libparquet 23.0.1 h87079af_15_cpu
   - libstdcxx >=14
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -12501,6 +12515,7 @@ packages:
   - libprotobuf >=6.33.5,<6.33.6.0a0
   - libstdcxx >=14
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -13360,6 +13375,7 @@ packages:
   - libthrift >=0.22.0,<0.22.1.0a0
   - openssl >=3.5.7,<4.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -14949,9 +14965,9 @@ packages:
   run_exports: {}
   size: 322042
   timestamp: 1766538911361
-- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-duckdb-1.4.3-py313he352c24_0.conda
-  sha256: 374774448e0aab0bbb712b8b3f0bbed221d20999a217dfe8673ac1cb3acdd7a7
-  md5: d9af127bef0d819f13f97d31f0321f97
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-duckdb-1.5.4-py313he352c24_0.conda
+  sha256: 50c2f79c47cd7b947aff13e9b6b720baa4ee8656cc0fb8c5b30935a8a4e2390e
+  md5: 9846efab1886e806b54bb8c10feaefc0
   depends:
   - libgcc >=14
   - libstdcxx >=14
@@ -14963,8 +14979,8 @@ packages:
   purls:
   - pkg:pypi/duckdb?source=hash-mapping
   run_exports: {}
-  size: 15057792
-  timestamp: 1765372886988
+  size: 15845407
+  timestamp: 1781708719175
 - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/python-igraph-1.0.0-py313he352c24_0.conda
   sha256: dc76dcd49c015b06efb1fce551fc0a943701b420eedb8dddb3410e811f3d7086
   md5: 24c9000077edb758564a00c5d9732a2f
@@ -15417,6 +15433,7 @@ packages:
   constrains:
   - __glibc >=2.17
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/ty?source=hash-mapping
   run_exports: {}
@@ -16387,7 +16404,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/beautifulsoup4?source=compressed-mapping
+  - pkg:pypi/beautifulsoup4?source=hash-mapping
   run_exports: {}
   size: 92704
   timestamp: 1780853175566
@@ -17032,6 +17049,7 @@ packages:
   - python >=3.10
   - requests >=2.28.1,<3
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/databricks-sdk?source=hash-mapping
   run_exports: {}
@@ -19108,6 +19126,7 @@ packages:
   - typing_extensions
   - python
   license: BSD-3-Clause
+  license_family: BSD
   purls:
   - pkg:pypi/mistune?source=compressed-mapping
   run_exports: {}
@@ -22400,6 +22419,7 @@ packages:
   - python_abi 3.13.* *_cp313
   - tomli
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/coverage?source=hash-mapping
   run_exports: {}
@@ -23240,6 +23260,7 @@ packages:
   - parquet-cpp <0.0a0
   - apache-arrow-proc =*=cpu
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -23260,6 +23281,7 @@ packages:
   - libopentelemetry-cpp >=1.27.0,<1.28.0a0
   - libprotobuf >=6.33.5,<6.33.6.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -23282,6 +23304,7 @@ packages:
   - libutf8proc >=2.11.3,<2.12.0a0
   - re2
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -23304,6 +23327,7 @@ packages:
   - libparquet 23.0.1 h0f82bca_15_cpu
   - libprotobuf >=6.33.5,<6.33.6.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -23324,6 +23348,7 @@ packages:
   - libcxx >=21
   - libprotobuf >=6.33.5,<6.33.6.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -23973,6 +23998,7 @@ packages:
   - libthrift >=0.22.0,<0.22.1.0a0
   - openssl >=3.5.7,<4.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -25403,11 +25429,11 @@ packages:
   run_exports: {}
   size: 312098
   timestamp: 1766538866250
-- conda: https://conda.anaconda.org/conda-forge/osx-64/python-duckdb-1.4.4-py313hf4a977d_0.conda
-  sha256: f1105f00a8cfc5373aa5f90cd74f733041228ab41ef6a0a5ef53dcd8037a55eb
-  md5: ffbb806a11f112f4523929734adb7377
+- conda: https://conda.anaconda.org/conda-forge/osx-64/python-duckdb-1.5.4-py313hbc4457e_0.conda
+  sha256: 7cdb12a4a6cd845365ed0cf85afe56404e5b5129267902b831898f48e77dc846
+  md5: 24adcad48fa18e95d7b5e555139f6783
   depends:
-  - __osx >=10.13
+  - __osx >=11.0
   - libcxx >=19
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
@@ -25416,8 +25442,8 @@ packages:
   purls:
   - pkg:pypi/duckdb?source=hash-mapping
   run_exports: {}
-  size: 12322710
-  timestamp: 1769722519820
+  size: 13759166
+  timestamp: 1781710397401
 - conda: https://conda.anaconda.org/conda-forge/osx-64/python-igraph-1.0.0-py313hc4a83b5_0.conda
   sha256: d8ffdab6871d0bb18765b4f70cf9072e8d8474e6b2db037f11f7695f83c28faa
   md5: 714c96529a30f325353a9664eae72ff7
@@ -25776,6 +25802,7 @@ packages:
   constrains:
   - __osx >=11.0
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/ty?source=hash-mapping
   run_exports: {}
@@ -25888,6 +25915,7 @@ packages:
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   license: BSD-2-Clause
+  license_family: BSD
   purls:
   - pkg:pypi/wrapt?source=compressed-mapping
   run_exports: {}
@@ -26639,6 +26667,7 @@ packages:
   - python_abi 3.13.* *_cp313
   - tomli
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/coverage?source=hash-mapping
   run_exports: {}
@@ -27493,6 +27522,7 @@ packages:
   - apache-arrow-proc =*=cpu
   - arrow-cpp <0.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -27513,6 +27543,7 @@ packages:
   - libopentelemetry-cpp >=1.27.0,<1.28.0a0
   - libprotobuf >=6.33.5,<6.33.6.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -27535,6 +27566,7 @@ packages:
   - libutf8proc >=2.11.3,<2.12.0a0
   - re2
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -27557,6 +27589,7 @@ packages:
   - libparquet 23.0.1 h840b369_15_cpu
   - libprotobuf >=6.33.5,<6.33.6.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -27577,6 +27610,7 @@ packages:
   - libcxx >=21
   - libprotobuf >=6.33.5,<6.33.6.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -28226,6 +28260,7 @@ packages:
   - libthrift >=0.22.0,<0.22.1.0a0
   - openssl >=3.5.7,<4.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   run_exports:
     weak:
@@ -29684,9 +29719,9 @@ packages:
   run_exports: {}
   size: 298375
   timestamp: 1766538903706
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-duckdb-1.4.4-py313h6deaedc_0.conda
-  sha256: 822db0fc0929ea5a853b9c79bb9677746e6ddc9a8e2239b959b1b1fcacab3979
-  md5: 43c7fd47311552966da6f91f8c2bdf2f
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-duckdb-1.5.4-py313h6deaedc_0.conda
+  sha256: 48276932beff2dd7043b505415c9e77415618fe4bf0cce97037a09b3c5f3713a
+  md5: 588d42e098682aefece463e1e8318eba
   depends:
   - __osx >=11.0
   - libcxx >=19
@@ -29698,8 +29733,8 @@ packages:
   purls:
   - pkg:pypi/duckdb?source=hash-mapping
   run_exports: {}
-  size: 10705514
-  timestamp: 1769722544377
+  size: 12055449
+  timestamp: 1781710099758
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-igraph-1.0.0-py313h0e822ff_0.conda
   sha256: 96adf2540078b0e9ef7d6941daf0202e5c9bca26fd7a89398c3c2deca2738e66
   md5: 7973698b350318e787b662264c82d1a5
@@ -30065,6 +30100,7 @@ packages:
   constrains:
   - __osx >=11.0
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/ty?source=compressed-mapping
   run_exports: {}
@@ -30181,6 +30217,7 @@ packages:
   - python >=3.13,<3.14.0a0 *_cp313
   - python_abi 3.13.* *_cp313
   license: BSD-2-Clause
+  license_family: BSD
   purls:
   - pkg:pypi/wrapt?source=compressed-mapping
   run_exports: {}

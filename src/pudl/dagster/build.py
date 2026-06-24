@@ -18,7 +18,6 @@ from pudl.dagster.assets import default_assets
 from pudl.dagster.io_managers import (
     FercDbfSqliteIOManager,
     FercXbrlSqliteIOManager,
-    PudlGeoParquetIOManager,
     PudlMixedFormatIOManager,
     PudlParquetIOManager,
     default_io_managers,
@@ -81,7 +80,6 @@ def _build_interactive_resources(
             pudl_paths=pudl_paths,
         ),
         "parquet_io_manager": PudlParquetIOManager(pudl_paths=pudl_paths),
-        "geoparquet_io_manager": PudlGeoParquetIOManager(pudl_paths=pudl_paths),
         "pudl_io_manager": PudlMixedFormatIOManager(pudl_paths=pudl_paths),
         "ferc1_dbf_sqlite_io_manager": FercDbfSqliteIOManager(
             global_data_config=global_data_config,
