@@ -99,6 +99,7 @@ Submodules
    :maxdepth: 1
 
    /autoapi/pudl/scripts/auto_match_utilities/index
+   /autoapi/pudl/scripts/check_path_permissions/index
    /autoapi/pudl/scripts/dbt_helper/index
    /autoapi/pudl/scripts/deploy/index
    /autoapi/pudl/scripts/dghome/index

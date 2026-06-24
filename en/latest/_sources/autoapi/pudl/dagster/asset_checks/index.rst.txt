@@ -104,6 +104,6 @@ Module Contents
 
 
 .. py:data:: high_memory_assets
-   :value: ['out_vcerare__hourly_available_capacity_factor', 'core_epacems__hourly_emissions']
+   :value: ['out_vcerare__hourly_available_capacity_factor', 'core_epacems__hourly_emissions',...
 
 

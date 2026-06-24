@@ -75,7 +75,7 @@ Module Contents
    Create parquet file with metadata on any CSV parsing errors.
 
 
-.. py:function:: extract_ferceqr(context: dagster.AssetExecutionContext, ferceqr_data_config: pudl.dagster.resources.FercEqrDataConfig = FercEqrDataConfig()) -> tuple[pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData]
+.. py:function:: extract_ferceqr(context: dagster.AssetExecutionContext, ferceqr_archive: pudl.dagster.resources.FercEqrArchiveResource = FercEqrArchiveResource()) -> tuple[pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData]
 
    Extract year quarter from CSVs and load to parquet files.
 

@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.resources &#8212; PUDL 2026.6.2.dev11 documentation</title>
+    <title>pudl.dagster.resources &#8212; PUDL 2026.6.2.dev12 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../_static/documentation_options.js?v=ea49e440"></script>
+    <script src="../../../../_static/documentation_options.js?v=caf87eab"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
   
   
 </a></div>
@@ -603,6 +603,7 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/check_path_permissions/index.html">pudl.scripts.check_path_permissions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/deploy/index.html">pudl.scripts.deploy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/dghome/index.html">pudl.scripts.dghome</a></li>
@@ -789,13 +790,16 @@ resource wiring.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.ferc_xbrl_runtime_settings" title="pudl.dagster.resources.ferc_xbrl_runtime_settings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_xbrl_runtime_settings</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.ferceqr_data_config" title="pudl.dagster.resources.ferceqr_data_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_data_config</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.ferceqr_archive" title="pudl.dagster.resources.ferceqr_archive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_archive</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.zulip_notification_resource" title="pudl.dagster.resources.zulip_notification_resource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zulip_notification_resource</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.ferceqr_deployment_targets" title="pudl.dagster.resources.ferceqr_deployment_targets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_deployment_targets</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.default_resources" title="pudl.dagster.resources.default_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_resources</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.zulip_notification_resource" title="pudl.dagster.resources.zulip_notification_resource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zulip_notification_resource</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.default_resources" title="pudl.dagster.resources.default_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_resources</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -821,8 +825,14 @@ resource wiring.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.DatastoreResource" title="pudl.dagster.resources.DatastoreResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatastoreResource</span></code></a></p></td>
 <td><p>Dagster resource to interact with Zenodo archives.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.FercEqrDataConfig" title="pudl.dagster.resources.FercEqrDataConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercEqrDataConfig</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.FercEqrArchiveResource" title="pudl.dagster.resources.FercEqrArchiveResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercEqrArchiveResource</span></code></a></p></td>
 <td><p>Configure which archived FERC EQR filings are available for extraction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig" title="pudl.dagster.resources.FercEqrDeploymentTargetConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercEqrDeploymentTargetConfig</span></code></a></p></td>
+<td><p>A single deployment destination for FERC EQR outputs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.resources.FercEqrDeploymentResource" title="pudl.dagster.resources.FercEqrDeploymentResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercEqrDeploymentResource</span></code></a></p></td>
+<td><p>One or more deployment destinations for FERC EQR outputs.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.resources.ZulipNotificationResource" title="pudl.dagster.resources.ZulipNotificationResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZulipNotificationResource</span></code></a></p></td>
 <td><p>Send notifications to Zulip streams via the Zulip API.</p></td>
@@ -960,22 +970,94 @@ the source code.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDataConfig">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">FercEqrDataConfig</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDataConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDataConfig" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrArchiveResource">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">FercEqrArchiveResource</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrArchiveResource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrArchiveResource" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.ConfigurableResource</span></code></a></p>
 <p>Configure which archived FERC EQR filings are available for extraction.</p>
-<p>The default value of <code class="docutils literal notranslate"><span class="pre">ferceqr_archive_uri</span></code> points to the published archive of FERC
-EQR filings on GCS which is what we use in production. For testing or development,
-this can be overridden to point to a local path with a subset of the archive.</p>
+<p>The default value of <code class="docutils literal notranslate"><span class="pre">path</span></code> points to the published archive of FERC EQR filings on
+GCS which is what we use in production. For testing or development, this can be
+overridden to point to a local path with a subset of the archive.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_uri">
-<span class="sig-name descname"><span class="pre">ferceqr_archive_uri</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDataConfig.ferceqr_archive_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_uri" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrArchiveResource.path">
+<span class="sig-name descname"><span class="pre">path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrArchiveResource.path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrArchiveResource.path" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_path">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ferceqr_archive_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">upath.UPath</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDataConfig.ferceqr_archive_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_path" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrArchiveResource.upath">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">upath</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">upath.UPath</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrArchiveResource.upath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrArchiveResource.upath" title="Link to this definition">#</a></dt>
 <dd><p>Return UPath pointing to archive base path.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentTargetConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">FercEqrDeploymentTargetConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">config_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentTargetConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/config/#dagster.Config" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.Config</span></code></a></p>
+<p>A single deployment destination for FERC EQR outputs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">path</span></code> is a UPath-compatible string: an absolute local directory path, <code class="docutils literal notranslate"><span class="pre">file://</span></code>
+URI, <code class="docutils literal notranslate"><span class="pre">gs://</span></code> URI, or <code class="docutils literal notranslate"><span class="pre">s3://</span></code> URI.  <code class="docutils literal notranslate"><span class="pre">storage_options</span></code> is unpacked as
+<code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> when constructing the <code class="xref py py-class docutils literal notranslate"><span class="pre">UPath</span></code>, allowing per-target fsspec
+settings such as <code class="docutils literal notranslate"><span class="pre">requester_pays=True</span></code> for requester-pays GCS buckets.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentTargetConfig.path">
+<span class="sig-name descname"><span class="pre">path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentTargetConfig.path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig.path" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentTargetConfig.storage_options">
+<span class="sig-name descname"><span class="pre">storage_options</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentTargetConfig.storage_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig.storage_options" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentTargetConfig.append_build_id">
+<span class="sig-name descname"><span class="pre">append_build_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentTargetConfig.append_build_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig.append_build_id" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentTargetConfig.validate_path">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">validate_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentTargetConfig.validate_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig.validate_path" title="Link to this definition">#</a></dt>
+<dd><p>Validate deployment targets as remote URLs or local directories.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentResource">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">FercEqrDeploymentResource</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentResource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentResource" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/api/dagster/resources/#dagster.ConfigurableResource" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.ConfigurableResource</span></code></a></p>
+<p>One or more deployment destinations for FERC EQR outputs.</p>
+<p>Deployment targets can be provided directly as structured config or loaded from a
+YAML file. Direct <code class="docutils literal notranslate"><span class="pre">deployment_targets</span></code> take precedence. When neither explicit
+targets nor a deployment config path are provided, deployment is skipped.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentResource.deployment_targets">
+<span class="sig-name descname"><span class="pre">deployment_targets</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig" title="pudl.dagster.resources.FercEqrDeploymentTargetConfig"><span class="pre">FercEqrDeploymentTargetConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentResource.deployment_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentResource.deployment_targets" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentResource.deployment_config_path">
+<span class="sig-name descname"><span class="pre">deployment_config_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentResource.deployment_config_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentResource.deployment_config_path" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentResource.from_yaml">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deployment_config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.dagster.resources.FercEqrDeploymentResource" title="pudl.dagster.resources.FercEqrDeploymentResource"><span class="pre">FercEqrDeploymentResource</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentResource.from_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentResource.from_yaml" title="Link to this definition">#</a></dt>
+<dd><p>Create a FERC EQR deployment resource from a YAML config file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentResource.configured_targets">
+<span class="sig-name descname"><span class="pre">configured_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig" title="pudl.dagster.resources.FercEqrDeploymentTargetConfig"><span class="pre">FercEqrDeploymentTargetConfig</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentResource.configured_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentResource.configured_targets" title="Link to this definition">#</a></dt>
+<dd><p>Return deployment-target config with explicit overrides taking precedence.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.dagster.resources.FercEqrDeploymentResource.resolved_targets">
+<span class="sig-name descname"><span class="pre">resolved_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">upath.UPath</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#FercEqrDeploymentResource.resolved_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.FercEqrDeploymentResource.resolved_targets" title="Link to this definition">#</a></dt>
+<dd><p>Return the list of <code class="xref py py-class docutils literal notranslate"><span class="pre">UPath</span></code> deployment destinations.</p>
+<p>Each configured target is converted to a <code class="xref py py-class docutils literal notranslate"><span class="pre">UPath</span></code> using its
+provided <code class="docutils literal notranslate"><span class="pre">storage_options</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1043,8 +1125,13 @@ ensures a notification hiccup never crashes an asset.</p>
 <dd></dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="pudl.dagster.resources.ferceqr_data_config">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">ferceqr_data_config</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#ferceqr_data_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.ferceqr_data_config" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.dagster.resources.ferceqr_archive">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">ferceqr_archive</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#ferceqr_archive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.ferceqr_archive" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.dagster.resources.ferceqr_deployment_targets">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.resources.</span></span><span class="sig-name descname"><span class="pre">ferceqr_deployment_targets</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/resources.html#ferceqr_deployment_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.resources.ferceqr_deployment_targets" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -1140,9 +1227,24 @@ ensures a notification hiccup never crashes an asset.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.DatastoreResource.create_resource"><code class="docutils literal notranslate"><span class="pre">DatastoreResource.create_resource()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDataConfig"><code class="docutils literal notranslate"><span class="pre">FercEqrDataConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_uri"><code class="docutils literal notranslate"><span class="pre">FercEqrDataConfig.ferceqr_archive_uri</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDataConfig.ferceqr_archive_path"><code class="docutils literal notranslate"><span class="pre">FercEqrDataConfig.ferceqr_archive_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrArchiveResource"><code class="docutils literal notranslate"><span class="pre">FercEqrArchiveResource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrArchiveResource.path"><code class="docutils literal notranslate"><span class="pre">FercEqrArchiveResource.path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrArchiveResource.upath"><code class="docutils literal notranslate"><span class="pre">FercEqrArchiveResource.upath</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentTargetConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig.path"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentTargetConfig.path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig.storage_options"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentTargetConfig.storage_options</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig.append_build_id"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentTargetConfig.append_build_id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentTargetConfig.validate_path"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentTargetConfig.validate_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentResource"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentResource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentResource.deployment_targets"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentResource.deployment_targets</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentResource.deployment_config_path"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentResource.deployment_config_path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentResource.from_yaml"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentResource.from_yaml()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentResource.configured_targets"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentResource.configured_targets()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.FercEqrDeploymentResource.resolved_targets"><code class="docutils literal notranslate"><span class="pre">FercEqrDeploymentResource.resolved_targets()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.ZulipNotificationResource"><code class="docutils literal notranslate"><span class="pre">ZulipNotificationResource</span></code></a><ul class="nav section-nav flex-column">
@@ -1158,7 +1260,8 @@ ensures a notification hiccup never crashes an asset.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.zenodo_doi_settings_resource"><code class="docutils literal notranslate"><span class="pre">zenodo_doi_settings_resource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.datastore_resource"><code class="docutils literal notranslate"><span class="pre">datastore_resource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.ferc_xbrl_runtime_settings"><code class="docutils literal notranslate"><span class="pre">ferc_xbrl_runtime_settings</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.ferceqr_data_config"><code class="docutils literal notranslate"><span class="pre">ferceqr_data_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.ferceqr_archive"><code class="docutils literal notranslate"><span class="pre">ferceqr_archive</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.ferceqr_deployment_targets"><code class="docutils literal notranslate"><span class="pre">ferceqr_deployment_targets</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.zulip_notification_resource"><code class="docutils literal notranslate"><span class="pre">zulip_notification_resource</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.resources.default_resources"><code class="docutils literal notranslate"><span class="pre">default_resources</span></code></a></li>
 </ul>

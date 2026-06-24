@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferceqr &#8212; PUDL 2026.6.2.dev11 documentation</title>
+    <title>pudl.extract.ferceqr &#8212; PUDL 2026.6.2.dev12 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=ea49e440"></script>
+    <script src="../../../_static/documentation_options.js?v=caf87eab"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
   
   
 </a></div>
@@ -874,13 +874,13 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">upath</span><span class="w"> </span><span class="kn">import</span> <span class="n">UPath</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">FercEqrDataConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">FercEqrArchiveResource</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">persist_table_as_parquet</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.logger">[docs]</a>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;catalystcoop.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
 
@@ -1065,7 +1065,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.extract_ferceqr">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_ferceqr</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
-    <span class="n">ferceqr_data_config</span><span class="p">:</span> <span class="n">FercEqrDataConfig</span> <span class="o">=</span> <span class="n">FercEqrDataConfig</span><span class="p">(),</span>
+    <span class="n">ferceqr_archive</span><span class="p">:</span> <span class="n">FercEqrArchiveResource</span> <span class="o">=</span> <span class="n">FercEqrArchiveResource</span><span class="p">(),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract year quarter from CSVs and load to parquet files.</span>
 
@@ -1079,13 +1079,15 @@ window.runMermaid = runMermaid;</script>
 
     <span class="c1"># Open top level zipfile</span>
     <span class="k">with</span> <span class="p">(</span>
-        <span class="n">_get_csv</span><span class="p">(</span>
-            <span class="n">ferceqr_data_config</span><span class="o">.</span><span class="n">ferceqr_archive_path</span><span class="p">,</span> <span class="n">year_quarter</span>
-        <span class="p">)</span> <span class="k">as</span> <span class="n">quarter_archive</span><span class="p">,</span>
+        <span class="n">_get_csv</span><span class="p">(</span><span class="n">ferceqr_archive</span><span class="o">.</span><span class="n">upath</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)</span> <span class="k">as</span> <span class="n">quarter_archive</span><span class="p">,</span>
         <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="c1"># Disable DuckDB progress bar, as it is quite noisy in the logs.</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;PRAGMA disable_progress_bar&quot;</span><span class="p">)</span>
         <span class="c1"># Loop through all nested zipfiles (one for each filing in the quarter)</span>
-        <span class="k">for</span> <span class="n">filing</span> <span class="ow">in</span> <span class="n">quarter_archive</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+        <span class="n">filing_names</span> <span class="o">=</span> <span class="n">quarter_archive</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filing_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> filings for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filing</span> <span class="ow">in</span> <span class="n">filing_names</span><span class="p">:</span>
             <span class="c1"># Extract CSVs from filing to a temporary directory so duckdb can be used</span>
             <span class="c1"># to parse CSVs and mirror to parquet</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1095,7 +1097,6 @@ window.runMermaid = runMermaid;</script>
                     <span class="p">)</span> <span class="k">as</span> <span class="n">filing_archive</span><span class="p">,</span>
                     <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">,</span>
                 <span class="p">):</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting CSVs from </span><span class="si">{</span><span class="n">filing</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
                     <span class="n">filing_archive</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tmp_dir</span><span class="p">)</span>
                     <span class="n">_csvs_to_parquet</span><span class="p">(</span>
                         <span class="n">csv_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">),</span>
@@ -1105,6 +1106,9 @@ window.runMermaid = runMermaid;</script>
                     <span class="p">)</span>
             <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipfile</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not open filing: </span><span class="si">{</span><span class="n">filing</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Finished extracting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filing_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> filings for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">_save_extract_errors</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">&quot;ident&quot;</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
