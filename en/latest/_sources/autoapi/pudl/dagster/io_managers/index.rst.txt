@@ -8,8 +8,9 @@ pudl.dagster.io_managers
    Dagster IO managers used by PUDL assets.
 
    This module defines the IO-manager implementations that translate between Dagster asset
-   execution and PUDL's storage formats, including SQLite, Parquet, GeoParquet, and the
-   FERC prerequisite databases. Put :class:`dagster.IOManager` and
+   execution and PUDL's storage formats, including SQLite, Parquet (with native GeoParquet
+   support for assets that return a :class:`geopandas.GeoDataFrame`), and the FERC
+   prerequisite databases. Put :class:`dagster.IOManager` and
    :class:`dagster.ConfigurableIOManager` classes here, along with configured singleton
    instances that the default code location reuses. Keep data-processing logic out of this
    module; it should focus on persistence, loading, and storage-compatibility concerns.
@@ -27,7 +28,6 @@ Attributes
    pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION
    pudl.dagster.io_managers.pudl_mixed_format_io_manager
    pudl.dagster.io_managers.parquet_io_manager
-   pudl.dagster.io_managers.geoparquet_io_manager
    pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager
    pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager
    pudl.dagster.io_managers.ferc714_xbrl_sqlite_io_manager
@@ -42,7 +42,6 @@ Classes
    pudl.dagster.io_managers.PudlMixedFormatIOManager
    pudl.dagster.io_managers.SqliteIOManager
    pudl.dagster.io_managers.PudlParquetIOManager
-   pudl.dagster.io_managers.PudlGeoParquetIOManager
    pudl.dagster.io_managers.PudlSqliteIOManager
    pudl.dagster.io_managers.FercSqliteIOManagerBase
    pudl.dagster.io_managers.FercDbfSqliteIOManager
@@ -260,35 +259,20 @@ Module Contents
 
 
 
-   .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame | polars.LazyFrame) -> None
+   .. py:method:: handle_output(context: dagster.OutputContext, obj: pandas.DataFrame | geopandas.GeoDataFrame | polars.LazyFrame) -> None
 
-      Writes pudl dataframe to parquet file.
+      Writes a pudl dataframe to a Parquet file.
+
+      GeoDataFrames are written as GeoParquet using native geopandas output,
+      which produces spec-compliant CRS metadata readable by DuckDB >= 1.5.
+      Regular DataFrames and Polars LazyFrames use the PUDL PyArrow schema to
+      enforce exact column types on disk.
 
 
 
    .. py:method:: load_input(context: dagster.InputContext) -> pandas.DataFrame | geopandas.GeoDataFrame | polars.LazyFrame
 
       Loads pudl table from parquet file.
-
-
-
-.. py:class:: PudlGeoParquetIOManager(**data: Any)
-
-   Bases: :py:obj:`PudlParquetIOManager`
-
-
-   Do some extra work to output valid GeoParquet files when appropriate.
-
-
-   .. py:method:: _create_geoparquet_metadata(gdf: geopandas.GeoDataFrame, res: pudl.metadata.classes.Resource) -> str
-
-      Create GeoParquet metadata JSON string.
-
-
-
-   .. py:method:: handle_output(context: dagster.OutputContext, obj: geopandas.GeoDataFrame) -> None
-
-      Write a PUDL dataframe to GeoParquet.
 
 
 
@@ -326,8 +310,6 @@ Module Contents
 .. py:data:: pudl_mixed_format_io_manager
 
 .. py:data:: parquet_io_manager
-
-.. py:data:: geoparquet_io_manager
 
 .. py:class:: FercSqliteIOManagerBase(**data: Any)
 

@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>PUDL Release Notes &#8212; PUDL 2026.6.2.dev7 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.6.2.dev11 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="_static/documentation_options.js?v=68c463c1"></script>
+    <script src="_static/documentation_options.js?v=ea49e440"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -140,8 +140,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev7 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev7 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
   
   
 </a></div>
@@ -427,6 +427,11 @@
 <span id="release-v2026-7-0"></span><h2>v2026.7.0 (2026-07-XX)<a class="headerlink" href="#v2026-7-0-2026-07-xx" title="Link to this heading">#</a></h2>
 <section id="enhancements">
 <h3>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added experimental Parquet outputs derived from the FERC DBF databases, and basic
+<code class="docutils literal notranslate"><span class="pre">datpackage.json</span></code> metadata describing their schemas to support querying and preview
+through the <a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a>. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5339">#5339</a>.</p></li>
+</ul>
 </section>
 <section id="new-data">
 <h3>New Data<a class="headerlink" href="#new-data" title="Link to this heading">#</a></h3>
@@ -441,6 +446,12 @@ supplemental gaseous fuel supplies, gas exports, and other gas disposition. See
 </section>
 <section id="expanded-data-coverage">
 <h3>Expanded Data Coverage<a class="headerlink" href="#expanded-data-coverage" title="Link to this heading">#</a></h3>
+<section id="eia860">
+<h4>EIA860<a class="headerlink" href="#eia860" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Added early release data for EIA-860 2025. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5322">#5322</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5324">#5324</a>.</p></li>
+</ul>
+</section>
 </section>
 <section id="documentation">
 <h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h3>
@@ -450,12 +461,30 @@ supplemental gaseous fuel supplies, gas exports, and other gas disposition. See
 </section>
 <section id="bug-fixes-data-cleaning">
 <h3>Bug Fixes &amp; Data Cleaning<a class="headerlink" href="#bug-fixes-data-cleaning" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fixed a DuckDB &gt;= 1.5 incompatibility with PUDL’s GeoParquet outputs. DuckDB 1.5
+requires CRS metadata in PROJJSON format, but the old
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PudlGeoParquetIOManager</span></code> wrote a WKT string,
+causing <code class="docutils literal notranslate"><span class="pre">&quot;Geoparquet</span> <span class="pre">column</span> <span class="pre">'geometry'</span> <span class="pre">has</span> <span class="pre">invalid</span> <span class="pre">CRS&quot;</span></code> when the spatial extension
+was loaded. Switching to native <code class="xref py py-func docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame.to_parquet()</span></code> produces
+spec-compliant GeoParquet 1.0.0 metadata. See issues <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4061">#4061</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5074">#5074</a> and PR
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5347">#5347</a>.</p></li>
+</ul>
 </section>
 <section id="performance-improvements">
 <h3>Performance Improvements<a class="headerlink" href="#performance-improvements" title="Link to this heading">#</a></h3>
 </section>
 <section id="quality-of-life-improvements">
 <h3>Quality of Life Improvements<a class="headerlink" href="#quality-of-life-improvements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Merged <code class="docutils literal notranslate"><span class="pre">PudlGeoParquetIOManager</span></code> into
+<a class="reference internal" href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager" title="pudl.dagster.io_managers.PudlParquetIOManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">PudlParquetIOManager</span></code></a> and retired the
+<code class="docutils literal notranslate"><span class="pre">geoparquet_io_manager</span></code> Dagster resource key. The four geo assets
+(<code class="docutils literal notranslate"><span class="pre">out_censusdp1tract__states/counties/tracts</span></code> and
+<code class="docutils literal notranslate"><span class="pre">out_ferc714__georeferenced_respondents</span></code>) now use <code class="docutils literal notranslate"><span class="pre">parquet_io_manager</span></code>.
+Updated the DuckDB dependency to <code class="docutils literal notranslate"><span class="pre">&gt;=1.5,&lt;1.6</span></code>. See issues <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4061">#4061</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5074">#5074</a> and
+PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5347">#5347</a>.</p></li>
+</ul>
 </section>
 </section>
 <section id="v2026-6-1-2026-06-19">
@@ -502,12 +531,6 @@ records. See issue <a class="reference external" href="https://github.com/cataly
 </section>
 <section id="id4">
 <h3>Expanded Data Coverage<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
-<section id="eia-860">
-<h4>EIA-860<a class="headerlink" href="#eia-860" title="Link to this heading">#</a></h4>
-<ul class="simple">
-<li><p>Added early release data for EIA-860 2025. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5322">#5322</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5324">#5324</a>.</p></li>
-</ul>
-</section>
 <section id="eia-191">
 <h4>EIA-191<a class="headerlink" href="#eia-191" title="Link to this heading">#</a></h4>
 <ul class="simple">
@@ -1694,15 +1717,15 @@ and some newly integrated EIA-923 financial data and PHMSA natural gas data. See
 for details.</p>
 <section id="id74">
 <h3>Expanded Data Coverage<a class="headerlink" href="#id74" title="Link to this heading">#</a></h3>
-<section id="id75">
-<h4>EIA-860<a class="headerlink" href="#id75" title="Link to this heading">#</a></h4>
+<section id="eia-860">
+<h4>EIA-860<a class="headerlink" href="#eia-860" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated EIA-860 with final release data from 2024. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4616">#4616</a> and
 PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4617">#4617</a>.</p></li>
 </ul>
 </section>
-<section id="id76">
-<h4>EIA-860M<a class="headerlink" href="#id76" title="Link to this heading">#</a></h4>
+<section id="id75">
+<h4>EIA-860M<a class="headerlink" href="#id75" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated EIA-860M monthly generator report with newly published data for August
 of 2025. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4639">#4639</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4638">#4638</a>.</p></li>
@@ -1716,8 +1739,8 @@ data inconsistency issues. We’re adding them back in! See <a class="reference 
 and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4291">#4291</a>.</p>
 </section>
 </section>
-<section id="id77">
-<h3>New Data<a class="headerlink" href="#id77" title="Link to this heading">#</a></h3>
+<section id="id76">
+<h3>New Data<a class="headerlink" href="#id76" title="Link to this heading">#</a></h3>
 <section id="phmsa">
 <h4>PHMSA<a class="headerlink" href="#phmsa" title="Link to this heading">#</a></h4>
 <ul class="simple">
@@ -1731,8 +1754,8 @@ contributors to more easily improve incrementally. See <a class="reference exter
 to our PUDL database. Thanks to <a class="reference external" href="https://github.com/sponsors/seeess1">&#64;seeess1</a> for all of your work on this!</p></li>
 </ul>
 </section>
-<section id="id78">
-<h4>EIA-923<a class="headerlink" href="#id78" title="Link to this heading">#</a></h4>
+<section id="id77">
+<h4>EIA-923<a class="headerlink" href="#id77" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Thanks to contributions from <a class="reference external" href="https://github.com/sponsors/alexclippinger">&#64;alexclippinger</a>, we’ve added cleaned EIA923
 Schedule 8B Financial Information to the PUDL database as
@@ -1743,8 +1766,8 @@ being published in this form until then. See <a class="reference external" href=
 </ul>
 </section>
 </section>
-<section id="id79">
-<h3>Documentation<a class="headerlink" href="#id79" title="Link to this heading">#</a></h3>
+<section id="id78">
+<h3>Documentation<a class="headerlink" href="#id78" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added data source pages for:</p>
 <ul>
@@ -1800,8 +1823,8 @@ is a great new feature! But also potentially a breaking change, depending on wha
 tools you’ve been using to read our Parquet outputs. <a class="reference external" href="https://geopandas.org/">GeoPandas</a> and <a class="reference external" href="https://duckdb.org/docs/stable/core_extensions/spatial/overview.html">DuckDB’s spatial extension</a> both work
 well.</p></li>
 </ul>
-<section id="id80">
-<h3>Enhancements<a class="headerlink" href="#id80" title="Link to this heading">#</a></h3>
+<section id="id79">
+<h3>Enhancements<a class="headerlink" href="#id79" title="Link to this heading">#</a></h3>
 <section id="geospatial-outputs-with-geoparquet">
 <h4>Geospatial outputs with GeoParquet<a class="headerlink" href="#geospatial-outputs-with-geoparquet" title="Link to this heading">#</a></h4>
 <p>We’ve started producing <a class="reference external" href="https://geoparquet.org/">GeoParquet</a> outputs that include
@@ -1827,17 +1850,17 @@ tables with a valid <code class="docutils literal notranslate"><span class="pre"
 </ul>
 </section>
 </section>
+<section id="id80">
+<h3>Expanded Data Coverage<a class="headerlink" href="#id80" title="Link to this heading">#</a></h3>
 <section id="id81">
-<h3>Expanded Data Coverage<a class="headerlink" href="#id81" title="Link to this heading">#</a></h3>
-<section id="id82">
-<h4>EIA-860M<a class="headerlink" href="#id82" title="Link to this heading">#</a></h4>
+<h4>EIA-860M<a class="headerlink" href="#id81" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated EIA-860M monthly generator report with newly published data for July
 of 2025. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4590">#4590</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4594">#4594</a>.</p></li>
 </ul>
 </section>
-<section id="id83">
-<h4>FERC Form 1<a class="headerlink" href="#id83" title="Link to this heading">#</a></h4>
+<section id="id82">
+<h4>FERC Form 1<a class="headerlink" href="#id82" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated FERC Form 1 2024 data to include late respondents. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4630">#4630</a>.</p></li>
 </ul>
@@ -1850,8 +1873,8 @@ late respondents. See <a class="reference external" href="https://github.com/cat
 </ul>
 </section>
 </section>
-<section id="id84">
-<h3>Quality of Life Improvements<a class="headerlink" href="#id84" title="Link to this heading">#</a></h3>
+<section id="id83">
+<h3>Quality of Life Improvements<a class="headerlink" href="#id83" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>We updated <a class="reference external" href="https://www.kaggle.com/catalystcooperative/code">our Kaggle notebooks</a>
 to read PUDL data from our <a class="reference external" href="https://registry.opendata.aws/catalyst-cooperative-pudl/">AWS Open Data Registry</a> S3 bucket instead of
@@ -1869,8 +1892,8 @@ any metadata is removed, such as tests or descriptions, the update fails unless
 <code class="docutils literal notranslate"><span class="pre">--clobber</span></code> is used. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4466">#4466</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4525">#4525</a>.</p></li>
 </ul>
 </section>
-<section id="id85">
-<h3>Bug Fixes<a class="headerlink" href="#id85" title="Link to this heading">#</a></h3>
+<section id="id84">
+<h3>Bug Fixes<a class="headerlink" href="#id84" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Stopped nulling values in columns with ENUM constraints when the value was not found
 in the ENUM. Previously we logged a warning, and now it will raise an error. There
@@ -1881,8 +1904,8 @@ constraints, but nothing serious. See PR <a class="reference external" href="htt
 records. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4580">#4580</a>.</p></li>
 </ul>
 </section>
-<section id="id86">
-<h3>Documentation<a class="headerlink" href="#id86" title="Link to this heading">#</a></h3>
+<section id="id85">
+<h3>Documentation<a class="headerlink" href="#id85" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added data source pages for:</p>
 <ul>
@@ -1900,8 +1923,8 @@ Form 1 data that includes late filings &amp; revisions. It also includes year-to
 updates for the monthly and quarterly datasets, including EIA-860M, EIA-923, EIA-930,
 and the EPA CEMS hourly emissions. There were also a number of data processing bug fixes
 and data usability improvements. See the full notes below for details.</p>
-<section id="id87">
-<h3>New Data<a class="headerlink" href="#id87" title="Link to this heading">#</a></h3>
+<section id="id86">
+<h3>New Data<a class="headerlink" href="#id86" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Thanks to contributions from <a class="reference external" href="https://github.com/sponsors/alexclippinger">&#64;alexclippinger</a>, we’ve added cleaned EIA923
 Schedule 8A Byproduct Disposition to the PUDL database as
@@ -1910,50 +1933,50 @@ be replaced with a well-normalized version of the same data, but it is being pub
 in this form until then. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4100">#4100</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/2448">#2448</a>, and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4502">#4502</a>.</p></li>
 </ul>
 </section>
+<section id="id87">
+<h3>Expanded Data Coverage<a class="headerlink" href="#id87" title="Link to this heading">#</a></h3>
 <section id="id88">
-<h3>Expanded Data Coverage<a class="headerlink" href="#id88" title="Link to this heading">#</a></h3>
-<section id="id89">
-<h4>EIA-860M<a class="headerlink" href="#id89" title="Link to this heading">#</a></h4>
+<h4>EIA-860M<a class="headerlink" href="#id88" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated EIA-860M monthly generator report with newly published data for May and June
 of 2025. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4379">#4379</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4536">#4536</a>.</p></li>
 </ul>
 </section>
-<section id="id90">
-<h4>EIA-923<a class="headerlink" href="#id90" title="Link to this heading">#</a></h4>
+<section id="id89">
+<h4>EIA-923<a class="headerlink" href="#id89" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-923 data through May 2025. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4516">#4516</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4538">#4538</a>.</p></li>
 </ul>
 </section>
-<section id="id91">
-<h4>EIA-930<a class="headerlink" href="#id91" title="Link to this heading">#</a></h4>
+<section id="id90">
+<h4>EIA-930<a class="headerlink" href="#id90" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated EIA-930 data published up through the beginning of August 2025. See
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4517">#4517</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4523">#4523</a>.</p></li>
 </ul>
 </section>
-<section id="id92">
-<h4>EIA Bulk Electricity API<a class="headerlink" href="#id92" title="Link to this heading">#</a></h4>
+<section id="id91">
+<h4>EIA Bulk Electricity API<a class="headerlink" href="#id91" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated the EIA Bulk Electricity data to include data published up through
 the beginning of August 2025. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4519">#4519</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4523">#4523</a>.</p></li>
 </ul>
 </section>
-<section id="id93">
-<h4>EPA CEMS<a class="headerlink" href="#id93" title="Link to this heading">#</a></h4>
+<section id="id92">
+<h4>EPA CEMS<a class="headerlink" href="#id92" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EPA CEMS data through June 2025. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4518">#4518</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4531">#4531</a>.</p></li>
 </ul>
 </section>
-<section id="id94">
-<h4>FERC Form 1<a class="headerlink" href="#id94" title="Link to this heading">#</a></h4>
+<section id="id93">
+<h4>FERC Form 1<a class="headerlink" href="#id93" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated FERC Form 1 2024 data to include late respondents. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4493">#4493</a> and
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4507">#4507</a>.</p></li>
 </ul>
 </section>
-<section id="id95">
-<h4>FERC Forms 2, 6 and 60<a class="headerlink" href="#id95" title="Link to this heading">#</a></h4>
+<section id="id94">
+<h4>FERC Forms 2, 6 and 60<a class="headerlink" href="#id94" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
 2024 data. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4418">#4418</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4433">#4433</a>.</p></li>
@@ -1976,8 +1999,8 @@ currently published to the PUDL database. See <a class="reference external" href
 </ul>
 </section>
 </section>
-<section id="id96">
-<h3>Quality of Life Improvements<a class="headerlink" href="#id96" title="Link to this heading">#</a></h3>
+<section id="id95">
+<h3>Quality of Life Improvements<a class="headerlink" href="#id95" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The output of <code class="docutils literal notranslate"><span class="pre">dbt_helper</span> <span class="pre">update-tables</span></code> now conforms to the format that
 our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
@@ -1994,8 +2017,8 @@ See issue <a class="reference external" href="https://github.com/catalyst-cooper
 output tables. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4365">#4365</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4528">#4528</a>.</p></li>
 </ul>
 </section>
-<section id="id97">
-<h3>Bug Fixes<a class="headerlink" href="#id97" title="Link to this heading">#</a></h3>
+<section id="id96">
+<h3>Bug Fixes<a class="headerlink" href="#id96" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixed bug in how we were labeling the <code class="docutils literal notranslate"><span class="pre">data_maturity</span></code> of EIA-923. See issue
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4328">#4328</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4392">#4392</a>.</p></li>
@@ -2006,8 +2029,8 @@ resulting in ~400 more records in this table over several years. See details in 
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4538">#4538</a></p></li>
 </ul>
 </section>
-<section id="id98">
-<h3>Documentation<a class="headerlink" href="#id98" title="Link to this heading">#</a></h3>
+<section id="id97">
+<h3>Documentation<a class="headerlink" href="#id97" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Migrated table description metadata into new format; see epic <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4358">#4358</a> for
 issues &amp; PRs for all source groups.</p>
@@ -2073,10 +2096,10 @@ which result in minor changes to the database schema. It also removes the deprec
 <code class="docutils literal notranslate"><span class="pre">PudlTabl</span></code> output management class.</p>
 <p>We are experimenting a new <strong>monthly</strong> release schedule for PUDL, to keep the EIA-860M
 data as fresh as possible. This is the first of those monthly releases.</p>
+<section id="id98">
+<h3>New Data<a class="headerlink" href="#id98" title="Link to this heading">#</a></h3>
 <section id="id99">
-<h3>New Data<a class="headerlink" href="#id99" title="Link to this heading">#</a></h3>
-<section id="id100">
-<h4>EIA AEO<a class="headerlink" href="#id100" title="Link to this heading">#</a></h4>
+<h4>EIA AEO<a class="headerlink" href="#id99" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Extracted table 2 from the EIA Annual Energy Outlook 2023, which includes future
 projections for energy use through the year 2050 across a variety of scenarios.
@@ -2091,30 +2114,30 @@ modes. See <a class="reference external" href="https://github.com/catalyst-coope
 </ul>
 </section>
 </section>
+<section id="id100">
+<h3>Expanded Data Coverage<a class="headerlink" href="#id100" title="Link to this heading">#</a></h3>
 <section id="id101">
-<h3>Expanded Data Coverage<a class="headerlink" href="#id101" title="Link to this heading">#</a></h3>
-<section id="id102">
-<h4>EIA-860<a class="headerlink" href="#id102" title="Link to this heading">#</a></h4>
+<h4>EIA-860<a class="headerlink" href="#id101" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-860 early release data from 2024. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4323">#4323</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4332">#4332</a>.</p></li>
 </ul>
 </section>
-<section id="id103">
-<h4>EIA-860M<a class="headerlink" href="#id103" title="Link to this heading">#</a></h4>
+<section id="id102">
+<h4>EIA-860M<a class="headerlink" href="#id102" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-860M data from April 2025. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4324">#4324</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4332">#4332</a>.</p></li>
 </ul>
 </section>
-<section id="id104">
-<h4>EIA-923<a class="headerlink" href="#id104" title="Link to this heading">#</a></h4>
+<section id="id103">
+<h4>EIA-923<a class="headerlink" href="#id103" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-923 early release data from 2024 and monthly data from March 2025. See
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4325">#4325</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4332">#4332</a>.</p></li>
 </ul>
 </section>
 </section>
-<section id="id105">
-<h3>Bug Fixes<a class="headerlink" href="#id105" title="Link to this heading">#</a></h3>
+<section id="id104">
+<h3>Bug Fixes<a class="headerlink" href="#id104" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixed a number of typos in our documentation and codebase, which resulted in
 renaming <code class="docutils literal notranslate"><span class="pre">synchronized_transmission_grid</span></code> in <a class="reference internal" href="data_dictionaries/pudl_db.html#core-eia860-scd-generators"><span class="std std-ref">core_eia860__scd_generators</span></a>,
@@ -2130,8 +2153,8 @@ found in <code class="docutils literal notranslate"><span class="pre">_core_cens
 </ul>
 </section>
 </section>
-<section id="id106">
-<h3>Deprecations<a class="headerlink" href="#id106" title="Link to this heading">#</a></h3>
+<section id="id105">
+<h3>Deprecations<a class="headerlink" href="#id105" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>After more than a year of deprecation warnings, we’ve removed the <code class="docutils literal notranslate"><span class="pre">PudlTabl</span></code>
 output management class, and have stopped distributing a handful of tables that were
@@ -2141,8 +2164,8 @@ only around to allow the behavior of that class to be maintained. See issues
 dashboards, and the Eel Hole for publicly facing data access. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4353">#4353</a>.</p></li>
 </ul>
 </section>
-<section id="id107">
-<h3>Quality of Life Improvements<a class="headerlink" href="#id107" title="Link to this heading">#</a></h3>
+<section id="id106">
+<h3>Quality of Life Improvements<a class="headerlink" href="#id106" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>We’ve added a new sub-command to <code class="docutils literal notranslate"><span class="pre">dbt_helper</span></code> - <code class="docutils literal notranslate"><span class="pre">dbt_helper</span> <span class="pre">validate</span></code>.
 This lets you run validation tests for a selection of DBT models and also
@@ -2192,8 +2215,8 @@ we will remove the deprecated <code class="xref py py-class docutils literal not
 This will also happen before our next quarterly release.</p></li>
 </ul>
 </section>
-<section id="id108">
-<h3>New Data<a class="headerlink" href="#id108" title="Link to this heading">#</a></h3>
+<section id="id107">
+<h3>New Data<a class="headerlink" href="#id107" title="Link to this heading">#</a></h3>
 <section id="ferc-714">
 <h4>FERC 714<a class="headerlink" href="#ferc-714" title="Link to this heading">#</a></h4>
 <ul class="simple">
@@ -2206,8 +2229,8 @@ imputed version of demand. Previously these imputed values were not being distri
 directly, and fed into the <a class="reference internal" href="data_dictionaries/pudl_db.html#out-ferc714-hourly-estimated-state-demand"><span class="std std-ref">out_ferc714__hourly_estimated_state_demand</span></a> table.</p></li>
 </ul>
 </section>
-<section id="id109">
-<h4>EIA-930<a class="headerlink" href="#id109" title="Link to this heading">#</a></h4>
+<section id="id108">
+<h4>EIA-930<a class="headerlink" href="#id108" title="Link to this heading">#</a></h4>
 <p>Work on producing EIA-930 demand curves suitable for use in electricity system modeling
 is being done in collaboration with <a class="reference external" href="https://github.com/sponsors/awongel">&#64;awongel</a> at
 <a class="reference external" href="https://carnegiescience.edu">Carnegie Science</a>, with support from <a class="reference external" href="https://gridlab.org">GridLab</a>. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4083">#4083</a> for a list of related issues.</p>
@@ -2243,10 +2266,10 @@ that remain to be resolved in the <a class="reference external" href="https://gi
 </ul>
 </section>
 </section>
+<section id="id109">
+<h3>Expanded Data Coverage<a class="headerlink" href="#id109" title="Link to this heading">#</a></h3>
 <section id="id110">
-<h3>Expanded Data Coverage<a class="headerlink" href="#id110" title="Link to this heading">#</a></h3>
-<section id="id111">
-<h4>FERC Form 1<a class="headerlink" href="#id111" title="Link to this heading">#</a></h4>
+<h4>FERC Form 1<a class="headerlink" href="#id110" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Integrated FERC Form 1 data from 2024 into the main PUDL SQLite DB. See issue
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4207">#4207</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4215">#4215</a>. FERC Form 1 has a filing deadline of
@@ -2274,14 +2297,14 @@ late filings which will be added in the next quarterly release.</p></li>
 EIA Bulk API archive. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4237">#4237</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4246">#4246</a>.</p></li>
 </ul>
 </section>
-<section id="id112">
-<h4>EPA CEMS<a class="headerlink" href="#id112" title="Link to this heading">#</a></h4>
+<section id="id111">
+<h4>EPA CEMS<a class="headerlink" href="#id111" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added 2025 Q1 of CEMS data. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4236">#4236</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4238">#4238</a>.</p></li>
 </ul>
 </section>
-<section id="id113">
-<h4>EIA-930<a class="headerlink" href="#id113" title="Link to this heading">#</a></h4>
+<section id="id112">
+<h4>EIA-930<a class="headerlink" href="#id112" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated EIA-930 to include data published up through the beginning of May 2025.
 See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4235">#4235</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4242">#4242</a>. Raw data now includes adjusted and imputed
@@ -2290,21 +2313,21 @@ see <a class="reference internal" href="data_sources/eia930.html#data-sources-ei
 more information.</p></li>
 </ul>
 </section>
-<section id="id114">
-<h4>EIA-860M<a class="headerlink" href="#id114" title="Link to this heading">#</a></h4>
+<section id="id113">
+<h4>EIA-860M<a class="headerlink" href="#id113" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-860M data from January, February, and March 2025. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4233">#4233</a> and
 PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4242">#4242</a>.</p></li>
 </ul>
 </section>
-<section id="id115">
-<h4>EIA-923<a class="headerlink" href="#id115" title="Link to this heading">#</a></h4>
+<section id="id114">
+<h4>EIA-923<a class="headerlink" href="#id114" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-923 from January and February 2025. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4234">#4234</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4242">#4242</a>.</p></li>
 </ul>
 </section>
-<section id="id116">
-<h4>VCE RARE<a class="headerlink" href="#id116" title="Link to this heading">#</a></h4>
+<section id="id115">
+<h4>VCE RARE<a class="headerlink" href="#id115" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Integrated 2014-2018 RARE data into PUDL. Also fixed misleading latitude and longitude
 field descriptions, and renamed the field <code class="docutils literal notranslate"><span class="pre">county_or_lake_name</span></code> to <code class="docutils literal notranslate"><span class="pre">place_name</span></code>.
@@ -2312,8 +2335,8 @@ See issue <a class="reference external" href="https://github.com/catalyst-cooper
 </ul>
 </section>
 </section>
-<section id="id117">
-<h3>Bug Fixes<a class="headerlink" href="#id117" title="Link to this heading">#</a></h3>
+<section id="id116">
+<h3>Bug Fixes<a class="headerlink" href="#id116" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
 that didn’t conform to expected format. The only known table affected was in the FERC
@@ -2324,8 +2347,8 @@ most values in the <code class="docutils literal notranslate"><span class="pre">
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4215/commits/65b36e3121bdfb792ae59c0b94b0ed473307bd78">this commit</a>.</p></li>
 </ul>
 </section>
-<section id="id118">
-<h3>Quality of Life Improvements<a class="headerlink" href="#id118" title="Link to this heading">#</a></h3>
+<section id="id117">
+<h3>Quality of Life Improvements<a class="headerlink" href="#id117" title="Link to this heading">#</a></h3>
 <ul>
 <li><p>We now publish a <a class="reference external" href="https://datapackage.org/standard/data-package/">Frictionless data package</a> describing our Parquet
 outputs, with the name <code class="docutils literal notranslate"><span class="pre">pudl_datapackage.json</span></code>. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4069">#4069</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4070">#4070</a>.</p></li>
@@ -2346,8 +2369,8 @@ columns to a number of derived FERC 1 output tables including:</p>
 </li>
 </ul>
 </section>
-<section id="id119">
-<h3>New Tests<a class="headerlink" href="#id119" title="Link to this heading">#</a></h3>
+<section id="id118">
+<h3>New Tests<a class="headerlink" href="#id118" title="Link to this heading">#</a></h3>
 <p>We’re in the process of migrating hundrds of data validation tests to use the <a class="reference external" href="https://docs.getdbt.com/docs/introduction">dbt</a> framework. We have converted at least the
 following classes of tests:</p>
 <ul class="simple">
@@ -2389,10 +2412,10 @@ more details.</p></li>
 and would like to help ensure that the data keeps flowing, please consider joining them
 as a <a class="reference external" href="https://opencollective.com/pudl">PUDL Sustainer</a>, as we are still fundraising
 for 2025.</p>
+<section id="id119">
+<h3>New Data<a class="headerlink" href="#id119" title="Link to this heading">#</a></h3>
 <section id="id120">
-<h3>New Data<a class="headerlink" href="#id120" title="Link to this heading">#</a></h3>
-<section id="id121">
-<h4>EIA-176<a class="headerlink" href="#id121" title="Link to this heading">#</a></h4>
+<h4>EIA-176<a class="headerlink" href="#id120" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Add a couple of semi-transformed interim EIA-176 (natural gas sources and
 dispositions) tables. They aren’t yet being written to the database, but are one step
@@ -2402,15 +2425,15 @@ for moving this dataset forward.</p></li>
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4002">#4002</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4004">#4004</a>.</p></li>
 </ul>
 </section>
-<section id="id122">
-<h4>EIA-860<a class="headerlink" href="#id122" title="Link to this heading">#</a></h4>
+<section id="id121">
+<h4>EIA-860<a class="headerlink" href="#id121" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-860 Multifuel table. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3438">#3438</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3988">#3988</a>. Thanks to
 <a class="reference external" href="https://github.com/sponsors/jmelot">&#64;jmelot</a> for working on adding this new table.</p></li>
 </ul>
 </section>
-<section id="id123">
-<h4>FERC 1<a class="headerlink" href="#id123" title="Link to this heading">#</a></h4>
+<section id="id122">
+<h4>FERC 1<a class="headerlink" href="#id122" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added three new output tables containing granular utility accounting data.
 See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4057">#4057</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3642">#3642</a> and the table descriptions in the data dictionary:</p>
@@ -2452,16 +2475,16 @@ in the PUDL data dictionary:</p>
 </ul>
 </section>
 </section>
+<section id="id123">
+<h3>Expanded Data Coverage<a class="headerlink" href="#id123" title="Link to this heading">#</a></h3>
 <section id="id124">
-<h3>Expanded Data Coverage<a class="headerlink" href="#id124" title="Link to this heading">#</a></h3>
-<section id="id125">
-<h4>EPA CEMS<a class="headerlink" href="#id125" title="Link to this heading">#</a></h4>
+<h4>EPA CEMS<a class="headerlink" href="#id124" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added 2024 Q4 of CEMS data. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4041">#4041</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4052">#4052</a>.</p></li>
 </ul>
 </section>
-<section id="id126">
-<h4>EPA CAMD EIA Crosswalk<a class="headerlink" href="#id126" title="Link to this heading">#</a></h4>
+<section id="id125">
+<h4>EPA CAMD EIA Crosswalk<a class="headerlink" href="#id125" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>In the past, the crosswalk in PUDL has used the EPA’s published crosswalk (run with
 2018 data), and an additional crosswalk we ran with 2021 EIA-860 data. To ensure that
@@ -2480,14 +2503,14 @@ and PR <a class="reference external" href="https://github.com/catalyst-cooperati
 update.</p></li>
 </ul>
 </section>
-<section id="id127">
-<h4>EIA-860M<a class="headerlink" href="#id127" title="Link to this heading">#</a></h4>
+<section id="id126">
+<h4>EIA-860M<a class="headerlink" href="#id126" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-860m through December 2024. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4038">#4038</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4047">#4047</a>.</p></li>
 </ul>
 </section>
-<section id="id128">
-<h4>EIA-923<a class="headerlink" href="#id128" title="Link to this heading">#</a></h4>
+<section id="id127">
+<h4>EIA-923<a class="headerlink" href="#id127" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-923 monthly data through September 2024. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4038">#4038</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4047">#4047</a>.</p></li>
 </ul>
@@ -2499,8 +2522,8 @@ update.</p></li>
 2024-11-01. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4042">#4042</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4051">#4051</a>.</p></li>
 </ul>
 </section>
-<section id="id129">
-<h4>EIA-930<a class="headerlink" href="#id129" title="Link to this heading">#</a></h4>
+<section id="id128">
+<h4>EIA-930<a class="headerlink" href="#id128" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated the EIA-930 data to include data published up through the beginning of
 February 2025. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4040">#4040</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4054">#4054</a>. 10 new energy sources
@@ -2510,8 +2533,8 @@ more information.</p></li>
 </ul>
 </section>
 </section>
-<section id="id130">
-<h3>Bug Fixes<a class="headerlink" href="#id130" title="Link to this heading">#</a></h3>
+<section id="id129">
+<h3>Bug Fixes<a class="headerlink" href="#id129" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix an accidentally swapped set of starting balance / ending balance column rename
 parameters in the pre-2021 DBF derived data that feeds into
@@ -2525,8 +2548,8 @@ missing it <a class="reference external" href="https://github.com/catalyst-coope
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4007">#4007</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/4029">#4029</a>.</p></li>
 </ul>
 </section>
-<section id="id131">
-<h3>Quality of Life Improvements<a class="headerlink" href="#id131" title="Link to this heading">#</a></h3>
+<section id="id130">
+<h3>Quality of Life Improvements<a class="headerlink" href="#id130" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>We added a <code class="docutils literal notranslate"><span class="pre">sources</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">pudl.metadata.classes.DataSource.from_id()</span></code>
 in order to make it possible to use the <a class="reference external" href="https://www.github.com/catalyst-cooperative/pudl-archiver">pudl-archiver</a> repository to
@@ -2543,42 +2566,42 @@ to the following datasets that have come out since the special release we did in
 October.</p>
 <section id="new-data-coverage">
 <h3>New Data Coverage<a class="headerlink" href="#new-data-coverage" title="Link to this heading">#</a></h3>
-<section id="id132">
-<h4>EIA-930<a class="headerlink" href="#id132" title="Link to this heading">#</a></h4>
+<section id="id131">
+<h4>EIA-930<a class="headerlink" href="#id131" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-930 hourly data through the end of October as part of the Q3 quarterly
 release. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3942">#3942</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3946">#3946</a>.</p></li>
 </ul>
 </section>
-<section id="id133">
-<h4>EIA-923<a class="headerlink" href="#id133" title="Link to this heading">#</a></h4>
+<section id="id132">
+<h4>EIA-923<a class="headerlink" href="#id132" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-923 data from August 2024 as part of the Q3 quarterly release.
 See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3941">#3941</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3950">#3950</a>.</p></li>
 </ul>
 </section>
-<section id="id134">
-<h4>EIA-860M<a class="headerlink" href="#id134" title="Link to this heading">#</a></h4>
+<section id="id133">
+<h4>EIA-860M<a class="headerlink" href="#id133" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added 2024 EIA-860m data from August, September, and October as part of the Q3
 quarterly release. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3940">#3940</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3949">#3949</a>.</p></li>
 </ul>
 </section>
-<section id="id135">
-<h4>EIA-861<a class="headerlink" href="#id135" title="Link to this heading">#</a></h4>
+<section id="id134">
+<h4>EIA-861<a class="headerlink" href="#id134" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added final release EIA-861 data. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3905">#3905</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3911">#3911</a>.</p></li>
 </ul>
 </section>
-<section id="id136">
-<h4>EIA Bulk Electricity Data<a class="headerlink" href="#id136" title="Link to this heading">#</a></h4>
+<section id="id135">
+<h4>EIA Bulk Electricity Data<a class="headerlink" href="#id135" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated the EIA Bulk Electricity data to include data published up through
 2024-08-01. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3944">#3944</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3951">#3951</a>.</p></li>
 </ul>
 </section>
-<section id="id137">
-<h4>EPA CEMS<a class="headerlink" href="#id137" title="Link to this heading">#</a></h4>
+<section id="id136">
+<h4>EPA CEMS<a class="headerlink" href="#id136" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added 2024 Q3 of CEMS data. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3943">#3943</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3948">#3948</a>.</p></li>
 </ul>
@@ -2605,8 +2628,8 @@ string Series.</p></li>
 Energy (RARE) dataset. It also includes final releases of EIA-860 and 923 data for 2023
 and the FERC Form 714 data for 2021-2023, which had previously been integrated from
 the XBRL data published by FERC. See details below</p>
-<section id="id138">
-<h3>New Data<a class="headerlink" href="#id138" title="Link to this heading">#</a></h3>
+<section id="id137">
+<h3>New Data<a class="headerlink" href="#id137" title="Link to this heading">#</a></h3>
 <section id="vibrant-clean-energy-resource-adequacy-renewable-energy-rare-power-dataset">
 <h4>Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset<a class="headerlink" href="#vibrant-clean-energy-resource-adequacy-renewable-energy-rare-power-dataset" title="Link to this heading">#</a></h4>
 <ul class="simple">
@@ -2622,16 +2645,16 @@ more information.  See <a class="reference external" href="https://github.com/ca
 </ul>
 </section>
 </section>
+<section id="id138">
+<h3>New Data Coverage<a class="headerlink" href="#id138" title="Link to this heading">#</a></h3>
 <section id="id139">
-<h3>New Data Coverage<a class="headerlink" href="#id139" title="Link to this heading">#</a></h3>
-<section id="id140">
-<h4>EIA-860<a class="headerlink" href="#id140" title="Link to this heading">#</a></h4>
+<h4>EIA-860<a class="headerlink" href="#id139" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-860 final release data from 2023. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3684">#3684</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3871">#3871</a>.</p></li>
 </ul>
 </section>
-<section id="id141">
-<h4>EIA-861<a class="headerlink" href="#id141" title="Link to this heading">#</a></h4>
+<section id="id140">
+<h4>EIA-861<a class="headerlink" href="#id140" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-861 final release data from 2023. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3905">#3905</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3911">#3911</a>. This
 includes a new <code class="docutils literal notranslate"><span class="pre">energy_capacity_mwh</span></code> field for battery storage in
@@ -2639,15 +2662,15 @@ includes a new <code class="docutils literal notranslate"><span class="pre">ener
 <a class="reference internal" href="data_dictionaries/pudl_db.html#core-eia861-yearly-non-net-metering-customer-fuel-class"><span class="std std-ref">core_eia861__yearly_non_net_metering_customer_fuel_class</span></a>.</p></li>
 </ul>
 </section>
-<section id="id142">
-<h4>EIA-923<a class="headerlink" href="#id142" title="Link to this heading">#</a></h4>
+<section id="id141">
+<h4>EIA-923<a class="headerlink" href="#id141" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-923 final release data from 2023 and revised data from 2022. See
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3902">#3902</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3903">#3903</a>.</p></li>
 </ul>
 </section>
-<section id="id143">
-<h4>FERC Form 714<a class="headerlink" href="#id143" title="Link to this heading">#</a></h4>
+<section id="id142">
+<h4>FERC Form 714<a class="headerlink" href="#id142" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Integrated 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
 format for 2021 from a CSV files to XBRL files. This update integrates the two
@@ -2664,8 +2687,8 @@ records from the <a class="reference internal" href="data_dictionaries/pudl_db.h
 that same plant parts table. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3773">#3773</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3774">#3774</a>.</p></li>
 </ul>
 </section>
-<section id="id144">
-<h3>Bug Fixes<a class="headerlink" href="#id144" title="Link to this heading">#</a></h3>
+<section id="id143">
+<h3>Bug Fixes<a class="headerlink" href="#id143" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Included more retiring generators in the net generation and fuel consumption
 allocation. Thanks to <a class="reference external" href="https://github.com/sponsors/grgmiller">&#64;grgmiller</a> for this contribution <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3690">#3690</a>.</p></li>
@@ -2682,8 +2705,8 @@ and <a class="reference external" href="https://moj-analytical-services.github.i
 See issues <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3736">#3736</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3735">#3735</a> and PRs <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3547">#3547</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3834">#3834</a>.</p></li>
 </ul>
 </section>
-<section id="id145">
-<h3>Quality of Life Improvements<a class="headerlink" href="#id145" title="Link to this heading">#</a></h3>
+<section id="id144">
+<h3>Quality of Life Improvements<a class="headerlink" href="#id144" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>We now use an asset factory to generate Dagster assets for near-identical FERC1 output
 tables. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3147">#3147</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3883">#3883</a>. Thanks to <a class="reference external" href="https://github.com/sponsors/hfireborn">&#64;hfireborn</a> and
@@ -2701,10 +2724,10 @@ including EIA-860M, EIA-923 (YTD data), EIA-930, the EIA’s bulk electricity AP
 been integrated. These include FERC Forms 1, 2, 6, 60, and 714, and the NREL ATB.</p>
 <p>This release also includes provisional versions of the annual 2023 EIA-860 and EIA-923
 datasets, whose final release will not happen until the fall.</p>
+<section id="id145">
+<h3>New Data Coverage<a class="headerlink" href="#id145" title="Link to this heading">#</a></h3>
 <section id="id146">
-<h3>New Data Coverage<a class="headerlink" href="#id146" title="Link to this heading">#</a></h3>
-<section id="id147">
-<h4>FERC Form 1<a class="headerlink" href="#id147" title="Link to this heading">#</a></h4>
+<h4>FERC Form 1<a class="headerlink" href="#id146" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Integrated FERC Form 1 data from 2023 into the main PUDL SQLite DB. See issue
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3700">#3700</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3701">#3701</a>. This required updating to a new version of the
@@ -2723,8 +2746,8 @@ is not yet being processed beyond the conversion from XBRL to SQLite. See PR
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3710">#3710</a></p></li>
 </ul>
 </section>
-<section id="id148">
-<h4>EIA AEO<a class="headerlink" href="#id148" title="Link to this heading">#</a></h4>
+<section id="id147">
+<h4>EIA AEO<a class="headerlink" href="#id147" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added new tables from EIA AEO table 54:</p>
 <ul>
@@ -2736,8 +2759,8 @@ per MMBtu. See issue <a class="reference external" href="https://github.com/cata
 </li>
 </ul>
 </section>
-<section id="id149">
-<h4>EIA-860<a class="headerlink" href="#id149" title="Link to this heading">#</a></h4>
+<section id="id148">
+<h4>EIA-860<a class="headerlink" href="#id148" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-860 early release data from 2023. This included adding a new tab with
 proposed energy storage generators as well as adding a number of new columns
@@ -2746,37 +2769,37 @@ regarding energy storage and solar generators. See issue <a class="reference ext
 <li><p>Added EIA-860m data through June 2024. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3759">#3759</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3767">#3767</a>.</p></li>
 </ul>
 </section>
-<section id="id150">
-<h4>EIA-923<a class="headerlink" href="#id150" title="Link to this heading">#</a></h4>
+<section id="id149">
+<h4>EIA-923<a class="headerlink" href="#id149" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-923 early release data from 2023. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3719">#3719</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3721">#3721</a>.</p></li>
 <li><p>Added EIA-923 monthly data through May as part of the Q2 quarterly release. See
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3760">#3760</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3768">#3768</a>.</p></li>
 </ul>
 </section>
-<section id="id151">
-<h4>EIA-930<a class="headerlink" href="#id151" title="Link to this heading">#</a></h4>
+<section id="id150">
+<h4>EIA-930<a class="headerlink" href="#id150" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added EIA-930 hourly data through the end of July as part of the Q2 quarterly release.
 See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3761">#3761</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3789">#3789</a>.</p></li>
 </ul>
 </section>
-<section id="id152">
-<h4>EPA CEMS<a class="headerlink" href="#id152" title="Link to this heading">#</a></h4>
+<section id="id151">
+<h4>EPA CEMS<a class="headerlink" href="#id151" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added 2024 Q2 of CEMS data. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3762">#3762</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3769">#3769</a>.</p></li>
 </ul>
 </section>
-<section id="id153">
-<h4>EIA Bulk Electricity Data<a class="headerlink" href="#id153" title="Link to this heading">#</a></h4>
+<section id="id152">
+<h4>EIA Bulk Electricity Data<a class="headerlink" href="#id152" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated the EIA Bulk Electricity data archive to include data that was available as of
 2024-08-01, which covers up through 2024-05-01 (3 months more than the previously
 used archive). See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3763">#3763</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3785">#3785</a>.</p></li>
 </ul>
 </section>
-<section id="id154">
-<h4>FERC 714<a class="headerlink" href="#id154" title="Link to this heading">#</a></h4>
+<section id="id153">
+<h4>FERC 714<a class="headerlink" href="#id153" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added <a class="reference internal" href="data_dictionaries/pudl_db.html#core-ferc714-yearly-planning-area-demand-forecast"><span class="std std-ref">core_ferc714__yearly_planning_area_demand_forecast</span></a> based on FERC
 Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
@@ -2810,8 +2833,8 @@ the <code class="docutils literal notranslate"><span class="pre">generator_opera
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3722">#3722</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3751.">#3751.</a></p></li>
 </ul>
 </section>
-<section id="id155">
-<h3>Bug Fixes<a class="headerlink" href="#id155" title="Link to this heading">#</a></h3>
+<section id="id154">
+<h3>Bug Fixes<a class="headerlink" href="#id154" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Disabled filling of missing values using rolling averages for the
 <code class="docutils literal notranslate"><span class="pre">fuel_cost_per_mmbtu</span></code> column in the <a class="reference internal" href="data_dictionaries/pudl_db.html#out-eia923-fuel-receipts-costs"><span class="std std-ref">out_eia923__fuel_receipts_costs</span></a> table, as
@@ -2820,8 +2843,8 @@ about 2% more records in the table being left <code class="docutils literal notr
 prices for that fuel type for the state and month found in the bulk EIA API data.</p></li>
 </ul>
 </section>
-<section id="id156">
-<h3>Quality of Life Improvements<a class="headerlink" href="#id156" title="Link to this heading">#</a></h3>
+<section id="id155">
+<h3>Quality of Life Improvements<a class="headerlink" href="#id155" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The full ETL settings are now read directly from <code class="docutils literal notranslate"><span class="pre">etl_full.yml</span></code> instead of using
 default values defined in the settings classes.  This also results in the settings
@@ -2839,8 +2862,8 @@ workflows. See <a class="reference external" href="https://github.com/catalyst-c
 (in support of RMI’s Utility Transition Hub) and have also added a bunch of new
 tables over the last few months in an effort to better support energy system
 modelers (with support from GridLab). Details below.</p>
-<section id="id157">
-<h3>New Data Coverage<a class="headerlink" href="#id157" title="Link to this heading">#</a></h3>
+<section id="id156">
+<h3>New Data Coverage<a class="headerlink" href="#id156" title="Link to this heading">#</a></h3>
 <section id="eia-860-eia-923">
 <h4>EIA-860 &amp; EIA-923<a class="headerlink" href="#eia-860-eia-923" title="Link to this heading">#</a></h4>
 <ul class="simple">
@@ -2878,8 +2901,8 @@ and PR <a class="reference external" href="https://github.com/catalyst-cooperati
 <a class="reference internal" href="data_dictionaries/pudl_db.html#core-gridpathratoolkit-assn-generator-aggregation-group"><span class="std std-ref">core_gridpathratoolkit__assn_generator_aggregation_group</span></a>.</p></li>
 </ul>
 </section>
-<section id="id158">
-<h4>EIA AEO<a class="headerlink" href="#id158" title="Link to this heading">#</a></h4>
+<section id="id157">
+<h4>EIA AEO<a class="headerlink" href="#id157" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Extracted tables 13, 15, 20, and 54 from the <a class="reference external" href="https://www.eia.gov/outlooks/aeo/tables_ref.php">EIA Annual Energy Outlook 2023</a>, which include future
 projections related to electric power and renewable energy through the year
@@ -2901,45 +2924,45 @@ projections until 2050, broken out by customer type. See <a class="reference ext
 </li>
 </ul>
 </section>
-<section id="id159">
-<h4>NREL ATB<a class="headerlink" href="#id159" title="Link to this heading">#</a></h4>
+<section id="id158">
+<h4>NREL ATB<a class="headerlink" href="#id158" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added new NREL ATB tables with annual technology cost and performance projections. See
 issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3465">#3465</a> and PRs <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3498">#3498</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3570">#3570</a>.</p></li>
 </ul>
 </section>
-<section id="id160">
-<h4>EIA-930<a class="headerlink" href="#id160" title="Link to this heading">#</a></h4>
+<section id="id159">
+<h4>EIA-930<a class="headerlink" href="#id159" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added hourly generation, demand, and interchange tables from the EIA-930. See issues
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3486">#3486</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3505">#3505</a> PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3584">#3584</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl-archiver/issues/295">this issue in the PUDL archiver repo</a>. See the
 data source documentation <a class="reference internal" href="data_sources/eia930.html"><span class="doc">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</span></a> for more information.</p></li>
 </ul>
 </section>
-<section id="id161">
-<h4>EPA CEMS<a class="headerlink" href="#id161" title="Link to this heading">#</a></h4>
+<section id="id160">
+<h4>EPA CEMS<a class="headerlink" href="#id160" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added 2024 Q1 of CEMS data. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3620">#3620</a> and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3624">#3624</a></p></li>
 </ul>
 </section>
-<section id="id162">
-<h4>EIA Bulk Electricity Data<a class="headerlink" href="#id162" title="Link to this heading">#</a></h4>
+<section id="id161">
+<h4>EIA Bulk Electricity Data<a class="headerlink" href="#id161" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Updated the EIA Bulk Electricity data archive to include data that was available as of
 2024-05-01, which covers up through 2024-02-01 (3 months more than the previously
 used archive). See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3615">#3615</a>.</p></li>
 </ul>
 </section>
-<section id="id163">
-<h4>FERC Form 1<a class="headerlink" href="#id163" title="Link to this heading">#</a></h4>
+<section id="id162">
+<h4>FERC Form 1<a class="headerlink" href="#id162" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Added new <a class="reference internal" href="data_dictionaries/pudl_db.html#out-ferc1-yearly-rate-base"><span class="std std-ref">out_ferc1__yearly_rate_base</span></a> table which includes granular financial
 data regarding what utilities include in their rate bases. See epic <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/2016">#2016</a>.</p></li>
 </ul>
 </section>
 </section>
-<section id="id164">
-<h3>Data Cleaning<a class="headerlink" href="#id164" title="Link to this heading">#</a></h3>
+<section id="id163">
+<h3>Data Cleaning<a class="headerlink" href="#id163" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>When <code class="docutils literal notranslate"><span class="pre">generator_operating_date</span></code> values are too inconsistent to be harvested
 successfully, we now take the max date within a year and attempt to harvest again, to
@@ -2964,8 +2987,8 @@ recall - a measure of coverage of FERC records model predicted a match for, and
 accuracy - a measure of overall correctness of the predictions. Model performance
 improved and now has a precision of .94, recall of .9, and overall accuracy of .85.</p>
 </section>
-<section id="id165">
-<h3>Schema Changes<a class="headerlink" href="#id165" title="Link to this heading">#</a></h3>
+<section id="id164">
+<h3>Schema Changes<a class="headerlink" href="#id164" title="Link to this heading">#</a></h3>
 <ul>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">balancing_authority_code_eia</span></code> and <code class="docutils literal notranslate"><span class="pre">sector_id_eia</span></code> into the
 <a class="reference internal" href="data_dictionaries/pudl_db.html#core-eia860m-changelog-generators"><span class="std std-ref">core_eia860m__changelog_generators</span></a> table. The BA codes reported in the raw data
@@ -3009,8 +3032,8 @@ generation only BA, and its date of retirement, and what region it is part of. S
 describe the relationships between BAs and their subregions. See PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3584">#3584</a>.</p></li>
 </ul>
 </section>
-<section id="id166">
-<h3>Bug Fixes<a class="headerlink" href="#id166" title="Link to this heading">#</a></h3>
+<section id="id165">
+<h3>Bug Fixes<a class="headerlink" href="#id165" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Ensure that all columns fed into the harvesting / reconciliation process are encoded
 before harvesting takes place, improving the consistency of harvested fields. See
@@ -3046,8 +3069,8 @@ the EIA860 outputs. This enables tracking of how planned fossil plant retirement
 have evolved over time.</p>
 <p>There are also updates to our data validation system, a new version of Pandas, and
 experimental Parquet outputs. See below for the details.</p>
-<section id="id167">
-<h3>New Data Coverage<a class="headerlink" href="#id167" title="Link to this heading">#</a></h3>
+<section id="id166">
+<h3>New Data Coverage<a class="headerlink" href="#id166" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add EIA860M data through December 2023 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3313">#3313</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3367">#3367</a>.</p></li>
 <li><p>Add 2023 Q4 of CEMS data. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3315">#3315</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3379">#3379</a>.</p></li>
@@ -3068,8 +3091,8 @@ on all versioned data releases that we publish to GCS, to ensure that they can�
 accidentally deleted. See issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3400">#3400</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3421">#3421</a>.</p></li>
 </ul>
 </section>
-<section id="id168">
-<h3>Schema Changes<a class="headerlink" href="#id168" title="Link to this heading">#</a></h3>
+<section id="id167">
+<h3>Schema Changes<a class="headerlink" href="#id167" title="Link to this heading">#</a></h3>
 <ul>
 <li><p>Restored the individual FERC Form 1 plant output tables, providing direct access to
 denormalized versions of the specific plant types via:</p>
@@ -3208,8 +3231,8 @@ different years within the FERC Form 1 data) to use the new record linkage
 infrastructure. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3007">#3007</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/3137">#3137</a></p></li>
 </ul>
 </section>
-<section id="id169">
-<h3>New Data Coverage<a class="headerlink" href="#id169" title="Link to this heading">#</a></h3>
+<section id="id168">
+<h3>New Data Coverage<a class="headerlink" href="#id168" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Updated <a class="reference internal" href="data_sources/epacems.html"><span class="doc">EPA Hourly Continuous Emission Monitoring System (CEMS)</span></a> to switch to pulling the quarterly updates of
 CEMS instead of the annual files. Integrates CEMS through 2023Q3. See issue
@@ -3227,8 +3250,8 @@ will automatically generate archives each month. See <a class="reference externa
 archive</a></p></li>
 </ul>
 </section>
-<section id="id170">
-<h3>Data Cleaning<a class="headerlink" href="#id170" title="Link to this heading">#</a></h3>
+<section id="id169">
+<h3>Data Cleaning<a class="headerlink" href="#id169" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Filled in null annual balances with fourth-quarter quarterly balances in
 <a class="reference internal" href="data_dictionaries/pudl_db.html#core-ferc1-yearly-balance-sheet-liabilities-sched110"><span class="std std-ref">core_ferc1__yearly_balance_sheet_liabilities_sched110</span></a>. <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/3233">#3233</a> and
@@ -3494,8 +3517,8 @@ centralized service companies. <a class="reference external" href="https://data.
 </li>
 </ul>
 </section>
-<section id="id171">
-<h3>Data Cleaning<a class="headerlink" href="#id171" title="Link to this heading">#</a></h3>
+<section id="id170">
+<h3>Data Cleaning<a class="headerlink" href="#id170" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Removed inconsistently reported leading zeroes from numeric <code class="docutils literal notranslate"><span class="pre">boiler_id</span></code> values. This
 affected a small number of records in any table referring to boilers, including
@@ -3571,8 +3594,8 @@ electricity demand for each US state in
 and <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/2550">#2550</a>.</p></li>
 </ul>
 </section>
-<section id="id172">
-<h3>Deprecations<a class="headerlink" href="#id172" title="Link to this heading">#</a></h3>
+<section id="id171">
+<h3>Deprecations<a class="headerlink" href="#id171" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Replace references to deprecated <code class="docutils literal notranslate"><span class="pre">pudl-scrapers</span></code> and
 <code class="docutils literal notranslate"><span class="pre">pudl-zenodo-datastore</span></code> repositories with references to <a class="reference external" href="https://www.github.com/catalyst-cooperative/pudl-archiver">pudl-archiver</a> repository in
@@ -3640,8 +3663,8 @@ See issue <a class="reference external" href="https://github.com/catalyst-cooper
 </section>
 <section id="v2022-11-30">
 <span id="release-v2022-11-30"></span><h2>v2022.11.30<a class="headerlink" href="#v2022-11-30" title="Link to this heading">#</a></h2>
-<section id="id173">
-<h3>Data Coverage<a class="headerlink" href="#id173" title="Link to this heading">#</a></h3>
+<section id="id172">
+<h3>Data Coverage<a class="headerlink" href="#id172" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added archives of the bulk EIA electricity API data to our datastore, since the API
 itself is too unreliable for production use. This is part of <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/1763">#1763</a>. The code
@@ -3869,8 +3892,8 @@ the data source documentation (See <a class="reference internal" href="data_sour
 first output table to be included in the metadata. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/1865">#1865</a></p></li>
 </ul>
 </section>
-<section id="id174">
-<h3>Documentation<a class="headerlink" href="#id174" title="Link to this heading">#</a></h3>
+<section id="id173">
+<h3>Documentation<a class="headerlink" href="#id173" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixed broken links in the documentation since the Air Markets Program Data (AMPD)
 changed to Clean Air Markets Data (CAMD).</p></li>
@@ -3879,8 +3902,8 @@ changed to Clean Air Markets Data (CAMD).</p></li>
 crosswalk.</p></li>
 </ul>
 </section>
-<section id="id175">
-<h3>Bug Fixes<a class="headerlink" href="#id175" title="Link to this heading">#</a></h3>
+<section id="id174">
+<h3>Bug Fixes<a class="headerlink" href="#id174" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://docs.dask.org/en/stable/changelog.html#v2022-04-2">Dask v2022.4.2</a>
 introduced breaking changes into <code class="xref py py-meth docutils literal notranslate"><span class="pre">dask.dataframe.read_parquet()</span></code>.  However, we
@@ -3921,9 +3944,9 @@ well. See <a class="reference external" href="https://github.com/catalyst-cooper
 </section>
 </section>
 <section id="release-v0-6-0">
-<span id="id176"></span><h2>0.6.0 (2022-03-11)<a class="headerlink" href="#release-v0-6-0" title="Link to this heading">#</a></h2>
-<section id="id177">
-<h3>Data Coverage<a class="headerlink" href="#id177" title="Link to this heading">#</a></h3>
+<span id="id175"></span><h2>0.6.0 (2022-03-11)<a class="headerlink" href="#release-v0-6-0" title="Link to this heading">#</a></h2>
+<section id="id176">
+<h3>Data Coverage<a class="headerlink" href="#id176" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="data_sources/eia860.html"><span class="doc">EIA Form 860 – Annual Electric Generator Report</span></a> monthly updates (<code class="docutils literal notranslate"><span class="pre">eia860m</span></code>) up to the end of 2021.
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/1510">#1510</a></p></li>
@@ -3946,8 +3969,8 @@ funded by a
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/1157">#1157</a></p></li>
 </ul>
 </section>
-<section id="id178">
-<h3>Metadata<a class="headerlink" href="#id178" title="Link to this heading">#</a></h3>
+<section id="id177">
+<h3>Metadata<a class="headerlink" href="#id177" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Column data types for our database and Apache Parquet outputs, as well as pandas
 dataframes are all based on the same underlying schemas, and should be much more
@@ -3971,8 +3994,8 @@ codes that they are mapped to. <a class="reference external" href="https://githu
 <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/52">#52</a> and delete the <code class="docutils literal notranslate"><span class="pre">pudl.constants</span></code> junk-drawer module… after 5 years.</p></li>
 </ul>
 </section>
-<section id="id179">
-<h3>Data Cleaning<a class="headerlink" href="#id179" title="Link to this heading">#</a></h3>
+<section id="id178">
+<h3>Data Cleaning<a class="headerlink" href="#id178" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixed a few inaccurately hand-mapped PUDL Plant &amp; Utility IDs. <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/1458">#1458</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/1480">#1480</a></p></li>
 <li><p>We are now using the coding table metadata mentioned above and the foreign key
@@ -3997,8 +4020,8 @@ layer, but we want to put more of this kind of data repair into the core databas
 gong forward. <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/1075">#1075</a></p></li>
 </ul>
 </section>
-<section id="id180">
-<h3>Miscellaneous<a class="headerlink" href="#id180" title="Link to this heading">#</a></h3>
+<section id="id179">
+<h3>Miscellaneous<a class="headerlink" href="#id179" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Created a simple script that allows our SQLite DB to be loaded into Google’s CloudSQL
 hosted PostgreSQL service <a class="reference external" href="https://pgloader.io/">pgloader</a> and
@@ -4017,8 +4040,8 @@ in order to automatically apply a variety of code formatting &amp; checks to all
 <li><p>Silenced a bunch of 3rd party module warnings in the tests. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/1476">#1476</a></p></li>
 </ul>
 </section>
-<section id="id181">
-<h3>Bug Fixes<a class="headerlink" href="#id181" title="Link to this heading">#</a></h3>
+<section id="id180">
+<h3>Bug Fixes<a class="headerlink" href="#id180" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>In addressing <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/851">#851</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/1296">#1296</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/1325">#1325</a> the <code class="docutils literal notranslate"><span class="pre">generation_fuel_eia923</span></code> table was split
 to create a <code class="docutils literal notranslate"><span class="pre">generation_fuel_nuclear_eia923</span></code> table since they have different
@@ -4042,7 +4065,7 @@ broke. This has been fixed.</p></li>
 </section>
 </section>
 <section id="release-v0-5-0">
-<span id="id182"></span><h2>0.5.0 (2021-11-11)<a class="headerlink" href="#release-v0-5-0" title="Link to this heading">#</a></h2>
+<span id="id181"></span><h2>0.5.0 (2021-11-11)<a class="headerlink" href="#release-v0-5-0" title="Link to this heading">#</a></h2>
 <section id="data-coverage-changes">
 <h3>Data Coverage Changes<a class="headerlink" href="#data-coverage-changes" title="Link to this heading">#</a></h3>
 <ul class="simple">
@@ -4105,8 +4128,8 @@ Examples of the new format will be deployed to your system if you re-run the
 <code class="docutils literal notranslate"><span class="pre">etl_fast.yml</span></code> files that are stored under <code class="docutils literal notranslate"><span class="pre">src/pudl/package_data/settings</span></code> and
 edit them to reflect your needs.</p>
 </section>
-<section id="id183">
-<h3>Database Schema Changes<a class="headerlink" href="#id183" title="Link to this heading">#</a></h3>
+<section id="id182">
+<h3>Database Schema Changes<a class="headerlink" href="#id182" title="Link to this heading">#</a></h3>
 <p>With the direct database output and the new metadata system, it’s much easier for us
 to create foreign key relationships automatically. Updates that are in progress to
 the database normalization and entity resolution process also benefit from using
@@ -4150,8 +4173,8 @@ appears in various forms in <code class="docutils literal notranslate"><span cla
 </li>
 </ul>
 </section>
-<section id="id184">
-<h3>New Analyses<a class="headerlink" href="#id184" title="Link to this heading">#</a></h3>
+<section id="id183">
+<h3>New Analyses<a class="headerlink" href="#id183" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added a deployed console script for running the state-level hourly electricity
 demand allocation, using FERC 714 and EIA-861 data, simply called
@@ -4160,8 +4183,8 @@ script existed in the v0.4.0 release, but was not deployed on the user’s
 system.</p></li>
 </ul>
 </section>
-<section id="id185">
-<h3>Known Issues<a class="headerlink" href="#id185" title="Link to this heading">#</a></h3>
+<section id="id184">
+<h3>Known Issues<a class="headerlink" href="#id184" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">pudl_territories</span></code> script has been disabled temporarily due to a memory
 issue. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/1174">#1174</a></p></li>
@@ -4191,11 +4214,11 @@ SQLite version 3.32.0 or later, as we discovered in debugging build failures on 
 </section>
 </section>
 <section id="release-v0-4-0">
-<span id="id186"></span><h2>0.4.0 (2021-08-16)<a class="headerlink" href="#release-v0-4-0" title="Link to this heading">#</a></h2>
+<span id="id185"></span><h2>0.4.0 (2021-08-16)<a class="headerlink" href="#release-v0-4-0" title="Link to this heading">#</a></h2>
 <p>This is a ridiculously large update including more than a year and a half’s
 worth of work.</p>
-<section id="id187">
-<h3>New Data Coverage<a class="headerlink" href="#id187" title="Link to this heading">#</a></h3>
+<section id="id186">
+<h3>New Data Coverage<a class="headerlink" href="#id186" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="data_sources/eia860.html"><span class="doc">EIA Form 860 – Annual Electric Generator Report</span></a> for 2004-2008 + 2019, plus eia860m through 2020</p></li>
 <li><p><a class="reference internal" href="data_sources/eia923.html"><span class="doc">EIA Form 923 – Power Plant Operations Report</span></a> for 2001-2008 + 2019</p></li>
@@ -4302,8 +4325,8 @@ packages into SQLite and Parquet was a hassle and generated a lot of overly
 complicated and fragile code.</p></li>
 </ul>
 </section>
-<section id="id188">
-<h3>Known Issues<a class="headerlink" href="#id188" title="Link to this heading">#</a></h3>
+<section id="id187">
+<h3>Known Issues<a class="headerlink" href="#id187" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The EIA-861 and FERC 714 data are not yet integrated into the SQLite database
 outputs, because we need to overhaul our entity resolution process to
@@ -4338,7 +4361,7 @@ that have been cast to strings, rather than zero-padded integers that are string
 </section>
 </section>
 <section id="release-v0-3-2">
-<span id="id189"></span><h2>0.3.2 (2020-02-17)<a class="headerlink" href="#release-v0-3-2" title="Link to this heading">#</a></h2>
+<span id="id188"></span><h2>0.3.2 (2020-02-17)<a class="headerlink" href="#release-v0-3-2" title="Link to this heading">#</a></h2>
 <p>The primary changes in this release:</p>
 <ul>
 <li><p>The 2009-2010 data for EIA-860 have been integrated, including updates
@@ -4354,7 +4377,7 @@ this time.</p>
 </ul>
 </section>
 <section id="release-v0-3-1">
-<span id="id190"></span><h2>0.3.1 (2020-02-05)<a class="headerlink" href="#release-v0-3-1" title="Link to this heading">#</a></h2>
+<span id="id189"></span><h2>0.3.1 (2020-02-05)<a class="headerlink" href="#release-v0-3-1" title="Link to this heading">#</a></h2>
 <p>A couple of minor bugs were found in the preparation of the first PUDL data
 release:</p>
 <ul class="simple">
@@ -4369,7 +4392,7 @@ data packages and tries to load them.</p></li>
 </ul>
 </section>
 <section id="release-v0-3-0">
-<span id="id191"></span><h2>0.3.0 (2020-01-30)<a class="headerlink" href="#release-v0-3-0" title="Link to this heading">#</a></h2>
+<span id="id190"></span><h2>0.3.0 (2020-01-30)<a class="headerlink" href="#release-v0-3-0" title="Link to this heading">#</a></h2>
 <p>This release is mostly about getting the infrastructure in place to do regular
 data releases via Zenodo, and updating ETL with 2018 data.</p>
 <p>Added lots of data validation / quality assurance test cases in anticipation of
@@ -4391,7 +4414,7 @@ integrated for all future ferc1 tables.</p>
 messages for details.</p>
 </section>
 <section id="release-v0-2-0">
-<span id="id192"></span><h2>0.2.0 (2019-09-17)<a class="headerlink" href="#release-v0-2-0" title="Link to this heading">#</a></h2>
+<span id="id191"></span><h2>0.2.0 (2019-09-17)<a class="headerlink" href="#release-v0-2-0" title="Link to this heading">#</a></h2>
 <p>This is the first release of PUDL to generate data packages as the canonical
 output, rather than loading data into a local PostgreSQL database. The data
 packages can then be used to generate a local SQLite database, without relying
@@ -4401,7 +4424,7 @@ the catalyst.coop package.</p>
 bulk distribution of the data products in a platform independent format.</p>
 </section>
 <section id="release-v0-1-0">
-<span id="id193"></span><h2>0.1.0 (2019-09-12)<a class="headerlink" href="#release-v0-1-0" title="Link to this heading">#</a></h2>
+<span id="id192"></span><h2>0.1.0 (2019-09-12)<a class="headerlink" href="#release-v0-1-0" title="Link to this heading">#</a></h2>
 <p>This is the only release of PUDL that will be made that makes use of
 PostgreSQL as the primary data product. It is provided for reference, in case
 there are users relying on this setup who need access to a well defined release.</p>
@@ -4452,7 +4475,10 @@ there are users relying on this setup who need access to a well defined release.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-176">EIA-176</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expanded-data-coverage">Expanded Data Coverage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expanded-data-coverage">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia860">EIA860</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-data-tests-validations">New Data Tests &amp; Validations</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes-data-cleaning">Bug Fixes &amp; Data Cleaning</a></li>
@@ -4467,7 +4493,6 @@ there are users relying on this setup who need access to a well defined release.
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-860">EIA-860</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-191">EIA-191</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-860m">EIA-860M</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-1">FERC 1</a></li>
@@ -4617,54 +4642,54 @@ there are users relying on this setup who need access to a well defined release.
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2025-10-0-2025-10-14">v2025.10.0 (2025-10-14)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id74">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id75">EIA-860</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id76">EIA-860M</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-860">EIA-860</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id75">EIA-860M</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#re-introduce-88888-and-99999-utility-id-eia">Re-introduce 88888 and 99999 utility_id_eia</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id77">New Data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id76">New Data</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#phmsa">PHMSA</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id78">EIA-923</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id77">EIA-923</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id79">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id78">Documentation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-data-tests-data-validations">New Data Tests &amp; Data Validations</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecations">Deprecations</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2025-9-1-2025-09-05">v2025.9.1 (2025-09-05)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id80">Enhancements</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id79">Enhancements</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#geospatial-outputs-with-geoparquet">Geospatial outputs with GeoParquet</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id81">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id82">EIA-860M</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id83">FERC Form 1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id80">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id81">EIA-860M</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id82">FERC Form 1</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-forms-2-6-and-60">FERC Forms 2, 6 and 60</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id84">Quality of Life Improvements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id85">Bug Fixes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id86">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id83">Quality of Life Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id84">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id85">Documentation</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2025-8-0-2025-08-14">v2025.8.0 (2025-08-14)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id87">New Data</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id88">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id89">EIA-860M</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id90">EIA-923</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id91">EIA-930</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id92">EIA Bulk Electricity API</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id93">EPA CEMS</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id94">FERC Form 1</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id95">FERC Forms 2, 6 and 60</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id86">New Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id87">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id88">EIA-860M</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id89">EIA-923</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id90">EIA-930</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id91">EIA Bulk Electricity API</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id92">EPA CEMS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id93">FERC Form 1</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id94">FERC Forms 2, 6 and 60</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-form-714">FERC Form 714</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#phmsa-gas-data">PHMSA Gas Data</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id96">Quality of Life Improvements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id97">Bug Fixes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id98">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id95">Quality of Life Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id96">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id97">Documentation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-tests-and-data-validations">New Tests and Data Validations</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-930-and-ferc-714-hourly-imputed-demand">EIA-930 and FERC-714 Hourly Imputed Demand</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#check-for-entirely-null-column-years">Check for entirely null column-years</a></li>
@@ -4673,143 +4698,143 @@ there are users relying on this setup who need access to a well defined release.
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2025-7-0-2025-07-03">v2025.7.0 (2025-07-03)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id99">New Data</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id100">EIA AEO</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id98">New Data</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id99">EIA AEO</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id101">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id102">EIA-860</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id103">EIA-860M</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id104">EIA-923</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id100">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id101">EIA-860</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id102">EIA-860M</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id103">EIA-923</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id105">Bug Fixes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id104">Bug Fixes</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#vce-rare">VCE RARE</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id106">Deprecations</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id107">Quality of Life Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id105">Deprecations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id106">Quality of Life Improvements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-tests">New Tests</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2025-5-0-2025-05-20">v2025.5.0 (2025-05-20)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#upcoming-deprecations">Upcoming Deprecations</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id108">New Data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id107">New Data</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-714">FERC 714</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id109">EIA-930</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id108">EIA-930</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sec-10-k">SEC 10-K</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id110">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id111">FERC Form 1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id109">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id110">FERC Form 1</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-forms-2-6-60">FERC Forms 2, 6, &amp; 60</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-bulk-electricity">EIA Bulk Electricity</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id112">EPA CEMS</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id113">EIA-930</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id114">EIA-860M</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id115">EIA-923</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id116">VCE RARE</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id111">EPA CEMS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id112">EIA-930</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id113">EIA-860M</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id114">EIA-923</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id115">VCE RARE</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id117">Bug Fixes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id118">Quality of Life Improvements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id119">New Tests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id116">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id117">Quality of Life Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id118">New Tests</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2025-2-0-2025-02-13">v2025.2.0 (2025-02-13)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id120">New Data</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id121">EIA-176</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id122">EIA-860</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id123">FERC 1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id119">New Data</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id120">EIA-176</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id121">EIA-860</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id122">FERC 1</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sec-form-10-k-parent-subsidiary-ownership">SEC Form 10-K Parent-Subsidiary Ownership</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id124">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id125">EPA CEMS</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id126">EPA CAMD EIA Crosswalk</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id127">EIA-860M</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id128">EIA-923</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id123">Expanded Data Coverage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id124">EPA CEMS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id125">EPA CAMD EIA Crosswalk</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id126">EIA-860M</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id127">EIA-923</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-bulk-electricity-data">EIA Bulk Electricity Data</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id129">EIA-930</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id128">EIA-930</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id130">Bug Fixes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id131">Quality of Life Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id129">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id130">Quality of Life Improvements</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2024-11-0-2024-11-14">v2024.11.0 (2024-11-14)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-data-coverage">New Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id132">EIA-930</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id133">EIA-923</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id134">EIA-860M</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id135">EIA-861</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id136">EIA Bulk Electricity Data</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id137">EPA CEMS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id131">EIA-930</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id132">EIA-923</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id133">EIA-860M</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id134">EIA-861</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id135">EIA Bulk Electricity Data</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id136">EPA CEMS</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#record-linkage">Record Linkage</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2024-10-0-2024-10-20">v2024.10.0 (2024-10-20)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id138">New Data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id137">New Data</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#vibrant-clean-energy-resource-adequacy-renewable-energy-rare-power-dataset">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id139">New Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id140">EIA-860</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id141">EIA-861</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id142">EIA-923</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id143">FERC Form 714</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id138">New Data Coverage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id139">EIA-860</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id140">EIA-861</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id141">EIA-923</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id142">FERC Form 714</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#schema-changes">Schema Changes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id144">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id143">Bug Fixes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#major-dependency-updates">Major Dependency Updates</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id145">Quality of Life Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id144">Quality of Life Improvements</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2024-8-0-2024-08-19">v2024.8.0 (2024-08-19)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id146">New Data Coverage</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id147">FERC Form 1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id145">New Data Coverage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id146">FERC Form 1</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc-forms-2-6-60-714">FERC Forms 2, 6, 60, &amp; 714</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id148">EIA AEO</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id149">EIA-860</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id150">EIA-923</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id151">EIA-930</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id152">EPA CEMS</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id153">EIA Bulk Electricity Data</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id154">FERC 714</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id147">EIA AEO</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id148">EIA-860</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id149">EIA-923</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id150">EIA-930</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id151">EPA CEMS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id152">EIA Bulk Electricity Data</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id153">FERC 714</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#nrel-atb">NREL ATB</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-cleaning">Data Cleaning</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id155">Bug Fixes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id156">Quality of Life Improvements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id154">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id155">Quality of Life Improvements</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2024-5-0-2024-05-24">v2024.5.0 (2024-05-24)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id157">New Data Coverage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id156">New Data Coverage</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-860-eia-923">EIA-860 &amp; EIA-923</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#gridpath-ra-toolkit">GridPath RA Toolkit</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id158">EIA AEO</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id159">NREL ATB</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id160">EIA-930</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id161">EPA CEMS</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id162">EIA Bulk Electricity Data</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id163">FERC Form 1</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id157">EIA AEO</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id158">NREL ATB</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id159">EIA-930</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id160">EPA CEMS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id161">EIA Bulk Electricity Data</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id162">FERC Form 1</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id164">Data Cleaning</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id163">Data Cleaning</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-ferc1-record-linkage-model-update">EIA - FERC1 Record Linkage Model Update</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id165">Schema Changes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id166">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id164">Schema Changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id165">Bug Fixes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-changes">CLI Changes</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2024-2-6-2024-02-25">v2024.2.6 (2024-02-25)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id167">New Data Coverage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id166">New Data Coverage</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#release-infrastructure">Release Infrastructure</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id168">Schema Changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id167">Schema Changes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-validation-with-pandera">Data Validation with Pandera</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pandas-2-2">Pandas 2.2</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parquet-outputs">Parquet Outputs</a></li>
@@ -4821,8 +4846,8 @@ there are users relying on this setup who need access to a well defined release.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changes-to-cli-tools">Changes to CLI Tools</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#development-infrastructure">Development Infrastructure</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#record-linkage-improvements">Record Linkage Improvements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id169">New Data Coverage</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id170">Data Cleaning</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id168">New Data Coverage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id169">Data Cleaning</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#metadata-cleaning">Metadata Cleaning</a></li>
 </ul>
 </li>
@@ -4830,14 +4855,14 @@ there are users relying on this setup who need access to a well defined release.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dagster-adoption">Dagster Adoption</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-asset-naming-convention">New Asset Naming Convention</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-coverage">Data Coverage</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id171">Data Cleaning</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id170">Data Cleaning</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis">Analysis</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id172">Deprecations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id171">Deprecations</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#miscellaneous">Miscellaneous</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2022-11-30">v2022.11.30</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id173">Data Coverage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id172">Data Coverage</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-analysis">Data Analysis</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nightly-data-builds">Nightly Data Builds</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#database-schema-changes">Database Schema Changes</a></li>
@@ -4845,18 +4870,18 @@ there are users relying on this setup who need access to a well defined release.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#helper-function-updates">Helper Function Updates</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plant-parts-list-module-changes">Plant Parts List Module Changes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#metadata">Metadata</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id174">Documentation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id175">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id173">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id174">Bug Fixes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies-environment">Dependencies / Environment</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#release-v0-6-0">0.6.0 (2022-03-11)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id177">Data Coverage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id176">Data Coverage</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-analyses">New Analyses</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id178">Metadata</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id179">Data Cleaning</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id180">Miscellaneous</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id181">Bug Fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id177">Metadata</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id178">Data Cleaning</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id179">Miscellaneous</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id180">Bug Fixes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#known-issues">Known Issues</a></li>
 </ul>
 </li>
@@ -4865,20 +4890,20 @@ there are users relying on this setup who need access to a well defined release.
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sqlite-and-parquet-outputs">SQLite and Parquet Outputs</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-metadata-system">New Metadata System</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#etl-settings-file-format-changed">ETL Settings File Format Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id183">Database Schema Changes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id184">New Analyses</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id185">Known Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id182">Database Schema Changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id183">New Analyses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id184">Known Issues</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updated-dependencies">Updated Dependencies</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#release-v0-4-0">0.4.0 (2021-08-16)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id187">New Data Coverage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id186">New Data Coverage</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-data-accessibility">Documentation &amp; Data Accessibility</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-cleaning-integration">Data Cleaning &amp; Integration</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hourly-electricity-demand-and-historical-utility-territories">Hourly Electricity Demand and Historical Utility Territories</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#net-generation-and-fuel-consumption-for-all-generators">Net Generation and Fuel Consumption for All Generators</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-management-and-archiving">Data Management and Archiving</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id188">Known Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id187">Known Issues</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#release-v0-3-2">0.3.2 (2020-02-17)</a></li>

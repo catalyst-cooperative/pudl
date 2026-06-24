@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.dbf &#8212; PUDL 2026.6.2.dev7 documentation</title>
+    <title>pudl.extract.dbf &#8212; PUDL 2026.6.2.dev11 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../_static/documentation_options.js?v=68c463c1"></script>
+    <script src="../../../../_static/documentation_options.js?v=ea49e440"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev7 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev7 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
   
   
 </a></div>
@@ -809,7 +809,7 @@
 <td><p>Wrapper to provide standardized access to FERC DBF databases.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor" title="pudl.extract.dbf.FercDbfExtractor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercDbfExtractor</span></code></a></p></td>
-<td><p>Generalized class for loading data from foxpro databases into SQLAlchemy.</p></td>
+<td><p>Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.</p></td>
 </tr>
 </tbody>
 </table>
@@ -819,10 +819,19 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.add_key_constraints" title="pudl.extract.dbf.add_key_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_key_constraints</span></code></a>(→ sqlalchemy.MetaData)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.convert_db_into_parquet" title="pudl.extract.dbf.convert_db_into_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_db_into_parquet</span></code></a>(db_path, parquet_dir)</p></td>
+<td><p>Convert the database into a directory of parquet files using duckdb.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet" title="pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_and_validate_datapackage_sqlite_to_parquet</span></code></a>(→ dict)</p></td>
+<td><p>Convert the SQLite datapackage into one that points at Parquet files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.write_datapackage" title="pudl.extract.dbf.write_datapackage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_datapackage</span></code></a>(datapackage, output_dir)</p></td>
+<td><p>Write a datapackage to &lt;output_dir&gt;/datapackage.json.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.add_key_constraints" title="pudl.extract.dbf.add_key_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_key_constraints</span></code></a>(→ sqlalchemy.MetaData)</p></td>
 <td><p>Adds primary and foreign key to tables present in meta.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.deduplicate_by_year" title="pudl.extract.dbf.deduplicate_by_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deduplicate_by_year</span></code></a>(→ pandas.DataFrame | None)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.deduplicate_by_year" title="pudl.extract.dbf.deduplicate_by_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deduplicate_by_year</span></code></a>(→ pandas.DataFrame | None)</p></td>
 <td><p>Deduplicate records by year, keeping the most recent version of each record.</p></td>
 </tr>
 </tbody>
@@ -1173,7 +1182,7 @@ not suitable.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">FercDbfExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">pudl.workspace.datastore.Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.FercDbfToSqliteDataConfig" title="pudl.settings.FercDbfToSqliteDataConfig"><span class="pre">pudl.settings.FercDbfToSqliteDataConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor" title="Link to this definition">#</a></dt>
-<dd><p>Generalized class for loading data from foxpro databases into SQLAlchemy.</p>
+<dd><p>Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.</p>
 <p>When subclassing from this generic extractor, one should implement dataset specific
 logic in the following manner:</p>
 <p>1. set DATABASE_NAME class attribute. This controls what filename is used for the output
@@ -1248,6 +1257,12 @@ respondent_ids).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.get_db_path">
 <span class="sig-name descname"><span class="pre">get_db_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.get_db_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.get_db_path" title="Link to this definition">#</a></dt>
+<dd><p>Returns the path to the sqlite database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.get_db_uri">
+<span class="sig-name descname"><span class="pre">get_db_uri</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.get_db_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.get_db_uri" title="Link to this definition">#</a></dt>
 <dd><p>Returns the connection string for the sqlite database.</p>
 </dd></dl>
 
@@ -1270,6 +1285,12 @@ respondent_ids).</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.to_parquet">
+<span class="sig-name descname"><span class="pre">to_parquet</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.to_parquet" title="Link to this definition">#</a></dt>
+<dd><p>Write parquet files for this resource.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.get_dagster_op">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_dagster_op</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">collections.abc.Callable</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.get_dagster_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.get_dagster_op" title="Link to this definition">#</a></dt>
 <dd><p>Returns dagstger op that runs this extractor.</p>
@@ -1278,7 +1299,7 @@ respondent_ids).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.execute" title="Link to this definition">#</a></dt>
-<dd><p>Runs the extraction of the data from dbf to sqlite.</p>
+<dd><p>Runs the extraction of the data from dbf to sqlite and parquet.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1343,6 +1364,38 @@ such as adding primary and foreign key constraints.</p>
 <dd><p>This method is called after all the data is loaded into sqlite.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.extract.dbf.convert_db_into_parquet">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">convert_db_into_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parquet_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#convert_db_into_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.convert_db_into_parquet" title="Link to this definition">#</a></dt>
+<dd><p>Convert the database into a directory of parquet files using duckdb.</p>
+<p>We do this using COPY. We tried using EXPORT DATABASE, but it unfortunately
+sanitizes the table names, which removes the schedule numbers in the table
+names so we can’t use it.</p>
+<p>Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
+here should be considered for sync there and vice-versa.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">convert_and_validate_datapackage_sqlite_to_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapackage_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#convert_and_validate_datapackage_sqlite_to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet" title="Link to this definition">#</a></dt>
+<dd><p>Convert the SQLite datapackage into one that points at Parquet files.</p>
+<ul class="simple">
+<li><p>instead of <code class="docutils literal notranslate"><span class="pre">path</span></code> pointing at monolithic SQLite db, point at individual Parquet files instead</p></li>
+<li><p>update format/metadata fields</p></li>
+</ul>
+<p>Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
+here should be considered for sync there and vice-versa.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.extract.dbf.write_datapackage">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">write_datapackage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapackage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#write_datapackage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.write_datapackage" title="Link to this definition">#</a></dt>
+<dd><p>Write a datapackage to &lt;output_dir&gt;/datapackage.json.</p>
+<p>output_dir must exist.</p>
+<p>Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
+here should be considered for sync there and vice-versa.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1501,9 +1554,11 @@ either be present, or it will be derived from partition[“year”].</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.get_data_config"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.get_data_config()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.get_dbf_reader"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.get_dbf_reader()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.get_db_path"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.get_db_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.get_db_uri"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.get_db_uri()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor._clean_frictionless_types"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor._clean_frictionless_types()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.datapackage_path"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.datapackage_path</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.to_frictionless"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.to_frictionless()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.to_parquet"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.to_parquet()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.get_dagster_op"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.get_dagster_op()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.execute"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.execute()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.initialize_database"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.initialize_database()</span></code></a></li>
@@ -1516,6 +1571,9 @@ either be present, or it will be derived from partition[“year”].</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.FercDbfExtractor.postprocess"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.postprocess()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.convert_db_into_parquet"><code class="docutils literal notranslate"><span class="pre">convert_db_into_parquet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet"><code class="docutils literal notranslate"><span class="pre">convert_and_validate_datapackage_sqlite_to_parquet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.write_datapackage"><code class="docutils literal notranslate"><span class="pre">write_datapackage()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.add_key_constraints"><code class="docutils literal notranslate"><span class="pre">add_key_constraints()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.extract.dbf.deduplicate_by_year"><code class="docutils literal notranslate"><span class="pre">deduplicate_by_year()</span></code></a></li>
 </ul>

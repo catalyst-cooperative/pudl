@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.dbf &#8212; PUDL 2026.6.2.dev7 documentation</title>
+    <title>pudl.extract.dbf &#8212; PUDL 2026.6.2.dev11 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=68c463c1"></script>
+    <script src="../../../_static/documentation_options.js?v=ea49e440"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev7 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev7 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev11 documentation - Home"/>
   
   
 </a></div>
@@ -864,14 +864,17 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Self</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">frictionless</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
@@ -1415,7 +1418,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercDbfExtractor</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generalized class for loading data from foxpro databases into SQLAlchemy.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.</span>
 
 <span class="sd">    When subclassing from this generic extractor, one should implement dataset specific</span>
 <span class="sd">    logic in the following manner:</span>
@@ -1482,7 +1485,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="FercDbfExtractor.sqlite_engine">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.sqlite_engine">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span><span class="p">:</span> <span class="n">Engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span><span class="p">:</span> <span class="n">Engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_uri</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="FercDbfExtractor.sqlite_meta">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.sqlite_meta">[docs]</a>
@@ -1511,9 +1514,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.get_db_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.get_db_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_db_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the path to the sqlite database.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">DATABASE_NAME</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FercDbfExtractor.get_db_uri">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.get_db_uri">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_db_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the connection string for the sqlite database.&quot;&quot;&quot;</span>
-        <span class="n">db_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">DATABASE_NAME</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s2">&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
 <div class="viewcode-block" id="FercDbfExtractor._clean_frictionless_types">
@@ -1539,18 +1548,17 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_frictionless</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a frictionless DataPackage describing the DBF DB and write to a JSON file.&quot;&quot;&quot;</span>
         <span class="n">resources</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">types</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span><span class="o">.</span><span class="n">sorted_tables</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span><span class="o">.</span><span class="n">sorted_tables</span><span class="p">:</span>
             <span class="n">resources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">frictionless</span><span class="o">.</span><span class="n">Resource</span><span class="p">(</span>
-                    <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">(),</span>
+                    <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DATABASE_NAME</span><span class="p">,</span>
                     <span class="n">name</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="n">title</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="n">description</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                    <span class="n">profile</span><span class="o">=</span><span class="s2">&quot;tabular-data-resource&quot;</span><span class="p">,</span>
+                    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;sqlite&quot;</span><span class="p">,</span>
+                    <span class="n">mediatype</span><span class="o">=</span><span class="s2">&quot;application/vnd.sqlite3&quot;</span><span class="p">,</span>
                     <span class="n">schema</span><span class="o">=</span><span class="n">frictionless</span><span class="o">.</span><span class="n">Schema</span><span class="p">(</span>
                         <span class="n">fields</span><span class="o">=</span><span class="p">[</span>
                             <span class="n">frictionless</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">from_descriptor</span><span class="p">(</span>
@@ -1571,6 +1579,18 @@ window.runMermaid = runMermaid;</script>
             <span class="n">resources</span><span class="o">=</span><span class="n">resources</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">package</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datapackage_path</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="FercDbfExtractor.to_parquet">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.to_parquet">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write parquet files for this resource.&quot;&quot;&quot;</span>
+        <span class="n">parquet_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2">_dbf&quot;</span>
+        <span class="n">convert_db_into_parquet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">(),</span> <span class="n">parquet_path</span><span class="p">)</span>
+        <span class="n">write_datapackage</span><span class="p">(</span>
+            <span class="n">convert_and_validate_datapackage_sqlite_to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datapackage_path</span><span class="p">),</span>
+            <span class="n">parquet_path</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
     <span class="nd">@classmethod</span>
@@ -1604,7 +1624,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.execute">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.execute">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the extraction of the data from dbf to sqlite.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the extraction of the data from dbf to sqlite and parquet.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Running dbf extraction for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> with data_config: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
@@ -1616,14 +1636,15 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_sqlite_tables</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_table_data</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_frictionless</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="FercDbfExtractor.initialize_database">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.initialize_database">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create sqlalchemy engine and metadata.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_uri</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span><span class="p">)</span></div>
 
@@ -1747,6 +1768,73 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This method is called after all the data is loaded into sqlite.&quot;&quot;&quot;</span></div>
 </div>
+
+
+
+<div class="viewcode-block" id="convert_db_into_parquet">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.convert_db_into_parquet">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_db_into_parquet</span><span class="p">(</span><span class="n">db_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">parquet_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the database into a directory of parquet files using duckdb.</span>
+
+<span class="sd">    We do this using COPY. We tried using EXPORT DATABASE, but it unfortunately</span>
+<span class="sd">    sanitizes the table names, which removes the schedule numbers in the table</span>
+<span class="sd">    names so we can&#39;t use it.</span>
+
+<span class="sd">    Maintainer note: this function was adapted from ferc-xbrl-extractor; changes</span>
+<span class="sd">    here should be considered for sync there and vice-versa.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">con</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;SHOW TABLES&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+    <span class="c1"># tables is a list of tuples, so condense the list</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">tables</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parquet_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">parquet_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+        <span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;COPY </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> TO &#39;</span><span class="si">{</span><span class="n">parquet_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">.parquet&#39; (FORMAT parquet);&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="convert_and_validate_datapackage_sqlite_to_parquet">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_and_validate_datapackage_sqlite_to_parquet</span><span class="p">(</span><span class="n">datapackage_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the SQLite datapackage into one that points at Parquet files.</span>
+
+<span class="sd">    * instead of ``path`` pointing at monolithic SQLite db, point at individual Parquet files instead</span>
+<span class="sd">    * update format/metadata fields</span>
+
+<span class="sd">    Maintainer note: this function was adapted from ferc-xbrl-extractor; changes</span>
+<span class="sd">    here should be considered for sync there and vice-versa.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># read existing datapackage</span>
+    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">datapackage_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">datapackage</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">datapackage</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">]:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">resource</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">resource</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+        <span class="n">resource</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;parquet&quot;</span>
+        <span class="n">resource</span><span class="p">[</span><span class="s2">&quot;mediatype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;application/vnd.apache.parquet&quot;</span>
+    <span class="c1"># Verify that datapackage descriptor is valid before outputting</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">frictionless</span><span class="o">.</span><span class="n">Package</span><span class="o">.</span><span class="n">validate_descriptor</span><span class="p">(</span><span class="n">datapackage</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">report</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated datapackage is invalid - </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">datapackage</span></div>
+
+
+
+<div class="viewcode-block" id="write_datapackage">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.write_datapackage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_datapackage</span><span class="p">(</span><span class="n">datapackage</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a datapackage to &lt;output_dir&gt;/datapackage.json.</span>
+
+<span class="sd">    output_dir must exist.</span>
+
+<span class="sd">    Maintainer note: this function was adapted from ferc-xbrl-extractor; changes</span>
+<span class="sd">    here should be considered for sync there and vice-versa.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;datapackage.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">datapackage</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span></div>
 
 
 
