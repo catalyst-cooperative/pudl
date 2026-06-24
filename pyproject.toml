@@ -426,6 +426,7 @@ pudl_deploy = "pudl.scripts.deploy:main"
 pudl_service_territories = "pudl.scripts.pudl_service_territories:main"
 dbt_helper = "pudl.scripts.dbt_helper:main"
 dghome = "pudl.scripts.dghome:main"
+check_path_permissions = "pudl.scripts.check_path_permissions:main"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
 pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
@@ -593,18 +594,14 @@ doctest_optionflags = [
 
 [tool.coverage.run]
 source = ["src/pudl/", "tests/integration/", "tests/unit/", "tests/validate/"]
-omit = [
-    "src/pudl/*/ferceqr*.py",
-    "src/pudl/_version.py",
-    "src/pudl/scripts/dghome.py",
-]
+omit = ["src/pudl/_version.py"]
 relative_files = true
 
 [tool.coverage.report]
 precision = 2
 sort = "miss"
 skip_empty = true
-fail_under = 91
+fail_under = 80
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",

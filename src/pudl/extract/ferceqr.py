@@ -12,11 +12,11 @@ from duckdb import DuckDBPyConnection
 from upath import UPath
 
 from pudl.dagster.partitions import ferceqr_year_quarters
-from pudl.dagster.resources import FercEqrDataConfig
+from pudl.dagster.resources import FercEqrArchiveResource
 from pudl.helpers import ParquetData, persist_table_as_parquet
 from pudl.logging_helpers import get_logger
 
-logger = get_logger(f"catalystcoop.{__name__}")
+logger = get_logger(__name__)
 
 
 @contextmanager
@@ -177,7 +177,7 @@ def _save_extract_errors(year_quarter: str, duckdb_connection: DuckDBPyConnectio
 )
 def extract_ferceqr(
     context: dg.AssetExecutionContext,
-    ferceqr_data_config: FercEqrDataConfig = FercEqrDataConfig(),
+    ferceqr_archive: FercEqrArchiveResource = FercEqrArchiveResource(),
 ) -> tuple[ParquetData, ParquetData, ParquetData, ParquetData, ParquetData]:
     """Extract year quarter from CSVs and load to parquet files.
 
@@ -191,13 +191,15 @@ def extract_ferceqr(
 
     # Open top level zipfile
     with (
-        _get_csv(
-            ferceqr_data_config.ferceqr_archive_path, year_quarter
-        ) as quarter_archive,
+        _get_csv(ferceqr_archive.upath, year_quarter) as quarter_archive,
         duckdb.connect() as conn,
     ):
+        # Disable DuckDB progress bar, as it is quite noisy in the logs.
+        conn.execute("PRAGMA disable_progress_bar")
         # Loop through all nested zipfiles (one for each filing in the quarter)
-        for filing in quarter_archive.namelist():
+        filing_names = quarter_archive.namelist()
+        logger.info(f"Extracting {len(filing_names)} filings for {year_quarter}.")
+        for filing in filing_names:
             # Extract CSVs from filing to a temporary directory so duckdb can be used
             # to parse CSVs and mirror to parquet
             try:
@@ -207,7 +209,6 @@ def extract_ferceqr(
                     ) as filing_archive,
                     tempfile.TemporaryDirectory() as tmp_dir,
                 ):
-                    logger.info(f"Extracting CSVs from {filing}.")
                     filing_archive.extractall(path=tmp_dir)
                     _csvs_to_parquet(
                         csv_path=Path(tmp_dir),
@@ -217,6 +218,9 @@ def extract_ferceqr(
                     )
             except zipfile.BadZipfile:
                 logger.warning(f"Could not open filing: {filing}.")
+        logger.info(
+            f"Finished extracting {len(filing_names)} filings for {year_quarter}."
+        )
         metadata = _save_extract_errors(year_quarter, conn)
     return (
         ParquetData(table_name=_get_table_name("ident", year_quarter)),
