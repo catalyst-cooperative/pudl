@@ -54,6 +54,8 @@ class Extractor(excel.ExcelExtractor):
         # Eventually we should probably make this a transform
         for col in ["generator_id", "boiler_id"]:
             if col in df.columns:
+                # Ensure column is string type for remove_leading_zeros_from_numeric_strings
+                df[col] = df[col].astype(str)
                 df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
         return df
 
@@ -113,6 +115,9 @@ def raw_eia860m__all_dfs(context):
                 "raw_eia860m__generator_existing",
                 "raw_eia860m__generator_proposed",
                 "raw_eia860m__generator_retired",
+                "raw_eia860m__puerto_rico_generator_existing",
+                "raw_eia860m__puerto_rico_generator_proposed",
+                "raw_eia860m__puerto_rico_generator_retired",
             )
         )
     },
