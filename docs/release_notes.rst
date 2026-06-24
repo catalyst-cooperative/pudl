@@ -11,6 +11,10 @@ v2026.7.0 (2026-07-XX)
 Enhancements
 ^^^^^^^^^^^^
 
+* Added experimental Parquet outputs derived from the FERC DBF databases, and basic
+  ``datpackage.json`` metadata describing their schemas to support querying and preview
+  through the `PUDL Data Viewer <https://data.catalyst.coop>`__. See PR :pr:`5339`.
+
 New Data
 ^^^^^^^^
 

@@ -10,8 +10,8 @@ sources:
               config:
                 enabled: "{{ target.name == 'etl-full'}}"
               arguments:
-                min_value: 5691
-                max_value: 5701
+                min_value: 5708
+                max_value: 5709
         columns:
           - name: subsidiary_company_id_sec10k
             data_tests:
