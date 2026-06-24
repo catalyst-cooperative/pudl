@@ -135,7 +135,7 @@ _base_assets = list(
 # IO manager keys that write canonical parquet outputs.  Assets using any of
 # these are included as upstream dependencies of the datapackage asset.
 _PARQUET_IO_MANAGER_KEYS: frozenset[str] = frozenset(
-    {"parquet_io_manager", "geoparquet_io_manager", "pudl_io_manager"}
+    {"parquet_io_manager", "pudl_io_manager"}
 )
 
 

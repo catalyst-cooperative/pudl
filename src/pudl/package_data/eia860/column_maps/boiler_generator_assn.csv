@@ -15,3 +15,4 @@ year_index,utility_id_eia,plant_id_eia,boiler_id,generator_id,boiler_generator_a
 2022,utility_id,plant_code,boiler_id,generator_id,,steam_plant_type,plant_name,utility_name
 2023,utility_id,plant_code,boiler_id,generator_id,,steam_plant_type,plant_name,utility_name
 2024,utility_id,plant_code,boiler_id,generator_id,,steam_plant_type,plant_name,utility_name
+2025,utility_id,plant_code,boiler_id,generator_id,,steam_plant_type,plant_name,utility_name

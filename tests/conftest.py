@@ -53,15 +53,16 @@ DG_PYTEST_CONFIG_PATH = PUDL_SETTINGS_PATH / "dg_pytest.yml"
 # inspect the requested test targets and reject incompatible combinations up front,
 # before xdist workers start or fixture setup can poison shared environment variables.
 
-# In general we run tests and subprocesses with multiple workers, and some tests touch
-# remote HTTPS / S3 resources. We try to LOAD first so collection works in
-# network-restricted environments (for example, sandboxed CI/test runners). If the
-# extension is missing, we install it once and then load it.
-try:
-    duckdb.execute("LOAD httpfs")
-except duckdb.Error:
-    duckdb.execute("INSTALL httpfs")
-    duckdb.execute("LOAD httpfs")
+# We try to LOAD first so collection works in network-restricted environments (for
+# example, sandboxed CI/test runners). If the extension is missing, we install it once
+# and then load it. Installing here ensures both unit and integration tests can load the
+# extension in a new duckdb.connect() without repeating the install step.
+for _ext in ("httpfs", "spatial"):
+    try:
+        duckdb.execute(f"LOAD {_ext}")
+    except duckdb.Error:
+        duckdb.execute(f"INSTALL {_ext}")
+        duckdb.execute(f"LOAD {_ext}")
 
 
 def _requested_test_targets(config: pytest.Config) -> list[Path]:

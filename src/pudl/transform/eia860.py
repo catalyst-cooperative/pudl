@@ -434,13 +434,21 @@ def _core_eia860__generators_energy_storage(
     raw_eia860__generator_energy_storage_retired: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the energy storage specific generators table."""
-    storage_ex = raw_eia860__generator_energy_storage_existing
+    storage_ex = raw_eia860__generator_energy_storage_existing.pipe(
+        drop_records_with_null_in_column,
+        column="generator_id",
+        num_of_expected_nulls=2,  # Plant ID 62844 in 2025 and one notes columns in 2025
+    )
     storage_pr = raw_eia860__generator_energy_storage_proposed.pipe(
         drop_records_with_null_in_column,
         column="generator_id",
-        num_of_expected_nulls=2,  # Plant ID 62844 in 2023-4
+        num_of_expected_nulls=3,  # Plant ID 62844 in 2023-4 and one notes column from 2025
     )
-    storage_re = raw_eia860__generator_energy_storage_retired
+    storage_re = raw_eia860__generator_energy_storage_retired.pipe(
+        drop_records_with_null_in_column,
+        column="generator_id",
+        num_of_expected_nulls=1,  # One notes columns in 2025
+    )
 
     # every boolean column in the raw storage tables has a served_ or stored_ prefix
     boolean_columns_to_fix = list(storage_ex.filter(regex=r"^served_|^stored_|^is_"))
