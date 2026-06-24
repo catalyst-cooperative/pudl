@@ -135,24 +135,33 @@ def test_sensor_skips_while_backfill_running(
 
 
 @pytest.mark.parametrize(
-    "sensor_fn, backfill_statuses, skip_text",
+    "sensor_fn, backfill_statuses, expected_run_key_prefix, expected_asset",
     [
         (
             sensors.ferceqr_success_sensor,
             [dg.DagsterRunStatus.SUCCESS, dg.DagsterRunStatus.FAILURE],
-            "failed or canceled",
+            "ferceqr_deployment_failure_backfill",
+            "handle_ferceqr_failure",
         ),
         (
             sensors.ferceqr_failure_sensor,
             [dg.DagsterRunStatus.SUCCESS, dg.DagsterRunStatus.SUCCESS],
-            "no failed runs",
+            "ferceqr_deployment_success_backfill",
+            "deploy_ferceqr",
         ),
     ],
 )
-def test_sensor_skips_when_outcome_handled_by_other_sensor(
-    mocker, sensor_fn, backfill_statuses, skip_text
+def test_sensors_converge_to_same_run_key_in_race_condition(
+    mocker, sensor_fn, backfill_statuses, expected_run_key_prefix, expected_asset
 ):
-    """Sensors should defer to each other: success skips on failures, failure skips on successes."""
+    """Both sensors produce the same run_key when they race on the same completed backfill.
+
+    Because both sensors share a single underlying function, if both happen to fire
+    simultaneously (e.g. the last success and last failure land at the same time), each
+    independently determines the correct outcome from the terminal run statuses and
+    produces a RunRequest with the same run_key prefix. Dagster deduplicates by run_key,
+    so exactly one downstream run is launched regardless of how many sensors fire.
+    """
     context = mocker.Mock()
     context.dagster_run.run_id = "run-123"
     context.dagster_run.job_name = "ferceqr"
@@ -167,8 +176,9 @@ def test_sensor_skips_when_outcome_handled_by_other_sensor(
 
     result = sensor_fn._run_status_sensor_fn(context)
 
-    assert isinstance(result, dg.SkipReason)
-    assert skip_text in result.skip_message
+    assert isinstance(result, dg.RunRequest)
+    assert result.run_key == f"{expected_run_key_prefix}:bf-123"
+    assert result.asset_selection == [dg.AssetKey(expected_asset)]
 
 
 def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
