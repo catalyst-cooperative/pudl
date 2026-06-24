@@ -97,7 +97,7 @@ function zenodo_data_release() {
     PUBLISH=$4
 
     set +x &&
-        echo "Triggerng the zenodo data release workflow using the GitHub API and curl" &&
+        echo "Triggering the zenodo data release workflow using the GitHub API and curl" &&
         curl --fail-with-body -sS -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
@@ -318,6 +318,10 @@ function prep_outputs_for_distribution() {
         zip -0 "$PUDL_OUTPUT/ferc6_xbrl.zip" ./ferc6_xbrl/*.parquet ./ferc6_xbrl/*.json &&
         zip -0 "$PUDL_OUTPUT/ferc60_xbrl.zip" ./ferc60_xbrl/*.parquet ./ferc60_xbrl/*.json &&
         zip -0 "$PUDL_OUTPUT/ferc714_xbrl.zip" ./ferc714_xbrl/*.parquet ./ferc714_xbrl/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc1_dbf.zip" ./ferc1_dbf/*.parquet ./ferc1_dbf/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc2_dbf.zip" ./ferc2_dbf/*.parquet ./ferc2_dbf/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc6_dbf.zip" ./ferc6_dbf/*.parquet ./ferc6_dbf/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc60_dbf.zip" ./ferc60_dbf/*.parquet ./ferc60_dbf/*.json &&
         popd &&
         # Remove any remaining files and directories we don't want to distribute
         rm -rf "$PUDL_OUTPUT/parquet" &&
