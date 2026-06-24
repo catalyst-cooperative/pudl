@@ -9,7 +9,7 @@ from upath import UPath
 from pudl.logging_helpers import configure_root_logger
 
 warnings.filterwarnings(
-    action="once",
+    action="ignore",
     message=r"Specifying a partitions_def on an AssetCheckSpec is currently in preview.*",
     category=PreviewWarning,
 )

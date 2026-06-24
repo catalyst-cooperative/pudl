@@ -17,43 +17,73 @@ from pudl.dagster.config import (
     default_pudl_job_config,
 )
 
+pudl_job = dg.define_asset_job(
+    name="pudl",
+    description=(
+        "This job executes the main PUDL ETL without refreshing the FERC-to-SQLite "
+        "prerequisites."
+    ),
+    config=default_pudl_job_config,
+    selection=dg.AssetSelection.all()
+    - dg.AssetSelection.groups(
+        "raw_ferc_to_sqlite",
+        "raw_ferceqr",
+        "core_ferceqr",
+        "ferceqr_deployment",
+    ),
+)
+
+ferc_to_sqlite_job = dg.define_asset_job(
+    name="ferc_to_sqlite",
+    description="This job refreshes the FERC-to-SQLite prerequisite assets only.",
+    config=default_execution_config,
+    selection=dg.AssetSelection.groups("raw_ferc_to_sqlite"),
+)
+
+pudl_with_ferc_to_sqlite_job = dg.define_asset_job(
+    name="pudl_with_ferc_to_sqlite",
+    description=(
+        "This job executes the main PUDL ETL including the FERC-to-SQLite "
+        "prerequisites (default: full settings profile)."
+    ),
+    config=default_pudl_job_config,
+    selection=dg.AssetSelection.all()
+    - dg.AssetSelection.groups(
+        "raw_ferceqr",
+        "core_ferceqr",
+        "ferceqr_deployment",
+    ),
+)
+
+ferceqr_job = dg.define_asset_job(
+    name="ferceqr",
+    description="This job processes the FERC EQR data.",
+    selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
+)
+
+ferceqr_deployment_job = dg.define_asset_job(
+    name="ferceqr_deployment",
+    description="This job handles FERC EQR deployment success and failure actions.",
+    config=default_execution_config,
+    selection=dg.AssetSelection.assets(
+        "deploy_ferceqr",
+        "handle_ferceqr_failure",
+    ),
+)
+
 default_jobs = [
-    dg.define_asset_job(
-        name="pudl",
-        description=(
-            "This job executes the main PUDL ETL without refreshing the FERC-to-SQLite "
-            "prerequisites."
-        ),
-        config=default_pudl_job_config,
-        selection=dg.AssetSelection.all()
-        - dg.AssetSelection.groups(
-            "raw_ferc_to_sqlite",
-            "raw_ferceqr",
-            "core_ferceqr",
-        ),
-    ),
-    dg.define_asset_job(
-        name="ferc_to_sqlite",
-        description="This job refreshes the FERC-to-SQLite prerequisite assets only.",
-        config=default_execution_config,
-        selection=dg.AssetSelection.groups("raw_ferc_to_sqlite"),
-    ),
-    dg.define_asset_job(
-        name="pudl_with_ferc_to_sqlite",
-        description=(
-            "This job executes the main PUDL ETL including the FERC-to-SQLite "
-            "prerequisites (default: full settings profile)."
-        ),
-        config=default_pudl_job_config,
-        selection=dg.AssetSelection.all()
-        - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
-    ),
-    dg.define_asset_job(
-        name="ferceqr",
-        description="This job processes the FERC EQR data.",
-        config=default_execution_config,
-        selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
-    ),
+    pudl_job,
+    ferc_to_sqlite_job,
+    pudl_with_ferc_to_sqlite_job,
+    ferceqr_job,
+    ferceqr_deployment_job,
 ]
 
-__all__ = ["default_jobs"]
+__all__ = [
+    "default_jobs",
+    "ferc_to_sqlite_job",
+    "ferceqr_deployment_job",
+    "ferceqr_job",
+    "pudl_job",
+    "pudl_with_ferc_to_sqlite_job",
+]
