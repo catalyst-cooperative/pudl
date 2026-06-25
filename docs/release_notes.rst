@@ -186,6 +186,16 @@ Bug Fixes & Data Cleaning
   top-level directories when deciding what to upload to Zenodo, which caused release
   failures once we started leaving the ``ferc*_xbrl`` directories on the filesystem. See
   PR :pr:`5254`.
+* Dropped the uninformative ``is_total`` column from
+  :ref:`core_rus7__yearly_distribution_services` and
+  :ref:`out_rus7__yearly_distribution_services`, renamed the ``service_status``
+  values to the self-explanatory ``connected_this_year``, ``retired_this_year``,
+  ``idle_services`` and ``total_services``, and documented why RUS Form 7 Part B
+  subcomponents do not sum to the reported total within a year. See issue
+  :issue:`5262` and PR :pr:`5323`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

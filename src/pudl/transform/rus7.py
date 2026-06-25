@@ -11,7 +11,7 @@ from pudl.metadata.enums import (
     LOAN_UNIT_TYPES_RUS7,
     SERVICE_INTERRUPTION_PERIODS_RUS7,
     SERVICE_INTERRUPTION_TYPES_RUS7,
-    SERVICE_STATUS_RUS7,
+    SERVICE_STATUS_RENAME_RUS7,
     TRANSMISSION_DISTRIBUTION_TYPES_RUS7,
     UTILITY_PLANT_GROUP_RUS7,
     UTILITY_PLANT_ITEM_RUS7,
@@ -429,8 +429,10 @@ def _core_rus7__transmission_and_distribution(
     services_df = df[id_cols + [col for col in df.columns if "services" in col]]
     miles_df = df[id_cols + [col for col in df.columns if col not in services_df]]
 
-    # Stack the services table
-    pattern = rf"^(services)_({'|'.join(SERVICE_STATUS_RUS7)})$"
+    # Stack the services table. The regex matches the raw column suffixes
+    # (e.g. services_connected); we then map those to the self-explanatory
+    # service_status values.
+    pattern = rf"^(services)_({'|'.join(SERVICE_STATUS_RENAME_RUS7)})$"
     services_df = multi_index_stack(
         services_df,
         idx_ish=id_cols,
@@ -439,7 +441,9 @@ def _core_rus7__transmission_and_distribution(
         match_names=["data_cols", "service_status"],
         unstack_level=["service_status"],
     )
-    services_df["is_total"] = services_df["service_status"] == "total"
+    services_df["service_status"] = services_df["service_status"].map(
+        SERVICE_STATUS_RENAME_RUS7
+    )
 
     # Stack the mileage dataframe
     pattern = rf"^({'|'.join(TRANSMISSION_DISTRIBUTION_TYPES_RUS7)})_(?:length|energized)_(miles)$"
